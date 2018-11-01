@@ -1,7 +1,7 @@
 #
 #  @file
 #
-#  @brief the template makefile for Linux
+#  @brief the template makefile for Windows
 #
 #  @author Min Zhang
 #
@@ -10,15 +10,20 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = oltemplate
+DLLNAME = oltemplate
+RESOURCE = template
 
 SOURCES = template.c
 
-JIUTAI_SRCS = hexstr.c
+JIUTAI_SRCS = $(JIUTAI_DIR)\hexstr.c
 
-EXTRA_LIBS = 
+EXTRA_DEFS = -DJIUFENG_TEMPLATE_DLL
 
-include $(TOPDIR)/mak/lnxlib.mak
+EXTRA_LIBS =
+
+!include "$(TOPDIR)\mak\winlib.mak"
 
 #-----------------------------------------------------------------------------
+# $Log$
+
 
