@@ -1,16 +1,23 @@
 #
-#  @file
+#  @file linux.mak
 #
-#  @brief The object definition file for Linux system 
+#  @brief The Makefile for Jiufeng
 #
 #  @author Min Zhang
 #
 #  @note
-#
+#  
 
 #-----------------------------------------------------------------------------
 
-OBJECTS = $(addsuffix .o,$(basename ${SOURCES}))
+TOPDIR  := $(shell /bin/pwd)
+
+export TOPDIR
+
+SUBDIRS = jiutai logger
+
+include $(TOPDIR)/mak/lnxsubdirs.mak
 
 #-----------------------------------------------------------------------------
+
 

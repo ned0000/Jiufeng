@@ -1,12 +1,12 @@
-/**
- *  @file
- *
- *  @brief The makefile for sub-directory on Windows platform 
- *
- *  @author Min Zhang
- *
- *  @note
- */
+#
+#  @file
+#
+#  @brief The makefile for sub-directory on Windows platform 
+#
+#  @author Min Zhang
+#
+#  @note
+#
 
 #-----------------------------------------------------------------------------
 

@@ -1,12 +1,12 @@
-/**
- *  @file
- *
- *  @brief The Makefile for building dynamic library on Windows platform
- *
- *  @author Min Zhang
- *
- *  @note
- */
+#
+#  @file
+#
+#  @brief The Makefile for building dynamic library on Windows platform
+#
+#  @author Min Zhang
+#
+#  @note
+#
 
 #-----------------------------------------------------------------------------
 

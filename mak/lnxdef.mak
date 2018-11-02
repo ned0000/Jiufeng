@@ -1,12 +1,12 @@
-/**
- *  @file
- *
- *  @brief The definition file for Linux platform 
- *
- *  @author Min Zhang
- *
- *  @note
- */
+#
+#  @file
+#
+#  @brief The definition file for Linux platform 
+#
+#  @author Min Zhang
+#
+#  @note
+#
 
 #-----------------------------------------------------------------------------
 

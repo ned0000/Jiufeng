@@ -1,16 +1,24 @@
 #
-#  @file
+#  @file linux.mak
 #
-#  @brief The object definition file for Linux system 
+#  @brief the makefile for logger library
 #
 #  @author Min Zhang
 #
 #  @note
-#
+#  
 
 #-----------------------------------------------------------------------------
 
-OBJECTS = $(addsuffix .o,$(basename ${SOURCES}))
+SONAME = ollogger
+
+SOURCES = common.c logger.c errcode.c
+
+JIUTAI_SRCS = hexstr.c
+
+EXTRA_INC_DIR = 
+
+include $(TOPDIR)/mak/lnxlib.mak
 
 #-----------------------------------------------------------------------------
 

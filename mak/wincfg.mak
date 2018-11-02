@@ -1,12 +1,12 @@
-/**
- *  @file
- *
- *  @brief The configuration file for Windows platform 
- *
- *  @author Min Zhang
- *
- *  @note
- */
+#
+#  @file
+#
+#  @brief The configuration file for Windows platform 
+#
+#  @author Min Zhang
+#
+#  @note
+#
 
 #-----------------------------------------------------------------------------
 

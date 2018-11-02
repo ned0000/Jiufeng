@@ -1,12 +1,12 @@
-/**
- *  @file
- *
- *  @brief The Makefile for building executable file on Linux platform
- *
- *  @author Min Zhang
- *
- *  @note
- */
+#
+#  @file
+#
+#  @brief The Makefile for building executable file on Linux platform
+#
+#  @author Min Zhang
+#
+#  @note
+#
 
 #-----------------------------------------------------------------------------
 
