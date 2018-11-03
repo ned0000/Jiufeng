@@ -15,12 +15,14 @@ include $(TOPDIR)/mak/lnxcfg.mak
 PROGRAMS = xmalloc-test bases-test logger-test process-test  \
     hash-test syncmutex-test syncrwlock-test syncsem-test    \
     xtime-test stringparse-test bitarray-test conffile-test  \
-    menu-test crc32c-test
+    menu-test crc32c-test dynlib-test                        \
+    sharedmemory-test-consumer sharedmemory-test-worker
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     hash-test.c syncmutex-test.c syncrwlock-test.c syncsem-test.c    \
     xtime-test.c stringparse-test.c bitarray-test.c conffile-test.c  \
-    menu-test.c crc32c-test.c
+    menu-test.c crc32c-test.c dynlib-test.c                          \
+    sharedmemory-test-consumer.c sharedmemory-test-worker.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -93,6 +95,23 @@ $(BIN_DIR)/crc32c-test: crc32c-test.o $(JIUTAI_DIR)/crc32c.o \
        $(JIUTAI_DIR)/hexstr.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lollogger
+
+$(BIN_DIR)/dynlib-test: dynlib-test.o $(JIUTAI_DIR)/dynlib.o \
+       $(JIUTAI_DIR)/xmalloc.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -ldl -lollogger
+
+$(BIN_DIR)/sharedmemory-test-worker: sharedmemory-test-worker.o \
+       $(JIUTAI_DIR)/sharedmemory.o $(JIUTAI_DIR)/xmalloc.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lollogger
+
+$(BIN_DIR)/sharedmemory-test-consumer: sharedmemory-test-consumer.o \
+       $(JIUTAI_DIR)/sharedmemory.o $(JIUTAI_DIR)/xmalloc.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lollogger
+
+
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 
