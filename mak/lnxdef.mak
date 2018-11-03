@@ -23,7 +23,7 @@ CXXFLAGS = $(CFLAGS)
 LDFLAGS = 
 
 # for 64bit version
-CFLAGS += -DJIUTAI_64BIT
+CFLAGS += -DJIUFENG_64BIT
 
 #-----------------------------------------------------------------------------
 

@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-SOURCES = hexstr.c process.c xtime.c 
+SOURCES = hexstr.c process.c xtime.c bases.c xmalloc.c
 
 EXTRA_CFLAGS = -D_GNU_SOURCE
 
