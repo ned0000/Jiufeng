@@ -14,11 +14,11 @@ include $(TOPDIR)/mak/lnxcfg.mak
 
 PROGRAMS = xmalloc-test bases-test logger-test process-test \
     hash-test syncmutex-test syncrwlock-test syncsem-test \
-    xtime-test stringparse-test
+    xtime-test stringparse-test bitarray-test
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c \
     hash-test.c syncmutex-test.c syncrwlock-test.c syncsem-test.c \
-    xtime-test.c stringparse-test.c
+    xtime-test.c stringparse-test.c bitarray-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -74,6 +74,10 @@ $(BIN_DIR)/hash-test: hash-test.o $(JIUTAI_DIR)/hash.o $(JIUTAI_DIR)/xmalloc.o \
 $(BIN_DIR)/stringparse-test: stringparse-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolstringparse
+
+$(BIN_DIR)/bitarray-test: bitarray-test.o $(JIUTAI_DIR)/xmalloc.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lollogger -lolstringparse
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 
