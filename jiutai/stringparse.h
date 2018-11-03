@@ -2,12 +2,12 @@
  *  @file stringparse.h
  *
  *  @brief string parse header file
- *      provide some functional routine to parse string
+ *     provide some functional routine to parse string
  *
  *  @author Min Zhang
  *
  *  @note
- *
+ *  
  */
 
 #ifndef JIUFENG_STRINGPARSE_H
@@ -70,13 +70,15 @@ typedef struct parse_result
 
 /// Parses a string into a linked list of tokens.
 STRINGPARSEAPI u32 STRINGPARSECALL parseString(
-    parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
-    olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter);
+    parse_result_t ** ppResult,
+    olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf, olchar_t * pstrDelimiter,
+    olsize_t sDelimiter);
 
 /// Parses a string into a linked list of tokens.
 STRINGPARSEAPI u32 STRINGPARSECALL parseStringAdv(
-    parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
-    olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter);
+    parse_result_t ** ppResult,
+    olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf, olchar_t * pstrDelimiter,
+    olsize_t sDelimiter);
 
 /// Frees resources associated with the list of tokens returned 
 /// from ILibParseString and ILibParseStringAdv.

@@ -1,0 +1,6 @@
+#define VER_FILEDESCRIPTION_STR "Jiufeng String Parse DLL"
+#define VER_INTERNALNAME_STR "olstringparse.dll"
+#define VER_ORIGINALFILENAME_STR "olstringparse.dll"
+#define VER_PRODUCTNAME_STR "Jiufeng String Parse Dynamic Linking Library"
+
+#include "jiutai.rc"
