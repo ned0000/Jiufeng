@@ -33,7 +33,7 @@ THREAD_RETURN_VALUE consumer(void * pArg)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strErrMsg[300];
-#if defined(OLYMPUS_64BIT)
+#if defined(JIUFENG_64BIT)
     u32 u32Index = (u32)(u64)pArg;
 #else
     u32 u32Index = (u32)pArg;
@@ -64,7 +64,7 @@ THREAD_RETURN_VALUE producer(void * pArg)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strErrMsg[300];
-#if defined(OLYMPUS_64BIT)
+#if defined(JIUFENG_64BIT)
     u32 u32Index = (u32)(u64)pArg;
 #else
     u32 u32Index = (u32)pArg;
