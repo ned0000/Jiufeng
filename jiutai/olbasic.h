@@ -19,13 +19,14 @@
     #include <Winsock2.h>
     #include <windows.h>
     #if _MSC_VER >= 1500 /*for VS2008*/
-      #include <stdio.h>
-      #include <tchar.h>
+        #include <stdio.h>
+        #include <tchar.h>
     #endif
 #elif defined(LINUX)
     #include <pthread.h>
     #include <unistd.h>
     #include <getopt.h>
+    #include <arpa/inet.h>
 #endif
 
 /* --- internal header files ------------------------------------------------ */
@@ -128,6 +129,8 @@ typedef double       oldouble_t;
     #define ol_strcat                strcat
     #define ol_strlen                strlen
     #define ol_random()              random()
+    #define ol_htonl                 htonl
+    #define ol_ntohl                 ntohl
 #endif
 
 #if defined(WINDOWS)

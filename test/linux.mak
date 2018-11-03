@@ -1,5 +1,5 @@
 #
-#  @file Makefile
+#  @file linux.mak
 #
 #  @brief The Makefile for test
 #
@@ -12,13 +12,15 @@
 
 include $(TOPDIR)/mak/lnxcfg.mak
 
-PROGRAMS = xmalloc-test bases-test logger-test process-test \
-    hash-test syncmutex-test syncrwlock-test syncsem-test \
-    xtime-test stringparse-test bitarray-test
+PROGRAMS = xmalloc-test bases-test logger-test process-test  \
+    hash-test syncmutex-test syncrwlock-test syncsem-test    \
+    xtime-test stringparse-test bitarray-test conffile-test  \
+    menu-test crc32c-test
 
-SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c \
-    hash-test.c syncmutex-test.c syncrwlock-test.c syncsem-test.c \
-    xtime-test.c stringparse-test.c bitarray-test.c
+SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
+    hash-test.c syncmutex-test.c syncrwlock-test.c syncsem-test.c    \
+    xtime-test.c stringparse-test.c bitarray-test.c conffile-test.c  \
+    menu-test.c crc32c-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -78,6 +80,19 @@ $(BIN_DIR)/stringparse-test: stringparse-test.o
 $(BIN_DIR)/bitarray-test: bitarray-test.o $(JIUTAI_DIR)/xmalloc.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lollogger -lolstringparse
+
+$(BIN_DIR)/conffile-test: conffile-test.o $(JIUTAI_DIR)/conffile.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lollogger
+
+$(BIN_DIR)/menu-test: menu-test.o $(JIUTAI_DIR)/xmalloc.o $(JIUTAI_DIR)/menu.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lolstringparse
+
+$(BIN_DIR)/crc32c-test: crc32c-test.o $(JIUTAI_DIR)/crc32c.o \
+       $(JIUTAI_DIR)/hexstr.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lollogger
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 
