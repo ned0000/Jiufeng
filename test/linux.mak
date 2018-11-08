@@ -15,14 +15,16 @@ include $(TOPDIR)/mak/lnxcfg.mak
 PROGRAMS = xmalloc-test bases-test logger-test process-test  \
     hash-test syncmutex-test syncrwlock-test syncsem-test    \
     xtime-test stringparse-test bitarray-test conffile-test  \
-    menu-test crc32c-test dynlib-test                        \
-    sharedmemory-test-consumer sharedmemory-test-worker
+    menu-test crc32c-test dynlib-test ifmgmt-test            \
+    sharedmemory-test-consumer sharedmemory-test-worker      \
+    files-test
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     hash-test.c syncmutex-test.c syncrwlock-test.c syncsem-test.c    \
     xtime-test.c stringparse-test.c bitarray-test.c conffile-test.c  \
-    menu-test.c crc32c-test.c dynlib-test.c                          \
-    sharedmemory-test-consumer.c sharedmemory-test-worker.c
+    menu-test.c crc32c-test.c dynlib-test.c ifmgmt-test.c            \
+    sharedmemory-test-consumer.c sharedmemory-test-worker.c          \
+    files-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -111,7 +113,13 @@ $(BIN_DIR)/sharedmemory-test-consumer: sharedmemory-test-consumer.o \
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lollogger
 
+$(BIN_DIR)/ifmgmt-test: ifmgmt-test.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lolifmgmt -lolstringparse -lollogger
 
+$(BIN_DIR)/files-test: files-test.o $(JIUTAI_DIR)/process.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lollogger -lolfiles -lolstringparse
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 

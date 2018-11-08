@@ -14,7 +14,7 @@ TOPDIR  := $(shell /bin/pwd)
 
 export TOPDIR
 
-SUBDIRS = jiutai logger stringparse test
+SUBDIRS = jiutai logger stringparse files ifmgmt test
 
 include $(TOPDIR)/mak/lnxsubdirs.mak
 

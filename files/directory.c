@@ -1,0 +1,421 @@
+/**
+ *  @file directory.c
+ *
+ *  @brief files implementation files
+ *  provide common routines to manipulate directory
+ *
+ *  @author Min Zhang
+ *  
+ *  @note
+ *
+ */
+
+/* --- standard C lib header files ----------------------------------------- */
+#include <stdio.h>
+#include <string.h>
+#include <fcntl.h>
+#include <errno.h>
+#if defined(WINDOWS)
+
+#elif defined(LINUX)
+    #include <sys/types.h>
+    #include <dirent.h>
+    #include <stdlib.h>
+#endif
+
+/* --- internal header files ----------------------------------------------- */
+#include "olbasic.h"
+#include "ollimit.h"
+#include "files.h"
+#include "errcode.h"
+#include "common.h"
+#include "xmalloc.h"
+
+/* --- private data/data structure section --------------------------------- */
+
+#if defined(LINUX)
+typedef dir_t internal_dir_t;
+#elif defined(WINDOWS)
+typedef struct
+{
+    HANDLE id_hDir;
+    HANDLE id_hFind;
+    olchar_t id_strDirName[MAX_PATH_LEN];
+} internal_dir_t;
+#endif
+
+/* --- private routine section---------------------------------------------- */
+static u32 _getFirstDirEntry(dir_t * pDir, dir_entry_t * pEntry)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+#if defined(LINUX)
+    struct dirent * pdirent;
+
+    pdirent = readdir(pDir);
+    if (pdirent == NULL)
+        u32Ret = OLERR_DIR_ENTRY_NOT_FOUND;
+    else
+    {
+        memset(pEntry, 0, sizeof(dir_entry_t));
+        pEntry->de_sName = (olsize_t)pdirent->d_reclen;
+        ol_strncpy(pEntry->de_strName, pdirent->d_name, MAX_PATH_LEN - 1);
+    }
+#elif defined(WINDOWS)
+    internal_dir_t * pid = (internal_dir_t *)pDir;
+    WIN32_FIND_DATA FindFileData;
+    boolean_t bRet;
+    olchar_t strDirName[MAX_PATH_LEN];
+
+    memset(strDirName, 0, MAX_PATH_LEN);
+    ol_snprintf(strDirName, MAX_PATH_LEN - 1, "%s%c*", pid->id_strDirName,
+        PATH_SEPARATOR);
+    pid->id_hFind = FindFirstFile(strDirName, &FindFileData);
+    if (pid->id_hFind == INVALID_HANDLE_VALUE) 
+        u32Ret = OLERR_DIR_ENTRY_NOT_FOUND;
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        memset(pEntry, 0, sizeof(dir_entry_t));
+        pEntry->de_sName = ol_strlen(FindFileData.cFileName);
+        ol_strncpy(pEntry->de_strName, FindFileData.cFileName, MAX_PATH_LEN - 1);
+    }
+#endif
+
+    return u32Ret;
+}
+
+static u32 _getNextDirEntry(dir_t * pDir, dir_entry_t * pEntry)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+#if defined(LINUX)
+    struct dirent * pdirent;
+
+    pdirent = readdir(pDir);
+    if (pdirent == NULL)
+        u32Ret = OLERR_DIR_ENTRY_NOT_FOUND;
+    else
+    {
+        memset(pEntry, 0, sizeof(dir_entry_t));
+        pEntry->de_sName = (olsize_t)pdirent->d_reclen;
+        ol_strncpy(pEntry->de_strName, pdirent->d_name, MAX_PATH_LEN - 1);
+    }
+#elif defined(WINDOWS)
+    internal_dir_t * pid = (internal_dir_t *)pDir;
+    WIN32_FIND_DATA FindFileData;
+    boolean_t bRet;
+
+    bRet = FindNextFile(pid->id_hFind, &FindFileData);
+    if (bRet)
+    {
+        memset(pEntry, 0, sizeof(dir_entry_t));
+        pEntry->de_sName = ol_strlen(FindFileData.cFileName);
+        ol_strncpy(pEntry->de_strName, FindFileData.cFileName, MAX_PATH_LEN - 1);
+    }
+    else
+    {
+        if (GetLastError() == ERROR_NO_MORE_FILES)
+            u32Ret = OLERR_DIR_ENTRY_NOT_FOUND;
+        else
+            u32Ret = OLERR_FAIL_GET_ENTRY;
+    }
+#endif
+
+    return u32Ret;
+}
+
+static boolean_t _isIgnoreEntry(olchar_t * pstrEntryName)
+{
+    boolean_t bRet = FALSE;
+
+    if ((strcmp(pstrEntryName, ".") == 0) ||
+        (strcmp(pstrEntryName, "..") == 0))
+        bRet = TRUE;
+
+    return bRet;
+}
+
+static u32 _traversalDirectory(
+    olchar_t * pstrDirName, fnHandleFile_t fnHandleFile, void * pArg)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    file_stat_t filestat;
+    dir_t * pDir = NULL;
+    dir_entry_t direntry;
+    olchar_t strFullname[MAX_PATH_LEN * 2];
+
+    u32Ret = openDir(pstrDirName, &pDir);
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        u32Ret = _getFirstDirEntry(pDir, &direntry);
+        while (u32Ret == OLERR_NO_ERROR)
+        {
+            if (! _isIgnoreEntry(direntry.de_strName))
+            {
+                memset(strFullname, 0, sizeof(strFullname));
+                ol_snprintf(strFullname, sizeof(strFullname) - 1, "%s%c%s", pstrDirName,
+                         PATH_SEPARATOR, direntry.de_strName);
+
+                u32Ret = getFileStat(strFullname, &filestat);
+                if (u32Ret == OLERR_NO_ERROR)
+                {
+                    u32Ret = fnHandleFile(strFullname, &filestat, pArg);
+                }
+
+                if (u32Ret == OLERR_NO_ERROR)
+                {
+                    if (isDirFile(filestat.fs_u32Mode))
+                    {
+                        u32Ret = traversalDirectory(strFullname, fnHandleFile, pArg);
+                    }
+                }
+            }
+
+            if (u32Ret == OLERR_NO_ERROR)
+                u32Ret = _getNextDirEntry(pDir, &direntry);
+        }
+
+        if (u32Ret == OLERR_DIR_ENTRY_NOT_FOUND)
+            u32Ret = OLERR_NO_ERROR;
+    }
+
+    if (pDir != NULL)
+        closeDir(&pDir);
+
+    return u32Ret;
+}
+
+/* --- public routine section ---------------------------------------------- */
+
+u32 openDir(const olchar_t * pstrDirName, dir_t ** ppDir)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    internal_dir_t * pDir = NULL;
+
+    assert((pstrDirName != NULL) && (ppDir != NULL));
+
+#if defined(LINUX)
+    pDir = opendir(pstrDirName);
+    if (pDir != NULL)
+        *ppDir = pDir;
+    else
+        u32Ret = OLERR_FAIL_OPEN_DIR;
+#elif defined(WINDOWS)
+    u32Ret = xmalloc(&pDir, sizeof(internal_dir_t));
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        memset(pDir, 0, sizeof(internal_dir_t));
+        pDir->id_hDir = CreateFile(pstrDirName, GENERIC_READ, FILE_SHARE_READ, NULL,
+             OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+        if (pDir->id_hDir == INVALID_HANDLE_VALUE)
+        {
+            u32Ret = OLERR_FAIL_OPEN_DIR;
+            xfree(&pDir);
+        }
+        else
+        {
+            pDir->id_hFind = INVALID_HANDLE_VALUE;
+            ol_strncpy(pDir->id_strDirName, pstrDirName, MAX_PATH_LEN - 1);
+            *ppDir = (dir_t *)pDir;
+        }
+    }
+#endif
+
+    return u32Ret;
+}
+
+u32 closeDir(dir_t ** ppDir)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    internal_dir_t * pDir;
+
+    assert(ppDir != NULL);
+
+#if defined(LINUX)
+    pDir = *ppDir;
+    closedir(pDir);
+    *ppDir = NULL;
+#elif defined(WINDOWS)
+    pDir = (internal_dir_t *)*ppDir;
+    CloseHandle(pDir->id_hDir);
+    if (pDir->id_hFind != INVALID_HANDLE_VALUE)
+        FindClose(pDir->id_hFind);
+    xfree(ppDir);
+    *ppDir = NULL;
+#endif
+
+    return u32Ret;
+}
+
+u32 getFirstDirEntry(dir_t * pDir, dir_entry_t * pEntry)
+{
+    return _getFirstDirEntry(pDir, pEntry);
+}
+
+u32 getNextDirEntry(dir_t * pDir, dir_entry_t * pEntry)
+{
+    return _getNextDirEntry(pDir, pEntry);
+}
+
+u32 createDir(const olchar_t * pstrDirName, mode_t mode)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+#if defined(LINUX)
+    olint_t ret;
+
+    ret = mkdir(pstrDirName, mode);
+    if (ret != 0)
+    {
+        if (errno == EEXIST)
+            u32Ret = OLERR_DIR_ALREADY_EXIST;
+        else
+            u32Ret = OLERR_FAIL_CREATE_DIR;
+    }
+#elif defined(WINDOWS)
+    boolean_t bRet;
+
+    bRet = CreateDirectory(pstrDirName, NULL);
+    if (! bRet)
+        u32Ret = OLERR_FAIL_CREATE_DIR;
+#endif
+
+    return u32Ret;
+}
+
+u32 removeDir(const olchar_t * pstrDirName)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+#if defined(LINUX)
+    olint_t ret;
+
+    ret = rmdir(pstrDirName);
+    if (ret != 0)
+        u32Ret = OLERR_FAIL_REMOVE_DIR;
+#elif defined(WINDOWS)
+    boolean_t bRet;
+
+    bRet = RemoveDirectory(pstrDirName);
+    if (! bRet)
+        u32Ret = OLERR_FAIL_REMOVE_DIR;
+#endif
+
+    return u32Ret;
+}
+
+u32 traversalDirectory(const olchar_t * pstrDirName, fnHandleFile_t fnHandleFile,
+    void * pArg)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    olchar_t strName[MAX_PATH_LEN];
+
+    ol_strncpy(strName, pstrDirName, MAX_PATH_LEN - 1);
+    strName[MAX_PATH_LEN - 1] = '\0';
+
+    u32Ret = _traversalDirectory(strName, fnHandleFile, pArg);
+
+    return u32Ret;
+}
+
+u32 parseDirectory(const olchar_t * pstrDirName, fnHandleFile_t fnHandleFile,
+    void * pArg)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    olchar_t strName[MAX_PATH_LEN];
+    file_stat_t filestat;
+    dir_t * pDir = NULL;
+    dir_entry_t direntry;
+    olchar_t strFullname[MAX_PATH_LEN * 2];
+
+    ol_strncpy(strName, pstrDirName, MAX_PATH_LEN - 1);
+    strName[MAX_PATH_LEN - 1] = '\0';
+
+    u32Ret = openDir(strName, &pDir);
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        u32Ret = _getFirstDirEntry(pDir, &direntry);
+        while (u32Ret == OLERR_NO_ERROR)
+        {
+            if (! _isIgnoreEntry(direntry.de_strName))
+            {
+                memset(strFullname, 0, sizeof(strFullname));
+                ol_snprintf(strFullname, sizeof(strFullname) - 1, "%s%c%s", strName,
+                         PATH_SEPARATOR, direntry.de_strName);
+
+                u32Ret = getFileStat(strFullname, &filestat);
+                if (u32Ret == OLERR_NO_ERROR)
+                {
+                    u32Ret = fnHandleFile(strFullname, &filestat, pArg);
+                }
+            }
+
+            if (u32Ret == OLERR_NO_ERROR)
+                u32Ret = _getNextDirEntry(pDir, &direntry);
+        }
+
+        if (u32Ret == OLERR_DIR_ENTRY_NOT_FOUND)
+            u32Ret = OLERR_NO_ERROR;
+    }
+
+    if (pDir != NULL)
+        closeDir(&pDir);
+
+    return u32Ret;
+}
+
+FILESAPI u32 FILESCALL scanDirectory(const olchar_t * pstrDirName, dir_entry_t * entry,
+    olint_t * numofentry, fnFilterDirEntry_t fnFilter, fnCompareDirEntry_t fnCompare)
+{
+	u32 u32Ret = OLERR_NO_ERROR;
+    olint_t num = 0;
+    dir_t * pDir = NULL;
+    dir_entry_t direntry, *start = entry;
+
+    u32Ret = openDir(pstrDirName, &pDir);
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        u32Ret = _getFirstDirEntry(pDir, &direntry);
+        while (u32Ret == OLERR_NO_ERROR)
+        {
+            if ((! _isIgnoreEntry(direntry.de_strName)) &&
+				((fnFilter == NULL) || (! fnFilter(&direntry))))
+			{
+				memcpy(start, &direntry, sizeof(dir_entry_t));
+				start ++;
+				num++;
+
+				if (num >= *numofentry)
+					break;
+            }
+
+            if (u32Ret == OLERR_NO_ERROR)
+                u32Ret = _getNextDirEntry(pDir, &direntry);
+        }
+
+        if (u32Ret == OLERR_DIR_ENTRY_NOT_FOUND)
+            u32Ret = OLERR_NO_ERROR;
+    }
+
+	if ((u32Ret == OLERR_NO_ERROR) && (num != 0) && (fnCompare != NULL))
+	{
+		qsort(entry, num, sizeof(dir_entry_t), fnCompare);
+	}
+
+    if (pDir != NULL)
+    {
+        closeDir(&pDir);
+    }
+    
+	*numofentry = num;
+
+	return u32Ret;
+}
+
+olint_t compareDirEntry(const void * a, const void * b)
+{
+    dir_entry_t * e1 = (dir_entry_t *)a;
+    dir_entry_t * e2 = (dir_entry_t *)b;
+
+	return strcmp(e1->de_strName, e2->de_strName);
+}
+/*---------------------------------------------------------------------------*/
+
+

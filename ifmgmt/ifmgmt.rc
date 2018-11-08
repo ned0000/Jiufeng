@@ -1,0 +1,6 @@
+#define VER_FILEDESCRIPTION_STR "Jiufeng Network Interface Management DLL"
+#define VER_INTERNALNAME_STR "olifmgmt.dll"
+#define VER_ORIGINALFILENAME_STR "olifmgmt.dll"
+#define VER_PRODUCTNAME_STR "Jiufeng Network Interface Manangement Dynamic Linking Library"
+
+#include "jiutai.rc"

@@ -1,0 +1,540 @@
+/**
+ *  @file ipaddr.c
+ *
+ *  @brief The functions to manipulate ip address
+ *
+ *  @author Min Zhang
+ *
+ *  @note
+ *  
+ */
+
+/* --- standard C lib header files ----------------------------------------- */
+#include <stdio.h>
+#include <string.h>
+#if defined(LINUX)
+    #include <sys/socket.h>
+    #include <netinet/in.h>
+    #include <netinet/ip.h>
+    #include <arpa/inet.h>
+    #include <netdb.h>
+    #include <net/if.h>
+    #include <sys/ioctl.h>
+#elif defined(WINDOWS)
+    #if _MSC_VER >= 1500
+        #include <ws2tcpip.h>
+    #endif
+    #include <Winsock2.h>
+    #include <Iphlpapi.h>
+#endif
+
+/* --- internal header files ----------------------------------------------- */
+#include "olbasic.h"
+#include "ollimit.h"
+#include "errcode.h"
+#include "ifmgmt.h"
+
+/* --- private data/data structure section --------------------------------- */
+
+/* --- private routine section---------------------------------------------- */
+static u32 _getIpV4LocalIpAddrList(ip_addr_t * pAddr, u16 * pu16Count)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+#if defined(LINUX)
+    olchar_t strBuffer[16 * sizeof(struct ifreq)];
+    struct ifconf ifConf;
+    struct ifreq ifReq;
+    olint_t sock = -1;
+    olint_t ret;
+    struct sockaddr_in localaddr;
+    olint_t tempresults[16];
+    u16 u16Count = 0, u16Index;
+    olint_t i;
+
+    /* Create an unbound datagram socket to do the SIOCGIFADDR ioctl on. */
+    sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
+    if (sock == -1)
+        u32Ret = OLERR_FAIL_CREATE_SOCKET;
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        /* Get the interface configuration information... */
+        ifConf.ifc_len = sizeof strBuffer;
+        ifConf.ifc_ifcu.ifcu_buf = (caddr_t)strBuffer;
+        ret = ioctl(sock, SIOCGIFCONF, &ifConf);
+        if (ret == -1)
+            u32Ret = OLERR_FAIL_IOCTL_SOCKET;
+    }
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        /* Cycle through the list of interfaces looking for IP addresses. */
+        for (i = 0; (i < ifConf.ifc_len); )
+        {
+            struct ifreq * pifReq =
+                (struct ifreq *)((caddr_t)ifConf.ifc_req + i);
+
+            i += sizeof(*pifReq);
+            /* See if this is the sort of interface we want to deal with. */
+            ol_strcpy(ifReq.ifr_name, pifReq->ifr_name);
+            ret = ioctl(sock, SIOCGIFFLAGS, &ifReq);
+            if (ret == -1)
+            {
+                u32Ret = OLERR_FAIL_IOCTL_SOCKET;
+                break;
+            }
+
+            /* Skip loopback, point-to-poolint_t and down interfaces, */
+            /* except don't skip down interfaces */
+            /* if we're trying to get a list of configurable interfaces. */
+            if (ifReq.ifr_flags & IFF_LOOPBACK || ! (ifReq.ifr_flags & IFF_UP))
+            {
+                continue;
+            }   
+            if (pifReq->ifr_addr.sa_family == AF_INET)
+            {
+                /* Get a pointer to the address... */
+                memcpy(&localaddr, &pifReq->ifr_addr, sizeof(pifReq->ifr_addr));
+                if (localaddr.sin_addr.s_addr != htonl(INADDR_LOOPBACK))
+                {
+                    tempresults[u16Count] = localaddr.sin_addr.s_addr;
+                    ++u16Count;
+                }
+            }
+        }
+    }
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        if (u16Count > *pu16Count)
+            u32Ret = OLERR_BUFFER_TOO_SMALL;
+    }
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        for (u16Index = 0; u16Index < u16Count; u16Index ++)
+        {
+            pAddr[u16Index].ia_u8AddrType = IP_ADDR_TYPE_V4;
+            pAddr[u16Index].ia_uAddr.iu_nAddr = tempresults[u16Index];
+        }
+
+        *pu16Count = u16Count;
+    }
+
+    if (sock != -1)
+        close(sock);
+
+#elif defined(WINDOWS)
+    olint_t i;
+    olchar_t buffer[16 * sizeof(SOCKET_ADDRESS_LIST)];
+    DWORD bufferSize;
+    SOCKET sock = INVALID_SOCKET;
+    olint_t tempresults[16];
+    u16 u16Count = 0, u16Index;
+
+    sock = socket(AF_INET, SOCK_DGRAM, 0);
+    if (sock == INVALID_SOCKET)
+        u32Ret = OLERR_FAIL_CREATE_SOCKET;
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        WSAIoctl(sock, SIO_ADDRESS_LIST_QUERY,
+             NULL, 0, buffer, 16 * sizeof(SOCKET_ADDRESS_LIST), &bufferSize,
+             NULL, NULL);
+        u16Count = (u16)(((SOCKET_ADDRESS_LIST*)buffer)->iAddressCount);
+        for (i = 0; i < u16Count; ++i)
+        {
+            tempresults[i] = ((struct sockaddr_in *)
+                (((SOCKET_ADDRESS_LIST*)buffer)->Address[i].lpSockaddr))->sin_addr.s_addr;
+        }
+    }
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        if (u16Count > *pu16Count)
+            u32Ret = OLERR_BUFFER_TOO_SMALL;
+    }
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        for (u16Index = 0; u16Index < u16Count; u16Index ++)
+        {
+            pAddr[u16Index].ia_u8AddrType = IP_ADDR_TYPE_V4;
+            pAddr[u16Index].ia_uAddr.iu_nAddr = tempresults[u16Index];
+        }
+
+        *pu16Count = u16Count;
+    }
+
+    if (sock != INVALID_SOCKET)
+        closesocket(sock);
+#endif
+
+    return u32Ret;
+}
+
+/* --- public routine section ---------------------------------------------- */
+u32 getLocalIpAddrList(u8 u8AddrType, ip_addr_t * pAddr, u16 * pu16Count)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+
+    assert((u8AddrType == IP_ADDR_TYPE_V4) || (u8AddrType == IP_ADDR_TYPE_V6));
+    assert((pAddr != NULL) && (pu16Count != NULL));
+
+    if (u8AddrType == IP_ADDR_TYPE_V4)
+        u32Ret = _getIpV4LocalIpAddrList(pAddr, pu16Count);
+    else if (u8AddrType == IP_ADDR_TYPE_V6)
+        u32Ret = OLERR_NOT_IMPLEMENTED;
+    else
+        u32Ret = OLERR_INVALID_IP_ADDR_TYPE;
+
+    return u32Ret;
+}
+
+/* return the Media Access Control (MAC) address of
+   the FIRST network interface card (NIC) */
+u32 getMacOfFirstIf(u8 u8Mac[MAC_LEN])
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+#if defined(LINUX)
+    /* use SIOCGIFHWADDR ioctl(2) on Linux class platforms */
+    struct ifreq ifr;
+    struct sockaddr *sa;
+    olint_t sock = -1;
+    olint_t ret;
+    olint_t i;
+
+    sock = socket(PF_INET, SOCK_DGRAM, 0);
+    if (sock == -1)
+        u32Ret = OLERR_FAIL_CREATE_SOCKET;
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        ol_sprintf(ifr.ifr_name, "eth0");
+        ret = ioctl(sock, SIOCGIFHWADDR, &ifr);
+        if (ret == -1)
+            u32Ret = OLERR_FAIL_IOCTL_SOCKET;
+
+        if (u32Ret == OLERR_NO_ERROR)
+        {
+            sa = (struct sockaddr *)&ifr.ifr_addr;
+            for (i = 0; i < MAC_LEN; i++)
+                u8Mac[i] = sa->sa_data[i] & 0xff;
+        }
+    }
+
+    if (sock != -1)
+        close(sock);
+
+#elif defined(WINDOWS)
+    u8 u8Buffer[6000];
+    PIP_ADAPTER_INFO pAdapter;
+    u32 u32Len = 6000;
+    DWORD dwRet;
+
+    dwRet = GetAdaptersInfo((PIP_ADAPTER_INFO)u8Buffer, &u32Len);
+    if (dwRet != ERROR_SUCCESS)
+        u32Ret = OLERR_FAIL_GET_ADAPTER_INFO;
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        pAdapter = (PIP_ADAPTER_INFO)u8Buffer;
+        while (pAdapter != NULL)
+        {
+            if (pAdapter->Type == MIB_IF_TYPE_ETHERNET)
+                break;
+            else
+                pAdapter = pAdapter->Next;
+        }
+
+        if (pAdapter == NULL)
+            u32Ret = OLERR_ETHERNET_ADAPTER_NOT_FOUND;
+        else
+            memcpy(u8Mac, pAdapter->Address, MAC_LEN);
+    }
+
+#endif
+
+    return u32Ret;
+}
+
+u32 convertSockAddrToIpAddr(
+    const struct sockaddr * psa, const olint_t nSaLen,
+    ip_addr_t * pia, u16 * pu16Port)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    struct sockaddr_in * pInet4Addr;
+    struct sockaddr_in6 * pInet6Addr;
+
+    memset(pia, 0, sizeof(ip_addr_t));
+
+    switch (psa->sa_family)
+    {
+    case AF_INET:
+        pInet4Addr = (struct sockaddr_in *)psa;
+
+        pia->ia_u8AddrType = IP_ADDR_TYPE_V4;
+        pia->ia_uAddr.iu_nAddr = pInet4Addr->sin_addr.s_addr;
+        if (pu16Port != NULL)
+            *pu16Port = ntohs(pInet4Addr->sin_port);
+        break;
+    case AF_INET6:
+        pInet6Addr = (struct sockaddr_in6 *)psa;
+
+        pia->ia_u8AddrType = IP_ADDR_TYPE_V6;
+#if defined(LINUX)
+        memcpy(pia->ia_uAddr.iu_u8Addr, pInet6Addr->sin6_addr.s6_addr, 16);
+#elif defined(WINDOWS)
+        memcpy(pia->ia_uAddr.iu_u8Addr, pInet6Addr->sin6_addr.u.Byte, 16);
+#endif
+        if (pu16Port != NULL)
+            *pu16Port = ntohs(pInet6Addr->sin6_port);
+        break;
+    default:
+        u32Ret = OLERR_INVALID_IP_ADDR_TYPE;
+        break;
+    }
+
+    return u32Ret;
+}
+
+u32 convertIpAddrToSockAddr(const ip_addr_t * pia, const u16 u16Port,
+    struct sockaddr * psa, olint_t * pnSaLen)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    struct sockaddr_in * pInet4Addr;
+    struct sockaddr_in6 * pInet6Addr;
+
+    if (pia->ia_u8AddrType == IP_ADDR_TYPE_V4)
+    {
+        assert(*pnSaLen >= sizeof(struct sockaddr_in));
+
+        pInet4Addr = (struct sockaddr_in *)psa;
+
+        memset(pInet4Addr, 0, sizeof(struct sockaddr_in));
+
+        pInet4Addr->sin_family = AF_INET;
+        pInet4Addr->sin_addr.s_addr = pia->ia_uAddr.iu_nAddr;
+        pInet4Addr->sin_port = htons(u16Port);
+
+        *pnSaLen = sizeof(struct sockaddr_in);
+    }
+    else if (pia->ia_u8AddrType == IP_ADDR_TYPE_V6)
+    {
+        assert(*pnSaLen >= sizeof(struct sockaddr_in6));
+
+        pInet6Addr = (struct sockaddr_in6 *)psa;
+
+        memset(pInet6Addr, 0, sizeof(struct sockaddr_in6));
+
+        pInet6Addr->sin6_family = AF_INET6;
+#if defined(LINUX)
+        memcpy(pInet6Addr->sin6_addr.s6_addr, pia->ia_uAddr.iu_u8Addr, 16);
+#elif defined(WINDOWS)
+        memcpy(pInet6Addr->sin6_addr.u.Byte, pia->ia_uAddr.iu_u8Addr, 16);
+#endif
+        pInet6Addr->sin6_port = htons(u16Port);
+
+        *pnSaLen = sizeof(struct sockaddr_in6);
+    }
+    else
+        u32Ret = OLERR_INVALID_IP_ADDR_TYPE;
+
+    return u32Ret;
+}
+
+u32 setIpAddrToInaddrAny(ip_addr_t * pia)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    struct in6_addr in6addr;
+
+    if (pia->ia_u8AddrType == IP_ADDR_TYPE_V4)
+    {
+        pia->ia_uAddr.iu_nAddr = INADDR_ANY;
+    }
+    else if (pia->ia_u8AddrType == IP_ADDR_TYPE_V6)
+    {
+#if defined(LINUX)
+        in6addr = in6addr_any;
+        memcpy(pia->ia_uAddr.iu_u8Addr, in6addr.s6_addr, 16);
+#elif defined(WINDOWS)
+
+#endif
+    }
+    else
+        u32Ret = OLERR_INVALID_IP_ADDR_TYPE;
+
+    return u32Ret;
+}
+
+u32 setIpV4AddrToInaddrAny(ip_addr_t * pia)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+
+    pia->ia_u8AddrType = IP_ADDR_TYPE_V4;
+    setIpAddrToInaddrAny(pia);
+
+    return u32Ret;
+}
+
+u32 setIpV6AddrToInaddrAny(ip_addr_t * pia)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+
+    pia->ia_u8AddrType = IP_ADDR_TYPE_V6;
+    setIpAddrToInaddrAny(pia);
+
+    return u32Ret;
+}
+
+void setIpV4Addr(ip_addr_t * pia, olint_t nAddr)
+{
+    memset(pia, 0, sizeof(ip_addr_t));
+
+    pia->ia_u8AddrType = IP_ADDR_TYPE_V4;
+    pia->ia_uAddr.iu_nAddr = nAddr;
+}
+
+boolean_t isIpV4Addr(ip_addr_t * pia)
+{
+    boolean_t bRet = TRUE;
+
+    if (pia->ia_u8AddrType != IP_ADDR_TYPE_V4)
+        bRet = FALSE;
+
+    return bRet;
+}
+
+u32 getIpAddrFromString(
+    const olchar_t * pIpString, u8 u8AddrType, ip_addr_t * pia)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    olint_t bRet;
+    struct in_addr inaddr;
+
+    memset(pia, 0, sizeof(ip_addr_t));
+
+    if (u8AddrType == IP_ADDR_TYPE_V4)
+    {
+        pia->ia_u8AddrType = IP_ADDR_TYPE_V4;
+#if defined(LINUX)
+        bRet = inet_aton(pIpString, &inaddr);
+        if (bRet != 0)
+            pia->ia_uAddr.iu_nAddr = inaddr.s_addr;
+        else
+            u32Ret = OLERR_INVALID_IP;
+#elif defined(WINDOWS)
+        pia->ia_uAddr.iu_nAddr = inet_addr(pIpString);
+        if (pia->ia_uAddr.iu_nAddr == INADDR_NONE)
+            u32Ret = OLERR_INVALID_IP;
+#endif
+    }
+    else if (u8AddrType == IP_ADDR_TYPE_V6)
+    {
+        u32Ret = OLERR_NOT_IMPLEMENTED;
+    }
+    else
+        u32Ret = OLERR_INVALID_IP_ADDR_TYPE;
+
+    return u32Ret;
+}
+
+u32 getIpAddrPortFromString(
+    const olchar_t * pIpString, u8 u8AddrType, ip_addr_t * pia, u16 * pu16Port)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    olint_t bRet;
+    struct in_addr inaddr;
+    olchar_t strIp[100];
+    olchar_t * port;
+
+    ol_strncpy(strIp, pIpString, 99);
+    strIp[99] = '\0';
+
+    port = strIp + ol_strlen(pIpString);
+    while (port != strIp && *port != ':')
+        port --;
+
+    if (*port != ':')
+        return OLERR_INVALID_IP;
+
+    *port = '\0';
+    port ++;
+
+    sscanf(port, "%hu", pu16Port);
+
+    memset(pia, 0, sizeof(ip_addr_t));
+
+    if (u8AddrType == IP_ADDR_TYPE_V4)
+    {
+        pia->ia_u8AddrType = IP_ADDR_TYPE_V4;
+#if defined(LINUX)
+        bRet = inet_aton(strIp, &inaddr);
+        if (bRet != 0)
+            pia->ia_uAddr.iu_nAddr = inaddr.s_addr;
+        else
+            u32Ret = OLERR_INVALID_IP;
+#elif defined(WINDOWS)
+        pia->ia_uAddr.iu_nAddr = inet_addr(strIp);
+        if (pia->ia_uAddr.iu_nAddr == INADDR_NONE)
+            u32Ret = OLERR_INVALID_IP;
+#endif
+    }
+    else if (u8AddrType == IP_ADDR_TYPE_V6)
+    {
+        u32Ret = OLERR_NOT_IMPLEMENTED;
+    }
+    else
+        u32Ret = OLERR_INVALID_IP_ADDR_TYPE;
+
+    return u32Ret;
+}
+
+u32 validateIpAddr(const olchar_t * pstrIp, const u8 u8AddrType)
+{
+    ip_addr_t ia;
+
+    return getIpAddrFromString(pstrIp, u8AddrType, &ia);
+}
+
+/* get the string of IP Address according to the IP address type
+ *
+ * the function does not check the size of the string buffer.
+ * please make sure it is big enough to avoid memory access violation.
+ *
+ * @param
+ *   [in] pstrIpAddr, the string buffer where the IP address string will return
+ *   [out] pia, the ip address.
+ *
+ * @return: OLERR_NO_ERROR, OLERR_INVALID_IP_ADDR_TYPE.
+ */
+u32 getStringIpAddr(olchar_t * pstrIpAddr, const ip_addr_t * pia)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    struct in_addr inaddr;
+
+    if (pia->ia_u8AddrType == IP_ADDR_TYPE_V4)
+    {
+        inaddr.s_addr = pia->ia_uAddr.iu_nAddr;
+#if defined(LINUX)
+        if (inet_ntop(AF_INET, (void *)&inaddr, pstrIpAddr, 16) == NULL)
+            u32Ret = OLERR_INVALID_IP;
+#elif defined(WINDOWS)
+        ol_strcpy(pstrIpAddr, inet_ntoa(inaddr));
+#endif
+    }
+    else if (pia->ia_u8AddrType == IP_ADDR_TYPE_V6)
+    {
+
+    }
+    else
+    {
+        u32Ret = OLERR_INVALID_IP_ADDR_TYPE;
+    }
+
+    return u32Ret;
+}
+
+/*---------------------------------------------------------------------------*/
+
+
