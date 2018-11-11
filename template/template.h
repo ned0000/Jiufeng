@@ -3,6 +3,8 @@
  *
  *  @brief template header file
  *
+ *  @author Min Zhang
+ *
  *  @note
  */
 
