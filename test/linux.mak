@@ -17,14 +17,14 @@ PROGRAMS = xmalloc-test bases-test logger-test process-test  \
     xtime-test stringparse-test bitarray-test conffile-test  \
     menu-test crc32c-test dynlib-test ifmgmt-test            \
     sharedmemory-test-consumer sharedmemory-test-worker      \
-    files-test hsm-test
+    files-test hsm-test hostinfo-test
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     hash-test.c syncmutex-test.c syncrwlock-test.c syncsem-test.c    \
     xtime-test.c stringparse-test.c bitarray-test.c conffile-test.c  \
     menu-test.c crc32c-test.c dynlib-test.c ifmgmt-test.c            \
     sharedmemory-test-consumer.c sharedmemory-test-worker.c          \
-    files-test.c hsm-test.c
+    files-test.c hsm-test.c hostinfo-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -124,6 +124,11 @@ $(BIN_DIR)/files-test: files-test.o $(JIUTAI_DIR)/process.o
 $(BIN_DIR)/hsm-test: hsm-test.o $(JIUTAI_DIR)/hsm.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lollogger
+
+$(BIN_DIR)/hostinfo-test: hostinfo-test.o $(JIUTAI_DIR)/hostinfo.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lolifmgmt -lolstringparse -lollogger
+
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 
