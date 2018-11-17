@@ -17,14 +17,14 @@ PROGRAMS = xmalloc-test bases-test logger-test process-test  \
     xtime-test stringparse-test bitarray-test conffile-test  \
     menu-test crc32c-test dynlib-test ifmgmt-test            \
     sharedmemory-test-consumer sharedmemory-test-worker      \
-    files-test hsm-test hostinfo-test
+    files-test hsm-test hostinfo-test respool-test
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     hash-test.c syncmutex-test.c syncrwlock-test.c syncsem-test.c    \
     xtime-test.c stringparse-test.c bitarray-test.c conffile-test.c  \
     menu-test.c crc32c-test.c dynlib-test.c ifmgmt-test.c            \
     sharedmemory-test-consumer.c sharedmemory-test-worker.c          \
-    files-test.c hsm-test.c hostinfo-test.c
+    files-test.c hsm-test.c hostinfo-test.c respool-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -128,6 +128,12 @@ $(BIN_DIR)/hsm-test: hsm-test.o $(JIUTAI_DIR)/hsm.o
 $(BIN_DIR)/hostinfo-test: hostinfo-test.o $(JIUTAI_DIR)/hostinfo.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolifmgmt -lolstringparse -lollogger
+
+$(BIN_DIR)/respool-test: respool-test.o $(JIUTAI_DIR)/respool.o \
+       $(JIUTAI_DIR)/syncmutex.o $(JIUTAI_DIR)/xmalloc.o $(JIUTAI_DIR)/array.o \
+       $(JIUTAI_DIR)/process.o $(JIUTAI_DIR)/syncsem.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lollogger
 
 
 include $(TOPDIR)/mak/lnxobjbld.mak

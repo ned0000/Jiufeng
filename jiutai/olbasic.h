@@ -94,6 +94,7 @@ typedef short        olshort_t;
 typedef int          olint_t;
 typedef float        olfloat_t;
 typedef double       oldouble_t;
+typedef time_t       oltime_t;
 
 #if defined(WINDOWS)
     #define ol_memset                memset
