@@ -1,8 +1,8 @@
 /**
  *  @file xmalloc.h
  *
- *  @brief memory allocation header file
- *  	 provide some functional routine to allocate memeory
+ *  @brief Memory allocation header file. Provide some functional routine to
+ *   allocate memeory
  *
  *  @author Min Zhang
  *  

@@ -1,16 +1,15 @@
 /**
  *  @file bases.h
  *
- *  @brief contain the base data structure
- *     basic stack, basic queue, link list, double link list list head,
- *     hash list head,
+ *  @brief Contain the base data structure: basic stack, basic queue,
+ *   link list, double link list list head, hash list head,
  *
  *  @author Min Zhang
  *
- *  @note
- *   - link with xmalloc object file
- *   - here is the simple hash tree, suitable for items less than 50
- *     for large amount of items, uses hash table in hash.h
+ *  @note Link with xmalloc object file
+ *  @note The simple hash tree, suitable for items less than 50. For large
+ *   amount of items, uses hash table in hash.h
+ *  @note All base data structures here are not thread safe
  *  
  */
 
@@ -111,11 +110,11 @@ typedef struct list_head
     struct list_head * lh_plhNext, * lh_plhPrev;
 } list_head_t;
 
-/*
- * Double linked lists with a single pointer list head.
- * Mostly useful for hash tables where the two pointer list head is
- * too wasteful.
- * You lose the ability to access the tail in O(1).
+/**
+ *  Double linked lists with a single pointer list head.
+ *  Mostly useful for hash tables where the two pointer list head is too
+ *  wasteful.
+ *  You lose the ability to access the tail in O(1).
  */
 typedef struct hlist_node
 {
@@ -127,7 +126,9 @@ typedef struct hlist_head
     hlist_node_t * hh_phnFirst;
 } hlist_head_t;
 
-/*linked list using arrays of node*/
+/**
+ *  Linked list using arrays of node
+ */
 typedef struct list_array
 {
     u32 la_u32NumOfNode;
@@ -141,52 +142,121 @@ typedef struct list_array
 
 /* --- functional routines ------------------------------------------------- */
 
-/*
- * Basic Stack
+/**
+ *  Basic Stack
  */
 
-/*init an empty Stack*/
+/** Init an empty Stack
+ *
+ *  @param ppStack [in/out] the stack to be initialize
+ *
+ *  @return void
+ *
+ *  @note This module uses a void* that is preinitialized to NULL, eg:
+ *   void *stack = NULL;
+ *   initStack(&stack);
+ */
 void initStack(basic_stack_t ** ppStack);
 
-/*Pushes an item onto the stack*/
+/** Pushe an item onto the stack
+ *
+ *  @param ppStack [in/out] The stack to push to 
+ *  @param pData [in] The data to push onto the stack 
+ *
+ *  @return the error code
+ */
 u32 pushStack(basic_stack_t ** ppStack, void * pData);
 
-/*Pops an item from the stack*/
+/** Pop an item from the stack
+ *
+ *  @param ppStack [in/out] The stack to pop from 
+ *
+ *  @return the item that was popped from the stack   
+ *
+ *  @note after peek, the item is removed from stack
+ */
 void * popStack(basic_stack_t ** ppStack);
 
-/*Peeks at the item on the top of the stack*/
+/** Peeks at the item on the top of the stack
+ *
+ *  @param ppStack [in/out] The stack to peek from 
+ *
+ *  @return the item that is currently on the top of the stack   
+ *
+ *  @note after peek, the item is still in stack
+ */
 void * peekStack(basic_stack_t ** ppStack);
 
-/*Clears all the items from the stack*/
+/** Clears all the items from the stack
+ *
+ *  @param ppStack [in/out] The stack to clear 
+ *
+ *  @return void
+ */
 void clearStack(basic_stack_t ** ppStack);
 
-/*
- * Basic Queue
+/**
+ *  Basic Queue
  */
 
-/*init an empty Queue*/
+/** Initialize an empty Queue
+ *
+ *  @param pQueue [in] the basic queue to be initialized
+ *
+ *  @return void
+ */
 void initQueue(basic_queue_t * pQueue);
 
-/*fini the queue*/
+/** Free the resources associated with a queue
+ *
+ *  @param pQueue [in] The queue to finalize
+ *  
+ *  @return void
+ */
 void finiQueue(basic_queue_t * pQueue);
 
-/*fini the queue and data*/
+/** Fini the queue and data
+ * 
+ */
 void finiQueueAndData(basic_queue_t * pQueue, fnFreeQueueData_t fnFreeData);
 
-/*Check to see if a queue is empty*/
-boolean_t isQueueEmpty(basic_queue_t * q);
+/** Check to see if a queue is empty
+ *
+ *  @param pQueue [in] The queue to check 
+ *
+ *  @return the queue empty state
+ *  @retval TRUE the queue is empty
+ *  @retval FALSE the queue is not empty
+ */
+boolean_t isQueueEmpty(basic_queue_t * pQueue);
 
-/*Adds an item to the queue*/
-u32 enqueue(basic_queue_t * q, void * data);
+/** Add an item to the queue
+ *
+ *  @param pQueue [in] The queue to add  
+ *  @param data [in] The data to add to the queue
+ *
+ *  @return the error code
+ */
+u32 enqueue(basic_queue_t * pQueue, void * data);
 
-/*Remove an item from the queue*/
-void * dequeue(basic_queue_t * q);
+/** Remove an item from the queue
+ *
+ *  @param pQueue [in] The queue to remove an item from 
+ *
+ *  @return the queue entry
+ */
+void * dequeue(basic_queue_t * pQueue);
 
-/*Peek at an item from the queue*/
-void * peekQueue(basic_queue_t *q);
+/** Peek an item from the queue
+ *
+ *  @param pQueue [in] The queue to peek an item from
+ *
+ *  @return the queue entry
+ */
+void * peekQueue(basic_queue_t * pQueue);
 
-/*
- * linked list
+/**
+ *  linked list
  */
 void initLinkList(link_list_t * pList);
 
@@ -195,38 +265,42 @@ void finiLinkList(link_list_t * pList);
 void finiLinkListAndData(link_list_t * pList,
     fnFreeListNodeData_t fnFreeData);
 
-/*append to the tail of the linked list*/
+/**
+ *  Append to the tail of the linked list
+ */
 u32 appendToLinkList(link_list_t * pList, void * pData);
 
-/*intert to the head of the linked list*/
+/**
+ *  Intert to the head of the linked list
+ */
 u32 insertToLinkList(link_list_t * pList, void * pData);
 
-/** get the first node of linked list
- *
+/**
+ *  Get the first node of linked list
  */
 static inline link_list_node_t * getFirstNodeOfLinkList(link_list_t * pList)
 {
 	return pList->ll_pllnHead;
 }
 
-/** get the next node of the specified node
- *
+/**
+ *  Get the next node of the specified node
  */
 static inline link_list_node_t * getNextNodeOfLinkList(link_list_node_t * pNode)
 {
 	return pNode->lln_pllnNext;
 }
 
-/** get data from the linked node
- *
+/**
+ *  Get data from the linked node
  */
 static inline void * getDataFromLinkListNode(link_list_node_t * pNode)
 {
 	return pNode->lln_pData;
 }
 
-/*
- * double linked list
+/**
+ *  double linked list
  */
 void initDlinkList(dlink_list_t * pList);
 
@@ -262,32 +336,32 @@ u32 findPrevNodeFromDlinkList(dlink_list_node_t * pNode,
 u32 appendToDlinkList(dlink_list_t * pList, void * pData);
 
 
-/** get data from the linked node
- *
+/**
+ *  Get data from the linked node
  */
 static inline void * getDataFromDlinkListNode(dlink_list_node_t * pNode)
 {
     return pNode->dln_pData;
 }
 
-/** get the first node of double linked list
- *
+/**
+ *  Get the first node of double linked list
  */
 static inline dlink_list_node_t * getFirstNodeOfDlinkList(dlink_list_t * pList)
 {
     return pList->dl_pdlnHead;
 }
 
-/** get the last node of the double linked list
- *
+/**
+ *  Get the last node of the double linked list
  */
 static inline dlink_list_node_t * getLastNodeOfDlinkList(dlink_list_t * pList)
 {
     return pList->dl_pdlnTail;
 }
 
-/** get the next node of the specified node
- *
+/**
+ *  Get the next node of the specified node
  */
 static inline dlink_list_node_t * getNextNodeOfDlinkList(
     dlink_list_node_t * pNode)
@@ -295,8 +369,8 @@ static inline dlink_list_node_t * getNextNodeOfDlinkList(
     return pNode->dln_pdlnNext;
 }
 
-/** get the previous node of the specified node
- *
+/**
+ *  Get the previous node of the specified node
  */
 static inline dlink_list_node_t * getPrevNodeOfDlinkList(
     dlink_list_node_t * pNode)
@@ -304,55 +378,116 @@ static inline dlink_list_node_t * getPrevNodeOfDlinkList(
     return pNode->dln_pdlnPrev;
 }
 
-/*
- * HashTree Methods
+/**
+ *  Hashtree Methods
  */
 
-/*Creates an empty hash tree*/
+/** Creates an empty hash tree
+ *  
+ *  @param pHashtree [in] the hashtree to free
+ *
+ *  @return void
+ */
 static inline void initHashtree(hashtree_t * pHashtree)
 {
     pHashtree->h_phnRoot = NULL;
 }
 
-/*Destroy a hash tree*/
+/** Free resources associated with a hashtree
+ *
+ *  @param pHashtree [in] the hashtree to free
+ *
+ *  @return void
+ */
 void finiHashtree(hashtree_t * pHashtree);
 
+/** Free resources associated with a hashtree
+ *
+ *  @param pHashtree [in] the hashtree to free
+ *  @param fnFreeData [in] the function to free data
+ *
+ *  @return void
+ */
 void finiHashtreeAndData(
     hashtree_t * pHashtree, fnFreeHashtreeData_t fnFreeData);
 
-/*determine if the hash tree is empty*/
+/** Determine if the hash tree is empty
+ *
+ *  @param pHashtree [in] the hashtree to free
+ *
+ *  @return the empty is of the hashtree
+ *  @retval TRUE the hashtree is empty
+ *  @retval FALSE the hash tree is not empty
+ */
 static inline boolean_t isHashtreeEmpty(hashtree_t * pHashtree)
 {
     return ((pHashtree->h_phnRoot == NULL) ? TRUE : FALSE);
 }
 
-/*Determines if a key entry exists in a hash tree*/
+/** Determines if a key entry exists in a hashtree
+ *
+ *  @param pHashtree [in] the hashtree to operate on 
+ *  @param pstrKey [in] the key 
+ *  @param sKey [in] the length of the key 
+ * 
+ *  @return the existing state of the entry
+ *  @retval TRUE the entry is existing
+ *  @retval FALSE the entry is not existing
+ */
 boolean_t hasHashtreeEntry(
     hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey);
 
-/*Adds an item to the hash tree*/
+/** Adds an item to the hashtree
+ * 
+ *  @param pHashtree [in] the hashtree to operate on
+ *  @param pstrKey [in] the key
+ *  @param sKey [in] the length of the key
+ *  @param pValue [in] the data to add into the hashtree
+ *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ *  @retval OLERR_OUT_OF_MEMORY out of memory
+ *
+ */
 u32 addHashtreeEntry(
     hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void * pValue);
 
-/*Gets an item from a hash tree*/
+/** Gets an item from a hashtree
+ *
+ *  @param pHashtree [in] the hashtree to operate on 
+ *  @param pstrKey [in] the key 
+ *  @param sKey [in] the length of the key 
+ *  @param ppData [in/out] the pointer to the entry returned 
+ *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ *  @retval OLERR_HASHTREE_ENTRY_NOT_FOUND entry not found
+ */
 u32 getHashtreeEntry(
     hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void ** ppData);
 
-/*Deletes a keyed item from the hash tree*/
+/** Deletes a keyed item from the hashtree
+ *
+ *  @param pHashtree [in] the hashtree to operate on 
+ *  @param pstrKey [in] the key 
+ *  @param sKey [in] the length of the key 
+ *
+ *  @return the error code
+ */
 u32 deleteHashtreeEntry(
     hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey);
 
 /** Return an Enumerator for a hash tree
  *
- *  @param pHashtree : hashtree_t * <BR> 
- *     @b [in] The HashTree to get an enumerator for 
+ *  @param pHashtree [in] the hashtree to get an enumerator for 
+ *  @param pEnumerator [in/out] the enumerator
  *
- *  @return return An enumerator   
+ *  @return void
  */
 static inline void initHashtreeEnumerator(
     hashtree_t * pHashtree, hashtree_enumerator_t * pEnumerator)
 {
-    /*The enumerator is basically a state machine that keeps track of 
+    /*the enumerator is basically a state machine that keeps track of 
       which node we are at in the tree. So initialize it to the root.*/
     pEnumerator->he_phnNode = pHashtree->h_phnRoot;
 }
@@ -360,8 +495,7 @@ static inline void initHashtreeEnumerator(
 /** Free resources associated with an Enumerator created by 
  *  initHashtreeEnumerator
  *
- *  @param pEnumerator : hashtree_enumerator_t * <BR> 
- *     @b [in] The enumerator to free 
+ *  @param pEnumerator [in] the enumerator to free 
  *
  *  @return void
  */
@@ -378,14 +512,12 @@ static inline boolean_t isHashtreeEnumeratorEmptyNode(
 
 /** Advance an enumerator to the next item
  *
- *  - Notes:  
- *    -# Functionally identicle to a DictionaryEnumerator in .NET
+ *  @param pEnumerator [in] the enumerator to advance 
  *
- *  @param tree_enumerator : hashtree_enumerator_t * <BR> 
- *     @b [in] The enumerator to advance 
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ *  @retval OLERR_END_OF_HASHTREE end of hashtree
  *
- *  @return return A zero value if successful;
- *          return nonzero if no more items   
  */
 static inline u32 moveHashtreeNext(hashtree_enumerator_t * pEnumerator)
 {
@@ -408,14 +540,10 @@ static inline u32 moveHashtreeNext(hashtree_enumerator_t * pEnumerator)
 
 /** Read from the current item of an enumerator
  *
- *  @param pEnumerator : hashtree_enumerator_t * <BR> 
- *     @b [in] The enumerator to read from 
- *  @param ppu8Key : u8 ** <BR> 
- *     @b [out] The key of the current item 
- *  @param pu32KeyLen : u32  * <BR> 
- *     @b [out] The length of the key of the current item 
- *  @param ppData : void ** <BR> 
- *     @b [out] The data of the current item 
+ *  @param pEnumerator [in] the enumerator to read from 
+ *  @param ppstrKey [out] the key of the current item 
+ *  @param psKey [out] the length of the key of the current item 
+ *  @param ppData [out] the data of the current item 
  *
  *  @return void
  */
@@ -438,10 +566,9 @@ static inline void getHashtreeValue(
     }
 }
 
-/*
- * list head
+/**
+ *  list head
  */
-
 #define LIST_HEAD_INIT(name) { &(name), &(name) }
 
 #define LIST_HEAD(name) \
@@ -466,24 +593,21 @@ static inline void _listAdd(list_head_t * new, list_head_t * prev,
     prev->lh_plhNext = new;
 }
 
-/** add a new entry, insert a new entry after the specified head.
+/** Add a new entry, insert a new entry after the specified head.
  *
- *  @param head: list_head_t <BR>
- *     @b [in] list head to add it after
- *  @param new: list_head_t <BR>
- *     @b [in] new entry to be added
+ *  @param head [in] list head to add it after
+ *  @param new [in] new entry to be added
+ *
  */
 static inline void listAdd(list_head_t * head, list_head_t * new)
 {
     _listAdd(new, head, head->lh_plhNext);
 }
 
-/** add a new entry, insert a new entry before the specified head.
+/** Add a new entry, insert a new entry before the specified head.
  *
- *  @param head: list_head_t <BR>
- *     @b [in] list head to add it before
- *  @param new: list_head_t <BR>
- *     @b [in] new entry to be added
+ *  @param head [in] list head to add it before
+ *  @param new [in] new entry to be added
  * 
  */
 static inline void listAddTail(list_head_t * head, list_head_t * new)
@@ -491,10 +615,13 @@ static inline void listAddTail(list_head_t * head, list_head_t * new)
     _listAdd(new, head->lh_plhPrev, head);
 }
 
-/** Delete a list entry by making the prev/next entries
- *  point to each other.
- *  This is only for internal list manipulation where we know
- *  the prev/next entries already!
+/** Delete a list entry by making the prev/next entries point to each other.
+ *
+ *  @param prev [in] list head to delete it before
+ *  @param next [in] list head to delete it after
+ *
+ *  @note This is only for internal list manipulation where we know the
+ *   prev/next entries already!
  */
 static inline void _listDel(list_head_t * prev, list_head_t * next)
 {
@@ -502,14 +629,9 @@ static inline void _listDel(list_head_t * prev, list_head_t * next)
     prev->lh_plhNext = next;
 }
 
-/** deletes entry from list.
+/** Deletes entry from list.
  *
- *  - Notes
- *   -# list_empty on entry does not return true after this, the entry is
- *      in an undefined state.
- *
- *  @param entry: list_head_t <BR>
- *     @b [in] the element to delete from the list.
+ *  @param entry [in] the element to delete from the list.
  */
 static inline void listDel(list_head_t * entry)
 {
@@ -518,12 +640,10 @@ static inline void listDel(list_head_t * entry)
     entry->lh_plhPrev = NULL;
 }
 
-/** replace old entry by new one. if 'old' is empty, it will be overwritten.
+/** Replace old entry by new one. if 'old' is empty, it will be overwritten.
  *
- *  @param old : list_head_t <BR>
- *     @b [in] the element to be replaced
- *  @param new : list_head_t <BR>
- *     @b [in] the new element to insert
+ *  @param old [in] the element to be replaced
+ *  @param new [in] the new element to insert
  *
  */
 static inline void listReplace(list_head_t * old, list_head_t * new)
@@ -540,10 +660,9 @@ static inline void listReplaceInit(list_head_t * old, list_head_t * new)
     listInit(old);
 }
 
-/** deletes entry from list and reinitialize it.
+/** Deletes entry from list and reinitialize it.
  *
- *  @param entry : list_head_t <BR>
- *     @b [in] the element to delete from the list.
+ *  @param entry [in] the element to delete from the list.
  */
 static inline void listDelInit(list_head_t * entry)
 {
@@ -551,12 +670,10 @@ static inline void listDelInit(list_head_t * entry)
     listInit(entry);
 }
 
-/** delete from one list and add as another's head
+/** Delete from one list and add as another's head
  *
- *  @param list: list_head_t <BR>
- *     @b [in] the entry to move
- *  @param head: list_head_t <BR>
- *     @b [in] the head that will precede our entry
+ *  @param head [in] the entry to move
+ *  @param list [in] the head that will precede our entry
  */
 static inline void listMove(list_head_t * head, list_head_t * list)
 {
@@ -564,12 +681,10 @@ static inline void listMove(list_head_t * head, list_head_t * list)
     listAdd(head, list);
 }
 
-/** delete from one list and add as another's tail
+/** Delete from one list and add as another's tail
  *
- *  @param list: list_head_t <BR>
- *     @b [in] the entry to move
- *  @param head: list_head_t <BR>
- *     @b [in] the head that will follow our entry
+ *  @param head [in] the head that will follow our entry
+ *  @param list [in] the entry to move
  */
 static inline void listMoveTail(list_head_t * head, list_head_t * list)
 {
@@ -577,35 +692,31 @@ static inline void listMoveTail(list_head_t * head, list_head_t * list)
     listAddTail(head, list);
 }
 
-/** tests whether @list is the last entry in list @head
+/** Tests whether 'list' is the last entry in list 'head'
  *
- *  @param head: list_head_t <BR>
- *     @b [in] the head of the list
- *  @param list: list_head_t <BR>
- *     @b [in] the entry to test
+ *  @param head [in] the head of the list
+ *  @param list [in] the entry to test
  */
-static inline boolean_t listIsLast(const list_head_t * head,
-    const list_head_t * list)
+static inline boolean_t listIsLast(
+    const list_head_t * head, const list_head_t * list)
 {
     return list->lh_plhNext == head;
 }
 
-/** tests whether @list is the first entry in list @head
+/** Tests whether 'list' is the first entry in list 'head'
  *
- *  @param head: list_head_t <BR>
- *     @b [in] the head of the list
- *  @param list: list_head_t <BR>
- *     @b [in] the entry to test
+ *  @param head [in] the head of the list
+ *  @param list [in] the entry to test
  */
-static inline boolean_t listIsFirst(const list_head_t * head,
-    const list_head_t * list)
+static inline boolean_t listIsFirst(
+    const list_head_t * head, const list_head_t * list)
 {
     return list->lh_plhPrev == head;
 }
 
-/**
- * list_empty - tests whether a list is empty
- * @head: the list to test.
+/** Test whether a list is empty
+ * 
+ *  @param head [in] the list to test.
  */
 static inline boolean_t listIsEmpty(const list_head_t * head)
 {
@@ -625,10 +736,10 @@ static inline void _listSplice(list_head_t * head, list_head_t * list)
     at->lh_plhPrev = last;
 }
 
-/** join two lists
+/** Join two lists
  * 
- *  @head: the place to add it in the first list.
- *  @list: the new list to add.
+ *  @param head the place to add it in the first list.
+ *  @param list the new list to add.
  */
 static inline void listSplice(list_head_t * head, list_head_t * list)
 {
@@ -636,12 +747,12 @@ static inline void listSplice(list_head_t * head, list_head_t * list)
         _listSplice(head, list);
 }
 
-/** join two lists and reinitialise the emptied list.
+/** Join two lists and reinitialise the emptied list.
  * 
- *  @list: the new list to add.
- *  @head: the place to add it in the first list.
+ *  @param head the place to add it in the first list.
+ *  @param list the new list to add.
  *
- *  The list at @list is reinitialised
+ *  @note the list at 'list' is reinitialised
  */
 static inline void listSpliceInit(list_head_t * head, list_head_t * list)
 {
@@ -652,7 +763,7 @@ static inline void listSpliceInit(list_head_t * head, list_head_t * list)
     }
 }
 
-/** split the 'head' at the position 'list' and add the removed part
+/** Split the 'head' at the position 'list' and add the removed part
  *  (exclude 'list') to 'newhead'
  */
 static inline void listSplit(list_head_t * head, list_head_t * list,
@@ -672,86 +783,85 @@ static inline void listSplit(list_head_t * head, list_head_t * list,
 }
 
 #if defined(LINUX)
-  #ifndef offsetof
-     #define offsetof(TYPE, MEMBER) ((olsize_t) &((TYPE *)0)->MEMBER)
-  #endif
-  #define container_of(ptr, type, member) ({          \
+    #ifndef offsetof
+        #define offsetof(TYPE, MEMBER) ((olsize_t) &((TYPE *)0)->MEMBER)
+    #endif
+    #define container_of(ptr, type, member) ({          \
         const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
         (type *)((olchar_t *)__mptr - offsetof(type, member));})
 #elif defined(WINDOWS)
-  typedef long LONG;
+    typedef long LONG;
 
-  #if defined(WIN64)
-     typedef s64 LONG_PTR; 
-  #else
-     typedef long LONG_PTR;
-  #endif
+    #if defined(WIN64)
+        typedef s64 LONG_PTR; 
+    #else
+        typedef long LONG_PTR;
+    #endif
 
-  typedef olchar_t CHAR;
-  typedef CHAR *PCHAR;
+    typedef olchar_t CHAR;
+    typedef CHAR *PCHAR;
 
-  #if defined(WIN64)
-    typedef u64 ULONG_PTR;
-  #else
-    typedef unsigned long ULONG_PTR;
-  #endif
+    #if defined(WIN64)
+        typedef u64 ULONG_PTR;
+    #else
+        typedef unsigned long ULONG_PTR;
+    #endif
 
 //  #define offsetof(type, field)    ((LONG)(LONG_PTR)&(((type *)0)->field))
 
-  #define container_of(address, type, field) ((type *)( \
-    (PCHAR)(address) - offsetof(type, field)))
+    #define container_of(address, type, field) ((type *)( \
+       (PCHAR)(address) - offsetof(type, field)))
 
 #endif
 
-/** get the struct for this entry
+/** Get the struct for this entry
  *
- * @ptr:    the &list_head_t pointer.
- * @type:   the type of the struct this is embedded in.
- * @member: the name of the list_struct within the struct.
+ *  @param ptr the list_head_t pointer.
+ *  @param type the type of the struct this is embedded in.
+ *  @param member the name of the list_struct within the struct.
  */
 #define listEntry(ptr, type, member) \
     container_of(ptr, type, member)
 
-/**
- * listForEach  -   iterate over a list
- * @head:   the head for your list.
- * @pos:    the &list_head_t to use as a loop cursor.
+/** Iterate over a list
+ * 
+ *  @param head the head for your list.
+ *  @param pos the &list_head_t to use as a loop cursor.
  *
  */
 #define listForEach(head, pos) \
     for (pos = (head)->lh_plhNext; pos != (head); pos = pos->lh_plhNext)
 
-/**
- * listForEachSafe - iterate over a list safe against removal of list entry
- * @head:   the head for your list.
- * @pos:    the &struct list_head to use as a loop cursor.
- * @n:      another &struct list_head to use as temporary storage
+/** Iterate over a list safe against removal of list entry
+ * 
+ *  @param head the head for your list.
+ *  @param pos the list_head_t to use as a loop cursor.
+ *  @param n another list_head_t to use as temporary storage
  */
 #define listForEachSafe(head, pos, n) \
     for (pos = (head)->lh_plhNext, n = pos->lh_plhNext; pos != (head); \
          pos = n, n = pos->lh_plhNext)
 
-/**
- * listForEachPrev   -   iterate over a list backwards
- * @pos:    the &list_head_t to use as a loop cursor.
- * @head:   the head for your list.
+/** Iterate over a list backwards
+ * 
+ *  @param head the head for your list.
+ *  @param pos the &list_head_t to use as a loop cursor.
  */
 #define listForEachPrev(head, pos) \
     for (pos = (head)->lh_plhPrev; pos != (head); pos = pos->lh_plhPrev)
 
-/**
- * listForEachPrevSafe   -   iterate over a list backwards safe against
- *    removal of list entry
- * @head:   the head for your list.
- * @pos:    the &list_head_t to use as a loop cursor.
- * @n:      another &struct list_head to use as temporary storage
+/** Iterate over a list backwards safe against removal of list entry
+ *
+ *  @param head the head for your list.
+ *  @param pos the &list_head_t to use as a loop cursor.
+ *  @param n another &struct list_head to use as temporary storage
  */
 #define listForEachPrevSafe(head, pos, n)                         \
     for (pos = (head)->lh_plhPrev, n = pos->lh_plhPrev; pos != (head); \
          pos = n, n = pos->lh_plhPrev)
 
-/*
- * hlist
+/**
+ *  hlist
  */
 #define HLIST_HEAD_INIT { .hh_phnFirst = NULL }
 #define HLIST_HEAD(name) hlist_head_t name = {  .hh_phnFirst = NULL }
@@ -764,12 +874,12 @@ static inline void listSplit(list_head_t * head, list_head_t * list,
 #define hlistForEach(head, pos) \
     for (pos = (head)->hh_phnFirst; pos; pos = pos->hn_phnNext)
 
-/**
- * hlistForEachEntry - iterate over list of given type
- * @tpos:   the type * to use as a loop counter.
- * @pos:    the &struct hlist_node to use as a loop counter.
- * @head:   the head for your list.
- * @member: the name of the hlist_node within the struct.
+/** Iterate over list of given type
+ *
+ *  @param tpos the type * to use as a loop counter.
+ *  @param pos the hlist_node_t to use as a loop counter.
+ *  @param head the head for your list.
+ *  @param member the name of the hlist_node_t within the struct.
  */
 #define hlistForEachEntry(tpos, pos, head, member)            \
     for (pos = (head)->hh_phnFirst;                    \
@@ -813,7 +923,9 @@ static inline void hlistAddHead(hlist_head_t * h, hlist_node_t * n)
     n->hn_pphnPrev = &h->hh_phnFirst;
 }
 
-/*list array*/
+/**
+ *  list array
+ */
 static inline olsize_t sizeOfListArray(u32 u32NumOfNode)
 {
     assert(u32NumOfNode > 0);

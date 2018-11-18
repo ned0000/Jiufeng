@@ -1,14 +1,13 @@
 /**
  *  @file process.h
  *
- *  @brief process header file
- *	 provide some functional routine for process manipulation
+ *  @brief Process header file. Provide some functional routine for
+ *   process manipulation
  *
  *  @author Min Zhang
  *
- *  @note
- *   - for linux, link with stringparse library
- *   - for Windows, link with psapi.lib
+ *  @note For linux, link with stringparse library
+ *  @note For Windows, link with psapi.lib
  *  
  */
 

@@ -77,12 +77,12 @@ typedef struct
 static internal_logger_t ls_ilLogger;
 
 /* --- private routine section ------------------------------------------------ */
-/** get max lines of the log file according to the file size.
+/** Get max lines of the log file according to the file size.
  *
- *  @param u32Size : u32 <BR>
- *     @b [in] the file size
+ *  @param u32Size [in] the file size
  *
- *  @return return the max lines
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
  */
 static u32 _getLogFileLines(u32 u32Size)
 {
@@ -94,10 +94,11 @@ static u32 _getLogFileLines(u32 u32Size)
     return u32lines;
 }
 
-/** get the log time stamp of the current time.
- *       the time stamp is in the format of "mm/dd/yyyy hh:mm:ss".
- *  @param pstrStamp : olchar_t <BR>
- *     @b [out] the string buffer where the time stamp will be returned
+/** Get the log time stamp of the current time. The time stamp is in the format
+ *  of "mm/dd/yyyy hh:mm:ss".
+ *
+ *  @param pstrStamp [out] the string buffer where the time stamp will be
+ *   returned
  *
  *  @return none
  */
@@ -120,16 +121,12 @@ static void _getLogTimeStamp(olchar_t * pstrStamp)
     }
 }
 
-/** log the message log to the specified output of the logger
+/** Log the message log to the specified output of the logger
  *
- *  @param pil : internal_logger_t * <BR>
- *     @b [in] the pointer to the logger
- *  @param nLevel : olint_t <BR>
- *     @b [in] the log level to be passed to syslog
- *  @param pstrHeader : olchar_t <BR>
- *     @b [in] the header
- *  @param pstrLog : olchar_t * <BR>
- *     @b [in] the log message
+ *  @param pil [in] the pointer to the logger
+ *  @param nLevel [in] the log level to be passed to syslog
+ *  @param pstrHeader [in] the header
+ *  @param pstrLog [in] the log message
  *
  *  @return none
  */
@@ -167,18 +164,16 @@ static void _log(
     }
 }
 
-/** log the message to various log devices. It also add message
- *   header to the raw message. The message header format is:
- *       "<time stamp> [<caller name>:<pid>:<threadid>] "
+/** Log the message to various log devices. It also add message header to the
+ *  raw message. The message header format is:  \n
+ *     "<time stamp> [<caller name>:<pid>:<threadid>] "
  *
- *  @param pil : internal_logger_t * <BR>
- *     @b [in] the pointer to the logger
- *  @param nLevel : olint_t <BR>
- *     @b [in] the log level to be passed to syslog
- *  @param pstrMsg : olchar_t * <BR>
- *     @b [in] the log message
+ *  @param pil [in] the pointer to the logger
+ *  @param nLevel [in] the log level to be passed to syslog
+ *  @param pstrMsg [in] the log message
  *
- *  @return none
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
  */
 static u32 _logMsg(internal_logger_t * pil, olint_t nLevel, olchar_t * pstrMsg)
 {
@@ -198,13 +193,12 @@ static u32 _logMsg(internal_logger_t * pil, olint_t nLevel, olchar_t * pstrMsg)
     return u32Ret;
 }
 
-/* set the default parameter of logger
+/** Set the default parameter of logger
  *
- * @param plp : logger_param_t * <BR>
- *    @b [in] the pointer to logger parameter where the default
- *       values are returned.
+ *  @param plp [in] the pointer to logger parameter where the default
+ *   values are returned.
  *
- * @return: none.
+ *  @return: none.
  */
 static void _setDefaultParam(logger_param_t * plp)
 {
@@ -312,13 +306,6 @@ static u32 _logErrMsg(internal_logger_t * pil, u32 u32ErrCode,
 
 /* --- public routine section ---------------------------------------------- */
 
-/** initialize the looger according to the specified parameters.
- *
- *  @param pParam : logger_param_t * <BR>
- *     @b [in/out] the pointer to the logger parameter
- *
- *  Return: return OLERR_NO_ERROR on success, otherwise the error code
- */
 u32 initLogger(logger_param_t * pParam)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -424,10 +411,6 @@ u32 initLogger(logger_param_t * pParam)
     return u32Ret;
 }
 
-/** finalize the logger
- *
- *  Return: return OLERR_NO_ERROR on success, otherwise the error code
- */
 u32 finiLogger(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -444,28 +427,6 @@ u32 finiLogger(void)
     return u32Ret; 
 }
 
-/** modify the logger according to the specified parameters.
- *
- *  @param pParam : logger_param_t <BR>
- *     @b [in] the pointer to the parameters to alter the behavior of 
- *          the logger
- *
- *  Return: return OLERR_NO_ERROR on success, otherwise the error code
- */
-u32 modifyLogger(logger_param_t *pParam)
-{
-    return OLERR_NOT_IMPLEMENTED;
-}
-
-/** log an info type msg.
- *
- *  @param fmt : const olchar_t <BR>
- *     @b [in] the msg format
- *  @param ... : ... <BR>
- *     @b [in] the input to the msg format
- *
- *  @return: return OLERR_NO_ERROR on success, otherwise the error code
- */
 u32 logInfoMsg(const olchar_t * fmt, ...)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -514,17 +475,6 @@ u32 logDebugMsg(const olchar_t * fmt, ...)
     return u32Ret;    
 }
 
-/** log an error type msg.
- *
- *  @param u32ErrCode : u32 <BR>
- *     @b [in] the error code
- *  @param fmt : const olchar_t <BR>
- *     @b [in] the msg format
- *  @param ... : ... <BR>
- *     @b [in] the input to the msg format
- *
- *  @return: return OLERR_NO_ERROR on success, otherwise the error code
- */
 u32 logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -550,19 +500,6 @@ u32 logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...)
     return u32Ret;    
 }
 
-/** log a data msg. The system error code is in errno.
- *
- *  @param pu8Data : u8 * <BR>    
- *     @b [in] the data to be logged
- *  @param u32DataLen : u32 <BR>
- *     @b [in] the length of the data in bytes
- *  @param fmt : const olchar_t <BR>
- *     @b [in] the msg format
- *  @param ... : ... <BR>
- *     @b [in] the input to the msg format
- *
- *  @return: return OLERR_NO_ERROR on success, otherwise the error code
- */
 u32 logDataMsg(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
 {
     u32 u32Ret = OLERR_NO_ERROR;

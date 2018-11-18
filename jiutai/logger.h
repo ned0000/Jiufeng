@@ -1,16 +1,14 @@
 /**
  *  @file logger.h
  *
- *  @brief logger header file
- *    It provides the external definition of the logger and the related
- *    routines and data structures.
- *    The logger can be used to print logs to the stdout, syslog, a log file
- *    and a specified TTY.
+ *  @brief Logger header file. It provides the external definition of the
+ *   logger and the related routines and data structures.
  *
  *  @author Min Zhang
  *
- *  @note log to stdout is NOT thread safe
- *
+ *  @note The logger can be used to print logs to the stdout, syslog, a log file
+ *   and a specified TTY.
+ *  @note Log to stdout is NOT thread safe
  */
 
 #ifndef JIUFENG_LOGGER_H
@@ -77,85 +75,77 @@ typedef struct
 
 /* --- functional routines ------------------------------------------------- */
 
-/** initialize the looger according to the specified parameters.
+/** Initialize the looger according to the specified parameters.
  *
- *  @param pParam : logger_param_t * <BR>
- *     @b [in/out] the pointer to the logger parameter
+ *  @param plp [in] the pointer to the logger parameter
  *
- *  Return: return OLERR_NO_ERROR on success, otherwise the error code
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ *  @retval OLERR_OUT_OF_MEMORY out of memeory
  */
 LOGGERAPI u32 LOGGERCALL initLogger(logger_param_t * plp);
 
-/** finalize the logger
+/** Finalize the logger
  *
- *  Return: return OLERR_NO_ERROR on success, otherwise the error code
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
  */
 LOGGERAPI u32 LOGGERCALL finiLogger(void);
 
-/** modify the logger according to the specified parameters.
+/** Log an info type msg.
  *
- *  - Notes
- *    -# Not implemented now
+ *  @param fmt [in] the msg format
+ *  @param ... [in] the input to the msg format
  *
- *  @param pParam : logger_param_t <BR>
- *     @b [in] the pointer to the parameters to alter the behavior of 
- *          the logger
- *
- *  Return: return OLERR_NO_ERROR on success, otherwise the error code
- */
-LOGGERAPI u32 LOGGERCALL modifyLogger(logger_param_t *pParam);
-
-/** log an info type msg.
- *
- *  @param fmt : const olchar_t <BR>
- *     @b [in] the msg format
- *  @param ... : ... <BR>
- *     @b [in] the input to the msg format
- *
- *  @return: return OLERR_NO_ERROR on success, otherwise the error code
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
  */
 LOGGERAPI u32 LOGGERCALL logInfoMsg(const olchar_t * fmt, ...);
 
-/** log an debug type msg.
+/** Log an debug type msg.
  *
- *  @param fmt : const olchar_t <BR>
- *     @b [in] the msg format
- *  @param ... : ... <BR>
- *     @b [in] the input to the msg format
+ *  @param fmt [in] the msg format
+ *  @param ... [in] the input to the msg format
  *
- *  @return: return OLERR_NO_ERROR on success, otherwise the error code
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
  */
 LOGGERAPI u32 LOGGERCALL logDebugMsg(const olchar_t * fmt, ...);
 
-/** log an error type msg.
+/** Log an error type msg.
  *
- *  @param u32ErrCode : u32 <BR>
- *     @b [in] the error code
- *  @param fmt : const olchar_t <BR>
- *     @b [in] the msg format
- *  @param ... : ... <BR>
- *     @b [in] the input to the msg format
+ *  @param u32ErrCode [in] the error code
+ *  @param fmt [in] the msg format
+ *  @param ... [in] the input to the msg format
  *
- *  @return: return OLERR_NO_ERROR on success, otherwise the error code
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
  */
-LOGGERAPI u32 LOGGERCALL logErrMsg(u32 errCode, const olchar_t * fmt, ...);
+LOGGERAPI u32 LOGGERCALL logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...);
 
-/** log a data msg. The system error code is in errno.
+/** Log a data msg. The system error code is in errno.
  *
- *  @param pu8Data : u8 * <BR>    
- *     @b [in] the data to be logged
- *  @param u32DataLen : u32 <BR>
- *     @b [in] the length of the data in bytes
- *  @param fmt : const olchar_t <BR>
- *     @b [in] the msg format
- *  @param ... : ... <BR>
- *     @b [in] the input to the msg format
+ *  @param pu8Data [in] the data to be logged
+ *  @param u32DataLen [in] the length of the data in bytes
+ *  @param fmt [in] the msg format
+ *  @param ... [in] the input to the msg format
  *
- *  @return: return OLERR_NO_ERROR on success, otherwise the error code
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
  */
 LOGGERAPI u32 LOGGERCALL logDataMsg(
     u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...);
 
+/** Log a data msg with ascii string. The system error code is in errno.
+ *
+ *  @param pu8Data [in] the data to be logged
+ *  @param u32DataLen [in] the length of the data in bytes
+ *  @param fmt [in] the msg format
+ *  @param ... [in] the input to the msg format
+ *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ */
 LOGGERAPI u32 LOGGERCALL logDataMsgWithAscii(
     u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...);
 

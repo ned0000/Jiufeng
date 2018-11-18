@@ -44,13 +44,6 @@ union semun
 
 /* --- public routine section ---------------------------------------------- */
 
-/** initialize a semaphore 
- *
- *  @param pSem: sync_sem_t * <BR>
- *     @b [in] pss, the semaphore to be initiablized
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 initSyncSem(sync_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -96,14 +89,6 @@ u32 initSyncSem(sync_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount)
     return u32Ret;
 }
 
-/** finalize a semaphore
- *
- *  @param pSem: sync_sem_t * <BR>
- *     @b [in] the semaphore to be finilized
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- *
- */
 u32 finiSyncSem(sync_sem_t * pSem)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -139,18 +124,6 @@ u32 finiSyncSem(sync_sem_t * pSem)
     return u32Ret;
 }
 
-/** up a semaphore
- *
- *  Notes.
- *    - If the semaphore is 0, this routine suspends the calling thread 
- *      until the semaphore is up.
- *
- *  @param pSem: sync_sem_t * <BR>
- *     @b [in] the semaphore to be downed
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- *
- */
 u32 downSyncSem(sync_sem_t * pSem)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -188,16 +161,6 @@ u32 downSyncSem(sync_sem_t * pSem)
     return u32Ret;
 }
 
-/** try to down a semaphore
- *
- *  Notes:
- *    - it does not block the calling thread if the semaphore is 0
- *
- *  @param pSem: sync_sem_t * <BR>
- *     @b [in] the semaphore to be downed
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 tryDownSyncSem(sync_sem_t * pSem)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -235,16 +198,6 @@ u32 tryDownSyncSem(sync_sem_t * pSem)
     return u32Ret;
 }
 
-/** down a mutex with time out
- *
- *  @param pSem: sync_sem_t * <BR>
- *     @b [in] the semaphore to be downed
- *  @param u32Timeout: u32 <BR>
- *     @b [in] the maximum waiting period if the semophore has been uped
- *           by another thread. In milliseconds.
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 downSyncSemWithTimeout(sync_sem_t * pSem, u32 u32Timeout)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -288,13 +241,6 @@ u32 downSyncSemWithTimeout(sync_sem_t * pSem, u32 u32Timeout)
     return u32Ret;
 }
 
-/** up a semaphore.
- *
- *  @param pSem: sync_sem_t * <BR>
- *     @b [in] the semaphore to be uped
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 upSyncSem(sync_sem_t * pSem)
 {
     u32 u32Ret = OLERR_NO_ERROR;

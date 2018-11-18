@@ -5,18 +5,13 @@
  *
  *  @author Min Zhang
  *
- *  @note
- *    the implementation is very simple, no memory allocation, no
- *    dependancy on other libraries
- *    reads the options in a configuration file an example of the
- *    configuration file
- *        --------------------------------------------------------
- *        |# this is an exmaple of the configuration file        |
- *        |optiontagname1=value1 # this is an example of option  |
- *        |optiontagname2=value2                                 |
- *        |                                                      |
- *        |# the end of the configuration file                   |
- *        --------------------------------------------------------
+ *  @note the implementation is very simple, reads the options in a
+ *   configuration file.
+ *  @note an example of the configuration file is as below:
+ *  @note # this is an exmaple of the configuration file
+ *  @note optiontagname1=value1 # this is an example of option
+ *  @note optiontagname2=value2
+ *  @note # the end of the configuration file
  *
  */
 
@@ -42,62 +37,54 @@ typedef struct
 
 /* --- functional routines ------------------------------------------------- */
 
-/** open a configuration file according to the file path.
+/** Open a configuration file according to the file path.
  *
- *  @param pcf : conf_file_t <BR>
- *    @b [in] the configuration file object to be created and returned.
- *  @param pstrFile : const olchar_t * <BR>
- *    @b [in] the path to the configuraiton file
+ *  @param pcf [in] the configuration file object to be created and returned.
+ *  @param pstrFile [in] the path to the configuraiton file
  *
- *  @return: return OLERR_NO_ERROR otherwise the error code 
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
  */
 u32 openConfFile(conf_file_t * pcf, const olchar_t * pstrFile);
 
-/** close the configuration file object.
+/** Close the configuration file object.
  *
- *  @Param pcf : conf_file_t <BR>
- *    @b [in] the configuration file object to be destroyed. After 
- *           destruction, it will be set to NULL.
+ *  @param pcf [in] the configuration file object to be destroyed. After 
+ *   destruction, it will be set to NULL.
  *
- *  @return: return OLERR_NO_ERROR otherwise the error code 
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
  */
 u32 closeConfFile(conf_file_t * pcf);
 
-/** get an integer type option from the configuration file.
+/** Get an integer type option from the configuration file.
  *  If the pcf is set to NULL, or the option is not found, the default
  *  value will be returned.
  *
- *  @param pcf : conf_file_t <BR>
- *    @b [in] the configuration file object.
- *  @param pstrTag : const olchar_t * <BR>
- *    @b [in] the option tag name.
- *  @param nDefault : olint_t <BR>
- *    @b [in] the default value of the option.
- *  @param pnValue : olint_t * <BR>
- *       [out] the option value will be return to it.
+ *  @param pcf [in] the configuration file object.
+ *  @param pstrTag [in] the option tag name.
+ *  @param nDefault [in] the default value of the option.
+ *  @param pnValue [in/out] the option value will be return to it.
  *
- *  @return: return OLERR_NO_ERROR otherwise the error code 
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
  */
 u32 getConfFileInt(
     conf_file_t * pcf, const olchar_t * pstrTag, olint_t nDefault,
     olint_t * pnValue);
 
-/** get an string type option from the configuration file.
- *       If the pcf is set to NULL, or the option is not found, the default
- *       value will be returned.
+/** Get an string type option from the configuration file.
+ *  If the pcf is set to NULL, or the option is not found, the default
+ *  value will be returned.
  *
- *  @param pcf : conf_file_t <BR>
- *    @b [in] the configuration file object.
- *  @param pstrTag : const olchar_t * <BR>
- *    @b [in] the option tag name.
- *  @param pstrDefault : const olchar_t * <BR>
- *    @b [in] the default value of the option.
- *  @param pstrValueBuf : olchar_t * <BR>
- *    @b [out] the option value will be return to it.
- *  @param sBuf : olsize_t <BR>
- *    @b [in] the size of the pstrValueBuf.
+ *  @param pcf [in] the configuration file object.
+ *  @param pstrTag [in] the option tag name.
+ *  @param pstrDefault [in] the default value of the option.
+ *  @param pstrValueBuf [in/out] the option value will be return to it.
+ *  @param sBuf [in] the size of the pstrValueBuf.
  *
- *  @return: return OLERR_NO_ERROR otherwise the error code 
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
  */
 u32 getConfFileString(
     conf_file_t * pcf, const olchar_t * pstrTag, const olchar_t * pstrDefault, 

@@ -1,7 +1,7 @@
 /**
  *  @file hsm.h
  *
- *  @brief template header file
+ *  @brief HSM header file. Interfaces for hierarchical state machine
  *
  *  @author Min Zhang
  *

@@ -274,13 +274,9 @@ static u32 _newMenu(internal_menu_t * pParent, fnPreShow_t fnPreShow,
 
 /** Print menu and wait for user's selection and execute corresponding routines
  *
- *  - implementation
- *    -# 
+ *  @param pMenu [in] the internal menu data structure
  *
- *  @param : <BR>
- *     @b [in]
- *
- *  @return
+ *  @return internal menu data structure
  */
 static internal_menu_t * _showMenu(internal_menu_t * pMenu)
 {
@@ -399,20 +395,6 @@ static olint_t _destroyMenu(internal_menu_t * pTop)
 
 /* --- public routine section ---------------------------------------------- */
 
-/** create the top menu
- *
- *  - implementation
- *    -# 
- *
- *  @param pTop : menu_t <BR>
- *     @b [in] the top menu
- *  @param preShow : void * ( * preShow )( void * data ) <BR>
- *     @b [in] routine invoked before showing the menu
- *  @param postShow : void * ( * preShow )( void * data ) <BR>
- *     @b [in] routine invoked after showing the menu
- *
- *  @return
- */
 u32 createTopMenu(fnPreShow_t fnPreShow, fnPostShow_t fnPostShow, void * pArg,
     menu_t ** ppMenu)
 {
@@ -424,35 +406,6 @@ u32 createTopMenu(fnPreShow_t fnPreShow, fnPostShow_t fnPostShow, void * pArg,
     return u32Ret;
 }
 
-/** Add an entry to the menu 
- *
- *  - implementation
- *    -# If the type of the entry to be added is a menu, the menu will return
- *       to the invoker.
- *    -# If the entry is a sub menu, the p_handler parameter must be NULL.
- *    -# If the entry is an entry, the preShow and postShow parameters must
- *       be NULL.
- *
- *  @param pstrName : const olchar_t * <BR>
- *     @b [in] name of the entry
- *  @param pstrDesc : <BR>
- *     @b [in] description of the entry
- *  @param type : entry_type_t <BR>
- *     @b [in] type of the entry
- *  @param attr : u32 <BR>
- *     @b [in] attribute of the entry
- *  @param p_handler : olint_t ( * )( void ) <BR>
- *     @b [in] handler if it is an entry
- *  @param preShow : olint_t ( * )( void ) <BR>
- *     @b [in] routine invoked before entering a menu
- *  @param postShow : olint_t ( * )( void ) <BR>
- *     @b [in] routine invoked after leaving a menu
- *  @param pParent : menu_t * <BR>
- *     @b [in] parent of the entry
- *
- *  @return return the menu if the type of the entry is a menu; 
- *          otherwise return NULL
- */
 u32 addMenuEntry(menu_t * pParent, const olchar_t * pstrName,
     const olchar_t * pstrDesc, const u32 attr,
     fnHandler_t fnHandler, void * pArg)
@@ -476,36 +429,6 @@ u32 addMenuEntry(menu_t * pParent, const olchar_t * pstrName,
 
     return u32Ret;
 }
-
-/** Add a sub menu 
- *
- *  - implementation
- *    -# If the type of the entry to be added is a menu, the menu will return
- *       to the invoker.
- *    -# If the entry is a sub menu, the p_handler parameter must be NULL.
- *    -# If the entry is an entry, the preShow and postShow parameters must
- *       be NULL.
- *
- *  @param pstrName : const olchar_t * <BR>
- *     @b [in] name of the entry
- *  @param pstrDesc : <BR>
- *     @b [in] description of the entry
- *  @param type : entry_type_t <BR>
- *     @b [in] type of the entry
- *  @param attr : u32 <BR>
- *     @b [in] attribute of the entry
- *  @param p_handler : olint_t ( * )( void ) <BR>
- *     @b [in] handler if it is an entry
- *  @param preShow : olint_t ( * )( void ) <BR>
- *     @b [in] routine invoked before entering a menu
- *  @param postShow : olint_t ( * )( void ) <BR>
- *     @b [in] routine invoked after leaving a menu
- *  @param pParent : menu_t * <BR>
- *     @b [in] parent of the entry
- *
- *  @return return the menu if the type of the entry is a menu; 
- *          otherwise return NULL
- */
 
 u32 addSubMenu(menu_t * pParent, const olchar_t * pstrName,
     const olchar_t * pstrDesc, const u32 attr,

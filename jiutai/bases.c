@@ -35,15 +35,10 @@
 /* --- private routine section---------------------------------------------- */
 /** Calculate a numeric Hash from a given string
  *
- *  - Notes:  
- *    -# 
- *
- *  @param pKey : void * <BR> 
- *     @b [in] The string to hash 
- *  @param u32KeyLen : olint_t <BR> 
- *     @b [in] The length of the string to hash 
+ *  @param pKey [in] The string to hash 
+ *  @param u32KeyLen [in] The length of the string to hash 
  
- *  @return return A hash value   
+ *  @return the hash value   
  */
 static olint_t _getHashValue(void * pKey, u32 u32KeyLen)
 {
@@ -112,20 +107,13 @@ static u32 _newHashtreeEntry(
 /** Determine if a key entry exists in a hash tree, and creates it 
  *  if requested
  *
- *  - Notes:  
- *    -# Used by ILibHashTree methods
- *
- *  @param pHashtree : hashtree_t * <BR> 
- *     @b [in] The HashTree to operate on 
- *  @param pKey : void * <BR> 
- *     @b [in] The key 
- *  @param sKey : olsize_t <BR> 
- *     @b [in] The length of the key 
- *  @param create : olint_t <BR> 
- *     @b [in] return 0 if non-existing item is NOT to be created;
- *             return Nonzero otherwise
+ *  @param pHashtree [in] the hashtree to operate on 
+ *  @param pKey [in] the key 
+ *  @param sKey [in] the length of the key 
+ *  @param bCreate [in] if true, create the entry
+ *  @param ppNode [in/out] the hashtree node
  * 
- *  @return return a hash value   
+ *  @return the error code
  */
 static u32 _findHashtreeEntry(
     hashtree_t * pHashtree, void * pKey,
@@ -168,26 +156,11 @@ static u32 _findHashtreeEntry(
 
 /* --- public routine section ---------------------------------------------- */
 
-/*
- * Queue methods
- */
-
-/** Create an empty Queue
- *
- *  @return return An empty queue   
- */
 void initQueue(basic_queue_t * pQueue)
 {
     pQueue->bq_pqnHead = pQueue->bq_pqnTail = NULL;
 }
 
-/** Free the resources associated with a queue
- *
- *  @param q : basic_queue_t * <BR> 
- *     @b [in] The queue to free 
- *  
- *  @return void
- */
 void finiQueue(basic_queue_t * pQueue)
 {
     queue_node_t * pqn, * temp;
@@ -221,28 +194,11 @@ void finiQueueAndData(basic_queue_t * pQueue, fnFreeQueueData_t fnFreeData)
     }
 }
 
-/** Check to see if a queue is empty
- *
- *  @param q : basic_queue_t * <BR> 
- *     @b [in] The queue to check 
- *
- *  @return return zero value if not empty;
- *          return non-zero if empty   
- */
 boolean_t isQueueEmpty(basic_queue_t * pbq)
 {
     return (pbq->bq_pqnHead == NULL ? TRUE : FALSE);
 }
 
-/** Add an item to the queue
- *
- *  @param q : basic_queue_t * <BR> 
- *     @b [in] The queue to add  
- *  @param data : void * <BR> 
- *     @b [in] The data to add to the queue
- *
- *  @return void
- */
 u32 enqueue(basic_queue_t * pbq, void * data)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -271,14 +227,6 @@ u32 enqueue(basic_queue_t * pbq, void * data)
     return u32Ret;
 }
 
-/** Remove an item from the queue
- *
- *  @param pbq : basic_queue_t * <BR> 
- *     @b [in] The queue to remove an item from 
- *
- *  @return return The item removed from the queue;
- *          return NULL if empty   
- */
 void * dequeue(basic_queue_t * pbq)
 {
     queue_node_t * temp;
@@ -301,14 +249,6 @@ void * dequeue(basic_queue_t * pbq)
     return retval;
 }
 
-/** Peek at an item from the queue
- *
- *  @param pbq : basic_queue_t * <BR> 
- *     @b [in] The queue to peek an item from
- *
- *  @return return The item from the queue;
- *          return NULL if empty  
- */
 void * peekQueue(basic_queue_t * pbq)
 {
     if (pbq->bq_pqnHead == NULL)
@@ -321,33 +261,11 @@ void * peekQueue(basic_queue_t * pbq)
  * Stack Methods
  */
 
-/** init an empty Stack
- *
- *  - Notes:  
- *    -# This module uses a void* that is preinitialized to NULL, eg:
- *       void *stack = NULL;
- *       initStack(&stack);
- *
- *  @param stack : basic_stack_t ** <BR> 
- *     @b [out] A basic_stack_t* to use for the stack. Simply pass in a basic_stack_t * 
- *             by reference
- *
- *  @return void
- */
 void initStack(basic_stack_t ** ppStack)
 {
     *ppStack = NULL;
 }
 
-/** Pushe an item onto the stack
- *
- *  @param stack : basic_stack_t ** <BR> 
- *     @b [out] The stack to push to 
- *  @param data : void * <BR> 
- *     @b [in] The data to push onto the stack 
- *
- *  @return void
- */
 u32 pushStack(basic_stack_t ** ppStack, void * data)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -365,13 +283,6 @@ u32 pushStack(basic_stack_t ** ppStack, void * data)
     return u32Ret;
 }
 
-/** Pop an item from the stack
- *
- *  @param stack : basic_stack_t ** <BR> 
- *     @b [out] The stack to pop from 
- *
- *  @return return The item that was popped from the stack   
- */
 void * popStack(basic_stack_t ** ppStack)
 {
     void * retval = NULL;
@@ -388,13 +299,6 @@ void * popStack(basic_stack_t ** ppStack)
     return retval;
 }
 
-/** Peeks at the item on the top of the stack
- *
- *  @param stack : basic_stack_t ** <BR> 
- *     @b [out] The stack to peek from 
- *
- *  @return return The item that is currently on the top of the stack   
- */
 void * peekStack(basic_stack_t ** ppStack)
 {
     void * retval = NULL;
@@ -405,13 +309,6 @@ void * peekStack(basic_stack_t ** ppStack)
     return retval;
 }
 
-/** Clears all the items from the stack
- *
- *  @param stack : basic_stack_t ** <BR> 
- *     @b [out] The stack to clear 
- *
- *  @return void
- */
 void clearStack(basic_stack_t ** ppStack)
 {
     void * temp = *ppStack;
@@ -435,7 +332,7 @@ void initLinkList(link_list_t * pList)
     pList->ll_pllnHead = NULL;
 }
 
-/** fini the linked list
+/** Finalize the linked list
  *
  */
 void finiLinkList(link_list_t * pList)
@@ -455,7 +352,7 @@ void finiLinkList(link_list_t * pList)
     initLinkList(pList);
 }
 
-/** fini the linked list with the function to free the data
+/** Finalize the linked list with the function to free the data
  * 
  */
 void finiLinkListAndData(link_list_t * pList,
@@ -537,7 +434,7 @@ u32 insertToLinkList(link_list_t * pList, void * pData)
  * double linked list
  */
 
-/** init the double linked list
+/** Init the double linked list
  *
  */
 void initDlinkList(dlink_list_t * pList)
@@ -831,39 +728,6 @@ u32 appendToDlinkList(dlink_list_t * pList, void * pData)
  * Hashtree Methods
  */
 
-/** init an empty hashtree
- *
- *  @return return An empty hashtree
-
-u32 initHashtree(hashtree_t * pHashtree)
-{
-    u32 u32Ret = OLERR_NO_ERROR;
-    hash_node_t * root = NULL;
-
-    memset(pHashtree, 0, sizeof(hashtree_t));
-
-    u32Ret = xcalloc((void **)&root, sizeof(hash_node_t));
-    if (u32Ret == OLERR_NO_ERROR)
-    {
-        pHashtree->h_hnRoot = root;
-    }
-    else
-    {
-        if (root != NULL)
-            xfree((void **)&root);
-    }
-
-    return u32Ret;
-}
- */
-
-/** Free resources associated with a HashTree
- *
- *  @param pHashtree : hashtree_t ** <BR> 
- *     @b [in] The HashTree to free
- *
- *  @return void
- */
 void finiHashtree(hashtree_t * pHashtree)
 {
     hash_node_t * phn;
@@ -885,15 +749,6 @@ void finiHashtree(hashtree_t * pHashtree)
     }
 }
 
-/** Free resources associated with a HashTree
- *
- *  @param ppHashtree : hashtree_t ** <BR> 
- *     @b [in] The HashTree to free
- *  @param fnFreeData : fnFreeHashtreeData_t <BR> 
- *     @b [in] The function to free data
- *
- *  @return void
- */
 void finiHashtreeAndData(
     hashtree_t * pHashtree, fnFreeHashtreeData_t fnFreeData)
 {
@@ -921,18 +776,6 @@ void finiHashtreeAndData(
     }
 }
 
-/** Determines if a key entry exists in a HashTree
- *
- *  @param pHashtree : hashtree_t * <BR> 
- *     @b [in] The HashTree to operate on 
- *  @param key : olchar_t * <BR> 
- *     @b [in] The key 
- *  @param sKey : olsize_t <BR> 
- *     @b [in] The length of the key 
- 
- *  @return return 0 if does not exist;
- *          return  nonzero otherwise   
- */
 boolean_t hasHashtreeEntry(hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey)
 {
     boolean_t bRet = FALSE;
@@ -948,21 +791,6 @@ boolean_t hasHashtreeEntry(hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t 
     return bRet;
 }
 
-/** Adds an item to the HashTree
- * 
- *  @param pHashtree : void * <BR>
- *     @b [in] The HashTree to operate on
- *  @param key : olchar_t * <BR>
- *     @b [in] The key
- *  @param sKey : olint_t <BR>
- *     @b [in] The length of the key
- *  @param value : void * <BR>
- *     @b [in] The data to add into the HashTree
- *
- *  @return void
- *
- *  @see _findHashtreeEntry( )
- */
 u32 addHashtreeEntry(
     hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void * value)
 {
@@ -977,20 +805,6 @@ u32 addHashtreeEntry(
     return u32Ret;
 }
 
-/** Gets an item from a HashTree
- *
- *  @param pHashtree : hashtree_t * <BR> 
- *     @b [in] The HashTree to operate on 
- *  @param key : olchar_t * <BR> 
- *     @b [in] The key 
- *  @param sKey : olint_t <BR>
- *     @b [in] The length of the key 
- *
- *  @return return The data in the HashTree;
- *          return NULL if key does not exist   
- *
- *  @return void
- */
 u32 getHashtreeEntry(
     hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void ** ppData)
 {
@@ -1008,17 +822,6 @@ u32 getHashtreeEntry(
     return u32Ret;
 }
 
-/** Deletes a keyed item from the HashTree
- *
- *  @param pHashtree : hashtree_t * <BR> 
- *     @b [in] The HashTree to operate on 
- *  @param pstrKey : olchar_t * <BR> 
- *     @b [in] The key 
- *  @param sKey : olint_t <BR> 
- *     @b [in] The length of the key 
- *
- *  @return void
- */
 u32 deleteHashtreeEntry(hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey)
 {
     u32 u32Ret = OLERR_NO_ERROR;

@@ -24,7 +24,8 @@
 #define MAX_ID_LENGTH 4
 
 /* --- private routine section---------------------------------------------- */
-/* trim the setting pointed by pstrSetting and copy the trimmed setting
+
+/** Trim the setting pointed by pstrSetting and copy the trimmed setting
  *  to pstrValue
  */
 static u32 _trimSetting(olchar_t * pstrSetting, olchar_t * pstrValue, olsize_t sValue)
@@ -71,21 +72,7 @@ static u32 _trimSetting(olchar_t * pstrSetting, olchar_t * pstrValue, olsize_t s
 }
 
 /* --- public routine section ---------------------------------------------- */
-/** process the command line id list to form a unary array of ids.
- * 
- *  - Notes:
- *    -# if pstrIdList = "2,5,9~11", after processing
- *        pu32Ids[5] = {2,5,9,10,11}, * pu32IdCount = 5
- *          
- *  @Param
- *       [in] pstrIdList, a id list form command line, ended with '\0'.
- *       [out] pids, the id array to be returned
- *       [in/out] psId, as in param - the expected count of ids; as out
- *           param - the actually inputed count of ids from the command line.
- *
- *  Return: OLERR_NO_ERROR, succeeded; otherwise, failed.
- *  Remarks: pids is a buffer can at least hold *psId ids.
- */
+
 u32 processIdList(const olchar_t * pstrIdList, olid_t * pids, olsize_t * psId)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -276,24 +263,6 @@ u32 retrieveSettingsEnable(olchar_t * pstrValue, boolean_t * pbEnable)
     return u32Ret;
 }
 
-/** Validate the setting.
- * 
- *  - Notes:
- *    -# processSettings() should be called before
- *
- *  @param pstrArray: olchar_t *[] <BR>
- *     @b [in] the string array returned by processSetting()
- *  @param u32ArrayLen: olsize_t <BR>
- *     @b [in] number of element in the string array
- *  @param u8Nmae: olchar_t * <BR>
- *     @b [in] setting name
- *  @param pstrValue: olchar_t * <BR>
- *     @b [out] setting value
- *  @param sValue: olsize_t <BR>
- *     @b [out] length of pstrValue
- *
- *  @return return OLERR_NO_ERROR is no error.
- */
 u32 retrieveSettings(
     olchar_t * pstrArray[], olsize_t sArray,
     const olchar_t * pstrName, olchar_t * pstrValue, olsize_t sValue)
@@ -335,24 +304,6 @@ u32 retrieveSettings(
     return u32Ret;
 }
 
-/** Validate the setting.
- * 
- *  - Notes:
- *    -# processSettings() should be called before to get the string array
- *
- *  @param pstrNameArray: *[] <BR>
- *     @b [in] the tag name array
- *  @param sNameArray <BR>
- *     @b [in] number of element in the tag name array
- *  @param pstrArray: *[] <BR>
- *     @b [in] the string array returned by processSetting()
- *  @param u32ArrayLen: u32 <BR>
- *     @b [in] number of element in the string array
- *  @param piArray: olindex_t * <BR>
- *     @b [out] the index of the invalid setting
- *
- *  @return return OLERR_NO_ERROR is no error.
- */
 u32 validateSettings(olchar_t * pstrNameArray[], olsize_t sNameArray, 
     olchar_t * pstrArray[], olsize_t sArray, olindex_t * piArray)
 {
@@ -404,31 +355,6 @@ u32 validateSettings(olchar_t * pstrNameArray[], olsize_t sNameArray,
     return u32Ret;
 }
 
-/** break down the strings pointed by pstrSettings to an array pointing to 
- *  each setting.
- *
- *  Notes
- *   - for iSCSI keywords process, the tag is seperated by '\0'
- *   - *psArray specifies the array size. If numbers of tags are more
- *     than array size, only those tags are returned.
- *
- *
- *  Eg. pstrSetting = "tag1=value1\0tag2 = value2\0tag3=value3"
- *   After processing,
- *      pstrArray[0] = "tag1=value1"
- *      pstrArray[1] = "tag2 = value2"
- *      pstrArray[2] = "tag3=value3"
- *      *psArray = 3
- *
- *  @param pu8Settings: u8 * <BR>
- *     @b [in] the setting string
- *  @param pstrArray: *[] <BR>
- *     @b [out] the string array <BR>
- *  @param psArray: u32 * <BR>
- *     @b [out] number of element in the string array
- * 
- *  @return return OLERR_NO_ERROR if no error.
- */
 u32 processKeywordSettings(
     u8 * pu8Settings, olsize_t sSettings,
     olchar_t * pstrArray[], olsize_t * psArray)
@@ -489,28 +415,6 @@ u32 processKeywordSettings(
     return u32Ret;
 }
 
-/** break down the strings pointed by pstrSettings to an array pointing to 
- *  each setting.
- *
- *  Notes
- *   - the tag is seperated by ','
- *
- *  Eg. pstrSetting = "tag1=value1, tag2 = value2, tag3=value3"
- *   After processing,
- *      pstrArray[0] = "tag1=value1"
- *      pstrArray[1] = "tag2 = value2"
- *      pstrArray[2] = "tag3=value3"
- *      *psArray = 3
- *
- *  @param pstrSettings: olchar_t * <BR>
- *     @b [in] the setting string
- *  @param pstrArray: *[] <BR>
- *     @b [out] the string array <BR>
- *  @param psArray: u32 * <BR>
- *     @b [out] number of element in the string array
- * 
- *  @return return OLERR_NO_ERROR if no error.
- */
 u32 processSettings(
     olchar_t * pstrSettings, olchar_t * pstrArray[], olsize_t * psArray)
 {
@@ -653,11 +557,10 @@ u32 getSettingsU32(olchar_t * pstrArray[], olsize_t sArray,
     return u32Ret;
 }
 
-/**
- *  - Notes:
- *    -# if setting name is not found in the string array, the default value is
- *       set and return OLERR_NO_ERROR. if setting name is found and the value 
- *       is incorrect, the default value is set and return OLERR_INVALID_SETTING
+
+/**  If setting name is not found in the string array, the default value is
+ *   set and return OLERR_NO_ERROR. if setting name is found and the value 
+ *   is incorrect, the default value is set and return OLERR_INVALID_SETTING
  */
 u32 getSettingsBoolean(olchar_t * pstrArray[], olsize_t sArray,
     const olchar_t * pstrSettingName, const boolean_t bDefaultValue,
@@ -708,8 +611,8 @@ u32 getSettingsSize(olchar_t * pstrArray[], olsize_t sArray,
     return u32Ret;
 }
 
-/** pcoesss setting string with format "name=value",
- *  the string is null-terminated
+/** Pcoesss setting string with format "name=value", the string is
+ *  null-terminated
  *
  */
 u32 processSettingString(olchar_t * pstrSetting, olchar_t ** ppstrName,

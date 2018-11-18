@@ -20,17 +20,22 @@
 
 
 /* --- data structures ----------------------------------------------------- */
+
+/** The data vector entry structure
+ */
 typedef struct
 {
-    u8 * dve_pu8Buf; /*buffer*/
-    olsize_t dve_sBuf; /*the size of the buffer*/
-    olsize_t dve_sOffset; /*the size of the data in this buffer*/
+    u8 * dve_pu8Buf;   /**< buffer */
+    olsize_t dve_sBuf; /**< the size of the buffer*/
+    olsize_t dve_sOffset; /**< the size of the data in this buffer*/
 } data_vec_entry_t;
 
+/** The data vector structure
+ */
 typedef struct
 {
-    u16 dv_u16MaxEntry; /*max number of entries allocated*/
-    u16 dv_u16CurEntry; /*tatal number of entryies containing data*/
+    u16 dv_u16MaxEntry; /**< max number of entries allocated*/
+    u16 dv_u16CurEntry; /**< tatal number of entryies containing data*/
     u32 dv_u32Reserved8[3];
     data_vec_entry_t * dv_pdveEntry;
 } data_vec_t;

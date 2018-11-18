@@ -1,13 +1,12 @@
 /**
  *  @file ifmgmt.h
  *
- *  @brief API of network interface management library
- *  including physical port, VLAN, link aggregation
+ *  @brief Header file of network interface management library. Including
+ *   physical port.
  *
  *  @author Min Zhang
  *
- *  @note
- *  - link with olfiles and olstringparse library
+ *  @note Link with olfiles and olstringparse library
  *
  */
 

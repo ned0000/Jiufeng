@@ -68,25 +68,71 @@ typedef struct parse_result
 
 /*basic string parse*/
 
-/// Parses a string into a linked list of tokens.
+/** Parse a string into a linked list of tokens.
+ *
+ *  @param ppResult [out] the parse result returned
+ *  @param pstrBuf [in] The buffer to parse 
+ *  @param sOffset [in] The offset of the buffer to start parsing 
+ *  @param sBuf [in] The length of the buffer to parse 
+ *  @param pstrDelimiter [in] The delimiter 
+ *  @param sDelimiter [in] The length of the delimiter 
+ * 
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ *  @retval OLERR_OUT_OF_MEMORY out of memeory
+ *
+ *  @note differs from parseStringAdv, this method does not ignore
+ *   characters contained within quotation marks, whereas parseStringAdv does.
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL parseString(
     parse_result_t ** ppResult,
     olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf, olchar_t * pstrDelimiter,
     olsize_t sDelimiter);
 
-/// Parses a string into a linked list of tokens.
+
+/** Parses a string into a linked list of tokens. Ignore characters contained
+ *  within quotation marks. The quotation is "" or ''
+ *
+ *  @param ppResult [out] the parse result returned
+ *  @param pstrBuf [in] The buffer to parse 
+ *  @param sOffset [in] The offset of the buffer to start parsing 
+ *  @param sBuf [in] The size of the buffer to parse 
+ *  @param pstrDelimiter [in] The delimiter 
+ *  @param sDelimiter [in] The length of the delimiter 
+ *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ *  @retval OLERR_OUT_OF_MEMORY out of memeory
+ *
+ *  @note differs from parseString, this method ignores characters
+ *   contained within quotation marks, whereas parseString does not.
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL parseStringAdv(
     parse_result_t ** ppResult,
     olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf, olchar_t * pstrDelimiter,
     olsize_t sDelimiter);
 
-/// Frees resources associated with the list of tokens returned 
-/// from ILibParseString and ILibParseStringAdv.
+/** Frees resources associated with the list of tokens returned from parseString
+ *  and parseStringAdv.
+ *
+ *  @param ppResult [in] The list of tokens to free 
+ *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL destroyParseResult(
     parse_result_t ** ppResult);
 
-STRINGPARSEAPI void STRINGPARSECALL skipBlank(olchar_t * pstrDest,
-    const olchar_t * pstrSource);
+/** Remove the blank space(s) from the left and the right of the string
+ *
+ *  @param pstrDest [out] the output string after removing the blank space(s)
+ *  @param pstrSource [in] the input string to be removed the blank space(s)
+ *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ */
+STRINGPARSEAPI void STRINGPARSECALL skipBlank(
+    olchar_t * pstrDest, const olchar_t * pstrSource);
 
 STRINGPARSEAPI boolean_t STRINGPARSECALL isBlankLine(const olchar_t * pstrLine);
 
@@ -109,13 +155,48 @@ STRINGPARSEAPI void STRINGPARSECALL removeLeadingSpace(olchar_t * pstr);
 
 STRINGPARSEAPI void STRINGPARSECALL removeTailingSpace(olchar_t * pstr);
 
+/** Removes all leading and tailing blankspaces, and replaces all multiple
+ *  occurences of blank spaces with a single one.       \n
+ *  eg:                                                 \n
+ *      "  this   is  a   test string"                  \n
+ *  =>    "this is a test string"                       \n
+ *
+ *  @param pstr [in/out] the string that should be trimmed.
+ *
+ *  @return void
+ */
 STRINGPARSEAPI void STRINGPARSECALL trimBlankOfString(olchar_t * pstr);
 
-/* *ppstrLoc is a pointer to the beginning of the substring, or NULL if
-  the substring is not found*/
-STRINGPARSEAPI u32 STRINGPARSECALL locateSubString(const olchar_t * pstr,
-    const olchar_t * pstrSub, olchar_t ** ppstrLoc);
+/** break string to line with width, the line terminator is at the best
+ *  suitable position. 
+ *
+ *  @param pstr [in/out] the string that should be wrapped.
+ *  @param sWidth [in] the maximal column count of the wrapped string.
+ *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ */
+u32 breakStringToLine(olchar_t * pstr, olsize_t sWidth);
 
+/** ppstrLoc is a pointer to the beginning of the substring, or NULL if
+ *  the substring is not found
+ **/
+STRINGPARSEAPI u32 STRINGPARSECALL locateSubString(
+    const olchar_t * pstr, const olchar_t * pstrSub, olchar_t ** ppstrLoc);
+
+/** Replaces the first occurence of needle in the string src with the string
+ *  subst. If no occurence of needle could be found in src, NULL is returned,
+ *  otherwise the starting index of needle inside src. src needs to be
+ *  big enough to store the resulting string.
+ *
+ *  @param pstrSrc [in] the string that should be modified.
+ *  @param sBuf [in] the size of the buffer containing the source string
+ *  @param pstrNeedle [in] the pattern that should be replaced.
+ *  @param pstrSubst [in] the pattern that should be used for replacing.
+ *
+ *  @return the occurence of needle
+ *  @retval NULL if no occurence of needle could be found in src
+ */
 STRINGPARSEAPI olchar_t * STRINGPARSECALL replaceString(
     olchar_t * pstrSrc, olsize_t sBuf, olchar_t * pstrNeedle, olchar_t * pstrSubst);
 
@@ -206,9 +287,27 @@ STRINGPARSEAPI u32 STRINGPARSECALL getS32FromHexString(
 STRINGPARSEAPI u32 STRINGPARSECALL getU32FromString(
     const olchar_t * pstrInteger, const olsize_t size, u32 * pu32Value);
 
+/** Reads a long value from a string
+ *
+ *  @param pstrInteger [in] the string to read from 
+ *  @param size [in] the length of the string 
+ *  @param numeric [in] the long value extracted from the string 
+ *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL getLongFromString(
     const olchar_t * pstrInteger, const olsize_t size, long * numeric);
 
+/** Reads an unsigned long value from a string
+ *
+ *  @param pstrInteger [in] the string to read from 
+ *  @param size [in] the length of the string 
+ *  @param numeric [in] the unsigned long value extracted from the string 
+ *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL getUlongFromString(
     const olchar_t * pstrInteger, const olsize_t size, unsigned long * numeric);
 
@@ -218,23 +317,46 @@ STRINGPARSEAPI u32 STRINGPARSECALL getU64FromString(
 STRINGPARSEAPI u32 STRINGPARSECALL getS64FromString(
     const olchar_t * pstrInteger, const olsize_t size, s64 * ps64Value);
 
+/** Read binary from string
+ *
+ *  @param pstr [in] the string to read from 
+ *  @param size [in] the length of the string 
+ *  @param pu8Binary [out] the buffer for the binary
+ *  @param psBinary [in/out] the length of the buffer and the length of binary
+ *   is returned
+ *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL getBinaryFromString(
-    const olchar_t * pstr, const olsize_t size, u8 * pu8Binary, olsize_t * psBinary);
+    const olchar_t * pstr, const olsize_t size, u8 * pu8Binary,
+    olsize_t * psBinary);
 
+/** Get the size accordign to the size stirng. The size string will be the
+ *  format of "xxxx.xxGB|MB|KB|B"
+ *
+ *  @param pstrSize [in] the size string;
+ *  @param pu64Size [out] the size in bytes to be returned
+ *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL getSizeFromString(
     const olchar_t * pstrSize, u64 * pu64Size);
 
-/*get the time from the string with the format hour:minute:second like 15:23:58
+/** Get the time from the string with the format hour:minute:second like
+ *  15:23:58
  */
 STRINGPARSEAPI u32 STRINGPARSECALL getTimeFromString(
-    const olchar_t * pstrTimeString, olint_t * pHour, olint_t * pMin, olint_t * pSec);
+    const olchar_t * pstrTimeString, olint_t * pHour, olint_t * pMin,
+    olint_t * pSec);
 
-/* get date from the string with the format year/month/date like 2005/10/20
+/** Get date from the string with the format year/month/date like 2005/10/20
  */
 STRINGPARSEAPI u32 STRINGPARSECALL getDateFromString(
     const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay);
 
-/* get date from the string with the format year-month-date like 2005-10-20
+/** Get date from the string with the format year-month-date like 2005-10-20
  */
 STRINGPARSEAPI u32 STRINGPARSECALL getDate2FromString(
     const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay);
@@ -242,8 +364,9 @@ STRINGPARSEAPI u32 STRINGPARSECALL getDate2FromString(
 STRINGPARSEAPI u32 STRINGPARSECALL getMACAddressFromString(
     const olchar_t * pstrMACString, u8 * pu8Value);
 
-/*convert the string to byte hex
-  return the number of bytes hex converted from the string */
+/** Convert the string to byte hex
+ *  return the number of bytes hex converted from the string
+ */
 STRINGPARSEAPI olsize_t STRINGPARSECALL getHexFromString(
     const olchar_t * pstr, const olsize_t size, u8 * pu8Hex, olsize_t sHexLen);
 
@@ -255,13 +378,81 @@ STRINGPARSEAPI u32 STRINGPARSECALL getDoubleFromString(
 
 /*setting parse*/
 
+/** Process the command line id list to form a unary array of ids.
+ * 
+ *  @param pstrIdList [in] a id list form command line, ended with '\0'.
+ *  @param pids [out] the id array to be returned
+ *  @param psId [in/out] as in param, the expected count of ids;
+ *   as out param, the actually inputed count of ids from the command line.
+ *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ *
+ *  @note pids is a buffer can at least hold *psId ids.
+ *  @note if pstrIdList = "2,5,9~11", after processing
+ *  @note pu32Ids[5] = {2,5,9,10,11}, * psId = 5
+ */
+STRINGPARSEAPI u32 STRINGPARSECALL processIdList(
+    const olchar_t * pstrIdList, olid_t * pids, olsize_t * psId);
+
+/** Retrive settings from the string array
+ * 
+ *  @param pstrArray [in] the string array returned by processSetting()
+ *  @param sArray [in] number of element in the string array
+ *  @param pstrName [in] setting name
+ *  @param pstrValue [out] setting value
+ *  @param sValue [in] length of value string
+ *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ *
+ *  @note processSettings() should be called before
+ */
+STRINGPARSEAPI u32 STRINGPARSECALL retrieveSettings(
+    olchar_t * pstrArray[], olsize_t sArray,
+    const olchar_t * pstrName, olchar_t * pstrValue, olsize_t sValue);
+
 STRINGPARSEAPI u32 STRINGPARSECALL retrieveSettingsEnable(
     olchar_t * pstrValue, boolean_t * pbEnable);
 
+/** Validate the setting.
+ * 
+ *  @param pstrNameArray [in] the tag name array
+ *  @param sNameArray [in] number of element in the tag name array
+ *  @param pstrArray [in] the string array returned by processSetting()
+ *  @param sArray [in] number of element in the string array
+ *  @param piArray [out] the index of the invalid setting
+ *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ *
+ *  @note processSettings() should be called before
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL validateSettings(
     olchar_t * pstrNameArray[], olsize_t sNameArray,
     olchar_t * pstrArray[], olsize_t sArray, olindex_t * piArray);
 
+/** Break down the strings pointed by pstrSettings to an array pointing to 
+ *  each setting.                                                  \n
+ *  Eg. pstrSetting = "tag1=value1\0tag2 = value2\0tag3=value3"    \n
+ *   After processing,                                             \n
+ *      pstrArray[0] = "tag1=value1"                               \n
+ *      pstrArray[1] = "tag2 = value2"                             \n
+ *      pstrArray[2] = "tag3=value3"                               \n
+ *      *psArray = 3                                               \n
+ *
+ *  @param pu8Settings [in] the setting string
+ *  @param sSettings [in] the size of the string
+ *  @param pstrStrArray [out] the string array
+ *  @param psArray [in/out] number of element in the string array
+ * 
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ *
+ *  @note for iSCSI keywords process, the tag is seperated by '\0'
+ *  @note psArray specifies the array size. If numbers of tags are more
+ *   than array size, only those tags are returned.
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL processKeywordSettings(
     u8 * pu8Settings, olsize_t sSettings,
     olchar_t * pstrStrArray[], olsize_t * psArray);
@@ -269,6 +460,24 @@ STRINGPARSEAPI u32 STRINGPARSECALL processKeywordSettings(
 STRINGPARSEAPI u32 STRINGPARSECALL processSettingString(
     olchar_t * pstrSetting, olchar_t ** ppstrName, olchar_t ** ppstrValue);
 
+/** Break down the strings pointed by pstrSettings to an array pointing to 
+ *  each setting.                                                    \n
+ *  Eg. pstrSetting = "tag1=value1, tag2 = value2, tag3=value3"      \n
+ *   After processing,                                               \n
+ *      pstrArray[0] = "tag1=value1"                                 \n
+ *      pstrArray[1] = "tag2 = value2"                               \n
+ *      pstrArray[2] = "tag3=value3"                                 \n
+ *      *psArray = 3                                                 \n
+ *
+ *  @param pstrSettings [in] the setting string
+ *  @param pstrArray [out] the string array
+ *  @param psArray [out] number of element in the string array
+ * 
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ *
+ *  @note the tag is seperated by ',' 
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL processSettings(
     olchar_t * pstrSettings, olchar_t * pstrArray[], olsize_t * psArray);
 

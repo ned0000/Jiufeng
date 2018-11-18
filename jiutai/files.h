@@ -1,17 +1,15 @@
 /**
  *  @file files.h
  *
- *  @brief files header file
- *  provide common routines to manipulate files
+ *  @brief Files header file. Provide common routines to manipulate files
  *
  *  @author Min Zhang
  *
- *  @note
- *  -For windows, when using function fopen() with "r+" and "w+", fseek() is
- *   required between fread() and fwrite(). Eg.
- *      fread(fp, buf, sbuf);
- *      fseek(fp, 0, SEEK_END);
- *      fwrite(buf, 1, sbuf, fp)
+ *  @note For windows, when using function fopen() with "r+" and "w+", fseek()
+ *   is required between fread() and fwrite(). Eg.
+ *  @note fread(fp, buf, sbuf);
+ *  @note fseek(fp, 0, SEEK_END);
+ *  @note fwrite(buf, 1, sbuf, fp)
  *
  */
 

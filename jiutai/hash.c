@@ -1,22 +1,11 @@
 /**
  *  @file hash.c
  *
- *  @brief hash table implementation file
+ *  @brief Hash table implementation file
  *
  *  @author Min Zhang
  *
  *  @note
- *   - This is an implementation of a general hash table module.
- *     It assumes that keys for entry stored in the hash table can
- *     be extracted from the entry.
- *   - One very important feature of this implementation is that
- *     the entry stored in the hashtable is `owned' by the hash
- *     table. The user should not delete it! It will be deleted
- *     by the destructor of the hash table or by an `overwrite'
- *     method. To ease the use of different allocators and to
- *     be able to store statically allocated entry in a hash table
- *     the user can provide his own `free' function.
- *
  */
 
 /* --- standard C lib header files ----------------------------------------- */

@@ -148,13 +148,7 @@ static u32 _acquireSyncWritelock(sync_rwlock_t * pRwlock, u32 u32Timeout)
 #endif
 
 /* --- public routine section ---------------------------------------------- */
-/** initialize the rwlock
- *
- *  @param pRwlock: sync_rwlock_t * <BR>
- *     @b [in] the rwlock to be initialized
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
+
 u32 initSyncRwlock(sync_rwlock_t * pRwlock)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -187,13 +181,6 @@ u32 initSyncRwlock(sync_rwlock_t * pRwlock)
     return u32Ret;
 }
 
-/** finalize a rwlock
- *
- *  @param pRwlock: sync_rwlock_t * <BR>
- *     @b [in] the rwlock to be finalized
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 finiSyncRwlock(sync_rwlock_t * pRwlock)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -217,17 +204,6 @@ u32 finiSyncRwlock(sync_rwlock_t * pRwlock)
     return u32Ret;
 }
 
-/** acquire a read rwlock
- *
- *  Notes.
- *    - If the rwlock is already  locked by another thread, this routine suspends
- *      the calling thread until the rwlock is unlocked.
- *
- *  @param pRwlock: sync_rwlock_t * <BR>
- *     @b [in] the rwlock to be acquired
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 acquireSyncReadlock(sync_rwlock_t * pRwlock)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -253,17 +229,6 @@ u32 acquireSyncReadlock(sync_rwlock_t * pRwlock)
     return u32Ret;
 }
 
-/** try to acquire a read rwlock
- *
- *  Notes:
- *    - it does not block the calling thread if the rwlock is already
- *      locked by another thread
- *
- *  @param pRwlock: sync_rwlock_t * <BR>
- *     @b [in] the rwlock to be acquired
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 tryAcquireSyncReadlock(sync_rwlock_t * pRwlock)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -289,16 +254,6 @@ u32 tryAcquireSyncReadlock(sync_rwlock_t * pRwlock)
     return u32Ret;
 }
 
-/** acquire a rwlock with time out
- *
- *  @param pRwlock: sync_rwlock_t * <BR>
- *     @b [in] the rwlock to be acquired
- *  @param u32Timeout: u32 <BR>
- *     @b [in] the maximum waiting period if the rwlock has been acquired
- *           by another thread. In milliseconds.
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 acquireSyncReadlockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -330,13 +285,6 @@ u32 acquireSyncReadlockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
     return u32Ret;
 }
 
-/** release a rwlock.
- *
- *  @param pRwlock: sync_rwlock_t * <BR>
- *     @b [in] the rwlock to be released
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 releaseSyncReadlock(sync_rwlock_t * pRwlock)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -383,17 +331,6 @@ u32 releaseSyncReadlock(sync_rwlock_t * pRwlock)
     return u32Ret;
 }
 
-/** acquire a write rwlock
- *
- *  Notes.
- *    - If the rwlock is already  locked by another thread, this routine suspends
- *      the calling thread until the rwlock is unlocked.
- *
- *  @param pRwlock: sync_rwlock_t * <BR>
- *     @b [in] the rwlock to be acquired
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 acquireSyncWritelock(sync_rwlock_t * pRwlock)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -420,17 +357,6 @@ u32 acquireSyncWritelock(sync_rwlock_t * pRwlock)
     return u32Ret;
 }
 
-/** try to acquire a write rwlock
- *
- *  Notes:
- *    - it does not block the calling thread if the rwlock is already
- *      locked by another thread
- *
- *  @param pRwlock: sync_rwlock_t * <BR>
- *     @b [in] the rwlock to be acquired
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 tryAcquireSyncWritelock(sync_rwlock_t * pRwlock)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -457,16 +383,6 @@ u32 tryAcquireSyncWritelock(sync_rwlock_t * pRwlock)
     return u32Ret;
 }
 
-/** acquire a write rwlock with time out
- *
- *  @param pRwlock: sync_rwlock_t * <BR>
- *     @b [in] the rwlock to be acquired
- *  @param u32Timeout: u32 <BR>
- *     @b [in] the maximum waiting period if the rwlock has been acquired
- *           by another thread. In milliseconds.
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 acquireSyncWritelockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -499,13 +415,6 @@ u32 acquireSyncWritelockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
     return u32Ret;
 }
 
-/** release a rwlock.
- *
- *  @param pRwlock: sync_rwlock_t * <BR>
- *     @b [in] the rwlock to be released
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 releaseSyncWritelock(sync_rwlock_t * pRwlock)
 {
     u32 u32Ret = OLERR_NO_ERROR;

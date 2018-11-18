@@ -1,14 +1,13 @@
 /**
  *  @file sharedmemory.h
  *
- *  @brief shared memory header file
- *	provide some functional routine for shared memory
+ *  @brief Shared memory header file. Provide some functional routine for
+ *   shared memory
  *
  *  @author Min Zhang
  *
- *  @note
- *  - link with xmalloc common object
- *  - link with oluuid.lib on Windows platform
+ *  @note Link with xmalloc common object
+ *  @note Link with oluuid.lib on Windows platform
  *  
  */
 

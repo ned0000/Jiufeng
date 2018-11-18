@@ -27,17 +27,17 @@
 
 /* --- private routine section ------------------------------------------------ */
 
-/** read a line from the file, and trim line comment.
+/** Read a line from the file, and trim line comment.
  *
+ *  @param fp [in] the file descriptor
+ *  @param strLine [out] the line will be returned here. 
+ *
+ *  @return the last character read from file 
+ *  @retval 0xA line feed, a line has been read
+ *  @retval EOF reach the end of the file
+
  *  Notes
- *   - fp MUST NOT be NULL and it MUST be opend before this function
- *       is called
- *
- *  @param:    
- *       [in] fp, the file descriptor
- *       [out] strLine, the line will be returned here. 
- *
- *  @return: return EOF, reach the end of the file; '\n', a line has been read 
+ *   - fp MUST NOT be NULL and it MUST be opend before this function is called
  */
 static olint_t _readLineFromFile(FILE * fp, olchar_t strLine[MAX_CONFFILE_LINE_LEN])
 {
@@ -82,15 +82,13 @@ static olint_t _readLineFromFile(FILE * fp, olchar_t strLine[MAX_CONFFILE_LINE_L
     return nChar;
 }
 
-/**************************************************************************
-* Function Name: _skipBlank
-* Description: remove the blank space(s) from the left and the right of the string
-* Parameters:    
-*       [out] pstrBufOut, the output string after removing the blank space(s)
-*       [in] pstrBufIn, the input string to be removed the blank space(s)
-* Return: None.
-* Remarks: None.     
-****************************************************************************/
+/** Remove the blank space(s) from the left and the right of the string
+ *
+ *  @param pstrBufOut [out] the output string after removing the blank space(s)
+ *  @param pstrBufIn [in] the input string to be removed the blank space(s)
+ *
+ *  @return void
+ */
 static void _skipBlank(olchar_t * pstrBufOut, const olchar_t * pstrBufIn)
 {
     olint_t nright, nleft = 0;
@@ -115,16 +113,17 @@ static void _skipBlank(olchar_t * pstrBufOut, const olchar_t * pstrBufIn)
     pstrBufOut[nright - nleft] = 0;
 }
 
-/** get the value string of a option of the specified tag name.
+/** Get the value string of a option of the specified tag name.
  *
- *  @param    
- *       [in] pcf, the configuration file object.
- *       [in] pstrTag, the tag name of the option.
- *       [out] the value string of the option. 
+ *  @param pcf [in] the configuration file object.
+ *  @param pstrTag [in] the tag name of the option.
+ *  @param strBuf [out] the value string of the option. 
  *
- *  @return: return OLERR_NO_ERROR otherwise the error code 
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
  */
-static u32 _getValueStringByTag(conf_file_t * pcf, 
+static u32 _getValueStringByTag(
+    conf_file_t * pcf, 
     const olchar_t * pstrTag, olchar_t strBuf[MAX_CONFFILE_LINE_LEN])
 {
     u32 u32Ret = OLERR_NOT_FOUND;

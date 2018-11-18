@@ -1,9 +1,8 @@
 /**
  *  @file comminit.h
  *
- *  @brief including common initialization and finalization
- *  initialize, finalize net-related library, including ifmgmt, network
- *  library
+ *  @brief Including common initialization and finalization. Initialize and
+ *   finalize net-related library, including ifmgmt, network library
  *
  *  @author Min Zhang
  *

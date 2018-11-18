@@ -5,22 +5,19 @@
  *
  *  @author Min Zhang
  *
- *  @note
- *   Provides functions for creation and manipulation of arbitrary
+ *  @note provides functions for creation and manipulation of arbitrary
  *   length arrays of bits.
- *   Bit arrays are implemented as arrays of unsigned chars.  Bit
- *   0 is the MSB of olchar_t 0, and the last bit is the least
- *   significant (non-spare) bit of the last unsigned char.
- *   Example: array of 20 bits (0 through 19) with 8 bit unsigned
- *            chars requires 3 unsigned chars (0 through 2) to
- *            store all the bits.
- *
- *            olchar_t       0       1         2
- *                   +--------+--------+--------+
- *                   |        |        |        |
- *                   +--------+--------+--------+
- *            bit     01234567 89111111 11112XXX
- *                               012345 67890
+ *  @note bit arrays are implemented as arrays of unsigned chars.  Bit 0 is the
+ *   MSB of char 0, and the last bit is the least significant (non-spare)
+ *   bit of the last unsigned char.
+ *  @note example: array of 20 bits (0 through 19) with 8 bit unsigned chars
+ *   requires 3 unsigned chars (0 through 2) to store all the bits.
+ *           u8         0       1         2          \n
+ *                  +--------+--------+--------+     \n
+ *                  |        |        |        |     \n
+ *                  +--------+--------+--------+     \n
+ *           bit     01234567 89111111 11112XXX      \n
+ *                              012345 67890         \n
  *
  */
 

@@ -1,8 +1,8 @@
 /**
  *  @file hexstr.c
  *
- *  @brief Hex String header file
- *     provide some functional routine to dump hex logs
+ *  @brief Hex string header file, provide some functional routine to dump
+ *   hex logs
  *
  *  @author Min Zhang
  *
@@ -23,14 +23,14 @@
 /* --- private data/data structure section --------------------------------- */
 
 /*xxxxxxxxh: xx xx xx xx ...*/
-#define BYTE_HEXSTR_HEADER_LENGTH  13
+#define BYTE_HEXSTR_HEADER_LENGTH  (13)
 #define MIN_BYTE_HEXSTR_LENGTH     (BYTE_HEXSTR_HEADER_LENGTH + 2)
-#define MAX_BYTE_PER_HEXSTR_LINE   16
+#define MAX_BYTE_PER_HEXSTR_LINE   (16)
 
 /*xxxxxxxxh: xx xx xx xx ...*/
-#define WORD_HEXSTR_HEADER_LENGTH  13
+#define WORD_HEXSTR_HEADER_LENGTH  (13)
 #define MIN_WORD_HEXSTR_LENGTH     (WORD_HEXSTR_HEADER_LENGTH + 4)
-#define MAX_WORD_PER_HEXSTR_LINE   12
+#define MAX_WORD_PER_HEXSTR_LINE   (12)
 
 /*xxxxxxxxh: xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx ; abcdefghijklmnop*/
 #define MIN_BYTE_HEXSTR_WITH_ASCII_LENGTH  79
@@ -39,17 +39,8 @@
 
 /* --- public routine section ---------------------------------------------- */
 
-/** convert the data to hex string
- *
- *  - Notes:
- *    -# ONLY convert most MAX_BYTE_PER_HEXSTR_LINE data
- *
- *  @param pu8Data : u8 * <BR>
- *     @b [in] The Chain to add the link to
- *  @param sData : count <BR>
- *     @b [in] The link to add to the chain
- * 
- *  @return return the number of data stored in the pu8Hex
+/** Convert the data to hex string
+ *  ONLY convert most MAX_BYTE_PER_HEXSTR_LINE data
  */
 olsize_t getByteHexString(
     u8 * pu8Data, olsize_t sData, olsize_t sOffset, 

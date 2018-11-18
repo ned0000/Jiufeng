@@ -1,13 +1,14 @@
 /**
  *  @file hash.h
  *
- *  @brief header file for hash common object
+ *  @brief Header file for hash common object.
  *
  *  @author Min Zhang
  *
- *  @note
- *   - link with xmalloc object file
- *
+ *  @note This is an implementation of a general hash table module. It assumes
+ *   that keys for entry stored in the hash table can be extracted from the
+ *   entry.
+ *  @note Link with xmalloc object file
  */
 
 /*--------------------------------------------------------------------------*/
@@ -46,30 +47,30 @@ typedef struct
 
 u32 createHashTable(hash_table_t ** ppht, hash_table_param_t * phtp);
 
-/* Destructor of HashTables. Free all stored entry with the user provided
- * deallocation function.
+/** Destructor of HashTables. Free all stored entry with the user provided
+ *  deallocation function.
  */
 u32 destroyHashTable(hash_table_t ** pht);
 
-/* insert a entry into the HashTable but do not overwrite existing entry with
- * the same key. The return value is OLERR_NO_ERROR if some entry with the same
- * key is already stored in the hash table. In this case the user generally has
- * to deallocate entry on his own.
+/** Insert a entry into the HashTable but do not overwrite existing entry with
+ *  the same key. The return value is OLERR_NO_ERROR if some entry with the same
+ *  key is already stored in the hash table. In this case the user generally has
+ *  to deallocate entry on his own.
  */
 u32 insertHashTableEntry(hash_table_t * pht, void * pEntry);
 
-/* remove correponding entry from the hash table and deallocate it using the
- * user provided deallocator.
+/** Remove correponding entry from the hash table and deallocate it using the
+ *  user provided deallocator.
  */
 u32 removeHashTableEntry(hash_table_t * pht, void * pEntry);
 
-/* overwrite an existing entry in the hash table with the same key as the key
- * of entry or insert a new entry.
- * In the first case also deallocate the overwritten entry.
+/** Overwrite an existing entry in the hash table with the same key as the key
+ *  of entry or insert a new entry.
+ *  In the first case also deallocate the overwritten entry.
  */
 u32 overwriteHashTableEntry(hash_table_t * pht, void * pEntry);
 
-/* search for entry with this key. Return error code if not found.
+/** Search for entry with this key. Return error code if not found.
  */
 u32 getHashTableEntry(hash_table_t * pht, void * pKey, void ** ppEntry);
 
@@ -77,18 +78,18 @@ boolean_t isEntryInHashTable(hash_table_t * pht, void * pEntry);
 
 boolean_t isKeyInHashTable(hash_table_t * pht, void * pKey);
 
-/* return the number of stored key/entry pairs
+/** Return the number of stored key/entry pairs
  */
 u32 getHashTableSize(hash_table_t * pht);
 
-/* Returns an statically allocated string with useful statistical information.
- * This string is overwritten by subsequent calls to this function.
+/** Returns an statically allocated string with useful statistical information.
+ *  This string is overwritten by subsequent calls to this function.
  */
 void showHashTableStatistics(hash_table_t * pht);
 
-/* The definition of this structure is placed here because it should be
- * possible to allocate an iterator as an automatic variable. This is also more
- * convenient for the user.
+/** The definition of this structure is placed here because it should be
+ *  possible to allocate an iterator as an automatic variable. This is also more
+ *  convenient for the user.
  */
 typedef struct
 {
@@ -97,9 +98,9 @@ typedef struct
     void * hti_pCursor;
 } hash_table_iterator_t;
 
-/* Setup an iterator. It is possible to have multiple iterators for the same
- * hash table and to traverse the hash table in parallel.
- * ATTENTION: These iterators are not save with respect to 'remove' operations
+/** Setup an iterator. It is possible to have multiple iterators for the same
+ *  hash table and to traverse the hash table in parallel.
+ *  ATTENTION: These iterators are not save with respect to 'remove' operations
  * on the traversed hash table.
  */
 void setupHashTableIterator(hash_table_t * pht,
@@ -111,9 +112,9 @@ void * getEntryFromHashTableIterator(hash_table_iterator_t * pIterator);
 
 boolean_t isDoneHashTableIterator(hash_table_iterator_t * pIterator);
 
-/* Hash function for zero terminated entry (f.e. strings).
- * It is from the `dragon book' and should work very well especially for strings
- * as keys.
+/** Hash function for zero terminated entry (f.e. strings).
+ *  It is from the `dragon book' and should work very well especially for strings
+ *  as keys.
  */
 olint_t hashPJW(void * pKey);
 

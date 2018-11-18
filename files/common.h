@@ -1,8 +1,8 @@
 /**
- *  @file common.h
+ *  @file files/common.h
  *
- *  @brief files header file
- *  common data structure and routines for files library
+ *  @brief Files header file, common data structure and routines for files
+ *   library
  *
  *  @author Min Zhang
  *

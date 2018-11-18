@@ -26,13 +26,6 @@
 
 /* --- public routine section ---------------------------------------------- */
 
-/** initialize the mutex
- *
- *  @param pMutex: sync_mutex_t * <BR>
- *     @b [in] the mutex to be initialized
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 initSyncMutex(sync_mutex_t * pMutex)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -64,13 +57,6 @@ u32 initSyncMutex(sync_mutex_t * pMutex)
     return u32Ret;
 }
 
-/** finalize a mutex
- *
- *  @param pMutex: sync_mutex_t * <BR>
- *     @b [in] the mutex to be finalized
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 finiSyncMutex(sync_mutex_t * pMutex)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -97,17 +83,6 @@ u32 finiSyncMutex(sync_mutex_t * pMutex)
     return u32Ret;
 }
 
-/** acquire a mutex
- *
- *  Notes.
- *    - If the mutex is already  locked by another thread, this routine suspends
- *      the calling thread until the mutex is unlocked.
- *
- *  @param pMutex: sync_mutex_t * <BR>
- *     @b [in] the mutex to be acquired
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 acquireSyncMutex(sync_mutex_t * pMutex)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -145,17 +120,6 @@ u32 acquireSyncMutex(sync_mutex_t * pMutex)
     return u32Ret;
 }
 
-/** try to acquire a mutex
- *
- *  Notes:
- *    - it does not block the calling thread if the mutex is already
- *      locked by another thread
- *
- *  @param pMutex: sync_mutex_t * <BR>
- *     @b [in] the mutex to be acquired
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 tryAcquireSyncMutex(sync_mutex_t * pMutex)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -189,16 +153,6 @@ u32 tryAcquireSyncMutex(sync_mutex_t * pMutex)
     return u32Ret;
 }
 
-/** acquire a mutex with time out
- *
- *  @param pMutex: sync_mutex_t * <BR>
- *     @b [in] the mutex to be acquired
- *  @param u32Timeout: u32 <BR>
- *     @b [in] the maximum waiting period if the mutex has been acquired
- *           by another thread. In milliseconds.
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 acquireSyncMutexWithTimeout(sync_mutex_t * pMutex, u32 u32Timeout)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -235,13 +189,6 @@ u32 acquireSyncMutexWithTimeout(sync_mutex_t * pMutex, u32 u32Timeout)
     return u32Ret;
 }
 
-/** release a mutex.
- *
- *  @param pMutex: sync_mutex_t * <BR>
- *     @b [in] the mutex to be released
- *
- *  @return return OLERR_NO_ERROR on success; otherwise the error code
- */
 u32 releaseSyncMutex(sync_mutex_t * pMutex)
 {
     u32 u32Ret = OLERR_NO_ERROR;

@@ -1,13 +1,12 @@
 /**
  *  @file crc32c.h
  *
- *  @brief crc32c header file
+ *  @brief crc32c header file,  implement CRC32C, 32 bit CRC of the polynomial
+ *   represented by 0x11EDC6F41
  *
  *  @author Min Zhang
  *
- *  @note
- *   Implement CRC32C: 32 bit CRC of the polynomial represented by 0x11EDC6F41.
- *   cyclic redundancy check (CRC) is a type of function that takes as
+ *  @note cyclic redundancy check (CRC) is a type of function that takes as
  *   input a data stream of any length, and produces as output a value
  *   of a certain space, commonly a 32-bit integer.
  *

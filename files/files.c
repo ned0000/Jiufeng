@@ -1,8 +1,8 @@
 /**
  *  @file files.c
  *
- *  @brief files implementation files
- *  provide common routines to manipulate files
+ *  @brief Files implementation files, provide common routines to manipulate
+ *   files
  *
  *  @author Min Zhang
  *

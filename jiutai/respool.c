@@ -284,7 +284,7 @@ static u32 _createResourceInPoolArray(
 /** Create resource
  *
  *  @param pirp [in] the pointer to the resource pool
- *  @param prpp [in/out] the pointer to the resource to be created
+ *  @param ppr [in/out] the pointer to the resource to be created
  *
  *  @return the error code
  *  @retval OLERR_NO_ERROR success

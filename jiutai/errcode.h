@@ -1,19 +1,17 @@
 /**
  *  @file
  *
- *  @brief error code header file
- *         It provides the definitions of error codes and the related 
- *           external routines.
+ *  @brief Error code header file. It provides the definitions of error codes
+ *   and the related external routines.
  *
  *  @author Min Zhang
  *
- *  @note
- *   - The error code is in following format
- *         3                   2                   1                 
- *       1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
- *      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *      |      module   |S|   reserved  |     code 1    |   code 2      |
- *      +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  @note the error code is in following format
+ *  @note     3                   2                   1                 
+ *  @note   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+ *  @note  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  @note  |      module   |S|   reserved  |     code 1    |   code 2      |
+ *  @note  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *  
  */
 
@@ -175,7 +173,7 @@
 
 #define OLERR_CONFFILE_INVALID_FLAGS (OLERR_CONFFILE_ERROR_START + 0x0)
 #define OLERR_CONFFILE_LINE_TOO_LONG (OLERR_CONFFILE_ERROR_START + 0x1)
-#define PIERR_CONFFILE_UNKNOWN_ENTRY (OLERR_CONFFILE_ERROR_START + 0x2)
+#define OLERR_CONFFILE_UNKNOWN_ENTRY (OLERR_CONFFILE_ERROR_START + 0x2)
 #define OLERR_CONFFILE_INVALID_ENTRY (OLERR_CONFFILE_ERROR_START + 0x3)
 #define OLERR_CONFFILE_ILLEGAL_SYNTAX (OLERR_CONFFILE_ERROR_START + 0x4)
 #define OLERR_CONFFILE_MISSING_SECTION_NAME (OLERR_CONFFILE_ERROR_START + 0x5)
@@ -560,12 +558,11 @@
 
 /* --- functional routines ------------------------------------------------- */
 
-/** get the description of the specified error code.
+/** Get the description of the specified error code.
  *
- *  @param    
- *    	[in] errCode, the specified error code
+ *  @param u32ErrCode [in] the specified error code
  *
- *  @return: The error message.
+ *  @return the error message.
  */
 LOGGERAPI olchar_t * LOGGERCALL getErrorDescription(u32 u32ErrCode);
 

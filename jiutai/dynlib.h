@@ -1,14 +1,13 @@
 /**
  *  @file dynlib.h
  *
- *  @brief dynamic library header file
- *  provide some functional routine for dynamic library
+ *  @brief Dynamic library header file. Provide some functional routine for
+ *   dynamic library
  *
  *  @author Min Zhang
  *
- *  @note
- *  - link with xmalloc object file
- *  - linke with dl library on Linux platform
+ *  @note Link with xmalloc object file
+ *  @note Link with dl library on Linux platform
  *  
  */
 

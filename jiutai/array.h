@@ -1,18 +1,13 @@
 /**
  *  @file array.h
  *
- *  @brief basic array header file
- *    the array element can be the pointer to any type of data, it supports
- *    basic arrar functions
- *      - create, destroy
- *      - getAt, removeAt, insertAt, append
- *      - getSize, removeAll
- *    it is NOT thread safe. The caller should provide synchronization for the
- *    array if necessary
+ *  @brief Basic array header file. The array element can be the pointer to any
+ *   type of data
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note It is NOT thread safe. The caller should provide synchronization for
+ *   the array if necessary
  *  
  */
 
@@ -48,21 +43,21 @@ u32 removeBasicArrayElement(basic_array_t * pba, basic_array_element_t * pbae);
 
 u32 removeAllBasicArrayElements(basic_array_t * pba);
 
-u32 insertAtBasicArray(basic_array_t * pba, u32 u32Index,
-    basic_array_element_t * pbae);
+u32 insertAtBasicArray(
+    basic_array_t * pba, u32 u32Index, basic_array_element_t * pbae);
 
 u32 appendToBasicArray(basic_array_t * pba, basic_array_element_t * pbae);
 
 typedef u32 (* fnDestroyBasicArrayElement_t)(basic_array_element_t ** ppbae);
 
-u32 destroyAllBasicArrayElements(basic_array_t * pba,
-    fnDestroyBasicArrayElement_t fnDestroyElement);
+u32 destroyAllBasicArrayElements(
+    basic_array_t * pba, fnDestroyBasicArrayElement_t fnDestroyElement);
 
-u32 destroyBasicArrayAndElements(basic_array_t ** ppba,
-    fnDestroyBasicArrayElement_t fnDestroyElement);
+u32 destroyBasicArrayAndElements(
+    basic_array_t ** ppba, fnDestroyBasicArrayElement_t fnDestroyElement);
 
-typedef boolean_t (* fnFindBasicArrayElement_t)(basic_array_element_t * pbae,
-    void * pKey);
+typedef boolean_t (* fnFindBasicArrayElement_t)(
+    basic_array_element_t * pbae, void * pKey);
 
 u32 findBasicArrayElement(basic_array_t * pba,
     basic_array_element_t ** ppElement,

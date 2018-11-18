@@ -41,10 +41,12 @@ static boolean_t _isDayInRange(olint_t year, olint_t month, olint_t day)
     return TRUE;
 }
 
-/* get date from the string with the format yyyy%mm%dd where '%' is the
-   seperator */
+/** Get date from the string with the format yyyy%mm%dd where '%' is the
+ *  seperator
+ */
 static u32 _getDateFromString(
-    const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay, olchar_t sep)
+    const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay,
+    olchar_t sep)
 {
     u32 u32Ret = OLERR_INVALID_DATE;
     olsize_t size = 0;
@@ -267,18 +269,6 @@ u32 getU8FromString(const olchar_t * pstrInteger, const olsize_t size, u8 * pu8V
     return u32Ret;
 }
 
-/** Reads a long value from a string, in a validating fashion
- *
- *  @param value : olchar_t * <BR> 
- *     @b [in] The string to read from 
- *  @param size : olint_t <BR> 
- *     @b [in] The length of the string 
- *  @param numeric : long * <BR> 
- *     @b [in] The long value extracted from the string 
- *
- *  @return return 0 if succesful;
- *          return nonzero if there was an error   
- */
 u32 getLongFromString(
     const olchar_t * pstrInteger, const olsize_t size, long * numeric)
 {
@@ -312,17 +302,6 @@ u32 getLongFromString(
     return u32Ret;
 }
 
-/** Reads an unsigned long value from a string, in a validating fashion
- *
- *  @param pstrInteger : olchar_t * <BR> 
- *     @b [in] The string to read from 
- *  @param size : olint_t <BR> 
- *     @b [in] The length of the string 
- *  @param numeric : long * <BR> 
- *     @b [in] The unsigned long value extracted from the string 
- *
- *  @return void
- */
 u32 getUlongFromString(
     const olchar_t * pstrInteger, const olsize_t size, unsigned long * numeric)
 {
@@ -431,12 +410,6 @@ u32 getS64FromString(
     return u32Ret;
 }
 
-/* convert from string input to binary output
- *
- * Parameters:
- * Return: the binary output and its length
- * Remarks: none.
- */
 u32 getBinaryFromString(const olchar_t * pstr, const olsize_t size,
     u8 * pu8Binary, olsize_t * psBinary)
 {
@@ -479,14 +452,7 @@ u32 getBinaryFromString(const olchar_t * pstr, const olsize_t size,
 #define ONE_GIGABYTE    0x40000000
 #define ONE_MEGABYTE    0x100000
 #define ONE_KILOBYTE    0x400
-/* get the size accordign to the size stirng. The size string will
- *       be the format of "xxxx.xxGB|MB|KB|B"
- * Parameters:
- *       [in] pstrSize, the size string;
- *       [out] pu64Size, the size in bytes to be returned
- * Return: OLERR_NO_ERROR, succeeded; otherwise, failed.
- * Remarks: none.
- */
+
 u32 getSizeFromString(const olchar_t * pstrSize, u64 * pu64Size)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -603,7 +569,7 @@ u32 getSizeFromString(const olchar_t * pstrSize, u64 * pu64Size)
     return u32Ret;
 }
 
-/* get the time from the string with the format hour:minute:second
+/** Get the time from the string with the format hour:minute:second
  *
  */
 u32 getTimeFromString(
@@ -686,9 +652,10 @@ u32 getTimeFromString(
     return u32Ret;
 }
 
-/* get date from the string with the format year/month/date like 2005/10/20
+/** Get date from the string with the format year/month/date like 2005/10/20
  */
-u32 getDateFromString(const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay)
+u32 getDateFromString(
+    const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay)
 {
     u32 u32Ret = OLERR_INVALID_DATE;
     olchar_t cSlash = '/';
@@ -698,9 +665,10 @@ u32 getDateFromString(const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon
     return u32Ret;
 }
 
-/* get date from the string with the format year-month-date like 2005-10-20
+/** Get date from the string with the format year-month-date like 2005-10-20
  */
-u32 getDate2FromString(const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay)
+u32 getDate2FromString(
+    const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay)
 {
     u32 u32Ret = OLERR_INVALID_DATE;
     olchar_t cSlash = '-';

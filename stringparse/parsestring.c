@@ -29,34 +29,27 @@
 
 /** Determines if a buffer offset is a delimiter
  *
- *  - Notes:  
- *    -# Used by string parsing methods
- *
- *  @param pstrBuf : olchar_t * <BR> 
- *     @b [in] The buffer to check 
- *  @param sOffset : olsize_t <BR> 
- *     @b [in] The offset of the buffer to check 
- *  @param sBuf : olsize_t <BR> 
- *     @b [in] The size of the buffer to check 
- *  @param pstrDelimiter : olchar_t * <BR> 
- *     @b [in] The delimiter we are looking for 
- *  @param sDelimiter : olsize_t <BR> 
- *     @b [in] The length of the delimiter
+ *  @param pstrBuf [in] The buffer to check 
+ *  @param sOffset [in] The offset of the buffer to check 
+ *  @param sBuf [in] The size of the buffer to check 
+ *  @param pstrDelimiter [in] The delimiter we are looking for 
+ *  @param sDelimiter [in] The length of the delimiter
   
- *  @return return 0 if no match;
- *          return nonzero otherwise   
+ *  @return if the delimiter is found
+ *  @retval TRUE the delimiter is found
+ *  @retval FALSE the delimiter is not found
  */
 static boolean_t _isDelimiter(olchar_t * pstrBuf, olsize_t sOffset,
     olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
-    // For simplicity sake, we'll assume a match unless proven otherwise
+    /* for simplicity sake, we'll assume a match unless proven otherwise */
     boolean_t bRet = TRUE;
     olint_t i = 0;
 
     if (sOffset + sDelimiter > sBuf)
     {
-        // If the offset plus delimiter length is greater than the sBuf
-        // There can't possible be a match, so don't bother looking
+        /* If the offset plus delimiter length is greater than the sBuf
+           There can't possible be a match, so don't bother looking */
         return FALSE;
     }
 
@@ -64,7 +57,7 @@ static boolean_t _isDelimiter(olchar_t * pstrBuf, olsize_t sOffset,
     {
         if (pstrBuf[sOffset + i] != pstrDelimiter[i])
         {
-            // Uh oh! Can't possibly be a match now!
+            /* Can't possibly be a match now */
             bRet = FALSE;
             break;
         }
@@ -87,26 +80,6 @@ static boolean_t _isblank(olchar_t c)
 
 /* String Parsing Methods */
 
-/** Parses a string into a linked list of tokens.
- *
- *  - Notes:  
- *    -# Differs from parseString, in that this method 
- *       ignores characters contained within quotation marks, 
- *       whereas parseString does not.
- *
- *  @param pstrBuf : olchar_t * <BR> 
- *     @b [in] The buffer to parse 
- *  @param sOffset : olsize_t <BR> 
- *     @b [in] The offset of the buffer to start parsing 
- *  @param sBuf : olsize_t <BR> 
- *     @b [in] The size of the buffer to parse 
- *  @param pstrDelimiter : olchar_t * <BR> 
- *     @b [in] The delimiter 
- *  @param sDelimiter : olsize_t <BR> 
- *     @b [in] The length of the delimiter 
- *
- *  @return return A list of tokens   
- */
 u32 parseStringAdv(parse_result_t ** ppResult, olchar_t * pstrBuf,
     olsize_t sOffset, olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
@@ -124,10 +97,9 @@ u32 parseStringAdv(parse_result_t ** ppResult, olchar_t * pstrBuf,
     {
         memset(ppr, 0, sizeof(parse_result_t));
 
-        // By default we will always return at least one token, which will be the
-        // entire string if the delimiter is not found.
-
-        // Iterate through the string to find delimiters
+        /* By default we will always return at least one token, which will be the
+           entire string if the delimiter is not found.
+           Iterate through the string to find delimiters  */
         token = pstrBuf + sOffset;
         for (i = sOffset; (i < (sBuf + sOffset)) && (u32Ret == OLERR_NO_ERROR); ++i)
         {
@@ -135,7 +107,7 @@ u32 parseStringAdv(parse_result_t ** ppResult, olchar_t * pstrBuf,
             {
                 if (pstrBuf[i] == '"')
                 {
-                    // ignore everything inside double quotes
+                    /* ignore everything inside double quotes */
                     cDelimiter = '"';
                     ignore = 1;
                 }
@@ -143,7 +115,7 @@ u32 parseStringAdv(parse_result_t ** ppResult, olchar_t * pstrBuf,
                 {
                     if (pstrBuf[i] == '\'')
                     {
-                        // Ignore everything inside single quotes
+                        /* ignore everything inside single quotes */
                         cDelimiter = '\'';
                         ignore = 1;
                     }
@@ -151,8 +123,8 @@ u32 parseStringAdv(parse_result_t ** ppResult, olchar_t * pstrBuf,
             }
             else
             {
-                // Once we isolated everything inside double or single quotes, 
-                // we can get on with the real parsing
+                /* once we isolated everything inside double or single quotes, 
+                   we can get on with the real parsing */
                 if (pstrBuf[i] == cDelimiter)
                 {
                     ignore = ((ignore == 0) ? 1 : 0);
@@ -162,7 +134,7 @@ u32 parseStringAdv(parse_result_t ** ppResult, olchar_t * pstrBuf,
             if (ignore == 0 &&
                 _isDelimiter(pstrBuf, i, sBuf, pstrDelimiter, sDelimiter))
             {
-                // We found a delimiter in the string
+                /* we found a delimiter in the string */
                 u32Ret = xmalloc((void **)&pprf, sizeof(parse_result_field_t));
                 if (u32Ret == OLERR_NO_ERROR)
                 {
@@ -181,8 +153,8 @@ u32 parseStringAdv(parse_result_t ** ppResult, olchar_t * pstrBuf,
                         ppr->pr_pprfLast = pprf;
                     }
 
-                    // After we populate the values, we advance the token to after 
-                    // the delimiter to prep for the next token
+                    /* after we populate the values, we advance the token to after 
+                       the delimiter to prep for the next token */
                     ++ppr->pr_u32NumOfResult;
                     i = i + sDelimiter - 1;
                     token = token + tokenlength + sDelimiter;
@@ -191,7 +163,7 @@ u32 parseStringAdv(parse_result_t ** ppResult, olchar_t * pstrBuf,
             }
             else
             {
-                // No match yet, so just increment this counter
+                /* no match yet, so just increment this counter */
                 ++tokenlength;
             }
         }
@@ -199,10 +171,10 @@ u32 parseStringAdv(parse_result_t ** ppResult, olchar_t * pstrBuf,
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        // Create a result for the last token, since it won't be caught in 
-        // the above loop. because if there are no more delimiters, than 
-        // the entire last portion of the string since the 
-        // last delimiter is the token
+        /* create a result for the last token, since it won't be caught in 
+           the above loop. because if there are no more delimiters, than 
+           the entire last portion of the string since the 
+           last delimiter is the token  */
         u32Ret = xmalloc((void **)&pprf, sizeof(parse_result_field_t));
     }
 
@@ -238,26 +210,6 @@ u32 parseStringAdv(parse_result_t ** ppResult, olchar_t * pstrBuf,
     return u32Ret;
 }
 
-/** Parse a string into a linked list of tokens.
- *
- *  - Notes:  
- *    -# Differs from parseStringAdv, in that this method 
- *       does not ignore characters contained within
- *       quotation marks, whereas parseStringAdv does.
- *
- *  @param pstrBuf : olchar_t * <BR> 
- *     @b [in] The buffer to parse 
- *  @param sOffset : olsize_t <BR> 
- *     @b [in] The offset of the buffer to start parsing 
- *  @param sBuf : olsize_t <BR> 
- *     @b [in] The length of the buffer to parse 
- *  @param pstrDelimiter : olchar_t * <BR> 
- *     @b [in] The delimiter 
- *  @param sDelimiter : olsize_t <BR> 
- *     @b [in] The length of the delimiter 
- * 
- *  @return return A list of tokens   
- */
 u32 parseString(parse_result_t ** ppResult, olchar_t * pstrBuf,
     olsize_t sOffset, olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
@@ -301,8 +253,8 @@ u32 parseString(parse_result_t ** ppResult, olchar_t * pstrBuf,
                         ppr->pr_pprfLast = pprf;
                     }
 
-                    // After we populate the values, we advance the token to 
-                    // after the delimiter to prep for the next token
+                    /* After we populate the values, we advance the token to 
+                       after the delimiter to prep for the next token */
                     ++ppr->pr_u32NumOfResult;
                     i = i + sDelimiter - 1;
                     token = token + tokenlength + sDelimiter;
@@ -311,7 +263,7 @@ u32 parseString(parse_result_t ** ppResult, olchar_t * pstrBuf,
             }
             else
             {
-                // No match yet, so just increment this counter
+                /* No match yet, so just increment this counter */
                 ++tokenlength;
             }
         }
@@ -319,10 +271,10 @@ u32 parseString(parse_result_t ** ppResult, olchar_t * pstrBuf,
 
     if ((u32Ret == OLERR_NO_ERROR) && (tokenlength > 0))
     {
-        // Create a result for the last token, since it won't be caught 
-        // in the above loop because if there are no more delimiters, 
-        // than the entire last portion of the string since the 
-        // last delimiter is the token
+        /* Create a result for the last token, since it won't be caught 
+           in the above loop because if there are no more delimiters, 
+           than the entire last portion of the string since the 
+           last delimiter is the token */
         u32Ret = xmalloc((void **)&pprf, sizeof(parse_result_field_t));
         if (u32Ret == OLERR_NO_ERROR)
         {
@@ -357,19 +309,11 @@ u32 parseString(parse_result_t ** ppResult, olchar_t * pstrBuf,
     return u32Ret;
 }
 
-/** Frees resources associated with the list of tokens returned 
- *  from parseString and parseStringAdv.
- *
- *  @param result : parse_result_t * <BR> 
- *     @b [in] The list of tokens to free 
- *
- *  @return void
- */
 u32 destroyParseResult(parse_result_t ** ppResult)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    // All of these nodes only contain pointers
-    // so we just need to iterate through all the nodes and free them
+    /* all of these nodes only contain pointers
+       so we just need to iterate through all the nodes and free them */
     parse_result_field_t *node = (*ppResult)->pr_pprfFirst;
     parse_result_field_t *temp;
 
@@ -385,14 +329,6 @@ u32 destroyParseResult(parse_result_t ** ppResult)
     return u32Ret;
 }
 
-/** remove the blank space(s) from the left and the right of the string
- *
- *  @param
- *       [out] pu8Dest, the output string after removing the blank space(s)
- *       [in] pu8Source, the input string to be removed the blank space(s)
- *  Return: None.
- *  Remarks: None.     
- */
 void skipBlank(olchar_t * pstrDest, const olchar_t * pstrSource)
 {
     olsize_t right, left = 0;
@@ -446,8 +382,8 @@ u32 freeString(olchar_t ** ppstrStr)
     return u32Ret;
 }
 
-u32 dupStringWithLen(olchar_t ** ppstrDest, const olchar_t * pstrSource,
-    const olsize_t sSource)
+u32 dupStringWithLen(
+    olchar_t ** ppstrDest, const olchar_t * pstrSource, const olsize_t sSource)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t * pstr;
@@ -576,17 +512,6 @@ void removeTailingSpace(olchar_t * pstr)
     pstr[sBuf] = '\0';
 }
 
-/** Removes all leading and tailing blankspaces, and 
- *  replaces all multiple occurences of blank spaces
- *  with a single one.
- *  eg:
- *       "  this   is  a   test string"
- *  =>    "this is a test string"
- *
- *  @param str The string that should be trimmed.
- *
- *  @returns The trimmed string.
- */
 void trimBlankOfString(olchar_t * pstr)
 {
     u32 u32Index = 0, sBuf, u32SpaceLen = 0;
@@ -622,15 +547,9 @@ void trimBlankOfString(olchar_t * pstr)
     }
 }
 
-/** break string to line with width, the line terminator is at the best
- *  suitable position. 
- *
- *  @param str   The string that should be wrapped.
- *  @param width The maximal column count of the wrapped string.
- *  @returns The wrapped string.
- */
-char * breakStringToLine(olchar_t * pstr, olsize_t sWidth)
+u32 breakStringToLine(olchar_t * pstr, olsize_t sWidth)
 {
+    u32 u32Ret = OLERR_NO_ERROR;
 	olsize_t sIndex = 0, sBuf;
 	olsize_t sLastSpace = 0;
 	olsize_t sCol = 0;
@@ -660,7 +579,7 @@ char * breakStringToLine(olchar_t * pstr, olsize_t sWidth)
 		sIndex ++;
 	}
 
-    return NULL;
+    return u32Ret;
 }
 
 u32 locateSubString(const olchar_t * pstr, const olchar_t * pstrSubStr, olchar_t ** ppstrLoc)
@@ -680,23 +599,8 @@ u32 locateSubString(const olchar_t * pstr, const olchar_t * pstrSubStr, olchar_t
     return u32Ret;
 }
 
-/** replaceString() replaces the first occurence of needle
- *  in the string src with the string subst. If no occurence
- *  of needle could be found in src, NULL is returned, otherwise
- *  the starting index of needle inside src. src needs to be
- *  big enough to store the resulting string.
- *
- *  @param pstrSrc     The string that should be modified.
- *  @param u32BufLen  the size of the buffer containing the source string
- *  @param pstrNeedle  The pattern that should be replaced.
- *  @param pstrSubst   The pattern that should be used for
- *                replacing.
- *
- *  @returns NULL if no occurence of needle could be found
- *  in src, otherwise the starting idx of needle inside src.
- */
-char * replaceString(olchar_t * pstrSrc, olsize_t sBuf, olchar_t * pstrNeedle,
-    olchar_t * pstrSubst)
+olchar_t * replaceString(
+    olchar_t * pstrSrc, olsize_t sBuf, olchar_t * pstrNeedle, olchar_t * pstrSubst)
 {    /* "The string NEEDLE will be substituted"
       *                   ^- beg
       */

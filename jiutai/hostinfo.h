@@ -5,9 +5,8 @@
  *
  *  @author Min Zhang
  *
- *  @note
- *  - link with network, stringparse library
- *  - For windows, link with Iphlpapi.lib
+ *  @note Link with network, stringparse library
+ *  @note For windows, link with Iphlpapi.lib
  *  
  */
 
@@ -49,15 +48,24 @@ typedef struct
 
 /* --- functional routines ------------------------------------------------- */
 
-/** get host info
+/** Get host info
  *
- *  @Param:    
- *       [out] phi, the pointer to the host_info_t struct
- *  @Return: PIERR_NO_ERROR: succeed, otherwise: fail.
+ *  @param phi [out] the pointer to the host_info_t struct
  *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
  */
 u32 getHostInfo(host_info_t * phi);
 
+/** Get host name
+ *
+ *  @param pstrName [in/out] the pointer to the buffer to hold the name
+ *  @param u32Len [in] the length of the buffer
+ *
+ *  @return the error code
+ *  @retval OLERR_NO_ERROR success
+ *
+ */
 void getHostName(olchar_t * pstrName, u32 u32Len);
 
 #endif /*JIUTAI_HOSTINFO_H*/

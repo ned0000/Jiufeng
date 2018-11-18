@@ -1,8 +1,7 @@
 /**
  *  @file xtime.h
  *
- *  @brief time header file
- *	 provide some time routine
+ *  @brief Time header file. Provide some time routine.
  *
  *  @author Min Zhang
  *  
