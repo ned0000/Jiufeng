@@ -98,6 +98,7 @@ typedef time_t       oltime_t;
 
 #if defined(WINDOWS)
     #define ol_memset                memset
+    #define ol_memcpy                memcpy
     #define ol_bzero                 bzero
     #define ol_strcmp                strcmp
     #define ol_strncmp               strncmp
@@ -115,6 +116,7 @@ typedef time_t       oltime_t;
     #define __attribute__(__X__)
 #elif defined(LINUX)
     #define ol_memset                memset
+    #define ol_memcpy                memcpy
     #define ol_bzero                 bzero
     #define ol_strcmp                strcmp
     #define ol_strncmp               strncmp

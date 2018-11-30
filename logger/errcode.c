@@ -209,8 +209,8 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {OLERR_SHA1_STATE_ERROR, "SHA1 state error."},
 /* prng error */
     {OLERR_PRNG_NOT_SEEDED, "Prng is not seeded"},
-/* aether error */
-    {OLERR_AETHER_OUT_OF_MEMORY, "Out of user memory"},
+/* jiukun error */
+    {OLERR_JIUKUN_OUT_OF_MEMORY, "Out of user memory"},
 /* ifmgmt error */
 
 /* matrix error */

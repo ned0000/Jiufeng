@@ -19,27 +19,35 @@
 #include "bitop.h"
 
 /* --- constant definitions ------------------------------------------------ */
-/* init the 'flag' with 'value' */
-#define INIT_FLAG(flag)   (flag = 0)
 
-/* generate a bitmask consisting of 1 bits from (and including)
-   bit position 'left' to (and including) bit position 'right' */
-#define FLAG_MASK(pos)  (1ull << pos)
+/** init the 'flag' with 'value'
+ */
+#define INIT_FLAG(flag)        (flag = 0)
 
-/* extract 1 bit from 'flag' at position 'pos' */
-#define GET_FLAG(flag, pos)  BITOP_GET(flag, pos, pos)
+/** generate a bitmask consisting of 1 bits from (and including)
+ *  bit position 'left' to (and including) bit position 'right'
+ */
+#define FLAG_MASK(pos)         (1ull << pos)
 
-/* set bit at position 'pos' to 1 of 'flag' */
-#define SET_FLAG(flag, pos)  BITOP_SET(flag, pos, pos, 1)
+/** extract 1 bit from 'flag' at position 'pos'
+ */
+#define GET_FLAG(flag, pos)    BITOP_GET(flag, pos, pos)
 
-/* clear bit at position 'pos' to 0 of 'flag' */
-#define CLEAR_FLAG(flag, pos)   BITOP_CLEAR(flag, pos, pos)
+/** set bit at position 'pos' to 1 of 'flag'
+ */
+#define SET_FLAG(flag, pos)    BITOP_SET(flag, pos, pos, 1)
 
-/* insert 'value' into 'flag' at position 'left' to 'right' */
+/** clear bit at position 'pos' to 0 of 'flag'
+ */
+#define CLEAR_FLAG(flag, pos)  BITOP_CLEAR(flag, pos, pos)
+
+/** insert 'value' into 'flag' at position 'left' to 'right'
+ */
 #define SET_FLAG_VALUE(flag, left, right, value)  \
     BITOP_SET(flag, left, right, value)
 
-/* extract value from 'flag' at position 'left' to 'right' and return value */
+/** extract value from 'flag' at position 'left' to 'right' and return value
+ */
 #define GET_FLAG_VALUE(flag, left, right)  BITOP_GET(flag, left, right)
 
 
