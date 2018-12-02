@@ -1,0 +1,6 @@
+#define VER_FILEDESCRIPTION_STR "Jiufeng Cryptographic Hash Function DLL"
+#define VER_INTERNALNAME_STR "olcghash.dll"
+#define VER_ORIGINALFILENAME_STR "olcghash.dll"
+#define VER_PRODUCTNAME_STR "Jiufeng Cryptographic Hash Function Dynamic Linking Library"
+
+#include "jiutai.rc"

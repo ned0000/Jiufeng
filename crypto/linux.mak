@@ -1,20 +1,17 @@
 #
 #  @file linux.mak
 #
-#  @brief The Makefile for Jiufeng
+#  @brief The Makefile for libraries related to cryptography
 #
 #  @author Min Zhang
 #
 #  @note
+#
 #  
 
 #-----------------------------------------------------------------------------
 
-TOPDIR  := $(shell /bin/pwd)
-
-export TOPDIR
-
-SUBDIRS = jiutai logger stringparse files ifmgmt jiukun crypto test
+SUBDIRS = common cghash
 
 include $(TOPDIR)/mak/lnxsubdirs.mak
 

@@ -1,22 +1,21 @@
 #
-#  @file linux.mak
+#  @file windows.mak
 #
-#  @brief The Makefile for Jiufeng
+#  @brief The Makefile for common object of crypto library
 #
 #  @author Min Zhang
 #
 #  @note
+#
 #  
 
 #-----------------------------------------------------------------------------
 
-TOPDIR  := $(shell /bin/pwd)
+SOURCES = clrmem.c
 
-export TOPDIR
+EXTRA_CFLAGS =
 
-SUBDIRS = jiutai logger stringparse files ifmgmt jiukun crypto test
-
-include $(TOPDIR)/mak/lnxsubdirs.mak
+!include "$(TOPDIR)\mak\winobj.mak"
 
 #-----------------------------------------------------------------------------
 
