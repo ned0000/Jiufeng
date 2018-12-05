@@ -1,0 +1,6 @@
+#define VER_FILEDESCRIPTION_STR "Jiufeng Cryptographic Message Authentication Code DLL"
+#define VER_INTERNALNAME_STR "olcgmac.dll"
+#define VER_ORIGINALFILENAME_STR "olcgmac.dll"
+#define VER_PRODUCTNAME_STR "Jiufeng Cryptographic Message Authentication Code Dynamic Linking Library"
+
+#include "jiutai.rc"

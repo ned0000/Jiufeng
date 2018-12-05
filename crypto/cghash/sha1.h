@@ -19,7 +19,7 @@
 #include "olbasic.h"
 
 /* --- constant definitions ------------------------------------------------ */
-
+#define SHA1_BLOCK_SIZE   64
 
 /* --- data structures ----------------------------------------------------- */
 

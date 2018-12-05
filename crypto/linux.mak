@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-SUBDIRS = common cghash
+SUBDIRS = common cghash cgmac
 
 include $(TOPDIR)/mak/lnxsubdirs.mak
 

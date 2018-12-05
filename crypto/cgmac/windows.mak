@@ -1,0 +1,31 @@
+#
+#  @file windows.mak
+#
+#  @brief The main Makefile for cryptographic message authentication code
+#
+#  @author Min Zhang
+#
+#  @note
+#
+#  
+
+#-----------------------------------------------------------------------------
+
+DLLNAME = olcgmac
+RESOURCE = cgmac
+
+SOURCES = hmac.c
+
+JIUTAI_SRCS = $(JIUTAI_DIR)\xmalloc.c
+
+EXTRA_LIBS = $(LIB_DIR)\olcghash.lib
+
+EXTRA_INC_DIR = -I../cghash
+
+EXTRA_DEFS = -DJIUFENG_CGMAC_DLL
+
+!include "$(TOPDIR)\mak\winlib.mak"
+
+#-----------------------------------------------------------------------------
+
+

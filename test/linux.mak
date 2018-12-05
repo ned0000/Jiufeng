@@ -18,7 +18,7 @@ PROGRAMS = xmalloc-test bases-test logger-test process-test  \
     menu-test crc32c-test dynlib-test ifmgmt-test            \
     sharedmemory-test-consumer sharedmemory-test-worker      \
     files-test hsm-test hostinfo-test respool-test           \
-    bitop-test jiukun-test cghash-test
+    bitop-test jiukun-test cghash-test cgmac-test
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     hash-test.c syncmutex-test.c syncrwlock-test.c syncsem-test.c    \
@@ -26,7 +26,7 @@ SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     menu-test.c crc32c-test.c dynlib-test.c ifmgmt-test.c            \
     sharedmemory-test-consumer.c sharedmemory-test-worker.c          \
     files-test.c hsm-test.c hostinfo-test.c respool-test.c           \
-    bitop-test.c jiukun-test.c cghash-test.c
+    bitop-test.c jiukun-test.c cghash-test.c cgmac-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -144,11 +144,15 @@ $(BIN_DIR)/bitop-test: bitop-test.o
 $(BIN_DIR)/jiukun-test: jiukun-test.o $(JIUTAI_DIR)/process.o \
        $(JIUTAI_DIR)/syncmutex.o $(JIUTAI_DIR)/xmalloc.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-           -o $@ $(SYSLIBS) -lollogger -loljiukun
+       -o $@ $(SYSLIBS) -lollogger -loljiukun
 
 $(BIN_DIR)/cghash-test: cghash-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-           -o $@ $(SYSLIBS) -lolcghash -lollogger -lolstringparse
+       -o $@ $(SYSLIBS) -lolcghash -lollogger -lolstringparse
+
+$(BIN_DIR)/cgmac-test: cgmac-test.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lolcgmac -lollogger -lolstringparse
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 

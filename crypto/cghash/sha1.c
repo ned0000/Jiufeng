@@ -334,6 +334,45 @@ static void SHA1PadMessage(SHA1Context *context)
 
 /* --- public routine section ---------------------------------------------- */
 
+u32 initSha1(sha1_t * pSha1)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+
+    SHA1Reset((SHA1Context *)&(pSha1->s_u8Ctx));
+
+    return u32Ret;
+}
+
+u32 updateSha1(sha1_t * pSha1, const u8 * pu8Buffer, u32 u32Len)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    olint_t nRet;
+
+    assert((pSha1 != NULL) && (pu8Buffer != NULL));
+
+    nRet = SHA1Input((SHA1Context *)&(pSha1->s_u8Ctx), pu8Buffer, u32Len);
+    if (nRet == shaStateError)
+        u32Ret = OLERR_SHA1_STATE_ERROR;
+
+    return u32Ret;
+}
+
+u32 finalSha1(sha1_t * pSha1, u8 u8Digest[SHA1_DIGEST_LEN])
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    olint_t nRet;
+
+    assert(pSha1 != NULL);
+
+    nRet = SHA1Result((SHA1Context *)&(pSha1->s_u8Ctx), u8Digest);
+    if (nRet == shaStateError)
+        u32Ret = OLERR_SHA1_STATE_ERROR;
+
+    SHA1Reset((SHA1Context *)&(pSha1->s_u8Ctx));
+
+    return u32Ret;
+}
+
 u32 doSha1(const u8 * pu8Input, u32 u32InputLen, u8 u8Digest[SHA1_DIGEST_LEN])
 {
     u32 u32Ret = OLERR_NO_ERROR;
