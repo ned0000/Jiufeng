@@ -764,12 +764,12 @@ olsize_t getHexFromString(const olchar_t * pstr, const olsize_t size,
            (pu8Hex != NULL) && (sHexLen > 0));
 
     start = 0;
-
+    ol_bzero(u8Temp, sizeof(u8Temp));
     while ((sLen < sHexLen) && (start + 2 <= size))
     {
         ol_strncpy(u8Temp, &(pstr[start]), 2);
 
-        sscanf(u8Temp, "%x", &u32Hex);
+        ol_sscanf(u8Temp, "%x", &u32Hex);
         pu8Hex[sLen] = (u8)u32Hex;
 
         start += 2;

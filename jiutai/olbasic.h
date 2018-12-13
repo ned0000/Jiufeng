@@ -109,6 +109,7 @@ typedef time_t       oltime_t;
     #define ol_snprintf              _snprintf
     #define ol_vsnprintf             _vsnprintf
     #define ol_printf                _printf
+    #define ol_sscanf                _sscanf
     #define ol_strcpy                _strcpy
     #define ol_strncpy               _strncpy
     #define ol_strcat                _strcat
@@ -129,6 +130,7 @@ typedef time_t       oltime_t;
     #define ol_vsnprintf             vsnprintf
     #define ol_vsprintf              vsprintf
     #define ol_printf                printf
+    #define ol_sscanf                sscanf
     #define ol_strcpy                strcpy
     #define ol_strncpy               strncpy
     #define ol_strcat                strcat

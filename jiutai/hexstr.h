@@ -1,8 +1,8 @@
 /**
  *  @file hexstr.h
  *
- *  @brief hex string header file
- *	 provide some functional routine to dump hex logs
+ *  @brief hex string header file. Provide some functional routine to dump hex
+ *   logs
  *
  *  @author Min Zhang
  *
