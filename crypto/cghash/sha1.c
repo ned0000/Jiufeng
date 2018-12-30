@@ -334,13 +334,9 @@ static void SHA1PadMessage(SHA1Context *context)
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 initSha1(sha1_t * pSha1)
+void initSha1(sha1_t * pSha1)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-
     SHA1Reset((SHA1Context *)&(pSha1->s_u8Ctx));
-
-    return u32Ret;
 }
 
 u32 updateSha1(sha1_t * pSha1, const u8 * pu8Buffer, u32 u32Len)
@@ -376,13 +372,13 @@ u32 finalSha1(sha1_t * pSha1, u8 u8Digest[SHA1_DIGEST_LEN])
 u32 doSha1(const u8 * pu8Input, u32 u32InputLen, u8 u8Digest[SHA1_DIGEST_LEN])
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    SHA1Context sha1;
+    sha1_t sha1;
 
-    SHA1Reset(&sha1);
+    initSha1(&sha1);
 
-    SHA1Input(&sha1, pu8Input, u32InputLen);
-
-    SHA1Result(&sha1, u8Digest);
+    u32Ret = updateSha1(&sha1, pu8Input, u32InputLen);
+    if (u32Ret == OLERR_NO_ERROR)
+        u32Ret = finalSha1(&sha1, u8Digest);
 
     return u32Ret;
 }

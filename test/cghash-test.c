@@ -32,11 +32,10 @@ static boolean_t ls_bVerbose = FALSE;
 static void _printUsage(void)
 {
     ol_printf("\
-Usage: cghash-test [-m] [-s] [-v] [-h string] \n\
+Usage: cghash-test [-m] [-s] [-a string] [-h] \n\
          -a hash string by sha1\n\
          -m test MD5\n\
          -s test sha1\n\
-         -v verbose\n\
          -h show this usage\n");
     ol_printf("\n");
 }
@@ -86,38 +85,30 @@ static u32 _testMd5(void)
     olchar_t str[MD5_DIGEST_LEN * 2 + 1];
 
     ol_printf("Testing MD5\n");
-
     ol_printf("test case 1\n");
 
-    u32Ret = doMd5((u8 *)"Jefe", 4, u8Digest);
-    if (u32Ret == OLERR_NO_ERROR)
-    {
-        getStringHex(str, sizeof(str), u8Digest, MD5_DIGEST_LEN);
+    doMd5((u8 *)"Jefe", 4, u8Digest);
+    getStringHex(str, sizeof(str), u8Digest, MD5_DIGEST_LEN);
 
-        str[MD5_DIGEST_LEN * 2] = '\0';
+    str[MD5_DIGEST_LEN * 2] = '\0';
 
-        if (strncmp(str, "0f71e3c00b7b8162c6d7ef6edc738aa0",
-                MD5_DIGEST_LEN * 2) == 0)
-            ol_printf("MD5 succeeds\n");
-        else
-            ol_printf("MD5 fails\n");
-    }
+    if (strncmp(
+            str, "0f71e3c00b7b8162c6d7ef6edc738aa0", MD5_DIGEST_LEN * 2) == 0)
+        ol_printf("MD5 succeeds\n");
+    else
+        ol_printf("MD5 fails\n");
 
     ol_printf("test case 2\n");
 
-    u32Ret = doMd5((u8 *)"Doing a market survey.", 22, u8Digest);
-    if (u32Ret == OLERR_NO_ERROR)
-    {
-        getStringHex(str, sizeof(str), u8Digest, MD5_DIGEST_LEN);
+    doMd5((u8 *)"Doing a market survey.", 22, u8Digest);
+    getStringHex(str, sizeof(str), u8Digest, MD5_DIGEST_LEN);
 
-        str[MD5_DIGEST_LEN * 2] = '\0';
+    str[MD5_DIGEST_LEN * 2] = '\0';
 
-        if (strncmp(str, "fefef3a5df1fc52ff2548b5586f4daf7",
-                MD5_DIGEST_LEN * 2) == 0)
-            ol_printf("MD5 succeeds\n");
-        else
-            ol_printf("MD5 fails\n");
-    }
+    if (strncmp(str, "fefef3a5df1fc52ff2548b5586f4daf7", MD5_DIGEST_LEN * 2) == 0)
+        ol_printf("MD5 succeeds\n");
+    else
+        ol_printf("MD5 fails\n");
 
     return u32Ret;
 }
@@ -171,8 +162,7 @@ static u32 _sha1Str(olchar_t * source)
     u8 u8Digest[SHA1_DIGEST_LEN];
     olchar_t str[SHA1_DIGEST_LEN * 2 + 1];
 
-    if (ls_bVerbose)
-        ol_printf("source string: %s\n", source);
+    ol_printf("source string: %s\n", source);
 
     u32Ret = doSha1((u8 *)source, ol_strlen(source), u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
@@ -181,10 +171,7 @@ static u32 _sha1Str(olchar_t * source)
 
         str[SHA1_DIGEST_LEN * 2] = '\0';
 
-        ol_printf("%s", str);
-
-        if (ls_bVerbose)
-            ol_printf("\n");
+        ol_printf("SHA: %s\n", str);
     }
 
     return u32Ret;

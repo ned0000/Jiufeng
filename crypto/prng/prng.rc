@@ -1,0 +1,6 @@
+#define VER_FILEDESCRIPTION_STR "Jiufeng Pseudo Random Number Generator DLL"
+#define VER_INTERNALNAME_STR "olprng.dll"
+#define VER_ORIGINALFILENAME_STR "olprng.dll"
+#define VER_PRODUCTNAME_STR "Jiufeng Pseudo Random Number Dynamic Linking Library"
+
+#include "jiutai.rc"

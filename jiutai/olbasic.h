@@ -99,6 +99,7 @@ typedef time_t       oltime_t;
 #if defined(WINDOWS)
     #define ol_memset                memset
     #define ol_memcpy                memcpy
+    #define ol_memcmp                memcmp
     #define ol_memchr                memchr
     #define ol_bzero                 bzero
     #define ol_strcmp                strcmp
@@ -119,6 +120,7 @@ typedef time_t       oltime_t;
 #elif defined(LINUX)
     #define ol_memset                memset
     #define ol_memcpy                memcpy
+    #define ol_memcmp                memcmp
     #define ol_memchr                memchr
     #define ol_bzero                 bzero
     #define ol_strcmp                strcmp

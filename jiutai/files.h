@@ -199,6 +199,9 @@ FILESAPI u32 FILESCALL unlockFile(file_t fd);
 
 FILESAPI u32 FILESCALL readn(file_t fd, void * pBuffer, olsize_t * psRead);
 
+FILESAPI u32 FILESCALL readWithTimeout(
+    file_t fd, void * pBuffer, olsize_t * psRead, struct timeval * timeout);
+
 FILESAPI u32 FILESCALL writen(file_t fd, const void * pBuffer, olsize_t sWrite);
 
 FILESAPI u32 FILESCALL readLine(file_t fd, void * pBuffer, olsize_t * psRead);

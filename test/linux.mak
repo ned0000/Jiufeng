@@ -19,7 +19,7 @@ PROGRAMS = xmalloc-test bases-test logger-test process-test  \
     sharedmemory-test-consumer sharedmemory-test-worker      \
     files-test hsm-test hostinfo-test respool-test           \
     bitop-test jiukun-test cghash-test cgmac-test            \
-    encrypt-test
+    encrypt-test prng-test
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     hash-test.c syncmutex-test.c syncrwlock-test.c syncsem-test.c    \
@@ -28,7 +28,7 @@ SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     sharedmemory-test-consumer.c sharedmemory-test-worker.c          \
     files-test.c hsm-test.c hostinfo-test.c respool-test.c           \
     bitop-test.c jiukun-test.c cghash-test.c cgmac-test.c            \
-    encrypt-test.c
+    encrypt-test.c prng-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -159,6 +159,10 @@ $(BIN_DIR)/cgmac-test: cgmac-test.o
 $(BIN_DIR)/encrypt-test: encrypt-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolencrypt -lollogger -lolstringparse -lssl -lcrypto
+
+$(BIN_DIR)/prng-test: prng-test.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lolprng -lollogger -lolcghash
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 

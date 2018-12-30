@@ -44,14 +44,14 @@ typedef struct
     u8 m_u8Ctx[120];
 } md5_t;
 
-CGHASHAPI u32 CGHASHCALL initMd5(md5_t * pMd5);
-CGHASHAPI u32 CGHASHCALL updateMd5(
+CGHASHAPI void CGHASHCALL initMd5(md5_t * pMd5);
+CGHASHAPI void CGHASHCALL updateMd5(
     md5_t * pMd5, const u8 * pu8Buffer, u32 u32Len);
-CGHASHAPI u32 CGHASHCALL finalMd5(md5_t * pMd5, u8 u8Digest[MD5_DIGEST_LEN]);
+CGHASHAPI void CGHASHCALL finalMd5(md5_t * pMd5, u8 u8Digest[MD5_DIGEST_LEN]);
 
 /** More convenient function to do md5 digest
  */
-CGHASHAPI u32 CGHASHCALL doMd5(
+CGHASHAPI void CGHASHCALL doMd5(
     const u8 * pu8Input, u32 u32InputLen, u8 u8Digest[MD5_DIGEST_LEN]);
 
 
@@ -62,7 +62,7 @@ typedef struct
     u8 s_u8Ctx[160];
 } sha1_t;
 
-CGHASHAPI u32 CGHASHCALL initSha1(sha1_t * pSha1);
+CGHASHAPI void CGHASHCALL initSha1(sha1_t * pSha1);
 CGHASHAPI u32 CGHASHCALL updateSha1(
     sha1_t * pSha1, const u8 * pu8Buffer, u32 u32Len);
 CGHASHAPI u32 CGHASHCALL finalSha1(

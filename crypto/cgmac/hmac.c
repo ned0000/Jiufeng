@@ -46,35 +46,33 @@ u32 doHmacMd5(const u8 * pu8Key, olsize_t sKey,
         sKey = MD5_DIGEST_LEN ;
     }
 
-    u32Ret = initMd5(&md5);
-    if (u32Ret == OLERR_NO_ERROR)
-    {
-        /* Pad the key for inner digest */
-        for (u32Index = 0 ; u32Index < sKey ; ++ u32Index)
-            buf[u32Index] = pu8Key[u32Index] ^ 0x36;
+    initMd5(&md5);
 
-        for (u32Index =  sKey; u32Index < MD5_BLOCK_SIZE ; ++ u32Index)
-            buf[u32Index] = 0x36;
+    /* Pad the key for inner digest */
+    for (u32Index = 0 ; u32Index < sKey ; ++ u32Index)
+        buf[u32Index] = pu8Key[u32Index] ^ 0x36;
 
-        updateMd5(&md5, buf, MD5_BLOCK_SIZE);
-        updateMd5(&md5, pu8Input, sInput);
+    for (u32Index =  sKey; u32Index < MD5_BLOCK_SIZE ; ++ u32Index)
+        buf[u32Index] = 0x36;
 
-        finalMd5(&md5, isha);
+    updateMd5(&md5, buf, MD5_BLOCK_SIZE);
+    updateMd5(&md5, pu8Input, sInput);
 
-        /* Pad the key for outter digest */
-        for (u32Index = 0; u32Index < sKey; ++ u32Index)
-            buf[u32Index] = pu8Key[u32Index] ^ 0x5C;
-        for (u32Index = sKey; u32Index < MD5_BLOCK_SIZE; ++ u32Index)
-            buf[u32Index] = 0x5C;
+    finalMd5(&md5, isha);
 
-        updateMd5(&md5, buf, MD5_BLOCK_SIZE) ;
-        updateMd5(&md5, isha, MD5_DIGEST_LEN) ;
+    /* Pad the key for outter digest */
+    for (u32Index = 0; u32Index < sKey; ++ u32Index)
+        buf[u32Index] = pu8Key[u32Index] ^ 0x5C;
+    for (u32Index = sKey; u32Index < MD5_BLOCK_SIZE; ++ u32Index)
+        buf[u32Index] = 0x5C;
 
-        finalMd5(&md5, osha);
+    updateMd5(&md5, buf, MD5_BLOCK_SIZE) ;
+    updateMd5(&md5, isha, MD5_DIGEST_LEN) ;
 
-        /* copy the results */
-        memcpy(u8Digest, osha, MD5_DIGEST_LEN);
-    }
+    finalMd5(&md5, osha);
+
+    /* copy the results */
+    memcpy(u8Digest, osha, MD5_DIGEST_LEN);
 
     return u32Ret;
 }
@@ -97,35 +95,33 @@ u32 doHmacSha1(const u8 * pu8Key, olsize_t sKey,
         sKey = SHA1_DIGEST_LEN ;
     }
 
-    u32Ret = initSha1(&sha1);
-    if (u32Ret == OLERR_NO_ERROR)
-    {
-        /* Pad the key for inner digest */
-        for (u32Index = 0 ; u32Index < sKey ; ++ u32Index)
-            buf[u32Index] = pu8Key[u32Index] ^ 0x36;
+    initSha1(&sha1);
 
-        for (u32Index =  sKey; u32Index < SHA1_BLOCK_SIZE ; ++ u32Index)
-            buf[u32Index] = 0x36;
+    /* Pad the key for inner digest */
+    for (u32Index = 0 ; u32Index < sKey ; ++ u32Index)
+        buf[u32Index] = pu8Key[u32Index] ^ 0x36;
 
-        updateSha1(&sha1, buf, SHA1_BLOCK_SIZE);
-        updateSha1(&sha1, pu8Input, sInput);
+    for (u32Index =  sKey; u32Index < SHA1_BLOCK_SIZE ; ++ u32Index)
+        buf[u32Index] = 0x36;
 
-        finalSha1(&sha1, isha);
+    updateSha1(&sha1, buf, SHA1_BLOCK_SIZE);
+    updateSha1(&sha1, pu8Input, sInput);
 
-        /* Pad the key for outter digest */
-        for (u32Index = 0; u32Index < sKey; ++ u32Index)
-            buf[u32Index] = pu8Key[u32Index] ^ 0x5C;
-        for (u32Index = sKey; u32Index < SHA1_BLOCK_SIZE; ++ u32Index)
-            buf[u32Index] = 0x5C;
+    finalSha1(&sha1, isha);
 
-        updateSha1(&sha1, buf, SHA1_BLOCK_SIZE) ;
-        updateSha1(&sha1, isha, SHA1_DIGEST_LEN) ;
+    /* Pad the key for outter digest */
+    for (u32Index = 0; u32Index < sKey; ++ u32Index)
+        buf[u32Index] = pu8Key[u32Index] ^ 0x5C;
+    for (u32Index = sKey; u32Index < SHA1_BLOCK_SIZE; ++ u32Index)
+        buf[u32Index] = 0x5C;
 
-        finalSha1(&sha1, osha);
+    updateSha1(&sha1, buf, SHA1_BLOCK_SIZE) ;
+    updateSha1(&sha1, isha, SHA1_DIGEST_LEN) ;
 
-        /* copy the results */
-        memcpy(u8Digest, osha, SHA1_DIGEST_LEN);
-    }
+    finalSha1(&sha1, osha);
+
+    /* copy the results */
+    memcpy(u8Digest, osha, SHA1_DIGEST_LEN);
 
     return u32Ret;
 }

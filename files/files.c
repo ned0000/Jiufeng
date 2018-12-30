@@ -460,15 +460,15 @@ u32 readn(file_t fd, void * pBuffer, olsize_t * psRead)
     u32 u32Ret = OLERR_NO_ERROR;
 #if defined(LINUX)
     ssize_t nleft, nread;
-    olchar_t * p;
+    u8 * pData;
 
     assert((pBuffer != NULL) && (*psRead > 0));
 
-    p = pBuffer;
+    pData = pBuffer;
     nleft = *psRead;
     while (nleft > 0) 
     {
-        nread = read(fd, p, nleft);
+        nread = read(fd, pData, nleft);
         if (nread < 0) 
         {
             if (errno == EINTR)
@@ -491,10 +491,11 @@ u32 readn(file_t fd, void * pBuffer, olsize_t * psRead)
         }
 
         nleft -= nread;
-        p += nread;
+        pData += nread;
     }
 
-    *psRead = (*psRead) - (u32)nleft;
+    *psRead = (*psRead) - nleft;
+
 #elif defined(WINDOWS)
     boolean_t bRet;
     olsize_t sread;
@@ -510,6 +511,59 @@ u32 readn(file_t fd, void * pBuffer, olsize_t * psRead)
     }
     else
         u32Ret = OLERR_FAIL_READ_FILE;
+#endif
+    return u32Ret;
+}
+
+u32 readWithTimeout(
+    file_t fd, void * pBuffer, olsize_t * psRead, struct timeval * timeout)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+#if defined(LINUX)
+    fd_set fset;
+    olint_t ret;
+    ssize_t nleft, nread;
+    u8 * pData;
+
+    nleft = *psRead;
+    pData = pBuffer;
+    do
+    {
+        FD_ZERO(&fset);
+        FD_SET(fd, &fset);
+
+        ret = select(fd + 1, &fset, NULL, NULL, timeout);
+        if (ret > 0)
+        {
+            if (FD_ISSET(fd, &fset))
+            {
+                nread = read(fd, pData, nleft);
+                if (nread > 0)
+                {
+                    pData += nread;
+                    nleft -= nread;
+                }
+            }
+        }
+        else if (ret == 0)
+        {
+            /* timeout */
+            break;
+        }
+        else
+        {
+            /* error */
+            if (errno == EINTR)
+                continue;
+            else
+                u32Ret = OLERR_FAIL_READ_FILE;
+        }
+    } while ((u32Ret == OLERR_NO_ERROR) && (nleft > 0));
+
+    *psRead = (*psRead) - nleft;
+
+#elif defined(WINDOWS)
+
 #endif
     return u32Ret;
 }

@@ -356,42 +356,29 @@ static void Decode(
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 initMd5(md5_t * pMd5)
+void initMd5(md5_t * pMd5)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-
     MD5Init((MD5_CTX *)&(pMd5->m_u8Ctx));
-
-    return u32Ret;
 }
 
-u32 updateMd5(md5_t * pMd5, const u8 * pu8Buffer, u32 u32Len)
+void updateMd5(md5_t * pMd5, const u8 * pu8Buffer, u32 u32Len)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-
     assert((pMd5 != NULL) && (pu8Buffer != NULL));
 
     MD5Update((MD5_CTX *)&(pMd5->m_u8Ctx), (u8 *)pu8Buffer, u32Len);
-
-    return u32Ret;
 }
 
-u32 finalMd5(md5_t * pMd5, u8 u8Digest[MD5_DIGEST_LEN])
+void finalMd5(md5_t * pMd5, u8 u8Digest[MD5_DIGEST_LEN])
 {
-    u32 u32Ret = OLERR_NO_ERROR;
-
     assert(pMd5 != NULL);
 
     MD5Final(u8Digest, (MD5_CTX *)&(pMd5->m_u8Ctx));
 
     MD5Init((MD5_CTX *)&(pMd5->m_u8Ctx));
-
-    return u32Ret;
 }
 
-u32 doMd5(const u8 * pu8Input, u32 u32InputLen, u8 u8Digest[MD5_DIGEST_LEN])
+void doMd5(const u8 * pu8Input, u32 u32InputLen, u8 u8Digest[MD5_DIGEST_LEN])
 {
-    u32 u32Ret = OLERR_NO_ERROR;
     MD5_CTX md5;
 
     MD5Init(&md5);
@@ -399,8 +386,6 @@ u32 doMd5(const u8 * pu8Input, u32 u32InputLen, u8 u8Digest[MD5_DIGEST_LEN])
     MD5Update(&md5, (u8 *)pu8Input, u32InputLen);
 
     MD5Final(u8Digest, &md5);
-
-    return u32Ret;
 }
 
 /*---------------------------------------------------------------------------*/

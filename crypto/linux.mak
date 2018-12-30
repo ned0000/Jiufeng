@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-SUBDIRS = common cghash cgmac encrypt
+SUBDIRS = common cghash cgmac encrypt prng
 
 include $(TOPDIR)/mak/lnxsubdirs.mak
 

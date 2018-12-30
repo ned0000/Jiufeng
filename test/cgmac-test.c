@@ -30,7 +30,7 @@ boolean_t ls_bHmacMd5 = FALSE;
 static void _printUsage(void)
 {
     ol_printf("\
-Usage: cgmac-test [-k] [-a] [-m] [-h] \n\
+Usage: cgmac-test [-k] [-a] [-h] \n\
          -h show this usage\n\
          -k test HMAC-SHA1\n\
          -a test HMAC-MD5\n");
