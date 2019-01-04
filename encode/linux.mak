@@ -1,23 +1,23 @@
 #
 #  @file linux.mak
 #
-#  @brief The Makefile for Jiufeng
+#  @brief The Makefile for encode-decode library
 #
 #  @author Min Zhang
 #
 #  @note
+#
 #  
 
 #-----------------------------------------------------------------------------
 
-TOPDIR  := $(shell /bin/pwd)
+SONAME = olencode
 
-export TOPDIR
+SOURCES = base64.c huffman.c
 
-SUBDIRS = jiutai logger stringparse files ifmgmt jiukun crypto encode test
+JIUTAI_SRCS = xmalloc.c
 
-include $(TOPDIR)/mak/lnxsubdirs.mak
+include $(TOPDIR)/mak/lnxlib.mak
 
 #-----------------------------------------------------------------------------
-
 

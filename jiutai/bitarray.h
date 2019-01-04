@@ -54,13 +54,13 @@ typedef u8  bit_array_t;
 /* number of characters required to contain number of bits */
 #define BA_BITS_TO_CHARS(bits)   ((((bits) - 1) / BITS_PER_U8) + 1)
 
-#define INIT_BIT_ARRAY(ba) \
+#define INIT_BIT_ARRAY(ba)  \
     memset((ba), 0, BA_CHARS(ba))
 
 /*dump bit array*/
 #define DUMP_BIT_ARRAY(ba)  \
 {                           \
-    olint_t i, j;               \
+    olint_t i, j;           \
                             \
     for (i = 0; i < BA_CHARS(ba); i ++)                  \
     {                                                    \
@@ -80,12 +80,12 @@ typedef u8  bit_array_t;
 #define SET_BIT_ARRAY(ba)      \
     memset((ba), 0xFF, BA_CHARS(ba))
 
-/*left shift bit array, from */
+/*left shift bit array*/
 #define LSHIFT_BIT_ARRAY(ba, shift)          \
 {                                            \
-    olint_t index;                               \
+    olint_t index;                           \
     olint_t chars = (shift) / BITS_PER_U8;  /* number of whole byte shift */ \
-    olint_t remain;                              \
+    olint_t remain;                          \
                                              \
     assert((shift) > 0);                     \
                                              \
@@ -130,9 +130,9 @@ typedef u8  bit_array_t;
 /*right shift bit array*/
 #define RSHIFT_BIT_ARRAY(ba, shift)              \
 {                                                \
-    olint_t index;                                   \
+    olint_t index;                               \
     olint_t chars = (shift) / BITS_PER_U8;  /* number of whole byte shift */ \
-    olint_t remain;                                  \
+    olint_t remain;                              \
                                                  \
     assert((shift) > 0);                         \
                                                  \
@@ -176,7 +176,7 @@ typedef u8  bit_array_t;
 
 #define AND_BIT_ARRAY(dest, src1, src2)                 \
 {                                                       \
-    olint_t index;                                          \
+    olint_t index;                                      \
                                                         \
     assert(BA_CHARS(dest) == BA_CHARS(src1));           \
     assert(BA_CHARS(dest) == BA_CHARS(src2));           \
@@ -190,7 +190,7 @@ typedef u8  bit_array_t;
 
 #define OR_BIT_ARRAY(dest, src1, src2)                  \
 {                                                       \
-    olint_t index;                                          \
+    olint_t index;                                      \
                                                         \
     assert(BA_CHARS(dest) == BA_CHARS(src1));           \
     assert(BA_CHARS(dest) == BA_CHARS(src2));           \
@@ -204,7 +204,7 @@ typedef u8  bit_array_t;
 
 #define XOR_BIT_ARRAY(dest, src1, src2)                 \
 {                                                       \
-    olint_t index;                                          \
+    olint_t index;                                      \
                                                         \
     assert(BA_CHARS(dest) == BA_CHARS(src1));           \
     assert(BA_CHARS(dest) == BA_CHARS(src2));           \
@@ -218,7 +218,7 @@ typedef u8  bit_array_t;
 
 #define NOT_BIT_ARRAY(dest, src)                        \
 {                                                       \
-    olint_t index;                                          \
+    olint_t index;                                      \
                                                         \
     assert(BA_CHARS(dest) == BA_CHARS(src));            \
                                                         \
@@ -241,7 +241,7 @@ typedef u8  bit_array_t;
 /*increment bit array*/
 #define INCREMENT_BIT_ARRAY(ba)                         \
 {                                                       \
-    olint_t index;                                          \
+    olint_t index;                                      \
                                                         \
     for (index = BA_CHARS(ba) - 1; index >= 0; index --)\
     {                                                   \
@@ -261,7 +261,7 @@ typedef u8  bit_array_t;
 /*decrement bit array*/
 #define DECREMENT_BIT_ARRAY(ba)                         \
 {                                                       \
-    olint_t index;                                          \
+    olint_t index;                                      \
                                                         \
     for (index = BA_CHARS(ba) - 1; index >= 0; index--) \
     {                                                   \

@@ -1,0 +1,588 @@
+/**
+ *  @file huffman.c
+ *
+ *  @brief huffman encoding and decoding implementation file
+ *
+ *  @author Min Zhang
+ *
+ *  @note
+ *
+ */
+
+/* --- standard C lib header files ----------------------------------------- */
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
+/* --- internal header files ----------------------------------------------- */
+#include "olbasic.h"
+#include "ollimit.h"
+#include "encode.h"
+#include "huffman.h"
+#include "errcode.h"
+#include "xmalloc.h"
+#include "bitarray.h"
+
+/* --- private data/data structure section --------------------------------- */
+#define HUFFMAN_NONE      (-1)
+
+typedef struct huffman_node
+{
+    huffman_code_t * hn_phcCode;
+    u64 hn_u64Freq;
+    /** if TRUE, already handled or no need to handle */
+    boolean_t hn_bIgnore;
+    /** depth in tree (root is 0) */
+    olint_t hn_nLevel;
+
+    /** pointer to children and parent. Parent is only useful if non-recursive
+     *  methods are used to search the huffman tree.
+     */
+    struct huffman_node * hn_phnLeft, * hn_phnRight, * hn_phnParent;
+} huffman_node_t;
+
+typedef struct
+{
+    huffman_node_t * hnp_phnNodes;
+    u32 hnp_u32MaxNode;
+    u32 hnp_u32NumOfAlloc;
+} huffman_node_pool_t;
+
+/* --- private routine section---------------------------------------------- */
+
+static u32 _destroyHuffmanNodePool(huffman_node_pool_t ** ppPool)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    huffman_node_pool_t * phnp = *ppPool;
+
+    if (phnp->hnp_phnNodes != NULL)
+        xfree((void **)&(phnp->hnp_phnNodes));
+
+    xfree((void **)ppPool);
+
+    return u32Ret;
+}
+
+static u32 _createHuffmanNodePool(
+    huffman_node_pool_t ** ppPool, u16 u16NumOfCode)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    huffman_node_pool_t * phnp = NULL;
+
+    u32Ret = xcalloc((void **)&phnp, sizeof(huffman_node_pool_t));
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        phnp->hnp_u32MaxNode = 2 * u16NumOfCode;
+
+        u32Ret = xcalloc(
+            (void **)&(phnp->hnp_phnNodes),
+            sizeof(huffman_node_t) * phnp->hnp_u32MaxNode);
+    }
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+
+    }
+
+    if (u32Ret == OLERR_NO_ERROR)
+        *ppPool = phnp;
+    else if (phnp != NULL)
+        _destroyHuffmanNodePool(&phnp);
+
+    return u32Ret;
+}
+
+static huffman_node_t * _getHuffmanNode(huffman_node_pool_t * phnp)
+{
+    huffman_node_t * phn = NULL;
+
+    if (phnp->hnp_u32NumOfAlloc < phnp->hnp_u32MaxNode)
+    {
+        phn = &(phnp->hnp_phnNodes[phnp->hnp_u32NumOfAlloc]);
+
+        phnp->hnp_u32NumOfAlloc ++;
+    }
+
+    assert(phn != NULL);
+    
+    return phn;
+}
+
+/** Allocates and initializes memory for a composite node (tree entry for
+ *  multiple characters) in a huffman tree. The number of occurrences for a
+ *  composite is the sum of occurrences of its children.
+ *
+ *  @param pPool [in] pointer to the huffman node pool
+ *  @param left [in] left child in tree
+ *  @param right [in] right child in tree
+ *  @param ppNode [out] the composite note
+ *
+ *  @return the error code
+ */
+static u32 _getHuffmanCompositeNode(
+    huffman_node_pool_t * pPool, huffman_node_t * left, huffman_node_t * right,
+    huffman_node_t ** ppNode)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    huffman_node_t * phn = NULL;
+
+    phn = _getHuffmanNode(pPool);
+
+    phn->hn_bIgnore = FALSE;
+    /* sum of children */
+    phn->hn_u64Freq = left->hn_u64Freq + right->hn_u64Freq;
+    phn->hn_nLevel = MAX(left->hn_nLevel, right->hn_nLevel) + 1;
+
+    /* attach children */
+    phn->hn_phnLeft = left;
+    phn->hn_phnLeft->hn_phnParent = phn;
+    phn->hn_phnRight = right;
+    phn->hn_phnRight->hn_phnParent = phn;
+    phn->hn_phnParent = NULL;
+
+    *ppNode = phn;
+
+    return u32Ret;
+}
+
+/** Searches an array of huffman_node_t to find the active (hn_bIgnore == FALSE)
+ *  element with the smallest frequency count. In order to keep the tree
+ *  shallow, if two nodes have the same count, the node with the lower level
+ *  selected.
+ *
+ *  @parame ppNode [in] pointer to the note array to be searched
+ *  @param u16NumOfCode [in] number of elements in the array
+ *
+ *  @return the index of the active element with the smallest count.
+ *  @return HUFFMAN_NONE if no minimum is found.
+ */
+static olint_t _findMinimumFreq(huffman_node_t ** ppNode, u16 u16NumOfCode)
+{
+    olint_t i;                          /* array index */
+    olint_t currentIndex = HUFFMAN_NONE;/* index with lowest count seen so far*/
+    u64 currentCount = U64_MAX;         /* lowest count seen so far */
+    olint_t currentLevel = OLINT_MAX;   /* level of lowest count seen so far */
+
+    /* sequentially search array */
+    for (i = 0; i < u16NumOfCode; i++)
+    {
+        /* check for lowest count (or equally as low, but not as deep) */
+        if ((ppNode[i] != NULL) && (! ppNode[i]->hn_bIgnore) &&
+            ((ppNode[i]->hn_u64Freq < currentCount) ||
+             (ppNode[i]->hn_u64Freq == currentCount &&
+              ppNode[i]->hn_nLevel < currentLevel)))
+        {
+            currentIndex = i;
+            currentCount = ppNode[i]->hn_u64Freq;
+            currentLevel = ppNode[i]->hn_nLevel;
+        }
+    }
+
+    return currentIndex;
+}
+
+/** Builds a huffman tree from an array of huffman_node_t.
+ *
+ *  @param ppNode [in/out] array of the huffman nodes
+ *  @param pPool [in] the huffman node pool
+ *  @param u16NumOfCode [in] number of code
+ *  @param ppRoot [out] the root of the huffman tree
+ *
+ *  @return the error code
+ */
+static u32 _buildHuffmanTree(
+    huffman_node_t ** ppNode,
+    huffman_node_pool_t * pPool, u16 u16NumOfCode, huffman_node_t ** ppRoot)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    olint_t min1, min2;
+
+    /* keep looking until no more nodes can be found */
+    for ( ; u32Ret == OLERR_NO_ERROR; )
+    {
+        /* find node with lowest count */
+        min1 = _findMinimumFreq(ppNode, u16NumOfCode);
+        if (min1 == HUFFMAN_NONE)
+        {
+            /* no more nodes to combine */
+            break;
+        }
+        /* remove from consideration */
+        ppNode[min1]->hn_bIgnore = TRUE;
+
+        /* find node with second lowest count */
+        min2 = _findMinimumFreq(ppNode, u16NumOfCode);
+        if (min2 == HUFFMAN_NONE)
+        {
+            /* no more nodes to combine */
+            break;
+        }
+        /* remove from consideration */
+        ppNode[min2]->hn_bIgnore = TRUE;
+
+        /* combine nodes into a tree */
+        u32Ret = _getHuffmanCompositeNode(
+            pPool, ppNode[min1], ppNode[min2], &ppNode[min1]);
+
+        ppNode[min2] = NULL;
+    }
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        if (min1 == HUFFMAN_NONE)
+            u32Ret = OLERR_FAIL_BUILD_HUFFMAN_TREE;
+        else
+            *ppRoot = ppNode[min1];
+    }
+    
+    return u32Ret;
+}
+
+static u32 _initHuffmanTreeLeaf(
+    huffman_node_pool_t * pPool,
+    huffman_node_t ** ppNode, huffman_code_t * phc, u16 u16NumOfCode)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    u16 u16Index;
+
+    for (u16Index = 0; u16Index < u16NumOfCode; u16Index ++)
+    {
+        phc[u16Index].hc_u16CodeLen = 0;
+
+        if (phc[u16Index].hc_u32Freq != 0)
+        {
+            ppNode[u16Index] = _getHuffmanNode(pPool);
+
+            ppNode[u16Index]->hn_phcCode = &(phc[u16Index]);
+            ppNode[u16Index]->hn_u64Freq = (u64)phc[u16Index].hc_u32Freq;
+        }
+    }
+
+    return u32Ret;
+}
+
+/** Uses a huffman tree to build a list of codes and their length for each
+ *  encoded symbol.
+ *
+ *  @param pRoot [in] the pointer to root of huffman tree
+ *  @param u16NumOfCode [in] number of code
+ *
+ *  @return the error code
+ */
+static u32 _genHuffmanCode(huffman_node_t * pRoot, u16 u16NumOfCode)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    bit_array_t code[MAX_HUFFMAN_CODE_LEN];
+    u8 depth = 0;
+
+    INIT_BIT_ARRAY(code);
+
+    for( ; u32Ret == OLERR_NO_ERROR; )
+    {
+        /* follow this branch all the way left */
+        while (pRoot->hn_phnLeft != NULL)
+        {
+            LSHIFT_BIT_ARRAY(code, 1);
+            pRoot = pRoot->hn_phnLeft;
+            depth ++;
+        }
+
+        if (pRoot->hn_phcCode != NULL)
+        {
+            /* enter results in list */
+            pRoot->hn_phcCode->hc_u16CodeLen = depth;
+            COPY_BIT_ARRAY(pRoot->hn_phcCode->hc_baCode, code);
+            LSHIFT_BIT_ARRAY(
+                pRoot->hn_phcCode->hc_baCode, BA_BITS(code) - depth);
+        }
+
+        while (pRoot->hn_phnParent != NULL)
+        {
+            if (pRoot != pRoot->hn_phnParent->hn_phnRight)
+            {
+                /* try the parent's right */
+                setBitArrayBit(code, BA_BITS(code) - 1);
+                pRoot = pRoot->hn_phnParent->hn_phnRight;
+                break;
+            }
+            else
+            {
+                /* parent's right tried, go up one level yet */
+                depth --;
+                RSHIFT_BIT_ARRAY(code, 1);
+                pRoot = pRoot->hn_phnParent;
+            }
+        }
+
+        if (pRoot->hn_phnParent == NULL)
+        {
+            /* we're at the top with nowhere to go */
+            break;
+        }
+    }
+
+    return u32Ret;
+}
+
+/** Accepts a list of symbol sorted by their code lengths, and assigns a
+ *  canonical huffman code to each symbol.
+ *
+ *  @param pphc [in] sorted list of symbols to have code values assigned
+ *  @param u16NumOfCode [in] number of elements in the array
+ *
+ *  @return the error code
+ */
+static u32 _assignCanonicalCodes(huffman_code_t ** pphc, u16 u16NumOfCode)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    olint_t i;
+    u8 length;
+    bit_array_t code[MAX_HUFFMAN_CODE_LEN];
+
+    /* assign the new codes */
+    INIT_BIT_ARRAY(code);
+
+    length = pphc[(u16NumOfCode - 1)]->hc_u16CodeLen;
+
+    for (i = (u16NumOfCode - 1); i >= 0; i--)
+    {
+        /* fail if we hit a zero len code */
+        if (pphc[i]->hc_u16CodeLen == 0)
+        {
+            break;
+        }
+        /* adjust code if this length is shorter than the previous */
+        if (pphc[i]->hc_u16CodeLen < length)
+        {
+            /* right shift the code */
+            RSHIFT_BIT_ARRAY(code, (length - pphc[i]->hc_u16CodeLen));
+            length = pphc[i]->hc_u16CodeLen;
+        }
+
+        /* assign left justified code */
+        COPY_BIT_ARRAY(pphc[i]->hc_baCode, code);
+        LSHIFT_BIT_ARRAY(pphc[i]->hc_baCode, BA_BITS(code) - length);
+
+        /* increase 1 */
+        INCREMENT_BIT_ARRAY(code);
+    }
+
+    return u32Ret;
+}
+
+/** Used by qsort for sorting canonical list items by code length. In the event
+ *  of equal lengths, the symbol value will be used.
+ *
+ *  @param item1 [in] pointer canonical list item
+ *  @param item2 [in] pointer canonical list item
+ *
+ *  @return the result of comparision
+ *  @retval 1 if item1 > item2
+ *  @retval -1 if item1 < item 2
+ *  @retval 0 if something went wrong (means item1 == item2)
+ */
+static olint_t _compareByCodeLen(const void * item1, const void * item2)
+{
+    huffman_code_t * phc1 = *((huffman_code_t **)item1);
+    huffman_code_t * phc2 = *((huffman_code_t **)item2);
+
+    if (phc1->hc_u16CodeLen > phc2->hc_u16CodeLen)
+    {
+        /* item1 > item2 */
+        return 1;
+    }
+    else if (phc1->hc_u16CodeLen < phc2->hc_u16CodeLen)
+    {
+        /* item1 < item2 */
+        return -1;
+    }
+    else
+    {
+        /* using symbol */
+        if (phc1->hc_u16Symbol > phc2->hc_u16Symbol)
+        {
+            return 1;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    return 0;
+}
+
+/** Uses a huffman tree to build a list of codes and their length for each
+ *  encoded symbol. This simplifies the encoding process instead of traversing
+ *  a tree to in search of the code for any symbol, the code maybe found by
+ *  accessing phc.hc_baCode.
+ *
+ *  @param pRoot [in] pointer to root of huffman tree
+ *  @param phc [in] array for huffman code
+ *  @param u16NumOfCode [in] number of elements in the array
+ *
+ *  @return the error code
+ */
+static u32 _genCanonicalHuffmanCode(
+    huffman_node_t * pRoot, huffman_code_t * phc, u16 u16NumOfCode)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    u8 depth = 0;
+
+    for( ; u32Ret == OLERR_NO_ERROR; )
+    {
+        /* follow this branch all the way left */
+        while (pRoot->hn_phnLeft != NULL)
+        {
+            pRoot = pRoot->hn_phnLeft;
+            depth ++;
+        }
+
+        if (pRoot->hn_phcCode != NULL)
+        {
+            /* handle one symbol trees */
+            if (depth == 0)
+                depth ++;
+
+            /* enter results in list */
+            pRoot->hn_phcCode->hc_u16CodeLen = depth;
+        }
+
+        while (pRoot->hn_phnParent != NULL)
+        {
+            if (pRoot != pRoot->hn_phnParent->hn_phnRight)
+            {
+                /* try the parent's right */
+                pRoot = pRoot->hn_phnParent->hn_phnRight;
+                break;
+            }
+            else
+            {
+                /* parent's right tried, go up one level yet */
+                depth --;
+                pRoot = pRoot->hn_phnParent;
+            }
+        }
+        if (pRoot->hn_phnParent == NULL)
+        {
+            /* we're at the top with nowhere to go */
+            break;
+        }
+    }
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        u32Ret = genCanonicalHuffmanCodeByCodeLen(phc, u16NumOfCode);
+    }
+
+    return u32Ret;
+}
+
+/* --- public routine section ---------------------------------------------- */
+
+u32 genHuffmanCode(huffman_code_t * phc, u16 u16NumOfCode)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    huffman_node_t ** ppLeaf = NULL;
+    huffman_node_t * pRoot = NULL;
+    huffman_node_pool_t * pPool;
+
+    u32Ret = xcalloc(
+        (void **)&ppLeaf, sizeof(huffman_node_t *) * u16NumOfCode);
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        u32Ret = _createHuffmanNodePool(&pPool, u16NumOfCode);
+    }
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        u32Ret = _initHuffmanTreeLeaf(pPool, ppLeaf, phc, u16NumOfCode);
+    }
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        u32Ret = _buildHuffmanTree(ppLeaf, pPool, u16NumOfCode, &pRoot);
+    }
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        u32Ret = _genHuffmanCode(pRoot, u16NumOfCode);
+    }
+
+    if (ppLeaf != NULL)
+        xfree((void **)ppLeaf);
+
+    if (pPool != NULL)
+        _destroyHuffmanNodePool(&pPool);
+
+    return u32Ret;
+}
+
+u32 genCanonicalHuffmanCode(huffman_code_t * phc, u16 u16NumOfCode)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    huffman_node_t ** ppLeaf = NULL;
+    huffman_node_t * pRoot = NULL;
+    huffman_node_pool_t * pPool;
+
+    u32Ret = xcalloc(
+        (void **)&ppLeaf, sizeof(huffman_node_t *) * u16NumOfCode);
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        u32Ret = _createHuffmanNodePool(&pPool, u16NumOfCode);
+    }
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        u32Ret = _initHuffmanTreeLeaf(pPool, ppLeaf, phc, u16NumOfCode);
+    }
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        u32Ret = _buildHuffmanTree(ppLeaf, pPool, u16NumOfCode, &pRoot);
+    }
+    
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        u32Ret = _genCanonicalHuffmanCode(pRoot, phc, u16NumOfCode);
+    }
+
+    if (ppLeaf != NULL)
+        xfree((void **)&ppLeaf);
+
+    if (pPool != NULL)
+        _destroyHuffmanNodePool(&pPool);
+
+    return u32Ret;
+}
+
+u32 genCanonicalHuffmanCodeByCodeLen(huffman_code_t * phc, u16 u16NumOfCode)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    huffman_code_t ** pphc = NULL;
+    u16 u16Index;
+
+    u32Ret = xcalloc(
+        (void **)&pphc, sizeof(huffman_code_t *) * u16NumOfCode);
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        for (u16Index = 0; u16Index < u16NumOfCode; u16Index ++)
+        {
+            pphc[u16Index] = &(phc[u16Index]);
+        }
+
+        /* sort by code length */
+        qsort(
+            pphc, u16NumOfCode, sizeof(huffman_code_t *), _compareByCodeLen);
+
+        u32Ret = _assignCanonicalCodes(pphc, u16NumOfCode);
+
+        xfree((void **)&pphc);
+    }
+
+    return u32Ret;
+}
+
+/*---------------------------------------------------------------------------*/
+
+

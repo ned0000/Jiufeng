@@ -92,6 +92,7 @@ typedef s32          olid_t;
 typedef char         olchar_t;
 typedef short        olshort_t;
 typedef int          olint_t;
+#define OLINT_MAX    S32_MAX
 typedef float        olfloat_t;
 typedef double       oldouble_t;
 typedef time_t       oltime_t;
