@@ -1,6 +1,6 @@
 #
-*  @file Makefile
-*
+#  @file Makefile
+#
 #  @brief The Makefile for common object file of crypto library
 #
 #  @author Min Zhang

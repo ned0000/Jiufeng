@@ -19,7 +19,7 @@ PROGRAMS = xmalloc-test bases-test logger-test process-test  \
     sharedmemory-test-consumer sharedmemory-test-worker      \
     files-test hsm-test hostinfo-test respool-test           \
     bitop-test jiukun-test cghash-test cgmac-test            \
-    encrypt-test prng-test encode-test
+    encrypt-test prng-test encode-test genuuid
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     hash-test.c syncmutex-test.c syncrwlock-test.c syncsem-test.c    \
@@ -28,7 +28,7 @@ SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     sharedmemory-test-consumer.c sharedmemory-test-worker.c          \
     files-test.c hsm-test.c hostinfo-test.c respool-test.c           \
     bitop-test.c jiukun-test.c cghash-test.c cgmac-test.c            \
-    encrypt-test.c prng-test.c encode-test.c
+    encrypt-test.c prng-test.c encode-test.c genuuid.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -167,6 +167,10 @@ $(BIN_DIR)/prng-test: prng-test.o
 $(BIN_DIR)/encode-test: encode-test.o $(JIUTAI_DIR)/xmalloc.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolencode -lollogger -lolfiles
+
+$(BIN_DIR)/genuuid: genuuid.o $(JIUTAI_DIR)/xtime.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lollogger -loluuid -lolprng
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 

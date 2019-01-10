@@ -42,60 +42,98 @@
 #define IN
 #define OUT
 
-typedef unsigned char   u8;
-#define U8_MAX          (0xFF)
-#define BITS_PER_U8     (8)
-typedef signed char     s8;
+typedef char                        olchar_t;
+#define BITS_PER_OLCHAR             (8)
+#define BYTES_PER_OLCHAR            (1)
 
-typedef unsigned short  u16;
-#define U16_MAX         (0xFFFF)
-#define BITS_PER_U16    (16)
-#define BYTES_PER_U16   (2)
-typedef signed short    s16;
+typedef unsigned char               u8;
+#define U8_MAX                      (0xFF)
+#define BITS_PER_U8                 (8)
+#define BYTES_PER_U8                (1)
 
-typedef unsigned int    u32;
-#define U32_MAX         (0xFFFFFFFF)
-#define BITS_PER_U32    (32)
-#define BYTES_PER_U32   (4)
-typedef signed int      s32;
-#define S32_MAX         (0x7FFFFFFF)
+typedef signed char                 s8;
+#define S8_MAX                      (0x7F)
+#define BITS_PER_S8                 (8)
+#define BYTES_PER_S8                (1)
 
-typedef unsigned long   ulong;
+typedef unsigned short              u16;
+#define U16_MAX                     (0xFFFF)
+#define BITS_PER_U16                (16)
+#define BYTES_PER_U16               (2)
+
+typedef signed short                s16;
+#define S16_MAX                     (0x7FFF)
+#define BITS_PER_S16                (16)
+#define BYTES_PER_S16               (2)
+
+typedef short                       olshort_t;
+#define OLSHORT_MAX                 S16_MAX
+#define BITS_PER_OLSHORT            BITS_PER_S16
+#define BYTES_PER_OLSHORT           BYTES_PER_S16
+
+typedef unsigned int                u32;
+#define U32_MAX                     (0xFFFFFFFF)
+#define BITS_PER_U32                (32)
+#define BYTES_PER_U32               (4)
+
+typedef signed int                  s32;
+#define S32_MAX                     (0x7FFFFFFF)
+#define BITS_PER_S32                (32)
+#define BYTES_PER_S32               (4)
+
+typedef int                          olint_t;
+#define OLINT_MAX                    S32_MAX
+#define BITS_PER_OLINT               BITS_PER_S32
+#define BYTES_PER_OLINT              BYTES_PER_S32
+
+typedef unsigned long                ulong;
 #ifndef ULONG_MAX
-    #define ULONG_MAX   (0xFFFFFFFFUL)
+    #define ULONG_MAX                (0xFFFFFFFFUL)
 #endif
-#define ULONG_PER_U32   (32)
+#define BITS_PER_ULONG               (32)
+
+typedef signed long                  slong;
+#define SLONG_MAX                    (0x7FFFFFFFUL)
+#define BITS_PER_SLONG               (32)
 
 #if defined(LINUX)
-    typedef unsigned long long  u64;
-    typedef long long  s64;
+    typedef unsigned long long       u64;
 #elif defined(WINDOWS)
-    typedef unsigned __int64  u64;
-    typedef __int64  s64;
+    typedef unsigned __int64         u64;
 #endif
-#define U64_MAX  0xFFFFFFFFFFFFFFFFULL
-#define BITS_PER_U64  64
+#define U64_MAX                      (0xFFFFFFFFFFFFFFFFULL)
+#define BITS_PER_U64                 (64)
+#define BYTES_PER_U64                (8)
 
+#if defined(LINUX)
+    typedef long long                s64;
+#elif defined(WINDOWS)
+    typedef __int64                  s64;
+#endif
+#define S64_MAX                      (0x7FFFFFFFFFFFFFFFULL)
+#define BITS_PER_S64                 (64)
+#define BYTES_PER_S64                (8)
+
+typedef float                        olfloat_t;
+#define BYTES_PER_OLFLOAT            (4)
+
+typedef double                       oldouble_t;
+#define BYTES_PER_OLDOUBLE           (8)
+
+typedef s32                          olsize_t;
+#define OLSIZE_MAX                   S32_MAX
+
+typedef u8                           boolean_t;
 #ifndef TRUE
-    #define TRUE  0x1
+    #define TRUE                     (0x1)
 #endif
-
 #ifndef FALSE
-    #define FALSE  0x0
+    #define FALSE                    (0x0)
 #endif
 
-typedef u8           boolean_t;
-typedef s32          olindex_t;
-typedef s32          olsize_t;
-#define OLSIZE_MAX   S32_MAX
-typedef s32          olid_t;
-typedef char         olchar_t;
-typedef short        olshort_t;
-typedef int          olint_t;
-#define OLINT_MAX    S32_MAX
-typedef float        olfloat_t;
-typedef double       oldouble_t;
-typedef time_t       oltime_t;
+typedef s32                          olindex_t;
+typedef s32                          olid_t;
+typedef time_t                       oltime_t;
 
 #if defined(WINDOWS)
     #define ol_memset                memset
@@ -144,23 +182,23 @@ typedef time_t       oltime_t;
 #endif
 
 #if defined(WINDOWS)
-    #define PATH_SEPARATOR        '\\'
-    #define LINE_TERMINATOR       "\r\n"
+    #define PATH_SEPARATOR           '\\'
+    #define LINE_TERMINATOR          "\r\n"
 #elif defined(LINUX)
-    #define PATH_SEPARATOR        '/'
-    #define LINE_TERMINATOR       "\n"
+    #define PATH_SEPARATOR           '/'
+    #define LINE_TERMINATOR          "\n"
 #endif
 
 #if defined(WINDOWS)
-    #define inline  __inline
+    #define inline      __inline
 #endif
 
 #ifndef MAX
-    #define MAX(a, b) ((a) >= (b) ? (a) : (b))
+    #define MAX(a, b)   ((a) >= (b) ? (a) : (b))
 #endif
 
 #ifndef MIN
-    #define MIN(a, b) ((a) <= (b) ? (a) : (b))
+    #define MIN(a, b)   ((a) <= (b) ? (a) : (b))
 #endif
 
 #ifndef ALIGN
@@ -168,10 +206,10 @@ typedef time_t       oltime_t;
 #endif
 
 #ifndef ABS
-    #define ABS(a) ((a) >= 0 ? (a) : (-(a)))
+    #define ABS(a)      ((a) >= 0 ? (a) : (-(a)))
 #endif
 
-#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#define ARRAY_SIZE(x)   (sizeof(x) / sizeof((x)[0]))
 
 /* --- functional routines ------------------------------------------------- */
 static inline int before(u32 seq1, u32 seq2)

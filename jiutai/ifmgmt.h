@@ -118,12 +118,12 @@ IFMGMTAPI u32 IFMGMTCALL downIfmgmtIf(const olchar_t * pstrIfName);
 IFMGMTAPI u32 IFMGMTCALL getStringIfmgmtIfFlags(
     olchar_t * pstrFlags, ifmgmt_if_t * pIf);
 
+IFMGMTAPI u32 IFMGMTCALL getMacOfFirstIf(u8 u8Mac[MAC_LEN]);
+
 /* ip addr */
 /*get local ip addr list, not include the loop back*/
 IFMGMTAPI u32 IFMGMTCALL getLocalIpAddrList(
     u8 u8AddrType, ip_addr_t * pAddr, u16 * pu16Count);
-
-IFMGMTAPI u32 IFMGMTCALL getMacOfFirstIf(u8 u8Mac[MAC_LEN]);
 
 IFMGMTAPI u32 IFMGMTCALL convertSockAddrToIpAddr(
     const struct sockaddr * psa, const olint_t nSaLen,

@@ -38,7 +38,7 @@ static void _printUsage(void)
 {
     ol_printf("\
 Usage: ifmgmt-test [-i] [-f if-name] [-u if-name] [-d if-name] [-a] \n\
-    -i: show IP information.\n\
+    -i: show IP information and MAC address of first interface.\n\
     -a: show all interface information.\n\
     -f: show interface information.\n\
     -u: up interface\n\
@@ -60,7 +60,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
         case '?':
         case 'h':
             _printUsage();
-            break;
+            exit(0);
         case 'i':
             ls_bShowIpInfo = TRUE;
             break;
@@ -174,6 +174,10 @@ static u32 _showIpInfo()
         {
             getStringMACAddress(strIp, u8Mac);
             ol_printf("MAC of First Interface: %s\n", strIp);
+        }
+        else
+        {
+            ol_printf("Failed to get MAC of First Interface.\n");
         }
     }
 

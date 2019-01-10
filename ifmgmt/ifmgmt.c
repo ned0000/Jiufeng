@@ -165,6 +165,22 @@ static u32 _getIfmgmtIf(const olchar_t * pstrIfName, ifmgmt_if_t * pif)
     return u32Ret;
 }
 
+static boolean_t _isValidMacAddress(u8 u8Mac[MAC_LEN])
+{
+    boolean_t bRet = FALSE;
+    u8 u8Index;
+
+    for (u8Index = 0; u8Index < MAC_LEN; u8Index ++)
+    {
+        if (u8Mac[u8Index] != 0)
+        {
+            bRet = TRUE;
+            break;
+        }
+    }
+    return bRet;
+}
+
 /* --- public routine section ---------------------------------------------- */
 
 u32 getAllIfmgmtIf(ifmgmt_if_t * pif, u32 * pu32NumOfIf)
@@ -375,6 +391,68 @@ u32 getStringIfmgmtIfFlags(olchar_t * pstrFlags, ifmgmt_if_t * pIf)
 
     if (pIf->ii_bMulticast)
         ol_strcat(pstrFlags, ", Multicast");
+
+    return u32Ret;
+}
+
+/* Return the Media Access Control (MAC) address of the first network interface
+ * card (NIC)
+ */
+u32 getMacOfFirstIf(u8 u8Mac[MAC_LEN])
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+#if defined(LINUX)
+    ifmgmt_if_t ifmgmts[MAX_IFMGMT_IF];
+    u32 u32Ifmgmt = MAX_IFMGMT_IF;
+    u32 u32Index;
+
+    u32Ret = getAllIfmgmtIf(ifmgmts, &u32Ifmgmt);
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        for (u32Index = 0; u32Index < u32Ifmgmt; u32Index ++)
+        {
+            if (ifmgmts[u32Index].ii_bLoopback)
+                continue;
+
+            if (_isValidMacAddress(ifmgmts[u32Index].ii_u8Mac))
+            {
+                ol_memcpy(u8Mac, ifmgmts[u32Index].ii_u8Mac, MAC_LEN);
+                break;
+            }
+        }
+
+        if (u32Index == u32Ifmgmt)
+            u32Ret = OLERR_INVALID_MAC_ADDR;
+   }
+
+#elif defined(WINDOWS)
+    u8 u8Buffer[6000];
+    PIP_ADAPTER_INFO pAdapter;
+    u32 u32Len = 6000;
+    DWORD dwRet;
+
+    dwRet = GetAdaptersInfo((PIP_ADAPTER_INFO)u8Buffer, &u32Len);
+    if (dwRet != ERROR_SUCCESS)
+        u32Ret = OLERR_FAIL_GET_ADAPTER_INFO;
+
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        pAdapter = (PIP_ADAPTER_INFO)u8Buffer;
+        while (pAdapter != NULL)
+        {
+            if (pAdapter->Type == MIB_IF_TYPE_ETHERNET)
+                break;
+            else
+                pAdapter = pAdapter->Next;
+        }
+
+        if (pAdapter == NULL)
+            u32Ret = OLERR_ETHERNET_ADAPTER_NOT_FOUND;
+        else
+            memcpy(u8Mac, pAdapter->Address, MAC_LEN);
+    }
+
+#endif
 
     return u32Ret;
 }
