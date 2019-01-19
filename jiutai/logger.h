@@ -46,30 +46,27 @@
 /* --- data structures ----------------------------------------------------- */
 typedef struct
 {
-    /* whether log to the stdout */
+    /** log to the stdout */
     boolean_t lp_bLogToStdout;
-    /* whether log to the system log */
+    /** log to the system log */
     boolean_t lp_bLogToSysLog;
-    /* whether log to a file. If yes, lp_pu8RemoteMachineIP and
-       lp_pstrLogFilePath must be specified */
+    /** log to a file. If yes, lp_pstrLogFilePath must be specified */
     boolean_t lp_bLogToFile;
-    /* whether log to the specified TTY. If yes, 
-       lp_pu8TTY must be specified - not supported for now */
+    /** log to the specified TTY. If yes, lp_pstrTTY must be specified.
+        Not supported for now */
     boolean_t lp_bLogToTTY;
-    /* 0: no trace; 1: error; 2: info; 3: data*/
+    /** trace level */
     u8 lp_u8TraceLevel;
     u8 lp_u8Reserved[3];
-    /*the size of the log file in byte. If 0, no limit*/
+    /** the size of the log file in byte. If 0, no limit */
     olsize_t lp_sLogFile;
-    /* the IP address of the remote machine the IP address of the remote
-       machine resides on. If null, the file is local - not supported
-       for now */
+    /** the IP address of the remote machine. Not supported for now */
     u8 * lp_pu8RemoteMachineIP;
-    /* the path to the log file */
+    /** the path to the log file */
     olchar_t * lp_pstrLogFilePath;
-    /* the path to the TTY - not supported for now */
+    /** the path to the TTY. Not supported for now */
     olchar_t * lp_pstrTTY;
-    /*the name of the calling module. The name not exceed 15 characters */
+    /** the name of the caller. The length should not exceed 15 characters */
     olchar_t * lp_pstrCallerName;
 } logger_param_t;
 

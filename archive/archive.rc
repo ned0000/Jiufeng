@@ -1,0 +1,6 @@
+#define VER_FILEDESCRIPTION_STR "Jiufeng Archive DLL"
+#define VER_INTERNALNAME_STR "olarchive.dll"
+#define VER_ORIGINALFILENAME_STR "olarchive.dll"
+#define VER_PRODUCTNAME_STR "Jiufeng Archive Dynamic Linking Library"
+
+#include "jiutai.rc"

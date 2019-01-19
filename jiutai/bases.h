@@ -275,6 +275,13 @@ u32 appendToLinkList(link_list_t * pList, void * pData);
  */
 u32 insertToLinkList(link_list_t * pList, void * pData);
 
+static inline boolean_t isLinkListEmpty(link_list_t * pList)
+{
+    if (pList->ll_pllnHead == NULL)
+        return TRUE;
+    return FALSE;
+}
+
 /**
  *  Get the first node of linked list
  */
