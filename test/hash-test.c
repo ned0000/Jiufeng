@@ -32,9 +32,9 @@ static void _printUsage(void)
 {
     ol_printf("\
 Usage: hash-test [-u] [-t] [-h]\n\
-         -u hash u32\n\
-         -t hash table\n\
-         -h prolint_t the usage ");
+    -u hash u32\n\
+    -t hash table\n\
+    -h print the usage\n");
     ol_printf("\n");
 
     exit(0);

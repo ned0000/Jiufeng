@@ -15,7 +15,7 @@ TOPDIR  := $(shell /bin/pwd)
 export TOPDIR
 
 SUBDIRS = jiutai logger stringparse files ifmgmt jiukun crypto encode uuid \
-    test
+    persistency test
 
 include $(TOPDIR)/mak/lnxsubdirs.mak
 

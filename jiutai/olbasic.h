@@ -155,6 +155,8 @@ typedef time_t                       oltime_t;
     #define ol_strcat                _strcat
     #define ol_strlen                _strlen
     #define ol_random()              rand()
+    #define ol_srand                 srand
+    #define ol_time                  time
     #define __attribute__(__X__)
 #elif defined(LINUX)
     #define ol_memset                memset
@@ -177,8 +179,10 @@ typedef time_t                       oltime_t;
     #define ol_strcat                strcat
     #define ol_strlen                strlen
     #define ol_random()              random()
+    #define ol_srand                 srand
     #define ol_htonl                 htonl
     #define ol_ntohl                 ntohl
+    #define ol_time                  time
 #endif
 
 #if defined(WINDOWS)
