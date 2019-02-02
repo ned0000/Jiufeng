@@ -12,14 +12,14 @@
 
 include $(TOPDIR)/mak/lnxcfg.mak
 
-PROGRAMS = xmalloc-test bases-test logger-test process-test  \
-    hash-test syncmutex-test syncrwlock-test syncsem-test    \
-    xtime-test stringparse-test bitarray-test conffile-test  \
-    menu-test crc32c-test dynlib-test ifmgmt-test            \
-    sharedmemory-test-consumer sharedmemory-test-worker      \
-    files-test hsm-test hostinfo-test respool-test           \
-    bitop-test jiukun-test cghash-test cgmac-test            \
-    encrypt-test prng-test encode-test genuuid               \
+PROGRAMS = xmalloc-test bases-test logger-test process-test   \
+    hash-test syncmutex-test syncrwlock-test syncsem-test     \
+    xtime-test stringparse-test bitarray-test conffile-test   \
+    menu-test crc32c-test dynlib-test ifmgmt-test             \
+    sharedmemory-test-consumer sharedmemory-test-worker       \
+    files-test hsm-test hostinfo-test respool-test            \
+    bitop-test jiukun-test cghash-test cgmac-test genuuid     \
+    encrypt-test prng-test encode-test xmlparser-test         \
     randnum-test persistency-test archive-test
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
@@ -28,8 +28,8 @@ SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     menu-test.c crc32c-test.c dynlib-test.c ifmgmt-test.c            \
     sharedmemory-test-consumer.c sharedmemory-test-worker.c          \
     files-test.c hsm-test.c hostinfo-test.c respool-test.c           \
-    bitop-test.c jiukun-test.c cghash-test.c cgmac-test.c            \
-    encrypt-test.c prng-test.c encode-test.c genuuid.c               \
+    bitop-test.c jiukun-test.c cghash-test.c cgmac-test.c genuuid.c  \
+    encrypt-test.c prng-test.c encode-test.c xmlparser-test.c        \
     randnum-test.c persistency-test.c archive-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
@@ -85,7 +85,7 @@ $(BIN_DIR)/hash-test: hash-test.o $(JIUTAI_DIR)/hash.o $(JIUTAI_DIR)/xmalloc.o \
 
 $(BIN_DIR)/stringparse-test: stringparse-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolstringparse
+       -o $@ $(SYSLIBS) -lolstringparse -lollogger
 
 $(BIN_DIR)/bitarray-test: bitarray-test.o $(JIUTAI_DIR)/xmalloc.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
@@ -185,6 +185,10 @@ $(BIN_DIR)/persistency-test: persistency-test.o $(JIUTAI_DIR)/xmalloc.o
 $(BIN_DIR)/archive-test: archive-test.o $(JIUTAI_DIR)/xmalloc.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lollogger -lolarchive
+
+$(BIN_DIR)/xmlparser-test: xmlparser-test.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lm -lolxmlparser -lollogger
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 

@@ -153,6 +153,7 @@ typedef time_t                       oltime_t;
     #define ol_strcpy                _strcpy
     #define ol_strncpy               _strncpy
     #define ol_strcat                _strcat
+    #define ol_strncat               _strncat
     #define ol_strlen                _strlen
     #define ol_random()              rand()
     #define ol_srand                 srand
@@ -177,6 +178,7 @@ typedef time_t                       oltime_t;
     #define ol_strcpy                strcpy
     #define ol_strncpy               strncpy
     #define ol_strcat                strcat
+    #define ol_strncat               strncat
     #define ol_strlen                strlen
     #define ol_random()              random()
     #define ol_srand                 srand

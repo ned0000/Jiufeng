@@ -80,8 +80,9 @@ static boolean_t _isblank(olchar_t c)
 
 /* String Parsing Methods */
 
-u32 parseStringAdv(parse_result_t ** ppResult, olchar_t * pstrBuf,
-    olsize_t sOffset, olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
+u32 parseStringAdv(
+    parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
+    olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     parse_result_t * ppr;
@@ -172,9 +173,7 @@ u32 parseStringAdv(parse_result_t ** ppResult, olchar_t * pstrBuf,
     if (u32Ret == OLERR_NO_ERROR)
     {
         /* create a result for the last token, since it won't be caught in 
-           the above loop. because if there are no more delimiters, than 
-           the entire last portion of the string since the 
-           last delimiter is the token  */
+           the above loop. because if there are no more delimiters */
         u32Ret = xmalloc((void **)&pprf, sizeof(parse_result_field_t));
     }
 
@@ -210,8 +209,9 @@ u32 parseStringAdv(parse_result_t ** ppResult, olchar_t * pstrBuf,
     return u32Ret;
 }
 
-u32 parseString(parse_result_t ** ppResult, olchar_t * pstrBuf,
-    olsize_t sOffset, olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
+u32 parseString(
+    parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
+    olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     parse_result_t * ppr;
@@ -269,12 +269,11 @@ u32 parseString(parse_result_t ** ppResult, olchar_t * pstrBuf,
         }
     }
 
-    if ((u32Ret == OLERR_NO_ERROR) && (tokenlength > 0))
+    if ((u32Ret == OLERR_NO_ERROR) && (tokenlength >= 0))
     {
-        /* Create a result for the last token, since it won't be caught 
-           in the above loop because if there are no more delimiters, 
-           than the entire last portion of the string since the 
-           last delimiter is the token */
+        /* Create a result for the last token, since it won't be caught in the
+           above loop because if there are no more delimiters. The last token
+           is counted in even the length is 0 */
         u32Ret = xmalloc((void **)&pprf, sizeof(parse_result_field_t));
         if (u32Ret == OLERR_NO_ERROR)
         {

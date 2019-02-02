@@ -1,8 +1,8 @@
 /**
  *  @file stringparse.h
  *
- *  @brief string parse header file
- *     provide some functional routine to parse string
+ *  @brief String parse header file, provide some functional routine for
+ *   string manipulation
  *
  *  @author Min Zhang
  *
@@ -44,11 +44,11 @@
  */
 typedef struct parse_result_field
 {
-    /**< token */
+    /** Token */
     olchar_t * prf_pstrData;
-    /**< Length of the token */
+    /** Length of the token */
     olsize_t prf_sData;
-    /**< next field */
+    /** Next field */
     struct parse_result_field * prf_pprfNext;
 } parse_result_field_t;
 
@@ -56,11 +56,11 @@ typedef struct parse_result_field
  */
 typedef struct parse_result
 {
-    /**< first result */
+    /** First result */
     parse_result_field_t *pr_pprfFirst;
-    /**< last result */
+    /** Last result */
     parse_result_field_t *pr_pprfLast;
-    /**< numbers of results */
+    /** Numbers of results */
     u32 pr_u32NumOfResult;
 } parse_result_t;
 
@@ -85,13 +85,12 @@ typedef struct parse_result
  *   characters contained within quotation marks, whereas parseStringAdv does.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL parseString(
-    parse_result_t ** ppResult,
-    olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf, olchar_t * pstrDelimiter,
-    olsize_t sDelimiter);
+    parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
+    olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter);
 
 
 /** Parses a string into a linked list of tokens. Ignore characters contained
- *  within quotation marks. The quotation is "" or ''
+ *  within quotation marks. The quotation is " or '.
  *
  *  @param ppResult [out] the parse result returned
  *  @param pstrBuf [in] The buffer to parse 
@@ -108,9 +107,8 @@ STRINGPARSEAPI u32 STRINGPARSECALL parseString(
  *   contained within quotation marks, whereas parseString does not.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL parseStringAdv(
-    parse_result_t ** ppResult,
-    olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf, olchar_t * pstrDelimiter,
-    olsize_t sDelimiter);
+    parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
+    olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter);
 
 /** Frees resources associated with the list of tokens returned from parseString
  *  and parseStringAdv.
@@ -198,7 +196,8 @@ STRINGPARSEAPI u32 STRINGPARSECALL locateSubString(
  *  @retval NULL if no occurence of needle could be found in src
  */
 STRINGPARSEAPI olchar_t * STRINGPARSECALL replaceString(
-    olchar_t * pstrSrc, olsize_t sBuf, olchar_t * pstrNeedle, olchar_t * pstrSubst);
+    olchar_t * pstrSrc, olsize_t sBuf, olchar_t * pstrNeedle,
+    olchar_t * pstrSubst);
 
 /*string print*/
 
