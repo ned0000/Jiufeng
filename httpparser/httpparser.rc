@@ -1,0 +1,6 @@
+#define VER_FILEDESCRIPTION_STR "Jiufeng HTTP Parser DLL"
+#define VER_INTERNALNAME_STR "olhttpparser.dll"
+#define VER_ORIGINALFILENAME_STR "olhttpparser.dll"
+#define VER_PRODUCTNAME_STR "Jiufeng HTTP Parser Dynamic Linking Library"
+
+#include "jiutai.rc"

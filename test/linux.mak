@@ -20,7 +20,8 @@ PROGRAMS = xmalloc-test bases-test logger-test process-test   \
     files-test hsm-test hostinfo-test respool-test            \
     bitop-test jiukun-test cghash-test cgmac-test genuuid     \
     encrypt-test prng-test encode-test xmlparser-test         \
-    randnum-test persistency-test archive-test
+    randnum-test persistency-test archive-test                \
+    httpparser-test
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     hash-test.c syncmutex-test.c syncrwlock-test.c syncsem-test.c    \
@@ -30,7 +31,8 @@ SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     files-test.c hsm-test.c hostinfo-test.c respool-test.c           \
     bitop-test.c jiukun-test.c cghash-test.c cgmac-test.c genuuid.c  \
     encrypt-test.c prng-test.c encode-test.c xmlparser-test.c        \
-    randnum-test.c persistency-test.c archive-test.c
+    randnum-test.c persistency-test.c archive-test.c                 \
+    httpparser-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -189,6 +191,10 @@ $(BIN_DIR)/archive-test: archive-test.o $(JIUTAI_DIR)/xmalloc.o
 $(BIN_DIR)/xmlparser-test: xmlparser-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lm -lolxmlparser -lollogger
+
+$(BIN_DIR)/httpparser-test: httpparser-test.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lm -lolhttpparser -lollogger
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 

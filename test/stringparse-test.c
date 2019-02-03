@@ -223,7 +223,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     logger_param_t lpParam;
-	char strErrMsg[300];
+	olchar_t strErrMsg[300];
 
     memset(&lpParam, 0, sizeof(logger_param_t));
     lpParam.lp_pstrCallerName = "XMLPARSER";
