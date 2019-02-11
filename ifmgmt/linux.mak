@@ -16,10 +16,10 @@ SOURCES = ifmgmt.c ipaddr.c
 
 JIUTAI_SRCS = xmalloc.c
 
-EXTRA_LIBS = -lolfiles
+EXTRA_LIBS = -lolfiles -lolstringparse
 
 ifeq ("$(DEBUG_JIUFENG)", "yes")
-EXTRA_CFLAGS =
+    EXTRA_CFLAGS =
 endif
 
 include $(TOPDIR)/mak/lnxlib.mak

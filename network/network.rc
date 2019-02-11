@@ -1,0 +1,6 @@
+#define VER_FILEDESCRIPTION_STR "Jiufeng Network DLL"
+#define VER_INTERNALNAME_STR "olnetwork.dll"
+#define VER_ORIGINALFILENAME_STR "olnetwork.dll"
+#define VER_PRODUCTNAME_STR "Jiufeng Network Dynamic Linking Library"
+
+#include "jiutai.rc"

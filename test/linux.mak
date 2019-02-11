@@ -21,7 +21,8 @@ PROGRAMS = xmalloc-test bases-test logger-test process-test   \
     bitop-test jiukun-test cghash-test cgmac-test genuuid     \
     encrypt-test prng-test encode-test xmlparser-test         \
     randnum-test persistency-test archive-test                \
-    httpparser-test
+    httpparser-test network-test network-test-server          \
+    network-test-client network-test-client-chain
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     hash-test.c syncmutex-test.c syncrwlock-test.c syncsem-test.c    \
@@ -32,7 +33,8 @@ SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     bitop-test.c jiukun-test.c cghash-test.c cgmac-test.c genuuid.c  \
     encrypt-test.c prng-test.c encode-test.c xmlparser-test.c        \
     randnum-test.c persistency-test.c archive-test.c                 \
-    httpparser-test.c
+    httpparser-test.c network-test.c network-test-server.c           \
+    network-test-client.c network-test-client-chain.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -195,6 +197,24 @@ $(BIN_DIR)/xmlparser-test: xmlparser-test.o
 $(BIN_DIR)/httpparser-test: httpparser-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lm -lolhttpparser -lollogger
+
+$(BIN_DIR)/network-test: network-test.o $(JIUTAI_DIR)/process.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lolnetwork -lolstringparse -lollogger -lolifmgmt
+
+$(BIN_DIR)/network-test-server: network-test-server.o \
+       $(JIUTAI_DIR)/process.o $(JIUTAI_DIR)/xmalloc.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lolnetwork -lollogger -lolstringparse -lolifmgmt
+
+$(BIN_DIR)/network-test-client: network-test-client.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lolnetwork -lollogger -lolifmgmt
+
+$(BIN_DIR)/network-test-client-chain: network-test-client-chain.o \
+       $(JIUTAI_DIR)/process.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lolnetwork -lollogger -lolifmgmt
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 
