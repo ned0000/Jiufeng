@@ -22,7 +22,8 @@ PROGRAMS = xmalloc-test bases-test logger-test process-test   \
     encrypt-test prng-test encode-test xmlparser-test         \
     randnum-test persistency-test archive-test                \
     httpparser-test network-test network-test-server          \
-    network-test-client network-test-client-chain
+    network-test-client network-test-client-chain             \
+    webclient-test
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     hash-test.c syncmutex-test.c syncrwlock-test.c syncsem-test.c    \
@@ -34,7 +35,8 @@ SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     encrypt-test.c prng-test.c encode-test.c xmlparser-test.c        \
     randnum-test.c persistency-test.c archive-test.c                 \
     httpparser-test.c network-test.c network-test-server.c           \
-    network-test-client.c network-test-client-chain.c
+    network-test-client.c network-test-client-chain.c                \
+    webclient-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -215,6 +217,12 @@ $(BIN_DIR)/network-test-client-chain: network-test-client-chain.o \
        $(JIUTAI_DIR)/process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolnetwork -lollogger -lolifmgmt
+
+$(BIN_DIR)/webclient-test: webclient-test.o $(JIUTAI_DIR)/xmalloc.o \
+       $(JIUTAI_DIR)/process.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lolhttpparser -lolnetwork -lolwebclient -lollogger \
+       -lolfiles -lolifmgmt
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 
