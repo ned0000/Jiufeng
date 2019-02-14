@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The Makefile for Jiufeng
+#  @brief The makefile for Jiufeng
 #
 #  @author Min Zhang
 #
@@ -10,12 +10,13 @@
 
 #-----------------------------------------------------------------------------
 
-TOPDIR  := $(shell /bin/pwd)
+TOPDIR := $(shell /bin/pwd)
 
 export TOPDIR
 
 SUBDIRS = jiutai logger stringparse files ifmgmt jiukun crypto encode uuid \
-    persistency archive xmlparser httpparser network webclient test
+    persistency archive xmlparser httpparser network webclient clieng  \
+    cli test
 
 include $(TOPDIR)/mak/lnxsubdirs.mak
 

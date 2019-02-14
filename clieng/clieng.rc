@@ -1,0 +1,6 @@
+#define VER_FILEDESCRIPTION_STR "Jiufeng CLI Engine DLL"
+#define VER_INTERNALNAME_STR "olclieng.dll"
+#define VER_ORIGINALFILENAME_STR "olclieng.dll"
+#define VER_PRODUCTNAME_STR "Jiufeng CLI Engine Dynamic Linking Library"
+
+#include "jiutai.rc"
