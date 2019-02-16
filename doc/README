@@ -1,0 +1,10 @@
+1. Install doxygen:
+    sudo apt-get install doxygen
+2. Enter the top directory of Jiufeng.
+3. Run following command to generate Document:
+    doxygen doc/Doxyfile
+4. The generated document are located at "doc/html" directory.
+
+
+
+
