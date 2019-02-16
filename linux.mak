@@ -16,7 +16,7 @@ export TOPDIR
 
 SUBDIRS = jiutai logger stringparse files ifmgmt jiukun crypto encode uuid \
     persistency archive xmlparser httpparser network webclient clieng  \
-    cli test
+    servmgmt dongyuan cli test
 
 include $(TOPDIR)/mak/lnxsubdirs.mak
 

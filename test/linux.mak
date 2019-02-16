@@ -23,7 +23,7 @@ PROGRAMS = xmalloc-test bases-test logger-test process-test   \
     randnum-test persistency-test archive-test                \
     httpparser-test network-test network-test-server          \
     network-test-client network-test-client-chain             \
-    webclient-test
+    webclient-test olservmgmt
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     hash-test.c syncmutex-test.c syncrwlock-test.c syncsem-test.c    \
@@ -36,7 +36,7 @@ SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     randnum-test.c persistency-test.c archive-test.c                 \
     httpparser-test.c network-test.c network-test-server.c           \
     network-test-client.c network-test-client-chain.c                \
-    webclient-test.c
+    webclient-test.c olservmgmt
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -223,6 +223,10 @@ $(BIN_DIR)/webclient-test: webclient-test.o $(JIUTAI_DIR)/xmalloc.o \
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolhttpparser -lolnetwork -lolwebclient -lollogger \
        -lolfiles -lolifmgmt
+
+$(BIN_DIR)/olservmgmt: servmgmt-test.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lollogger -lolservmgmt
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 

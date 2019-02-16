@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<servMgmtSetting>
+  <version>1.0</version>
+  <serviceSetting>
+    <service>
+      <name>zeus</name>
+      <startupType>automatic</startupType>
+      <role>external</role>
+      <cmdPath>olzeus</cmdPath>
+      <restartDelay>0</restartDelay>
+      <cmdParam></cmdParam>
+    </service>
+    <service>
+      <name>bio</name>
+      <startupType>automatic</startupType>
+      <role>wakeup</role>
+      <cmdPath>olbio</cmdPath>
+      <restartDelay>0</restartDelay>
+      <cmdParam></cmdParam>
+    </service>
+  </serviceSetting>
+</servMgmtSetting>
