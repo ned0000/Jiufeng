@@ -11,11 +11,6 @@ debug=no
 cd ..
 topdir=`pwd`
 
-head_files="aether.h olflag.h crc32c.h hexstr.h ollimit.h stringparse.h archive.h array.h hostinfo.h priotree.h syncmutex.h attask.h dynlib.h prng.h syncrwlock.h avltree.h ifmgmt.h process.h syncsem.h bases.h encode.h radixtree.h bignum.h encrypt.h resource.h user.h bitarray.h errcode.h respool.h uuid.h bitop.h logger.h version.h byteorder.h menu.h waitqueue.h conffile.h cghash.h cgmac.h cksum.h files.h network.h compress.h workqueue.h getopt.h xmalloc.h comminit.h hash.h sharedmemory.h olbasic.h xtime.h event.h clieng.h matrix.h zeus.h hermes.h webclient.h httpparser.h nelly.h persistency.h datavec.h"
-
-lib_files="logger aether stringparse files cghash cgmac encrypt prng encode archive ifmgmt network uuid matrix compress servmgmt clieng iscsit iscsii hermes webclient httpparser audio persistency"
-libxml2_file=libxml2.so
-
 bin_files="genuuid oldongyuan olservmgmt"
 
 help_gen_jtk()
@@ -25,6 +20,7 @@ help_gen_jtk()
     echo "Usage: `basename $0` dir debug"
     echo "   dir: the dir containing the JTK"
     echo "   debug: debug version"
+    echo "Eg. `basename $0` /root debug"
     echo ""
 }
 
@@ -106,9 +102,6 @@ do
     fi
     cp $libfile $libdir
 done
-if [ $debug != yes ]; then
-    strip $libxml2_file
-fi
 
 print_banner "Copy executable files"
 cd $topdir/build/bin
