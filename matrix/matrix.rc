@@ -1,0 +1,6 @@
+#define VER_FILEDESCRIPTION_STR "Jiufeng Matrix DLL"
+#define VER_INTERNALNAME_STR "olmatrix.dll"
+#define VER_ORIGINALFILENAME_STR "olmatrix.dll"
+#define VER_PRODUCTNAME_STR "Jiufeng Matrix Dynamic Linking Library"
+
+#include "jiutai.rc"
