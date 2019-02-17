@@ -150,7 +150,7 @@ static u32 _getHuffmanCompositeNode(
  *  shallow, if two nodes have the same count, the node with the lower level
  *  selected.
  *
- *  @parame ppNode [in] pointer to the note array to be searched
+ *  @param ppNode [in] pointer to the note array to be searched
  *  @param u16NumOfCode [in] number of elements in the array
  *
  *  @return the index of the active element with the smallest count.

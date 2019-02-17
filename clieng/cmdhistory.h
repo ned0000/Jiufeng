@@ -53,7 +53,7 @@ u32 destroyCommandHistory(clieng_cmd_history_t ** ppcch);
 
 /** Clear the CLI Command History buffer
  *
- *	@param pcch [in] the pointer to the command history buffer.
+ *	@param ppcch [in/out] the pointer to the command history buffer.
  *
  *  @return the error code
  */
@@ -62,6 +62,7 @@ u32 clearCommandHistory(clieng_cmd_history_t * ppcch);
 /** Append a command to the command history buffer.
  *
  *	@param pcch [in] the pointer to the command history buffer.
+ *  @param pstrCmd [in] the cmmand to append
  *
  *  @return the error code
  */

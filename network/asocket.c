@@ -299,10 +299,13 @@ static u32 _processAsocket(internal_asocket_t * pia)
 
 /** Pre select handler for asocket
  *
- *  @param readset: 
- *  @param writeset: 
- *  @param errorset: 
- *  @param blocktime: 
+ *  @param pAsocket [in] the async socket 
+ *  @param readset [out] the read fd set
+ *  @param writeset [out] the write fd set
+ *  @param errorset [out] the error fd set
+ *  @param pu32BlockTime [out] the block time in millisecond
+ *
+ *  @return the error code
  */
 static u32 _preSelectAsocket(
     basic_chain_object_t * pAsocket, fd_set * readset,
@@ -396,11 +399,13 @@ static u32 _asPostSelectSendData(internal_asocket_t * pia)
 
 /** Post select handler for basic chain
  *
- *  @param pAsocket: 
- *  @param slct: 
- *  @param readset: 
- *  @param writeset: 
- *  @param errorset: 
+ *  @param pAsocket [in] the async socket
+ *  @param slct [in] number of ready socket 
+ *  @param readset [in] the read fd set
+ *  @param writeset [in] the write fd set
+ *  @param errorset [in] the error fd set
+ *
+ *  @return the error code
  */
 static u32 _postSelectAsocket(
     basic_chain_object_t * pAsocket, olint_t slct,

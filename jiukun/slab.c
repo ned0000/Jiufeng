@@ -1124,13 +1124,6 @@ u32 finiJiukunSlab(void)
     return u32Ret;
 }
 
-/** Create a jiukun cache.
- *  
- *  @param ppCache [out] a ptr to the cache on success, NULL on failure.
- *
- *  @return the error code
- *
- */
 u32 createJiukunCache(jiukun_cache_t ** ppCache, jiukun_cache_param_t * pjcp)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -1150,13 +1143,6 @@ u32 createJiukunCache(jiukun_cache_t ** ppCache, jiukun_cache_param_t * pjcp)
     return u32Ret;
 }
 
-/** Delete a cache. Remove a slab_cache_t object from the slab cache.
- *
- *  @param ppCache [in/out] the cache to destroy
- * 
- *  @return the error coce
- *
- */
 u32 destroyJiukunCache(jiukun_cache_t ** ppCache)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -1181,11 +1167,6 @@ u32 destroyJiukunCache(jiukun_cache_t ** ppCache)
     return u32Ret;
 }
 
-/** Reclaim memory from caches.
- * 
- *  @param bNoWait [in] if it should wait for lock
- *
- */
 u32 reapJiukunSlab(boolean_t bNoWait)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -1265,12 +1246,6 @@ void freeObject(jiukun_cache_t * pCache, void ** pptr)
     *pptr = NULL;
 }
 
-/** Allocate an object from this cache.
- *
- *  @param pCache [in] the cache to allocate from.
- *  @param pptr [out] the pointer to object
- *  @param flag [in] flags
- */
 u32 allocObject(jiukun_cache_t * pCache, void ** pptr, olflag_t flag)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -1291,12 +1266,6 @@ u32 allocObject(jiukun_cache_t * pCache, void ** pptr, olflag_t flag)
     return u32Ret;
 }
 
-/** Allocate memory
- * 
- *  @param size [in] bytes of memory are required
- *  @param flags [in] the flags for memory allocation
- *
- */
 u32 allocMemory(void ** pptr, olsize_t size, olflag_t flag)
 {
     u32 u32Ret = OLERR_UNSUPPORTED_MEMORY_SIZE;
@@ -1327,11 +1296,6 @@ u32 allocMemory(void ** pptr, olsize_t size, olflag_t flag)
     return u32Ret;
 }
 
-/** Free previously allocated memory
- *
- *  @param pptr [out] pointer to memory
- *
- */
 void freeMemory(void ** pptr)
 {
     slab_cache_t * pCache;

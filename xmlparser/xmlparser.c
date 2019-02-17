@@ -266,10 +266,13 @@ static u32 _parseXmlElementName(
     return u32Ret;
 }
 
-/** Element: <name>content</name>
- *  Empty element: <name/>
- *  Declaration: <?xml version="1.0"?>
- *  Comment: <!-- comment -->
+/* Element: <name>content</name>
+ * Empty element: <name/>
+ * Declaration: <?xml version="1.0"?>
+ * Comment: <!-- comment -->
+ */
+
+/** Parse the XML document
  */
 static u32 _parseXML(
     olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf, xml_node_t ** ppNode)

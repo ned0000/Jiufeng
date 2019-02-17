@@ -78,7 +78,7 @@ olint_t getDaysOfYear(olint_t year);
 /** Get the number of days in month of the year
  *  
  *  @param year [in] the year to check
- *  @param month [in] the month to check
+ *  @param mon [in] the month to check
  *
  *  @return number of days
  *  @retval 28 for the 2th month of not leap year
@@ -100,10 +100,6 @@ olint_t convertDateToDaysFrom1970(olint_t year, olint_t mon, olint_t day);
 
 /** Get number of days from 1970 for today
  *  
- *  @param year [in] the year of the date
- *  @param mon [in] the month of the date
- *  @param day [in] the day of the date
- *
  *  @return number of days from 1970 
  */
 olint_t convertTodayToDaysFrom1970(void);

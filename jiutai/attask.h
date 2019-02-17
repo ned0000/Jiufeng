@@ -40,7 +40,7 @@ u32 createAttask(attask_t ** ppAttask);
 
 /** Destroy a attask
  *
- *  @param pAttask [in/out] the attask object 
+ *  @param ppAttask [in/out] the attask object 
  *
  *  @return the error code
  */
@@ -50,9 +50,9 @@ u32 destroyAttask(attask_t ** ppAttask);
  *
  *  @param pAttask [in] the attask
  *  @param pData [in] the data object to associate with the task 
- *  @param u32Millseconds [in] the number of milliseconds for the task 
+ *  @param u32Milliseconds [in] the number of milliseconds for the task 
  *  @param fnCallback [in] the callback function pointer 
- *  @param fnDestory [in] the abort function pointer, which triggers all 
+ *  @param fnDestroy [in] the abort function pointer, which triggers all 
  *   non-triggered timed callbacks, upon shutdown
  *
  *  @return the error code

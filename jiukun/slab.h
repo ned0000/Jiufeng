@@ -33,6 +33,12 @@ u32 initJiukunSlab(slab_param_t * pbp);
 
 u32 finiJiukunSlab(void);
 
+/** Reclaim memory from caches.
+ * 
+ *  @param bNoWait [in] if it should wait for lock
+ *
+ *  @return the error code
+ */
 u32 reapJiukunSlab(boolean_t bNoWait);
 
 #endif /*JIUKUN_SLAB_H*/

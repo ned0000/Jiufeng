@@ -3,7 +3,7 @@
  *
  *  @brief routines for socket 
  *
- *  @Author Min Zhang
+ *  @author Min Zhang
  *
  *  @note
  *

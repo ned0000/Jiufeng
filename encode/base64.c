@@ -40,9 +40,9 @@ static const olchar_t ls_cDecode[] = "|$$$}rstuvwxyz{$$$$$$$>?@"
 
 /** Encode 3 8-bit binary bytes as 4 '6-bit' characters 
  * 
- *  @param in[3] [in] The input buffer
+ *  @param in [in] The input buffer
  *  @param len [in] Length of the input buffer
- *  @param out[4] [out] The output buffer
+ *  @param out [out] The output buffer
  * 
  *  @return void
  */

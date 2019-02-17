@@ -184,7 +184,7 @@ char * getEOL(void);
  *  string is already longer than the total length, only one blank space will be
  *  returned.
  *
- *  @Param sStr [in] the length of the string that needs delimit.
+ *  @param sStr [in] the length of the string that needs delimit.
  *  @param sTotal [in] the desired total length of the string and the delimit
  *
  ×  @return the error code

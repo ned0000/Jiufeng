@@ -63,8 +63,8 @@ typedef u32 (* fnWebclientOnResponse_t)(
  *
  *  @param pbc [in] the chain to add this module to
  *  @param ppWebclient [out] the created web client
- *  @param pwd [in] the parameters for creating web client
-
+ *  @param pwp [in] the parameters for creating web client
+ *
  *  @return the error code
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL createWebclient(

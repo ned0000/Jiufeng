@@ -409,10 +409,12 @@ static u32 _processWebRequest(
 /** Pre select handler for basic chain
  *
  *  @param pWebclient [in] the web client object
- *  @param readset: 
- *  @param writeset: 
- *  @param errorset: 
- *  @param blocktime: 
+ *  @param readset [out] the read fd set
+ *  @param writeset [out] the write fd set
+ *  @param errorset [out] the error fd set
+ *  @param pu32BlockTime [out] the block time in millisecond
+ *
+ *  @return the error code
  */
 static u32 _preWebclientProcess(
     void * pWebclient, fd_set * readset,
@@ -873,8 +875,11 @@ static u32 _webclientOnConnect(
 
 /** Internal method dispatched by the disconnect event of the underlying asocket
  *
- *  @param pAsocket [in] the underlying asocket
+ *  @param pAsocket [in] the underlying async socket
+ *  @param u32Status [in] the status of the disconnection
  *  @param pUser [in] the associated web data object
+ *
+ *  @return the error code
  */
 static u32 _webclientOnDisconnect(
     asocket_t * pAsocket, u32 u32Status, void * pUser)
@@ -943,6 +948,8 @@ static u32 _webclientOnDisconnect(
  *
  *  @param pAsocket [in] The underlying asocket
  *  @param user [in] the associated web data object
+ *
+ *  @return the erro code
  */
 static u32 _webclientOnSendOK(asocket_t * pAsocket, void * user)
 {
@@ -1098,11 +1105,13 @@ static u32 _parseHttpHeader(
 /** Internal method dispatched by the OnData event of the underlying asocket
  *
  *  @param pAsocket [in] the underlying asocket
- *  @param buffer [in] the receive buffer
+ *  @param pu8Buffer [in] the receive buffer
  *  @param psBeginPointer [in] start pointer in the buffer
  *  @param sEndPointer [in] the length of the buffer
  *  @param pUser [in] User data that can be set/received
  *  @param pbPause [in] flag to tell the underlying socket to pause reading data
+ *
+ *  @return the error code
  */
 static u32 _webclientOnData(
     asocket_t * pAsocket, u8 * pu8Buffer, olsize_t * psBeginPointer,
@@ -1539,7 +1548,9 @@ u32 deleteWebRequests(
  *  underlying socket will no longer read data from the NIC. This method resumes
  *  the socket.
  *
- *  @param piwd [in] the associated web data object
+ *  @param pDataobject [in] the associated web data object
+ *
+ *  @return the error code
  */
 u32 resumeWebDataobject(web_dataobject_t * pDataobject)
 {

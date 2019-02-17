@@ -20,7 +20,7 @@
 #include "errcode.h"
 #include "xmlparser.h"
 
-/** An example of XML file for testing purpose:
+/* An example of XML file for testing purpose:
 
 <?xml version="1.0" encoding="UTF-8" ?>
 <servMgmtSetting>

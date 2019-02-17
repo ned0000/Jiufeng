@@ -132,8 +132,8 @@ XMLPARSERAPI u32 XMLPARSERCALL destroyXMLAttributeList(
  *  original string that the XML was read from.
  *
  *  @param node [in] the node to read the data from
- *  @param ppstrData [out] the data
- *  @param psBuf [out] the size of the data
+ *  @param ppstrData [out] the data of the node
+ *  @param psData [out] the size of the data
  *
  *  @return the error code
  */

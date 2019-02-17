@@ -126,9 +126,23 @@ JIUKUNAPI void JIUKUNCALL freeJiukunPage(void ** pptr);
 
 /** jiukun cache
  */
+
+/** Create a jiukun cache.
+ *  
+ *  @param ppCache [out] a pointer to the cache on success, NULL on failure.
+ *  @param pjcp [in] the parameters for creating a cache
+ *
+ *  @return the error code
+ */
 JIUKUNAPI u32 JIUKUNCALL createJiukunCache(
     jiukun_cache_t ** ppCache, jiukun_cache_param_t * pjcp);
 
+/** Delete a jiukun cache.
+ *
+ *  @param ppCache [in/out] the cache to destroy
+ * 
+ *  @return the error coce
+ */
 JIUKUNAPI u32 JIUKUNCALL destroyJiukunCache(jiukun_cache_t ** ppCache);
 
 /** Flags for allocting object or memory from jiukun cache used by
@@ -140,14 +154,34 @@ typedef enum jiukun_ma_flag
     MAF_ZERO, /* zero the allocated memory */
 } jiukun_ma_flag_t;
 
+/** Allocate an object from this cache.
+ *
+ *  @param pCache [in] the cache to allocate from.
+ *  @param ppObj [out] the pointer to object
+ *  @param flag [in] flags
+ *
+ *  @return the error code
+ */
 JIUKUNAPI u32 JIUKUNCALL allocObject(
     jiukun_cache_t * pCache, void ** ppObj, olflag_t flag);
 
 JIUKUNAPI void JIUKUNCALL freeObject(jiukun_cache_t * pCache, void ** ppObj);
 
+/** Allocate memory
+ * 
+ *  @param pptr [out] the pointer to the allocated memory
+ *  @param size [in] bytes of memory are required
+ *  @param flag [in] the flags for memory allocation
+ *
+ *  @return the error code
+ */
 JIUKUNAPI u32 JIUKUNCALL allocMemory(
     void ** pptr, olsize_t size, olflag_t flag);
 
+/** Free previously allocated memory
+ *
+ *  @param pptr [out] pointer to memory
+ */
 JIUKUNAPI void JIUKUNCALL freeMemory(void ** pptr);
 
 JIUKUNAPI u32 JIUKUNCALL copyMemory(

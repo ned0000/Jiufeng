@@ -127,8 +127,8 @@ HTTPPARSERAPI u32 HTTPPARSERCALL setVersion(
  *
  *  @param pph [in] the packet to modify
  *  @param nStatusCode [in] the status code, eg: 200
- *  @param pstrStatusData [in] the status string, eg: OK
- *  @param sStatusData [in] the length of the status string
+ *  @param pstrStatus [in] the status string, eg: OK
+ *  @param sStatus [in] the length of the status string
  *
  *  @return the error code
  */
@@ -175,7 +175,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL addHeaderLine(
  *
  *  @param pph [in] the packet header struture to convert
  *  @param ppstrBuf [out] The output buffer
- *  @return psBuf [out] the length of the output buffer
+ *  @param psBuf [out] the length of the output buffer
  *
  *  @return the error code
  */

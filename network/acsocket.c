@@ -63,11 +63,13 @@ typedef struct internal_acsocket
 
 /** Pre select handler for the chain
  *
- *  @param: pAcsocket: 
- *  @param: readset: 
- *  @param: writeset: 
- *  @param: errorset: 
- *  @param: pu32BlockTime: 
+ *  @param pAcsocket [in] the async client socket 
+ *  @param readset [out] the read fd set
+ *  @param writeset [out] the write fd set
+ *  @param errorset [out] the error fd set
+ *  @param pu32BlockTime [out] the block time in millisecond
+ *
+ *  @return the error code
  */
 static u32 _preSelectAcsocket(void * pAcsocket, fd_set * readset,
     fd_set * writeset, fd_set * errorset, u32 * pu32BlockTime)
@@ -81,11 +83,13 @@ static u32 _preSelectAcsocket(void * pAcsocket, fd_set * readset,
 
 /** Post select handler for the chain
  *
- *  @param: pAcsocket: 
- *  @param: slct: 
- *  @param: readset: 
- *  @param: writeset: 
- *  @param: errorset: 
+ *  @param pAcsocket [in] the async client socket
+ *  @param slct [in] number of ready socket 
+ *  @param readset [in] the read fd set
+ *  @param writeset [in] the write fd set
+ *  @param errorset [in] the error fd set
+ *
+ *  @return the error code
  */
 static u32 _postSelectAcsocket(
     void * pAcsocket, olint_t slct, fd_set * readset,
@@ -101,16 +105,18 @@ static u32 _postSelectAcsocket(
 
 /** Internal method dispatched by the data event of the underlying asocket
  *
- *  @param: pAsocket: 
- *  @param: puBuffer: 
- *  @param: psBeginPointer: 
- *  @param: u32EndPointer: 
- *  @param: pUser: 
- *  @param: pPause: 
+ *  @param pAsocket [in] the async socket
+ *  @param pu8Buffer [in] the buffer
+ *  @param psBeginPointer [in/out] the beging pointer of the data 
+ *  @param sEndPointer [in] the end pointer of the data 
+ *  @param pUser [in] the user
+ *  @param bPause [in] the pause flag
+ *
+ *  @return the error code
  */
 static u32 _acsOnData(
-    void * pAsocket, u8 * pu8Buffer, olsize_t * pu32BeginPointer,
-    olsize_t u32EndPointer, void * pUser, boolean_t * bPause)
+    void * pAsocket, u8 * pu8Buffer, olsize_t * psBeginPointer,
+    olsize_t sEndPointer, void * pUser, boolean_t * bPause)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     acsocket_data_t * pad = (acsocket_data_t *) pUser;
@@ -123,7 +129,7 @@ static u32 _acsOnData(
     {
         pia->ia_fnOnData(
             pad->ad_iaAcsocket, pAsocket, pu8Buffer,
-            pu32BeginPointer, u32EndPointer, pad->ad_pUser, bPause);
+            psBeginPointer, sEndPointer, pad->ad_pUser, bPause);
     }
 
     return u32Ret;
@@ -131,9 +137,11 @@ static u32 _acsOnData(
 
 /** Internal method dispatched by the connect event of the underlying asocket
  *
- *  @param: pAsocket: 
- *  @param: bOK: 
- *  @param: pUser: 
+ *  @param pAsocket [in] the async socket 
+ *  @param bOK [in] the connection status
+ *  @param pUser [in] the user
+ *
+ *  @return the error code
  */
 static u32 _acsOnConnect(asocket_t * pAsocket, boolean_t bOK, void * pUser)
 {
@@ -165,8 +173,11 @@ static u32 _acsGetTagOfAsocket(asocket_t * pAsocket)
 
 /** Internal method dispatched by the disconnect event of the underlying asocket
  *
- *  @param: pAsocket: 
- *  @param: pUser: 
+ *  @param pAsocket [in] the async socket 
+ *  @param u32Status [in] the status code for the disconnection
+ *  @param pUser [in] the user
+ *
+ *  @return the error code
  */
 static u32 _acsOnDisconnect(asocket_t * pAsocket, u32 u32Status, void * pUser)
 {
@@ -192,8 +203,10 @@ static u32 _acsOnDisconnect(asocket_t * pAsocket, u32 u32Status, void * pUser)
 
 /** Internal method dispatched by the send ok event of the underlying asocket
  *
- *  @param: pAsocket: 
- *  @param: pUser: 
+ *  @param pAsocket [in] the async socket 
+ *  @param pUser [in] the user
+ *
+ *  @return the error code
  */
 static u32 _acsOnSendOK(asocket_t * pAsocket, void * pUser)
 {
@@ -213,10 +226,7 @@ static u32 _acsOnSendOK(asocket_t * pAsocket, void * pUser)
 }
 
 /* --- public routine section ---------------------------------------------- */
-/** Destroy acsocket module
- *
- *  @param: pAcsocket: 
- */
+
 u32 destroyAcsocket(acsocket_t ** ppAcsocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;

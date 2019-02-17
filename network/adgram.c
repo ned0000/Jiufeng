@@ -154,14 +154,18 @@ static u32 _processAdgram(internal_adgram_t * pia)
     return u32Ret;
 }
 
-/** Chained PreSelect handler for asocket
+/** Pre select handler of adgram object for the basic chain
  *
- *  @param readset: 
- *  @param writeset: 
- *  @param errorset: 
- *  @param blocktime: 
+ *  @param pAdgram [in] the async dgram socket 
+ *  @param readset [out] the read fd set
+ *  @param writeset [out] the write fd set
+ *  @param errorset [out] the error fd set
+ *  @param pu32BlockTime [out] the block time in millisecond
+ *
+ *  @return the error code
  */
-static u32 _preSelectAdgram(basic_chain_object_t * pAdgram, fd_set * readset,
+static u32 _preSelectAdgram(
+    basic_chain_object_t * pAdgram, fd_set * readset,
     fd_set * writeset, fd_set * errorset, u32 * pu32BlockTime)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -399,10 +403,7 @@ static u32 _adTrySendData(
 }
 
 /* --- public routine section ---------------------------------------------- */
-/** destroy asocket module
- *
- *  @param pAdgram: The asocket module
- */
+
 u32 destroyAdgram(adgram_t ** ppAdgram)
 {
     u32 u32Ret = OLERR_NO_ERROR;

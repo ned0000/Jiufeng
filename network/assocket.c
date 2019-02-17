@@ -67,7 +67,8 @@ typedef struct internal_assocket
 
 /** preselect handler for basic chain
  */
-static u32 _preSelectAssocket(void * pAssocket, fd_set * readset,
+static u32 _preSelectAssocket(
+    void * pAssocket, fd_set * readset,
     fd_set * writeset, fd_set * errorset, u32 * pu32BlockTime)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -181,17 +182,18 @@ static u32 _postSelectAssocket(
 
 /** Internal method dispatched by the OnData event of the underlying asocket
  *
- *  @param pAsocket: 
- *  @param buffer: 
- *  @param p_beginPointer: 
- *  @param endPointer: 
- *  @param OnInterrupt: 
- *  @param user: 
- *  @param PAUSE: 
+ *  @param pAsocket [in] the async socket
+ *  @param pu8Buffer [in] the buffer
+ *  @param psBeginPointer [in/out] the beging pointer of the data 
+ *  @param sEndPointer [in] the end pointer of the data 
+ *  @param pUser [in] the user
+ *  @param pbPause [in] the pause flag
+ *
+ *  @return the error code
  */
 static u32 _assOnData(
-    void * pAsocket, u8 * pu8Buffer, olsize_t * pu32BeginPointer,
-    olsize_t u32EndPointer, void * pUser, boolean_t * bPause)
+    void * pAsocket, u8 * pu8Buffer, olsize_t * psBeginPointer,
+    olsize_t sEndPointer, void * pUser, boolean_t * pbPause)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     assocket_data_t * pad = (assocket_data_t *) pUser;
@@ -204,7 +206,7 @@ static u32 _assOnData(
     {
         pia->ia_fnOnData(
             pad->ad_iaAssocket, pAsocket, pu8Buffer,
-            pu32BeginPointer, u32EndPointer, pad->ad_pUser, bPause);
+            psBeginPointer, sEndPointer, pad->ad_pUser, pbPause);
     }
 
     return u32Ret;
@@ -223,8 +225,11 @@ static u32 _assGetTagOfAsocket(asocket_t * pAsocket)
 
 /** Internal method dispatched by the disconnect event of the underlying asocket
  *
- *  @param pAsocket: 
- *  @param pUser: 
+ *  @param pAsocket [in] the async socket 
+ *  @param u32Status [in] the status code for the disconnection
+ *  @param pUser [in] the user
+ *
+ *  @return the error code
  */
 static u32 _assOnDisconnect(asocket_t * pAsocket, u32 u32Status, void * pUser)
 {
@@ -250,8 +255,10 @@ static u32 _assOnDisconnect(asocket_t * pAsocket, u32 u32Status, void * pUser)
 
 /** Internal method dispatched by the OnSendOK event of the underlying asocket
  *
- *  @param pAsocket: 
- *  @param pUser: 
+ *  @param pAsocket [in] the async socket 
+ *  @param pUser [in] the user
+ *
+ *  @return the error code
  */
 static u32 _assOnSendOK(asocket_t * pAsocket, void * pUser)
 {

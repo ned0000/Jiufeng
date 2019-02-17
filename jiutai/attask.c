@@ -42,7 +42,7 @@ typedef struct attask
  *
  *  @note Before destroying the attask item structure, (* destroy)( ) is called
  *
- *  @param pAttask [in] the attask
+ *  @param piu [in] the attask
  *
  *  @return the error code
  */

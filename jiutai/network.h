@@ -688,7 +688,11 @@ typedef struct
 
 /** Create async server socket.
  *
- *  @param: pChain: The chain to add this module to
+ *  @param pChain [in] the chain to add this assocket to
+ *  @param ppAssocket [out] the async server socket
+ *  @param pap [in] the parameters for creating assocket
+ *
+ *  @return the error code
  */
 NETWORKAPI u32 NETWORKCALL createAssocket(
     basic_chain_t * pChain, assocket_t ** ppAssocket, assocket_param_t * pap);
@@ -818,11 +822,17 @@ typedef struct
 NETWORKAPI u32 NETWORKCALL createAcsocket(
     basic_chain_t * pChain, acsocket_t ** ppAcsocket, acsocket_param_t * pap);
 
+/** Destroy async client socket
+ *
+ *  @param ppAcsocket [in/out] the async client socket
+ *
+ *  @return the error code
+ */
 NETWORKAPI u32 NETWORKCALL destroyAcsocket(acsocket_t ** ppAcsocket);
 
 /** Returns the user's tag associated with the acsocket
  *
- *  @param: pAcsocket [in] the acsocket to query
+ *  @param pAcsocket [in] the acsocket to query
  *
  *  @return the user Tag
  */
@@ -912,7 +922,7 @@ typedef struct
     void * ap_pUser;
 } adgram_param_t;
 
-/** Creates a new adgram object
+/** Creates a new async dgram object
  *
  *  @param pChain [in] the basic chain object to add the adgram object
  *  @param ppAdgram [out] the adgram object created
@@ -923,13 +933,21 @@ typedef struct
 NETWORKAPI u32 NETWORKCALL createAdgram(
     basic_chain_t * pChain, adgram_t ** ppAdgram, adgram_param_t * pap);
 
+/** Destroy async dgram object
+ *
+ *  @param ppAdgram [in/out] the async dgram object
+ *
+ *  @return the error code
+ */
 NETWORKAPI u32 NETWORKCALL destroyAdgram(adgram_t ** ppAdgram);
 
 /** Clears all the pending data to be sent
  *
  *  @param pAdgram [in] the adgram to clear
+ *
+ *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL clearPendingSendOfAdgram(adgram_t *pAdgram);
+NETWORKAPI u32 NETWORKCALL clearPendingSendOfAdgram(adgram_t * pAdgram);
 
 /** Determines if an adgram is utilized
  *
@@ -958,7 +976,7 @@ NETWORKAPI u32 NETWORKCALL freeSocketForAdgram(adgram_t * pAdgram);
  *  @param pAdgram [in] the adgram to obtain the buffer from
  *  @param ppBuffer [out] the buffer
  *  @param psBeginPointer [out] the begin pointer of the buffer
- *  @param psEndPointer [out]: the end pointer of the buffer
+ *  @param psEndPointer [out] the end pointer of the buffer
  */
 NETWORKAPI void NETWORKCALL getBufferOfAdgram(
     adgram_t *pAdgram, u8 ** ppBuffer,

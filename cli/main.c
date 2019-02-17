@@ -1,5 +1,5 @@
 /**
- *  @file main.c
+ *  @file cli/main.c
  *
  *  @brief The main file of cli
  *

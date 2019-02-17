@@ -1,5 +1,5 @@
 /**
- *  @file common.h
+ *  @file uuid/common.h
  *
  *  @brief common header file for uuid library, provide some common definition
  *   and data structure

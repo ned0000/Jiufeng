@@ -69,7 +69,7 @@ u32 decryptFile(olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey);
 /** Encrypt a string, the encrypted string is convert to another string
  *
  *  @param pSrcStr [in] string to be encrypted
- *  @param pDestStr [out] generated encrypted string
+ *  @param ppDestStr [out] generated encrypted string
  *  @param pKey [in] encryption key
  *
  *  @return the error code
