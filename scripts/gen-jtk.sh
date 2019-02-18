@@ -12,6 +12,7 @@ cd ..
 topdir=`pwd`
 
 bin_files="genuuid oldongyuan olservmgmt"
+setting_files="servmgmt/servmgmt.setting"
 
 help_gen_jtk()
 {
@@ -114,13 +115,22 @@ do
     cp $file $bindir
 done
 
-print_banner "Copy make files"
-cp $topdir/mak/lnxdef.mak $makdir
-if [ $debug = yes ]; then
-    echo "CFLAGS += -g -DDEBUG" >> $makdir/lnxdef.mak
-fi
+print_banner "Copy makefiles"
+cd $topdir/mak
+for file in $(ls)
+do
+    makefile=$file
+    echo "Copy $makefile"
+    cp $makefile $makdir
+done
 
 print_banner "Copy setting files"
-cp $topdir/servmgmt/servmgmt.setting $bindir
+cd $topdir
+for file in $setting_files
+do
+    echo "Copy $file"
+    cp $file $bindir
+done
 
+echo ""
 
