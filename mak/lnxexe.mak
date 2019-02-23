@@ -23,7 +23,7 @@ all: $(PROGRAM)
 	
 $(PROGRAM) : $(OBJECTS) $(JIUTAI_OBJS)
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $(OBJECTS) $(JIUTAI_OBJS) \
-      -o $(PROGRAM) $(SYSLIBS) $(EXTRA_LIBS)
+      $(EXTRA_OBJECTS) -o $(PROGRAM) $(SYSLIBS) $(EXTRA_LIB_DIR) $(EXTRA_LIBS)
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 

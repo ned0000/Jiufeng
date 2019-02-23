@@ -28,12 +28,12 @@ iscpp = $(findstring .cpp, $(firstsource))
 
 ifneq  "$(iscpp)" ""
 $(SHAREOBJ): $(OBJECTS) $(JIUTAI_OBJS)
-	$(CXX) -shared $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-      -o $@ $(SYSLIBS) $(EXTRA_LIBS) -fPIC
+	$(CXX) -shared $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ $(EXTRA_OBJECTS)\
+      -o $@ $(SYSLIBS) $(EXTRA_LIB_DIR) $(EXTRA_LIBS) -fPIC
 else
 $(SHAREOBJ): $(OBJECTS) $(JIUTAI_OBJS)
-	$(CC) -shared $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-      -o $@ $(SYSLIBS) $(EXTRA_LIBS) -fPIC
+	$(CC) -shared $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ $(EXTRA_OBJECTS) \
+      -o $@ $(SYSLIBS) $(EXTRA_LIB_DIR) $(EXTRA_LIBS) -fPIC
 endif
 
 clean:

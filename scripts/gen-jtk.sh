@@ -48,12 +48,14 @@ if [ x"$2" = xdebug ]; then
     debug=yes
 fi
 
-rootdir=$1/jtk
+destdir=$1
+rootdir=$destdir/jtk
 bindir=$rootdir/bin
 incdir=$rootdir/inc
 libdir=$rootdir/lib
 docdir=$rootdir/doc
 makdir=$rootdir/mak
+templatedir=$rootdir/template
 
 rm -fr $rootdir
 
@@ -63,6 +65,7 @@ mkdir $incdir
 mkdir $libdir
 mkdir $docdir
 mkdir $makdir
+mkdir $templatedir
 
 echo "Build Jiufeng Took Kit"
 make -f linux.mak clean
@@ -123,6 +126,10 @@ do
     echo "Copy $makefile"
     cp $makefile $makdir
 done
+if [ $debug == yes ]; then
+    echo "DEBUG_JIUFENG = yes" > $makdir/lnxcfg.mak
+    cat $topdir/mak/lnxcfg.mak >> $makdir/lnxcfg.mak
+fi
 
 print_banner "Copy setting files"
 cd $topdir
@@ -131,6 +138,20 @@ do
     echo "Copy $file"
     cp $file $bindir
 done
+
+print_banner "Copy template files"
+cd $topdir/template
+for file in $(ls)
+do
+    echo "Copy $file"
+    cp $file $templatedir
+done
+
+cd $destdir
+echo ""
+echo "Create symbolic link for mak and template directory"
+ln -sf jtk/mak/ mak
+ln -sf jtk/template/ template
 
 echo ""
 

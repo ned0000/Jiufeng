@@ -1,7 +1,7 @@
 #
 #  @file
 #
-#  @brief the template makefile for Linux
+#  @brief The template makefile for Linux
 #
 #  @author Min Zhang
 #
@@ -10,13 +10,24 @@
 
 #-----------------------------------------------------------------------------
 
+# Name of the library
 SONAME = oltemplate
 
+# Source files
 SOURCES = template.c
 
+# Jiutai source files
 JIUTAI_SRCS = hexstr.c
 
-EXTRA_LIBS = 
+# For code complile
+EXTRA_INC_DIR = -I../kinc
+EXTRA_CFLAGS = -DENT
+
+# For library build 
+EXTRA_LDFLAGS = 
+EXTRA_OBJECTS =
+EXTRA_LIB_DIR = 
+EXTRA_LIBS = -lollogger
 
 include $(TOPDIR)/mak/lnxlib.mak
 
