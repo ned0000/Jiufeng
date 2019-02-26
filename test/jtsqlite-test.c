@@ -1,10 +1,10 @@
 /**
- *  @file persistency-test.c
+ *  @file jtsqlite.c
  *
- *  @brief The test file for persistency library
+ *  @brief The test file for jt sqlite common object
  *
  *  @author Min Zhang
- *  
+ *
  *  @note Create DB with command: sqlite3 env.db
  *  @note Create table with sql statement: CREATE TABLE env(key TEXT PRIMARY
  *   KEY, value TEXT);
@@ -21,7 +21,8 @@
 #include "ollimit.h"
 #include "bases.h"
 #include "errcode.h"
-#include "persistency.h"
+#include "jtsqlite.h"
+#include "xmalloc.h"
 
 /* --- private data/data structure section --------------------------------- */
 
@@ -31,8 +32,8 @@
 static void _printUsage(void)
 {
     ol_printf("\
-Usage: persistency-test [-h] \n\
-    -h show this usage.\n\
+Usage: jtsqlite-test [-h] \n\
+    -h show this usage. \n\
     ");
 
     ol_printf("\n");
@@ -61,7 +62,45 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
     return u32Ret;
 }
 
-static u32 _testRwPersistency(persistency_t * pPersist)
+static u32 _setJtSqliteValue(
+    jt_sqlite_t * pjs, olchar_t * pKey, olchar_t * pValue)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    olchar_t * pstrSql = NULL;
+    olchar_t strRet[128];
+    olsize_t nsize = ol_strlen(pValue) + ol_strlen(pKey) + 256;
+
+    u32Ret = xmalloc((void **)&pstrSql, nsize);
+    if (u32Ret == OLERR_NO_ERROR)
+    {
+        /*update or insert the value into the DB*/
+        ol_snprintf(
+            pstrSql, nsize,
+            "REPLACE INTO env(key, value) VALUES ('%s', '%s');",
+            pKey, pValue);
+        u32Ret = execJtSqliteSql(pjs, pstrSql, strRet, sizeof(strRet));
+    }
+    
+    if (pstrSql != NULL)
+        xfree((void **)&pstrSql);
+
+    return u32Ret;
+}
+
+static u32 _getJtSqliteValue(
+    jt_sqlite_t * pjs, olchar_t * pKey, olchar_t * pValue, olsize_t sValue)
+{
+    u32 u32Ret = OLERR_NO_ERROR;
+    olchar_t strSql[512];
+
+    ol_snprintf(
+        strSql, sizeof(strSql), "SELECT value FROM env WHERE key='%s';", pKey);
+    u32Ret = execJtSqliteSql(pjs, strSql, pValue, sValue);
+
+    return u32Ret;
+}
+
+static u32 _testRwJtSqlite(jt_sqlite_t * pjs)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t * key = "today";
@@ -70,13 +109,13 @@ static u32 _testRwPersistency(persistency_t * pPersist)
     olchar_t * tuesday = "tuesday";
     olchar_t value[512];
 
-    ol_printf("Testing persistency library\n");
+    ol_printf("Testing jt sqlite common object \n");
 
     ol_printf("set, %s = %s\n", key, monday);
-    u32Ret = setPersistencyValue(pPersist, key, monday);
+    u32Ret = _setJtSqliteValue(pjs, key, monday);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = getPersistencyValue(pPersist, key, value, 512);
+        u32Ret = _getJtSqliteValue(pjs, key, value, 512);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -84,19 +123,19 @@ static u32 _testRwPersistency(persistency_t * pPersist)
         ol_printf("get, %s = %s\n", key, value);
 
         ol_printf("set, %s = %s\n", key, tuesday);
-        u32Ret = setPersistencyValue(pPersist, key, tuesday);
+        u32Ret = _setJtSqliteValue(pjs, key, tuesday);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = getPersistencyValue(pPersist, key, value, 512);
+        u32Ret = _getJtSqliteValue(pjs, key, value, 512);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("get, %s = %s\n", key, value);
 
-        u32Ret = getPersistencyValue(pPersist, no_such_key, value, 512);
+        u32Ret = _getJtSqliteValue(pjs, no_such_key, value, 512);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -107,61 +146,60 @@ static u32 _testRwPersistency(persistency_t * pPersist)
     return u32Ret;
 }
 
-static u32 _testPersistencyTransaction(persistency_t * pPersist)
+static u32 _testJtSqliteTransaction(jt_sqlite_t * pjs)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    ol_printf("Start transaction\n");
-    u32Ret = startPersistencyTransaction(pPersist);
+    ol_printf("Start jt sqlite transaction\n");
+    u32Ret = startJtSqliteTransaction(pjs);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        setPersistencyValue(pPersist, "color", "red");
-        setPersistencyValue(pPersist, "name", "min");
-        setPersistencyValue(pPersist, "age", "32");
+        _setJtSqliteValue(pjs, "color", "red");
+        _setJtSqliteValue(pjs, "name", "min");
+        _setJtSqliteValue(pjs, "age", "32");
 
-        ol_printf("Commit transaction\n");
-        commitPersistencyTransaction(pPersist);
+        ol_printf("Commit jt sqlite transaction\n");
+        commitJtSqliteTransaction(pjs);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        ol_printf("Start transaction\n");
-        u32Ret = startPersistencyTransaction(pPersist);
+        ol_printf("Start jt sqlite transaction\n");
+        u32Ret = startJtSqliteTransaction(pjs);
         if (u32Ret == OLERR_NO_ERROR)
         {
-            setPersistencyValue(pPersist, "book1", "1");
-            setPersistencyValue(pPersist, "book2", "2");
-            setPersistencyValue(pPersist, "book3", "3");
+            _setJtSqliteValue(pjs, "book1", "1");
+            _setJtSqliteValue(pjs, "book2", "2");
+            _setJtSqliteValue(pjs, "book3", "3");
 
-            ol_printf("Rollback transaction\n");
-            rollbackPersistencyTransaction(pPersist);
+            ol_printf("Rollback jt sqlite transaction\n");
+            rollbackJtSqliteTransaction(pjs);
         }
     }
 
     return u32Ret;
 }
 
-static u32 _testPersistency(void)
+static u32 _testJtSqlite(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    persistency_t * pPersist = NULL;
-    persistency_config_t config;
+    jt_sqlite_t js;
+    jt_sqlite_param_t config;
 
-    memset(&config, 0, sizeof(persistency_config_t));
-    ol_strcpy(config.pc_pcsConfigSqlite.pcs_strDbName, "env.db");
-    ol_strcpy(config.pc_pcsConfigSqlite.pcs_strTableName, "env");
-    ol_strcpy(config.pc_pcsConfigSqlite.pcs_strKeyColumnName, "key");
-    ol_strcpy(config.pc_pcsConfigSqlite.pcs_strValueColumnName, "value");
+    ol_memset(&config, 0, sizeof(jt_sqlite_param_t));
+    config.jsp_pstrDbName = "env.db";
 
-    u32Ret = createPersistency(SQLITE_PERSISTENCY, &config, &pPersist);
+    u32Ret = initJtSqlite(&js, &config);
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = _testRwPersistency(pPersist);
+    {
+        if (u32Ret == OLERR_NO_ERROR)
+            u32Ret = _testRwJtSqlite(&js);
 
-    if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = _testPersistencyTransaction(pPersist);
+        if (u32Ret == OLERR_NO_ERROR)
+            u32Ret = _testJtSqliteTransaction(&js);
 
-    if (pPersist != NULL)
-        destroyPersistency(&pPersist);
+        finiJtSqlite(&js);
+    }
 
     return u32Ret;
 }
@@ -187,7 +225,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     if (u32Ret == OLERR_NO_ERROR)
     {
         memset(&lpParam, 0, sizeof(logger_param_t));
-        lpParam.lp_pstrCallerName = "PERSISTENCY";
+        lpParam.lp_pstrCallerName = "JTSQLITE";
         lpParam.lp_bLogToFile = FALSE;
         lpParam.lp_bLogToStdout = TRUE;
         lpParam.lp_u8TraceLevel = LOGGER_TRACE_DATA;
@@ -197,7 +235,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        _testPersistency();
+        u32Ret = _testJtSqlite();
     }
 
     finiLogger();

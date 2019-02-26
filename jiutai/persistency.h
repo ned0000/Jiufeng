@@ -5,8 +5,9 @@
  *
  *  @author Min Zhang
  *
+ *  @note If fails to set persistency value, user should rollback transaction if
+ *   transaction started.
  *  @note Link with sqlite3 library
- *  
  */
  
 #ifndef JIUFENG_PERSISTENCY_H

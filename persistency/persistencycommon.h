@@ -17,7 +17,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "olbasic.h"
 #include "persistency.h"
-#include "sqlite3.h"
+#include "jtsqlite.h"
 #include "syncmutex.h"
 
 /* --- constant definitions ------------------------------------------------ */
@@ -38,7 +38,7 @@ typedef u32 (* fnRollbackPersistencyTransaction_t)(struct persistency_manager * 
 
 typedef struct sqlite_persistency
 {
-    sqlite3 * sp_psSqlite;
+    jt_sqlite_t sp_jsSqlite;
     persistency_config_sqlite_t sp_pcsConfigSqlite;
 } sqlite_persistency_t;
 

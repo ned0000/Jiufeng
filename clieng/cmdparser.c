@@ -456,9 +456,14 @@ u32 newCmd(
     }
 
     if (u32Ret == OLERR_NO_ERROR)
-        *ppCmd = picc;
+    {
+        if (ppCmd != NULL)
+            *ppCmd = picc;
+    }
     else if (picc != NULL)
+    {
         _freeCmd((void **)&picc);
+    }
 
     return u32Ret;
 }

@@ -15,7 +15,7 @@ SONAME = olpersistency
 
 SOURCES = persistency.c sqlitepersistency.c
 
-JIUTAI_SRCS = xtime.c randnum.c syncmutex.c xmalloc.c
+JIUTAI_SRCS = xtime.c randnum.c syncmutex.c xmalloc.c jtsqlite.c
 
 EXTRA_INC_DIR = 
 

@@ -13,7 +13,7 @@
 SOURCES = hexstr.c process.c xtime.c bases.c xmalloc.c syncmutex.c    \
     syncrwlock.c syncsem.c array.c hash.c conffile.c menu.c crc32c.c  \
     sharedmemory.c dynlib.c hsm.c hostinfo.c respool.c randnum.c      \
-    attask.c
+    attask.c jtsqlite.c
 
 EXTRA_CFLAGS = -D_GNU_SOURCE
 
