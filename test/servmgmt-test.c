@@ -28,7 +28,7 @@ static boolean_t ls_bStop = FALSE;
 static boolean_t ls_bStart = FALSE;
 static boolean_t ls_bStartupType = FALSE;
 static olchar_t * ls_pstrServName = NULL;
-static u8 ls_u8StartupType = SERVICE_STARTUPTYPE_UNKNOWN;
+static u8 ls_u8StartupType = JF_SERVMGMT_SERV_STARTUPTYPE_UNKNOWN;
 
 static const olchar_t * ls_pstrProgramName = "olservmgmt";
 static const olchar_t * ls_pstrVersion = "1.0.0";
@@ -73,7 +73,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, logger_param_t * p
             break;
         case 'u':
             ls_bStartupType = TRUE;
-            u32Ret = getServMgmtServStartupTypeFromString(
+            u32Ret = jf_servmgmt_getServStartupTypeFromString(
                 optarg, &ls_u8StartupType);
             break;
         case 'l':
@@ -125,27 +125,27 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, logger_param_t * p
 static u32 _listService(olchar_t * name)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    serv_mgmt_info_t smi;
-    service_info_t * psi;
+    jf_servmgmt_info_t jsi;
+    jf_servmgmt_serv_info_t * pjssi;
     u8 u8Index;
 
-    u32Ret = getServMgmtInfo(&smi);
+    u32Ret = jf_servmgmt_getInfo(&jsi);
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("%-12s %-12s %-10s\n", "Name", "StartupType", "Status");
         ol_printf("----------------------------------------------\n");
 
-        for (u8Index = 0; u8Index < smi.smi_u8NumOfService; u8Index ++)
+        for (u8Index = 0; u8Index < jsi.jsi_u8NumOfService; u8Index ++)
         {
-            psi = &smi.smi_siService[u8Index];
+            pjssi = &jsi.jsi_jssiService[u8Index];
             if (name != NULL &&
-                ol_strcmp(name, psi->si_strName) != 0)
+                ol_strcmp(name, pjssi->jssi_strName) != 0)
                 continue;
 
             ol_printf(
-                "%-12s %-12s %-10s\n", psi->si_strName,
-                getStringServMgmtServStartupType(psi->si_u8StartupType),
-                getStringServMgmtServStatus(psi->si_u8Status));
+                "%-12s %-12s %-10s\n", pjssi->jssi_strName,
+                jf_servmgmt_getStringServStartupType(pjssi->jssi_u8StartupType),
+                jf_servmgmt_getStringServStatus(pjssi->jssi_u8Status));
         }
     }
     else
@@ -167,7 +167,7 @@ static u32 _stopService(olchar_t * name)
     }
 
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = stopServMgmtServ(name);
+        u32Ret = jf_servmgmt_stopServ(name);
 
     return u32Ret;
 }
@@ -183,7 +183,7 @@ static u32 _startService(olchar_t * name)
     }
 
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = startServMgmtServ(name);
+        u32Ret = jf_servmgmt_startServ(name);
 
     return u32Ret;
 }
@@ -199,7 +199,7 @@ static u32 _changeServiceStartupType(olchar_t * name, u8 u8Type)
     }
 
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = setServMgmtServStartupType(name, u8Type);
+        u32Ret = jf_servmgmt_setServStartupType(name, u8Type);
 
     return u32Ret;
 }
@@ -210,7 +210,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strErrMsg[300];
     logger_param_t lpParam;
-    serv_mgmt_param_t smp;
+    jf_servmgmt_init_param_t jsip;
 
     memset(&lpParam, 0, sizeof(logger_param_t));
 
@@ -223,9 +223,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
     {
         initLogger(&lpParam);
 
-        memset(&smp, 0, sizeof(serv_mgmt_param_t));
+        ol_memset(&jsip, 0, sizeof(jsip));
 
-        u32Ret = initServMgmt(&smp);
+        u32Ret = jf_servmgmt_init(&jsip);
         if (u32Ret == OLERR_NO_ERROR)
         {
             if (ls_bStop)
@@ -238,7 +238,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
             else
                 u32Ret = _listService(ls_pstrServName);                
 
-            finiServMgmt();
+            jf_servmgmt_fini();
         }
 
         finiLogger();

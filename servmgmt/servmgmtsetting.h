@@ -26,7 +26,7 @@
 /* --- data structures ----------------------------------------------------- */
 typedef struct
 {
-    olchar_t isi_strName[MAX_SERVICE_NAME_LEN];
+    olchar_t isi_strName[JF_SERVMGMT_MAX_SERV_NAME_LEN];
     u8 isi_u8Status;
     u8 isi_u8StartupType;
 #define SERVICE_ROLE_INTERNAL   0
@@ -52,7 +52,7 @@ typedef struct
     olchar_t isms_strVersion[8];
     u32 isms_u32Reserved;
     u32 isms_u32NumOfService;
-    internal_service_info_t isms_isiService[MAX_NUM_OF_SERVICE];
+    internal_service_info_t isms_isiService[JF_SERVMGMT_MAX_NUM_OF_SERVICE];
     u8 isms_u8Reserved2[16];
 } internal_serv_mgmt_setting_t;
 

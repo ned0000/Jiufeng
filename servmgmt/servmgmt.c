@@ -98,11 +98,11 @@ static u32 _startService(
 
     u32Ret = createProcess(&(pisi->isi_piProcessId), NULL, strCmdLine);
     if (u32Ret == OLERR_NO_ERROR)
-        pisi->isi_u8Status = SERVICE_STATUS_RUNNING;
+        pisi->isi_u8Status = JF_SERVMGMT_SERV_STATUS_RUNNING;
     else
     {
         logErrMsg(u32Ret, "start serv");
-        pisi->isi_u8Status = SERVICE_STATUS_ERROR;
+        pisi->isi_u8Status = JF_SERVMGMT_SERV_STATUS_ERROR;
     }
 
     return u32Ret;
@@ -182,7 +182,7 @@ static u32 _attaskStartService(void * pData)
 
     _lockStatusFile(SERV_MGMT_STATUS_FILE, &fd);
 
-    if (pisi->isi_u8Status == SERVICE_STATUS_ERROR)
+    if (pisi->isi_u8Status == JF_SERVMGMT_SERV_STATUS_ERROR)
         _startService(psma->sma_pismServMgmt, pisi);
 
     _unlockStatusFile(&fd);
@@ -199,7 +199,7 @@ static u32 _tryStartService(
     u32 u32Delay;
 
     logInfoMsg("try to restart service %s", pisi->isi_strName);
-    pisi->isi_u8Status = SERVICE_STATUS_ERROR;
+    pisi->isi_u8Status = JF_SERVMGMT_SERV_STATUS_ERROR;
 
     u32Delay = pisi->isi_u8RestartDelay + pisi->isi_u8RestartCount;
     if (pisi->isi_u8RestartCount <= MAX_RESTART_COUNT)
@@ -238,9 +238,9 @@ static u32 _startAllServices(
     {
         pisi = &(pisms->isms_isiService[u32Index]);
 
-        pisi->isi_u8Status = SERVICE_STATUS_STOPPED;
+        pisi->isi_u8Status = JF_SERVMGMT_SERV_STATUS_STOPPED;
 
-        if (pisi->isi_u8StartupType == SERVICE_STARTUPTYPE_AUTOMATIC)
+        if (pisi->isi_u8StartupType == JF_SERVMGMT_SERV_STARTUPTYPE_AUTOMATIC)
             u32Ret = _startService(pism, pisi);
     }
 
@@ -256,7 +256,7 @@ static u32 _stopService(
 
     u32Ret = terminateProcess(&(pisi->isi_piProcessId));
     if (u32Ret == OLERR_NO_ERROR)
-        pisi->isi_u8Status = SERVICE_STATUS_STOPPED;
+        pisi->isi_u8Status = JF_SERVMGMT_SERV_STATUS_STOPPED;
 
     return u32Ret;
 }
@@ -266,8 +266,8 @@ static void _dumpServMgmtInfo(internal_service_info_t * pisi)
     logInfoMsg(
         "serv %s, role %d, startuptype %s, status %s",
         pisi->isi_strName, pisi->isi_u8Role,
-        getStringServMgmtServStartupType(pisi->isi_u8StartupType),
-        getStringServMgmtServStatus(pisi->isi_u8Status));
+        jf_servmgmt_getStringServStartupType(pisi->isi_u8StartupType),
+        jf_servmgmt_getStringServStatus(pisi->isi_u8Status));
 }
 
 static u32 _waitForChildProcess(
@@ -296,12 +296,12 @@ static u32 _waitForChildProcess(
             pisi = &(pisms->isms_isiService[u32ServIndex]);
 
             _dumpServMgmtInfo(pisi);
-            if (pisi->isi_u8Status == SERVICE_STATUS_STARTING)
+            if (pisi->isi_u8Status == JF_SERVMGMT_SERV_STATUS_STARTING)
             {
                 _startService(pism, pisi);
                 continue;
             }
-            else if (pisi->isi_u8Status == SERVICE_STATUS_TERMINATED)
+            else if (pisi->isi_u8Status == JF_SERVMGMT_SERV_STATUS_TERMINATED)
             {
                 _tryStartService(pAttask, pism, pisms, pisi);
                 continue;
@@ -309,7 +309,7 @@ static u32 _waitForChildProcess(
             else if (isValidProcessId(&pisi->isi_piProcessId) &&
                      ol_memcmp(&(pid[u32Index]), &pisi->isi_piProcessId,
                                sizeof(process_id_t)) == 0 &&
-                     (pisi->isi_u8Status == SERVICE_STATUS_RUNNING))
+                     (pisi->isi_u8Status == JF_SERVMGMT_SERV_STATUS_RUNNING))
             {
                 _tryStartService(pAttask, pism, pisms, pisi);
                 continue;
@@ -327,7 +327,7 @@ static u32 _monitorServices(
     attask_t * pAttask, u32 u32BlockTime)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    process_id_t pid[MAX_NUM_OF_SERVICE];
+    process_id_t pid[JF_SERVMGMT_MAX_NUM_OF_SERVICE];
     u32 u32ServIndex, u32Count;
     internal_service_info_t * pisi;
     file_t fd = INVALID_FILE_VALUE;
@@ -341,7 +341,7 @@ static u32 _monitorServices(
     {
         pisi = &(pisms->isms_isiService[u32ServIndex]);
 
-        if ((pisi->isi_u8Status == SERVICE_STATUS_RUNNING) &&
+        if ((pisi->isi_u8Status == JF_SERVMGMT_SERV_STATUS_RUNNING) &&
             isValidProcessId(&pisi->isi_piProcessId))
         {
             memcpy(
@@ -409,37 +409,38 @@ static u32 _wakeupServMgmt(internal_service_info_t * pisiWakeup)
 
     logInfoMsg("wakeup servmgmt");
 
-    if ((pisiWakeup->isi_u8Status == SERVICE_STATUS_RUNNING) &&
+    if ((pisiWakeup->isi_u8Status == JF_SERVMGMT_SERV_STATUS_RUNNING) &&
         isValidProcessId(&pisiWakeup->isi_piProcessId))
     {
         logInfoMsg("wakeup servmgmt, %s", pisiWakeup->isi_strName);
         u32Ret = terminateProcess(&pisiWakeup->isi_piProcessId);
         if (u32Ret == OLERR_NO_ERROR)
-            pisiWakeup->isi_u8Status = SERVICE_STATUS_TERMINATED;
+            pisiWakeup->isi_u8Status = JF_SERVMGMT_SERV_STATUS_TERMINATED;
     }
 
     return u32Ret;
 }
 
 /* --- public routine section ---------------------------------------------- */
-u32 initServMgmt(serv_mgmt_param_t * psmp)
+
+u32 jf_servmgmt_init(jf_servmgmt_init_param_t * pjsip)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_serv_mgmt_t * pism = &ls_ismServMgmt;
 
-    assert(psmp != NULL);
+    assert(pjsip != NULL);
 
     logInfoMsg("init serv mgmt");
 
     if (u32Ret == OLERR_NO_ERROR)
         pism->ism_bInitialized = TRUE;
     else if (pism != NULL)
-        finiServMgmt();
+        jf_servmgmt_fini();
 
     return u32Ret;
 }
 
-u32 finiServMgmt(void)
+u32 jf_servmgmt_fini(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -448,7 +449,7 @@ u32 finiServMgmt(void)
     return u32Ret;
 }
 
-u32 startServMgmt(start_serv_mgmt_param_t * pssmp)
+u32 jf_servmgmt_start(jf_servmgmt_start_param_t * pjssp)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_serv_mgmt_t * pism = &ls_ismServMgmt;
@@ -459,7 +460,7 @@ u32 startServMgmt(start_serv_mgmt_param_t * pssmp)
 
     logInfoMsg("start serv mgmt");
 
-    assert(pssmp != NULL);
+    assert(pjssp != NULL);
 
     u32Ret = createAttask((attask_t **)&pAttask);
     if (u32Ret == OLERR_NO_ERROR)
@@ -477,10 +478,10 @@ u32 startServMgmt(start_serv_mgmt_param_t * pssmp)
     {
         ol_memset(pisms, 0, sizeof(internal_serv_mgmt_setting_t));
 
-        if (pssmp->ssmp_pstrSettingFile != NULL)
+        if (pjssp->jssp_pstrSettingFile != NULL)
             ol_strncpy(
                 pisms->isms_strSettingFile,
-                pssmp->ssmp_pstrSettingFile, MAX_PATH_LEN - 1);
+                pjssp->jssp_pstrSettingFile, MAX_PATH_LEN - 1);
         else
             ol_strncpy(
                 pisms->isms_strSettingFile,
@@ -525,7 +526,7 @@ u32 startServMgmt(start_serv_mgmt_param_t * pssmp)
     return u32Ret;
 }
 
-u32 stopServMgmt(void)
+u32 jf_servmgmt_stop(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_serv_mgmt_t * pism = &ls_ismServMgmt;
@@ -537,7 +538,7 @@ u32 stopServMgmt(void)
     return u32Ret;
 }
 
-u32 getServMgmtInfo(serv_mgmt_info_t * psmi)
+u32 jf_servmgmt_getInfo(jf_servmgmt_info_t * pjsi)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32ServIndex;
@@ -547,9 +548,9 @@ u32 getServMgmtInfo(serv_mgmt_info_t * psmi)
     olsize_t size = 60;
     shm_id_t * psiServSetting = NULL;
     internal_service_info_t * pisi;
-    service_info_t * psi;
+    jf_servmgmt_serv_info_t * pjssi;
 
-    ol_memset(psmi, 0, sizeof(serv_mgmt_info_t));
+    ol_memset(pjsi, 0, sizeof(*pjsi));
 
     u32Ret = _lockStatusFile(SERV_MGMT_STATUS_FILE, &fd);
     if (u32Ret != OLERR_NO_ERROR)
@@ -572,13 +573,13 @@ u32 getServMgmtInfo(serv_mgmt_info_t * psmi)
 
             if (pisi->isi_u8Role == SERVICE_ROLE_EXTERNAL)
             {
-                psi = &psmi->smi_siService[psmi->smi_u8NumOfService];
+                pjssi = &pjsi->jsi_jssiService[pjsi->jsi_u8NumOfService];
 
-                ol_strcpy(psi->si_strName, pisi->isi_strName);
-                psi->si_u8Status = pisi->isi_u8Status;
-                psi->si_u8StartupType = pisi->isi_u8StartupType;
+                ol_strcpy(pjssi->jssi_strName, pisi->isi_strName);
+                pjssi->jssi_u8Status = pisi->isi_u8Status;
+                pjssi->jssi_u8StartupType = pisi->isi_u8StartupType;
 
-                psmi->smi_u8NumOfService ++;
+                pjsi->jsi_u8NumOfService ++;
             }
         }
     }
@@ -591,7 +592,7 @@ u32 getServMgmtInfo(serv_mgmt_info_t * psmi)
     return u32Ret;
 }
 
-u32 stopServMgmtServ(olchar_t * pstrName)
+u32 jf_servmgmt_stopServ(olchar_t * pstrName)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32ServIndex;
@@ -624,7 +625,7 @@ u32 stopServMgmtServ(olchar_t * pstrName)
             if ((pisi->isi_u8Role == SERVICE_ROLE_EXTERNAL) &&
                 ol_strcmp(pisi->isi_strName, pstrName) == 0)
             {
-                if (pisi->isi_u8Status == SERVICE_STATUS_RUNNING)
+                if (pisi->isi_u8Status == JF_SERVMGMT_SERV_STATUS_RUNNING)
                     u32Ret = _stopService(pisms, pisi);
 
                 break;
@@ -643,7 +644,7 @@ u32 stopServMgmtServ(olchar_t * pstrName)
     return u32Ret;
 }
 
-u32 startServMgmtServ(olchar_t * pstrName)
+u32 jf_servmgmt_startServ(olchar_t * pstrName)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32ServIndex;
@@ -694,13 +695,13 @@ u32 startServMgmtServ(olchar_t * pstrName)
     }
 
     if ((u32Ret == OLERR_NO_ERROR) &&
-        (pisiServ->isi_u8Status != SERVICE_STATUS_RUNNING))
+        (pisiServ->isi_u8Status != JF_SERVMGMT_SERV_STATUS_RUNNING))
     {
         if (pisiWakeup == NULL)
             u32Ret = OLERR_WAKEUP_SERV_NOT_FOUND;
         else
         {
-            pisiServ->isi_u8Status = SERVICE_STATUS_STARTING;
+            pisiServ->isi_u8Status = JF_SERVMGMT_SERV_STATUS_STARTING;
 
             _wakeupServMgmt(pisiWakeup);
         }
@@ -714,21 +715,21 @@ u32 startServMgmtServ(olchar_t * pstrName)
     return u32Ret;
 }
 
-const olchar_t * getStringServMgmtServStatus(u8 u8Status)
+const olchar_t * jf_servmgmt_getStringServStatus(u8 u8Status)
 {
     olchar_t * pstr = NULL;
 
-    if (u8Status == SERVICE_STATUS_STOPPED)
+    if (u8Status == JF_SERVMGMT_SERV_STATUS_STOPPED)
         pstr = "stopped";
-    else if (u8Status == SERVICE_STATUS_STARTING)
+    else if (u8Status == JF_SERVMGMT_SERV_STATUS_STARTING)
         pstr = "starting";
-    else if (u8Status == SERVICE_STATUS_RUNNING)
+    else if (u8Status == JF_SERVMGMT_SERV_STATUS_RUNNING)
         pstr = "running";
-    else if (u8Status == SERVICE_STATUS_STOPPING)
+    else if (u8Status == JF_SERVMGMT_SERV_STATUS_STOPPING)
         pstr = "stopping";
-    else if (u8Status == SERVICE_STATUS_ERROR)
+    else if (u8Status == JF_SERVMGMT_SERV_STATUS_ERROR)
         pstr = "error";
-    else if (u8Status == SERVICE_STATUS_TERMINATED)
+    else if (u8Status == JF_SERVMGMT_SERV_STATUS_TERMINATED)
         pstr = "terminated";
     else
         pstr = "unknown";
@@ -736,13 +737,13 @@ const olchar_t * getStringServMgmtServStatus(u8 u8Status)
     return pstr;
 }
 
-const olchar_t * getStringServMgmtServStartupType(u8 u8StartupType)
+const olchar_t * jf_servmgmt_getStringServStartupType(u8 u8StartupType)
 {
     olchar_t * pstr = NULL;
 
-    if (u8StartupType == SERVICE_STARTUPTYPE_AUTOMATIC)
+    if (u8StartupType == JF_SERVMGMT_SERV_STARTUPTYPE_AUTOMATIC)
         pstr = "automatic";
-    else if (u8StartupType == SERVICE_STARTUPTYPE_MANUAL)
+    else if (u8StartupType == JF_SERVMGMT_SERV_STARTUPTYPE_MANUAL)
         pstr = "manual";
     else
         pstr = "unknown";
@@ -750,22 +751,22 @@ const olchar_t * getStringServMgmtServStartupType(u8 u8StartupType)
     return pstr;
 }
 
-u32 getServMgmtServStartupTypeFromString(
+u32 jf_servmgmt_getServStartupTypeFromString(
     const olchar_t * pstrType, u8 * pu8StartupType)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
     if (strcmp(pstrType, "automatic") == 0)
-        *pu8StartupType = SERVICE_STARTUPTYPE_AUTOMATIC;
+        *pu8StartupType = JF_SERVMGMT_SERV_STARTUPTYPE_AUTOMATIC;
     else if (strcmp(pstrType, "manual") == 0)
-        *pu8StartupType = SERVICE_STARTUPTYPE_MANUAL;
+        *pu8StartupType = JF_SERVMGMT_SERV_STARTUPTYPE_MANUAL;
     else
         u32Ret = OLERR_INVALID_PARAM;
 
     return u32Ret;
 }
 
-u32 setServMgmtServStartupType(olchar_t * pstrName, u8 u8StartupType)
+u32 jf_servmgmt_setServStartupType(olchar_t * pstrName, u8 u8StartupType)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32ServIndex;
@@ -776,12 +777,12 @@ u32 setServMgmtServStartupType(olchar_t * pstrName, u8 u8StartupType)
     shm_id_t * psiServSetting = NULL;
     internal_service_info_t * pisi, * pisiServ = NULL;
 
-    assert(u8StartupType == SERVICE_STARTUPTYPE_AUTOMATIC ||
-           u8StartupType == SERVICE_STARTUPTYPE_MANUAL);
+    assert(u8StartupType == JF_SERVMGMT_SERV_STARTUPTYPE_AUTOMATIC ||
+           u8StartupType == JF_SERVMGMT_SERV_STARTUPTYPE_MANUAL);
 
     logInfoMsg(
         "set serv %s startup type to %s", pstrName,
-        getStringServMgmtServStartupType(u8StartupType));
+        jf_servmgmt_getStringServStartupType(u8StartupType));
 
     u32Ret = _lockStatusFile(SERV_MGMT_STATUS_FILE, &fd);
     if (u32Ret != OLERR_NO_ERROR)

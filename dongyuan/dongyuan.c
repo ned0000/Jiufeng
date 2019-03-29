@@ -45,7 +45,7 @@ u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_dongyuan_t * pig;
-    serv_mgmt_param_t smp;
+    jf_servmgmt_init_param_t jsip;
     olchar_t strExecutablePath[MAX_PATH_LEN];
 
     logInfoMsg("create dongyuan");
@@ -63,9 +63,9 @@ u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        memset(&smp, 0, sizeof(serv_mgmt_param_t));
+        ol_memset(&jsip, 0, sizeof(jsip));
 
-        u32Ret = initServMgmt(&smp);
+        u32Ret = jf_servmgmt_init(&jsip);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -92,16 +92,16 @@ u32 startDongyuan(dongyuan_t * pDongyuan)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_dongyuan_t * pig;
-    start_serv_mgmt_param_t ssmp;
+    jf_servmgmt_start_param_t jssp;
 
     assert(pDongyuan != NULL);
 
     pig = (internal_dongyuan_t *)pDongyuan;
 
-    memset(&ssmp, 0, sizeof(start_serv_mgmt_param_t));
-    ssmp.ssmp_pstrSettingFile = pig->ig_pstrSettingFile;
+    ol_memset(&jssp, 0, sizeof(jssp));
+    jssp.jssp_pstrSettingFile = pig->ig_pstrSettingFile;
 
-    u32Ret = startServMgmt(&ssmp);
+    u32Ret = jf_servmgmt_start(&jssp);
 
     return u32Ret;
 }
@@ -115,7 +115,7 @@ u32 stopDongyuan(dongyuan_t * pDongyuan)
 
 //    pig = (internal_dongyuan_t *)pDongyuan;
 
-    u32Ret = stopServMgmt();
+    u32Ret = jf_servmgmt_stop();
 
     return u32Ret;
 }

@@ -42,14 +42,15 @@ static void _parseServiceSettingValue(
 
     if (ol_strcmp(pstrTag, "name") == 0)
     { 
-        ol_strncpy(pisi->isi_strName, pstrValue, MAX_SERVICE_NAME_LEN - 1);
+        ol_strncpy(
+            pisi->isi_strName, pstrValue, JF_SERVMGMT_MAX_SERV_NAME_LEN - 1);
     }
     else if (ol_strcmp(pstrTag, "startupType") == 0)
     { 
         if (ol_strcmp(pstrValue, "automatic") == 0)
-            pisi->isi_u8StartupType = SERVICE_STARTUPTYPE_AUTOMATIC;
+            pisi->isi_u8StartupType = JF_SERVMGMT_SERV_STARTUPTYPE_AUTOMATIC;
         else if (ol_strcmp(pstrValue, "manual") == 0)
-            pisi->isi_u8StartupType = SERVICE_STARTUPTYPE_MANUAL;
+            pisi->isi_u8StartupType = JF_SERVMGMT_SERV_STARTUPTYPE_MANUAL;
     }
     else if (ol_strcmp(pstrTag, "role") == 0)
     {
@@ -204,8 +205,8 @@ u32 modifyServiceStartupType(
     boolean_t bFound = FALSE;
     
     assert((pstrSettingFile != NULL) &&
-           ((u8StartupType == SERVICE_STARTUPTYPE_MANUAL) ||
-            (u8StartupType == SERVICE_STARTUPTYPE_AUTOMATIC)));
+           ((u8StartupType == JF_SERVMGMT_SERV_STARTUPTYPE_MANUAL) ||
+            (u8StartupType == JF_SERVMGMT_SERV_STARTUPTYPE_AUTOMATIC)));
     
     xmlKeepBlanksDefault(0);
     doc = xmlParseFile(strSettingFilename);
@@ -243,9 +244,9 @@ u32 modifyServiceStartupType(
                     {
                         if (strcmp((olchar_t *)cur2->name, "startupType") == 0)
                         {
-                            if (u8StartupType == SERVICE_STARTUPTYPE_AUTOMATIC)
+                            if (u8StartupType == JF_SERVMGMT_SERV_STARTUPTYPE_AUTOMATIC)
                                 xmlNodeSetContent(cur2, (xmlChar *)"automatic");
-                            else if (u8StartupType == SERVICE_STARTUPTYPE_MANUAL)
+                            else if (u8StartupType == JF_SERVMGMT_SERV_STARTUPTYPE_MANUAL)
                                 xmlNodeSetContent(cur2, (xmlChar *)"manual");
 
                             bFound = TRUE;
@@ -325,7 +326,7 @@ u32 writeServMgmtSetting(
         if (u32Ret == OLERR_NO_ERROR)
             u32Ret = _servmgmtXmlNewChild(
                 serv_node, "startupType",
-                (olchar_t *)getStringServMgmtServStartupType(
+                (olchar_t *)jf_servmgmt_getStringServStartupType(
                     pisi->isi_u8StartupType), NULL);
 
         if (u32Ret == OLERR_NO_ERROR)
