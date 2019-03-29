@@ -89,11 +89,11 @@ static u32 _testMulMatrix(void)
     oldouble_t dbdata = 1.0;
     olint_t i;
 
-    u32Ret = allocMatrix(4, 5, &pma);
+    u32Ret = jf_matrix_alloc(4, 5, &pma);
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = allocMatrix(5, 3, &pmb);
+        u32Ret = jf_matrix_alloc(5, 3, &pmb);
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = allocMatrix(4, 3, &pmc);
+        u32Ret = jf_matrix_alloc(4, 3, &pmc);
 
     if (u32Ret == OLERR_NO_ERROR)
     {
@@ -103,7 +103,7 @@ static u32 _testMulMatrix(void)
             dbdata += 1.0;
         }
         ol_printf("Matrix A\n");
-        printMatrix(pma);
+        jf_matrix_print(pma);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -114,23 +114,23 @@ static u32 _testMulMatrix(void)
             dbdata += 1.0;
         }
         ol_printf("Matrix B\n");
-        printMatrix(pmb);
+        jf_matrix_print(pmb);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("Matrix A * B\n");
-        mulMatrix(pmc, pma, pmb);
-        printMatrix(pmc);
+        jf_matrix_mul(pmc, pma, pmb);
+        jf_matrix_print(pmc);
     }
 
 
     if (pma == NULL)
-        freeMatrix(&pma);
+        jf_matrix_free(&pma);
     if (pmb == NULL)
-        freeMatrix(&pmb);
+        jf_matrix_free(&pmb);
     if (pmc == NULL)
-        freeMatrix(&pmc);
+        jf_matrix_free(&pmc);
 
     return u32Ret;
 }
@@ -142,9 +142,9 @@ static u32 _testAddSubMatrix(void)
     oldouble_t dbdata = 1.0;
     olint_t i;
 
-    u32Ret = allocMatrix(3, 3, &pma);
+    u32Ret = jf_matrix_alloc(3, 3, &pma);
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = allocMatrix(3, 3, &pmb);
+        u32Ret = jf_matrix_alloc(3, 3, &pmb);
 
     if (u32Ret == OLERR_NO_ERROR)
     {
@@ -154,7 +154,7 @@ static u32 _testAddSubMatrix(void)
             dbdata += 1.0;
         }
         ol_printf("Matrix A\n");
-        printMatrix(pma);
+        jf_matrix_print(pma);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -165,31 +165,31 @@ static u32 _testAddSubMatrix(void)
             dbdata += 1.0;
         }
         ol_printf("Matrix B\n");
-        printMatrix(pmb);
+        jf_matrix_print(pmb);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("Matrix A + B\n");
-        addMatrix(pma, pmb);
-        printMatrix(pma);
+        jf_matrix_add(pma, pmb);
+        jf_matrix_print(pma);
 
         ol_printf("Matrix A\n");
-        printMatrix(pma);
+        jf_matrix_print(pma);
 
         ol_printf("Matrix B\n");
-        printMatrix(pmb);
+        jf_matrix_print(pmb);
 
         ol_printf("Matrix A - B\n");
-        subMatrix(pma, pmb);
-        printMatrix(pma);
+        jf_matrix_sub(pma, pmb);
+        jf_matrix_print(pma);
     }
 
 
     if (pma == NULL)
-        freeMatrix(&pma);
+        jf_matrix_free(&pma);
     if (pmb == NULL)
-        freeMatrix(&pmb);
+        jf_matrix_free(&pmb);
 
     return u32Ret;
 }
@@ -201,9 +201,9 @@ static u32 _testTransposeMatrix(void)
     oldouble_t dbdata = 1.0;
     olint_t i;
 
-    u32Ret = allocMatrix(4, 5, &pma);
+    u32Ret = jf_matrix_alloc(4, 5, &pma);
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = allocMatrix(5, 4, &pmb);
+        u32Ret = jf_matrix_alloc(5, 4, &pmb);
 
     if (u32Ret == OLERR_NO_ERROR)
     {
@@ -213,20 +213,20 @@ static u32 _testTransposeMatrix(void)
             dbdata += 1.0;
         }
         ol_printf("Matrix A\n");
-        printMatrix(pma);
+        jf_matrix_print(pma);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("Transpose(A)\n");
-        transposeMatrix(pmb, pma);
-        printMatrix(pmb);
+        jf_matrix_transpose(pmb, pma);
+        jf_matrix_print(pmb);
     }
 
     if (pma == NULL)
-        freeMatrix(&pma);
+        jf_matrix_free(&pma);
     if (pmb == NULL)
-        freeMatrix(&pmb);
+        jf_matrix_free(&pmb);
 
     return u32Ret;
 }
@@ -240,54 +240,54 @@ static u32 _testInverseMatrix(void)
     oldouble_t madata[3 * 3] = {1, 4, 7, 3, 0, 5, -1, 9, 11};
     oldouble_t dbdata = 1.0;
 
-    initMatrix(pma, 3, 3, madata);
+    jf_matrix_init(pma, 3, 3, madata);
 
-    u32Ret = allocMatrix(3, 3, &pmb);
+    u32Ret = jf_matrix_alloc(3, 3, &pmb);
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = allocMatrix(3, 3, &pmc);
+        u32Ret = jf_matrix_alloc(3, 3, &pmc);
 
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("Matrix A\n");
-        printMatrix(pma);
+        jf_matrix_print(pma);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = getMatrixDeterminant(pma, &dbdata);
+        u32Ret = jf_matrix_getDeterminant(pma, &dbdata);
         if (u32Ret == OLERR_NO_ERROR)
         {
             ol_printf("Determinant of Matrix A: %.3f\n\n", dbdata);
 
             ol_printf("Adjugate(A)\n");
-            u32Ret = adjugateMatrix(pmb, pma);
+            u32Ret = jf_matrix_adjugate(pmb, pma);
             if (u32Ret == OLERR_NO_ERROR)
-                printMatrix(pmb);
+                jf_matrix_print(pmb);
         }
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("Inverse(A)\n");
-        u32Ret = inverseMatrix(pmb, pma);
+        u32Ret = jf_matrix_inverse(pmb, pma);
         if (u32Ret == OLERR_NO_ERROR)
         {
-            printMatrix(pmb);
+            jf_matrix_print(pmb);
 
-            mulMatrix(pmc, pma, pmb);
+            jf_matrix_mul(pmc, pma, pmb);
             ol_printf("A * Inverse(A)\n");
-            printMatrix(pmc);
+            jf_matrix_print(pmc);
 
-            mulMatrix(pmc, pmb, pma);
+            jf_matrix_mul(pmc, pmb, pma);
             ol_printf("Inverse(A) * A\n");
-            printMatrix(pmc);
+            jf_matrix_print(pmc);
         }
     }
 
     if (pmb == NULL)
-        freeMatrix(&pmb);
+        jf_matrix_free(&pmb);
     if (pmc == NULL)
-        freeMatrix(&pmc);
+        jf_matrix_free(&pmc);
 
     return u32Ret;
 }
@@ -311,26 +311,26 @@ static u32 _testHatMatrix(void)
          1, 1102, 1273, 2231, 1759,
         };
 
-    initMatrix(pma, 11, 5, madata);
+    jf_matrix_init(pma, 11, 5, madata);
 
-    u32Ret = allocMatrix(11, 11, &pmb);
+    u32Ret = jf_matrix_alloc(11, 11, &pmb);
 
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("Matrix A\n");
-        printMatrix(pma);
+        jf_matrix_print(pma);
 
-        u32Ret = hatMatrix(pmb, pma);
+        u32Ret = jf_matrix_hat(pmb, pma);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("Matrix B\n");
-        printMatrix(pmb);
+        jf_matrix_print(pmb);
     }
 
     if (pmb == NULL)
-        freeMatrix(&pmb);
+        jf_matrix_free(&pmb);
 
     return u32Ret;
 }

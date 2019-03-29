@@ -49,31 +49,33 @@ typedef struct
 
 /* --- functional routines ------------------------------------------------- */
 
-MATRIXAPI u32 MATRIXCALL allocMatrix(olint_t row, olint_t col, matrix_t ** ppm);
+MATRIXAPI u32 MATRIXCALL jf_matrix_alloc(
+    olint_t row, olint_t col, matrix_t ** ppm);
 
-MATRIXAPI u32 MATRIXCALL freeMatrix(matrix_t ** ppm);
+MATRIXAPI u32 MATRIXCALL jf_matrix_free(matrix_t ** ppm);
 
-MATRIXAPI void MATRIXCALL initMatrix(
+MATRIXAPI void MATRIXCALL jf_matrix_init(
     matrix_t * pm, olint_t row, olint_t col, oldouble_t * data);
 
-MATRIXAPI void MATRIXCALL printMatrix(matrix_t * pm);
+MATRIXAPI void MATRIXCALL jf_matrix_print(matrix_t * pm);
 
-MATRIXAPI u32 MATRIXCALL addMatrix(matrix_t * pma, matrix_t * pmb);
+MATRIXAPI u32 MATRIXCALL jf_matrix_add(matrix_t * pma, matrix_t * pmb);
 
-MATRIXAPI u32 MATRIXCALL subMatrix(matrix_t * pma, matrix_t * pmb);
+MATRIXAPI u32 MATRIXCALL jf_matrix_sub(matrix_t * pma, matrix_t * pmb);
 
-MATRIXAPI u32 MATRIXCALL mulMatrix(
+MATRIXAPI u32 MATRIXCALL jf_matrix_mul(
     matrix_t * pmr, matrix_t * pma, matrix_t * pmb);
 
-MATRIXAPI u32 MATRIXCALL transposeMatrix(matrix_t * pmt, matrix_t * pmo);
+MATRIXAPI u32 MATRIXCALL jf_matrix_transpose(matrix_t * pmt, matrix_t * pmo);
 
-MATRIXAPI u32 MATRIXCALL getMatrixDeterminant(matrix_t * pm, oldouble_t * det);
+MATRIXAPI u32 MATRIXCALL jf_matrix_getDeterminant(
+    matrix_t * pm, oldouble_t * det);
 
-MATRIXAPI u32 MATRIXCALL adjugateMatrix(matrix_t * pma, matrix_t * pmo);
+MATRIXAPI u32 MATRIXCALL jf_matrix_adjugate(matrix_t * pma, matrix_t * pmo);
 
-MATRIXAPI u32 MATRIXCALL inverseMatrix(matrix_t * pmi, matrix_t * pmo);
+MATRIXAPI u32 MATRIXCALL jf_matrix_inverse(matrix_t * pmi, matrix_t * pmo);
 
-MATRIXAPI u32 MATRIXCALL hatMatrix(matrix_t * pmh, matrix_t * pmo);
+MATRIXAPI u32 MATRIXCALL jf_matrix_hat(matrix_t * pmh, matrix_t * pmo);
 
 #endif /*JIUFENG_MATRIX_H*/
 

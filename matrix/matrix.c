@@ -24,7 +24,7 @@
 /* --- private routine section---------------------------------------------- */
 static void _clearMatrixData(matrix_t * pm)
 {
-    memset(pm->m_pdbData, 0, sizeof(oldouble_t) * pm->m_nRow * pm->m_nCol);
+    ol_memset(pm->m_pdbData, 0, sizeof(oldouble_t) * pm->m_nRow * pm->m_nCol);
 }
 
 static olint_t _sgn(olint_t order)
@@ -142,7 +142,8 @@ static u32 _algebraicCofactor(
 }
 
 /* --- public routine section ---------------------------------------------- */
-u32 allocMatrix(olint_t row, olint_t col, matrix_t ** ppm)
+
+u32 jf_matrix_alloc(olint_t row, olint_t col, matrix_t ** ppm)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     matrix_t * pm = NULL;
@@ -162,7 +163,7 @@ u32 allocMatrix(olint_t row, olint_t col, matrix_t ** ppm)
     return u32Ret;
 }
 
-u32 freeMatrix(matrix_t ** ppm)
+u32 jf_matrix_free(matrix_t ** ppm)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -171,7 +172,7 @@ u32 freeMatrix(matrix_t ** ppm)
     return u32Ret;
 }
 
-void initMatrix(matrix_t * pm, olint_t row, olint_t col, oldouble_t * data)
+void jf_matrix_init(matrix_t * pm, olint_t row, olint_t col, oldouble_t * data)
 {
     memset(pm, 0, sizeof(*pm));
     pm->m_nRow = row;
@@ -179,7 +180,7 @@ void initMatrix(matrix_t * pm, olint_t row, olint_t col, oldouble_t * data)
     pm->m_pdbData = data;
 }
 
-u32 addMatrix(matrix_t * pma, matrix_t * pmb)
+u32 jf_matrix_add(matrix_t * pma, matrix_t * pmb)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t i;
@@ -195,7 +196,7 @@ u32 addMatrix(matrix_t * pma, matrix_t * pmb)
     return u32Ret;
 }
 
-u32 subMatrix(matrix_t * pma, matrix_t * pmb)
+u32 jf_matrix_sub(matrix_t * pma, matrix_t * pmb)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t i;
@@ -211,7 +212,7 @@ u32 subMatrix(matrix_t * pma, matrix_t * pmb)
     return u32Ret;
 }
 
-u32 mulMatrix(matrix_t * pmr, matrix_t * pma, matrix_t * pmb)
+u32 jf_matrix_mul(matrix_t * pmr, matrix_t * pma, matrix_t * pmb)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t i, j, k;
@@ -235,7 +236,7 @@ u32 mulMatrix(matrix_t * pmr, matrix_t * pma, matrix_t * pmb)
     return u32Ret;
 }
 
-void printMatrix(matrix_t * pm)
+void jf_matrix_print(matrix_t * pm)
 {
     olint_t i, j;
     oldouble_t * pdb = pm->m_pdbData;
@@ -253,7 +254,7 @@ void printMatrix(matrix_t * pm)
     ol_printf("\n");
 }
 
-u32 transposeMatrix(matrix_t * pmt, matrix_t * pmo)
+u32 jf_matrix_transpose(matrix_t * pmt, matrix_t * pmo)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t i, j;
@@ -274,7 +275,7 @@ u32 transposeMatrix(matrix_t * pmt, matrix_t * pmo)
     return u32Ret;
 }
 
-u32 adjugateMatrix(matrix_t * pma, matrix_t * pmo)
+u32 jf_matrix_adjugate(matrix_t * pma, matrix_t * pmo)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t len = pma->m_nRow * pma->m_nCol;
@@ -298,7 +299,7 @@ u32 adjugateMatrix(matrix_t * pma, matrix_t * pmo)
     return u32Ret;
 }
 
-u32 inverseMatrix(matrix_t * pmi, matrix_t * pmo)
+u32 jf_matrix_inverse(matrix_t * pmi, matrix_t * pmo)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t i;
@@ -317,7 +318,7 @@ u32 inverseMatrix(matrix_t * pmi, matrix_t * pmo)
     if (det == 0)
         return OLERR_MATRIX_SINGULAR;
 
-    adjugateMatrix(pmi, pmo);
+    jf_matrix_adjugate(pmi, pmo);
 
     for (i = 0; i < pmi->m_nRow * pmi->m_nCol; i++)
         pmi->m_pdbData[i] /= det;
@@ -325,50 +326,50 @@ u32 inverseMatrix(matrix_t * pmi, matrix_t * pmo)
     return u32Ret;
 }
 
-u32 getMatrixDeterminant(matrix_t * pm, oldouble_t * det)
+u32 jf_matrix_getDeterminant(matrix_t * pm, oldouble_t * det)
 {
     return _determinant(pm->m_pdbData, pm->m_nRow, det);
 }
 
-u32 hatMatrix(matrix_t * pmh, matrix_t * pmo)
+u32 jf_matrix_hat(matrix_t * pmh, matrix_t * pmo)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     matrix_t * pmt = NULL, * pmm = NULL, * pmi = NULL;
     matrix_t * pmm2 = NULL;
 
-    u32Ret = allocMatrix(pmo->m_nCol, pmo->m_nRow, &pmt);
+    u32Ret = jf_matrix_alloc(pmo->m_nCol, pmo->m_nRow, &pmt);
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = allocMatrix(pmo->m_nCol, pmo->m_nCol, &pmm);
+        u32Ret = jf_matrix_alloc(pmo->m_nCol, pmo->m_nCol, &pmm);
 
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = allocMatrix(pmo->m_nCol, pmo->m_nCol, &pmi);
+        u32Ret = jf_matrix_alloc(pmo->m_nCol, pmo->m_nCol, &pmi);
 
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = allocMatrix(pmo->m_nRow, pmo->m_nCol, &pmm2);
+        u32Ret = jf_matrix_alloc(pmo->m_nRow, pmo->m_nCol, &pmm2);
 
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = transposeMatrix(pmt, pmo);
+        u32Ret = jf_matrix_transpose(pmt, pmo);
 
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = mulMatrix(pmm, pmt, pmo);
+        u32Ret = jf_matrix_mul(pmm, pmt, pmo);
 
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = inverseMatrix(pmi, pmm);
+        u32Ret = jf_matrix_inverse(pmi, pmm);
 
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = mulMatrix(pmm2, pmo, pmi);
+        u32Ret = jf_matrix_mul(pmm2, pmo, pmi);
 
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = mulMatrix(pmh, pmm2, pmt);
+        u32Ret = jf_matrix_mul(pmh, pmm2, pmt);
 
     if (pmt != NULL)
-        freeMatrix(&pmt);
+        jf_matrix_free(&pmt);
     if (pmm != NULL)
-        freeMatrix(&pmm);
+        jf_matrix_free(&pmm);
     if (pmi != NULL)
-        freeMatrix(&pmi);
+        jf_matrix_free(&pmi);
     if (pmm2 != NULL)
-        freeMatrix(&pmm2);
+        jf_matrix_free(&pmm2);
 
     return u32Ret;
 }
