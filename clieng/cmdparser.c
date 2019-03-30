@@ -38,7 +38,7 @@
 
 /* --- private data structures --------------------------------------------- */
 
-#define MAX_ARGC           (MAX_COMMAND_LINE_SIZE / 4)
+#define MAX_ARGC           (JF_CLIENG_MAX_COMMAND_LINE_SIZE / 4)
 
 #define MAX_CMD            (40)
 
@@ -47,10 +47,10 @@
 typedef struct
 {
     olchar_t icc_strName[MAX_CMD_NAME_LEN];
-    fnSetDefaultParam_t icc_fnSetDefaultParam;
+    jf_clieng_fnSetDefaultParam_t icc_fnSetDefaultParam;
+    jf_clieng_fnParseCmd_t icc_fnParseCmd;
+    jf_clieng_fnProcessCmd_t icc_fnProcessCmd;
     void * icc_pParam;
-    fnParseCmd_t icc_fnParseCmd;
-    fnProcessCmd_t icc_fnProcessCmd;
 
     u32 icc_u32Reserved[8];
 } internal_clieng_cmd_t;
@@ -66,7 +66,7 @@ typedef struct
     void * icp_pMaster;
     olsize_t icp_sArgc;
     olchar_t * icp_pstrArgv[MAX_ARGC];
-    olchar_t icp_strCommandLine[MAX_COMMAND_LINE_SIZE * 2];
+    olchar_t icp_strCommandLine[JF_CLIENG_MAX_COMMAND_LINE_SIZE * 2];
     u32 icp_u32MaxCmdSet;
     u32 icp_u32NumOfCmdSet;
     internal_clieng_cmd_set_t * icp_piccsCmdSet;
@@ -420,9 +420,9 @@ u32 parseCmd(clieng_parser_t * pcp, olchar_t * pstrCmd)
 
 u32 newCmd(
     clieng_parser_t * pcp, const olchar_t * pstrName,
-    fnSetDefaultParam_t fnSetDefaultParam, void * pParam,
-    fnParseCmd_t fnParseCmd,
-    fnProcessCmd_t fnProcessCmd, clieng_cmd_t ** ppCmd)
+    jf_clieng_fnSetDefaultParam_t fnSetDefaultParam,
+    jf_clieng_fnParseCmd_t fnParseCmd, jf_clieng_fnProcessCmd_t fnProcessCmd,
+    void * pParam, jf_clieng_cmd_t ** ppCmd)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_clieng_parser_t * picp = (internal_clieng_parser_t *)pcp;

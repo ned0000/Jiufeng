@@ -61,9 +61,9 @@ u32 parseCmd(clieng_parser_t * pcp, olchar_t * pstrCmd);
 
 u32 newCmd(
     clieng_parser_t * pcp, const olchar_t * pstrName,
-    fnSetDefaultParam_t fnSetDefaultParam, void * pParam,
-    fnParseCmd_t fnParseCmd, fnProcessCmd_t fnProcessCmd,
-    clieng_cmd_t ** ppCmd);
+    jf_clieng_fnSetDefaultParam_t fnSetDefaultParam,
+    jf_clieng_fnParseCmd_t fnParseCmd, jf_clieng_fnProcessCmd_t fnProcessCmd,
+    void * pParam, jf_clieng_cmd_t ** ppCmd);
 
 #endif /*CLIENG_CMDPARSER_H*/
 

@@ -58,7 +58,7 @@ logger options:\n\
 }
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, 
-    clieng_param_t * pcp, logger_param_t * plp)
+    jf_clieng_init_param_t * pjcip, logger_param_t * plp)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t nOpt;
@@ -105,11 +105,14 @@ static u32 _printShellGreeting(void * pMaster)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    cliengOutputLine("-------------------------------------------------------------");
-    cliengOutputLine("Jiufeng Command Line Interface (CLI) Utility");
-    cliengOutputLine("Version: %s Build Date: %s",
-                     ls_pstrVersion, ls_pstrBuildData);
-    cliengOutputLine("-------------------------------------------------------------");
+    jf_clieng_outputLine(
+        "-------------------------------------------------------------");
+    jf_clieng_outputLine(
+        "Jiufeng Command Line Interface (CLI) Utility");
+    jf_clieng_outputLine(
+        "Version: %s Build Date: %s", ls_pstrVersion, ls_pstrBuildData);
+    jf_clieng_outputLine(
+        "-------------------------------------------------------------");
 
     return u32Ret;
 }
@@ -119,7 +122,7 @@ static u32 _printShellGreeting(void * pMaster)
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    clieng_param_t cp;
+    jf_clieng_init_param_t jcip;
     logger_param_t lpParam;
     cli_param_t cliParam;
 //    aether_param_t ap;
@@ -130,21 +133,21 @@ olint_t main(olint_t argc, olchar_t ** argv)
         memset(&lpParam, 0, sizeof(logger_param_t));
         lpParam.lp_pstrCallerName = "CLI";
 
-        memset(&cp, 0, sizeof(clieng_param_t));
+        memset(&jcip, 0, sizeof(jcip));
 
-        cp.cp_sMaxCmdLine = MAX_COMMAND_LINE_SIZE;
-        cp.cp_sCmdHistroyBuf = 20;
-        ol_strcpy(cp.cp_strCliName, "Jiufeng CLI");
-        cp.cp_pstrNewLine = "\n";
-        cp.cp_pMaster = ls_pocmMaster;
-        cp.cp_fnPrintGreeting = _printShellGreeting;
+        jcip.jcip_sMaxCmdLine = JF_CLIENG_MAX_COMMAND_LINE_SIZE;
+        jcip.jcip_sCmdHistroyBuf = 20;
+        ol_strcpy(jcip.jcip_strCliName, "Jiufeng CLI");
+        jcip.jcip_pstrNewLine = "\n";
+        jcip.jcip_pMaster = ls_pocmMaster;
+        jcip.jcip_fnPrintGreeting = _printShellGreeting;
 
-        u32Ret = _parseCmdLineParam(argc, argv, &cp, &lpParam);
+        u32Ret = _parseCmdLineParam(argc, argv, &jcip, &lpParam);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = initClieng(&cp);
+        u32Ret = jf_clieng_init(&jcip);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -154,10 +157,10 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = runClieng();
+        u32Ret = jf_clieng_run();
     }
 
-    finiClieng();
+    jf_clieng_fini();
 
     finiLogger();
 

@@ -51,7 +51,7 @@ typedef struct
     /* ";" */
 	char ici_strSpecialDelimit[8];
 	char ici_strNewLine[8];
-	char ici_strBlankSpaces[MAX_OUTPUT_LINE_LEN];
+	char ici_strBlankSpaces[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
     olchar_t ici_strOutputBuffer[MAX_OUTPUT_BUFFER_LEN];
     olsize_t ici_sNewLine;
 	u8 ici_u8MoreLines;
@@ -642,7 +642,7 @@ static u32 _waitForMore(internal_clieng_io_t * pici)
     olchar_t * remove_more = "\r                                                 \r";
     olchar_t * enter_line = "\n";
     olsize_t sInput;
-    olchar_t strInputKey[MAX_OUTPUT_LINE_LEN];
+    olchar_t strInputKey[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
     clieng_input_type_t citInputType = cit_anykey;
     
     u32Ret = _postOutput(pici, cot_text, more_text, ol_strlen(more_text));
@@ -669,12 +669,12 @@ static u32 _waitForMore(internal_clieng_io_t * pici)
 
 /** Check whether the caption list is valid for printing.
  *
- *  @param pcc [in] the pointer to the caption list
+ *  @param pjcc [in] the pointer to the caption list
  *  @param u32Count [in] the caption count in the caption list.
  *
  *  @return the error code
  */
-static u32 _checkCaption(const clieng_caption_t * pcc, u32 u32Count)
+static u32 _checkCaption(const jf_clieng_caption_t * pjcc, u32 u32Count)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32Index, u32Length;
@@ -682,9 +682,9 @@ static u32 _checkCaption(const clieng_caption_t * pcc, u32 u32Count)
     u32Length = 0;
     for (u32Index=0; u32Index<u32Count; u32Index++)
     {
-        u32Length += pcc[u32Index].cc_u32Len;
+        u32Length += pjcc[u32Index].jcc_u32Len;
     }
-    if (u32Length > MAX_OUTPUT_LINE_LEN - 1)
+    if (u32Length > JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1)
     {
         u32Ret = OLERR_LINE_TOO_LONG;
     }
@@ -709,8 +709,8 @@ u32 initCliengIo(clieng_io_param_t * pcip)
     pici->ici_strSpecialDelimit[1] = 0;
     ol_strcpy(pici->ici_strNewLine, pcip->cip_pstrNewLine);
     pici->ici_sNewLine = ol_strlen(pici->ici_strNewLine);
-    memset(pici->ici_strBlankSpaces, ' ', MAX_OUTPUT_LINE_LEN - 1);
-    pici->ici_strBlankSpaces[MAX_OUTPUT_LINE_LEN - 1] = '\0';
+    memset(pici->ici_strBlankSpaces, ' ', JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1);
+    pici->ici_strBlankSpaces[JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1] = '\0';
     pici->ici_fhOutput =
         (pcip->cip_fhOutput == NULL) ? stdout : pcip->cip_fhOutput;
 
@@ -762,7 +762,7 @@ u32 voutputLine(const olchar_t * fmt, va_list ap)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_clieng_io_t * pici = &ls_iciCliengIo;
-    olchar_t strBuffer[MAX_OUTPUT_LINE_LEN + 8];
+    olchar_t strBuffer[JF_CLIENG_MAX_OUTPUT_LINE_LEN + 8];
     olsize_t sLength = 0, sRestOutput = 0;
     olchar_t * pstrLineBegin = 0;
 
@@ -811,10 +811,10 @@ u32 voutputLine(const olchar_t * fmt, va_list ap)
 
         if ((sRestOutput > 0) && (u32Ret == OLERR_NO_ERROR))
         {
-            if (sRestOutput >= MAX_OUTPUT_LINE_LEN)
+            if (sRestOutput >= JF_CLIENG_MAX_OUTPUT_LINE_LEN)
             {
-                memcpy(strBuffer, pstrLineBegin, MAX_OUTPUT_LINE_LEN);
-                sLength = MAX_OUTPUT_LINE_LEN;
+                memcpy(strBuffer, pstrLineBegin, JF_CLIENG_MAX_OUTPUT_LINE_LEN);
+                sLength = JF_CLIENG_MAX_OUTPUT_LINE_LEN;
             }
             else
             {
@@ -854,21 +854,21 @@ u32 outputLine(const olchar_t * fmt, ...)
     return u32Ret;
 }
 
-/** When calling output(), the output length must not exceed MAX_OUTPUT_LINE_LEN
+/** When calling output(), the output length must not exceed JF_CLIENG_MAX_OUTPUT_LINE_LEN
  *  Otherwise, it will be truncated.
  */
 u32 engioOutput(const olchar_t * fmt, ...)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_clieng_io_t * pici = &ls_iciCliengIo;
-    olchar_t strBuffer[MAX_OUTPUT_LINE_LEN + 8];
+    olchar_t strBuffer[JF_CLIENG_MAX_OUTPUT_LINE_LEN + 8];
     va_list vlParam; 
     olsize_t length = 0;
     
     assert(fmt != NULL);
 
     va_start(vlParam, fmt);
-    length = ol_vsnprintf(strBuffer, MAX_OUTPUT_LINE_LEN + 8, fmt, vlParam);
+    length = ol_vsnprintf(strBuffer, JF_CLIENG_MAX_OUTPUT_LINE_LEN + 8, fmt, vlParam);
     va_end(vlParam);
     
     strBuffer[length] = 0;
@@ -915,7 +915,7 @@ u32 outputParagraph(const olchar_t * pstrParagraph)
     u32 u32Ret = OLERR_NO_ERROR;
     internal_clieng_io_t * pici = &ls_iciCliengIo;
     olsize_t length = 0;
-    olchar_t strBuffer[MAX_OUTPUT_LINE_LEN + 8];
+    olchar_t strBuffer[JF_CLIENG_MAX_OUTPUT_LINE_LEN + 8];
     olchar_t * pu8MoreStringBegin = NULL;
     olchar_t * pu8MoreStringEnd = NULL;
     boolean_t bPrintLastLine = FALSE;
@@ -969,7 +969,7 @@ u32 outputParagraph(const olchar_t * pstrParagraph)
                 length = ol_strlen(pu8MoreStringBegin);
             }
 				
-            if (length > MAX_OUTPUT_LINE_LEN)
+            if (length > JF_CLIENG_MAX_OUTPUT_LINE_LEN)
             {
                 u32Ret = OLERR_LINE_TOO_LONG;
             }
@@ -1052,11 +1052,11 @@ char * getDelimit(const olsize_t u32StrLen, olsize_t u32TotalLen)
         else
         {
             sDelimit = u32TotalLen - u32StrLen;
-            if (sDelimit > MAX_OUTPUT_LINE_LEN)
-                sDelimit = MAX_OUTPUT_LINE_LEN;
+            if (sDelimit > JF_CLIENG_MAX_OUTPUT_LINE_LEN)
+                sDelimit = JF_CLIENG_MAX_OUTPUT_LINE_LEN;
         }
 
-        pstrDelimit = pici->ici_strBlankSpaces + MAX_OUTPUT_LINE_LEN - 1 -
+        pstrDelimit = pici->ici_strBlankSpaces + JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1 -
             sDelimit;
     }
     
@@ -1091,7 +1091,7 @@ u32 getInputKey(clieng_io_key_t * pcikKey, olchar_t * pstrKey)
     u32 u32Ret = OLERR_NO_ERROR;
     olsize_t sInput;
     clieng_input_type_t citInputType = cit_anykey;
-    olchar_t strInputKey[MAX_OUTPUT_LINE_LEN];
+    olchar_t strInputKey[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     u32Ret = engioInput(&citInputType, strInputKey, &sInput, 0);
     if (u32Ret == OLERR_NO_ERROR)
@@ -1249,7 +1249,7 @@ u32 getInputKey(clieng_io_key_t * pcikKey, olchar_t * pstrKey)
     return u32Ret;
 }
 
-u32 cliengOutputLine(const olchar_t * fmt, ...)
+u32 jf_clieng_outputLine(const olchar_t * fmt, ...)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     va_list vlParam;
@@ -1261,11 +1261,11 @@ u32 cliengOutputLine(const olchar_t * fmt, ...)
     return u32Ret;
 }
 
-u32 cliengOutputRawLine(const olchar_t * line)
+u32 jf_clieng_outputRawLine(const olchar_t * line)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_clieng_io_t * pici = &ls_iciCliengIo;
-    olchar_t strBuffer[MAX_OUTPUT_LINE_LEN + 8];
+    olchar_t strBuffer[JF_CLIENG_MAX_OUTPUT_LINE_LEN + 8];
     olsize_t sLength = 0, sRestOutput = 0;
     olchar_t * pstrLineBegin = 0;
 
@@ -1313,10 +1313,10 @@ u32 cliengOutputRawLine(const olchar_t * line)
 
         if ((sRestOutput > 0) && (u32Ret == OLERR_NO_ERROR))
         {
-            if (sRestOutput >= MAX_OUTPUT_LINE_LEN)
+            if (sRestOutput >= JF_CLIENG_MAX_OUTPUT_LINE_LEN)
             {
-                memcpy(strBuffer, pstrLineBegin, MAX_OUTPUT_LINE_LEN);
-                sLength = MAX_OUTPUT_LINE_LEN;
+                memcpy(strBuffer, pstrLineBegin, JF_CLIENG_MAX_OUTPUT_LINE_LEN);
+                sLength = JF_CLIENG_MAX_OUTPUT_LINE_LEN;
             }
             else
             {
@@ -1341,7 +1341,7 @@ u32 cliengOutputRawLine(const olchar_t * line)
     return u32Ret;
 }
 
-u32 cliengOutputRawLine2(const olchar_t * line)
+u32 jf_clieng_outputRawLine2(const olchar_t * line)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_clieng_io_t * pici = &ls_iciCliengIo;
@@ -1356,7 +1356,7 @@ u32 cliengOutputRawLine2(const olchar_t * line)
     return u32Ret;
 }
 
-u32 cliengReportNotApplicableOpt(const olint_t nOpt)
+u32 jf_clieng_reportNotApplicableOpt(const olint_t nOpt)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -1365,7 +1365,7 @@ u32 cliengReportNotApplicableOpt(const olint_t nOpt)
     return u32Ret;
 }
 
-u32 cliengReportInvalidOpt(const olint_t nOpt)
+u32 jf_clieng_reportInvalidOpt(const olint_t nOpt)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -1374,37 +1374,37 @@ u32 cliengReportInvalidOpt(const olint_t nOpt)
     return u32Ret;
 }
 
-u32 cliengPrintBanner(u32 u32Len)
+u32 jf_clieng_printBanner(u32 u32Len)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     const olchar_t * pstrBanner = NULL;
 
-    if (u32Len > MAX_OUTPUT_LINE_LEN - 1)
+    if (u32Len > JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1)
         pstrBanner = cls_pstrBanner;
     else
-        pstrBanner = cls_pstrBanner + (MAX_OUTPUT_LINE_LEN - u32Len);
+        pstrBanner = cls_pstrBanner + (JF_CLIENG_MAX_OUTPUT_LINE_LEN - u32Len);
 
     u32Ret = outputLine(pstrBanner);
 
     return u32Ret;
 }
 
-u32 cliengPrintBannerShift4(u32 u32Len)
+u32 jf_clieng_printBannerShift4(u32 u32Len)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     const olchar_t * pstrBanner = NULL;
 
-    if (u32Len > MAX_OUTPUT_LINE_LEN)
+    if (u32Len > JF_CLIENG_MAX_OUTPUT_LINE_LEN)
         pstrBanner = cls_pstrBannerShift4;
     else
-        pstrBanner = cls_pstrBannerShift4 + (MAX_OUTPUT_LINE_LEN - u32Len);
+        pstrBanner = cls_pstrBannerShift4 + (JF_CLIENG_MAX_OUTPUT_LINE_LEN - u32Len);
 
     u32Ret = outputLine(pstrBanner);
 
     return u32Ret;
 }
 
-u32 cliengPrintDivider(void)
+u32 jf_clieng_printDivider(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -1413,7 +1413,7 @@ u32 cliengPrintDivider(void)
     return u32Ret;
 }
 
-u32 cliengPrintDividerShift2(void)
+u32 jf_clieng_printDividerShift2(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -1422,11 +1422,11 @@ u32 cliengPrintDividerShift2(void)
     return u32Ret;
 }
 
-u32 cliengPrintHexDumpInByte(u8 * pu8Buffer, u32 u32Len)
+u32 jf_clieng_printHexDumpInByte(u8 * pu8Buffer, u32 u32Len)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32Index = 0, u32Dumped = 0xff;
-    olchar_t strLine[MAX_OUTPUT_LINE_LEN + 8];
+    olchar_t strLine[JF_CLIENG_MAX_OUTPUT_LINE_LEN + 8];
 
     u32Ret = outputLine(cls_pstrByteHexDumpBegin);
 
@@ -1434,7 +1434,7 @@ u32 cliengPrintHexDumpInByte(u8 * pu8Buffer, u32 u32Len)
            (u32Ret == OLERR_NO_ERROR))
     {
         u32Dumped = getByteHexString(
-            pu8Buffer, u32Len, u32Index, strLine, MAX_OUTPUT_LINE_LEN);
+            pu8Buffer, u32Len, u32Index, strLine, JF_CLIENG_MAX_OUTPUT_LINE_LEN);
         if (u32Dumped > 0)
         {
             u32Index += u32Dumped;
@@ -1446,74 +1446,74 @@ u32 cliengPrintHexDumpInByte(u8 * pu8Buffer, u32 u32Len)
     return u32Ret;
 }
 
-u32 cliengPrintHeader(const clieng_caption_t * pcc, u32 u32Count)
+u32 jf_clieng_printHeader(const jf_clieng_caption_t * pjcc, u32 u32Count)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32Index, u32Len;
-    olchar_t strCaption[MAX_OUTPUT_LINE_LEN + 8];
+    olchar_t strCaption[JF_CLIENG_MAX_OUTPUT_LINE_LEN + 8];
     olchar_t * pstrDelimit;
 
     /* check the totol length of the caption */
-    u32Ret = _checkCaption(pcc, u32Count);
+    u32Ret = _checkCaption(pjcc, u32Count);
     if(u32Ret == OLERR_NO_ERROR)
     {
         strCaption[0] = '\0';
         u32Len = 0;
         for (u32Index = 0; u32Index < u32Count; u32Index ++)
         {
-            ol_strcat(strCaption, pcc[u32Index].cc_pstrCaption);
-            u32Len += pcc[u32Index].cc_u32Len;
+            ol_strcat(strCaption, pjcc[u32Index].jcc_pstrCaption);
+            u32Len += pjcc[u32Index].jcc_u32Len;
             pstrDelimit = getDelimit(ol_strlen(strCaption), u32Len);
             ol_strcat(strCaption, pstrDelimit);
         }
 
-        cliengPrintBanner(u32Len);
+        jf_clieng_printBanner(u32Len);
         outputLine(strCaption);
-        cliengPrintBanner(u32Len);
+        jf_clieng_printBanner(u32Len);
     }
 
     return u32Ret;
 }
 
-u32 cliengPrintHeaderShift4(
-    const clieng_caption_t * pcc, u32 u32Count)
+u32 jf_clieng_printHeaderShift4(
+    const jf_clieng_caption_t * pjcc, u32 u32Count)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32Index, u32Len;
-    olchar_t strCaption[MAX_OUTPUT_LINE_LEN + 8];
+    olchar_t strCaption[JF_CLIENG_MAX_OUTPUT_LINE_LEN + 8];
     olchar_t * pstrDelimit;
 
     /* check the totol length of the caption */
-    u32Ret = _checkCaption(pcc, u32Count);
+    u32Ret = _checkCaption(pjcc, u32Count);
     if(u32Ret == OLERR_NO_ERROR)
     {
         strCaption[0] = '\0';
         u32Len = 0;
         for (u32Index=0; u32Index<u32Count; u32Index++)
         {
-            ol_strcat(strCaption, pcc[u32Index].cc_pstrCaption);
-            u32Len += pcc[u32Index].cc_u32Len;
+            ol_strcat(strCaption, pjcc[u32Index].jcc_pstrCaption);
+            u32Len += pjcc[u32Index].jcc_u32Len;
             pstrDelimit = getDelimit(strlen(strCaption), u32Len);
             ol_strcat(strCaption, pstrDelimit);
         }
 
-        cliengPrintBannerShift4(u32Len);
+        jf_clieng_printBannerShift4(u32Len);
         outputLine(strCaption);
-        cliengPrintBannerShift4(u32Len);
+        jf_clieng_printBannerShift4(u32Len);
     }
 
     return u32Ret;
 }
 
-u32 cliengPrintOneFullLine(
-    const clieng_caption_t * pcc, const olchar_t * pstrValue)
+u32 jf_clieng_printOneFullLine(
+    const jf_clieng_caption_t * pjcc, const olchar_t * pstrValue)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strLine[MAX_OUTPUT_BUFFER_LEN];
 
     strLine[0] = '\0';
 
-    ol_strcat(strLine, pcc[0].cc_pstrCaption);
+    ol_strcat(strLine, pjcc[0].jcc_pstrCaption);
     ol_strcat(strLine, cls_pstrCaptionDelimit);
     ol_strcat(strLine, pstrValue);
 
@@ -1523,28 +1523,28 @@ u32 cliengPrintOneFullLine(
     return u32Ret;
 }
 
-u32 cliengPrintTwoHalfLine(
-    const clieng_caption_t * pcc, const olchar_t * pstrLeft,
+u32 jf_clieng_printTwoHalfLine(
+    const jf_clieng_caption_t * pjcc, const olchar_t * pstrLeft,
     const olchar_t *pstrRight)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32Len = 0;
-    olchar_t strLine[MAX_OUTPUT_LINE_LEN];
+    olchar_t strLine[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     strLine[0] = '\0';
 
     /* left half */
-    ol_strcat(strLine, pcc[0].cc_pstrCaption);
+    ol_strcat(strLine, pjcc[0].jcc_pstrCaption);
     ol_strcat(strLine, cls_pstrCaptionDelimit);
     u32Len = ol_strlen(strLine);
-    strncat(strLine, pstrLeft, (pcc[0].cc_u32Len - 1 - u32Len));
+    strncat(strLine, pstrLeft, (pjcc[0].jcc_u32Len - 1 - u32Len));
     u32Len = ol_strlen(strLine);
-    ol_strcat(strLine, getDelimit(u32Len, pcc[0].cc_u32Len));
+    ol_strcat(strLine, getDelimit(u32Len, pjcc[0].jcc_u32Len));
 
     /* right half */
-    ol_strcat(strLine, pcc[1].cc_pstrCaption);
+    ol_strcat(strLine, pjcc[1].jcc_pstrCaption);
     ol_strcat(strLine, cls_pstrCaptionDelimit);
-    u32Len = pcc[1].cc_u32Len - ol_strlen(pcc[1].cc_pstrCaption) -
+    u32Len = pjcc[1].jcc_u32Len - ol_strlen(pjcc[1].jcc_pstrCaption) -
         ol_strlen(cls_pstrCaptionDelimit);
     strncat(strLine, pstrRight, u32Len);
 
@@ -1554,19 +1554,19 @@ u32 cliengPrintTwoHalfLine(
     return u32Ret;
 }
 
-void cliengAppendBriefColumn(
-    const clieng_caption_t * pcc, olchar_t * pstrLine,
+void jf_clieng_appendBriefColumn(
+    const jf_clieng_caption_t * pjcc, olchar_t * pstrLine,
     const olchar_t * pstrColumn)
 {
     u32 u32Len = ol_strlen(pstrColumn);
 
-    if (u32Len > (pcc->cc_u32Len-1))
+    if (u32Len > (pjcc->jcc_u32Len-1))
     {
-        u32Len = pcc->cc_u32Len - 1;
+        u32Len = pjcc->jcc_u32Len - 1;
     }
     strncat(pstrLine, pstrColumn, u32Len);
 
-    ol_strcat(pstrLine, getDelimit(u32Len, pcc->cc_u32Len));
+    ol_strcat(pstrLine, getDelimit(u32Len, pjcc->jcc_u32Len));
 }
 
 /*---------------------------------------------------------------------------*/

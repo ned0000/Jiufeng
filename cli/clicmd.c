@@ -38,10 +38,10 @@ static u32 _userHelp(jiufeng_cli_master_t * pocm)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    cliengOutputLine("Add, list user");
-    cliengOutputLine("user [-l] [-u name]");
-    cliengOutputLine("  -l: list user.");
-    cliengOutputLine("  -u: add user with name.");
+    jf_clieng_outputLine("Add, list user");
+    jf_clieng_outputLine("user [-l] [-u name]");
+    jf_clieng_outputLine("  -l: list user.");
+    jf_clieng_outputLine("  -u: add user with name.");
 
     return u32Ret;
 }
@@ -78,48 +78,48 @@ static u32 _parseUser(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
             pcup->cup_u8Action = CLI_ACTION_SHOW_HELP;
             break;
         default:
-            u32Ret = cliengReportNotApplicableOpt(nOpt);
+            u32Ret = jf_clieng_reportNotApplicableOpt(nOpt);
         }
     }
 
     return u32Ret;
 }
 
-static clieng_caption_t ls_ccUserInfoVerbose[] =
+static jf_clieng_caption_t ls_jccUserInfoVerbose[] =
 {
-    {"Name", CLIENG_CAP_FULL_LINE},
-    {"Full Name", CLIENG_CAP_FULL_LINE},
-    {"Email", CLIENG_CAP_FULL_LINE},
-    {"Group Id", CLIENG_CAP_HALF_LINE}, {"Enabled", CLIENG_CAP_HALF_LINE},
+    {"Name", JF_CLIENG_CAP_FULL_LINE},
+    {"Full Name", JF_CLIENG_CAP_FULL_LINE},
+    {"Email", JF_CLIENG_CAP_FULL_LINE},
+    {"Group Id", JF_CLIENG_CAP_HALF_LINE}, {"Enabled", JF_CLIENG_CAP_HALF_LINE},
 };
 
 static void _printUserVerbose(user_info_t * pui)
 {
-    clieng_caption_t * pcc = &ls_ccUserInfoVerbose[0];
-    olchar_t strLeft[MAX_OUTPUT_LINE_LEN], strRight[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pjcc = &ls_jccUserInfoVerbose[0];
+    olchar_t strLeft[JF_CLIENG_MAX_OUTPUT_LINE_LEN], strRight[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
-    cliengPrintDivider();
+    jf_clieng_printDivider();
 
     /* Name */
-    cliengPrintOneFullLine(pcc, pui->ui_strUsername);
-    pcc++;
+    jf_clieng_printOneFullLine(pjcc, pui->ui_strUsername);
+    pjcc++;
 
     /* Full Name */
-    cliengPrintOneFullLine(pcc, pui->ui_strFullname);
-    pcc++;
+    jf_clieng_printOneFullLine(pjcc, pui->ui_strFullname);
+    pjcc++;
 
     /* Email */
-    cliengPrintOneFullLine(pcc, pui->ui_strEmail);
-    pcc++;
+    jf_clieng_printOneFullLine(pjcc, pui->ui_strEmail);
+    pjcc++;
 
     /* Group Id */
     ol_sprintf(strLeft, "%u", pui->ui_u8UserGroupId);
     ol_strcpy(strRight, getStringPositive(pui->ui_bEnable));
-    cliengPrintTwoHalfLine(pcc, strLeft, strRight);
-    pcc += 2;
+    jf_clieng_printTwoHalfLine(pjcc, strLeft, strRight);
+    pjcc += 2;
 }
 
-static clieng_caption_t ls_ccUserInfoBrief[] =
+static jf_clieng_caption_t ls_jccUserInfoBrief[] =
 {
     {"Name", 10},
     {"FullName", 20},
@@ -130,34 +130,35 @@ static clieng_caption_t ls_ccUserInfoBrief[] =
 
 static void _printUserBrief(user_info_t * pui)
 {
-    clieng_caption_t * pcc = &ls_ccUserInfoBrief[0];
-    olchar_t strInfo[MAX_OUTPUT_LINE_LEN], strField[MAX_OUTPUT_LINE_LEN];
+    jf_clieng_caption_t * pjcc = &ls_jccUserInfoBrief[0];
+    olchar_t strInfo[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
+    olchar_t strField[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     strInfo[0] = '\0';
 
     /* Name */
-    cliengAppendBriefColumn(pcc, strInfo, pui->ui_strUsername);
-    pcc++;
+    jf_clieng_appendBriefColumn(pjcc, strInfo, pui->ui_strUsername);
+    pjcc++;
 
     /* Full Name */
-    cliengAppendBriefColumn(pcc, strInfo, pui->ui_strFullname);
-    pcc++;
+    jf_clieng_appendBriefColumn(pjcc, strInfo, pui->ui_strFullname);
+    pjcc++;
 
     /* Email */
-    cliengAppendBriefColumn(pcc, strInfo, pui->ui_strEmail);
-    pcc++;
+    jf_clieng_appendBriefColumn(pjcc, strInfo, pui->ui_strEmail);
+    pjcc++;
 
     /* Group Id */
     ol_sprintf(strField, "%u", pui->ui_u8UserGroupId);
-    cliengAppendBriefColumn(pcc, strInfo, strField);
-    pcc++;
+    jf_clieng_appendBriefColumn(pjcc, strInfo, strField);
+    pjcc++;
 
     /* Enabled*/
-    cliengAppendBriefColumn(
-        pcc, strInfo, getStringPositive(pui->ui_bEnable));
-    pcc++;
+    jf_clieng_appendBriefColumn(
+        pjcc, strInfo, getStringPositive(pui->ui_bEnable));
+    pjcc++;
 
-    cliengOutputLine(strInfo);
+    jf_clieng_outputLine(strInfo);
 }
 
 static u32 _processUser(void * pMaster, void * pParam)
@@ -200,8 +201,8 @@ static u32 _processUser(void * pMaster, void * pParam)
         }
         else
         {
-            cliengPrintHeader(
-                ls_ccUserInfoBrief, ARRAY_SIZE(ls_ccUserInfoBrief));
+            jf_clieng_printHeader(
+                ls_jccUserInfoBrief, ARRAY_SIZE(ls_jccUserInfoBrief));
 
             for (u16Index=0; u16Index < userlist.ul_u16NumUser; u16Index++)
                 _printUserBrief(&userlist.ul_tUser[u16Index]);
@@ -229,7 +230,7 @@ static u32 _exitHelp(jiufeng_cli_master_t * pocm)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    cliengOutputLine("exit: exit Jiufeng CLI");
+    jf_clieng_outputLine("exit: exit Jiufeng CLI");
 
     return u32Ret;
 }
@@ -256,7 +257,7 @@ static u32 _parseExit(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
             pcep->cep_u8Action = CLI_ACTION_SHOW_HELP;
             break;
         default:
-            u32Ret = cliengReportNotApplicableOpt(nOpt);
+            u32Ret = jf_clieng_reportNotApplicableOpt(nOpt);
         }
     }
 
@@ -273,8 +274,8 @@ static u32 _processExit(void * pMaster, void * pParam)
         u32Ret = _exitHelp(pocm);
     else
     {
-        cliengOutputLine("Exit CLI");
-        u32Ret = stopClieng();
+        jf_clieng_outputLine("Exit CLI");
+        u32Ret = jf_clieng_stop();
     }
 
     return u32Ret;
@@ -312,7 +313,7 @@ static u32 _parseHelp(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
             pchp->chp_u8Action = CLI_ACTION_SHOW_HELP;
             break;
         default:
-            u32Ret = cliengReportNotApplicableOpt(nOpt);
+            u32Ret = jf_clieng_reportNotApplicableOpt(nOpt);
         }
     }
 
@@ -327,13 +328,13 @@ static u32 _processHelp(void * pMaster, void * pParam)
 
     if (pchp->chp_u8Action == CLI_ACTION_SHOW_HELP)
     {
-        cliengOutputLine("show all available commands");
+        jf_clieng_outputLine("show all available commands");
     }
     else
     {
-        cliengOutputLine("exit: exit CLI.");
-        cliengOutputLine("help: list command.");
-        cliengOutputLine("user: list user.");
+        jf_clieng_outputLine("exit: exit CLI.");
+        jf_clieng_outputLine("help: list command.");
+        jf_clieng_outputLine("user: list user.");
     }
 
     return u32Ret;
@@ -344,16 +345,16 @@ static u32 _processHelp(void * pMaster, void * pParam)
 u32 addCmd(jiufeng_cli_master_t * pocm, cli_param_t * pcp)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    clieng_cmd_t * cmd;
+    jf_clieng_cmd_t * cmd;
 
-    cliengNewCmd(
-        "user", _setDefaultParamUser, pcp, _parseUser, _processUser, &cmd);
+    jf_clieng_newCmd(
+        "user", _setDefaultParamUser, _parseUser, _processUser, pcp, &cmd);
 
-    cliengNewCmd(
-        "exit", _setDefaultParamExit, pcp, _parseExit, _processExit, &cmd);
+    jf_clieng_newCmd(
+        "exit", _setDefaultParamExit, _parseExit, _processExit, pcp, &cmd);
 
-    cliengNewCmd(
-        "help", _setDefaultParamHelp, pcp, _parseHelp, _processHelp, &cmd);
+    jf_clieng_newCmd(
+        "help", _setDefaultParamHelp, _parseHelp, _processHelp, pcp, &cmd);
 
     return u32Ret;
 }
