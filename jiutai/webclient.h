@@ -35,27 +35,27 @@
 #endif
 
 /* --- constant definitions ------------------------------------------------ */
-typedef void  webclient_t;
+typedef void  jf_webclient_t;
 
-/**The possible value for nInterruptFlag in function fnWebclientOnResponse_t
+/** The possible value for nEvent in function jf_webclient_fnOnResponse_t
  */
-enum webclient_interrupt_flag
+enum jf_webclient_event
 {
-    WIF_UNKNOWN = 0,
-    WIF_WEB_DATAOBJECT_DESTROYED,
-    WIF_WEB_REQUEST_DELETED,
-};
+    JF_WEBCLIENT_EVENT_DATA = 0,
+    JF_WEBCLIENT_EVENT_DATAOBJECT_DESTROYED,
+    JF_WEBCLIENT_EVENT_WEB_REQUEST_DELETED,
+} jf_webclient_event_t;
 
 /* --- data structures ----------------------------------------------------- */
 typedef struct
 {
-    olint_t wp_nPoolSize;
-    olsize_t wp_sBuffer;
-} webclient_param_t;
+    olint_t jwcp_nPoolSize;
+    olsize_t jwcp_sBuffer;
+} jf_webclient_create_param_t;
 
-typedef u32 (* fnWebclientOnResponse_t)(
-    asocket_t * pAsocket, olint_t nInterruptFlag,
-    packet_header_t * header, void * user, boolean_t * pbPause);
+typedef u32 (* jf_webclient_fnOnResponse_t)(
+    asocket_t * pAsocket, olint_t nEvent,
+    packet_header_t * header, void * pUser, boolean_t * pbPause);
 
 /* --- functional routines ------------------------------------------------- */
 
@@ -63,12 +63,13 @@ typedef u32 (* fnWebclientOnResponse_t)(
  *
  *  @param pbc [in] the chain to add this module to
  *  @param ppWebclient [out] the created web client
- *  @param pwp [in] the parameters for creating web client
+ *  @param pjwcp [in] the parameters for creating web client
  *
  *  @return the error code
  */
-WEBCLIENTAPI u32 WEBCLIENTCALL createWebclient(
-    basic_chain_t * pbc, webclient_t ** ppWebclient, webclient_param_t * pwp);
+WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_create(
+    basic_chain_t * pbc, jf_webclient_t ** ppWebclient,
+    jf_webclient_create_param_t * pjwcp);
 
 /** Queues a new web request
  *
@@ -80,13 +81,14 @@ WEBCLIENTAPI u32 WEBCLIENTCALL createWebclient(
  *  @param u16Port [in] the port of remote server
  *  @param pph [in] the header of the message
  *  @param fnOnResponse [in] data reception handler
- *  @param user [in] the user
+ *  @param pUser [in] the user
  *
  *  @return the error code
  */
-WEBCLIENTAPI u32 WEBCLIENTCALL pipelineWebRequest(
-    webclient_t * pWebclient, ip_addr_t * piaRemote, u16 u16Port,
-    packet_header_t * pph, fnWebclientOnResponse_t fnOnResponse, void * user);
+WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequest(
+    jf_webclient_t * pWebclient, ip_addr_t * piaRemote, u16 u16Port,
+    packet_header_t * pph, jf_webclient_fnOnResponse_t fnOnResponse,
+    void * pUser);
 
 /** Queues a new web request
  *
@@ -105,15 +107,15 @@ WEBCLIENTAPI u32 WEBCLIENTCALL pipelineWebRequest(
  *  @param bStaticBody [in] flag indicating memory ownership of buffer, if true,
  *   the body is static
  *  @param fnOnResponse [in] data reception handler
- *  @param user [in] the user
+ *  @param pUser [in] the user
  *
  *  @return the error code
  */
-WEBCLIENTAPI u32 WEBCLIENTCALL pipelineWebRequestEx(
-    webclient_t * pWebclient, ip_addr_t * piaRemote, u16 u16Port,
+WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequestEx(
+    jf_webclient_t * pWebclient, ip_addr_t * piaRemote, u16 u16Port,
     olchar_t * pstrHeader, olsize_t sHeader, boolean_t bStaticHeader,
     olchar_t * pstrBody, olsize_t sBody, boolean_t bStaticBody,
-    fnWebclientOnResponse_t fnOnResponse, void * user);
+    jf_webclient_fnOnResponse_t fnOnResponse, void * pUser);
 
 /** Deletes all pending requests to a specific IP/Port combination
  *
@@ -123,14 +125,15 @@ WEBCLIENTAPI u32 WEBCLIENTCALL pipelineWebRequestEx(
  *
  *  @return the error code
  */
-WEBCLIENTAPI u32 WEBCLIENTCALL deleteWebRequests(
-    webclient_t * pWebclient, ip_addr_t * piaRemote, u16 u16Port);
+WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_deleteWebRequests(
+    jf_webclient_t * pWebclient, ip_addr_t * piaRemote, u16 u16Port);
 
 /** Destory webclient object
  *
  *  @param ppWebclient [in/out] the webclient to free
  */
-WEBCLIENTAPI u32 WEBCLIENTCALL destroyWebclient(webclient_t ** ppWebclient);
+WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_destroy(
+    jf_webclient_t ** ppWebclient);
 
 #endif /*JIUFENG_WEBCLIENT_H*/
 

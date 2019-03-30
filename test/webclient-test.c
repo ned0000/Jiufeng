@@ -31,7 +31,7 @@ static const olchar_t * ls_pstrProgramName = "webclient-test";
 static const olchar_t * ls_pstrVersion = "1.0.0";
 
 static basic_chain_t * ls_pbcChain = NULL;
-static webclient_t * ls_pwWebclient = NULL;
+static jf_webclient_t * ls_pwWebclient = NULL;
 static utimer_t * ls_putUtimer = NULL;
 
 static olchar_t * ls_pstrQuotationServer = "hq.sinajs.cn";
@@ -114,7 +114,7 @@ static void _terminate(olint_t signal)
 }
 
 static u32 _wcTestOnResponse(
-    asocket_t * pAsocket, olint_t InterruptFlag,
+    asocket_t * pAsocket, olint_t nEvent,
     packet_header_t * header, void * user, boolean_t * pbPause)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -122,9 +122,9 @@ static u32 _wcTestOnResponse(
     olsize_t size;
     file_t fd = INVALID_FILE_VALUE;
 
-    logInfoMsg("wc test response, InterruptFlag %d", InterruptFlag);
+    logInfoMsg("wc test response, nEvent %d", nEvent);
 
-    if (InterruptFlag == WIF_WEB_DATAOBJECT_DESTROYED)
+    if (nEvent == JF_WEBCLIENT_EVENT_DATAOBJECT_DESTROYED)
     {
         logInfoMsg("wc test response, web data obj is destroyed");
         return u32Ret;
@@ -181,7 +181,7 @@ static u32 _getSinaQuotation(void * object)
         "\r\n", ls_pstrQuotationServer);
 
 #endif
-    u32Ret = pipelineWebRequestEx(
+    u32Ret = jf_webclient_pipelineWebRequestEx(
         ls_pwWebclient, &ls_iaServerAddr, 80, buffer, len, FALSE, NULL, 0,
         FALSE, _wcTestOnResponse, NULL);
 
@@ -193,7 +193,7 @@ static u32 _getSinaQuotation(void * object)
 static u32 _testWebclient(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    webclient_param_t wp;
+    jf_webclient_create_param_t jwcp;
     struct hostent * servp;
 
     u32Ret = getHostByName(ls_pstrQuotationServer, &servp);
@@ -213,11 +213,11 @@ static u32 _testWebclient(olint_t argc, olchar_t ** argv)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        memset(&wp, 0, sizeof(wp));
-        wp.wp_nPoolSize = 5;
-        wp.wp_sBuffer = 1024 * 8;
+        memset(&jwcp, 0, sizeof(jwcp));
+        jwcp.jwcp_nPoolSize = 5;
+        jwcp.jwcp_sBuffer = 1024 * 8;
 
-        u32Ret = createWebclient(ls_pbcChain, &ls_pwWebclient, &wp);
+        u32Ret = jf_webclient_create(ls_pbcChain, &ls_pwWebclient, &jwcp);
     }
 
     if (u32Ret == OLERR_NO_ERROR)

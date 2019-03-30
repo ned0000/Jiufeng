@@ -65,7 +65,7 @@ enum pipeline_type
 #define DATACHUNK       (2)
 #define FOOTERCHUNK     (3)
 
-typedef void  web_dataobject_t;
+typedef void  jf_webclient_dataobject_t;
 
 typedef struct internal_web_request
 {
@@ -81,7 +81,7 @@ typedef struct internal_web_request
     u16 iwr_u16Reserved[4];
 
     void * iwr_pUser;
-    fnWebclientOnResponse_t iwr_fnOnResponse;
+    jf_webclient_fnOnResponse_t iwr_fnOnResponse;
 } internal_web_request_t;
 
 typedef struct internal_webclient
@@ -227,7 +227,7 @@ static u32 _newWebRequest(internal_web_request_t ** ppRequest, u32 u32Num)
  *
  *  @param ppDataobject [in/out] The web data object to free
  */
-static u32 _destroyWebDataobject(web_dataobject_t ** ppDataobject)
+static u32 _destroyWebDataobject(jf_webclient_dataobject_t ** ppDataobject)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_web_dataobject_t * piwd =
@@ -270,7 +270,8 @@ static u32 _destroyWebDataobject(web_dataobject_t ** ppDataobject)
         /*If this is a client request, then we need to signal
           that this request is being aborted*/
         wr->iwr_fnOnResponse(
-            NULL, WIF_WEB_REQUEST_DELETED, NULL, wr->iwr_pUser, &zero);
+            NULL, JF_WEBCLIENT_EVENT_WEB_REQUEST_DELETED, NULL,
+            wr->iwr_pUser, &zero);
         _destroyWebRequest(&wr);
 
         wr = dequeue(&piwd->iwd_baRequest);
@@ -309,7 +310,7 @@ static u32 _createWebDataobject(
     if (u32Ret == OLERR_NO_ERROR)
         *ppiwd = piwd;
     else if (piwd != NULL)
-        _destroyWebDataobject((web_dataobject_t **)&piwd);
+        _destroyWebDataobject((jf_webclient_dataobject_t **)&piwd);
 
     return u32Ret;
 }
@@ -511,7 +512,7 @@ static u32 _webclientTimerSink(void * object)
             deleteHashtreeEntry(&piwd->iwd_piwParent->iw_hData, pstrKey, u32KeyLen);
             deleteHashtreeEntry(&piwd->iwd_piwParent->iw_hIdle, pstrKey, u32KeyLen);
 
-            _destroyWebDataobject((web_dataobject_t **)&piwd2);
+            _destroyWebDataobject((jf_webclient_dataobject_t **)&piwd2);
         }
 
         /*Add this DataObject into the iw_hIdle for use later*/
@@ -817,7 +818,7 @@ static u32 _retrySink(void * object)
         deleteHashtreeEntry(&piwd->iwd_piwParent->iw_hData, key, keyLength);
         deleteHashtreeEntry(&piwd->iwd_piwParent->iw_hIdle, key, keyLength);
 
-        _destroyWebDataobject((web_dataobject_t **)&piwd);
+        _destroyWebDataobject((jf_webclient_dataobject_t **)&piwd);
     }
     else
     {
@@ -1265,7 +1266,7 @@ static u32 _webRequestStaticMemory(internal_web_request_t * request)
 }
 
 static u32 _internalWebclientOnResponse(
-    asocket_t * pAsocket, olint_t InterruptFlag,
+    asocket_t * pAsocket, olint_t nEvent,
     packet_header_t * header, void * user, boolean_t * pbPause)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -1276,12 +1277,12 @@ static u32 _internalWebclientOnResponse(
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 destroyWebclient(void ** ppWebclient)
+u32 jf_webclient_destroy(jf_webclient_t ** ppWebclient)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_webclient_t * piw = (internal_webclient_t *) *ppWebclient;
     hashtree_enumerator_t en;
-    web_dataobject_t * piwd;
+    jf_webclient_dataobject_t * piwd;
     olchar_t * pstrKey;
     olsize_t u32KeyLen;
     u32 u32Index;
@@ -1321,8 +1322,9 @@ u32 destroyWebclient(void ** ppWebclient)
 }
 
 
-u32 createWebclient(
-    basic_chain_t * pbc, webclient_t ** ppWebclient, webclient_param_t * pwp)
+u32 jf_webclient_create(
+    basic_chain_t * pbc, jf_webclient_t ** ppWebclient,
+    jf_webclient_create_param_t * pjwcp)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32Index;
@@ -1330,8 +1332,8 @@ u32 createWebclient(
     internal_webclient_t *piw;
 
     assert((pbc != NULL) && (ppWebclient != NULL));
-    assert((pwp != NULL) && (pwp->wp_nPoolSize > 0) &&
-           (pwp->wp_nPoolSize < 100));
+    assert((pjwcp != NULL) && (pjwcp->jwcp_nPoolSize > 0) &&
+           (pjwcp->jwcp_nPoolSize < 100));
 
     u32Ret = xcalloc((void **)&piw, sizeof(internal_webclient_t));
     if (u32Ret == OLERR_NO_ERROR)
@@ -1340,16 +1342,16 @@ u32 createWebclient(
         //piw->PostSelect = &_preWebclientProcess;
         piw->iw_bcChain = pbc;
         piw->iw_sBuffer =
-            pwp->wp_sBuffer ? pwp->wp_sBuffer : INITIAL_BUFFER_SIZE;
+            pjwcp->jwcp_sBuffer ? pjwcp->jwcp_sBuffer : INITIAL_BUFFER_SIZE;
 
         initHashtree(&piw->iw_hIdle);
         initQueue(&piw->iw_bqBacklog);
         initHashtree(&piw->iw_hData);
 
-        piw->iw_u32NumOfAsockets = pwp->wp_nPoolSize;
+        piw->iw_u32NumOfAsockets = pjwcp->jwcp_nPoolSize;
         u32Ret = xmalloc(
             (void **)&(piw->iw_ppAsockets),
-            pwp->wp_nPoolSize * sizeof(void *));
+            pjwcp->jwcp_nPoolSize * sizeof(void *));
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -1378,7 +1380,7 @@ u32 createWebclient(
 
         // Create our pool of sockets
         for (u32Index = 0;
-             (u32Index < pwp->wp_nPoolSize) && (u32Ret == OLERR_NO_ERROR);
+             (u32Index < pjwcp->jwcp_nPoolSize) && (u32Ret == OLERR_NO_ERROR);
              u32Index ++)
         {
             u32Ret = createAsocket(
@@ -1389,17 +1391,18 @@ u32 createWebclient(
     if (u32Ret == OLERR_NO_ERROR)
         *ppWebclient = piw;
     else if (piw != NULL)
-        destroyWebclient((void **)&piw);
+        jf_webclient_destroy((void **)&piw);
 
     return u32Ret;
 }
 
-u32 pipelineWebRequest(
-    void * WebClient, ip_addr_t * piaRemote, u16 u16Port,
-    packet_header_t * packet, fnWebclientOnResponse_t fnOnResponse, void * user)
+u32 jf_webclient_pipelineWebRequest(
+    jf_webclient_t * pWebClient, ip_addr_t * piaRemote, u16 u16Port,
+    packet_header_t * packet, jf_webclient_fnOnResponse_t fnOnResponse,
+    void * user)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    internal_webclient_t * piw = (internal_webclient_t *) WebClient;
+    internal_webclient_t * piw = (internal_webclient_t *) pWebClient;
     internal_web_request_t * request = NULL;
 
     logInfoMsg("pipeline web req");
@@ -1426,11 +1429,11 @@ u32 pipelineWebRequest(
     return u32Ret;
 }
 
-u32 pipelineWebRequestEx(
-    void * pWebclient, ip_addr_t * piaRemote, u16 u16Port,
+u32 jf_webclient_pipelineWebRequestEx(
+    jf_webclient_t * pWebclient, ip_addr_t * piaRemote, u16 u16Port,
     olchar_t * pstrHeader, olsize_t sHeader, boolean_t bStaticHeader,
     olchar_t * pstrBody, olsize_t sBody, boolean_t bStaticBody,
-    fnWebclientOnResponse_t fnOnResponse, void * user)
+    jf_webclient_fnOnResponse_t fnOnResponse, void * user)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_webclient_t * piw = (internal_webclient_t *) pWebclient;
@@ -1478,21 +1481,20 @@ u32 pipelineWebRequestEx(
     return u32Ret;
 }
 
-
 /** Returns the headers from a given web data object
  *
  *  @param pDataObject [in] the web data object to query
 
  *  @return the packet header
  */
-packet_header_t * getPacketHeaderFromWebDataobject(
-    web_dataobject_t * pDataObject)
+packet_header_t * jf_webclient_getPacketHeaderFromDataobject(
+    jf_webclient_dataobject_t * pDataObject)
 {
     return (((internal_web_dataobject_t *) pDataObject)->iwd_pphHeader);
 }
 
-u32 deleteWebRequests(
-    webclient_t * pWebclient, ip_addr_t * piaRemote, u16 u16Port)
+u32 jf_webclient_deleteWebRequests(
+    jf_webclient_t * pWebclient, ip_addr_t * piaRemote, u16 u16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_webclient_t *piw = (internal_webclient_t *) pWebclient;
@@ -1532,8 +1534,8 @@ u32 deleteWebRequests(
             /* Tell the user, we are aborting these requests */
             piwr = (internal_web_request_t *) dequeue(&bqRemove);
             piwr->iwr_fnOnResponse(
-                pWebclient, WIF_WEB_REQUEST_DELETED, NULL, piwr->iwr_pUser,
-                &zero);
+                pWebclient, JF_WEBCLIENT_EVENT_WEB_REQUEST_DELETED, NULL,
+                piwr->iwr_pUser, &zero);
 
             _destroyWebRequest(&piwr);
         }
@@ -1552,7 +1554,7 @@ u32 deleteWebRequests(
  *
  *  @return the error code
  */
-u32 resumeWebDataobject(web_dataobject_t * pDataobject)
+u32 jf_webclient_resumeDataobject(jf_webclient_dataobject_t * pDataobject)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_web_dataobject_t * piwd =
