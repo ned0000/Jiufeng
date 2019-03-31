@@ -28,7 +28,7 @@
 
 typedef struct huffman_node
 {
-    huffman_code_t * hn_phcCode;
+    jf_encode_huffman_code_t * hn_pjehcCode;
     u64 hn_u64Freq;
     /** if TRUE, already handled or no need to handle */
     boolean_t hn_bIgnore;
@@ -240,21 +240,21 @@ static u32 _buildHuffmanTree(
 
 static u32 _initHuffmanTreeLeaf(
     huffman_node_pool_t * pPool,
-    huffman_node_t ** ppNode, huffman_code_t * phc, u16 u16NumOfCode)
+    huffman_node_t ** ppNode, jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u16 u16Index;
 
     for (u16Index = 0; u16Index < u16NumOfCode; u16Index ++)
     {
-        phc[u16Index].hc_u16CodeLen = 0;
+        pjehc[u16Index].jehc_u16CodeLen = 0;
 
-        if (phc[u16Index].hc_u32Freq != 0)
+        if (pjehc[u16Index].jehc_u32Freq != 0)
         {
             ppNode[u16Index] = _getHuffmanNode(pPool);
 
-            ppNode[u16Index]->hn_phcCode = &(phc[u16Index]);
-            ppNode[u16Index]->hn_u64Freq = (u64)phc[u16Index].hc_u32Freq;
+            ppNode[u16Index]->hn_pjehcCode = &(pjehc[u16Index]);
+            ppNode[u16Index]->hn_u64Freq = (u64)pjehc[u16Index].jehc_u32Freq;
         }
     }
 
@@ -272,7 +272,7 @@ static u32 _initHuffmanTreeLeaf(
 static u32 _genHuffmanCode(huffman_node_t * pRoot, u16 u16NumOfCode)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    bit_array_t code[MAX_HUFFMAN_CODE_LEN];
+    bit_array_t code[JF_ENCODE_MAX_HUFFMAN_CODE_LEN];
     u8 depth = 0;
 
     INIT_BIT_ARRAY(code);
@@ -287,13 +287,13 @@ static u32 _genHuffmanCode(huffman_node_t * pRoot, u16 u16NumOfCode)
             depth ++;
         }
 
-        if (pRoot->hn_phcCode != NULL)
+        if (pRoot->hn_pjehcCode != NULL)
         {
             /* enter results in list */
-            pRoot->hn_phcCode->hc_u16CodeLen = depth;
-            COPY_BIT_ARRAY(pRoot->hn_phcCode->hc_baCode, code);
+            pRoot->hn_pjehcCode->jehc_u16CodeLen = depth;
+            COPY_BIT_ARRAY(pRoot->hn_pjehcCode->jehc_baCode, code);
             LSHIFT_BIT_ARRAY(
-                pRoot->hn_phcCode->hc_baCode, BA_BITS(code) - depth);
+                pRoot->hn_pjehcCode->jehc_baCode, BA_BITS(code) - depth);
         }
 
         while (pRoot->hn_phnParent != NULL)
@@ -327,41 +327,41 @@ static u32 _genHuffmanCode(huffman_node_t * pRoot, u16 u16NumOfCode)
 /** Accepts a list of symbol sorted by their code lengths, and assigns a
  *  canonical huffman code to each symbol.
  *
- *  @param pphc [in] sorted list of symbols to have code values assigned
+ *  @param ppjehc [in] sorted list of symbols to have code values assigned
  *  @param u16NumOfCode [in] number of elements in the array
  *
  *  @return the error code
  */
-static u32 _assignCanonicalCodes(huffman_code_t ** pphc, u16 u16NumOfCode)
+static u32 _assignCanonicalCodes(jf_encode_huffman_code_t ** ppjehc, u16 u16NumOfCode)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t i;
     u8 length;
-    bit_array_t code[MAX_HUFFMAN_CODE_LEN];
+    bit_array_t code[JF_ENCODE_MAX_HUFFMAN_CODE_LEN];
 
     /* assign the new codes */
     INIT_BIT_ARRAY(code);
 
-    length = pphc[(u16NumOfCode - 1)]->hc_u16CodeLen;
+    length = ppjehc[(u16NumOfCode - 1)]->jehc_u16CodeLen;
 
     for (i = (u16NumOfCode - 1); i >= 0; i--)
     {
         /* fail if we hit a zero len code */
-        if (pphc[i]->hc_u16CodeLen == 0)
+        if (ppjehc[i]->jehc_u16CodeLen == 0)
         {
             break;
         }
         /* adjust code if this length is shorter than the previous */
-        if (pphc[i]->hc_u16CodeLen < length)
+        if (ppjehc[i]->jehc_u16CodeLen < length)
         {
             /* right shift the code */
-            RSHIFT_BIT_ARRAY(code, (length - pphc[i]->hc_u16CodeLen));
-            length = pphc[i]->hc_u16CodeLen;
+            RSHIFT_BIT_ARRAY(code, (length - ppjehc[i]->jehc_u16CodeLen));
+            length = ppjehc[i]->jehc_u16CodeLen;
         }
 
         /* assign left justified code */
-        COPY_BIT_ARRAY(pphc[i]->hc_baCode, code);
-        LSHIFT_BIT_ARRAY(pphc[i]->hc_baCode, BA_BITS(code) - length);
+        COPY_BIT_ARRAY(ppjehc[i]->jehc_baCode, code);
+        LSHIFT_BIT_ARRAY(ppjehc[i]->jehc_baCode, BA_BITS(code) - length);
 
         /* increase 1 */
         INCREMENT_BIT_ARRAY(code);
@@ -383,15 +383,15 @@ static u32 _assignCanonicalCodes(huffman_code_t ** pphc, u16 u16NumOfCode)
  */
 static olint_t _compareByCodeLen(const void * item1, const void * item2)
 {
-    huffman_code_t * phc1 = *((huffman_code_t **)item1);
-    huffman_code_t * phc2 = *((huffman_code_t **)item2);
+    jf_encode_huffman_code_t * pjehc1 = *((jf_encode_huffman_code_t **)item1);
+    jf_encode_huffman_code_t * pjehc2 = *((jf_encode_huffman_code_t **)item2);
 
-    if (phc1->hc_u16CodeLen > phc2->hc_u16CodeLen)
+    if (pjehc1->jehc_u16CodeLen > pjehc2->jehc_u16CodeLen)
     {
         /* item1 > item2 */
         return 1;
     }
-    else if (phc1->hc_u16CodeLen < phc2->hc_u16CodeLen)
+    else if (pjehc1->jehc_u16CodeLen < pjehc2->jehc_u16CodeLen)
     {
         /* item1 < item2 */
         return -1;
@@ -399,7 +399,7 @@ static olint_t _compareByCodeLen(const void * item1, const void * item2)
     else
     {
         /* using symbol */
-        if (phc1->hc_u16Symbol > phc2->hc_u16Symbol)
+        if (pjehc1->jehc_u16Symbol > pjehc2->jehc_u16Symbol)
         {
             return 1;
         }
@@ -415,16 +415,16 @@ static olint_t _compareByCodeLen(const void * item1, const void * item2)
 /** Uses a huffman tree to build a list of codes and their length for each
  *  encoded symbol. This simplifies the encoding process instead of traversing
  *  a tree to in search of the code for any symbol, the code maybe found by
- *  accessing phc.hc_baCode.
+ *  accessing pjehc.jehc_baCode.
  *
  *  @param pRoot [in] pointer to root of huffman tree
- *  @param phc [in] array for huffman code
+ *  @param pjehc [in] array for huffman code
  *  @param u16NumOfCode [in] number of elements in the array
  *
  *  @return the error code
  */
 static u32 _genCanonicalHuffmanCode(
-    huffman_node_t * pRoot, huffman_code_t * phc, u16 u16NumOfCode)
+    huffman_node_t * pRoot, jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u8 depth = 0;
@@ -438,14 +438,14 @@ static u32 _genCanonicalHuffmanCode(
             depth ++;
         }
 
-        if (pRoot->hn_phcCode != NULL)
+        if (pRoot->hn_pjehcCode != NULL)
         {
             /* handle one symbol trees */
             if (depth == 0)
                 depth ++;
 
             /* enter results in list */
-            pRoot->hn_phcCode->hc_u16CodeLen = depth;
+            pRoot->hn_pjehcCode->jehc_u16CodeLen = depth;
         }
 
         while (pRoot->hn_phnParent != NULL)
@@ -472,7 +472,7 @@ static u32 _genCanonicalHuffmanCode(
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = genCanonicalHuffmanCodeByCodeLen(phc, u16NumOfCode);
+        u32Ret = jf_encode_genCanonicalHuffmanCodeByCodeLen(pjehc, u16NumOfCode);
     }
 
     return u32Ret;
@@ -480,7 +480,7 @@ static u32 _genCanonicalHuffmanCode(
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 genHuffmanCode(huffman_code_t * phc, u16 u16NumOfCode)
+u32 jf_encode_genHuffmanCode(jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     huffman_node_t ** ppLeaf = NULL;
@@ -496,7 +496,7 @@ u32 genHuffmanCode(huffman_code_t * phc, u16 u16NumOfCode)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = _initHuffmanTreeLeaf(pPool, ppLeaf, phc, u16NumOfCode);
+        u32Ret = _initHuffmanTreeLeaf(pPool, ppLeaf, pjehc, u16NumOfCode);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -518,7 +518,8 @@ u32 genHuffmanCode(huffman_code_t * phc, u16 u16NumOfCode)
     return u32Ret;
 }
 
-u32 genCanonicalHuffmanCode(huffman_code_t * phc, u16 u16NumOfCode)
+u32 jf_encode_genCanonicalHuffmanCode(
+    jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     huffman_node_t ** ppLeaf = NULL;
@@ -534,7 +535,7 @@ u32 genCanonicalHuffmanCode(huffman_code_t * phc, u16 u16NumOfCode)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = _initHuffmanTreeLeaf(pPool, ppLeaf, phc, u16NumOfCode);
+        u32Ret = _initHuffmanTreeLeaf(pPool, ppLeaf, pjehc, u16NumOfCode);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -544,7 +545,7 @@ u32 genCanonicalHuffmanCode(huffman_code_t * phc, u16 u16NumOfCode)
     
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = _genCanonicalHuffmanCode(pRoot, phc, u16NumOfCode);
+        u32Ret = _genCanonicalHuffmanCode(pRoot, pjehc, u16NumOfCode);
     }
 
     if (ppLeaf != NULL)
@@ -556,28 +557,30 @@ u32 genCanonicalHuffmanCode(huffman_code_t * phc, u16 u16NumOfCode)
     return u32Ret;
 }
 
-u32 genCanonicalHuffmanCodeByCodeLen(huffman_code_t * phc, u16 u16NumOfCode)
+u32 jf_encode_genCanonicalHuffmanCodeByCodeLen(
+    jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    huffman_code_t ** pphc = NULL;
+    jf_encode_huffman_code_t ** ppjehc = NULL;
     u16 u16Index;
 
     u32Ret = xcalloc(
-        (void **)&pphc, sizeof(huffman_code_t *) * u16NumOfCode);
+        (void **)&ppjehc, sizeof(jf_encode_huffman_code_t *) * u16NumOfCode);
     if (u32Ret == OLERR_NO_ERROR)
     {
         for (u16Index = 0; u16Index < u16NumOfCode; u16Index ++)
         {
-            pphc[u16Index] = &(phc[u16Index]);
+            ppjehc[u16Index] = &(pjehc[u16Index]);
         }
 
         /* sort by code length */
         qsort(
-            pphc, u16NumOfCode, sizeof(huffman_code_t *), _compareByCodeLen);
+            ppjehc, u16NumOfCode, sizeof(jf_encode_huffman_code_t *),
+            _compareByCodeLen);
 
-        u32Ret = _assignCanonicalCodes(pphc, u16NumOfCode);
+        u32Ret = _assignCanonicalCodes(ppjehc, u16NumOfCode);
 
-        xfree((void **)&pphc);
+        xfree((void **)&ppjehc);
     }
 
     return u32Ret;

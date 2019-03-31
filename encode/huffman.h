@@ -28,12 +28,13 @@
 
 /** By code length, frequency is ignored, code is generated
  *
- *  @param phc [in/out] the array of huffman code
+ *  @param pjehc [in/out] the array of huffman code
  *  @param u16NumOfCode [in] number of code in the array
  *
  *  @return the error code
  */
-u32 genCanonicalHuffmanCodeByCodeLen(huffman_code_t * phc, u16 u16NumOfCode);
+u32 jf_encode_genCanonicalHuffmanCodeByCodeLen(
+    jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode);
 
 
 #endif /*ENCODE_HUFFMAN_H*/

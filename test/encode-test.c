@@ -113,13 +113,13 @@ static u32 _testBase64(void)
         sLen = ol_strlen(pstrData[u32Index]);
         ol_printf("Source data: %d, %s\n", sLen, pstrData[u32Index]);
 
-        u32Ret = base64Encode((u8 *)pstrData[u32Index], sLen, &pstrOutput);
+        u32Ret = jf_encode_encodeBase64((u8 *)pstrData[u32Index], sLen, &pstrOutput);
         if (u32Ret == OLERR_NO_ERROR)
         {
             sLen = ol_strlen(pstrOutput);
             ol_printf("Encoded data: %d, %s\n", sLen, pstrOutput);
 
-            u32Ret = base64Decode(pstrOutput, &pu8Decode, &sDecode);
+            u32Ret = jf_encode_decodeBase64(pstrOutput, &pu8Decode, &sDecode);
             if (u32Ret == OLERR_NO_ERROR)
             {
                 pu8Decode[sDecode] = '\0';
@@ -132,10 +132,10 @@ static u32 _testBase64(void)
                 else
                     ol_printf("Base64 fails\n");
 
-                freeBase64Buffer(&pu8Decode);
+                jf_encode_freeBase64Buffer(&pu8Decode);
             }
 
-            freeBase64Buffer((u8 **)&pstrOutput);
+            jf_encode_freeBase64Buffer((u8 **)&pstrOutput);
         }
         ol_printf("\n");
     }
@@ -166,15 +166,15 @@ static void _bit2String(u8 * pu8Bit, u16 u16BitLen, olchar_t * pstrBit)
 
 static olint_t _encodeTestCompare(const void * item1, const void * item2)
 {
-    huffman_code_t * phc1 = *((huffman_code_t **)item1);
-    huffman_code_t * phc2 = *((huffman_code_t **)item2);
+    jf_encode_huffman_code_t * pjehc1 = *((jf_encode_huffman_code_t **)item1);
+    jf_encode_huffman_code_t * pjehc2 = *((jf_encode_huffman_code_t **)item2);
 
-    if (phc1->hc_u16CodeLen > phc2->hc_u16CodeLen)
+    if (pjehc1->jehc_u16CodeLen > pjehc2->jehc_u16CodeLen)
     {
         /* item1 > item2 */
         return 1;
     }
-    else if (phc1->hc_u16CodeLen < phc2->hc_u16CodeLen)
+    else if (pjehc1->jehc_u16CodeLen < pjehc2->jehc_u16CodeLen)
     {
         /* item1 < item2 */
         return -1;
@@ -182,7 +182,7 @@ static olint_t _encodeTestCompare(const void * item1, const void * item2)
     else
     {
         /* both have equal code lengths break the tie using value */
-        if (phc1->hc_u16Symbol > phc2->hc_u16Symbol)
+        if (pjehc1->jehc_u16Symbol > pjehc2->jehc_u16Symbol)
         {
             return 1;
         }
@@ -195,47 +195,48 @@ static olint_t _encodeTestCompare(const void * item1, const void * item2)
     return 0;   /* we should never get here */
 }
 
-static void _printCanonicalHuffmanCode(huffman_code_t * phc, u16 u16NumOfCode)
+static void _printCanonicalHuffmanCode(
+    jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u16 u16Index;
     olchar_t strBit[100];
-    huffman_code_t ** pphc = NULL;
+    jf_encode_huffman_code_t ** ppjehc = NULL;
 
     u32Ret = xcalloc(
-        (void **)&pphc, sizeof(huffman_code_t *) * u16NumOfCode);
+        (void **)&ppjehc, sizeof(jf_encode_huffman_code_t *) * u16NumOfCode);
     if (u32Ret == OLERR_NO_ERROR)
     {
         for (u16Index = 0; u16Index < u16NumOfCode; u16Index ++)
         {
-            pphc[u16Index] = &(phc[u16Index]);
+            ppjehc[u16Index] = &(pjehc[u16Index]);
         }
 
         /* sort by code length */
         qsort(
-            pphc, u16NumOfCode, sizeof(huffman_code_t *), _encodeTestCompare);
+            ppjehc, u16NumOfCode, sizeof(jf_encode_huffman_code_t *), _encodeTestCompare);
 
         ol_printf("Char   Count     CodeLen   Encoding\n");
         ol_printf("-----  --------  --------  ----------------\n");
         for (u16Index = 0; u16Index < u16NumOfCode; u16Index ++)
         {
-            if (pphc[u16Index]->hc_u16CodeLen > 0)
+            if (ppjehc[u16Index]->jehc_u16CodeLen > 0)
             {
                 _bit2String(
-                    pphc[u16Index]->hc_baCode, pphc[u16Index]->hc_u16CodeLen, strBit);
+                    ppjehc[u16Index]->jehc_baCode, ppjehc[u16Index]->jehc_u16CodeLen, strBit);
                 ol_printf(
                     "0x%02X   %-8d  %-8d  %s\n",
-                    pphc[u16Index]->hc_u16Symbol, pphc[u16Index]->hc_u32Freq,
-                    pphc[u16Index]->hc_u16CodeLen, strBit);
+                    ppjehc[u16Index]->jehc_u16Symbol, ppjehc[u16Index]->jehc_u32Freq,
+                    ppjehc[u16Index]->jehc_u16CodeLen, strBit);
             }
         }
     }
 
-    if (pphc != NULL)
-        xfree((void **)&pphc);
+    if (ppjehc != NULL)
+        xfree((void **)&ppjehc);
 }
 
-static void _printHuffmanCode(huffman_code_t * phc, u16 u16NumOfCode)
+static void _printHuffmanCode(jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
 {
     u32 u16Index;
     olchar_t strBit[100];
@@ -244,14 +245,14 @@ static void _printHuffmanCode(huffman_code_t * phc, u16 u16NumOfCode)
     ol_printf("-----  --------  --------  ----------------\n");
     for (u16Index = 0; u16Index < u16NumOfCode; u16Index ++)
     {
-        if (phc[u16Index].hc_u16CodeLen > 0)
+        if (pjehc[u16Index].jehc_u16CodeLen > 0)
         {
             _bit2String(
-                phc[u16Index].hc_baCode, phc[u16Index].hc_u16CodeLen, strBit);
+                pjehc[u16Index].jehc_baCode, pjehc[u16Index].jehc_u16CodeLen, strBit);
             ol_printf(
                 "0x%02X   %-8d  %-8d  %s\n",
-                phc[u16Index].hc_u16Symbol, phc[u16Index].hc_u32Freq,
-                phc[u16Index].hc_u16CodeLen, strBit);
+                pjehc[u16Index].jehc_u16Symbol, pjehc[u16Index].jehc_u32Freq,
+                pjehc[u16Index].jehc_u16CodeLen, strBit);
         }
     }
 }
@@ -259,7 +260,7 @@ static void _printHuffmanCode(huffman_code_t * phc, u16 u16NumOfCode)
 static u32 _testGenHuffmanCode(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    huffman_code_t phc[NUM_SYMBOL];
+    jf_encode_huffman_code_t pjehc[NUM_SYMBOL];
     u16 u16Index = 0;
     FILE * fp;
     olint_t c;
@@ -269,11 +270,11 @@ static u32 _testGenHuffmanCode(void)
     else
         ol_printf("generate huffman code\n");
 
-    memset(phc, 0, sizeof(huffman_code_t) * NUM_SYMBOL);
+    memset(pjehc, 0, sizeof(jf_encode_huffman_code_t) * NUM_SYMBOL);
 
     for (u16Index = 0; u16Index < NUM_SYMBOL; u16Index ++)
     {
-        phc[u16Index].hc_u16Symbol = u16Index;
+        pjehc[u16Index].jehc_u16Symbol = u16Index;
     }
 
     u32Ret = fpOpenFile(ls_pstrFile, "r", &fp);
@@ -281,10 +282,10 @@ static u32 _testGenHuffmanCode(void)
     {
         while ((c = fgetc(fp)) != EOF)
         {
-            if (phc[c].hc_u32Freq < 0xFFFFFFFF)
+            if (pjehc[c].jehc_u32Freq < 0xFFFFFFFF)
             {
                 /* increment count for character and include in tree */
-                phc[c].hc_u32Freq ++;
+                pjehc[c].jehc_u32Freq ++;
             }
         }
 
@@ -295,15 +296,15 @@ static u32 _testGenHuffmanCode(void)
     {
         if (ls_bCanonicalHuffman)
         {
-            u32Ret = genCanonicalHuffmanCode(phc, NUM_SYMBOL);
+            u32Ret = jf_encode_genCanonicalHuffmanCode(pjehc, NUM_SYMBOL);
             if (u32Ret == OLERR_NO_ERROR)
-                _printCanonicalHuffmanCode(phc, NUM_SYMBOL);
+                _printCanonicalHuffmanCode(pjehc, NUM_SYMBOL);
         }
         else
         {
-            u32Ret = genHuffmanCode(phc, NUM_SYMBOL);
+            u32Ret = jf_encode_genHuffmanCode(pjehc, NUM_SYMBOL);
             if (u32Ret == OLERR_NO_ERROR)
-                _printHuffmanCode(phc, NUM_SYMBOL);
+                _printHuffmanCode(pjehc, NUM_SYMBOL);
         }
     }
 

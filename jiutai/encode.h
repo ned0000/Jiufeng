@@ -40,19 +40,20 @@
 /* --- constant definitions ------------------------------------------------ */
 
 /* --- data structures ----------------------------------------------------- */
-#define MAX_HUFFMAN_CODE_LEN    (8)
+
+#define JF_ENCODE_MAX_HUFFMAN_CODE_LEN    (8)
 
 typedef struct huffman_code
 {
     /** symbol, max 65536 symbols */
-    u16 hc_u16Symbol;
+    u16 jehc_u16Symbol;
     /** code length */
-    u16 hc_u16CodeLen;
+    u16 jehc_u16CodeLen;
     /** freqwency of the symbol */
-    u32 hc_u32Freq;
+    u32 jehc_u32Freq;
     /** the code generated */
-    bit_array_t hc_baCode[MAX_HUFFMAN_CODE_LEN];
-} huffman_code_t;
+    bit_array_t jehc_baCode[JF_ENCODE_MAX_HUFFMAN_CODE_LEN];
+} jf_encode_huffman_code_t;
 
 /* --- functional routines ------------------------------------------------- */
 
@@ -66,7 +67,7 @@ typedef struct huffman_code
 
  *  @return the error code
  */
-ENCODEAPI u32 ENCODECALL base64Encode(
+ENCODEAPI u32 ENCODECALL jf_encode_encodeBase64(
     const u8 * pu8Input, const olsize_t sInput, olchar_t ** ppstrOutput);
 
 /** Decode a base64 encoded stream discarding padding, line breaks and noise
@@ -77,7 +78,7 @@ ENCODEAPI u32 ENCODECALL base64Encode(
  *
  *  @return the error code
  */
-ENCODEAPI u32 ENCODECALL base64Decode(
+ENCODEAPI u32 ENCODECALL jf_encode_decodeBase64(
     const olchar_t * pstrInput, u8 ** ppu8Output, olsize_t * psOutput);
 
 /** Free the buffer allocated by the function base64Encode and base64Decode 
@@ -86,31 +87,31 @@ ENCODEAPI u32 ENCODECALL base64Decode(
  *
  *  @return the error code
  */
-ENCODEAPI u32 ENCODECALL freeBase64Buffer(u8 ** ppu8Buffer);
+ENCODEAPI u32 ENCODECALL jf_encode_freeBase64Buffer(u8 ** ppu8Buffer);
 
 
 /*huffman code*/
 
 /** By frequency, code length and code are generated in one pass.
  *
- *  @param phc [in/out] the array of huffman code
+ *  @param pjehc [in/out] the array of huffman code
  *  @param u16NumOfCode [in] number of code in the array
  *
  *  @return the error code
  */
-ENCODEAPI u32 ENCODECALL genHuffmanCode(
-    huffman_code_t * phc, u16 u16NumOfCode);
+ENCODEAPI u32 ENCODECALL jf_encode_genHuffmanCode(
+    jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode);
 
 /** By frequency, code length and code are generated. The code is canonical
  *  huffman code, and code with maximum length is assigned with all 0 bits. 
  *
- *  @param phc [in/out] the array of huffman code
+ *  @param pjehc [in/out] the array of huffman code
  *  @param u16NumOfCode [in] number of code in the array
  *
  *  @return the error code
  */
-ENCODEAPI u32 ENCODECALL genCanonicalHuffmanCode(
-    huffman_code_t * phc, u16 u16NumOfCode);
+ENCODEAPI u32 ENCODECALL jf_encode_genCanonicalHuffmanCode(
+    jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode);
 
 #endif /*JIUFENG_ENCODE_H*/
 

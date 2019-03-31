@@ -87,7 +87,7 @@ static void _decodeBlock(const u8 in[4], u8 out[3])
 
 /* --- private routine section---------------------------------------------- */
 
-u32 base64Encode(
+u32 jf_encode_encodeBase64(
     const u8 * pu8Input, const olsize_t sInput, olchar_t ** ppstrOutput)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -123,7 +123,7 @@ u32 base64Encode(
     return u32Ret;
 }
 
-u32 base64Decode(
+u32 jf_encode_decodeBase64(
     const olchar_t * pstrInput, u8 ** ppu8Output, olsize_t * psOutput)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -185,7 +185,7 @@ u32 base64Decode(
     return u32Ret;
 }
 
-u32 freeBase64Buffer(u8 ** ppu8Output)
+u32 jf_encode_freeBase64Buffer(u8 ** ppu8Output)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
