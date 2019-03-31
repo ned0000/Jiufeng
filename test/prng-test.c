@@ -71,7 +71,7 @@ static u32 _testPrng(void)
 
     ol_bzero(u8Random, sizeof(u8Random));
 
-    u32Ret = initPrng();
+    u32Ret = jf_prng_init();
     if (u32Ret == OLERR_NO_ERROR)
     {
         for (u32Index = 0;
@@ -82,7 +82,7 @@ static u32 _testPrng(void)
             if (u32Ret == OLERR_NO_ERROR)
             {
                 ol_printf("Get prng data: \n");
-                u32Ret = getPrngData(u8Random[u32Index], u32Size);
+                u32Ret = jf_prng_getData(u8Random[u32Index], u32Size);
                 if (u32Ret == OLERR_NO_ERROR)
                 {
                     dumpDataInByteHex(u8Random[u32Index], u32Size);
@@ -102,7 +102,7 @@ static u32 _testPrng(void)
                 break;
         }
 
-        finiPrng();
+        jf_prng_fini();
     }
 
     if (u32Ret == OLERR_NO_ERROR)

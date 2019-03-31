@@ -41,15 +41,15 @@
 
 /* --- functional routines ------------------------------------------------- */
 
-PRNGAPI u32 PRNGCALL initPrng(void);
+PRNGAPI u32 PRNGCALL jf_prng_init(void);
 
-PRNGAPI u32 PRNGCALL finiPrng(void);
+PRNGAPI u32 PRNGCALL jf_prng_fini(void);
 
-PRNGAPI u32 PRNGCALL getPrngData(u8 * pu8Data, u32 u32Len);
+PRNGAPI u32 PRNGCALL jf_prng_getData(u8 * pu8Data, u32 u32Len);
 
 /** Pseudo-random bytes that are guaranteed to be unique but not unpredictable
  */
-PRNGAPI u32 PRNGCALL getPrngPseudoData(u8 * pu8Data, u32 u32Len);
+PRNGAPI u32 PRNGCALL jf_prng_getPseudoData(u8 * pu8Data, u32 u32Len);
 
 #endif /*JIUFENG_PRNG_H*/
 

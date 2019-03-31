@@ -47,7 +47,7 @@ typedef struct
     u8 ip_u8Pool[PRNG_POOL_SIZE];
     u8 ip_u8Reserved2;
 
-    u8 ip_u8Md[MD5_DIGEST_LEN];
+    u8 ip_u8Md[JF_CGHASH_MD5_DIGEST_LEN];
     u32 ip_u32NumOfGet;
     oldouble_t ip_dbEntropy;
 
@@ -64,13 +64,13 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
     u32 u32Idx;
     u32 u32Count, u32PoolSize;
     boolean_t bEntropy = FALSE;
-    u8 local_md[MD5_DIGEST_LEN];
+    u8 local_md[JF_CGHASH_MD5_DIGEST_LEN];
     pid_t curr_pid = getCurrentProcessId();
-    md5_t md5;
+    jf_cghash_md5_t md5;
 
     assert((pu8Data != NULL) && (u32Len != 0));
 
-    u32Count = ALIGN(u32Len, MD5_DIGEST_LEN / 2);
+    u32Count = ALIGN(u32Len, JF_CGHASH_MD5_DIGEST_LEN / 2);
 
     if (pip->ip_dbEntropy >= ENTROPY_NEEDED)
         bEntropy = TRUE;
@@ -89,11 +89,11 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
         u32PoolSize = PRNG_POOL_SIZE;
         while ((u32PoolSize > 0) && (u32Ret == OLERR_NO_ERROR))
         {
-            /* At least MD5_DIGEST_LEN */
+            /* At least JF_CGHASH_MD5_DIGEST_LEN */
 #define DUMMY_SEED "...................."
-            u32Ret = seedPrng((u8 *)DUMMY_SEED, MD5_DIGEST_LEN, 0.0);
+            u32Ret = jf_prng_seed((u8 *)DUMMY_SEED, JF_CGHASH_MD5_DIGEST_LEN, 0.0);
             if (u32Ret == OLERR_NO_ERROR)
-                u32PoolSize -= MD5_DIGEST_LEN;
+                u32PoolSize -= JF_CGHASH_MD5_DIGEST_LEN;
         }
         if (bEntropy)
             pip->ip_bPoolStirred = TRUE;
@@ -111,40 +111,40 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
         /* increase the number of get operation */
         pip->ip_u32NumOfGet += 1;
 
-        initMd5(&md5);
+        jf_cghash_initMd5(&md5);
     }
 
     while ((u32Len > 0) && (u32Ret == OLERR_NO_ERROR))
     {
-        j = (u32Len >= MD5_DIGEST_LEN / 2) ? MD5_DIGEST_LEN / 2 : u32Len;
+        j = (u32Len >= JF_CGHASH_MD5_DIGEST_LEN / 2) ? JF_CGHASH_MD5_DIGEST_LEN / 2 : u32Len;
         u32Len -= j;
 
         if (curr_pid)
         {
             /* just in the first iteration to save time */
-            updateMd5(&md5, (u8 *)&curr_pid, sizeof(curr_pid));
+            jf_cghash_updateMd5(&md5, (u8 *)&curr_pid, sizeof(curr_pid));
             curr_pid = 0;
         }
 
-        updateMd5(&md5, local_md, MD5_DIGEST_LEN);
-        updateMd5(&md5, (u8 *)&pip->ip_u32NumOfGet, sizeof(pip->ip_u32NumOfGet));
+        jf_cghash_updateMd5(&md5, local_md, JF_CGHASH_MD5_DIGEST_LEN);
+        jf_cghash_updateMd5(&md5, (u8 *)&pip->ip_u32NumOfGet, sizeof(pip->ip_u32NumOfGet));
         /* include the data in parameter from caller */
-        updateMd5(&md5, pu8Data, j);
+        jf_cghash_updateMd5(&md5, pu8Data, j);
 
-        k = (u32Idx + MD5_DIGEST_LEN / 2) - pip->ip_u32PoolSize;
+        k = (u32Idx + JF_CGHASH_MD5_DIGEST_LEN / 2) - pip->ip_u32PoolSize;
         if (k > 0)
         {
-            updateMd5(
-                &md5, &(pip->ip_u8Pool[u32Idx]), MD5_DIGEST_LEN / 2 - k);
-            updateMd5(&md5, &(pip->ip_u8Pool[0]), k);
+            jf_cghash_updateMd5(
+                &md5, &(pip->ip_u8Pool[u32Idx]), JF_CGHASH_MD5_DIGEST_LEN / 2 - k);
+            jf_cghash_updateMd5(&md5, &(pip->ip_u8Pool[0]), k);
         }
         else
         {
-            updateMd5(&md5, &(pip->ip_u8Pool[u32Idx]), MD5_DIGEST_LEN / 2);
+            jf_cghash_updateMd5(&md5, &(pip->ip_u8Pool[u32Idx]), JF_CGHASH_MD5_DIGEST_LEN / 2);
         }
-        finalMd5(&md5, local_md);
+        jf_cghash_finalMd5(&md5, local_md);
 
-        for (i = 0; i < MD5_DIGEST_LEN / 2; i ++)
+        for (i = 0; i < JF_CGHASH_MD5_DIGEST_LEN / 2; i ++)
         {
             /* put the first part of message digest into pool, return the last
                part of message digest to caller */
@@ -152,16 +152,16 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
             if (u32Idx >= pip->ip_u32PoolSize)
                 u32Idx=0;
             if (i < j)
-                *(pu8Data++) = local_md[i + MD5_DIGEST_LEN / 2];
+                *(pu8Data++) = local_md[i + JF_CGHASH_MD5_DIGEST_LEN / 2];
         }
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        updateMd5(&md5, (u8 *)&pip->ip_u32NumOfGet, sizeof(pip->ip_u32NumOfGet));
-        updateMd5(&md5, local_md, MD5_DIGEST_LEN);
-        updateMd5(&md5, pip->ip_u8Md, MD5_DIGEST_LEN);
-        finalMd5(&md5, pip->ip_u8Md);
+        jf_cghash_updateMd5(&md5, (u8 *)&pip->ip_u32NumOfGet, sizeof(pip->ip_u32NumOfGet));
+        jf_cghash_updateMd5(&md5, local_md, JF_CGHASH_MD5_DIGEST_LEN);
+        jf_cghash_updateMd5(&md5, pip->ip_u8Md, JF_CGHASH_MD5_DIGEST_LEN);
+        jf_cghash_finalMd5(&md5, pip->ip_u8Md);
 
         if (! bEntropy)
         {
@@ -176,7 +176,8 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
 }
 
 /* --- public routine section ---------------------------------------------- */
-u32 initPrng(void)
+
+u32 jf_prng_init(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_prng_t * pip = &ls_ipPrng;
@@ -193,12 +194,12 @@ u32 initPrng(void)
     if (u32Ret == OLERR_NO_ERROR)
         pip->ip_bInitialized = TRUE;
     else if (pip != NULL)
-        finiPrng();
+        jf_prng_fini();
 
     return u32Ret;
 }
 
-u32 finiPrng(void)
+u32 jf_prng_fini(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_prng_t * pip = &ls_ipPrng;
@@ -210,7 +211,7 @@ u32 finiPrng(void)
     return u32Ret;
 }
 
-u32 getPrngData(u8 * pu8Data, u32 u32Len)
+u32 jf_prng_getData(u8 * pu8Data, u32 u32Len)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_prng_t * pip = &ls_ipPrng;
@@ -226,28 +227,28 @@ u32 getPrngData(u8 * pu8Data, u32 u32Len)
     return u32Ret;
 }
 
-u32 getPrngPseudoData(u8 * pu8Data, u32 u32Len)
+u32 jf_prng_getPseudoData(u8 * pu8Data, u32 u32Len)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    u32Ret = getPrngData(pu8Data, u32Len);
+    u32Ret = jf_prng_getData(pu8Data, u32Len);
     if (u32Ret == OLERR_PRNG_NOT_SEEDED)
         u32Ret = OLERR_NO_ERROR;
 
     return u32Ret;
 }
 
-u32 seedPrng(const u8 * pu8Data, olint_t u32Len, oldouble_t dbEntropy)
+u32 jf_prng_seed(const u8 * pu8Data, olint_t u32Len, oldouble_t dbEntropy)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_prng_t * pip = &ls_ipPrng;
     olint_t i, j, k;
-    u8 local_md[MD5_DIGEST_LEN];
-    md5_t md5;
+    u8 local_md[JF_CGHASH_MD5_DIGEST_LEN];
+    jf_cghash_md5_t md5;
     u32 u32Index;
 
     u32Index = pip->ip_u32PoolIndex;
-    memcpy(local_md, pip->ip_u8Md, sizeof(pip->ip_u8Md));
+    ol_memcpy(local_md, pip->ip_u8Md, sizeof(pip->ip_u8Md));
 
     pip->ip_u32PoolIndex += u32Len;
     if (pip->ip_u32PoolIndex >= PRNG_POOL_SIZE)
@@ -264,26 +265,26 @@ u32 seedPrng(const u8 * pu8Data, olint_t u32Len, oldouble_t dbEntropy)
             pip->ip_u32PoolSize = pip->ip_u32PoolIndex;
     }
     
-    initMd5(&md5);
-    for (i = 0; i < u32Len; i += MD5_DIGEST_LEN)
+    jf_cghash_initMd5(&md5);
+    for (i = 0; i < u32Len; i += JF_CGHASH_MD5_DIGEST_LEN)
     {
         j = (u32Len - i);
-        j = (j > MD5_DIGEST_LEN) ? MD5_DIGEST_LEN : j;
+        j = (j > JF_CGHASH_MD5_DIGEST_LEN) ? JF_CGHASH_MD5_DIGEST_LEN : j;
 
-        updateMd5(&md5, local_md, MD5_DIGEST_LEN);
+        jf_cghash_updateMd5(&md5, local_md, JF_CGHASH_MD5_DIGEST_LEN);
         k = (u32Index + j) - PRNG_POOL_SIZE;
         if (k > 0)
         {
-            updateMd5(&md5, &(pip->ip_u8Pool[u32Index]), j - k);
-            updateMd5(&md5, &(pip->ip_u8Pool[0]), k);
+            jf_cghash_updateMd5(&md5, &(pip->ip_u8Pool[u32Index]), j - k);
+            jf_cghash_updateMd5(&md5, &(pip->ip_u8Pool[0]), k);
         }
         else
         {
-            updateMd5(&md5, &(pip->ip_u8Pool[u32Index]), j);
+            jf_cghash_updateMd5(&md5, &(pip->ip_u8Pool[u32Index]), j);
         }
-        updateMd5(&md5, pu8Data, j);
-        updateMd5(&md5, (u8 *)&pip->ip_u32NumOfGet, sizeof(pip->ip_u32NumOfGet));
-        finalMd5(&md5, local_md);
+        jf_cghash_updateMd5(&md5, pu8Data, j);
+        jf_cghash_updateMd5(&md5, (u8 *)&pip->ip_u32NumOfGet, sizeof(pip->ip_u32NumOfGet));
+        jf_cghash_finalMd5(&md5, local_md);
 
         pu8Data += j;
 

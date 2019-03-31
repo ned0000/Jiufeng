@@ -28,37 +28,38 @@
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 doHmacMd5(const u8 * pu8Key, olsize_t sKey,
-    const u8 * pu8Input, olsize_t sInput, u8 u8Digest[MD5_DIGEST_LEN])
+u32 jf_cgmac_doHmacMd5(
+    const u8 * pu8Key, olsize_t sKey, const u8 * pu8Input, olsize_t sInput,
+    u8 u8Digest[JF_CGHASH_MD5_DIGEST_LEN])
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    u8 isha[MD5_DIGEST_LEN], osha[MD5_DIGEST_LEN];
-    u8 key[MD5_DIGEST_LEN];
+    u8 isha[JF_CGHASH_MD5_DIGEST_LEN], osha[JF_CGHASH_MD5_DIGEST_LEN];
+    u8 key[JF_CGHASH_MD5_DIGEST_LEN];
     u8 buf[MD5_BLOCK_SIZE];
     u32 u32Index;
-    md5_t md5;
+    jf_cghash_md5_t md5;
 
     if (sKey > MD5_BLOCK_SIZE)
     {
-        doMd5(pu8Key, sKey, key);
+        jf_cghash_doMd5(pu8Key, sKey, key);
 
-        pu8Key = key ;
-        sKey = MD5_DIGEST_LEN ;
+        pu8Key = key;
+        sKey = JF_CGHASH_MD5_DIGEST_LEN;
     }
 
-    initMd5(&md5);
+    jf_cghash_initMd5(&md5);
 
     /* Pad the key for inner digest */
-    for (u32Index = 0 ; u32Index < sKey ; ++ u32Index)
+    for (u32Index = 0; u32Index < sKey; ++ u32Index)
         buf[u32Index] = pu8Key[u32Index] ^ 0x36;
 
-    for (u32Index =  sKey; u32Index < MD5_BLOCK_SIZE ; ++ u32Index)
+    for (u32Index = sKey; u32Index < MD5_BLOCK_SIZE; ++ u32Index)
         buf[u32Index] = 0x36;
 
-    updateMd5(&md5, buf, MD5_BLOCK_SIZE);
-    updateMd5(&md5, pu8Input, sInput);
+    jf_cghash_updateMd5(&md5, buf, MD5_BLOCK_SIZE);
+    jf_cghash_updateMd5(&md5, pu8Input, sInput);
 
-    finalMd5(&md5, isha);
+    jf_cghash_finalMd5(&md5, isha);
 
     /* Pad the key for outter digest */
     for (u32Index = 0; u32Index < sKey; ++ u32Index)
@@ -66,48 +67,49 @@ u32 doHmacMd5(const u8 * pu8Key, olsize_t sKey,
     for (u32Index = sKey; u32Index < MD5_BLOCK_SIZE; ++ u32Index)
         buf[u32Index] = 0x5C;
 
-    updateMd5(&md5, buf, MD5_BLOCK_SIZE) ;
-    updateMd5(&md5, isha, MD5_DIGEST_LEN) ;
+    jf_cghash_updateMd5(&md5, buf, MD5_BLOCK_SIZE) ;
+    jf_cghash_updateMd5(&md5, isha, JF_CGHASH_MD5_DIGEST_LEN) ;
 
-    finalMd5(&md5, osha);
+    jf_cghash_finalMd5(&md5, osha);
 
     /* copy the results */
-    memcpy(u8Digest, osha, MD5_DIGEST_LEN);
+    ol_memcpy(u8Digest, osha, JF_CGHASH_MD5_DIGEST_LEN);
 
     return u32Ret;
 }
 
-u32 doHmacSha1(const u8 * pu8Key, olsize_t sKey,
-    const u8 * pu8Input, olsize_t sInput, u8 u8Digest[SHA1_DIGEST_LEN])
+u32 jf_cgmac_doHmacSha1(
+    const u8 * pu8Key, olsize_t sKey, const u8 * pu8Input, olsize_t sInput,
+    u8 u8Digest[JF_CGHASH_SHA1_DIGEST_LEN])
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    u8 isha[SHA1_DIGEST_LEN], osha[SHA1_DIGEST_LEN];
-    u8 key[SHA1_DIGEST_LEN];
+    u8 isha[JF_CGHASH_SHA1_DIGEST_LEN], osha[JF_CGHASH_SHA1_DIGEST_LEN];
+    u8 key[JF_CGHASH_SHA1_DIGEST_LEN];
     u8 buf[SHA1_BLOCK_SIZE];
     u32 u32Index;
-    sha1_t sha1;
+    jf_cghash_sha1_t sha1;
 
     if (sKey > SHA1_BLOCK_SIZE)
     {
-        doSha1(pu8Key, sKey, key);
+        jf_cghash_doSha1(pu8Key, sKey, key);
 
-        pu8Key = key ;
-        sKey = SHA1_DIGEST_LEN ;
+        pu8Key = key;
+        sKey = JF_CGHASH_SHA1_DIGEST_LEN;
     }
 
-    initSha1(&sha1);
+    jf_cghash_initSha1(&sha1);
 
     /* Pad the key for inner digest */
-    for (u32Index = 0 ; u32Index < sKey ; ++ u32Index)
+    for (u32Index = 0; u32Index < sKey; ++ u32Index)
         buf[u32Index] = pu8Key[u32Index] ^ 0x36;
 
-    for (u32Index =  sKey; u32Index < SHA1_BLOCK_SIZE ; ++ u32Index)
+    for (u32Index = sKey; u32Index < SHA1_BLOCK_SIZE; ++ u32Index)
         buf[u32Index] = 0x36;
 
-    updateSha1(&sha1, buf, SHA1_BLOCK_SIZE);
-    updateSha1(&sha1, pu8Input, sInput);
+    jf_cghash_updateSha1(&sha1, buf, SHA1_BLOCK_SIZE);
+    jf_cghash_updateSha1(&sha1, pu8Input, sInput);
 
-    finalSha1(&sha1, isha);
+    jf_cghash_finalSha1(&sha1, isha);
 
     /* Pad the key for outter digest */
     for (u32Index = 0; u32Index < sKey; ++ u32Index)
@@ -115,13 +117,13 @@ u32 doHmacSha1(const u8 * pu8Key, olsize_t sKey,
     for (u32Index = sKey; u32Index < SHA1_BLOCK_SIZE; ++ u32Index)
         buf[u32Index] = 0x5C;
 
-    updateSha1(&sha1, buf, SHA1_BLOCK_SIZE) ;
-    updateSha1(&sha1, isha, SHA1_DIGEST_LEN) ;
+    jf_cghash_updateSha1(&sha1, buf, SHA1_BLOCK_SIZE) ;
+    jf_cghash_updateSha1(&sha1, isha, JF_CGHASH_SHA1_DIGEST_LEN) ;
 
-    finalSha1(&sha1, osha);
+    jf_cghash_finalSha1(&sha1, osha);
 
     /* copy the results */
-    memcpy(u8Digest, osha, SHA1_DIGEST_LEN);
+    ol_memcpy(u8Digest, osha, JF_CGHASH_SHA1_DIGEST_LEN);
 
     return u32Ret;
 }

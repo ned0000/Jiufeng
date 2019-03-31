@@ -74,8 +74,8 @@ typedef struct
 
     /** for V3 and V5 */
     /** MD5 sub-object */
-    md5_t ug_md5;
-    sha1_t ug_sha1;
+    jf_cghash_md5_t ug_jcmMd5;
+    jf_cghash_sha1_t ug_jcsSha1;
     /** Name, null-terminated string */
     olchar_t * ug_pstrName;
     /** Name space UUID, MUST BE UUID_LEN_BIN length */
@@ -171,7 +171,7 @@ static u32 _makeUuidV1(uuid_gen_t * pug)
             ((time_now.tv_sec < pug->ug_tvLast.tv_sec) ||
              ((time_now.tv_sec == pug->ug_tvLast.tv_sec) &&
               (time_now.tv_usec < pug->ug_tvLast.tv_usec))))
-            u32Ret = getPrngData((void *)&clck, sizeof(clck));
+            u32Ret = jf_prng_getData((void *)&clck, sizeof(clck));
         else
             clck++;
     }
@@ -195,7 +195,7 @@ static u32 _makeUuidV1(uuid_gen_t * pug)
             (pug->ug_u8Mac[0] & IEEE_MAC_MCBIT))
         {
             /* generate random IEEE 802 local multicast MAC address */
-            u32Ret = getPrngData(
+            u32Ret = jf_prng_getData(
                 (void *)&(pug->ug_uoObj.uo_u8Node),
                 sizeof(pug->ug_uoObj.uo_u8Node));
             if (u32Ret == OLERR_NO_ERROR)
@@ -229,15 +229,17 @@ static u32 _makeUuidV3(uuid_gen_t * pug)
     u32 u32Ret = OLERR_NO_ERROR;
 
     /* initialize MD5 context */
-    initMd5(&pug->ug_md5);
+    jf_cghash_initMd5(&pug->ug_jcmMd5);
 
     /* load the namespace UUID into MD5 context */
-    updateMd5(&pug->ug_md5, pug->ug_pu8NameSpace, JF_UUID_LEN_BIN);
+    jf_cghash_updateMd5(
+        &pug->ug_jcmMd5, pug->ug_pu8NameSpace, JF_UUID_LEN_BIN);
     /* load the argument name string into MD5 context */
-    updateMd5(&pug->ug_md5, (u8 *)pug->ug_pstrName, ol_strlen(pug->ug_pstrName));
+    jf_cghash_updateMd5(
+        &pug->ug_jcmMd5, (u8 *)pug->ug_pstrName, ol_strlen(pug->ug_pstrName));
 
     /* store MD5 result into UUID */
-    finalMd5(&pug->ug_md5, (u8 *)&pug->ug_uoObj);
+    jf_cghash_finalMd5(&pug->ug_jcmMd5, (u8 *)&pug->ug_uoObj);
 
     /* brand UUID with version and variant */
     _brandUuid(pug, JF_UUID_VER_3);
@@ -249,7 +251,7 @@ static u32 _makeUuidV4(uuid_gen_t * pug)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    u32Ret = getPrngData((void *)&pug->ug_uoObj, sizeof(pug->ug_uoObj));
+    u32Ret = jf_prng_getData((void *)&pug->ug_uoObj, sizeof(pug->ug_uoObj));
     if (u32Ret == OLERR_NO_ERROR)
     {
         /* brand UUID with version and variant */
@@ -262,29 +264,30 @@ static u32 _makeUuidV4(uuid_gen_t * pug)
 static u32 _makeUuidV5(uuid_gen_t * pug)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    u8 u8Sha1[SHA1_DIGEST_LEN];
+    u8 u8Sha1[JF_CGHASH_SHA1_DIGEST_LEN];
 
     /* initialize SHA1 context */
-    initSha1(&pug->ug_sha1);
+    jf_cghash_initSha1(&pug->ug_jcsSha1);
 
     /* load the namespace UUID into SHA1 context */
-    u32Ret = updateSha1(&pug->ug_sha1, pug->ug_pu8NameSpace, JF_UUID_LEN_BIN);
+    u32Ret = jf_cghash_updateSha1(
+        &pug->ug_jcsSha1, pug->ug_pu8NameSpace, JF_UUID_LEN_BIN);
     if (u32Ret == OLERR_NO_ERROR)
     {
         /* load the argument name string into SHA1 context */
-        u32Ret = updateSha1(
-            &pug->ug_sha1, (u8 *)pug->ug_pstrName, ol_strlen(pug->ug_pstrName));
+        u32Ret = jf_cghash_updateSha1(
+            &pug->ug_jcsSha1, (u8 *)pug->ug_pstrName, ol_strlen(pug->ug_pstrName));
     }
     
     if (u32Ret == OLERR_NO_ERROR)
     {
         /* store SHA1 result into UUID */
-        u32Ret = finalSha1(&pug->ug_sha1, u8Sha1);
+        u32Ret = jf_cghash_finalSha1(&pug->ug_jcsSha1, u8Sha1);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        memcpy((u8 *)&pug->ug_uoObj, u8Sha1, sizeof(pug->ug_uoObj));
+        ol_memcpy((u8 *)&pug->ug_uoObj, u8Sha1, sizeof(pug->ug_uoObj));
         /* brand UUID with version and variant */
         _brandUuid(pug, JF_UUID_VER_5);
     }

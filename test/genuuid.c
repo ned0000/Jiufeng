@@ -173,7 +173,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32Ret = _parseCmdLineParam(argc, argv);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = initPrng();
+        u32Ret = jf_prng_init();
     }
 
     if (u32Ret == OLERR_NO_ERROR)

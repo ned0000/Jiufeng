@@ -79,7 +79,8 @@ static u32 _setDecryptKey(olchar_t * pKey, AES_KEY * pAesKey)
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 encryptFile(olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey)
+u32 jf_encrypt_encryptFile(
+    olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     AES_KEY aeskey;
@@ -148,7 +149,8 @@ u32 encryptFile(olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey)
     return u32Ret; 
 }
 
-u32 decryptFile(olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey)
+u32 jf_encrypt_decryptFile(
+    olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     AES_KEY aeskey;
@@ -221,7 +223,7 @@ u32 decryptFile(olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey)
     return u32Ret;   
 }
 
-u32 encryptString(
+u32 jf_encrypt_encryptString(
     const olchar_t * pSrcStr, olchar_t ** ppDestStr, olchar_t * pKey)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -267,7 +269,7 @@ u32 encryptString(
     return u32Ret;   
 }
 
-u32 decryptString(
+u32 jf_encrypt_decryptString(
     const olchar_t * pSrcStr, olchar_t ** ppDestStr, olchar_t * pKey)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -301,7 +303,7 @@ u32 decryptString(
     return u32Ret; 
 }
 
-void freeEncryptString(olchar_t ** ppStr)
+void jf_encrypt_freeString(olchar_t ** ppStr)
 {
     xfree((void **)ppStr);
 }

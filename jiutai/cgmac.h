@@ -42,11 +42,13 @@
 
 /* --- functional routines ------------------------------------------------- */
 
-CGMACAPI u32 CGMACCALL doHmacMd5(const u8 * pu8Key, olsize_t sKey,
-    const u8 * pu8Input, olsize_t sInput, u8 u8Digest[MD5_DIGEST_LEN]);
+CGMACAPI u32 CGMACCALL jf_cgmac_doHmacMd5(
+    const u8 * pu8Key, olsize_t sKey, const u8 * pu8Input, olsize_t sInput,
+    u8 u8Digest[JF_CGHASH_MD5_DIGEST_LEN]);
 
-CGMACAPI u32 CGMACCALL doHmacSha1(const u8 * pu8Key, olsize_t sKey,
-    const u8 * pu8Input, olsize_t sInput, u8 u8Digest[SHA1_DIGEST_LEN]);
+CGMACAPI u32 CGMACCALL jf_cgmac_doHmacSha1(
+    const u8 * pu8Key, olsize_t sKey, const u8 * pu8Input, olsize_t sInput,
+    u8 u8Digest[JF_CGHASH_SHA1_DIGEST_LEN]);
 
 #endif /*JIUFENG_CGMAC_H*/
 

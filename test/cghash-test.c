@@ -33,10 +33,10 @@ static void _printUsage(void)
 {
     ol_printf("\
 Usage: cghash-test [-m] [-s] [-a string] [-h] \n\
-         -a hash string by sha1\n\
-         -m test MD5\n\
-         -s test sha1\n\
-         -h show this usage\n");
+    -a hash string by sha1\n\
+    -m test MD5\n\
+    -s test sha1\n\
+    -h show this usage\n");
     ol_printf("\n");
 }
 
@@ -81,31 +81,31 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 static u32 _testMd5(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    u8 u8Digest[MD5_DIGEST_LEN];
-    olchar_t str[MD5_DIGEST_LEN * 2 + 1];
+    u8 u8Digest[JF_CGHASH_MD5_DIGEST_LEN];
+    olchar_t str[JF_CGHASH_MD5_DIGEST_LEN * 2 + 1];
 
     ol_printf("Testing MD5\n");
     ol_printf("test case 1\n");
 
-    doMd5((u8 *)"Jefe", 4, u8Digest);
-    getStringHex(str, sizeof(str), u8Digest, MD5_DIGEST_LEN);
+    jf_cghash_doMd5((u8 *)"Jefe", 4, u8Digest);
+    getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
 
-    str[MD5_DIGEST_LEN * 2] = '\0';
+    str[JF_CGHASH_MD5_DIGEST_LEN * 2] = '\0';
 
     if (strncmp(
-            str, "0f71e3c00b7b8162c6d7ef6edc738aa0", MD5_DIGEST_LEN * 2) == 0)
+            str, "0f71e3c00b7b8162c6d7ef6edc738aa0", JF_CGHASH_MD5_DIGEST_LEN * 2) == 0)
         ol_printf("MD5 succeeds\n");
     else
         ol_printf("MD5 fails\n");
 
     ol_printf("test case 2\n");
 
-    doMd5((u8 *)"Doing a market survey.", 22, u8Digest);
-    getStringHex(str, sizeof(str), u8Digest, MD5_DIGEST_LEN);
+    jf_cghash_doMd5((u8 *)"Doing a market survey.", 22, u8Digest);
+    getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
 
-    str[MD5_DIGEST_LEN * 2] = '\0';
+    str[JF_CGHASH_MD5_DIGEST_LEN * 2] = '\0';
 
-    if (strncmp(str, "fefef3a5df1fc52ff2548b5586f4daf7", MD5_DIGEST_LEN * 2) == 0)
+    if (strncmp(str, "fefef3a5df1fc52ff2548b5586f4daf7", JF_CGHASH_MD5_DIGEST_LEN * 2) == 0)
         ol_printf("MD5 succeeds\n");
     else
         ol_printf("MD5 fails\n");
@@ -116,22 +116,22 @@ static u32 _testMd5(void)
 static u32 _testSha1(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    u8 u8Digest[SHA1_DIGEST_LEN];
-    olchar_t str[SHA1_DIGEST_LEN * 2 + 1];
+    u8 u8Digest[JF_CGHASH_SHA1_DIGEST_LEN];
+    olchar_t str[JF_CGHASH_SHA1_DIGEST_LEN * 2 + 1];
 
     ol_printf("Testing SHA1\n");
 
     ol_printf("test case 1\n");
 
-    u32Ret = doSha1((u8 *)"Jefe", 4, u8Digest);
+    u32Ret = jf_cghash_doSha1((u8 *)"Jefe", 4, u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(str, sizeof(str), u8Digest, SHA1_DIGEST_LEN);
+        getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
-        str[SHA1_DIGEST_LEN * 2] = '\0';
+        str[JF_CGHASH_SHA1_DIGEST_LEN * 2] = '\0';
 
         if (strncmp(str, "cb5551f403fac5fd3d6d1b6329993c3848c468ce",
-                SHA1_DIGEST_LEN * 2) == 0)
+                JF_CGHASH_SHA1_DIGEST_LEN * 2) == 0)
             ol_printf("SHA1 succeeds\n");
         else
             ol_printf("SHA1 fails\n");
@@ -139,15 +139,15 @@ static u32 _testSha1(void)
 
     ol_printf("test case 2\n");
 
-    u32Ret = doSha1((u8 *)"Doing a market survey.", 22, u8Digest);
+    u32Ret = jf_cghash_doSha1((u8 *)"Doing a market survey.", 22, u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(str, sizeof(str), u8Digest, SHA1_DIGEST_LEN);
+        getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
-        str[SHA1_DIGEST_LEN * 2] = '\0';
+        str[JF_CGHASH_SHA1_DIGEST_LEN * 2] = '\0';
 
         if (strncmp(str, "b8b264042b227b11618aa65dd1dbe1bf807f3059",
-                SHA1_DIGEST_LEN * 2) == 0)
+                JF_CGHASH_SHA1_DIGEST_LEN * 2) == 0)
             ol_printf("SHA1 succeeds\n");
         else
             ol_printf("SHA1 fails\n");
@@ -159,17 +159,17 @@ static u32 _testSha1(void)
 static u32 _sha1Str(olchar_t * source)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    u8 u8Digest[SHA1_DIGEST_LEN];
-    olchar_t str[SHA1_DIGEST_LEN * 2 + 1];
+    u8 u8Digest[JF_CGHASH_SHA1_DIGEST_LEN];
+    olchar_t str[JF_CGHASH_SHA1_DIGEST_LEN * 2 + 1];
 
     ol_printf("source string: %s\n", source);
 
-    u32Ret = doSha1((u8 *)source, ol_strlen(source), u8Digest);
+    u32Ret = jf_cghash_doSha1((u8 *)source, ol_strlen(source), u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(str, sizeof(str), u8Digest, SHA1_DIGEST_LEN);
+        getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
-        str[SHA1_DIGEST_LEN * 2] = '\0';
+        str[JF_CGHASH_SHA1_DIGEST_LEN * 2] = '\0';
 
         ol_printf("SHA: %s\n", str);
     }

@@ -81,10 +81,10 @@ static u32 _testEncryptFile(void)
     ol_sprintf(strEncryptFile, "%s.encrypt", ls_pstrSrcFile);
     ol_sprintf(strDecryptFile, "%s.decrypt", ls_pstrSrcFile);
 
-    u32Ret = encryptFile(ls_pstrSrcFile, strEncryptFile, pKey);
+    u32Ret = jf_encrypt_encryptFile(ls_pstrSrcFile, strEncryptFile, pKey);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = decryptFile(strEncryptFile, strDecryptFile, pKey);
+        u32Ret = jf_encrypt_decryptFile(strEncryptFile, strDecryptFile, pKey);
     }
 
     return u32Ret;
@@ -107,11 +107,11 @@ static u32 _testEncryptString(void)
     {
         pEnStr = pDeStr = NULL;
         ol_printf("Source String: %s\n", pstr[u32Index]);
-        u32Ret = encryptString(pstr[u32Index], &pEnStr, pKey);
+        u32Ret = jf_encrypt_encryptString(pstr[u32Index], &pEnStr, pKey);
         if (u32Ret == OLERR_NO_ERROR)
         {
             ol_printf("Encrypt String: %s\n", pEnStr);
-            u32Ret = decryptString(pEnStr, &pDeStr, pKey);
+            u32Ret = jf_encrypt_decryptString(pEnStr, &pDeStr, pKey);
         }
 
         if (u32Ret == OLERR_NO_ERROR)
@@ -129,9 +129,9 @@ static u32 _testEncryptString(void)
         }
 
         if (pEnStr != NULL)
-            freeEncryptString(&pEnStr);
+            jf_encrypt_freeString(&pEnStr);
         if (pDeStr != NULL)
-            freeEncryptString(&pDeStr);
+            jf_encrypt_freeString(&pDeStr);
     }
     
     return u32Ret;

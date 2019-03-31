@@ -356,28 +356,31 @@ static void Decode(
 
 /* --- public routine section ---------------------------------------------- */
 
-void initMd5(md5_t * pMd5)
+void jf_cghash_initMd5(jf_cghash_md5_t * pMd5)
 {
-    MD5Init((MD5_CTX *)&(pMd5->m_u8Ctx));
+    MD5Init((MD5_CTX *)&(pMd5->jcm_u8Ctx));
 }
 
-void updateMd5(md5_t * pMd5, const u8 * pu8Buffer, u32 u32Len)
+void jf_cghash_updateMd5(
+    jf_cghash_md5_t * pMd5, const u8 * pu8Buffer, u32 u32Len)
 {
     assert((pMd5 != NULL) && (pu8Buffer != NULL));
 
-    MD5Update((MD5_CTX *)&(pMd5->m_u8Ctx), (u8 *)pu8Buffer, u32Len);
+    MD5Update((MD5_CTX *)&(pMd5->jcm_u8Ctx), (u8 *)pu8Buffer, u32Len);
 }
 
-void finalMd5(md5_t * pMd5, u8 u8Digest[MD5_DIGEST_LEN])
+void jf_cghash_finalMd5(
+    jf_cghash_md5_t * pMd5, u8 u8Digest[JF_CGHASH_MD5_DIGEST_LEN])
 {
     assert(pMd5 != NULL);
 
-    MD5Final(u8Digest, (MD5_CTX *)&(pMd5->m_u8Ctx));
+    MD5Final(u8Digest, (MD5_CTX *)&(pMd5->jcm_u8Ctx));
 
-    MD5Init((MD5_CTX *)&(pMd5->m_u8Ctx));
+    MD5Init((MD5_CTX *)&(pMd5->jcm_u8Ctx));
 }
 
-void doMd5(const u8 * pu8Input, u32 u32InputLen, u8 u8Digest[MD5_DIGEST_LEN])
+void jf_cghash_doMd5(
+    const u8 * pu8Input, u32 u32InputLen, u8 u8Digest[JF_CGHASH_MD5_DIGEST_LEN])
 {
     MD5_CTX md5;
 

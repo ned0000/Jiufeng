@@ -54,7 +54,8 @@
  *
  *  @return the error code
  */
-u32 encryptFile(olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey);
+u32 jf_encrypt_encryptFile(
+    olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey);
 
 /** Decrypt file
  *
@@ -64,7 +65,7 @@ u32 encryptFile(olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey);
  *
  *  @return the error code
  */
-u32 decryptFile(olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey);
+u32 jf_encrypt_decryptFile(olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey);
 
 /** Encrypt a string, the encrypted string is convert to another string
  *
@@ -74,7 +75,7 @@ u32 decryptFile(olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey);
  *
  *  @return the error code
  */
-u32 encryptString(
+u32 jf_encrypt_encryptString(
     const olchar_t * pSrcStr, olchar_t ** ppDestStr, olchar_t * pKey);
 
 /** Decrypt to generate original string
@@ -85,7 +86,7 @@ u32 encryptString(
  *
  *  @return the error code
  */
-u32 decryptString(
+u32 jf_encrypt_decryptString(
     const olchar_t * pSrcStr, olchar_t ** ppDestStr, olchar_t * pKey);
 
 /** Free string allocated by encryptString() and decryptString()
@@ -93,7 +94,7 @@ u32 decryptString(
  *
  *  @return void
  */
-void freeEncryptString(olchar_t ** ppStr);
+void jf_encrypt_freeString(olchar_t ** ppStr);
 
 #endif /*JIUFENG_ENCRYPT_H*/
 

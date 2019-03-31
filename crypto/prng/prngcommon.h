@@ -28,7 +28,7 @@
 
 /* --- functional routines ------------------------------------------------- */
 
-PRNGAPI u32 PRNGCALL seedPrng(
+u32 jf_prng_seed(
     const u8 * pu8Data, olint_t u32Len, double dbEntropy);
 
 

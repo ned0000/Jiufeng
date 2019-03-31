@@ -117,7 +117,7 @@ static u32 _getSeedFromSystem(void)
 
     if (sread > 0)
     {
-        seedPrng(tmpbuf, sizeof(tmpbuf), (oldouble_t)sread);
+        jf_prng_seed(tmpbuf, sizeof(tmpbuf), (oldouble_t)sread);
         clearMemory(tmpbuf, sread);
     }
 
@@ -136,8 +136,8 @@ static u32 _getSeedFromProcess(void)
     pid_t pid = getpid();
     uid_t uid = getuid();
 
-    seedPrng((u8 *)&pid, sizeof(pid), 0.0);
-    seedPrng((u8 *)&uid, sizeof(uid), 0.0);
+    jf_prng_seed((u8 *)&pid, sizeof(pid), 0.0);
+    jf_prng_seed((u8 *)&uid, sizeof(uid), 0.0);
 
 #elif defined(WINDOWS)
 
@@ -156,8 +156,8 @@ static u32 _getSeedFromTime(void)
     u32Ret = getTimeOfDay(&tv);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        seedPrng((u8 *)&tv.tv_sec, sizeof(tv.tv_sec), 0.0);
-        seedPrng((u8 *)&tv.tv_usec, sizeof(tv.tv_usec), 0.0);
+        jf_prng_seed((u8 *)&tv.tv_sec, sizeof(tv.tv_sec), 0.0);
+        jf_prng_seed((u8 *)&tv.tv_usec, sizeof(tv.tv_usec), 0.0);
     }
     else
     {

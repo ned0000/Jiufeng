@@ -31,9 +31,9 @@ static void _printUsage(void)
 {
     ol_printf("\
 Usage: cgmac-test [-k] [-a] [-h] \n\
-         -h show this usage\n\
-         -k test HMAC-SHA1\n\
-         -a test HMAC-MD5\n");
+    -h show this usage\n\
+    -k test HMAC-SHA1\n\
+    -a test HMAC-MD5\n");
     ol_printf("\n");
 }
 
@@ -74,23 +74,24 @@ static u32 _testHmacSha1(void)
     u32 u32Ret = OLERR_NO_ERROR;
     u8 u8Key[100];
     u8 u8Data[100];
-    u8 u8Digest[SHA1_DIGEST_LEN];
-    olchar_t str[SHA1_DIGEST_LEN * 2 + 1];
+    u8 u8Digest[JF_CGHASH_SHA1_DIGEST_LEN];
+    olchar_t str[JF_CGHASH_SHA1_DIGEST_LEN * 2 + 1];
 
     ol_printf("Testing HMAC-SHA1\n");
 
     ol_printf("test case 1\n");
 
-    u32Ret = doHmacSha1((u8 *)"Jefe", 4,
+    u32Ret = jf_cgmac_doHmacSha1(
+        (u8 *)"Jefe", 4,
         (u8 *)"what do ya want for nothing?", 28, u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(str, sizeof(str), u8Digest, SHA1_DIGEST_LEN);
+        getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
-        str[SHA1_DIGEST_LEN * 2] = '\0';
+        str[JF_CGHASH_SHA1_DIGEST_LEN * 2] = '\0';
 
         if (strncmp(str, "effcdf6ae5eb2fa2d27416d5f184df9c259a7c79",
-                SHA1_DIGEST_LEN * 2) == 0)
+                JF_CGHASH_SHA1_DIGEST_LEN * 2) == 0)
             ol_printf("HMAC-SHA1 succeeds\n");
         else
             ol_printf("HMAC-SHA1 fails\n");
@@ -100,17 +101,18 @@ static u32 _testHmacSha1(void)
 
     memset(u8Key, 0xaa, 80);
 
-    u32Ret = doHmacSha1(u8Key, 80,
+    u32Ret = jf_cgmac_doHmacSha1(
+        u8Key, 80,
         (u8 *)"Test Using Larger Than Block-Size Key - Hash Key First",
         54, u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(str, sizeof(str), u8Digest, SHA1_DIGEST_LEN);
+        getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
-        str[SHA1_DIGEST_LEN * 2] = '\0';
+        str[JF_CGHASH_SHA1_DIGEST_LEN * 2] = '\0';
 
         if (strncmp(str, "aa4ae5e15272d00e95705637ce8a3b55ed402112",
-                SHA1_DIGEST_LEN * 2) == 0)
+                JF_CGHASH_SHA1_DIGEST_LEN * 2) == 0)
             ol_printf("HMAC-SHA1 succeeds\n");
         else
             ol_printf("HMAC-SHA1 fails\n");
@@ -118,19 +120,19 @@ static u32 _testHmacSha1(void)
 
     ol_printf("test case 3\n");
 
-    memset(u8Key, 0xaa, 20);
-    memset(u8Data, 0xdd, 50);
+    ol_memset(u8Key, 0xaa, 20);
+    ol_memset(u8Data, 0xdd, 50);
 
-    u32Ret = doHmacSha1(u8Key, 20,
-        u8Data, 50, u8Digest);
+    u32Ret = jf_cgmac_doHmacSha1(
+        u8Key, 20, u8Data, 50, u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(str, sizeof(str), u8Digest, SHA1_DIGEST_LEN);
+        getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
-        str[SHA1_DIGEST_LEN * 2] = '\0';
+        str[JF_CGHASH_SHA1_DIGEST_LEN * 2] = '\0';
 
         if (strncmp(str, "125d7342b9ac11cd91a39af48aa17b4f63f175d3",
-                SHA1_DIGEST_LEN * 2) == 0)
+                JF_CGHASH_SHA1_DIGEST_LEN * 2) == 0)
             ol_printf("HMAC-SHA1 succeeds\n");
         else
             ol_printf("HMAC-SHA1 fails\n");
@@ -144,23 +146,24 @@ static u32 _testHmacMd5(void)
     u32 u32Ret = OLERR_NO_ERROR;
     u8 u8Key[100];
     u8 u8Data[100];
-    u8 u8Digest[MD5_DIGEST_LEN];
-    olchar_t str[MD5_DIGEST_LEN * 2 + 1];
+    u8 u8Digest[JF_CGHASH_MD5_DIGEST_LEN];
+    olchar_t str[JF_CGHASH_MD5_DIGEST_LEN * 2 + 1];
 
     ol_printf("Testing HMAC-MD5\n");
 
     ol_printf("test case 1\n");
 
-    u32Ret = doHmacMd5((u8 *)"Jefe", 4,
+    u32Ret = jf_cgmac_doHmacMd5(
+        (u8 *)"Jefe", 4,
         (u8 *) "what do ya want for nothing?", 28, u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(str, sizeof(str), u8Digest, MD5_DIGEST_LEN);
+        getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
 
-        str[MD5_DIGEST_LEN * 2] = '\0';
+        str[JF_CGHASH_MD5_DIGEST_LEN * 2] = '\0';
 
         if (strncmp(str, "750c783e6ab0b503eaa86e310a5db738",
-                MD5_DIGEST_LEN * 2) == 0)
+                JF_CGHASH_MD5_DIGEST_LEN * 2) == 0)
             ol_printf("HMAC-MD5 succeeds\n");
         else
             ol_printf("HMAC-MD5 fails\n");
@@ -168,19 +171,20 @@ static u32 _testHmacMd5(void)
 
     ol_printf("test case 2\n");
 
-    memset(u8Key, 0xaa, 80);
+    ol_memset(u8Key, 0xaa, 80);
 
-    u32Ret = doHmacMd5(u8Key, 80,
+    u32Ret = jf_cgmac_doHmacMd5(
+        u8Key, 80,
         (u8 *)"Test Using Larger Than Block-Size Key - Hash Key First",
         54, u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(str, sizeof(str), u8Digest, MD5_DIGEST_LEN);
+        getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
 
-        str[MD5_DIGEST_LEN * 2] = '\0';
+        str[JF_CGHASH_MD5_DIGEST_LEN * 2] = '\0';
 
         if (strncmp(str, "6b1ab7fe4bd7bf8f0b62e6ce61b9d0cd",
-                MD5_DIGEST_LEN * 2) == 0)
+                JF_CGHASH_MD5_DIGEST_LEN * 2) == 0)
             ol_printf("HMAC-MD5 succeeds\n");
         else
             ol_printf("HMAC-MD5 fails\n");
@@ -188,19 +192,19 @@ static u32 _testHmacMd5(void)
 
     ol_printf("test case 3\n");
 
-    memset(u8Key, 0xaa, 16);
-    memset(u8Data, 0xdd, 50);
+    ol_memset(u8Key, 0xaa, 16);
+    ol_memset(u8Data, 0xdd, 50);
 
-    u32Ret = doHmacMd5(u8Key, 16,
-        u8Data, 50, u8Digest);
+    u32Ret = jf_cgmac_doHmacMd5(
+        u8Key, 16, u8Data, 50, u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(str, sizeof(str), u8Digest, MD5_DIGEST_LEN);
+        getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
 
-        str[MD5_DIGEST_LEN * 2] = '\0';
+        str[JF_CGHASH_MD5_DIGEST_LEN * 2] = '\0';
 
         if (strncmp(str, "56be34521d144c88dbb8c733f0e8b3f6",
-                MD5_DIGEST_LEN * 2) == 0)
+                JF_CGHASH_MD5_DIGEST_LEN * 2) == 0)
             ol_printf("HMAC-MD5 succeeds\n");
         else
             ol_printf("HMAC-MD5 fails\n");
