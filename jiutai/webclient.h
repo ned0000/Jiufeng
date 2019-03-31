@@ -55,7 +55,7 @@ typedef struct
 
 typedef u32 (* jf_webclient_fnOnResponse_t)(
     jf_network_asocket_t * pAsocket, olint_t nEvent,
-    packet_header_t * header, void * pUser, boolean_t * pbPause);
+    jf_httpparser_packet_header_t * header, void * pUser, boolean_t * pbPause);
 
 /* --- functional routines ------------------------------------------------- */
 
@@ -79,7 +79,7 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_create(
  *  @param pWebclient [in] the webclient to queue the requests to
  *  @param piaRemote [in] the address of remote server
  *  @param u16Port [in] the port of remote server
- *  @param pph [in] the header of the message
+ *  @param pjhph [in] the header of the message
  *  @param fnOnResponse [in] data reception handler
  *  @param pUser [in] the user
  *
@@ -87,7 +87,7 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_create(
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequest(
     jf_webclient_t * pWebclient, ip_addr_t * piaRemote, u16 u16Port,
-    packet_header_t * pph, jf_webclient_fnOnResponse_t fnOnResponse,
+    jf_httpparser_packet_header_t * pjhph, jf_webclient_fnOnResponse_t fnOnResponse,
     void * pUser);
 
 /** Queues a new web request

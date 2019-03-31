@@ -27,7 +27,7 @@
 /* --- private routine section---------------------------------------------- */
 
 static u32 _parseHttpStartLine(
-    packet_header_t * retval, parse_result_field_t * field)
+    jf_httpparser_packet_header_t * retval, parse_result_field_t * field)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     parse_result_t * startline = NULL;
@@ -60,8 +60,8 @@ static u32 _parseHttpStartLine(
                 startline->pr_pprfFirst->prf_sData, "/", 1);
             if (u32Ret == OLERR_NO_ERROR)
             {
-                retval->ph_pstrVersion = result->pr_pprfLast->prf_pstrData;
-                retval->ph_sVersion = result->pr_pprfLast->prf_sData;
+                retval->jhph_pstrVersion = result->pr_pprfLast->prf_pstrData;
+                retval->jhph_sVersion = result->pr_pprfLast->prf_sData;
 
                 destroyParseResult(&result);
             }
@@ -72,19 +72,19 @@ static u32 _parseHttpStartLine(
                 pprf = startline->pr_pprfFirst->prf_pprfNext;
                 u32Ret = getS32FromString(
                     pprf->prf_pstrData, pprf->prf_sData,
-                    &retval->ph_nStatusCode);
+                    &retval->jhph_nStatusCode);
             }
 
             if (u32Ret == OLERR_NO_ERROR)
             {
                 pprf = pprf->prf_pprfNext;
-                retval->ph_pstrStatusData = pprf->prf_pstrData;
-                retval->ph_sStatusData = pprf->prf_sData;
+                retval->jhph_pstrStatusData = pprf->prf_pstrData;
+                retval->jhph_sStatusData = pprf->prf_sData;
 
                 pprf = pprf->prf_pprfNext;
                 while (pprf != NULL)
                 {
-                    retval->ph_sStatusData += pprf->prf_sData + 1;
+                    retval->jhph_sStatusData += pprf->prf_sData + 1;
                     pprf = pprf->prf_pprfNext;
                 }
             }
@@ -95,15 +95,15 @@ static u32 _parseHttpStartLine(
                packet
                eg: GET /index.html HTTP/1.1
                The method (or directive), is the first token, and the Path
-               (or ph_pstrDirectiveObj) is the second, and version in the 3rd. */
+               (or jhph_pstrDirectiveObj) is the second, and version in the 3rd. */
             pprf = startline->pr_pprfFirst;
-            retval->ph_pstrDirective = pprf->prf_pstrData;
-            retval->ph_sDirective = pprf->prf_sData;
+            retval->jhph_pstrDirective = pprf->prf_pstrData;
+            retval->jhph_sDirective = pprf->prf_sData;
 
             pprf = pprf->prf_pprfNext;
-            retval->ph_pstrDirectiveObj = pprf->prf_pstrData;
-            retval->ph_sDirectiveObj = pprf->prf_sData;
-            retval->ph_nStatusCode = -1;
+            retval->jhph_pstrDirectiveObj = pprf->prf_pstrData;
+            retval->jhph_sDirectiveObj = pprf->prf_sData;
+            retval->jhph_nStatusCode = -1;
 
             /* We parse the last token on '/' to find the version */
             u32Ret = parseString(
@@ -111,8 +111,8 @@ static u32 _parseHttpStartLine(
                 startline->pr_pprfLast->prf_sData, "/", 1);
             if (u32Ret == OLERR_NO_ERROR)
             {
-                retval->ph_pstrVersion = result->pr_pprfLast->prf_pstrData;
-                retval->ph_sVersion = result->pr_pprfLast->prf_sData;
+                retval->jhph_pstrVersion = result->pr_pprfLast->prf_pstrData;
+                retval->jhph_sVersion = result->pr_pprfLast->prf_sData;
 
                 destroyParseResult(&result);
             }
@@ -126,11 +126,11 @@ static u32 _parseHttpStartLine(
 }
 
 static u32 _parseHttpHeaderLine(
-    packet_header_t * retval, parse_result_field_t * field)
+    jf_httpparser_packet_header_t * retval, parse_result_field_t * field)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     parse_result_field_t * headerline = field;
-    packet_header_field_t * node;
+    jf_httpparser_packet_header_field_t * node;
     olint_t i = 0;
     olint_t FLNWS = -1;
     olint_t FTNWS = -1;
@@ -146,21 +146,21 @@ static u32 _parseHttpHeaderLine(
         }
 
         /* Instantiate a new header entry for each token */
-        u32Ret = xcalloc((void **)&node, sizeof(packet_header_field_t));
+        u32Ret = xcalloc((void **)&node, sizeof(jf_httpparser_packet_header_field_t));
         if (u32Ret == OLERR_NO_ERROR)
         {
             for (i = 0; i < headerline->prf_sData; ++i)
             {
                 if (*((headerline->prf_pstrData) + i) == ':')
                 {
-                    node->phf_pstrName = headerline->prf_pstrData;
-                    node->phf_sName = i;
-                    node->phf_pstrData = headerline->prf_pstrData + i + 1;
-                    node->phf_sData = (headerline->prf_sData) - i - 1;
+                    node->jhphf_pstrName = headerline->prf_pstrData;
+                    node->jhphf_sName = i;
+                    node->jhphf_pstrData = headerline->prf_pstrData + i + 1;
+                    node->jhphf_sData = (headerline->prf_sData) - i - 1;
                     break;
                 }
             }
-            if (node->phf_pstrName == NULL)
+            if (node->jhphf_pstrName == NULL)
             {
                 xfree((void **)&node);
                 break;
@@ -169,19 +169,19 @@ static u32 _parseHttpHeaderLine(
             /*We need to do white space processing, because we need to
               ignore them in the headers*/
             FLNWS = 0;
-            FTNWS = node->phf_sData - 1;
-            for (i = 0; i < node->phf_sData; ++i)
+            FTNWS = node->jhphf_sData - 1;
+            for (i = 0; i < node->jhphf_sData; ++i)
             {
-                if (*((node->phf_pstrData) + i) != ' ')
+                if (*((node->jhphf_pstrData) + i) != ' ')
                 {
                     /* the first non-whitespace character */
                     FLNWS = i;
                     break;
                 }
             }
-            for (i = node->phf_sData - 1; i >= 0; --i)
+            for (i = node->jhphf_sData - 1; i >= 0; --i)
             {
-                if (*(node->phf_pstrData + i) != ' ')
+                if (*(node->jhphf_pstrData + i) != ' ')
                 {
                     /* The last non-whitespace character */
                     FTNWS = i;
@@ -190,25 +190,25 @@ static u32 _parseHttpHeaderLine(
             }
 
             /* We are basically doing a 'trim' operation */
-            node->phf_pstrData += FLNWS;
-            node->phf_sData = (FTNWS - FLNWS) + 1;
+            node->jhphf_pstrData += FLNWS;
+            node->jhphf_sData = (FTNWS - FLNWS) + 1;
 
             /*Since we are parsing an existing string, we set this flag to
               zero, so that it doesn't get freed*/
-            node->phf_pphfNext = NULL;
+            node->jhphf_pjhphfNext = NULL;
 
-            if (retval->ph_pphfFirst == NULL)
+            if (retval->jhph_pjhphfFirst == NULL)
             {
                 /* If there aren't any headers yet, this will be the first*/
-                retval->ph_pphfFirst = node;
-                retval->ph_pphfLast = node;
+                retval->jhph_pjhphfFirst = node;
+                retval->jhph_pjhphfLast = node;
             }
             else
             {
                 /* There are already headers, so link this in the tail*/
-                retval->ph_pphfLast->phf_pphfNext = node;
+                retval->jhph_pjhphfLast->jhphf_pjhphfNext = node;
             }
-            retval->ph_pphfLast = node;
+            retval->jhph_pjhphfLast = node;
 
             headerline = headerline->prf_pprfNext;
         }
@@ -219,24 +219,24 @@ static u32 _parseHttpHeaderLine(
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 destroyPacketHeader(packet_header_t ** ppHeader)
+u32 jf_httpparser_destroyPacketHeader(jf_httpparser_packet_header_t ** ppHeader)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    packet_header_t * packet = *ppHeader;
-    packet_header_field_t *node = packet->ph_pphfFirst;
-    packet_header_field_t *nextnode;
+    jf_httpparser_packet_header_t * packet = *ppHeader;
+    jf_httpparser_packet_header_field_t *node = packet->jhph_pjhphfFirst;
+    jf_httpparser_packet_header_field_t *nextnode;
 
     /* Iterate through all the headers */
     while (node != NULL)
     {
-        nextnode = node->phf_pphfNext;
-        if (node->phf_bAlloc)
+        nextnode = node->jhphf_pjhphfNext;
+        if (node->jhphf_bAlloc)
         {
             /* If the user allocated the string, then we need to free it.
                Otherwise these are just pointers into others strings, in which
                case we don't want to free them */
-            xfree((void **)&node->phf_pstrName);
-            xfree((void **)&node->phf_pstrData);
+            xfree((void **)&node->jhphf_pstrName);
+            xfree((void **)&node->jhphf_pstrData);
         }
         xfree((void **)&node);
         node = nextnode;
@@ -245,23 +245,23 @@ u32 destroyPacketHeader(packet_header_t ** ppHeader)
     /* If this flag was set, it means the used createEmptyPacketHeader,
        and set these fields manually, which means the string was copied.
        In which case, we need to free the strings */
-    if (packet->ph_bAllocStatus && packet->ph_pstrStatusData != NULL)
-        xfree((void **)&packet->ph_pstrStatusData);
+    if (packet->jhph_bAllocStatus && packet->jhph_pstrStatusData != NULL)
+        xfree((void **)&packet->jhph_pstrStatusData);
 
-    if (packet->ph_bAllocDirective)
+    if (packet->jhph_bAllocDirective)
     {
-        if (packet->ph_pstrDirective != NULL)
-            xfree((void **)&packet->ph_pstrDirective);
+        if (packet->jhph_pstrDirective != NULL)
+            xfree((void **)&packet->jhph_pstrDirective);
 
-        if (packet->ph_pstrDirectiveObj != NULL)
-            xfree((void **)&packet->ph_pstrDirectiveObj);
+        if (packet->jhph_pstrDirectiveObj != NULL)
+            xfree((void **)&packet->jhph_pstrDirectiveObj);
     }
 
-    if (packet->ph_bAllocVersion && packet->ph_pstrVersion != NULL)
-        xfree((void **)&packet->ph_pstrVersion);
+    if (packet->jhph_bAllocVersion && packet->jhph_pstrVersion != NULL)
+        xfree((void **)&packet->jhph_pstrVersion);
 
-    if (packet->ph_bAllocBody && packet->ph_pu8Body != NULL)
-        xfree((void **)&packet->ph_pu8Body);
+    if (packet->jhph_bAllocBody && packet->jhph_pu8Body != NULL)
+        xfree((void **)&packet->jhph_pu8Body);
 
     xfree((void **)ppHeader);
 
@@ -283,7 +283,7 @@ u32 destroyPacketHeader(packet_header_t ** ppHeader)
  *
  *  @return the length of the escaped string
  */
-olint_t escapeHttpData(u8 * outdata, const u8 * data)
+olint_t jf_httpparser_escapeHttpData(u8 * outdata, const u8 * data)
 {
     olint_t i = 0;
     olint_t x = 0;
@@ -325,7 +325,7 @@ olint_t escapeHttpData(u8 * outdata, const u8 * data)
  *
  *  @return the minimum required length
  */
-olint_t getHttpEscapeDataLen(const u8 *data)
+olint_t jf_httpparser_getHttpEscapeDataLen(const u8 *data)
 {
     olint_t i = 0;
     olint_t x = 0;
@@ -362,7 +362,7 @@ olint_t getHttpEscapeDataLen(const u8 *data)
  *
  *  @return the length of the unescaped string
  */
-olint_t unescapeHttpData(olchar_t * data)
+olint_t jf_httpparser_unescapeHttpData(olchar_t * data)
 {
     olchar_t hex[3];
     u8 *stp;
@@ -403,17 +403,17 @@ olint_t unescapeHttpData(olchar_t * data)
     return (dst_x);
 }
 
-u32 parsePacketHeader(
-    packet_header_t ** ppHeader, olchar_t * pstrBuf,
+u32 jf_httpparser_parsePacketHeader(
+    jf_httpparser_packet_header_t ** ppHeader, olchar_t * pstrBuf,
     olsize_t sOffset, olsize_t sBuf)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    packet_header_t * retval = NULL;
+    jf_httpparser_packet_header_t * retval = NULL;
     parse_result_t * pPacket = NULL;
     parse_result_field_t * headerline;
     parse_result_field_t * field;
 
-    u32Ret = xcalloc((void **)&retval, sizeof(packet_header_t));
+    u32Ret = xcalloc((void **)&retval, sizeof(jf_httpparser_packet_header_t));
     if (u32Ret == OLERR_NO_ERROR)
     {
         /* All the headers are delineated with a CRLF, so we parse on that */
@@ -439,28 +439,30 @@ u32 parsePacketHeader(
     if (u32Ret == OLERR_NO_ERROR)
         *ppHeader = retval;
     else if (retval != NULL)
-        destroyPacketHeader(&retval);
+        jf_httpparser_destroyPacketHeader(&retval);
 
     return u32Ret;
 }
 
-u32 getRawPacket(packet_header_t * pph, olchar_t ** ppstrBuf, olsize_t * psBuf)
+u32 jf_httpparser_getRawPacket(
+    jf_httpparser_packet_header_t * pjhph, olchar_t ** ppstrBuf,
+    olsize_t * psBuf)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olsize_t total;
     olsize_t sBuffer = 0;
     olchar_t *pBuffer;
-    packet_header_field_t *node;
+    jf_httpparser_packet_header_field_t *node;
 
     *ppstrBuf = NULL;
     *psBuf = 0;
 
-    if (pph->ph_nStatusCode != -1)
+    if (pjhph->jhph_nStatusCode != -1)
     {
         /* HTTP/1.1 200 OK\r\n
            12 is the total number of literal characters. Just add Version and
            StatusData */
-        sBuffer = 12 + pph->ph_sVersion + pph->ph_sStatusData;
+        sBuffer = 12 + pjhph->jhph_sVersion + pjhph->jhph_sStatusData;
     }
     else
     {
@@ -469,21 +471,21 @@ u32 getRawPacket(packet_header_t * pph, olchar_t ** ppstrBuf, olsize_t * psBuf)
            This is calculating the length for a request packet. It will work as
            long as the version is not > 9.9
            It should also add the length of the Version, but it's not critical.*/
-        sBuffer = pph->ph_sDirective + pph->ph_sDirectiveObj + 12;
+        sBuffer = pjhph->jhph_sDirective + pjhph->jhph_sDirectiveObj + 12;
     }
 
-    node = pph->ph_pphfFirst;
+    node = pjhph->jhph_pjhphfFirst;
     while (node != NULL)
     {
         /* A conservative estimate adding the lengths of the header name and
            value, plus 4 characters for the ':' and CRLF */
-        sBuffer += node->phf_sName + node->phf_sData + 4;
-        node = node->phf_pphfNext;
+        sBuffer += node->jhphf_sName + node->jhphf_sData + 4;
+        node = node->jhphf_pjhphfNext;
     }
 
     /* Another conservative estimate adding in the packet body length plus a
        padding of 3 for the empty line */
-    sBuffer += (3 + pph->ph_sBody);
+    sBuffer += (3 + pjhph->jhph_sBody);
 
     /* Allocate the buffer */
     u32Ret = xmalloc((void **)ppstrBuf, sBuffer);
@@ -491,16 +493,16 @@ u32 getRawPacket(packet_header_t * pph, olchar_t ** ppstrBuf, olsize_t * psBuf)
         return u32Ret;
 
     pBuffer = *ppstrBuf;
-    if (pph->ph_nStatusCode != -1)
+    if (pjhph->jhph_nStatusCode != -1)
     {
         /* Write the response */
         memcpy(pBuffer, "HTTP/", 5);
-        memcpy(pBuffer + 5, pph->ph_pstrVersion, pph->ph_sVersion);
-        total = 5 + pph->ph_sVersion;
+        memcpy(pBuffer + 5, pjhph->jhph_pstrVersion, pjhph->jhph_sVersion);
+        total = 5 + pjhph->jhph_sVersion;
 
-        total += ol_sprintf(pBuffer + total, " %d ", pph->ph_nStatusCode);
-        memcpy(pBuffer + total, pph->ph_pstrStatusData, pph->ph_sStatusData);
-        total += pph->ph_sStatusData;
+        total += ol_sprintf(pBuffer + total, " %d ", pjhph->jhph_nStatusCode);
+        memcpy(pBuffer + total, pjhph->jhph_pstrStatusData, pjhph->jhph_sStatusData);
+        total += pjhph->jhph_sStatusData;
 
         memcpy(pBuffer + total, "\r\n", 2);
         total += 2;
@@ -509,36 +511,36 @@ u32 getRawPacket(packet_header_t * pph, olchar_t ** ppstrBuf, olsize_t * psBuf)
     else
     {
         /* Write the Request */
-        memcpy(pBuffer, pph->ph_pstrDirective, pph->ph_sDirective);
-        total = pph->ph_sDirective;
+        memcpy(pBuffer, pjhph->jhph_pstrDirective, pjhph->jhph_sDirective);
+        total = pjhph->jhph_sDirective;
         memcpy(pBuffer + total, " ", 1);
         total += 1;
-        memcpy(pBuffer + total, pph->ph_pstrDirectiveObj,
-               pph->ph_sDirectiveObj);
-        total += pph->ph_sDirectiveObj;
+        memcpy(pBuffer + total, pjhph->jhph_pstrDirectiveObj,
+               pjhph->jhph_sDirectiveObj);
+        total += pjhph->jhph_sDirectiveObj;
         memcpy(pBuffer + total, " HTTP/", 6);
         total += 6;
-        memcpy(pBuffer + total, pph->ph_pstrVersion, pph->ph_sVersion);
-        total += pph->ph_sVersion;
+        memcpy(pBuffer + total, pjhph->jhph_pstrVersion, pjhph->jhph_sVersion);
+        total += pjhph->jhph_sVersion;
         memcpy(pBuffer + total, "\r\n", 2);
         total += 2;
         /* GET / HTTP/1.1\r\n */
     }
 
-    node = pph->ph_pphfFirst;
+    node = pjhph->jhph_pjhphfFirst;
     while (node != NULL)
     {
         /* Write each header */
-        memcpy(pBuffer + total, node->phf_pstrName, node->phf_sName);
-        total += node->phf_sName;
+        memcpy(pBuffer + total, node->jhphf_pstrName, node->jhphf_sName);
+        total += node->jhphf_sName;
         memcpy(pBuffer + total, ": ", 2);
         total += 2;
-        memcpy(pBuffer + total, node->phf_pstrData, node->phf_sData);
-        total += node->phf_sData;
+        memcpy(pBuffer + total, node->jhphf_pstrData, node->jhphf_sData);
+        total += node->jhphf_sData;
         memcpy(pBuffer + total, "\r\n", 2);
         total += 2;
-        sBuffer += node->phf_sName + node->phf_sData + 4;
-        node = node->phf_pphfNext;
+        sBuffer += node->jhphf_sName + node->jhphf_sData + 4;
+        node = node->jhphf_pjhphfNext;
     }
 
     /* Write the empty line */
@@ -546,8 +548,8 @@ u32 getRawPacket(packet_header_t * pph, olchar_t ** ppstrBuf, olsize_t * psBuf)
     total += 2;
 
     /* Write the body */
-    memcpy(pBuffer + total, pph->ph_pu8Body, pph->ph_sBody);
-    total += pph->ph_sBody;
+    memcpy(pBuffer + total, pjhph->jhph_pu8Body, pjhph->jhph_sBody);
+    total += pjhph->jhph_sBody;
     pBuffer[total] = '\0';
 
     *psBuf = total;
@@ -555,7 +557,7 @@ u32 getRawPacket(packet_header_t * pph, olchar_t ** ppstrBuf, olsize_t * psBuf)
     return u32Ret;
 }
 
-u32 parseUri(
+u32 jf_httpparser_parseUri(
     olchar_t * pstrUri, olchar_t ** ppstrIp, u16 * pu16Port,
     olchar_t ** ppstrPath)
 {
@@ -648,17 +650,18 @@ u32 parseUri(
     return u32Ret;
 }
 
-u32 createEmptyPacketHeader(packet_header_t ** ppHeader)
+u32 jf_httpparser_createEmptyPacketHeader(
+    jf_httpparser_packet_header_t ** ppHeader)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    packet_header_t * retval = NULL;
+    jf_httpparser_packet_header_t * retval = NULL;
 
-    u32Ret = xcalloc((void **)&retval, sizeof(packet_header_t));
+    u32Ret = xcalloc((void **)&retval, sizeof(jf_httpparser_packet_header_t));
     if (u32Ret == OLERR_NO_ERROR)
     {
-        retval->ph_nStatusCode = -1;
-        retval->ph_pstrVersion = "1.0";
-        retval->ph_sVersion = 3;
+        retval->jhph_nStatusCode = -1;
+        retval->jhph_pstrVersion = "1.0";
+        retval->jhph_sVersion = 3;
 
         *ppHeader = retval;
     }
@@ -666,178 +669,185 @@ u32 createEmptyPacketHeader(packet_header_t ** ppHeader)
     return u32Ret;
 }
 
-u32 clonePacketHeader(packet_header_t ** dest, packet_header_t * pph)
+u32 jf_httpparser_clonePacketHeader(
+    jf_httpparser_packet_header_t ** dest, jf_httpparser_packet_header_t * pjhph)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    packet_header_t *retval;
-    packet_header_field_t *n;
+    jf_httpparser_packet_header_t *retval;
+    jf_httpparser_packet_header_field_t *n;
 
-    u32Ret = createEmptyPacketHeader(&retval);
+    u32Ret = jf_httpparser_createEmptyPacketHeader(&retval);
     if (u32Ret != OLERR_NO_ERROR)
         return u32Ret;
     
     /*These three calls will result in the fields being copied*/
-    setDirective(
-        retval, pph->ph_pstrDirective, pph->ph_sDirective,
-        pph->ph_pstrDirectiveObj, pph->ph_sDirectiveObj);
+    jf_httpparser_setDirective(
+        retval, pjhph->jhph_pstrDirective, pjhph->jhph_sDirective,
+        pjhph->jhph_pstrDirectiveObj, pjhph->jhph_sDirectiveObj);
 
-    setStatusCode(
-        retval, pph->ph_nStatusCode, pph->ph_pstrStatusData,
-        pph->ph_sStatusData);
+    jf_httpparser_setStatusCode(
+        retval, pjhph->jhph_nStatusCode, pjhph->jhph_pstrStatusData,
+        pjhph->jhph_sStatusData);
 
-    setVersion(retval, pph->ph_pstrVersion, pph->ph_sVersion);
+    jf_httpparser_setVersion(
+        retval, pjhph->jhph_pstrVersion, pjhph->jhph_sVersion);
     
     /*Iterate through each header, and copy them*/
-    n = pph->ph_pphfFirst;
+    n = pjhph->jhph_pjhphfFirst;
     while (n != NULL)
     {
-        addHeaderLine(
-            retval, n->phf_pstrName, n->phf_sName,
-             n->phf_pstrData, n->phf_sData, TRUE);
-        n = n->phf_pphfNext;
+        jf_httpparser_addHeaderLine(
+            retval, n->jhphf_pstrName, n->jhphf_sName,
+             n->jhphf_pstrData, n->jhphf_sData, TRUE);
+        n = n->jhphf_pjhphfNext;
     }
 
-    if (pph->ph_pu8Body != NULL)
-        u32Ret = setBody(retval, pph->ph_pu8Body, pph->ph_sBody, TRUE);
+    if (pjhph->jhph_pu8Body != NULL)
+        u32Ret = jf_httpparser_setBody(
+            retval, pjhph->jhph_pu8Body, pjhph->jhph_sBody, TRUE);
 
     if (u32Ret == OLERR_NO_ERROR)
         *dest = retval;
     else if (retval != NULL)
-        destroyPacketHeader(&retval);
+        jf_httpparser_destroyPacketHeader(&retval);
 
     return u32Ret;
 }
 
-u32 setVersion(packet_header_t * pph, olchar_t * pstrVersion, olsize_t sVersion)
+u32 jf_httpparser_setVersion(
+    jf_httpparser_packet_header_t * pjhph, olchar_t * pstrVersion,
+    olsize_t sVersion)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
     if (pstrVersion != NULL)
-        u32Ret = dupStringWithLen(&(pph->ph_pstrVersion), pstrVersion, sVersion);
+        u32Ret = dupStringWithLen(&(pjhph->jhph_pstrVersion), pstrVersion, sVersion);
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        pph->ph_sVersion = sVersion;
-        pph->ph_bAllocVersion = TRUE;
+        pjhph->jhph_sVersion = sVersion;
+        pjhph->jhph_bAllocVersion = TRUE;
     }
 
     return u32Ret;
 }
 
-u32 setStatusCode(
-    packet_header_t * pph, olint_t nStatusCode,
+u32 jf_httpparser_setStatusCode(
+    jf_httpparser_packet_header_t * pjhph, olint_t nStatusCode,
     olchar_t * pstrStatusData, olsize_t sStatusData)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    pph->ph_nStatusCode = nStatusCode;
+    pjhph->jhph_nStatusCode = nStatusCode;
 
     if (pstrStatusData != NULL)
-        u32Ret = dupStringWithLen(&(pph->ph_pstrStatusData),
+        u32Ret = dupStringWithLen(&(pjhph->jhph_pstrStatusData),
             pstrStatusData, sStatusData);
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        pph->ph_sStatusData = sStatusData;
-        pph->ph_bAllocStatus = TRUE;
+        pjhph->jhph_sStatusData = sStatusData;
+        pjhph->jhph_bAllocStatus = TRUE;
     }
 
     return u32Ret;
 }
 
-u32 setDirective(
-    packet_header_t * pph, olchar_t * pstrDirective,
+u32 jf_httpparser_setDirective(
+    jf_httpparser_packet_header_t * pjhph, olchar_t * pstrDirective,
     olsize_t sDirective, olchar_t * pstrDirectiveObj, olsize_t sDirectiveObj)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
     if (pstrDirective != NULL)
-        u32Ret = dupStringWithLen(&(pph->ph_pstrDirective), pstrDirective, sDirective);
+        u32Ret = dupStringWithLen(&(pjhph->jhph_pstrDirective), pstrDirective, sDirective);
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        pph->ph_sDirective = sDirective;
+        pjhph->jhph_sDirective = sDirective;
 
         if (pstrDirectiveObj != NULL)
-            u32Ret = dupStringWithLen(&(pph->ph_pstrDirectiveObj),
+            u32Ret = dupStringWithLen(&(pjhph->jhph_pstrDirectiveObj),
                 pstrDirectiveObj, sDirectiveObj);
         if (u32Ret == OLERR_NO_ERROR)
         {
-            pph->ph_sDirectiveObj = sDirectiveObj;
-            pph->ph_bAllocDirective = TRUE;
+            pjhph->jhph_sDirectiveObj = sDirectiveObj;
+            pjhph->jhph_bAllocDirective = TRUE;
         }
         else
         {
-            freeString(&(pph->ph_pstrDirective));
+            freeString(&(pjhph->jhph_pstrDirective));
         }
     }
 
     return u32Ret;
 }
 
-u32 setBody(packet_header_t * pph, u8 * pu8Body, olsize_t sBody, boolean_t bAlloc)
+u32 jf_httpparser_setBody(
+    jf_httpparser_packet_header_t * pjhph, u8 * pu8Body, olsize_t sBody,
+    boolean_t bAlloc)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
     if (bAlloc)
     {
-        u32Ret = dupMemory((void **)&pph->ph_pu8Body, pu8Body, sBody);
+        u32Ret = dupMemory((void **)&pjhph->jhph_pu8Body, pu8Body, sBody);
         if (u32Ret == OLERR_NO_ERROR)
         {
-            pph->ph_bAllocBody = bAlloc;
-            pph->ph_sBody = sBody;
+            pjhph->jhph_bAllocBody = bAlloc;
+            pjhph->jhph_sBody = sBody;
         }
     }
     else
     {
-        pph->ph_bAllocBody = bAlloc;
-        pph->ph_pu8Body = pu8Body;
-        pph->ph_sBody = sBody;
+        pjhph->jhph_bAllocBody = bAlloc;
+        pjhph->jhph_pu8Body = pu8Body;
+        pjhph->jhph_sBody = sBody;
     }
 
     return u32Ret;
 }
 
-u32 addHeaderLine(
-    packet_header_t * pph, olchar_t * pstrName,
+u32 jf_httpparser_addHeaderLine(
+    jf_httpparser_packet_header_t * pjhph, olchar_t * pstrName,
     olsize_t sName, olchar_t * pstrData, olsize_t sData, boolean_t bAlloc)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    packet_header_field_t * node = NULL;
+    jf_httpparser_packet_header_field_t * node = NULL;
     
     /* Create the header node */
-    u32Ret = xcalloc((void **)&node, sizeof(packet_header_field_t));
+    u32Ret = xcalloc((void **)&node, sizeof(jf_httpparser_packet_header_field_t));
     if (u32Ret == OLERR_NO_ERROR)
     {
-        node->phf_bAlloc = bAlloc;
+        node->jhphf_bAlloc = bAlloc;
         if (! bAlloc)
         {
-            node->phf_pstrName = pstrName;
-            node->phf_sName = sName;
-            node->phf_pstrData = pstrData;
-            node->phf_sData = sData;
+            node->jhphf_pstrName = pstrName;
+            node->jhphf_sName = sName;
+            node->jhphf_pstrData = pstrData;
+            node->jhphf_sData = sData;
         }
         else
         {
-            u32Ret = dupStringWithLen(&(node->phf_pstrName), pstrName, sName);
+            u32Ret = dupStringWithLen(&(node->jhphf_pstrName), pstrName, sName);
             if (u32Ret == OLERR_NO_ERROR)
             {
-                node->phf_sName = sName;
+                node->jhphf_sName = sName;
 
-                u32Ret = dupStringWithLen(&(node->phf_pstrData), pstrData, sData);
+                u32Ret = dupStringWithLen(&(node->jhphf_pstrData), pstrData, sData);
             }
 
             if (u32Ret == OLERR_NO_ERROR)
             {
-                node->phf_sData = sData;
+                node->jhphf_sData = sData;
             }
             else
             {
-                if (node->phf_pstrName != NULL)
-                    freeString(&(node->phf_pstrName));
+                if (node->jhphf_pstrName != NULL)
+                    freeString(&(node->jhphf_pstrName));
 
-                if (node->phf_pstrData != NULL)
-                    freeString(&(node->phf_pstrData));
+                if (node->jhphf_pstrData != NULL)
+                    freeString(&(node->jhphf_pstrData));
 
                 xfree((void **)&node);
             }
@@ -847,39 +857,39 @@ u32 addHeaderLine(
     if (u32Ret == OLERR_NO_ERROR)
     {
         /* attach it to the linked list */
-        if(pph->ph_pphfLast != NULL)
+        if(pjhph->jhph_pjhphfLast != NULL)
         {
-            pph->ph_pphfLast->phf_pphfNext = node;
-            pph->ph_pphfLast = node;
+            pjhph->jhph_pjhphfLast->jhphf_pjhphfNext = node;
+            pjhph->jhph_pjhphfLast = node;
         }
         else
         {
-            pph->ph_pphfLast = node;
-            pph->ph_pphfFirst = node;
+            pjhph->jhph_pjhphfLast = node;
+            pjhph->jhph_pjhphfFirst = node;
         }
     }
 
     return u32Ret;
 }
 
-u32 getHeaderLine(
-    packet_header_t * pph, olchar_t * pstrName, olsize_t sName,
-    packet_header_field_t ** ppHeader)
+u32 jf_httpparser_getHeaderLine(
+    jf_httpparser_packet_header_t * pjhph, olchar_t * pstrName, olsize_t sName,
+    jf_httpparser_packet_header_field_t ** ppHeader)
 {
-    packet_header_field_t * node = pph->ph_pphfFirst;
+    jf_httpparser_packet_header_field_t * node = pjhph->jhph_pjhphfFirst;
 
     *ppHeader = NULL;
     
     /*Iterate through the headers, until we find the one we're interested in*/
     while (node != NULL)
     {
-        if (strncasecmp(pstrName, node->phf_pstrName, sName) == 0)
+        if (strncasecmp(pstrName, node->jhphf_pstrName, sName) == 0)
         {
             *ppHeader = node;
 
             return OLERR_NO_ERROR;
         }
-        node = node->phf_pphfNext;
+        node = node->jhphf_pjhphfNext;
     }
     
     return OLERR_NOT_FOUND;

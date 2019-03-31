@@ -106,56 +106,65 @@ static u32 _parseCmdLineParam(
     return u32Ret;
 }
 
-static u32 _getRawHeader(packet_header_t ** ppHeader)
+static u32 _getRawHeader(jf_httpparser_packet_header_t ** ppHeader)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    packet_header_t * pph;
+    jf_httpparser_packet_header_t * pjhph;
     u8 u8Body[10];
     olchar_t str[100];
     olint_t len;
 
-    u32Ret = createEmptyPacketHeader(&pph);
+    u32Ret = jf_httpparser_createEmptyPacketHeader(&pjhph);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = setDirective(pph, "POST", 4, "/login", 6);
+        u32Ret = jf_httpparser_setDirective(pjhph, "POST", 4, "/login", 6);
         if (u32Ret == OLERR_NO_ERROR)
-            u32Ret = addHeaderLine(pph, "Accept", 6, "*/*", 3, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(
+                pjhph, "Accept", 6, "*/*", 3, TRUE);
 
         if (u32Ret == OLERR_NO_ERROR)
-            u32Ret = addHeaderLine(pph, "Accept-Language", 15, "zh-CN", 5, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(
+                pjhph, "Accept-Language", 15, "zh-CN", 5, TRUE);
 
         if (u32Ret == OLERR_NO_ERROR)
-            u32Ret = addHeaderLine(pph, "x-flash-version", 15, "10,1,53,64", 10, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(
+                pjhph, "x-flash-version", 15, "10,1,53,64", 10, TRUE);
 
         if (u32Ret == OLERR_NO_ERROR)
-            u32Ret = addHeaderLine(pph, "Content-Type", 12,
-                                   "application/octet-stream", 24, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(
+                pjhph, "Content-Type", 12, "application/octet-stream", 24, TRUE);
 
         if (u32Ret == OLERR_NO_ERROR)
         {
             len = ol_snprintf(str, sizeof(str) - 1, "%u", (u32)sizeof(u8Body));
-            u32Ret = addHeaderLine(pph, "Content-Length", 14, str, len, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(
+                pjhph, "Content-Length", 14, str, len, TRUE);
         }
 
         if (u32Ret == OLERR_NO_ERROR)
-            u32Ret = addHeaderLine(pph, "Accept-Encoding", 15, "gzip, deflate", 13, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(
+                pjhph, "Accept-Encoding", 15, "gzip, deflate", 13, TRUE);
 
         if (u32Ret == OLERR_NO_ERROR)
-            u32Ret = addHeaderLine(pph, "User-Agent", 10, "greaty", 6, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(
+                pjhph, "User-Agent", 10, "greaty", 6, TRUE);
 
         if (u32Ret == OLERR_NO_ERROR)
-            u32Ret = addHeaderLine(pph, "Host", 4, "192.168.88.3:8080", 17, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(
+                pjhph, "Host", 4, "192.168.88.3:8080", 17, TRUE);
 
         if (u32Ret == OLERR_NO_ERROR)
-            u32Ret = addHeaderLine(pph, "Connection", 10, "Keep-Alive", 10, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(
+                pjhph, "Connection", 10, "Keep-Alive", 10, TRUE);
 
         if (u32Ret == OLERR_NO_ERROR)
-            u32Ret = addHeaderLine(pph, "Cache-Control", 13, "no-cache", 8, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(
+                pjhph, "Cache-Control", 13, "no-cache", 8, TRUE);
 
         if (u32Ret == OLERR_NO_ERROR)
-            u32Ret = setBody(pph, u8Body, sizeof(u8Body), TRUE);
+            u32Ret = jf_httpparser_setBody(pjhph, u8Body, sizeof(u8Body), TRUE);
 
-        *ppHeader = pph;
+        *ppHeader = pjhph;
     }
 
     return u32Ret;
@@ -164,14 +173,14 @@ static u32 _getRawHeader(packet_header_t ** ppHeader)
 static u32 _testHttpMsg(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    packet_header_t * pph = NULL;
+    jf_httpparser_packet_header_t * pjhph = NULL;
     olchar_t * pstr;
     olsize_t size;
 
-    u32Ret = _getRawHeader(&pph);
+    u32Ret = _getRawHeader(&pjhph);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = getRawPacket(pph, &pstr, &size);
+        u32Ret = jf_httpparser_getRawPacket(pjhph, &pstr, &size);
         if (u32Ret == OLERR_NO_ERROR)
         {
             ol_printf("HTTP message\n");
@@ -181,8 +190,8 @@ static u32 _testHttpMsg(void)
         }
     }
 
-    if (pph != NULL)
-        destroyPacketHeader(&pph);
+    if (pjhph != NULL)
+        jf_httpparser_destroyPacketHeader(&pjhph);
 
     return u32Ret;
 }
@@ -194,39 +203,39 @@ static void _copyHeaderDataString(
     value[sData] = '\0';
 }
 
-static void _printHttpPacketHeader(packet_header_t * pph)
+static void _printHttpPacketHeader(jf_httpparser_packet_header_t * pjhph)
 {
     olchar_t value[256];
-    packet_header_field_t * field;
+    jf_httpparser_packet_header_field_t * field;
 
-    _copyHeaderDataString(value, pph->ph_pstrDirective, pph->ph_sDirective);
-    ol_printf("Directive: %s(%d)\n", value, pph->ph_sDirective);
+    _copyHeaderDataString(value, pjhph->jhph_pstrDirective, pjhph->jhph_sDirective);
+    ol_printf("Directive: %s(%d)\n", value, pjhph->jhph_sDirective);
 
     _copyHeaderDataString(
-        value, pph->ph_pstrDirectiveObj, pph->ph_sDirectiveObj);
-    ol_printf("DirectiveObj: %s(%d)\n", value, pph->ph_sDirectiveObj);
+        value, pjhph->jhph_pstrDirectiveObj, pjhph->jhph_sDirectiveObj);
+    ol_printf("DirectiveObj: %s(%d)\n", value, pjhph->jhph_sDirectiveObj);
 
-    ol_printf("Status: %d\n", pph->ph_nStatusCode);
+    ol_printf("Status: %d\n", pjhph->jhph_nStatusCode);
 
-    _copyHeaderDataString(value, pph->ph_pstrStatusData, pph->ph_sStatusData);
-    ol_printf("StatusData: %s(%d)\n", value,  pph->ph_sStatusData);
+    _copyHeaderDataString(value, pjhph->jhph_pstrStatusData, pjhph->jhph_sStatusData);
+    ol_printf("StatusData: %s(%d)\n", value,  pjhph->jhph_sStatusData);
 
-    _copyHeaderDataString(value, pph->ph_pstrVersion, pph->ph_sVersion);
-    ol_printf("Version: %s(%d)\n", value, pph->ph_sVersion);
+    _copyHeaderDataString(value, pjhph->jhph_pstrVersion, pjhph->jhph_sVersion);
+    ol_printf("Version: %s(%d)\n", value, pjhph->jhph_sVersion);
 
-    _copyHeaderDataString(value, (char *)pph->ph_pu8Body, pph->ph_sBody);
-    ol_printf("Body: %s(%d)\n", value, pph->ph_sBody);
+    _copyHeaderDataString(value, (char *)pjhph->jhph_pu8Body, pjhph->jhph_sBody);
+    ol_printf("Body: %s(%d)\n", value, pjhph->jhph_sBody);
 
-    field = pph->ph_pphfFirst;
+    field = pjhph->jhph_pjhphfFirst;
     while (field != NULL)
     {
-        _copyHeaderDataString(value, field->phf_pstrName, field->phf_sName);
-        ol_printf("Header Name: %s(%d)\n", value, field->phf_sName);
+        _copyHeaderDataString(value, field->jhphf_pstrName, field->jhphf_sName);
+        ol_printf("Header Name: %s(%d)\n", value, field->jhphf_sName);
 
-        _copyHeaderDataString(value, field->phf_pstrData, field->phf_sData);
-        ol_printf("Header Value: %s(%d)\n", value, field->phf_sData);
+        _copyHeaderDataString(value, field->jhphf_pstrData, field->jhphf_sData);
+        ol_printf("Header Value: %s(%d)\n", value, field->jhphf_sData);
 
-        field = field->phf_pphfNext;
+        field = field->jhphf_pjhphfNext;
     }
 }
 
@@ -268,21 +277,21 @@ static u32 _testParseHttp(void)
     };
     u32 u32NumOfCase = sizeof(thp) / sizeof(test_http_parser_t);
     u32 u32Index;
-    packet_header_t * pph = NULL;
+    jf_httpparser_packet_header_t * pjhph = NULL;
 
     for (u32Index = 0; u32Index < u32NumOfCase; u32Index ++)
     {
         ol_printf("---------------------------------------------------\n");
         ol_printf("Parse http message:\n%s\n\n", thp[u32Index].pstrHttp);
 
-        u32Ret = parsePacketHeader(
-            &pph, thp[u32Index].pstrHttp, 0, strlen(thp[u32Index].pstrHttp));
+        u32Ret = jf_httpparser_parsePacketHeader(
+            &pjhph, thp[u32Index].pstrHttp, 0, strlen(thp[u32Index].pstrHttp));
         if (u32Ret == OLERR_NO_ERROR)
         {
             if (u32Ret == OLERR_NO_ERROR)
             {
                 ol_printf("Parse result:\n");            
-                _printHttpPacketHeader(pph);
+                _printHttpPacketHeader(pjhph);
             }
             else if (u32Ret != thp[u32Index].u32ErrCode)
             {
@@ -296,7 +305,7 @@ static u32 _testParseHttp(void)
                 ol_printf("%s\n", strErrMsg);
             }
             
-            destroyPacketHeader(&pph);
+            jf_httpparser_destroyPacketHeader(&pjhph);
         }
 
         ol_printf("\n");
@@ -323,7 +332,8 @@ static u32 _testParseUri(void)
     {
         ol_printf("---------------------------------------------------\n");
 
-        u32Ret = parseUri(thp[u32Index].pstrHttp, &pIp, &u16Port, &pPath);
+        u32Ret = jf_httpparser_parseUri(
+            thp[u32Index].pstrHttp, &pIp, &u16Port, &pPath);
         if (u32Ret == OLERR_NO_ERROR)
         {
             ol_printf("URI: %s\n", thp[u32Index].pstrHttp);

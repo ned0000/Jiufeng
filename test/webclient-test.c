@@ -115,7 +115,7 @@ static void _terminate(olint_t signal)
 
 static u32 _wcTestOnResponse(
     jf_network_asocket_t * pAsocket, olint_t nEvent,
-    packet_header_t * header, void * user, boolean_t * pbPause)
+    jf_httpparser_packet_header_t * header, void * user, boolean_t * pbPause)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t * buf = NULL;
@@ -130,19 +130,19 @@ static u32 _wcTestOnResponse(
         return u32Ret;
     }
 
-    getRawPacket(header, &buf, &size);
+    jf_httpparser_getRawPacket(header, &buf, &size);
     logDataMsgWithAscii(
-        (u8 *)buf, size, "Wc test on response, body %d", header->ph_sBody);
+        (u8 *)buf, size, "Wc test on response, body %d", header->jhph_sBody);
     xfree((void **)&buf);
 
-    if (header->ph_sBody > 0)
+    if (header->jhph_sBody > 0)
     {
         u32Ret = openFile2(
             "webclient-http-data.xls", O_WRONLY | O_CREAT | O_TRUNC,
             DEFAULT_CREATE_FILE_MODE, &fd);
         if (u32Ret == OLERR_NO_ERROR)
         {
-            u32Ret = writen(fd, header->ph_pu8Body, header->ph_sBody);
+            u32Ret = writen(fd, header->jhph_pu8Body, header->jhph_sBody);
 
             closeFile(&fd);
         }

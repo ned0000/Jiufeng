@@ -37,42 +37,42 @@
 /* --- constant definitions ------------------------------------------------ */
 
 /* --- data structures ----------------------------------------------------- */
-typedef struct packet_header_field
+typedef struct jf_httpparser_packet_header_field
 {
-    olchar_t * phf_pstrName;
-    olsize_t phf_sName;
-    olchar_t * phf_pstrData;
-    olsize_t phf_sData;
+    olchar_t * jhphf_pstrName;
+    olsize_t jhphf_sName;
+    olchar_t * jhphf_pstrData;
+    olsize_t jhphf_sData;
 
-    boolean_t phf_bAlloc;
-    u8 phf_u8Reserved[7];
+    boolean_t jhphf_bAlloc;
+    u8 jhphf_u8Reserved[7];
 
-    struct packet_header_field * phf_pphfNext;
-} packet_header_field_t;
+    struct jf_httpparser_packet_header_field * jhphf_pjhphfNext;
+} jf_httpparser_packet_header_field_t;
 
-typedef struct packet_header
+typedef struct jf_httpparser_packet_header
 {
-    olchar_t * ph_pstrDirective;
-    olsize_t ph_sDirective;
-    olchar_t * ph_pstrDirectiveObj;
-    olsize_t ph_sDirectiveObj;
-    olint_t ph_nStatusCode;
-    olchar_t * ph_pstrStatusData;
-    olsize_t ph_sStatusData;
-    olchar_t * ph_pstrVersion;
-    olsize_t ph_sVersion;
-    u8 * ph_pu8Body;
-    olsize_t ph_sBody;
+    olchar_t * jhph_pstrDirective;
+    olsize_t jhph_sDirective;
+    olchar_t * jhph_pstrDirectiveObj;
+    olsize_t jhph_sDirectiveObj;
+    olint_t jhph_nStatusCode;
+    olchar_t * jhph_pstrStatusData;
+    olsize_t jhph_sStatusData;
+    olchar_t * jhph_pstrVersion;
+    olsize_t jhph_sVersion;
+    u8 * jhph_pu8Body;
+    olsize_t jhph_sBody;
 
-    boolean_t ph_bAllocDirective;
-    boolean_t ph_bAllocStatus;
-    boolean_t ph_bAllocVersion;
-    boolean_t ph_bAllocBody;
-    u8 ph_bReserved[4];
+    boolean_t jhph_bAllocDirective;
+    boolean_t jhph_bAllocStatus;
+    boolean_t jhph_bAllocVersion;
+    boolean_t jhph_bAllocBody;
+    u8 jhph_bReserved[4];
 
-    packet_header_field_t * ph_pphfFirst;
-    packet_header_field_t * ph_pphfLast;
-} packet_header_t;
+    jf_httpparser_packet_header_field_t * jhph_pjhphfFirst;
+    jf_httpparser_packet_header_field_t * jhph_pjhphfLast;
+} jf_httpparser_packet_header_t;
 
 
 /* --- functional routines ------------------------------------------------- */
@@ -84,8 +84,8 @@ typedef struct packet_header
  *
  *  @return the error code
  */
-HTTPPARSERAPI u32 HTTPPARSERCALL destroyPacketHeader(
-    packet_header_t ** ppHeader);
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyPacketHeader(
+    jf_httpparser_packet_header_t ** ppHeader);
 
 /** Parses the HTTP headers from a buffer, into a packetheader structure
  *
@@ -96,49 +96,51 @@ HTTPPARSERAPI u32 HTTPPARSERCALL destroyPacketHeader(
  *
  *  @return the error code
  */
-HTTPPARSERAPI u32 HTTPPARSERCALL parsePacketHeader(
-    packet_header_t ** ppHeader, olchar_t * pstrBuf, olsize_t sOffset,
-    olsize_t sBuf);
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parsePacketHeader(
+    jf_httpparser_packet_header_t ** ppHeader, olchar_t * pstrBuf,
+    olsize_t sOffset, olsize_t sBuf);
 
 /** Clones a packet header. Because parsePacketHeader does not copy any data,
  *  the data will become invalid once the data is flushed. This method is used
  *  to preserve the data.
  *
- *  @param dest [out] a cloned packet structure
- *  @param pph [in] the packet to clone from
+ *  @param ppDest [out] a cloned packet structure
+ *  @param pHeader [in] the packet to clone from
  *
  *  @return the error code
  */
-HTTPPARSERAPI u32 HTTPPARSERCALL clonePacketHeader(
-    packet_header_t ** dest, packet_header_t * pph);
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_clonePacketHeader(
+    jf_httpparser_packet_header_t ** ppDest,
+    jf_httpparser_packet_header_t * pHeader);
 
 /** Sets the version of a packet header structure. The Default version is 1.0
  *
- *  @param pph [in/out] the packet to modify
+ *  @param pHeader [in/out] the packet to modify
  *  @param pstrVersion [in] the version string to write. eg: 1.1
  *  @param sVersion [in] the length of the version string
  *
  *  @return the error code
  */
-HTTPPARSERAPI u32 HTTPPARSERCALL setVersion(
-    packet_header_t * pph, olchar_t * pstrVersion, olsize_t sVersion);
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setVersion(
+    jf_httpparser_packet_header_t * pHeader, olchar_t * pstrVersion,
+    olsize_t sVersion);
 
 /** Sets the status code of a packetheader structure. There is no default
  *
- *  @param pph [in] the packet to modify
+ *  @param pHeader [in] the packet to modify
  *  @param nStatusCode [in] the status code, eg: 200
  *  @param pstrStatus [in] the status string, eg: OK
  *  @param sStatus [in] the length of the status string
  *
  *  @return the error code
  */
-HTTPPARSERAPI u32 HTTPPARSERCALL setStatusCode(
-    packet_header_t * pph, olint_t nStatusCode, olchar_t * pstrStatus,
-    olsize_t sStatus);
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setStatusCode(
+    jf_httpparser_packet_header_t * pHeader, olint_t nStatusCode,
+    olchar_t * pstrStatus, olsize_t sStatus);
 
 /** Sets the directive of a packet header structure. There is no default.
  *
- *  @param pph [in/out] the packet to modify
+ *  @param pHeader [in/out] the packet to modify
  *  @param pstrDirective [in] the directive to write, eg: GET
  *  @param sDirective [in] the length of the directive
  *  @param pstrDirectiveObj [in] the path component of the directive,
@@ -147,16 +149,17 @@ HTTPPARSERAPI u32 HTTPPARSERCALL setStatusCode(
  *
  *  @return the error code
  */
-HTTPPARSERAPI u32 HTTPPARSERCALL setDirective(
-    packet_header_t * pph, olchar_t * pstrDirective, olsize_t sDirective,
-    olchar_t * pstrDirectiveObj, olsize_t sDirectiveObj);
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setDirective(
+    jf_httpparser_packet_header_t * pHeader, olchar_t * pstrDirective,
+    olsize_t sDirective, olchar_t * pstrDirectiveObj, olsize_t sDirectiveObj);
 
-HTTPPARSERAPI u32 HTTPPARSERCALL setBody(
-    packet_header_t * pph, u8 * pu8Body, olsize_t sBody, boolean_t bAlloc);
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setBody(
+    jf_httpparser_packet_header_t * pHeader, u8 * pu8Body, olsize_t sBody,
+    boolean_t bAlloc);
 
 /** Add a header entry into a packet header structure
  *
- *  @param pph [in/out] the packet to modify
+ *  @param pHeader [in/out] the packet to modify
  *  @param pstrName [in] the header name, eg: CONTENT-TYPE
  *  @param sName [in] the length of the header name
  *  @param pstrData [in] the header value, eg: text/xml
@@ -165,22 +168,23 @@ HTTPPARSERAPI u32 HTTPPARSERCALL setBody(
  *
  *  @return the error code
  */
-HTTPPARSERAPI u32 HTTPPARSERCALL addHeaderLine(
-    packet_header_t * pph, olchar_t * pstrName, olsize_t sName,
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_addHeaderLine(
+    jf_httpparser_packet_header_t * pHeader, olchar_t * pstrName, olsize_t sName,
     olchar_t * pstrData, olsize_t sData, boolean_t bAlloc);
 
 /** Converts a packet header structure into a raw buffer
  *
  *  @note The returned buffer must be freed by user
  *
- *  @param pph [in] the packet header struture to convert
+ *  @param pHeader [in] the packet header struture to convert
  *  @param ppstrBuf [out] The output buffer
  *  @param psBuf [out] the length of the output buffer
  *
  *  @return the error code
  */
-HTTPPARSERAPI u32 HTTPPARSERCALL getRawPacket(
-    packet_header_t * pph, olchar_t ** ppstrBuf, olsize_t * psBuf);
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getRawPacket(
+    jf_httpparser_packet_header_t * pHeader, olchar_t ** ppstrBuf,
+    olsize_t * psBuf);
 
 /** Creates an empty packetheader structure
  *  
@@ -188,23 +192,23 @@ HTTPPARSERAPI u32 HTTPPARSERCALL getRawPacket(
  *
  *  @return the error code
  */
-HTTPPARSERAPI u32 HTTPPARSERCALL createEmptyPacketHeader(
-    packet_header_t ** ppHeader);
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_createEmptyPacketHeader(
+    jf_httpparser_packet_header_t ** ppHeader);
 
 /** Retrieves the header value for a specified header name.
  *
  *  @note the result must be freed
  *
- *  @param pph [in] The packet to introspect
+ *  @param pHeader [in] The packet to introspect
  *  @param pstrName [in] the header name to lookup
  *  @param sName [in] the length of the header name
- *  @param ppHeader [out] the header value. NULL if not found
+ *  @param ppField [out] the header field. NULL if not found
  *
  *  @return the error code
  */
-HTTPPARSERAPI u32 HTTPPARSERCALL getHeaderLine(
-    packet_header_t * pph,
-    olchar_t * pstrName, olsize_t sName, packet_header_field_t ** ppHeader);
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getHeaderLine(
+    jf_httpparser_packet_header_t * pHeader, olchar_t * pstrName,
+    olsize_t sName, jf_httpparser_packet_header_field_t ** ppField);
 
 /** Parses a URI string into its IP address, port number and path components
  *
@@ -217,7 +221,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL getHeaderLine(
  *
  *  @return void
  */
-HTTPPARSERAPI u32 HTTPPARSERCALL parseUri(
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parseUri(
     olchar_t * pstrUri, olchar_t ** ppstrIp, u16 * pu16Port,
     olchar_t ** ppstrPath);
 

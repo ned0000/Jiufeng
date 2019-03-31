@@ -154,7 +154,7 @@ typedef struct internal_web_dataobject
     u32 iwd_u32ExponentialBackoff;
 
     internal_web_chunkdata_t * iwd_piwcChunk;
-    packet_header_t * iwd_pphHeader;
+    jf_httpparser_packet_header_t * iwd_pjhphHeader;
 
     basic_queue_t iwd_baRequest;
     jf_network_asocket_t * iwd_pjnaSock;
@@ -247,10 +247,10 @@ static u32 _destroyWebDataobject(jf_webclient_dataobject_t ** ppDataobject)
         jf_network_disconnectAsocket(piwd->iwd_pjnaSock);
     }
 
-    if (piwd->iwd_pphHeader != NULL)
+    if (piwd->iwd_pjhphHeader != NULL)
     {
         /*The header needs to be freed*/
-        destroyPacketHeader(&(piwd->iwd_pphHeader));
+        jf_httpparser_destroyPacketHeader(&(piwd->iwd_pjhphHeader));
     }
 
     if (piwd->iwd_piwcChunk != NULL)
@@ -563,8 +563,8 @@ static u32 _webclientFinishedResponse(internal_web_dataobject_t * piwd)
             xfree((void **)&piwd->iwd_piwcChunk->iwc_pu8Buffer);
         xfree((void **)&piwd->iwd_piwcChunk);
     }
-    if (piwd->iwd_pphHeader != NULL)
-        destroyPacketHeader(&piwd->iwd_pphHeader);
+    if (piwd->iwd_pjhphHeader != NULL)
+        jf_httpparser_destroyPacketHeader(&piwd->iwd_pjhphHeader);
 
     wr = dequeue(&piwd->iwd_baRequest);
     _destroyWebRequest(&wr);
@@ -755,13 +755,13 @@ static u32 _processChunk(
                         if (i == 2)
                         {
                             /*FINISHED*/
-                            piwd->iwd_pphHeader->ph_pu8Body =
+                            piwd->iwd_pjhphHeader->jhph_pu8Body =
                                 piwd->iwd_piwcChunk->iwc_pu8Buffer;
-                            piwd->iwd_pphHeader->ph_sBody =
+                            piwd->iwd_pjhphHeader->jhph_sBody =
                                 piwd->iwd_piwcChunk->iwc_u32Offset;
 
                             wr->iwr_fnOnResponse(
-                                piwd->iwd_pjnaSock, 0, piwd->iwd_pphHeader,
+                                piwd->iwd_pjnaSock, 0, piwd->iwd_pjhphHeader,
                                 wr->iwr_pUser, &piwd->iwd_bPause);
                             _webclientFinishedResponse(piwd);
                             *psBeginPointer = 2;
@@ -892,7 +892,7 @@ static u32 _webclientOnDisconnect(
     internal_web_request_t * iwr;
 //    u8 * buffer;
 //    olsize_t BeginPointer, EndPointer;
-//    packet_header_t * h;
+//    jf_httpparser_packet_header_t * h;
 
     logInfoMsg(
         "web client disconnect, WaitForClose %d, PipelineFlags %d",
@@ -920,14 +920,14 @@ static u32 _webclientOnDisconnect(
         if (iwr != NULL)
         {
             iwr->iwr_fnOnResponse(
-                pAsocket, 0, piwd->iwd_pphHeader, iwr->iwr_pUser,
+                pAsocket, 0, piwd->iwd_pjhphHeader, iwr->iwr_pUser,
                 &piwd->iwd_bPause);
             //_webclientFinishedResponse(piwd);        
             _destroyWebRequest(&iwr);
         }
 
-        if (piwd->iwd_pphHeader != NULL)
-            destroyPacketHeader(&piwd->iwd_pphHeader);
+        if (piwd->iwd_pjhphHeader != NULL)
+            jf_httpparser_destroyPacketHeader(&piwd->iwd_pjhphHeader);
     }
 
     piwd->iwd_pjnaSock = NULL;
@@ -969,8 +969,8 @@ static u32 _parseHttpHeader(
      olsize_t * psBeginPointer, olsize_t sEndPointer, olsize_t sHeader)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    packet_header_t * tph;
-    packet_header_field_t * phfn;
+    jf_httpparser_packet_header_t * pjhph;
+    jf_httpparser_packet_header_field_t * pjhphf;
     olsize_t zero = 0;
 
     logInfoMsg("parse http header");
@@ -979,20 +979,20 @@ static u32 _parseHttpHeader(
     piwd->iwd_bWaitForClose = TRUE;
     piwd->iwd_nBytesLeft = -1;
     piwd->iwd_bFinHeader = TRUE;
-    u32Ret = parsePacketHeader(
-        &piwd->iwd_pphHeader, (olchar_t *)pu8Buffer,
+    u32Ret = jf_httpparser_parsePacketHeader(
+        &piwd->iwd_pjhphHeader, (olchar_t *)pu8Buffer,
         *psBeginPointer, sEndPointer - (*psBeginPointer));
     if (u32Ret == OLERR_NO_ERROR)
     {
         /*Introspect Request, to see what to do next*/
-        phfn = piwd->iwd_pphHeader->ph_pphfFirst;
-        while (phfn != NULL)
+        pjhphf = piwd->iwd_pjhphHeader->jhph_pjhphfFirst;
+        while (pjhphf != NULL)
         {
-            if (phfn->phf_sName == 17 &&
-                ol_strncasecmp(phfn->phf_pstrName, "transfer-encoding", 17) == 0)
+            if (pjhphf->jhphf_sName == 17 &&
+                ol_strncasecmp(pjhphf->jhphf_pstrName, "transfer-encoding", 17) == 0)
             {
-                if (phfn->phf_sData == 7 &&
-                    ol_strncasecmp(phfn->phf_pstrData, "chunked", 7) == 0)
+                if (pjhphf->jhphf_sData == 7 &&
+                    ol_strncasecmp(pjhphf->jhphf_pstrData, "chunked", 7) == 0)
                 {
                     /*This packet was chunk encoded*/
                     piwd->iwd_bWaitForClose = FALSE;
@@ -1001,18 +1001,18 @@ static u32 _parseHttpHeader(
                         "parse http header, chunk");
                 }
             }
-            if (phfn->phf_sName == 14 &&
-                ol_strncasecmp(phfn->phf_pstrName, "content-length", 14) == 0)
+            if (pjhphf->jhphf_sName == 14 &&
+                ol_strncasecmp(pjhphf->jhphf_pstrName, "content-length", 14) == 0)
             {
                 /*This packet has a Content-Length*/
                 piwd->iwd_bWaitForClose = FALSE;
-                phfn->phf_pstrData[phfn->phf_sData] = '\0';
-                piwd->iwd_nBytesLeft = atoi(phfn->phf_pstrData);
+                pjhphf->jhphf_pstrData[pjhphf->jhphf_sData] = '\0';
+                piwd->iwd_nBytesLeft = atoi(pjhphf->jhphf_pstrData);
                 logInfoMsg(
                     "parse http header, content-length %d",
                     piwd->iwd_nBytesLeft);
             }
-            phfn = phfn->phf_pphfNext;
+            pjhphf = pjhphf->jhphf_pjhphfNext;
         }
         if (piwd->iwd_nBytesLeft == -1 && (! piwd->iwd_bChunked))
         {
@@ -1023,7 +1023,7 @@ static u32 _parseHttpHeader(
         {
             /*We already have the complete Response Packet*/
             wr->iwr_fnOnResponse(
-                pAsocket, 0, piwd->iwd_pphHeader,
+                pAsocket, 0, piwd->iwd_pjhphHeader,
                 wr->iwr_pUser, &piwd->iwd_bPause);
             *psBeginPointer = *psBeginPointer + sHeader + 4;
             _webclientFinishedResponse(piwd);
@@ -1040,11 +1040,11 @@ static u32 _parseHttpHeader(
                     piwd->iwd_nBytesLeft)
                 {
                     logInfoMsg("parse http header, got entire packet");
-                    piwd->iwd_pphHeader->ph_pu8Body = pu8Buffer + sHeader + 4;
-                    piwd->iwd_pphHeader->ph_sBody = piwd->iwd_nBytesLeft;
+                    piwd->iwd_pjhphHeader->jhph_pu8Body = pu8Buffer + sHeader + 4;
+                    piwd->iwd_pjhphHeader->jhph_sBody = piwd->iwd_nBytesLeft;
                     /*We have the entire body, so we have the entire packet*/
                     wr->iwr_fnOnResponse(
-                        pAsocket, 0, piwd->iwd_pphHeader,
+                        pAsocket, 0, piwd->iwd_pjhphHeader,
                         wr->iwr_pUser, &(piwd->iwd_bPause));
                     *psBeginPointer =
                         *psBeginPointer + sHeader + 4 + piwd->iwd_nBytesLeft;
@@ -1056,11 +1056,11 @@ static u32 _parseHttpHeader(
                     logInfoMsg("parse http header, got partial packet");
                     piwd->iwd_sHeaderLen = 0;
                     *psBeginPointer = sHeader + 4;
-                    u32Ret = clonePacketHeader(&tph, piwd->iwd_pphHeader);
+                    u32Ret = jf_httpparser_clonePacketHeader(&pjhph, piwd->iwd_pjhphHeader);
                     if (u32Ret == OLERR_NO_ERROR)
                     {
-                        destroyPacketHeader(&piwd->iwd_pphHeader);
-                        piwd->iwd_pphHeader = tph;
+                        jf_httpparser_destroyPacketHeader(&piwd->iwd_pjhphHeader);
+                        piwd->iwd_pjhphHeader = pjhph;
                     }
 
                     if ((u32Ret == OLERR_NO_ERROR) &&
@@ -1086,11 +1086,11 @@ static u32 _parseHttpHeader(
                   processed*/
                 if (piwd->iwd_piwcChunk != NULL)
                 {
-                    u32Ret = clonePacketHeader(&tph, piwd->iwd_pphHeader);
+                    u32Ret = jf_httpparser_clonePacketHeader(&pjhph, piwd->iwd_pjhphHeader);
                     if (u32Ret == OLERR_NO_ERROR)
                     {
-                        destroyPacketHeader(&piwd->iwd_pphHeader);
-                        piwd->iwd_pphHeader = tph;
+                        jf_httpparser_destroyPacketHeader(&piwd->iwd_pjhphHeader);
+                        piwd->iwd_pjhphHeader = pjhph;
                     }
                 }
             }
@@ -1184,11 +1184,11 @@ static u32 _webclientOnData(
                     "web client data, body in asocket buffer, Fini %d", Fini);
                 if (Fini >= 0)
                 {
-                    setBody(
-                        piwd->iwd_pphHeader, pu8Buffer + *psBeginPointer,
+                    jf_httpparser_setBody(
+                        piwd->iwd_pjhphHeader, pu8Buffer + *psBeginPointer,
                         piwd->iwd_nBytesLeft, FALSE);
                     wr->iwr_fnOnResponse(
-                        pAsocket, 0, piwd->iwd_pphHeader,
+                        pAsocket, 0, piwd->iwd_pjhphHeader,
                         wr->iwr_pUser, &piwd->iwd_bPause);
                     *psBeginPointer = *psBeginPointer + piwd->iwd_nBytesLeft;
                     _webclientFinishedResponse(piwd);
@@ -1206,11 +1206,11 @@ static u32 _webclientOnData(
                     Fini = piwd->iwd_nBytesLeft - piwd->iwd_u32BodyOffset;
                     memcpy(piwd->iwd_pu8BodyBuf + piwd->iwd_u32BodyOffset,
                            pu8Buffer + *psBeginPointer, Fini);
-                    setBody(
-                        piwd->iwd_pphHeader, piwd->iwd_pu8BodyBuf,
+                    jf_httpparser_setBody(
+                        piwd->iwd_pjhphHeader, piwd->iwd_pu8BodyBuf,
                         piwd->iwd_nBytesLeft, FALSE);
                     wr->iwr_fnOnResponse(
-                        pAsocket, 0, piwd->iwd_pphHeader,
+                        pAsocket, 0, piwd->iwd_pjhphHeader,
                         wr->iwr_pUser, &piwd->iwd_bPause);
                     *psBeginPointer = *psBeginPointer + Fini;
                     _webclientFinishedResponse(piwd);
@@ -1269,7 +1269,7 @@ static u32 _webRequestStaticMemory(internal_web_request_t * request)
 
 static u32 _internalWebclientOnResponse(
     jf_network_asocket_t * pAsocket, olint_t nEvent,
-    packet_header_t * header, void * user, boolean_t * pbPause)
+    jf_httpparser_packet_header_t * header, void * user, boolean_t * pbPause)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -1400,7 +1400,7 @@ u32 jf_webclient_create(
 
 u32 jf_webclient_pipelineWebRequest(
     jf_webclient_t * pWebClient, ip_addr_t * piaRemote, u16 u16Port,
-    packet_header_t * packet, jf_webclient_fnOnResponse_t fnOnResponse,
+    jf_httpparser_packet_header_t * packet, jf_webclient_fnOnResponse_t fnOnResponse,
     void * user)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -1412,7 +1412,7 @@ u32 jf_webclient_pipelineWebRequest(
     u32Ret = _newWebRequest(&request, 1);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = getRawPacket(
+        u32Ret = jf_httpparser_getRawPacket(
             packet, (olchar_t **)&request->iwr_pu8Buffer[0],
             &request->iwr_sBuffer[0]);
     }
@@ -1489,10 +1489,10 @@ u32 jf_webclient_pipelineWebRequestEx(
 
  *  @return the packet header
  */
-packet_header_t * jf_webclient_getPacketHeaderFromDataobject(
+jf_httpparser_packet_header_t * jf_webclient_getPacketHeaderFromDataobject(
     jf_webclient_dataobject_t * pDataObject)
 {
-    return (((internal_web_dataobject_t *) pDataObject)->iwd_pphHeader);
+    return (((internal_web_dataobject_t *) pDataObject)->iwd_pjhphHeader);
 }
 
 u32 jf_webclient_deleteWebRequests(
