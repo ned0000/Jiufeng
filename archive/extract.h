@@ -22,8 +22,10 @@
 /* --- data structures ----------------------------------------------------- */
 
 /* --- functional routines ------------------------------------------------- */
-u32 extractFromArchive(FILE * fpArchive, u8 * pu8Buffer, u32 u32BufLen,
-    extract_archive_param_t * pParam);
+
+u32 extractFromArchive(
+    FILE * fpArchive, u8 * pu8Buffer, u32 u32BufLen,
+    jf_archive_extract_param_t * pParam);
 
 #endif /*ARCHIVE_EXTRACT_H*/
 

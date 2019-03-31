@@ -53,7 +53,7 @@ logger options:\n\
 
 static u32 _parseCmdLineParam(
     olint_t argc, olchar_t ** argv, 
-    create_archive_param_t * pcap, logger_param_t * plp)
+    jf_archive_create_param_t * pjacp, logger_param_t * plp)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t nOpt;
@@ -126,11 +126,11 @@ static u32 _parseCmdLineParam(
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    create_archive_param_t cap;
-    extract_archive_param_t eap;
+    jf_archive_create_param_t jacp;
+    jf_archive_extract_param_t jaep;
     logger_param_t lpParam;
 
-    memset(&cap, 0, sizeof(create_archive_param_t));
+    memset(&jacp, 0, sizeof(jf_archive_create_param_t));
     memset(&lpParam, 0, sizeof(logger_param_t));
     lpParam.lp_pstrCallerName = "ARCHIVE";
 
@@ -140,7 +140,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     initLinkList(&ls_llMemberFile);
 
-    u32Ret = _parseCmdLineParam(argc, argv, &cap, &lpParam);
+    u32Ret = _parseCmdLineParam(argc, argv, &jacp, &lpParam);
     if ((u32Ret == OLERR_NO_ERROR) && (ls_bCreateArchive))
     {
         if (isLinkListEmpty(&ls_llMemberFile))
@@ -165,15 +165,15 @@ olint_t main(olint_t argc, olchar_t ** argv)
     {
         if (ls_bCreateArchive)
         {
-            cap.cap_bVerbose = ls_bVerbose;
-            u32Ret = createArchive(
-                &ls_llMemberFile, ls_pstrArchiveName, &cap);
+            jacp.jacp_bVerbose = ls_bVerbose;
+            u32Ret = jf_archive_create(
+                &ls_llMemberFile, ls_pstrArchiveName, &jacp);
         }
         else if (ls_bExtractArchive)
         {
-            eap.eap_bListArchive = ls_bListArchive;
-            eap.eap_bVerbose = ls_bVerbose;
-            u32Ret = extractArchive(ls_pstrArchiveName, &eap);
+            jaep.jaep_bListArchive = ls_bListArchive;
+            jaep.jaep_bVerbose = ls_bVerbose;
+            u32Ret = jf_archive_extract(ls_pstrArchiveName, &jaep);
         }
         else
         {

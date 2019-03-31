@@ -43,28 +43,28 @@
 
 typedef struct
 {
-    boolean_t cap_bCompress;
-    boolean_t cap_bFastest;
-    boolean_t cap_bBestCompress;
-    boolean_t cap_bVerbose;
-    u8 cap_u8Reserved[4];
-    u8 cap_u8Reserved2[28];
-} create_archive_param_t;
+    boolean_t jacp_bCompress;
+    boolean_t jacp_bFastest;
+    boolean_t jacp_bBestCompress;
+    boolean_t jacp_bVerbose;
+    u8 jacp_u8Reserved[4];
+    u8 jacp_u8Reserved2[28];
+} jf_archive_create_param_t;
 
 typedef struct
 {
-    boolean_t eap_bListArchive;
-    boolean_t eap_bVerbose;
-    u8 eap_u8Reserved[6];
-    u8 eap_u8Reserved2[28];
-} extract_archive_param_t;
+    boolean_t jaep_bListArchive;
+    boolean_t jaep_bVerbose;
+    u8 jaep_u8Reserved[6];
+    u8 jaep_u8Reserved2[28];
+} jf_archive_extract_param_t;
 
-ARCHIVEAPI u32 ARCHIVECALL createArchive(
+ARCHIVEAPI u32 ARCHIVECALL jf_archive_create(
     link_list_t * pMemberFile,
-    olchar_t * pstrArchiveName, create_archive_param_t * pParam);
+    olchar_t * pstrArchiveName, jf_archive_create_param_t * pParam);
 
-ARCHIVEAPI u32 ARCHIVECALL extractArchive(
-    olchar_t * pstrArchiveName, extract_archive_param_t * pParam);
+ARCHIVEAPI u32 ARCHIVECALL jf_archive_extract(
+    olchar_t * pstrArchiveName, jf_archive_extract_param_t * pParam);
 
 #endif /*JIUFENG_ARCHIVE_H*/
 

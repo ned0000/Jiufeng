@@ -424,7 +424,7 @@ static u32 _handleMemberFile(const olchar_t * pstrFullpath, file_stat_t * pFiles
 /* --- public routine section ---------------------------------------------- */
 u32 writeToArchive(
     ar_file_t * pafArchive, const olchar_t * pstrFullpath,
-    u8 * pu8Buffer, olsize_t sBuf, create_archive_param_t * pParam)
+    u8 * pu8Buffer, olsize_t sBuf, jf_archive_create_param_t * pParam)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     file_stat_t filestat;
@@ -442,7 +442,7 @@ u32 writeToArchive(
         fh.fh_pafArchive = pafArchive;
         fh.fh_pu8Buffer = pu8Buffer;
         fh.fh_sBuf = sBuf;
-        fh.fh_bVerbose = pParam->cap_bVerbose;
+        fh.fh_bVerbose = pParam->jacp_bVerbose;
 
         u32Ret = _handleMemberFile(strName, &filestat, (void *)&fh);
     }

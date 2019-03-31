@@ -320,7 +320,7 @@ static u32 _extractMemberFile(archive_header_t * pah, file_handler_t * pfh)
 /* --- public routine section ---------------------------------------------- */
 u32 extractFromArchive(
     ar_file_t * pafArchive, u8 * pu8Buffer, olsize_t sBuf,
-    extract_archive_param_t * pParam)
+    jf_archive_extract_param_t * pParam)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     file_handler_t fh;
@@ -331,7 +331,7 @@ u32 extractFromArchive(
     fh.fh_pafArchive = pafArchive;
     fh.fh_pu8Buffer = pu8Buffer;
     fh.fh_sBuf = sBuf;
-    fh.fh_bListArchive = pParam->eap_bListArchive;
+    fh.fh_bListArchive = pParam->jaep_bListArchive;
 
     while ((u32Ret == OLERR_NO_ERROR) && (! isEndOfArFile(pafArchive)))
     {

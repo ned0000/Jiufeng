@@ -33,9 +33,9 @@
 /* --- private routine section---------------------------------------------- */
 
 /* --- public routine section ---------------------------------------------- */
-u32 createArchive(
+u32 jf_archive_create(
     link_list_t * pMemberFile, olchar_t * pstrArchiveName,
-    create_archive_param_t * pParam)
+    jf_archive_create_param_t * pParam)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u8 * pu8Fullpath;
@@ -80,7 +80,8 @@ u32 createArchive(
     return u32Ret;
 }
 
-u32 extractArchive(olchar_t * pstrArchiveName, extract_archive_param_t * pParam)
+u32 jf_archive_extract(
+    olchar_t * pstrArchiveName, jf_archive_extract_param_t * pParam)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u8 * pu8Buffer;

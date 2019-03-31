@@ -23,9 +23,10 @@
 /* --- data structures ----------------------------------------------------- */
 
 /* --- functional routines ------------------------------------------------- */
+
 u32 writeToArchive(
     FILE * fpArchive, const u8 * pu8Fullpath,
-    u8 * pu8Buffer, u32 u32BufLen, create_archive_param_t * pParam);
+    u8 * pu8Buffer, u32 u32BufLen, jf_archive_create_param_t * pParam);
 
 #endif /*ARCHIVE_CREATE_H*/
 
