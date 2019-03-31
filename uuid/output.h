@@ -23,7 +23,8 @@
 /* --- data structures ----------------------------------------------------- */
 
 /* --- functional routines ------------------------------------------------- */
-u32 outputUuid(uuid_obj_t * puo, uuid_fmt_t fmt, u8 * pu8Uuid, u32 u32Len);
+
+u32 outputUuid(uuid_obj_t * puo, jf_uuid_fmt_t fmt, u8 * pu8Uuid, u32 u32Len);
 
 #endif /*UUID_OUTPUT_H*/
 

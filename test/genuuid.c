@@ -23,8 +23,8 @@
 #include "prng.h"
 
 /* --- private data/data structure section --------------------------------- */
-static uuid_ver_t ls_uvVersion = UUID_VER_1;
-static uuid_fmt_t ls_ufFormat = UUID_FMT_STR;
+static jf_uuid_ver_t ls_juvVersion = JF_UUID_VER_1;
+static jf_uuid_fmt_t ls_jufFormat = JF_UUID_FMT_STR;
 static boolean_t ls_bMulticastMac = FALSE;
 static u32 ls_u32NumOfUuid = 1;
 static olchar_t * ls_pstrName = NULL;
@@ -61,11 +61,11 @@ static u32 _parseOptv(olchar_t * pstrOpt)
 
     if (sscanf(optarg, "%d", &u32Value) == 1)
     {
-        if ((u32Value != UUID_VER_1) && (u32Value != UUID_VER_3) &&
-            (u32Value != UUID_VER_4) && (u32Value != UUID_VER_5))
+        if ((u32Value != JF_UUID_VER_1) && (u32Value != JF_UUID_VER_3) &&
+            (u32Value != JF_UUID_VER_4) && (u32Value != JF_UUID_VER_5))
             u32Ret = OLERR_INVALID_PARAM;
         else
-            ls_uvVersion = (uuid_ver_t)u32Value;
+            ls_juvVersion = (jf_uuid_ver_t)u32Value;
     }
     else
     {
@@ -83,13 +83,13 @@ static u32 _parseOptf(olchar_t * pstrOpt)
     u32 u32Ret = OLERR_NO_ERROR;
 
     if (strncmp(pstrOpt, "binary", 6) == 0)
-        ls_ufFormat = UUID_FMT_BIN;
+        ls_jufFormat = JF_UUID_FMT_BIN;
     else if (strncmp(pstrOpt, "string", 6) == 0)
-        ls_ufFormat = UUID_FMT_STR;
+        ls_jufFormat = JF_UUID_FMT_STR;
     else if (strncmp(pstrOpt, "hexadecimal", 11) == 0)
-        ls_ufFormat = UUID_FMT_HEX;
+        ls_jufFormat = JF_UUID_FMT_HEX;
     else if (strncmp(pstrOpt, "siv", 3) == 0)
-        ls_ufFormat = UUID_FMT_SIV;
+        ls_jufFormat = JF_UUID_FMT_SIV;
     else
     {
         ol_printf("Invalid format (string(default)|binary|hexadecimal|siv)\n");
@@ -141,14 +141,14 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
     return u32Ret;
 }
 
-void _outputUuid(u8 * pu8Uuid, uuid_fmt_t format)
+void _outputUuid(u8 * pu8Uuid, jf_uuid_fmt_t format)
 {
     u8 u8Index;
 
     ol_printf("UUID: ");
-    if (format == UUID_FMT_BIN)
+    if (format == JF_UUID_FMT_BIN)
     {
-        for (u8Index = 0; u8Index < UUID_LEN_BIN; u8Index ++)
+        for (u8Index = 0; u8Index < JF_UUID_LEN_BIN; u8Index ++)
         {
             ol_printf("0x%X ", pu8Uuid[u8Index]);
         }
@@ -166,7 +166,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u8 u8Uuid[50];
-    uuid_param_t up;
+    jf_uuid_param_t jup;
     olchar_t strErrMsg[200];
     u32 u32Index;
 
@@ -178,19 +178,19 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        memset(&up, 0, sizeof(uuid_param_t));
-        up.up_ufFmt = ls_ufFormat;
-        up.up_bMulticastMac = ls_bMulticastMac;
-        up.up_pstrName = ls_pstrName;
-        up.up_pu8NameSpace = ls_u8NameSpace_X500;
+        memset(&jup, 0, sizeof(jf_uuid_param_t));
+        jup.jup_ufFmt = ls_jufFormat;
+        jup.jup_bMulticastMac = ls_bMulticastMac;
+        jup.jup_pstrName = ls_pstrName;
+        jup.jup_pu8NameSpace = ls_u8NameSpace_X500;
         for (u32Index = 0;
              (u32Index < ls_u32NumOfUuid) && (u32Ret == OLERR_NO_ERROR);
              u32Index ++)
         {
-            u32Ret = getUuid(u8Uuid, 50, ls_uvVersion, &up);
+            u32Ret = jf_uuid_get(u8Uuid, 50, ls_juvVersion, &jup);
             if (u32Ret == OLERR_NO_ERROR)
             {
-                _outputUuid(u8Uuid, ls_ufFormat);
+                _outputUuid(u8Uuid, ls_jufFormat);
             }
         }
     }

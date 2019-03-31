@@ -119,23 +119,24 @@ static u32 _writeUuidSiv(uuid_obj_t * puo, olchar_t * pstrUuid, olsize_t sUuid)
 }
 
 /* --- public routine section ---------------------------------------------- */
-u32 outputUuid(uuid_obj_t * puo, uuid_fmt_t fmt, olchar_t * pstrUuid, olsize_t sUuid)
+u32 outputUuid(
+    uuid_obj_t * puo, jf_uuid_fmt_t fmt, olchar_t * pstrUuid, olsize_t sUuid)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    if (fmt == UUID_FMT_BIN)
+    if (fmt == JF_UUID_FMT_BIN)
     {
         u32Ret = _writeUuidBin(puo, pstrUuid, sUuid);
     }
-    else if (fmt == UUID_FMT_STR)
+    else if (fmt == JF_UUID_FMT_STR)
     {
         u32Ret = _writeUuidStr(puo, pstrUuid, sUuid);
     }
-    else if (fmt == UUID_FMT_HEX)
+    else if (fmt == JF_UUID_FMT_HEX)
     {
         u32Ret = _writeUuidHex(puo, pstrUuid, sUuid);
     }
-    else if (fmt == UUID_FMT_SIV)
+    else if (fmt == JF_UUID_FMT_SIV)
     {
         u32Ret = _writeUuidSiv(puo, pstrUuid, sUuid);
     }
