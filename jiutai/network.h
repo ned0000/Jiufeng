@@ -59,22 +59,24 @@
 
 #endif
 
-/* socket */
+/** socket
+ */
 
-typedef void  socket_t;
-typedef void  asocket_t;
-typedef void  assocket_t;
-typedef void  acsocket_t;
-typedef void  adgram_t;
+typedef void  jf_network_socket_t;
+typedef void  jf_network_asocket_t;
+typedef void  jf_network_assocket_t;
+typedef void  jf_network_acsocket_t;
+typedef void  jf_network_adgram_t;
 
-/* basic chain */
+/** chain
+ */
 
-typedef void  basic_chain_t;
-typedef void  basic_chain_object_t;
+typedef void  jf_network_chain_t;
+typedef void  jf_network_chain_object_t;
 
 /** Callback function before select()
  *
- *  @param pObject [in] basic chain object
+ *  @param pObject [in] chain object
  *  @param readset [in/out] read fd set
  *  @param writeset [in/out] write fd set
  *  @param errorset [in/out] error fd set
@@ -82,13 +84,13 @@ typedef void  basic_chain_object_t;
  *
  *  @return the error code
  */
-typedef u32 (* fnPreSelectChainObject_t)(
-    basic_chain_object_t * pObject, fd_set * readset, fd_set * writeset,
-    fd_set * errorset, u32 * pu32BlockTime);
+typedef u32 (* jf_network_fnPreSelectChainObject_t)(
+    jf_network_chain_object_t * pObject, fd_set * readset,
+    fd_set * writeset, fd_set * errorset, u32 * pu32BlockTime);
 
 /** Callback function after select()
  *
- *  @param pObject [in] basic chain object
+ *  @param pObject [in] chain object
  *  @param nReady [in] number of ready fd 
  *  @param readset [in] read fd set
  *  @param writeset [in] write fd set
@@ -96,43 +98,221 @@ typedef u32 (* fnPreSelectChainObject_t)(
  *
  *  @return the error code
  */
-typedef u32 (* fnPostSelectChainObject_t)(
-    basic_chain_object_t * pObject, olint_t nReady, fd_set * readset,
-    fd_set * writeset, fd_set * errorset);
+typedef u32 (* jf_network_fnPostSelectChainObject_t)(
+    jf_network_chain_object_t * pObject, olint_t nReady,
+    fd_set * readset, fd_set * writeset, fd_set * errorset);
 
-/** Header of basic chain object, MUST be placed at the beginning of the object
+/** Header of chain object, MUST be placed at the beginning of the object
  */
 typedef struct
 {
-    fnPreSelectChainObject_t bcoh_fnPreSelect;
-    fnPostSelectChainObject_t bcoh_fnPostSelect;
-} basic_chain_object_header_t;
+    jf_network_fnPreSelectChainObject_t jncoh_fnPreSelect;
+    jf_network_fnPostSelectChainObject_t jncoh_fnPostSelect;
+} jf_network_chain_object_header_t;
 
-/* utimer */
+/** utimer
+ */
 
-typedef void  utimer_t;
+typedef void  jf_network_utimer_t;
 
-typedef u32 (* fnCallbackOfUtimerItem_t)(void * pData);
-typedef u32 (* fnDestroyUtimerItem_t)(void ** ppData);
+typedef u32 (* jf_network_fnCallbackOfUtimerItem_t)(void * pData);
+typedef u32 (* jf_network_fnDestroyUtimerItem_t)(void ** ppData);
 
+/** memory ower
+ */
+typedef enum jf_network_mem_owner
+{
+    JF_NETWORK_MEM_OWNER_LIB = 0, /**< owner is this library */
+    JF_NETWORK_MEM_OWNER_STATIC,  /**< owner is uesr but it's static,
+    library can use it until the data is sent. user will not recycle the momery
+    until the send is ok. */
+    JF_NETWORK_MEM_OWNER_USER, /**< owner is user, library can use it
+    if the data is failed to be sent, library will duplicate the
+    data and send it later. User can recycle the momery after send
+    weather the data is sent or not */
+} jf_network_mem_owner_t;
+
+/** async socket
+ */
+
+/** The function is to notify upper layer there are data coming
+ */
+typedef u32 (* jf_network_fnAsocketOnData_t)(
+    jf_network_asocket_t * pAsocket, u8 * pu8Buffer, olsize_t * psBeginPointer,
+    olsize_t sEndPointer, void * pUser, boolean_t * pbPause);
+
+/** The function is to notify upper layer if the connnection is established
+ *  if bOK is true, connection is setup, otherwise not, upper layer SHOULD NOT
+ *  call asDisconnect to close the connection, asocket will handle it by itself
+ */
+typedef u32 (* jf_network_fnAsocketOnConnect_t)(
+    jf_network_asocket_t * pAsocket, boolean_t bOK, void * pUser);
+
+/** The function is to notify upper layer the connnection is going to be closed
+ *  the access to the asocket being closed is not recommended.
+ *  DO NOT use asDisconnect in this callback function as asocket can handle it
+ *  by itself. The u32Status is the reason why the connection is closed
+ */
+typedef u32 (* jf_network_fnAsocketOnDisconnect_t)(
+    jf_network_asocket_t * pAsocket, u32 u32Status, void * pUser);
+
+typedef u32 (* jf_network_fnAsocketOnSendOK_t)(
+    jf_network_asocket_t * pAsocket, void * pUser);
+
+typedef struct
+{
+    olsize_t jnacp_sInitialBuf;
+    u32 jnacp_u32Reserved;
+    jf_network_fnAsocketOnData_t jnacp_fnOnData;
+    jf_network_fnAsocketOnConnect_t jnacp_fnOnConnect;
+    jf_network_fnAsocketOnDisconnect_t jnacp_fnOnDisconnect;
+    jf_network_fnAsocketOnSendOK_t jnacp_fnOnSendOK;
+    /*do not read data*/
+    boolean_t jnacp_bNoRead;
+    u8 jnacp_u8Reserved[15];
+    sync_mutex_t * jnacp_psmLock;
+} jf_network_asocket_create_param_t;
+
+/** async server socket
+ */
+
+/** The function is to notify upper layer there are incoming data. The pUser is
+ *  set by fnAssocketOnConnect_t when a new incoming connection is accepted
+ */
+typedef u32 (* jf_network_fnAssocketOnData_t)(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    u8 * pu8Buffer, olsize_t * psBeginPointer, olsize_t sEndPointer,
+    void * pUser, boolean_t * pbPause);
+
+/** The function is to notify upper layer there are new connection
+ */
+typedef u32 (* jf_network_fnAssocketOnConnect_t)(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    void ** ppUser);
+
+/** The function is to notify upper layer a connection is closed.
+ *
+ *  @note The access to the asocket being closed is not recommended.
+ *  @note DO NOT use asDisconnect in this callback function as asocket can
+ *   handle it by itself.
+ *
+ *  @param u32Status [in] the reason why the connection is closed
+ */
+typedef u32 (* jf_network_fnAssocketOnDisconnect_t)(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    u32 u32Status, void * pUser);
+
+/** The function is to notify upper layer the data is sent to peer successfully
+ */
+typedef u32 (* jf_network_fnAssocketOnSendOK_t)(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    void * pUser);
+
+typedef struct
+{
+    /**The initial size of the receive buffer*/
+    olsize_t jnacp_sInitialBuf;
+    /**The max number of simultaneous connections that will be allowed*/
+    u32 jnacp_u32MaxConn;
+    boolean_t jnacp_bNoRead;
+    u8 jnacp_u8Reserved[1];
+    /**The port number to bind to. 0 will select a random port*/
+    u16 jnacp_u16PortNumber;
+    ip_addr_t jnacp_iaAddr;
+    /**Function that triggers when a connection is established*/
+    jf_network_fnAssocketOnConnect_t jnacp_fnOnConnect;
+    /**Function that triggers when a connection is closed*/
+    jf_network_fnAssocketOnDisconnect_t jnacp_fnOnDisconnect;
+    /**Function that triggers when data is coming*/
+    jf_network_fnAssocketOnData_t jnacp_fnOnData;
+    /**Function that triggers when pending sends are complete*/
+    jf_network_fnAssocketOnSendOK_t jnacp_fnOnSendOK;
+    u32 jnacp_u32Reserved2[4];
+} jf_network_assocket_create_param_t;
+
+/** async client socket
+ */
+
+/** The function is to notify upper layer there are incoming data
+ */
+typedef u32 (* jf_network_fnAcsocketOnData_t)(
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
+    u8 * pu8Buffer, olsize_t * psBeginPointer, olsize_t sEndPointer,
+    void * pUser, boolean_t * pbPause);
+
+/** The function is to notify upper layer there are new connection
+ */
+typedef u32 (* jf_network_fnAcsocketOnConnect_t)(
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
+    boolean_t bOK, void * pUser);
+
+/** The function is to notify upper layer a connection is closed.
+ *
+ *  @note The access to the asocket being closed is not recommended.
+ *  @note DO NOT use disconnectAsocket in this callback function as asocket can
+ *   handle it by itself.
+ *
+ *  @param u32Status [in] the reason why the connection is closed
+ */
+typedef u32 (* jf_network_fnAcsocketOnDisconnect_t)(
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
+    u32 u32Status, void * pUser);
+
+/** The function is to notify upper layer the data is sent to peer successfully
+ */
+typedef u32 (* jf_network_fnAcsocketOnSendOK_t)(
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
+    void * pUser);
+
+typedef struct
+{
+    /**The initial size of the receive buffer*/
+    olsize_t jnacp_sInitialBuf;
+    /**The max number of simultaneous connections that will be allowed*/
+    u32 jnacp_u32MaxConn;
+    boolean_t jnacp_bNoRead;
+    u8 jnacp_u8Reserved[7];
+    /**Function that triggers when a connection is established*/
+    jf_network_fnAcsocketOnConnect_t jnacp_fnOnConnect;
+    /**Function that triggers when a connection is closed*/
+    jf_network_fnAcsocketOnDisconnect_t jnacp_fnOnDisconnect;
+    jf_network_fnAcsocketOnData_t jnacp_fnOnData;
+    /**Function that triggers when pending sends are complete*/
+    jf_network_fnAcsocketOnSendOK_t jnacp_fnOnSendOK;
+} jf_network_acsocket_create_param_t;
+
+/** async datagram socket
+ */
+
+typedef u32 (* jf_network_fnAdgramOnData_t)(
+    jf_network_adgram_t * pAdgram, u8 * pu8Buffer,
+    olsize_t * psBeginPointer, olsize_t sEndPointer, void * pUser,
+    boolean_t * pbPause, ip_addr_t * piaRemote, u16 u16Port);
+
+typedef u32 (* jf_network_fnAdgramOnSendOK_t)(
+    jf_network_adgram_t * pAdgram, void * pUser);
+
+typedef struct
+{
+    olsize_t jnacp_sInitialBuf;
+    u32 jnacp_u32Reserved;
+    jf_network_fnAdgramOnData_t jnacp_fnOnData;
+    jf_network_fnAdgramOnSendOK_t jnacp_fnOnSendOK;
+    u8 jnacp_u8Reserved[16];
+    void * jnacp_pUser;
+} jf_network_adgram_create_param_t;
 
 /* --- functional routines ------------------------------------------------- */
 
-/** Initialize network 
+/** socket
  */
-NETWORKAPI u32 NETWORKCALL initNetworkLib(void);
 
-/** Finalize network 
- */
-NETWORKAPI u32 NETWORKCALL finiNetworkLib(void);
+NETWORKAPI u32 NETWORKCALL jf_network_createSocket(
+    olint_t domain, olint_t type, olint_t protocol,
+    jf_network_socket_t ** ppSocket);
 
-
-/**  socket  */
-
-NETWORKAPI u32 NETWORKCALL createSocket(
-    olint_t domain, olint_t type, olint_t protocol, socket_t ** ppSocket);
-
-NETWORKAPI u32 NETWORKCALL destroySocket(socket_t ** ppSocket);
+NETWORKAPI u32 NETWORKCALL jf_network_destroySocket(
+    jf_network_socket_t ** ppSocket);
 
 /** Allocates a UDP socket for a given interface, choosing a random port number
  *  from 55000 to 65000
@@ -143,8 +323,8 @@ NETWORKAPI u32 NETWORKCALL destroySocket(socket_t ** ppSocket);
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL createDgramSocket(
-    ip_addr_t * piaLocal, u16 * pu16Port, socket_t ** ppSocket);
+NETWORKAPI u32 NETWORKCALL jf_network_createDgramSocket(
+    ip_addr_t * piaLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket);
 
 /** Allocates a TCP socket for a given interface, choosing a random port number
  *  from 50000 to 65000 if port is 0, it will bind the address to socket
@@ -157,155 +337,172 @@ NETWORKAPI u32 NETWORKCALL createDgramSocket(
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL createStreamSocket(
-    ip_addr_t * piaLocal, u16 * pu16Port, socket_t ** ppSocket);
+NETWORKAPI u32 NETWORKCALL jf_network_createStreamSocket(
+    ip_addr_t * piaLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket);
 
 /** Allocate a TCP socket according to address type
  */
-NETWORKAPI u32 NETWORKCALL createTypeStreamSocket(
-    u8 u8AddrType, socket_t ** ppSocket);
+NETWORKAPI u32 NETWORKCALL jf_network_createTypeStreamSocket(
+    u8 u8AddrType, jf_network_socket_t ** ppSocket);
 
-NETWORKAPI u32 NETWORKCALL ioctlSocket(
-    socket_t * pSocket, olint_t req, void * pArg);
+NETWORKAPI u32 NETWORKCALL jf_network_ioctlSocket(
+    jf_network_socket_t * pSocket, olint_t req, void * pArg);
 
-NETWORKAPI u32 NETWORKCALL setSocketBlock(socket_t * pSocket);
+NETWORKAPI u32 NETWORKCALL jf_network_setSocketBlock(
+    jf_network_socket_t * pSocket);
 
-NETWORKAPI u32 NETWORKCALL setSocketNonblock(socket_t * pSocket);
+NETWORKAPI u32 NETWORKCALL jf_network_setSocketNonblock(
+    jf_network_socket_t * pSocket);
 
-NETWORKAPI u32 NETWORKCALL joinMulticastGroup(
-    socket_t * pSocket, ip_addr_t * piaAddr, ip_addr_t * piaMulticaseAddr);
+NETWORKAPI u32 NETWORKCALL jf_network_joinMulticastGroup(
+    jf_network_socket_t * pSocket, ip_addr_t * piaAddr,
+    ip_addr_t * piaMulticaseAddr);
 
-NETWORKAPI u32 NETWORKCALL enableBroadcast(socket_t * pSocket);
+NETWORKAPI u32 NETWORKCALL jf_network_enableBroadcast(
+    jf_network_socket_t * pSocket);
 
 /** Try to send all data but only send once, the actual sent size is in psSend
  */
-NETWORKAPI u32 NETWORKCALL sSend(
-    socket_t * pSocket, void * pBuffer, olsize_t * psSend);
+NETWORKAPI u32 NETWORKCALL jf_network_send(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend);
 
 /** Try to send all data but only send once, unless timeout the actual sent size
  *  is in psSend
  */
-NETWORKAPI u32 NETWORKCALL sSendWithTimeout(
-    socket_t * pSocket, void * pBuffer, olsize_t * psSend, u32 u32Timeout);
+NETWORKAPI u32 NETWORKCALL jf_network_sendWithTimeout(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend,
+    u32 u32Timeout);
 
 /** Try to send all data with possible several round, until an error occurs,
  *  the actual sent size is in psSend
  */
-NETWORKAPI u32 NETWORKCALL sSendn(
-    socket_t * pSocket, void * pBuffer, olsize_t * psSend);
+NETWORKAPI u32 NETWORKCALL jf_network_sendn(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend);
 
 /** Try to send all data with possible several round, until an error occurs
  *  or timeout, the actual sent size is in psSend
  */
-NETWORKAPI u32 NETWORKCALL sSendnWithTimeout(
-    socket_t * pSocket, void * pBuffer, olsize_t * psSend, u32 u32Timeout);
+NETWORKAPI u32 NETWORKCALL jf_network_sendnWithTimeout(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend,
+    u32 u32Timeout);
 
-/** Try to recveive all data but only recveive once, the actual received size is
+/** Try to receive all data but only receive once, the actual received size is
  *  in psRecv
  */
-NETWORKAPI u32 NETWORKCALL sRecv(
-    socket_t * pSocket, void * pBuffer, olsize_t * psRecv);
+NETWORKAPI u32 NETWORKCALL jf_network_recv(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv);
 
-/** Try to recveive all data but only recveive once, unless timeout the actual
+/** Try to receive all data but only receive once, unless timeout the actual
  *  received size is in psRecv
  */
-NETWORKAPI u32 NETWORKCALL sRecvWithTimeout(
-    socket_t * pSocket, void * pBuffer, olsize_t * psRecv, u32 u32Timeout);
-
-/** Try to recveive all data but only recveive once, unless timeout the actual
- *  received size is in psRecv
- */
-NETWORKAPI u32 NETWORKCALL sRecvfromWithTimeout(
-    socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
-    u32 u32Timeout, ip_addr_t * piaFrom, u16 * pu16Port);
+NETWORKAPI u32 NETWORKCALL jf_network_recvWithTimeout(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
+    u32 u32Timeout);
 
 /** Try to recveive all data with possible several round, until an error occurs,
  *  the actual recveived size is in psRecv
  */
-NETWORKAPI u32 NETWORKCALL sRecvn(socket_t * pSocket,
-    void * pBuffer, olsize_t * psRecv);
+NETWORKAPI u32 NETWORKCALL jf_network_recvn(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv);
 
 /** Try to recveive all data with possible several round, until an error occurs
  *  or timeout, the actual recveived size is in psRecv
  */
-NETWORKAPI u32 NETWORKCALL sRecvnWithTimeout(
-    socket_t * pSocket, void * pBuffer, olsize_t * psRecv, u32 u32Timeout);
+NETWORKAPI u32 NETWORKCALL jf_network_recvnWithTimeout(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
+    u32 u32Timeout);
 
-NETWORKAPI u32 NETWORKCALL sConnect(
-    socket_t * pSocket, const ip_addr_t * pia, u16 u16Port);
+/** Try to receive all data but only receive once, unless timeout the actual
+ *  received size is in psRecv
+ */
+NETWORKAPI u32 NETWORKCALL jf_network_recvfromWithTimeout(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
+    u32 u32Timeout, ip_addr_t * piaFrom, u16 * pu16Port);
 
-NETWORKAPI u32 NETWORKCALL sConnectWithTimeout(
-    socket_t * pSocket, const ip_addr_t * pia, u16 u16Port, u32 u32Timeout);
+NETWORKAPI u32 NETWORKCALL jf_network_connect(
+    jf_network_socket_t * pSocket, const ip_addr_t * pia, u16 u16Port);
 
-NETWORKAPI u32 NETWORKCALL sListen(socket_t * pSocket, olint_t backlog);
+NETWORKAPI u32 NETWORKCALL jf_network_connectWithTimeout(
+    jf_network_socket_t * pSocket, const ip_addr_t * pia, u16 u16Port,
+    u32 u32Timeout);
 
-NETWORKAPI u32 NETWORKCALL sAccept(
-    socket_t * pListen, ip_addr_t * pia, u16 * pu16Port, socket_t ** ppSocket);
+NETWORKAPI u32 NETWORKCALL jf_network_listen(
+    jf_network_socket_t * pSocket, olint_t backlog);
 
-NETWORKAPI u32 NETWORKCALL sSendto(
-    socket_t * pSocket, void * pBuffer, olsize_t * psSend,
+NETWORKAPI u32 NETWORKCALL jf_network_accept(
+    jf_network_socket_t * pListen, ip_addr_t * pia, u16 * pu16Port,
+    jf_network_socket_t ** ppSocket);
+
+NETWORKAPI u32 NETWORKCALL jf_network_sendto(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend,
     const ip_addr_t * piaTo, u16 u16Port);
 
-NETWORKAPI u32 NETWORKCALL sRecvfrom(
-    socket_t * pSocket, void * pBuffer, olsize_t * psRecv, ip_addr_t * piaTo,
-    u16 * pu16Port);
+NETWORKAPI u32 NETWORKCALL jf_network_recvfrom(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
+    ip_addr_t * piaTo, u16 * pu16Port);
 
-NETWORKAPI u32 NETWORKCALL createSocketPair(
-    olint_t domain, olint_t type, socket_t * psPair[2]);
+NETWORKAPI u32 NETWORKCALL jf_network_createSocketPair(
+    olint_t domain, olint_t type, jf_network_socket_t * psPair[2]);
 
-NETWORKAPI u32 NETWORKCALL destroySocketPair(socket_t * sPair[2]);
+NETWORKAPI u32 NETWORKCALL jf_network_destroySocketPair(
+    jf_network_socket_t * sPair[2]);
 
-NETWORKAPI u32 NETWORKCALL sSelect(
+NETWORKAPI u32 NETWORKCALL jf_network_select(
     fd_set * readfds, fd_set * writefds, fd_set * exceptfds,
     struct timeval * timeout, u32 * pu32Ready);
 
-NETWORKAPI u32 NETWORKCALL getSocketName(
-    socket_t * pSocket, struct sockaddr * pName, olint_t * pnNameLen);
+NETWORKAPI u32 NETWORKCALL jf_network_getSocketName(
+    jf_network_socket_t * pSocket, struct sockaddr * pName,
+    olint_t * pnNameLen);
 
-NETWORKAPI u32 NETWORKCALL getSocketOpt(
-    socket_t * pSocket, olint_t level, olint_t optname, void * optval,
-    olsize_t * optlen);
+NETWORKAPI u32 NETWORKCALL jf_network_getSocketOpt(
+    jf_network_socket_t * pSocket, olint_t level, olint_t optname,
+    void * optval, olsize_t * optlen);
 
-NETWORKAPI u32 NETWORKCALL setSocketOpt(
-    socket_t * pSocket, olint_t level, olint_t optname, void * optval,
-    olsize_t optlen);
+NETWORKAPI u32 NETWORKCALL jf_network_setSocketOpt(
+    jf_network_socket_t * pSocket, olint_t level, olint_t optname,
+    void * optval, olsize_t optlen);
 
-NETWORKAPI void NETWORKCALL clearSocketFromFdSet(
-    socket_t * pSocket, fd_set * set);
+NETWORKAPI void NETWORKCALL jf_network_clearSocketFromFdSet(
+    jf_network_socket_t * pSocket, fd_set * set);
 
-NETWORKAPI boolean_t NETWORKCALL isSocketSetInFdSet(
-    socket_t * pSocket, fd_set * set);
+NETWORKAPI boolean_t NETWORKCALL jf_network_isSocketSetInFdSet(
+    jf_network_socket_t * pSocket, fd_set * set);
 
-NETWORKAPI void NETWORKCALL setSocketToFdSet(socket_t * pSocket, fd_set * set);
+NETWORKAPI void NETWORKCALL jf_network_setSocketToFdSet(
+    jf_network_socket_t * pSocket, fd_set * set);
 
-NETWORKAPI void NETWORKCALL clearFdSet(fd_set * set);
+NETWORKAPI void NETWORKCALL jf_network_clearFdSet(fd_set * set);
 
-/* basic chain */
+/** chain
+ */
 
-/** Create a basic chain
+/** Create a chain
  *
  *  @param ppChain [out] the chain to create 
  * 
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL createBasicChain(basic_chain_t ** ppChain);
+NETWORKAPI u32 NETWORKCALL jf_network_createChain(
+    jf_network_chain_t ** ppChain);
 
-/** Destroy the basic chain
+/** Destroy the chain
  *
- *  @param ppChain [in/out] the Chain to destory 
+ *  @param ppChain [in/out] the chain to destory 
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL destroyBasicChain(basic_chain_t ** ppChain);
+NETWORKAPI u32 NETWORKCALL jf_network_destroyChain(
+    jf_network_chain_t ** ppChain);
 
 /** Add links to the chain
  *
  *  @note All objects added to the chain must extend/implement
- *   basic_chain_object_header_t \n
+ *   jf_network_chain_object_header_t \n
  *  Eg.  \n
  *  struct object    \n
  *  {    \n
- *      basic_chain_object_header_t header \n
+ *      jf_network_chain_object_header_t header \n
  *      ...;                               \n
  *  }   \n
  *
@@ -314,20 +511,21 @@ NETWORKAPI u32 NETWORKCALL destroyBasicChain(basic_chain_t ** ppChain);
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL appendToBasicChain(
-    basic_chain_t * pChain, basic_chain_object_t * pObject);
+NETWORKAPI u32 NETWORKCALL jf_network_appendToChain(
+    jf_network_chain_t * pChain, jf_network_chain_object_t * pObject);
 
 /** Start a Chain
  *
  *  @note This method will use the current thread. All events and processing
  *   will be done on this thread. This method will not return until
- *   stopBasicChain is called.
+ *   stopChain is called.
  *
  *  @param pChain [in] the chain to start 
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL startBasicChain(basic_chain_t * pChain);
+NETWORKAPI u32 NETWORKCALL jf_network_startChain(
+    jf_network_chain_t * pChain);
 
 /** Stop a chain, imply the destruction of the chain
  *
@@ -338,9 +536,10 @@ NETWORKAPI u32 NETWORKCALL startBasicChain(basic_chain_t * pChain);
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL stopBasicChain(basic_chain_t * pChain);
+NETWORKAPI u32 NETWORKCALL jf_network_stopChain(
+    jf_network_chain_t * pChain);
 
-/** Wakeup the basic chain
+/** Wakeup the chain
  *
  *  @note This will wake up a chain from sleeping by close the fake socket.
  *
@@ -348,9 +547,11 @@ NETWORKAPI u32 NETWORKCALL stopBasicChain(basic_chain_t * pChain);
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL wakeupBasicChain(basic_chain_t * pChain);
+NETWORKAPI u32 NETWORKCALL jf_network_wakeupChain(
+    jf_network_chain_t * pChain);
 
-/* utimer */
+/** utimer
+ */
 
 /** Add a timed callback with millisecond granularity
  *
@@ -363,9 +564,10 @@ NETWORKAPI u32 NETWORKCALL wakeupBasicChain(basic_chain_t * pChain);
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL addUtimerItem(
-    utimer_t * pUtimer, void * pData, u32 u32Seconds,
-    fnCallbackOfUtimerItem_t fnCallback, fnDestroyUtimerItem_t fnDestroy);
+NETWORKAPI u32 NETWORKCALL jf_network_addUtimerItem(
+    jf_network_utimer_t * pUtimer, void * pData, u32 u32Seconds,
+    jf_network_fnCallbackOfUtimerItem_t fnCallback,
+    jf_network_fnDestroyUtimerItem_t fnDestroy);
 
 /** Removes timed callback(s) specified by pData from an utimer
  *
@@ -378,7 +580,8 @@ NETWORKAPI u32 NETWORKCALL addUtimerItem(
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL removeUtimerItem(utimer_t * pUtimer, void * pData);
+NETWORKAPI u32 NETWORKCALL jf_network_removeUtimerItem(
+    jf_network_utimer_t * pUtimer, void * pData);
 
 /** Destroy a timer
  *
@@ -389,7 +592,8 @@ NETWORKAPI u32 NETWORKCALL removeUtimerItem(utimer_t * pUtimer, void * pData);
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL destroyUtimer(utimer_t ** ppUtimer);
+NETWORKAPI u32 NETWORKCALL jf_network_destroyUtimer(
+    jf_network_utimer_t ** ppUtimer);
 
 /** Creates an empty utimer 
  *
@@ -401,72 +605,23 @@ NETWORKAPI u32 NETWORKCALL destroyUtimer(utimer_t ** ppUtimer);
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL createUtimer(
-    basic_chain_t * pChain, utimer_t ** ppUtimer);
+NETWORKAPI u32 NETWORKCALL jf_network_createUtimer(
+    jf_network_chain_t * pChain, jf_network_utimer_t ** ppUtimer);
 
-/* async socket */
-
-/** memory ower
+/** async socket
  */
-typedef enum as_mem_owner
-{
-    AS_MEM_OWNER_ASOCKET = 0, /**< owner is asocket */
-    AS_MEM_OWNER_STATIC,      /**< owner is uesr but it's static, asocket can
-    use it until the data is sent. user will not recycle the momery until the
-    send is ok. */
-    AS_MEM_OWNER_USER,        /**< owner is user, asocket can use it in
-    asSendData(), if the data is failed to be sent, asocket will duplicate the
-    data and send it later. User can recycle the momery after asSendData()
-    weather the data is sent or not */
-} as_mem_owner_t;
-
-/** The function is to notify upper layer there are data coming
- */
-typedef u32 (* fnAsocketOnData_t)(
-    asocket_t * pAsocket, u8 * pu8Buffer, olsize_t * psBeginPointer,
-    olsize_t sEndPointer, void * pUser, boolean_t * pbPause);
-
-/** The function is to notify upper layer if the connnection is established
- *  if bOK is true, connection is setup, otherwise not, upper layer SHOULD NOT
- *  call asDisconnect to close the connection, asocket will handle it by itself
- */
-typedef u32 (* fnAsocketOnConnect_t)(
-    asocket_t * pAsocket, boolean_t bOK, void * pUser);
-
-/** The function is to notify upper layer the connnection is going to be closed
- *  the access to the asocket being closed is not recommended.
- *  DO NOT use asDisconnect in this callback function as asocket can handle it
- *  by itself. The u32Status is the reason why the connection is closed
- */
-typedef u32 (* fnAsocketOnDisconnect_t)(
-    asocket_t * pAsocket, u32 u32Status, void * pUser);
-
-typedef u32 (* fnAsocketOnSendOK_t)(asocket_t * pAsocket, void * pUser);
-
-typedef struct
-{
-    olsize_t ap_sInitialBuf;
-    u32 ap_u32Reserved;
-    fnAsocketOnData_t ap_fnOnData;
-    fnAsocketOnConnect_t ap_fnOnConnect;
-    fnAsocketOnDisconnect_t ap_fnOnDisconnect;
-    fnAsocketOnSendOK_t ap_fnOnSendOK;
-    /*do not read data*/
-    boolean_t ap_bNoRead;
-    u8 ap_u8Reserved[15];
-    sync_mutex_t * ap_psmLock;
-} asocket_param_t;
 
 /** Creates a new asocket object
  *
- *  @param pChain [in] the basic chain object to add the asocket
+ *  @param pChain [in] the chain object to add the asocket
  *  @param ppAsocket [in/out] the asocket object created
- *  @param pap [in] the parameter for creating the asocket
+ *  @param pjnacp [in] the parameter for creating the asocket
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL createAsocket(
-    basic_chain_t * pChain, asocket_t ** ppAsocket, asocket_param_t * pap);
+NETWORKAPI u32 NETWORKCALL jf_network_createAsocket(
+    jf_network_chain_t * pChain, jf_network_asocket_t ** ppAsocket,
+    jf_network_asocket_create_param_t * pjnacp);
 
 /** Destroy asocket object
  *
@@ -474,13 +629,15 @@ NETWORKAPI u32 NETWORKCALL createAsocket(
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL destroyAsocket(asocket_t ** ppAsocket);
+NETWORKAPI u32 NETWORKCALL jf_network_destroyAsocket(
+    jf_network_asocket_t ** ppAsocket);
 
 /** Clears all the pending data to be sent for an asocket
  *
  *  @param pAsocket [in] the asocket to clear
  */
-NETWORKAPI void NETWORKCALL clearPendingSendOfAsocket(asocket_t * pAsocket);
+NETWORKAPI void NETWORKCALL jf_network_clearPendingSendOfAsocket(
+    jf_network_asocket_t * pAsocket);
 
 /** Determines if an asocket is utilized
  *
@@ -490,7 +647,8 @@ NETWORKAPI void NETWORKCALL clearPendingSendOfAsocket(asocket_t * pAsocket);
  *  @retval FALSE if utilized
  *  @retval TRUE if free
  */
-NETWORKAPI boolean_t NETWORKCALL isAsocketFree(asocket_t * pAsocket);
+NETWORKAPI boolean_t NETWORKCALL jf_network_isAsocketFree(
+    jf_network_asocket_t * pAsocket);
 
 /** Associates an actual socket with asocket. To associate asocket with an
  *  already connected socket.
@@ -499,8 +657,8 @@ NETWORKAPI boolean_t NETWORKCALL isAsocketFree(asocket_t * pAsocket);
  *  @param pSocket [in] the socket to associate
  *  @param pUser [in] the user
  */
-NETWORKAPI u32 NETWORKCALL useSocketForAsocket(
-    asocket_t * pAsocket, socket_t * pSocket, void * pUser);
+NETWORKAPI u32 NETWORKCALL jf_network_useSocketForAsocket(
+    jf_network_asocket_t * pAsocket, jf_network_socket_t * pSocket, void * pUser);
 
 /** Returns the buffer associated with an asocket
  *
@@ -509,11 +667,12 @@ NETWORKAPI u32 NETWORKCALL useSocketForAsocket(
  *  @param psBeginPointer [out] the begin pointer of the buffer
  *  @param psEndPointer [out] The end pointer of the buffer
  */
-NETWORKAPI void NETWORKCALL getBufferOfAsocket(
-    asocket_t * pAsocket,
+NETWORKAPI void NETWORKCALL jf_network_getBufferOfAsocket(
+    jf_network_asocket_t * pAsocket,
     u8 ** ppBuffer, olsize_t * psBeginPointer, olsize_t * psEndPointer);
 
-NETWORKAPI void NETWORKCALL clearBufferOfAsocket(asocket_t * pAsocket);
+NETWORKAPI void NETWORKCALL jf_network_clearBufferOfAsocket(
+    jf_network_asocket_t * pAsocket);
 
 /** Returns the number of bytes that are pending to be sent
  *
@@ -521,8 +680,8 @@ NETWORKAPI void NETWORKCALL clearBufferOfAsocket(asocket_t * pAsocket);
  *
  *  @return number of pending bytes
  */
-NETWORKAPI olsize_t NETWORKCALL getPendingBytesToSendOfAsocket(
-    asocket_t * pAsocket);
+NETWORKAPI olsize_t NETWORKCALL jf_network_getPendingBytesToSendOfAsocket(
+    jf_network_asocket_t * pAsocket);
 
 /** Returns the total number of bytes that have been sent, since the last reset
  *
@@ -530,38 +689,39 @@ NETWORKAPI olsize_t NETWORKCALL getPendingBytesToSendOfAsocket(
  *
  *  @return number of bytes sent
  */
-NETWORKAPI olsize_t NETWORKCALL getTotalBytesSentOfAsocket(
-    asocket_t * pAsocket);
+NETWORKAPI olsize_t NETWORKCALL jf_network_getTotalBytesSentOfAsocket(
+    jf_network_asocket_t * pAsocket);
 
 /** Resets the total bytes sent counter
  *
  *  @param pAsocket [in] the asocket to reset
  */
-NETWORKAPI void NETWORKCALL resetTotalBytesSentOfAsocket(asocket_t * pAsocket);
+NETWORKAPI void NETWORKCALL jf_network_resetTotalBytesSentOfAsocket(
+    jf_network_asocket_t * pAsocket);
 
 /** Returns the Local Interface of a connected socket
  *
  *  @param pAsocket [in] the asocket to query
  *  @param piaAddr [in] the local interface
  */
-NETWORKAPI void NETWORKCALL getLocalInterfaceOfAsocket(
-    asocket_t * pAsocket, ip_addr_t * piaAddr);
+NETWORKAPI void NETWORKCALL jf_network_getLocalInterfaceOfAsocket(
+    jf_network_asocket_t * pAsocket, ip_addr_t * piaAddr);
 
 /** Returns the Remote Interface of a connected socket
  *
  *  @param pAsocket [in] the asocket to query
  *  @param piaAddr [out] the remote interface
  */
-NETWORKAPI void NETWORKCALL getRemoteInterfaceOfAsocket(
-    asocket_t * pAsocket, ip_addr_t * piaAddr);
+NETWORKAPI void NETWORKCALL jf_network_getRemoteInterfaceOfAsocket(
+    jf_network_asocket_t * pAsocket, ip_addr_t * piaAddr);
 
 /** Sets the remote address field. This is utilized by the asocket.
  *
  *  @param pAsocket [in] the asocket to modify
  *  @param piaAddr [in] the remote interface
  */
-NETWORKAPI void NETWORKCALL setRemoteAddressOfAsocket(
-    asocket_t * pAsocket, ip_addr_t * piaAddr);
+NETWORKAPI void NETWORKCALL jf_network_setRemoteAddressOfAsocket(
+    jf_network_asocket_t * pAsocket, ip_addr_t * piaAddr);
 
 /** Returns the user's tag associated with the asocket
  *
@@ -569,21 +729,23 @@ NETWORKAPI void NETWORKCALL setRemoteAddressOfAsocket(
  *
  *  @return The user Tag
  */
-NETWORKAPI void * NETWORKCALL getTagOfAsocket(asocket_t * pAsocket);
+NETWORKAPI void * NETWORKCALL jf_network_getTagOfAsocket(
+    jf_network_asocket_t * pAsocket);
 
 /** Sets the user's tag asociated with the asocket
  *
  *  @param pAsocket [in] the asocket to save the tag to
  *  @param pTag [in] the user's tag
  */
-NETWORKAPI void NETWORKCALL setTagOfAsocket(
-    asocket_t * pAsocket, void * pTag);
+NETWORKAPI void NETWORKCALL jf_network_setTagOfAsocket(
+    jf_network_asocket_t * pAsocket, void * pTag);
 
 /** Disconnects an asocket
  *
  *  @param pAsocket [in] the asocket to disconnect
  */
-NETWORKAPI u32 NETWORKCALL asDisconnect(asocket_t * pAsocket);
+NETWORKAPI u32 NETWORKCALL jf_network_disconnectAsocket(
+    jf_network_asocket_t * pAsocket);
 
 /** Try to send the data and cache the data if the socket is temporarily not
  *  writable
@@ -595,17 +757,17 @@ NETWORKAPI u32 NETWORKCALL asDisconnect(asocket_t * pAsocket);
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL asSendData(
-    asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t sBuf, as_mem_owner_t memowner);
+NETWORKAPI u32 NETWORKCALL jf_network_sendAsocketData(
+    jf_network_asocket_t * pAsocket,
+    u8 * pu8Buffer, olsize_t sBuf, jf_network_mem_owner_t memowner);
 
 /** Try to send the data and not return until all data is sent
  */
-NETWORKAPI u32 NETWORKCALL asSendn(
-    asocket_t * pAsocket, u8 * pu8Buffer, olsize_t * psBuf);
+NETWORKAPI u32 NETWORKCALL jf_network_sendnAsocket(
+    jf_network_asocket_t * pAsocket, u8 * pu8Buffer, olsize_t * psBuf);
 
-NETWORKAPI u32 NETWORKCALL asRecvData(
-    asocket_t * pAsocket, u8 * pu8Buffer, olsize_t * psRecv);
+NETWORKAPI u32 NETWORKCALL jf_network_recvAsocketData(
+    jf_network_asocket_t * pAsocket, u8 * pu8Buffer, olsize_t * psRecv);
 
 /** Attempts to establish a TCP connection
  *
@@ -614,8 +776,8 @@ NETWORKAPI u32 NETWORKCALL asRecvData(
  *  @param u16RemotePortNumber [in] the remote port to connect to
  *  @param pUser [in] user object that will be passed to other method
  */
-NETWORKAPI u32 NETWORKCALL asConnectTo(
-    asocket_t * pAsocket, ip_addr_t * piaRemote,
+NETWORKAPI u32 NETWORKCALL jf_network_connectAsocketTo(
+    jf_network_asocket_t * pAsocket, ip_addr_t * piaRemote,
     u16 u16RemotePortNumber, void * pUser);
 
 /** Resumes a paused asocket. Sessions can be paused, such that further data is
@@ -623,84 +785,37 @@ NETWORKAPI u32 NETWORKCALL asConnectTo(
  *
  *  @param pAsocket [in] the asocket to resume
  */
-NETWORKAPI u32 NETWORKCALL resumeAsocket(asocket_t * pAsocket);
+NETWORKAPI u32 NETWORKCALL jf_network_resumeAsocket(
+    jf_network_asocket_t * pAsocket);
 
-NETWORKAPI u32 NETWORKCALL getAsocketOpt(
-    asocket_t * pAsocket, olint_t level, olint_t optname,
+NETWORKAPI u32 NETWORKCALL jf_network_getAsocketOpt(
+    jf_network_asocket_t * pAsocket, olint_t level, olint_t optname,
     void * optval, olsize_t * optlen);
 
-NETWORKAPI u32 NETWORKCALL setAsocketOpt(
-    asocket_t * pAsocket,
+NETWORKAPI u32 NETWORKCALL jf_network_setAsocketOpt(
+    jf_network_asocket_t * pAsocket,
     olint_t level, olint_t optname, void * optval, olsize_t optlen);
 
-/* async server socket */
-
-/** The function is to notify upper layer there are incoming data. The pUser is
- *  set by fnAssocketOnConnect_t when a new incoming connection is accepted
+/** async server socket
  */
-typedef u32 (* fnAssocketOnData_t)(
-    assocket_t * pAssocket, asocket_t * pAsocket, u8 * pu8Buffer,
-    olsize_t * psBeginPointer, olsize_t sEndPointer, void * pUser,
-    boolean_t * pbPause);
-
-/** The function is to notify upper layer there are new connection
- */
-typedef u32 (* fnAssocketOnConnect_t)(
-    assocket_t * pAssocket, asocket_t * pAsocket, void ** ppUser);
-
-/** The function is to notify upper layer a connection is closed.
- *
- *  @note The access to the asocket being closed is not recommended.
- *  @note DO NOT use asDisconnect in this callback function as asocket can
- *   handle it by itself.
- *
- *  @param u32Status [in] the reason why the connection is closed
- */
-typedef u32 (* fnAssocketOnDisconnect_t)(
-    assocket_t * pAssocket, asocket_t * pAsocket, u32 u32Status, void * pUser);
-
-/** The function is to notify upper layer the data is sent to peer successfully
- */
-typedef u32 (* fnAssocketOnSendOK_t)(
-    assocket_t * pAssocket, asocket_t * pAsocket, void * pUser);
-
-typedef struct
-{
-    /**The initial size of the receive buffer*/
-    olsize_t ap_sInitialBuf;
-    /**The max number of simultaneous connections that will be allowed*/
-    u32 ap_u32MaxConn;
-    boolean_t ap_bNoRead;
-    u8 ap_u8Reserved[1];
-    /**The port number to bind to. 0 will select a random port*/
-    u16 ap_u16PortNumber;
-    ip_addr_t ap_iaAddr;
-    /**Function that triggers when a connection is established*/
-    fnAssocketOnConnect_t ap_fnOnConnect;
-    /**Function that triggers when a connection is closed*/
-    fnAssocketOnDisconnect_t ap_fnOnDisconnect;
-    /**Function that triggers when data is coming*/
-    fnAssocketOnData_t ap_fnOnData;
-    /**Function that triggers when pending sends are complete*/
-    fnAssocketOnSendOK_t ap_fnOnSendOK;
-    u32 ap_u32Reserved2[4];
-} assocket_param_t;
 
 /** Create async server socket.
  *
  *  @param pChain [in] the chain to add this assocket to
  *  @param ppAssocket [out] the async server socket
- *  @param pap [in] the parameters for creating assocket
+ *  @param pjnacp [in] the parameters for creating assocket
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL createAssocket(
-    basic_chain_t * pChain, assocket_t ** ppAssocket, assocket_param_t * pap);
+NETWORKAPI u32 NETWORKCALL jf_network_createAssocket(
+    jf_network_chain_t * pChain, jf_network_assocket_t ** ppAssocket,
+    jf_network_assocket_create_param_t * pjnacp);
 
 /** Destroy async server socket.
  *
  */
-NETWORKAPI u32 NETWORKCALL destroyAssocket(assocket_t ** ppAssocket);
+NETWORKAPI u32 NETWORKCALL jf_network_destroyAssocket(
+    jf_network_assocket_t ** ppAssocket);
 
 /** Returns the port number the server is bound to
  *
@@ -708,7 +823,8 @@ NETWORKAPI u32 NETWORKCALL destroyAssocket(assocket_t ** ppAssocket);
  *
  *  @return the listening port number
  */
-NETWORKAPI u16 NETWORKCALL getPortNumberOfAssocket(assocket_t * pAssocket);
+NETWORKAPI u16 NETWORKCALL jf_network_getPortNumberOfAssocket(
+    jf_network_assocket_t * pAssocket);
 
 /** Returns the user's Tag associated with the assocket
  *
@@ -716,21 +832,22 @@ NETWORKAPI u16 NETWORKCALL getPortNumberOfAssocket(assocket_t * pAssocket);
  *
  *  @return the user tag
  */
-NETWORKAPI void * NETWORKCALL getTagOfAssocket(assocket_t * pAssocket);
+NETWORKAPI void * NETWORKCALL jf_network_getTagOfAssocket(
+    jf_network_assocket_t * pAssocket);
 
 /** Sets the user's tag associated with the assocket
  *
  *  @param pAssocket [in] the assocket to save the tag to
  *  @param pTag [in] the tag
  */
-NETWORKAPI void NETWORKCALL setTagOfAssocket(
-    assocket_t * pAssocket, void * pTag);
+NETWORKAPI void NETWORKCALL jf_network_setTagOfAssocket(
+    jf_network_assocket_t * pAssocket, void * pTag);
 
-NETWORKAPI boolean_t NETWORKCALL isAssocketFree(
-    assocket_t * pAssocket, asocket_t * pAsocket);
+NETWORKAPI boolean_t NETWORKCALL jf_network_isAssocketFree(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket);
 
-NETWORKAPI u32 NETWORKCALL assDisconnect(
-    assocket_t * pAssocket, asocket_t * pAsocket);
+NETWORKAPI u32 NETWORKCALL jf_network_disconnectAssocket(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket);
 
 /** Resumes a paused asocket. Sessions can be paused, such that further data is
  *  not read from the socket until resumed
@@ -738,89 +855,44 @@ NETWORKAPI u32 NETWORKCALL assDisconnect(
  *  @param pAssocket [in] the assocket object
  *  @param pAsocket [in] the asocket to resume
  */
-NETWORKAPI u32 NETWORKCALL resumeAssocket(
-    assocket_t * pAssocket, asocket_t * pAsocket);
+NETWORKAPI u32 NETWORKCALL jf_network_resumeAssocket(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket);
 
-NETWORKAPI u32 NETWORKCALL assRecvData(
-    assocket_t * pAssocket, asocket_t * pAsocket,
+NETWORKAPI u32 NETWORKCALL jf_network_recvAssocketData(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
     u8 * pu8Buffer, olsize_t * psRecv);
 
-NETWORKAPI u32 NETWORKCALL getAssocketOpt(
-    assocket_t * pAssocket, asocket_t * pAsocket, olint_t level,
-    olint_t optname, void * optval, olsize_t * optlen);
+NETWORKAPI u32 NETWORKCALL jf_network_getAssocketOpt(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    olint_t level, olint_t optname, void * optval, olsize_t * optlen);
 
-NETWORKAPI u32 NETWORKCALL setAssocketOpt(
-    assocket_t * pAssocket, socket_t * pAsocket, olint_t level, olint_t optname,
-    void * optval, olsize_t optlen);
+NETWORKAPI u32 NETWORKCALL jf_network_setAssocketOpt(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    olint_t level, olint_t optname, void * optval, olsize_t optlen);
 
-NETWORKAPI u32 NETWORKCALL assSendData(
-    assocket_t * pAssocket, asocket_t * pAsocket, u8 * pu8Buffer, olsize_t sBuf,
-    as_mem_owner_t memowner);
+NETWORKAPI u32 NETWORKCALL jf_network_sendAssocketData(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    u8 * pu8Buffer, olsize_t sBuf, jf_network_mem_owner_t memowner);
 
-NETWORKAPI u32 NETWORKCALL assSendn(
-    assocket_t * pAssocket, asocket_t * pAsocket, u8 * pu8Buffer,
-    olsize_t * psBuf);
+NETWORKAPI u32 NETWORKCALL jf_network_sendnAssocket(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    u8 * pu8Buffer, olsize_t * psBuf);
 
-#define getPendingBytesToSendOfAssocket(pAssocket, pAsocket) \
+#define jf_network_getPendingBytesToSendOfAssocket(pAssocket, pAsocket) \
         getPendingBytesToSendOfAsocket(pAsocket)
 
-#define getTotalBytesSentOfAssocket(pAssocket, pAsocket) \
+#define jf_network_getTotalBytesSentOfAssocket(pAssocket, pAsocket) \
         getTotalBytesSentOfAsocket(pAsocket)
 
-#define resetTotalBytesSentOfAssocket(pAssocket, pAsocket) \
+#define jf_network_resetTotalBytesSentOfAssocket(pAssocket, pAsocket) \
         resetTotalBytesSentOfAsocket(pAsocket)
-
 
 /** async client socket
  */
 
-/** The function is to notify upper layer there are incoming data
- */
-typedef u32 (* fnAcsocketOnData_t)(
-    acsocket_t * pAcsocket, asocket_t * pAsocket, u8 * pu8Buffer,
-    olsize_t * psBeginPointer, olsize_t sEndPointer, void * pUser,
-    boolean_t * pbPause);
-
-/** The function is to notify upper layer there are new connection
- */
-typedef u32 (* fnAcsocketOnConnect_t)(
-    acsocket_t * pAcsocket, asocket_t * pAsocket, boolean_t bOK, void * pUser);
-
-/** The function is to notify upper layer a connection is closed.
- *
- *  @note The access to the asocket being closed is not recommended.
- *  @note DO NOT use asDisconnect in this callback function as asocket can
- *   handle it by itself.
- *
- *  @param u32Status [in] the reason why the connection is closed
- */
-typedef u32 (* fnAcsocketOnDisconnect_t)(
-    acsocket_t * pAcsocket, asocket_t * pAsocket, u32 u32Status, void * pUser);
-
-/** The function is to notify upper layer the data is sent to peer successfully
- */
-typedef u32 (* fnAcsocketOnSendOK_t)(
-    acsocket_t * pAcsocket, asocket_t * pAsocket, void * pUser);
-
-typedef struct
-{
-    /**The initial size of the receive buffer*/
-    olsize_t ap_sInitialBuf;
-    /**The max number of simultaneous connections that will be allowed*/
-    u32 ap_u32MaxConn;
-    boolean_t ap_bNoRead;
-    u8 ap_u8Reserved[7];
-    /**Function that triggers when a connection is established*/
-    fnAcsocketOnConnect_t ap_fnOnConnect;
-    /**Function that triggers when a connection is closed*/
-    fnAcsocketOnDisconnect_t ap_fnOnDisconnect;
-    fnAcsocketOnData_t ap_fnOnData;
-    /**Function that triggers when pending sends are complete*/
-    fnAcsocketOnSendOK_t ap_fnOnSendOK;
-} acsocket_param_t;
-
-NETWORKAPI u32 NETWORKCALL createAcsocket(
-    basic_chain_t * pChain, acsocket_t ** ppAcsocket, acsocket_param_t * pap);
+NETWORKAPI u32 NETWORKCALL jf_network_createAcsocket(
+    jf_network_chain_t * pChain, jf_network_acsocket_t ** ppAcsocket,
+    jf_network_acsocket_create_param_t * pjnacp);
 
 /** Destroy async client socket
  *
@@ -828,7 +900,8 @@ NETWORKAPI u32 NETWORKCALL createAcsocket(
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL destroyAcsocket(acsocket_t ** ppAcsocket);
+NETWORKAPI u32 NETWORKCALL jf_network_destroyAcsocket(
+    jf_network_acsocket_t ** ppAcsocket);
 
 /** Returns the user's tag associated with the acsocket
  *
@@ -836,25 +909,26 @@ NETWORKAPI u32 NETWORKCALL destroyAcsocket(acsocket_t ** ppAcsocket);
  *
  *  @return the user Tag
  */
-NETWORKAPI void * NETWORKCALL getTagOfAcsocket(acsocket_t * pAcsocket);
+NETWORKAPI void * NETWORKCALL jf_network_getTagOfAcsocket(
+    jf_network_acsocket_t * pAcsocket);
 
 /** Sets the user's tag associated with the acsocket
  *
  *  @param pAcsocket [in] the acsocket to save the tag to
  *  @param pTag [in] the user's tag
  */
-NETWORKAPI void NETWORKCALL setTagOfAcsocket(
-    acsocket_t * pAcsocket, void * pTag);
+NETWORKAPI void NETWORKCALL jf_network_setTagOfAcsocket(
+    jf_network_acsocket_t * pAcsocket, void * pTag);
 
-NETWORKAPI boolean_t NETWORKCALL isAcsocketFree(
-    acsocket_t * pAcsocket, asocket_t * pAsocket);
+NETWORKAPI boolean_t NETWORKCALL jf_network_isAcsocketFree(
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket);
 
-NETWORKAPI u32 NETWORKCALL acsConnectTo(
-    acsocket_t * pAcsocket,
+NETWORKAPI u32 NETWORKCALL jf_network_connectAcsocketTo(
+    jf_network_acsocket_t * pAcsocket,
     ip_addr_t * piaRemote, u16 u16RemotePortNumber, void * pUser);
 
-NETWORKAPI u32 NETWORKCALL acsDisconnect(acsocket_t * pAcsocket,
-    asocket_t * pAsocket);
+NETWORKAPI u32 NETWORKCALL jf_network_disconnectAcsocket(
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket);
 
 /** Resumes a paused asocket. Sessions can be paused, such that further data is
  *  not read from the socket until resumed
@@ -862,76 +936,52 @@ NETWORKAPI u32 NETWORKCALL acsDisconnect(acsocket_t * pAcsocket,
  *  @param pAcsocket [in] the client socket
  *  @param pAsocket [in] the asocket to resume
  */
-NETWORKAPI u32 NETWORKCALL resumeAcsocket(
-    acsocket_t * pAcsocket, asocket_t * pAsocket);
+NETWORKAPI u32 NETWORKCALL jf_network_resumeAcsocket(
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket);
 
-NETWORKAPI u32 NETWORKCALL acsRecvData(
-    acsocket_t * pAcsocket, asocket_t * pAsocket,
+NETWORKAPI u32 NETWORKCALL jf_network_recvAcsocketData(
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
     u8 * pu8Buffer, olsize_t * psRecv);
 
-NETWORKAPI u32 NETWORKCALL getAcsocketOpt(
-    acsocket_t * pAcsocket, asocket_t * pAsocket, olint_t level,
-    olint_t optname, void * optval, olsize_t * optlen);
+NETWORKAPI u32 NETWORKCALL jf_network_getAcsocketOpt(
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
+    olint_t level, olint_t optname, void * optval, olsize_t * optlen);
 
-NETWORKAPI u32 NETWORKCALL setAcsocketOpt(
-    acsocket_t * pAcsocket, socket_t * pAsocket, olint_t level, olint_t optname,
-    void * optval, olsize_t optlen);
+NETWORKAPI u32 NETWORKCALL jf_network_setAcsocketOpt(
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
+    olint_t level, olint_t optname, void * optval, olsize_t optlen);
 
-NETWORKAPI u32 NETWORKCALL acsSendData(
-    acsocket_t * pAcsocket, asocket_t * pAsocket, u8 * pu8Buffer, olsize_t sBuf,
-    as_mem_owner_t memowner);
+NETWORKAPI u32 NETWORKCALL jf_network_sendAcsocketData(
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
+    u8 * pu8Buffer, olsize_t sBuf, jf_network_mem_owner_t memowner);
 
-NETWORKAPI u32 NETWORKCALL acsSendn(
-    acsocket_t * pAcsocket, asocket_t * pAsocket, u8 * pu8Buffer,
-    olsize_t * psBuf);
+NETWORKAPI u32 NETWORKCALL jf_network_sendnAcsocket(
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
+    u8 * pu8Buffer, olsize_t * psBuf);
 
-#define getPendingBytesToSendOfAcsocket(pAcsocket, pAsocket) \
+#define jf_network_getPendingBytesToSendOfAcsocket(pAcsocket, pAsocket) \
         getPendingBytesToSendOfAsocket(pAsocket)
 
-#define getTotalBytesSentOfAcsocket(pAcsocket, pAsocket) \
+#define jf_network_getTotalBytesSentOfAcsocket(pAcsocket, pAsocket) \
         getTotalBytesSentOfAsocket(pAsocket)
 
-#define resetTotalBytesSentOfAcsocket(pAcsocket, pAsocket) \
+#define jf_network_resetTotalBytesSentOfAcsocket(pAcsocket, pAsocket) \
         resetTotalBytesSentOfAsocket(pAsocket)
 
 /** async datagram socket
  */
 
-typedef enum ad_mem_owner
-{
-    AD_MEM_OWNER_ADGRAM = 0, /*owner is adgram*/
-    AD_MEM_OWNER_STATIC,     /*owner is uesr but it's static, adgram can use it
-                               until the data is sent*/
-    AD_MEM_OWNER_USER,    /*owner is user, asocket can use it in adSendData()*/
-} ad_mem_owner_t;
-
-typedef u32 (* fnAdgramOnData_t)(
-    adgram_t * pAdgram, u8 * pu8Buffer,
-    olsize_t * psBeginPointer, olsize_t sEndPointer, void * pUser,
-    boolean_t * pbPause, ip_addr_t * piaRemote, u16 u16Port);
-
-typedef u32 (* fnAdgramOnSendOK_t)(adgram_t * pAdgram, void * pUser);
-
-typedef struct
-{
-    olsize_t ap_sInitialBuf;
-    u32 ap_u32Reserved;
-    fnAdgramOnData_t ap_fnOnData;
-    fnAdgramOnSendOK_t ap_fnOnSendOK;
-    u8 ap_u8Reserved[16];
-    void * ap_pUser;
-} adgram_param_t;
-
 /** Creates a new async dgram object
  *
- *  @param pChain [in] the basic chain object to add the adgram object
+ *  @param pChain [in] the chain object to add the adgram object
  *  @param ppAdgram [out] the adgram object created
- *  @param pap [in] the parameter for creating the adgram
+ *  @param pjnacp [in] the parameter for creating the adgram
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL createAdgram(
-    basic_chain_t * pChain, adgram_t ** ppAdgram, adgram_param_t * pap);
+NETWORKAPI u32 NETWORKCALL jf_network_createAdgram(
+    jf_network_chain_t * pChain, jf_network_adgram_t ** ppAdgram,
+    jf_network_adgram_create_param_t * pjnacp);
 
 /** Destroy async dgram object
  *
@@ -939,7 +989,8 @@ NETWORKAPI u32 NETWORKCALL createAdgram(
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL destroyAdgram(adgram_t ** ppAdgram);
+NETWORKAPI u32 NETWORKCALL jf_network_destroyAdgram(
+    jf_network_adgram_t ** ppAdgram);
 
 /** Clears all the pending data to be sent
  *
@@ -947,7 +998,8 @@ NETWORKAPI u32 NETWORKCALL destroyAdgram(adgram_t ** ppAdgram);
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL clearPendingSendOfAdgram(adgram_t * pAdgram);
+NETWORKAPI u32 NETWORKCALL jf_network_clearPendingSendOfAdgram(
+    jf_network_adgram_t * pAdgram);
 
 /** Determines if an adgram is utilized
  *
@@ -957,7 +1009,8 @@ NETWORKAPI u32 NETWORKCALL clearPendingSendOfAdgram(adgram_t * pAdgram);
  *  @retval FALSE if utilized
  *  @retval TRUE if free
  */
-NETWORKAPI boolean_t NETWORKCALL isAdgramFree(adgram_t *pAdgram);
+NETWORKAPI boolean_t NETWORKCALL jf_network_isAdgramFree(
+    jf_network_adgram_t *pAdgram);
 
 /** Associates an actual socket with adgram. To associate adgram with an already
  *  connected socket.
@@ -966,10 +1019,11 @@ NETWORKAPI boolean_t NETWORKCALL isAdgramFree(adgram_t *pAdgram);
  *  @param pSocket [in] the socket to associate
  *  @param pUser [in] the user 
  */
-NETWORKAPI u32 NETWORKCALL useSocketForAdgram(
-    adgram_t * pAdgram, socket_t * pSocket, void * pUser);
+NETWORKAPI u32 NETWORKCALL jf_network_useSocketForAdgram(
+    jf_network_adgram_t * pAdgram, jf_network_socket_t * pSocket, void * pUser);
 
-NETWORKAPI u32 NETWORKCALL freeSocketForAdgram(adgram_t * pAdgram);
+NETWORKAPI u32 NETWORKCALL jf_network_freeSocketForAdgram(
+    jf_network_adgram_t * pAdgram);
 
 /** Returns the buffer associated with an adgram
  *
@@ -978,11 +1032,12 @@ NETWORKAPI u32 NETWORKCALL freeSocketForAdgram(adgram_t * pAdgram);
  *  @param psBeginPointer [out] the begin pointer of the buffer
  *  @param psEndPointer [out] the end pointer of the buffer
  */
-NETWORKAPI void NETWORKCALL getBufferOfAdgram(
-    adgram_t *pAdgram, u8 ** ppBuffer,
+NETWORKAPI void NETWORKCALL jf_network_getBufferOfAdgram(
+    jf_network_adgram_t * pAdgram, u8 ** ppBuffer,
     olsize_t * psBeginPointer, olsize_t * psEndPointer);
 
-NETWORKAPI void NETWORKCALL clearBufferOfAdgram(adgram_t * pAdgram);
+NETWORKAPI void NETWORKCALL jf_network_clearBufferOfAdgram(
+    jf_network_adgram_t * pAdgram);
 
 /** Returns the number of bytes that are pending to be sent
  *
@@ -990,8 +1045,8 @@ NETWORKAPI void NETWORKCALL clearBufferOfAdgram(adgram_t * pAdgram);
  *
  *  @return number of pending bytes
  */
-NETWORKAPI olsize_t NETWORKCALL getPendingBytesToSendOfAdgram(
-    adgram_t * pAdgram);
+NETWORKAPI olsize_t NETWORKCALL jf_network_getPendingBytesToSendOfAdgram(
+    jf_network_adgram_t * pAdgram);
 
 /** Returns the total number of bytes that have been sent, since the last reset
  *
@@ -999,13 +1054,15 @@ NETWORKAPI olsize_t NETWORKCALL getPendingBytesToSendOfAdgram(
  *
  *  @return number of bytes sent
  */
-NETWORKAPI olsize_t NETWORKCALL getTotalBytesSentOfAdgram(adgram_t * pAdgram);
+NETWORKAPI olsize_t NETWORKCALL jf_network_getTotalBytesSentOfAdgram(
+    jf_network_adgram_t * pAdgram);
 
 /** Resets the total bytes sent counter
  *
  *  @param pAdgram [in] the adgram to reset
  */
-NETWORKAPI void NETWORKCALL resetTotalBytesSentOfAdgram(adgram_t * pAdgram);
+NETWORKAPI void NETWORKCALL jf_network_resetTotalBytesSentOfAdgram(
+    jf_network_adgram_t * pAdgram);
 
 /** Sends data on an adgram
  *
@@ -1018,25 +1075,21 @@ NETWORKAPI void NETWORKCALL resetTotalBytesSentOfAdgram(adgram_t * pAdgram);
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL adSendData(
-    adgram_t * pAdgram, u8 * pu8Buffer, olsize_t sBuf, ad_mem_owner_t memowner,
-    ip_addr_t * piaRemote, u16 u16Port);
-
-NETWORKAPI u32 NETWORKCALL adJoinMulticastGroup(
-    adgram_t * pAdgram, ip_addr_t * piaAddr, ip_addr_t * piaMulticaseAddr);
-
-NETWORKAPI u32 NETWORKCALL adEnableBroadcast(adgram_t * pAdgram);
+NETWORKAPI u32 NETWORKCALL jf_network_sendAdgramData(
+    jf_network_adgram_t * pAdgram, u8 * pu8Buffer, olsize_t sBuf,
+    jf_network_mem_owner_t memowner, ip_addr_t * piaRemote, u16 u16Port);
 
 /** Resumes a paused session
  *
  *  @param pAdgram [in] the asocket to resume
  */
-NETWORKAPI u32 NETWORKCALL resumeAdgram(adgram_t * pAdgram);
+NETWORKAPI u32 NETWORKCALL jf_network_resumeAdgram(
+    jf_network_adgram_t * pAdgram);
 
 /** resolve
  */
 
-NETWORKAPI u32 NETWORKCALL getHostByName(
+NETWORKAPI u32 NETWORKCALL jf_network_getHostByName(
     const olchar_t * pstrName, struct hostent ** ppHostent);
 
 #endif /*JIUFENG_NETWORK_H */

@@ -45,8 +45,8 @@
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 createDgramSocket(ip_addr_t * piaLocal, u16 * pu16Port,
-    socket_t ** ppSocket)
+u32 jf_network_createDgramSocket(
+    ip_addr_t * piaLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -59,8 +59,8 @@ u32 createDgramSocket(ip_addr_t * piaLocal, u16 * pu16Port,
     return u32Ret;
 }
 
-u32 createStreamSocket(
-    ip_addr_t * piaLocal, u16 * pu16Port, socket_t ** ppSocket)
+u32 jf_network_createStreamSocket(
+    ip_addr_t * piaLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -72,7 +72,8 @@ u32 createStreamSocket(
     return u32Ret;
 }
 
-u32 createTypeStreamSocket(u8 u8AddrType, socket_t ** ppSocket)
+u32 jf_network_createTypeStreamSocket(
+    u8 u8AddrType, jf_network_socket_t ** ppSocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -88,8 +89,9 @@ u32 createTypeStreamSocket(u8 u8AddrType, socket_t ** ppSocket)
     return u32Ret;
 }
 
-u32 createSocket(
-    olint_t domain, olint_t type, olint_t protocol, socket_t ** ppSocket)
+u32 jf_network_createSocket(
+    olint_t domain, olint_t type, olint_t protocol,
+    jf_network_socket_t ** ppSocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -101,7 +103,7 @@ u32 createSocket(
     return u32Ret;
 }
 
-u32 destroySocket(socket_t ** ppSocket)
+u32 jf_network_destroySocket(jf_network_socket_t ** ppSocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -112,7 +114,8 @@ u32 destroySocket(socket_t ** ppSocket)
     return u32Ret;
 }
 
-u32 ioctlSocket(socket_t * pSocket, olint_t req, void * pArg)
+u32 jf_network_ioctlSocket(
+    jf_network_socket_t * pSocket, olint_t req, void * pArg)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -124,7 +127,7 @@ u32 ioctlSocket(socket_t * pSocket, olint_t req, void * pArg)
     return u32Ret;
 }
 
-u32 setSocketBlock(socket_t * pSocket)
+u32 jf_network_setSocketBlock(jf_network_socket_t * pSocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -136,7 +139,7 @@ u32 setSocketBlock(socket_t * pSocket)
     return u32Ret;
 }
 
-u32 setSocketNonblock(socket_t * pSocket)
+u32 jf_network_setSocketNonblock(jf_network_socket_t * pSocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -148,8 +151,9 @@ u32 setSocketNonblock(socket_t * pSocket)
     return u32Ret;
 }
 
-u32 joinMulticastGroup(
-    socket_t * pSocket, ip_addr_t * piaAddr, ip_addr_t * piaMulticaseAddr)
+u32 jf_network_joinMulticastGroup(
+    jf_network_socket_t * pSocket, ip_addr_t * piaAddr,
+    ip_addr_t * piaMulticaseAddr)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -162,7 +166,7 @@ u32 joinMulticastGroup(
     return u32Ret;
 }
 
-u32 enableBroadcast(socket_t * pSocket)
+u32 jf_network_enableBroadcast(jf_network_socket_t * pSocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -176,7 +180,7 @@ u32 enableBroadcast(socket_t * pSocket)
 
 /** Try to send all data but only send once, the actual sent size is in psSend
  */
-u32 sSend(socket_t * pSocket, void * pBuffer, olsize_t * psSend)
+u32 jf_network_send(jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -191,8 +195,9 @@ u32 sSend(socket_t * pSocket, void * pBuffer, olsize_t * psSend)
 /** Try to send all data but only send once, unless timeout the actual sent size
  *  is in psSend
  */
-u32 sSendWithTimeout(
-    socket_t * pSocket, void * pBuffer, olsize_t * psSend, u32 u32Timeout)
+u32 jf_network_sendWithTimeout(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend,
+    u32 u32Timeout)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -207,7 +212,7 @@ u32 sSendWithTimeout(
 /** Try to send all data with possible several round, until an error occurs, the
  *  actual sent size is in psSend
  */
-u32 sSendn(socket_t * pSocket, void * pBuffer, olsize_t * psSend)
+u32 jf_network_sendn(jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -222,7 +227,8 @@ u32 sSendn(socket_t * pSocket, void * pBuffer, olsize_t * psSend)
 /** Try to send all data with possible several round, until an error occurs or
  *  timeout, the actual sent size is in psSend
  */
-u32 sSendnWithTimeout(socket_t * pSocket, void * pBuffer, olsize_t * psSend,
+u32 jf_network_sendnWithTimeout(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend,
     u32 u32Timeout)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -238,7 +244,7 @@ u32 sSendnWithTimeout(socket_t * pSocket, void * pBuffer, olsize_t * psSend,
 /** Try to recveive all data but only recveive once, the actual received size is
  *  in psRecv
  */
-u32 sRecv(socket_t * pSocket, void * pBuffer, olsize_t * psRecv)
+u32 jf_network_recv(jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -253,8 +259,9 @@ u32 sRecv(socket_t * pSocket, void * pBuffer, olsize_t * psRecv)
 /** Try to recveive all data but only recveive once, unless timeout the actual
  *  received size is in psRecv
  */
-u32 sRecvWithTimeout(
-    socket_t * pSocket, void * pBuffer, olsize_t * psRecv, u32 u32Timeout)
+u32 jf_network_recvWithTimeout(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
+    u32 u32Timeout)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -269,8 +276,8 @@ u32 sRecvWithTimeout(
 /** Try to recveive all data but only recveive once, unless timeout the actual
  *  received size is in psRecv
  */
-u32 sRecvfromWithTimeout(
-    socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
+u32 jf_network_recvfromWithTimeout(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
     u32 u32Timeout, ip_addr_t * piaFrom, u16 * pu16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -287,7 +294,8 @@ u32 sRecvfromWithTimeout(
 /** Try to recveive all data with possible several round, until an error occurs,
  *  the actual recveived size is in psRecv
  */
-u32 sRecvn(socket_t * pSocket, void * pBuffer, olsize_t * psRecv)
+u32 jf_network_recvn(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -302,8 +310,9 @@ u32 sRecvn(socket_t * pSocket, void * pBuffer, olsize_t * psRecv)
 /** Try to recveive all data with possible several round, until an error occurs
  *  or timeout, the actual recveived size is in psRecv
  */
-u32 sRecvnWithTimeout(
-    socket_t * pSocket, void * pBuffer, olsize_t * psRecv, u32 u32Timeout)
+u32 jf_network_recvnWithTimeout(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
+    u32 u32Timeout)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -315,7 +324,7 @@ u32 sRecvnWithTimeout(
     return u32Ret;
 }
 
-u32 sListen(socket_t * pListen, olint_t backlog)
+u32 jf_network_listen(jf_network_socket_t * pListen, olint_t backlog)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pListen;
@@ -327,7 +336,8 @@ u32 sListen(socket_t * pListen, olint_t backlog)
     return u32Ret;
 }
 
-u32 sConnect(socket_t * pSocket, const ip_addr_t * pia, u16 u16Port)
+u32 jf_network_connect(
+    jf_network_socket_t * pSocket, const ip_addr_t * pia, u16 u16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -339,8 +349,9 @@ u32 sConnect(socket_t * pSocket, const ip_addr_t * pia, u16 u16Port)
     return u32Ret;
 }
 
-u32 sConnectWithTimeout(
-    socket_t * pSocket, const ip_addr_t * pia, u16 u16Port, u32 u32Timeout)
+u32 jf_network_connectWithTimeout(
+    jf_network_socket_t * pSocket, const ip_addr_t * pia, u16 u16Port,
+    u32 u32Timeout)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -352,8 +363,9 @@ u32 sConnectWithTimeout(
     return u32Ret;
 }
 
-u32 sAccept(
-    socket_t * pListen, ip_addr_t * pia, u16 * pu16Port, socket_t ** ppSocket)
+u32 jf_network_accept(
+    jf_network_socket_t * pListen, ip_addr_t * pia, u16 * pu16Port,
+    jf_network_socket_t ** ppSocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pListen;
@@ -365,8 +377,8 @@ u32 sAccept(
     return u32Ret;
 }
 
-u32 sSendto(
-    socket_t * pSocket, void * pBuffer, olsize_t * psSend,
+u32 jf_network_sendto(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend,
     const ip_addr_t * piaTo, u16 u16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -379,8 +391,8 @@ u32 sSendto(
     return u32Ret;
 }
 
-u32 sRecvfrom(
-    socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
+u32 jf_network_recvfrom(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
     ip_addr_t * piaFrom, u16 * pu16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -393,7 +405,7 @@ u32 sRecvfrom(
     return u32Ret;
 }
 
-u32 sSelect(
+u32 jf_network_select(
     fd_set * readfds, fd_set * writefds, fd_set * exceptfds,
     struct timeval * timeout, u32 * pu32Ready)
 {
@@ -404,8 +416,8 @@ u32 sSelect(
     return u32Ret;
 }
 
-u32 getSocketName(
-    socket_t * pSocket, struct sockaddr * pName, olint_t * pnNameLen)
+u32 jf_network_getSocketName(
+    jf_network_socket_t * pSocket, struct sockaddr * pName, olint_t * pnNameLen)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -417,7 +429,8 @@ u32 getSocketName(
     return u32Ret;
 }
 
-void clearSocketFromFdSet(socket_t * pSocket, fd_set * set)
+void jf_network_clearSocketFromFdSet(
+    jf_network_socket_t * pSocket, fd_set * set)
 {
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
@@ -426,7 +439,8 @@ void clearSocketFromFdSet(socket_t * pSocket, fd_set * set)
     clearIsocketFromFdSet(pis, set);
 }
 
-boolean_t isSocketSetInFdSet(socket_t * pSocket, fd_set * set)
+boolean_t jf_network_isSocketSetInFdSet(
+    jf_network_socket_t * pSocket, fd_set * set)
 {
     boolean_t bRet = FALSE;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -438,7 +452,7 @@ boolean_t isSocketSetInFdSet(socket_t * pSocket, fd_set * set)
     return bRet;
 }
 
-void setSocketToFdSet(socket_t * pSocket, fd_set * set)
+void jf_network_setSocketToFdSet(jf_network_socket_t * pSocket, fd_set * set)
 {
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
@@ -447,8 +461,13 @@ void setSocketToFdSet(socket_t * pSocket, fd_set * set)
     setIsocketToFdSet(pis, set);
 }
 
-u32 getSocketOpt(
-    socket_t * pSocket, olint_t level, olint_t optname,
+void jf_network_clearFdSet(fd_set * set)
+{
+    clearIsocketFdSet(set);
+}
+
+u32 jf_network_getSocketOpt(
+    jf_network_socket_t * pSocket, olint_t level, olint_t optname,
     void * optval, olsize_t * optlen)
 {
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -458,8 +477,8 @@ u32 getSocketOpt(
     return isGetSockOpt(pis, level, optname, optval, optlen);
 }
 
-u32 setSocketOpt(
-    socket_t * pSocket, olint_t level, olint_t optname,
+u32 jf_network_setSocketOpt(
+    jf_network_socket_t * pSocket, olint_t level, olint_t optname,
     void * optval, olsize_t optlen)
 {
     internal_socket_t * pis = (internal_socket_t *)pSocket;

@@ -54,21 +54,21 @@ typedef struct
 } jf_webclient_create_param_t;
 
 typedef u32 (* jf_webclient_fnOnResponse_t)(
-    asocket_t * pAsocket, olint_t nEvent,
+    jf_network_asocket_t * pAsocket, olint_t nEvent,
     packet_header_t * header, void * pUser, boolean_t * pbPause);
 
 /* --- functional routines ------------------------------------------------- */
 
 /** Create a new webclient
  *
- *  @param pbc [in] the chain to add this module to
+ *  @param pjnc [in] the chain to add this module to
  *  @param ppWebclient [out] the created web client
  *  @param pjwcp [in] the parameters for creating web client
  *
  *  @return the error code
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_create(
-    basic_chain_t * pbc, jf_webclient_t ** ppWebclient,
+    jf_network_chain_t * pjnc, jf_webclient_t ** ppWebclient,
     jf_webclient_create_param_t * pjwcp);
 
 /** Queues a new web request

@@ -44,7 +44,7 @@
 
 
 /*init net-related library*/
-static inline u32 initNetLib(void)
+static inline u32 jf_network_initLib(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -86,7 +86,7 @@ static inline u32 initNetLib(void)
     return u32Ret;
 }
 
-static inline u32 finiNetLib(void)
+static inline u32 jf_network_finiLib(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 #if defined(LINUX)

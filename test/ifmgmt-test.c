@@ -216,7 +216,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32Ret = _parseCmdLineParam(argc, argv);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = initNetLib();
+        u32Ret = jf_network_initLib();
         if (u32Ret == OLERR_NO_ERROR)
         {
             if (ls_bShowIpInfo)
@@ -236,7 +236,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
             }
         }
 
-        finiNetLib();
+        jf_network_finiLib();
     }
 
     if (u32Ret != OLERR_NO_ERROR)

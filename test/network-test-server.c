@@ -33,7 +33,7 @@ typedef struct server_data
     u8 sd_u8Id[24];
 } server_data_t;
 
-static basic_chain_t * ls_pbcChain = NULL;
+static jf_network_chain_t * ls_pjncChain = NULL;
 
 /* --- private routine section---------------------------------------------- */
 
@@ -111,12 +111,13 @@ static void _terminate(olint_t signal)
 {
     ol_printf("get signal\n");
 
-    if (ls_pbcChain != NULL)
-        stopBasicChain(ls_pbcChain);
+    if (ls_pjncChain != NULL)
+        jf_network_stopChain(ls_pjncChain);
 }
 
 static u32 _onNtsConnect(
-    assocket_t * pAssocket, asocket_t * pAsocket, void ** ppUser)
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    void ** ppUser)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     server_data_t * psd = NULL;
@@ -135,7 +136,8 @@ static u32 _onNtsConnect(
 }
 
 static u32 _onNtsDisConnect(
-    assocket_t * pAssocket, void * pAsocket, u32 u32Status, void * pUser)
+    jf_network_assocket_t * pAssocket, void * pAsocket, u32 u32Status,
+    void * pUser)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     server_data_t * psd = (server_data_t *)pUser;
@@ -147,7 +149,9 @@ static u32 _onNtsDisConnect(
     return u32Ret;
 }
 
-static u32 _onNtsSendOK(assocket_t * pAssocket, asocket_t * connection, void * pUser)
+static u32 _onNtsSendOK(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * connection,
+    void * pUser)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -156,8 +160,9 @@ static u32 _onNtsSendOK(assocket_t * pAssocket, asocket_t * connection, void * p
     return u32Ret;
 }
 
-static u32 _onNtsData(assocket_t * pAssocket, asocket_t * pAsocket, u8 * pu8Buffer,
-    olsize_t * pu32BeginPointer, olsize_t u32EndPointer,
+static u32 _onNtsData(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    u8 * pu8Buffer, olsize_t * pu32BeginPointer, olsize_t u32EndPointer,
     void * pUser, boolean_t * bPause)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -173,9 +178,9 @@ static u32 _onNtsData(assocket_t * pAssocket, asocket_t * pAsocket, u8 * pu8Buff
     *pu32BeginPointer = u32EndPointer;
 
     ol_strcpy((olchar_t *)u8Buffer, "hello everybody");
-    u32Ret = assSendData(
+    u32Ret = jf_network_sendAssocketData(
         pAssocket, pAsocket, u8Buffer,
-        ol_strlen((olchar_t *)u8Buffer), AS_MEM_OWNER_USER);
+        ol_strlen((olchar_t *)u8Buffer), JF_NETWORK_MEM_OWNER_USER);
 
     return u32Ret;
 }
@@ -185,8 +190,8 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strErrMsg[300];
-    assocket_t * pAssocket = NULL;
-    assocket_param_t ap;
+    jf_network_assocket_t * pAssocket = NULL;
+    jf_network_assocket_create_param_t jnacp;
     logger_param_t lpParam;
 
     memset(&lpParam, 0, sizeof(logger_param_t));
@@ -202,39 +207,39 @@ olint_t main(olint_t argc, olchar_t ** argv)
     {
         initLogger(&lpParam);
 
-        u32Ret = initNetLib();
+        u32Ret = jf_network_initLib();
         if (u32Ret == OLERR_NO_ERROR)
         {
-            u32Ret = createBasicChain(&ls_pbcChain);
+            u32Ret = jf_network_createChain(&ls_pjncChain);
 
             if (u32Ret == OLERR_NO_ERROR)
             {
-                memset(&ap, 0, sizeof(assocket_param_t));
+                ol_memset(&jnacp, 0, sizeof(jnacp));
 
-                ap.ap_sInitialBuf = 2048;
-                ap.ap_u32MaxConn = 10;
-                ap.ap_u16PortNumber = SERVER_PORT;
-                ap.ap_fnOnConnect = _onNtsConnect;
-                ap.ap_fnOnDisconnect = _onNtsDisConnect;
-                ap.ap_fnOnSendOK = _onNtsSendOK;
-                ap.ap_fnOnData = _onNtsData;
+                jnacp.jnacp_sInitialBuf = 2048;
+                jnacp.jnacp_u32MaxConn = 10;
+                jnacp.jnacp_u16PortNumber = SERVER_PORT;
+                jnacp.jnacp_fnOnConnect = _onNtsConnect;
+                jnacp.jnacp_fnOnDisconnect = _onNtsDisConnect;
+                jnacp.jnacp_fnOnSendOK = _onNtsSendOK;
+                jnacp.jnacp_fnOnData = _onNtsData;
 
-                u32Ret = createAssocket(ls_pbcChain, &pAssocket, &ap);
+                u32Ret = jf_network_createAssocket(ls_pjncChain, &pAssocket, &jnacp);
             }
 
             if (u32Ret == OLERR_NO_ERROR)
             {
-                u32Ret = startBasicChain(ls_pbcChain);
+                u32Ret = jf_network_startChain(ls_pjncChain);
             }
 
-            finiNetLib();
+            jf_network_finiLib();
         }
 
         finiLogger();
     }
 
-    if (ls_pbcChain != NULL)
-        destroyBasicChain(&ls_pbcChain);
+    if (ls_pjncChain != NULL)
+        jf_network_destroyChain(&ls_pjncChain);
 
     if (u32Ret != OLERR_NO_ERROR)
     {

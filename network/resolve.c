@@ -24,7 +24,9 @@
 /* --- private routine section---------------------------------------------- */
 
 /* --- public routine section ---------------------------------------------- */
-u32 getHostByName(const olchar_t * pstrName, struct hostent ** ppHostent)
+
+u32 jf_network_getHostByName(
+    const olchar_t * pstrName, struct hostent ** ppHostent)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     struct hostent * pHost = NULL;

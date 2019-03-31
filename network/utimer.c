@@ -26,16 +26,16 @@ typedef struct utimer_item
 {
     u32 ui_u32Expire;
     void * ui_pData;
-    fnCallbackOfUtimerItem_t ui_fnCallback;
-    fnDestroyUtimerItem_t ui_fnDestroy;
+    jf_network_fnCallbackOfUtimerItem_t ui_fnCallback;
+    jf_network_fnDestroyUtimerItem_t ui_fnDestroy;
     struct utimer_item * ui_puiPrev;
     struct utimer_item * ui_puiNext;
 } utimer_item_t;
 
 typedef struct utimer
 {
-    basic_chain_object_header_t iu_bcohHeader;
-    basic_chain_t * iu_pbcChain;
+    jf_network_chain_object_header_t iu_jncohHeader;
+    jf_network_chain_t * iu_pbcChain;
     utimer_item_t * iu_puiItems;
     sync_mutex_t iu_smLock;
 } internal_utimer_t;
@@ -44,7 +44,7 @@ typedef struct utimer
 
 /** Checks the utimer item.
  *
- *  @param pObject [in] the basic chain object
+ *  @param pObject [in] the chain object
  *  @param readset [in] no use, but necessay 
  *  @param writeset [in] no use, but necessay  
  *  @param errorset [in] no use, but necessay  
@@ -53,7 +53,7 @@ typedef struct utimer
  *  @return the error code
  */
 static u32 _checkUtimer(
-    basic_chain_object_t * pObject, fd_set * readset,
+    jf_network_chain_object_t * pObject, fd_set * readset,
 	fd_set * writeset, fd_set * errorset, u32 * pu32Blocktime)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -178,9 +178,10 @@ static u32 _flushUtimer(internal_utimer_t * piu)
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 addUtimerItem(
-    utimer_t * pUtimer, void * pData, u32 u32Seconds,
-    fnCallbackOfUtimerItem_t fnCallback, fnDestroyUtimerItem_t fnDestroy)
+u32 jf_network_addUtimerItem(
+    jf_network_utimer_t * pUtimer, void * pData, u32 u32Seconds,
+    jf_network_fnCallbackOfUtimerItem_t fnCallback,
+    jf_network_fnDestroyUtimerItem_t fnDestroy)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     boolean_t bUnblock = FALSE;
@@ -264,14 +265,14 @@ u32 addUtimerItem(
 
         if (bUnblock)
         {
-            wakeupBasicChain(piu->iu_pbcChain);
+            jf_network_wakeupChain(piu->iu_pbcChain);
         }
     }
 
     return u32Ret;
 }
 
-u32 removeUtimerItem(utimer_t * pUtimer, void * pData)
+u32 jf_network_removeUtimerItem(jf_network_utimer_t * pUtimer, void * pData)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_utimer_t * piu = (internal_utimer_t *) pUtimer;
@@ -342,7 +343,7 @@ u32 removeUtimerItem(utimer_t * pUtimer, void * pData)
     return u32Ret;
 }
 
-u32 destroyUtimer(utimer_t ** ppUtimer)
+u32 jf_network_destroyUtimer(jf_network_utimer_t ** ppUtimer)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_utimer_t * piu;
@@ -361,7 +362,8 @@ u32 destroyUtimer(utimer_t ** ppUtimer)
     return u32Ret;
 }
 
-u32 createUtimer(basic_chain_t * pChain, utimer_t ** ppUtimer)
+u32 jf_network_createUtimer(
+    jf_network_chain_t * pChain, jf_network_utimer_t ** ppUtimer)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_utimer_t * piu;
@@ -371,7 +373,7 @@ u32 createUtimer(basic_chain_t * pChain, utimer_t ** ppUtimer)
     {
         memset(piu, 0, sizeof(internal_utimer_t));
 
-        piu->iu_bcohHeader.bcoh_fnPreSelect = _checkUtimer;
+        piu->iu_jncohHeader.jncoh_fnPreSelect = _checkUtimer;
         piu->iu_pbcChain = pChain;
 
         u32Ret = initSyncMutex(&(piu->iu_smLock));
@@ -379,7 +381,8 @@ u32 createUtimer(basic_chain_t * pChain, utimer_t ** ppUtimer)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = appendToBasicChain(pChain, (basic_chain_object_t *)piu);
+        u32Ret = jf_network_appendToChain(
+            pChain, (jf_network_chain_object_t *)piu);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -388,7 +391,7 @@ u32 createUtimer(basic_chain_t * pChain, utimer_t ** ppUtimer)
     }
     else if (piu != NULL)
     {
-        destroyUtimer((void **)&piu);
+        jf_network_destroyUtimer((void **)&piu);
     }
 
     return u32Ret;

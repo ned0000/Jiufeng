@@ -30,9 +30,9 @@
 static const olchar_t * ls_pstrProgramName = "webclient-test";
 static const olchar_t * ls_pstrVersion = "1.0.0";
 
-static basic_chain_t * ls_pbcChain = NULL;
+static jf_network_chain_t * ls_pjncChain = NULL;
 static jf_webclient_t * ls_pwWebclient = NULL;
-static utimer_t * ls_putUtimer = NULL;
+static jf_network_utimer_t * ls_pjnuUtimer = NULL;
 
 static olchar_t * ls_pstrQuotationServer = "hq.sinajs.cn";
 static ip_addr_t ls_iaServerAddr;
@@ -109,12 +109,12 @@ static void _terminate(olint_t signal)
 {
     ol_printf("get signal\n");
 
-    if (ls_pbcChain != NULL)
-        stopBasicChain(ls_pbcChain);
+    if (ls_pjncChain != NULL)
+        jf_network_stopChain(ls_pjncChain);
 }
 
 static u32 _wcTestOnResponse(
-    asocket_t * pAsocket, olint_t nEvent,
+    jf_network_asocket_t * pAsocket, olint_t nEvent,
     packet_header_t * header, void * user, boolean_t * pbPause)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -185,7 +185,7 @@ static u32 _getSinaQuotation(void * object)
         ls_pwWebclient, &ls_iaServerAddr, 80, buffer, len, FALSE, NULL, 0,
         FALSE, _wcTestOnResponse, NULL);
 
-//    addUtimerItem(ls_putUtimer, NULL, 30, _getSinaQuotation, NULL);
+//    jf_network_addUtimerItem(ls_pjnuUtimer, NULL, 30, _getSinaQuotation, NULL);
 
     return u32Ret;
 }
@@ -196,20 +196,20 @@ static u32 _testWebclient(olint_t argc, olchar_t ** argv)
     jf_webclient_create_param_t jwcp;
     struct hostent * servp;
 
-    u32Ret = getHostByName(ls_pstrQuotationServer, &servp);
+    u32Ret = jf_network_getHostByName(ls_pstrQuotationServer, &servp);
 
     if (u32Ret == OLERR_NO_ERROR)
     {
         setIpV4Addr(&ls_iaServerAddr, *(long *)(servp->h_addr));
 
-        u32Ret = createBasicChain(&ls_pbcChain);
+        u32Ret = jf_network_createChain(&ls_pjncChain);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
         u32Ret = registerSignalHandlers(_terminate);
 
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = createUtimer(ls_pbcChain, &ls_putUtimer);
+        u32Ret = jf_network_createUtimer(ls_pjncChain, &ls_pjnuUtimer);
 
     if (u32Ret == OLERR_NO_ERROR)
     {
@@ -217,17 +217,17 @@ static u32 _testWebclient(olint_t argc, olchar_t ** argv)
         jwcp.jwcp_nPoolSize = 5;
         jwcp.jwcp_sBuffer = 1024 * 8;
 
-        u32Ret = jf_webclient_create(ls_pbcChain, &ls_pwWebclient, &jwcp);
+        u32Ret = jf_webclient_create(ls_pjncChain, &ls_pwWebclient, &jwcp);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        addUtimerItem(ls_putUtimer, NULL, 5, _getSinaQuotation, NULL);
+        jf_network_addUtimerItem(ls_pjnuUtimer, NULL, 5, _getSinaQuotation, NULL);
 
-        startBasicChain(ls_pbcChain);
+        jf_network_startChain(ls_pjncChain);
 
         sleep(3);
-        destroyBasicChain(&ls_pbcChain);
+        jf_network_destroyChain(&ls_pjncChain);
     }
 
     return u32Ret;
@@ -252,12 +252,12 @@ olint_t main(olint_t argc, olchar_t ** argv)
     {
         initLogger(&lpParam);
 
-        u32Ret = initNetLib();
+        u32Ret = jf_network_initLib();
         if (u32Ret == OLERR_NO_ERROR)
         {
             u32Ret = _testWebclient(argc, argv);
 
-            finiNetLib();
+            jf_network_finiLib();
         }
 
         finiLogger();

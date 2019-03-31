@@ -39,9 +39,9 @@ typedef struct internal_basic_chain
     boolean_t ibc_bToTerminate;
     u8 ibc_u8Reserved[7];
     /** Pointing to an object */
-    basic_chain_object_t * ibc_pbcoObject;
+    jf_network_chain_object_t * ibc_pbcoObject;
     /** pipe, to wakeup or stop the chain*/
-    socket_t * ibc_psWakeup[2];
+    jf_network_socket_t * ibc_pjnsWakeup[2];
     sync_mutex_t ibc_smLock;
     /** Next chain */
     struct internal_basic_chain *ibc_pibcNext;
@@ -55,7 +55,7 @@ static u32 _readWakeupSocket(internal_basic_chain_t * pibc)
     u8 u8Buffer[100];
     olsize_t i, u32Count = 100;
 
-    u32Ret = sRecv(pibc->ibc_psWakeup[0], u8Buffer, &u32Count);
+    u32Ret = jf_network_recv(pibc->ibc_pjnsWakeup[0], u8Buffer, &u32Count);
     if (u32Ret == OLERR_NO_ERROR)
     {
         for (i = 0; i < u32Count; i ++)
@@ -79,7 +79,7 @@ static u32 _readWakeupSocket(internal_basic_chain_t * pibc)
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 createBasicChain(basic_chain_t ** ppChain)
+u32 jf_network_createChain(jf_network_chain_t ** ppChain)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_basic_chain_t * pibc;
@@ -89,7 +89,8 @@ u32 createBasicChain(basic_chain_t ** ppChain)
     {
         memset(pibc, 0, sizeof(internal_basic_chain_t));
 
-        u32Ret = createSocketPair(AF_INET, SOCK_STREAM, pibc->ibc_psWakeup);
+        u32Ret = jf_network_createSocketPair(
+            AF_INET, SOCK_STREAM, pibc->ibc_pjnsWakeup);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -101,13 +102,13 @@ u32 createBasicChain(basic_chain_t ** ppChain)
     }
     else if (pibc != NULL)
     {
-        destroyBasicChain((basic_chain_t **)&pibc);
+        jf_network_destroyChain((jf_network_chain_t **)&pibc);
     }
 
     return u32Ret;
 }
 
-u32 destroyBasicChain(basic_chain_t ** ppChain)
+u32 jf_network_destroyChain(jf_network_chain_t ** ppChain)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_basic_chain_t * pibc, * chain;
@@ -121,8 +122,8 @@ u32 destroyBasicChain(basic_chain_t ** ppChain)
     pibc = (internal_basic_chain_t *)*ppChain;
     *ppChain = NULL;
 
-    if (pibc->ibc_psWakeup[0] != NULL)
-        u32Ret = destroySocketPair(pibc->ibc_psWakeup);
+    if (pibc->ibc_pjnsWakeup[0] != NULL)
+        u32Ret = jf_network_destroySocketPair(pibc->ibc_pjnsWakeup);
 
     finiSyncMutex(&(pibc->ibc_smLock));
 
@@ -139,7 +140,8 @@ u32 destroyBasicChain(basic_chain_t ** ppChain)
     return u32Ret;
 }
 
-u32 appendToBasicChain(basic_chain_t * pChain, basic_chain_object_t * pObject)
+u32 jf_network_appendToChain(
+    jf_network_chain_t * pChain, jf_network_chain_object_t * pObject)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_basic_chain_t * pibc;
@@ -169,11 +171,11 @@ u32 appendToBasicChain(basic_chain_t * pChain, basic_chain_object_t * pObject)
     return u32Ret;
 }
 
-u32 startBasicChain(basic_chain_t * pChain)
+u32 jf_network_startChain(jf_network_chain_t * pChain)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_basic_chain_t * pibc, * pBasicChain;
-    basic_chain_object_header_t * pbcoh;
+    jf_network_chain_object_header_t * pjncoh;
     fd_set readset;
     fd_set errorset;
     fd_set writeset;
@@ -196,17 +198,17 @@ u32 startBasicChain(basic_chain_t * pChain)
         tv.tv_sec = BASIC_CHAIN_MAX_WAIT;
         tv.tv_usec = 0;
 
-        setSocketToFdSet(pibc->ibc_psWakeup[0], &readset);
+        jf_network_setSocketToFdSet(pibc->ibc_pjnsWakeup[0], &readset);
 
         /*Iterate through all the pre_select function pointers in the chain*/
         pBasicChain = (internal_basic_chain_t *) pibc;
         while ((pBasicChain != NULL) && (pBasicChain->ibc_pbcoObject != NULL))
         {
-            pbcoh = (basic_chain_object_header_t *)pBasicChain->ibc_pbcoObject;
-            if (pbcoh->bcoh_fnPreSelect != NULL)
+            pjncoh = (jf_network_chain_object_header_t *)pBasicChain->ibc_pbcoObject;
+            if (pjncoh->jncoh_fnPreSelect != NULL)
             {
                 u32Time = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
-                pbcoh->bcoh_fnPreSelect(
+                pjncoh->jncoh_fnPreSelect(
                     pBasicChain->ibc_pbcoObject, &readset, &writeset, &errorset,
                     &u32Time);
                 tv.tv_sec = u32Time / 1000;
@@ -234,7 +236,8 @@ u32 startBasicChain(basic_chain_t * pChain)
         {
             if (slct > 0)
             {
-                if (isSocketSetInFdSet(pibc->ibc_psWakeup[0], &readset) != 0)
+                if (jf_network_isSocketSetInFdSet(
+                        pibc->ibc_pjnsWakeup[0], &readset) != 0)
                 {
                     _readWakeupSocket(pibc);
                     slct --;
@@ -245,10 +248,10 @@ u32 startBasicChain(basic_chain_t * pChain)
             pBasicChain = pibc;
             while ((pBasicChain != NULL) && (pBasicChain->ibc_pbcoObject != NULL))
             {
-                pbcoh = (basic_chain_object_header_t *)pBasicChain->ibc_pbcoObject;
-                if (pbcoh->bcoh_fnPostSelect != NULL)
+                pjncoh = (jf_network_chain_object_header_t *)pBasicChain->ibc_pbcoObject;
+                if (pjncoh->jncoh_fnPostSelect != NULL)
                 {
-                    pbcoh->bcoh_fnPostSelect(
+                    pjncoh->jncoh_fnPostSelect(
                         pBasicChain->ibc_pbcoObject, slct, &readset, &writeset,
                         &errorset);
                 }
@@ -260,7 +263,7 @@ u32 startBasicChain(basic_chain_t * pChain)
     return u32Ret;
 }
 
-u32 stopBasicChain(basic_chain_t * pChain)
+u32 jf_network_stopChain(jf_network_chain_t * pChain)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_basic_chain_t * pibc = (internal_basic_chain_t *) pChain;
@@ -271,7 +274,7 @@ u32 stopBasicChain(basic_chain_t * pChain)
 #endif
 
     u32Count = 1;
-    u32Ret = sSend(pibc->ibc_psWakeup[1], "S", &u32Count);
+    u32Ret = jf_network_send(pibc->ibc_pjnsWakeup[1], "S", &u32Count);
 #if defined(DEBUG_CHAIN)
     if (u32Ret == OLERR_NO_ERROR)
     {
@@ -282,7 +285,7 @@ u32 stopBasicChain(basic_chain_t * pChain)
     return u32Ret;
 }
 
-u32 wakeupBasicChain(basic_chain_t * pChain)
+u32 jf_network_wakeupChain(jf_network_chain_t * pChain)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_basic_chain_t * pibc = (internal_basic_chain_t *) pChain;
@@ -293,7 +296,7 @@ u32 wakeupBasicChain(basic_chain_t * pChain)
 #endif
 
     u32Count = 1;
-    u32Ret = sSend(pibc->ibc_psWakeup[1], "W", &u32Count);
+    u32Ret = jf_network_send(pibc->ibc_pjnsWakeup[1], "W", &u32Count);
 #if defined(DEBUG_CHAIN)
     if (u32Ret == OLERR_NO_ERROR)
     {

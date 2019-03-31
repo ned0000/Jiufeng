@@ -30,14 +30,14 @@ typedef struct send_data
     olsize_t sd_sBuf;
     olsize_t sd_sBytesSent;
 
-    as_mem_owner_t sd_amoOwner;
+    jf_network_mem_owner_t sd_jnmoOwner;
     struct send_data *sd_psdNext;
 } send_data_t;
 
 typedef struct
 {
-    basic_chain_object_header_t ia_bcohHeader;
-    basic_chain_t * ia_pbcChain;
+    jf_network_chain_object_header_t ia_jncohHeader;
+    jf_network_chain_t * ia_pjncChain;
 
     olsize_t ia_sPendingBytesToSend;
     olsize_t ia_sTotalBytesSent;
@@ -51,9 +51,9 @@ typedef struct
 
     void * ia_pUser;
 
-    utimer_t * ia_putUtimer;
+    jf_network_utimer_t * ia_pjnuUtimer;
 
-    socket_t * ia_psSocket;
+    jf_network_socket_t * ia_pjnsSocket;
 
     /*if the asocket is free or not*/
     boolean_t ia_bFree;
@@ -86,19 +86,19 @@ typedef struct
     boolean_t ia_bSilent;
     u8 ia_u8Reserved10[7];
 
-    fnAsocketOnData_t ia_fnOnData;
-    fnAsocketOnConnect_t ia_fnOnConnect;
-    fnAsocketOnDisconnect_t ia_fnOnDisconnect;
-    fnAsocketOnSendOK_t ia_fnOnSendOK;
+    jf_network_fnAsocketOnData_t ia_fnOnData;
+    jf_network_fnAsocketOnConnect_t ia_fnOnConnect;
+    jf_network_fnAsocketOnDisconnect_t ia_fnOnDisconnect;
+    jf_network_fnAsocketOnSendOK_t ia_fnOnSendOK;
 } internal_asocket_t;
 
 /* --- private routine section---------------------------------------------- */
 
-static u32 _asRecvn(socket_t * pSocket, void * pBuffer, olsize_t * psRecv)
+static u32 _asRecvn(jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    u32Ret = sRecv(pSocket, pBuffer, psRecv);
+    u32Ret = jf_network_recv(pSocket, pBuffer, psRecv);
     if (u32Ret == OLERR_NO_ERROR)
     {
         if (*psRecv == 0)
@@ -112,7 +112,7 @@ static void _destroySendData(send_data_t ** ppsd)
 {
     send_data_t * psd = *ppsd;
 
-    if (psd->sd_amoOwner == AS_MEM_OWNER_ASOCKET)
+    if (psd->sd_jnmoOwner == JF_NETWORK_MEM_OWNER_LIB)
     {
         xfree((void **)&psd->sd_pu8Buffer);
     }
@@ -175,10 +175,10 @@ static u32 _freeAsocket(internal_asocket_t * pia)
       be sent*/
     _clearPendingSendOfAsocket(pia);
 
-    if (pia->ia_psSocket != NULL)
-        destroySocket(&(pia->ia_psSocket));
+    if (pia->ia_pjnsSocket != NULL)
+        jf_network_destroySocket(&(pia->ia_pjnsSocket));
 
-    removeUtimerItem(pia->ia_putUtimer, pia);
+    jf_network_removeUtimerItem(pia->ia_pjnuUtimer, pia);
 
     _clearAsocket(pia);
 
@@ -191,7 +191,7 @@ static u32 _freeAsocket(internal_asocket_t * pia)
  *
  *  @param pAsocket [in] the asocket to disconnect
  */
-static u32 _asDisconnect(asocket_t * pAsocket)
+static u32 _asDisconnect(jf_network_asocket_t * pAsocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
@@ -268,7 +268,7 @@ static u32 _processAsocket(internal_asocket_t * pia)
     }
 
     u32Ret = _asRecvn(
-        pia->ia_psSocket, pia->ia_pu8Buffer + pia->ia_sEndPointer,
+        pia->ia_pjnsSocket, pia->ia_pu8Buffer + pia->ia_sEndPointer,
         &bytesReceived);
     if (u32Ret != OLERR_NO_ERROR)
     {
@@ -308,7 +308,7 @@ static u32 _processAsocket(internal_asocket_t * pia)
  *  @return the error code
  */
 static u32 _preSelectAsocket(
-    basic_chain_object_t * pAsocket, fd_set * readset,
+    jf_network_chain_object_t * pAsocket, fd_set * readset,
     fd_set * writeset, fd_set * errorset, u32 * pu32BlockTime)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -316,13 +316,13 @@ static u32 _preSelectAsocket(
 
     if (pia->ia_psmLock != NULL)
         acquireSyncMutex(pia->ia_psmLock);
-    if (pia->ia_psSocket != NULL)
+    if (pia->ia_pjnsSocket != NULL)
     {
         if (! pia->ia_bFinConnect)
         {
             /* Not Connected Yet */
-            setSocketToFdSet(pia->ia_psSocket, writeset);
-            setSocketToFdSet(pia->ia_psSocket, errorset);
+            jf_network_setSocketToFdSet(pia->ia_pjnsSocket, writeset);
+            jf_network_setSocketToFdSet(pia->ia_pjnsSocket, errorset);
         }
         else
         {
@@ -330,15 +330,15 @@ static u32 _preSelectAsocket(
             if (! pia->ia_bPause)
             {
                 /* Already Connected, just needs reading */
-                setSocketToFdSet(pia->ia_psSocket, readset);
-                setSocketToFdSet(pia->ia_psSocket, errorset);
+                jf_network_setSocketToFdSet(pia->ia_pjnsSocket, readset);
+                jf_network_setSocketToFdSet(pia->ia_pjnsSocket, errorset);
             }
 
             if (pia->ia_psdHead != NULL)
             {
                 /* If there is pending data to be sent, then we need to check
                    when the socket is writable */
-                setSocketToFdSet(pia->ia_psSocket, writeset);
+                jf_network_setSocketToFdSet(pia->ia_pjnsSocket, writeset);
             }
         }
     }
@@ -358,8 +358,8 @@ static u32 _asPostSelectSendData(internal_asocket_t * pia)
     while (u32Ret == OLERR_NO_ERROR)
     {
         bytesSent = pia->ia_psdHead->sd_sBuf - pia->ia_psdHead->sd_sBytesSent;
-        u32Ret = sSend(
-            pia->ia_psSocket, pia->ia_psdHead->sd_pu8Buffer +
+        u32Ret = jf_network_send(
+            pia->ia_pjnsSocket, pia->ia_psdHead->sd_pu8Buffer +
             pia->ia_psdHead->sd_sBytesSent, &bytesSent);
         if (u32Ret == OLERR_NO_ERROR)
         {
@@ -389,7 +389,7 @@ static u32 _asPostSelectSendData(internal_asocket_t * pia)
         else
         {
             /*There was an error sending*/
-            clearPendingSendOfAsocket(pia);
+            jf_network_clearPendingSendOfAsocket(pia);
             u32Ret = OLERR_FAIL_SEND_DATA;
         }
     }
@@ -397,7 +397,7 @@ static u32 _asPostSelectSendData(internal_asocket_t * pia)
     return u32Ret;
 }
 
-/** Post select handler for basic chain
+/** Post select handler for chain
  *
  *  @param pAsocket [in] the async socket
  *  @param slct [in] number of ready socket 
@@ -408,7 +408,7 @@ static u32 _asPostSelectSendData(internal_asocket_t * pia)
  *  @return the error code
  */
 static u32 _postSelectAsocket(
-    basic_chain_object_t * pAsocket, olint_t slct,
+    jf_network_chain_object_t * pAsocket, olint_t slct,
     fd_set * readset, fd_set * writeset, fd_set * errorset)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -422,8 +422,8 @@ static u32 _postSelectAsocket(
         acquireSyncMutex(pia->ia_psmLock);
 
     /*Write Handling*/
-    if ((pia->ia_psSocket != NULL) && pia->ia_bFinConnect &&
-        isSocketSetInFdSet(pia->ia_psSocket, writeset) != 0)
+    if ((pia->ia_pjnsSocket != NULL) && pia->ia_bFinConnect &&
+        jf_network_isSocketSetInFdSet(pia->ia_pjnsSocket, writeset) != 0)
     {
         /*The socket is writable, and data needs to be sent*/
         u32Ret = _asPostSelectSendData(pia);
@@ -440,11 +440,11 @@ static u32 _postSelectAsocket(
     }
 
     /*Connection Handling / Read Handling*/
-    if (pia->ia_psSocket != NULL)
+    if (pia->ia_pjnsSocket != NULL)
     {
         /*close the connection if socket is in the errorset,
           maybe peer is closed*/
-        if (isSocketSetInFdSet(pia->ia_psSocket, errorset) != 0)
+        if (jf_network_isSocketSetInFdSet(pia->ia_pjnsSocket, errorset) != 0)
         {
             logInfoMsg("post as, in errorset");
 
@@ -455,12 +455,12 @@ static u32 _postSelectAsocket(
             _freeAsocket(pia);
         }
         else if ((! pia->ia_bFinConnect) &&
-                 (isSocketSetInFdSet(pia->ia_psSocket, writeset) != 0))
+                 (jf_network_isSocketSetInFdSet(pia->ia_pjnsSocket, writeset) != 0))
         {
             /* Connected */
             logInfoMsg("post as, connected");
 
-            getSocketName(pia->ia_psSocket, psa, &nLen);
+            jf_network_getSocketName(pia->ia_pjnsSocket, psa, &nLen);
 
             convertSockAddrToIpAddr(
                 psa, nLen, &(pia->ia_iaLocal), &(pia->ia_u16LocalPort));
@@ -471,7 +471,7 @@ static u32 _postSelectAsocket(
             if (pia->ia_fnOnConnect != NULL && ! pia->ia_bSilent)
                 pia->ia_fnOnConnect(pia, TRUE, pia->ia_pUser);
         }
-        else if (isSocketSetInFdSet(pia->ia_psSocket, readset) != 0)
+        else if (jf_network_isSocketSetInFdSet(pia->ia_pjnsSocket, readset) != 0)
         {
             /* Data Available */
             u32Ret = _processAsocket(pia);
@@ -492,21 +492,23 @@ static u32 _asConnectTo(
     logInfoMsg("as connect");
 
     /*If there isn't a socket already allocated, we need to allocate one*/
-    if (pia->ia_psSocket == NULL)
+    if (pia->ia_pjnsSocket == NULL)
     {
         if (piaRemote->ia_u8AddrType == IP_ADDR_TYPE_V4)
-            u32Ret = createSocket(AF_INET, SOCK_STREAM, 0, &pia->ia_psSocket);
+            u32Ret = jf_network_createSocket(
+                AF_INET, SOCK_STREAM, 0, &pia->ia_pjnsSocket);
         else
-            u32Ret = createSocket(AF_INET6, SOCK_STREAM, 0, &pia->ia_psSocket);
+            u32Ret = jf_network_createSocket(
+                AF_INET6, SOCK_STREAM, 0, &pia->ia_pjnsSocket);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        setSocketNonblock(pia->ia_psSocket);
+        jf_network_setSocketNonblock(pia->ia_pjnsSocket);
 
         /*Connect the socket, and force the chain to unblock, since the select
           statement doesn't have us in the fdset yet.*/
-        u32Ret = sConnect(pia->ia_psSocket, piaRemote, u16Port);
+        u32Ret = jf_network_connect(pia->ia_pjnsSocket, piaRemote, u16Port);
     }
 
     return u32Ret;
@@ -514,19 +516,19 @@ static u32 _asConnectTo(
 
 static u32 _asAddPendingData(
     internal_asocket_t * pia, send_data_t * pData, u8 * pu8Buffer,
-    olsize_t sBuf, as_mem_owner_t memowner, boolean_t * pbUnblock)
+    olsize_t sBuf, jf_network_mem_owner_t memowner, boolean_t * pbUnblock)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     send_data_t * psd = NULL;
 
     u32Ret = dupMemory((void **)&psd, (u8 *)pData, sizeof(*pData));
-    if ((u32Ret == OLERR_NO_ERROR) && (memowner == AS_MEM_OWNER_USER))
+    if ((u32Ret == OLERR_NO_ERROR) && (memowner == JF_NETWORK_MEM_OWNER_USER))
     {
         /*If we don't own this memory, we need to copy the buffer, because the
           user may free this memory before we have a chance to send it*/
         u32Ret = dupMemory((void **)&psd->sd_pu8Buffer, pu8Buffer, sBuf);
         if (u32Ret == OLERR_NO_ERROR)
-            psd->sd_amoOwner = AS_MEM_OWNER_ASOCKET;
+            psd->sd_jnmoOwner = JF_NETWORK_MEM_OWNER_LIB;
         else
             _destroySendData(&psd);
     }
@@ -545,15 +547,15 @@ static u32 _asAddPendingData(
 
 static u32 _asTrySendData(
     internal_asocket_t * pia, send_data_t * pData, u8 * pu8Buffer,
-    olsize_t sBuf, as_mem_owner_t memowner, boolean_t * pbUnblock)
+    olsize_t sBuf, jf_network_mem_owner_t memowner, boolean_t * pbUnblock)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olsize_t bytesSent;
     send_data_t * psd = NULL;
 
     bytesSent = pData->sd_sBuf - pData->sd_sBytesSent;
-    u32Ret = sSend(
-        pia->ia_psSocket,
+    u32Ret = jf_network_send(
+        pia->ia_pjnsSocket,
         pData->sd_pu8Buffer + pData->sd_sBytesSent, &bytesSent);
     if (u32Ret == OLERR_NO_ERROR)
     {
@@ -570,12 +572,12 @@ static u32 _asTrySendData(
               we have a chance to complete sending it.*/
             logInfoMsg("as send data, partially send");
             u32Ret = dupMemory((void **)&psd, (u8 *)pData, sizeof(*pData));
-            if ((u32Ret == OLERR_NO_ERROR) && (memowner == AS_MEM_OWNER_USER))
+            if ((u32Ret == OLERR_NO_ERROR) && (memowner == JF_NETWORK_MEM_OWNER_USER))
             {
                 u32Ret = dupMemory(
                     (void **)&psd->sd_pu8Buffer, pu8Buffer, sBuf);
                 if (u32Ret == OLERR_NO_ERROR)
-                    psd->sd_amoOwner = AS_MEM_OWNER_ASOCKET;
+                    psd->sd_jnmoOwner = JF_NETWORK_MEM_OWNER_LIB;
                 else
                     _destroySendData(&psd);
             }
@@ -600,8 +602,8 @@ static u32 _asTrySendData(
         pia->ia_u32Status = u32Ret;
         /*calling disconnect function, asSendData() may be called in other
           thread, use utimer just in case*/
-        u32Ret = addUtimerItem(
-            pia->ia_putUtimer, pia, 0, _asDisconnect, NULL);
+        u32Ret = jf_network_addUtimerItem(
+            pia->ia_pjnuUtimer, pia, 0, _asDisconnect, NULL);
     }
 
     return u32Ret;
@@ -609,7 +611,7 @@ static u32 _asTrySendData(
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 destroyAsocket(asocket_t ** ppAsocket)
+u32 jf_network_destroyAsocket(jf_network_asocket_t ** ppAsocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_asocket_t * pia;
@@ -620,8 +622,8 @@ u32 destroyAsocket(asocket_t ** ppAsocket)
     logInfoMsg("destroy as");
 
     /*Close socket if necessary*/
-    if (pia->ia_psSocket != NULL)
-        destroySocket(&(pia->ia_psSocket));
+    if (pia->ia_pjnsSocket != NULL)
+        jf_network_destroySocket(&(pia->ia_pjnsSocket));
 
     /*Free the buffer if necessary*/
     if ((! pia->ia_bNoRead) && (pia->ia_pu8Buffer != NULL))
@@ -631,64 +633,65 @@ u32 destroyAsocket(asocket_t ** ppAsocket)
     }
 
     /*Clear all the data that is pending to be sent*/
-    clearPendingSendOfAsocket((asocket_t *)pia);
+    jf_network_clearPendingSendOfAsocket((jf_network_asocket_t *)pia);
 
-    if (pia->ia_putUtimer != NULL)
-        destroyUtimer(&pia->ia_putUtimer);
+    if (pia->ia_pjnuUtimer != NULL)
+        jf_network_destroyUtimer(&pia->ia_pjnuUtimer);
 
     xfree(ppAsocket);
 
     return u32Ret;
 }
 
-u32 createAsocket(
-    basic_chain_t * pChain, asocket_t ** ppAsocket, asocket_param_t * pap)
+u32 jf_network_createAsocket(
+    jf_network_chain_t * pChain, jf_network_asocket_t ** ppAsocket,
+    jf_network_asocket_create_param_t * pjnacp)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_asocket_t * pia = NULL;
 
-    assert((pChain != NULL) && (pap != NULL) && (ppAsocket != NULL));
-    assert((pap->ap_fnOnData != NULL));
+    assert((pChain != NULL) && (pjnacp != NULL) && (ppAsocket != NULL));
+    assert((pjnacp->jnacp_fnOnData != NULL));
 
     logInfoMsg("create as");
 
     u32Ret = xcalloc((void **)&pia, sizeof(internal_asocket_t));
     if (u32Ret == OLERR_NO_ERROR)
     {
-        pia->ia_bcohHeader.bcoh_fnPreSelect = _preSelectAsocket;
-        pia->ia_bcohHeader.bcoh_fnPostSelect = _postSelectAsocket;
-        pia->ia_pbcChain = pChain;
+        pia->ia_jncohHeader.jncoh_fnPreSelect = _preSelectAsocket;
+        pia->ia_jncohHeader.jncoh_fnPostSelect = _postSelectAsocket;
+        pia->ia_pjncChain = pChain;
         pia->ia_bFree = TRUE;
-        pia->ia_bNoRead = pap->ap_bNoRead;
-        pia->ia_psSocket = NULL;
-        pia->ia_sMalloc = pap->ap_sInitialBuf;
-        pia->ia_psmLock = pap->ap_psmLock;
+        pia->ia_bNoRead = pjnacp->jnacp_bNoRead;
+        pia->ia_pjnsSocket = NULL;
+        pia->ia_sMalloc = pjnacp->jnacp_sInitialBuf;
+        pia->ia_psmLock = pjnacp->jnacp_psmLock;
 
-        pia->ia_fnOnData = pap->ap_fnOnData;
-        pia->ia_fnOnConnect = pap->ap_fnOnConnect;
-        pia->ia_fnOnDisconnect = pap->ap_fnOnDisconnect;
-        pia->ia_fnOnSendOK = pap->ap_fnOnSendOK;
+        pia->ia_fnOnData = pjnacp->jnacp_fnOnData;
+        pia->ia_fnOnConnect = pjnacp->jnacp_fnOnConnect;
+        pia->ia_fnOnDisconnect = pjnacp->jnacp_fnOnDisconnect;
+        pia->ia_fnOnSendOK = pjnacp->jnacp_fnOnSendOK;
 
         if (! pia->ia_bNoRead)
             u32Ret = xmalloc(
-                (void **)&pia->ia_pu8Buffer, pap->ap_sInitialBuf);
+                (void **)&pia->ia_pu8Buffer, pjnacp->jnacp_sInitialBuf);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = createUtimer(pChain, &(pia->ia_putUtimer));
+        u32Ret = jf_network_createUtimer(pChain, &(pia->ia_pjnuUtimer));
 
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = appendToBasicChain(pChain, pia);
+        u32Ret = jf_network_appendToChain(pChain, pia);
 
     if (u32Ret == OLERR_NO_ERROR)
         *ppAsocket = pia;
     else if (pia != NULL)
-        destroyAsocket((asocket_t **)&pia);
+        jf_network_destroyAsocket((jf_network_asocket_t **)&pia);
 
     return u32Ret;
 }
 
-u32 asDisconnect(asocket_t * pAsocket)
+u32 jf_network_disconnectAsocket(jf_network_asocket_t * pAsocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
@@ -709,16 +712,16 @@ u32 asDisconnect(asocket_t * pAsocket)
     return u32Ret;
 }
 
-void clearPendingSendOfAsocket(asocket_t * pAsocket)
+void jf_network_clearPendingSendOfAsocket(jf_network_asocket_t * pAsocket)
 {
     internal_asocket_t *pia = (internal_asocket_t *) pAsocket;
 
     _clearPendingSendOfAsocket(pia);
 }
 
-u32 asSendData(
-    asocket_t * pAsocket, u8 * pu8Buffer, olsize_t sBuf,
-    as_mem_owner_t memowner)
+u32 jf_network_sendAsocketData(
+    jf_network_asocket_t * pAsocket, u8 * pu8Buffer, olsize_t sBuf,
+    jf_network_mem_owner_t memowner)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
@@ -733,9 +736,9 @@ u32 asSendData(
 
     data.sd_pu8Buffer = pu8Buffer;
     data.sd_sBuf = sBuf;
-    data.sd_amoOwner = memowner;
+    data.sd_jnmoOwner = memowner;
 
-    if (pia->ia_psSocket == NULL)
+    if (pia->ia_pjnsSocket == NULL)
         /*the socket is closed*/
         u32Ret = OLERR_SOCKET_ALREADY_CLOSED;
 
@@ -759,29 +762,31 @@ u32 asSendData(
 
     if (bUnblock)
     {
-        wakeupBasicChain(pia->ia_pbcChain);
+        jf_network_wakeupChain(pia->ia_pjncChain);
     }
 
     return u32Ret;
 }
 
-u32 asSendn(asocket_t * pAsocket, u8 * pu8Buffer, olsize_t * psBuf)
+u32 jf_network_sendnAsocket(
+    jf_network_asocket_t * pAsocket, u8 * pu8Buffer, olsize_t * psBuf)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
     logInfoMsg("as sendn");
 
-    if ((! pia->ia_bFree) && (pia->ia_psSocket != NULL))
-        u32Ret = sSendn(pia->ia_psSocket, pu8Buffer, psBuf);
+    if ((! pia->ia_bFree) && (pia->ia_pjnsSocket != NULL))
+        u32Ret = jf_network_sendn(pia->ia_pjnsSocket, pu8Buffer, psBuf);
     else
         u32Ret = OLERR_SOCKET_ALREADY_CLOSED;
 
     return u32Ret;
 }
 
-u32 asConnectTo(
-    asocket_t * pAsocket, ip_addr_t * piaRemote, u16 u16Port, void * pUser)
+u32 jf_network_connectAsocketTo(
+    jf_network_asocket_t * pAsocket, ip_addr_t * piaRemote, u16 u16Port,
+    void * pUser)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
@@ -810,7 +815,7 @@ u32 asConnectTo(
         u32Ret = _asConnectTo(pia, piaRemote, u16Port, pUser);
         if (u32Ret == OLERR_NO_ERROR)
         {
-            wakeupBasicChain(pia->ia_pbcChain);
+            jf_network_wakeupChain(pia->ia_pjncChain);
         }
         else
         {
@@ -823,14 +828,15 @@ u32 asConnectTo(
     return u32Ret;
 }
 
-boolean_t isAsocketFree(asocket_t * pAsocket)
+boolean_t jf_network_isAsocketFree(jf_network_asocket_t * pAsocket)
 {
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
     return pia->ia_bFree;
 }
 
-olsize_t getPendingBytesToSendOfAsocket(asocket_t * pAsocket)
+olsize_t jf_network_getPendingBytesToSendOfAsocket(
+    jf_network_asocket_t * pAsocket)
 {
     internal_asocket_t *pia = (internal_asocket_t *) pAsocket;
     olsize_t toSend;
@@ -840,7 +846,7 @@ olsize_t getPendingBytesToSendOfAsocket(asocket_t * pAsocket)
     return toSend;
 }
 
-olsize_t getTotalBytesSentOfAsocket(asocket_t * pAsocket)
+olsize_t jf_network_getTotalBytesSentOfAsocket(jf_network_asocket_t * pAsocket)
 {
     internal_asocket_t *pia = (internal_asocket_t *) pAsocket;
     olsize_t total;
@@ -850,15 +856,15 @@ olsize_t getTotalBytesSentOfAsocket(asocket_t * pAsocket)
     return total;
 }
 
-void resetTotalBytesSentOfAsocket(asocket_t * pAsocket)
+void jf_network_resetTotalBytesSentOfAsocket(jf_network_asocket_t * pAsocket)
 {
     internal_asocket_t * pia = (internal_asocket_t *)pAsocket;
 
     pia->ia_sTotalBytesSent = 0;
 }
 
-void getBufferOfAsocket(
-    asocket_t * pAsocket, u8 ** ppBuffer,
+void jf_network_getBufferOfAsocket(
+    jf_network_asocket_t * pAsocket, u8 ** ppBuffer,
     olsize_t * psBeginPointer, olsize_t * psEndPointer)
 {
     internal_asocket_t * pia = (internal_asocket_t *)pAsocket;
@@ -877,7 +883,7 @@ void getBufferOfAsocket(
     }
 }
 
-void clearBufferOfAsocket(asocket_t * pAsocket)
+void jf_network_clearBufferOfAsocket(jf_network_asocket_t * pAsocket)
 {
     internal_asocket_t * pia = (internal_asocket_t *)pAsocket;
 
@@ -885,7 +891,8 @@ void clearBufferOfAsocket(asocket_t * pAsocket)
     pia->ia_sEndPointer = 0;
 }
 
-u32 useSocketForAsocket(asocket_t * pAsocket, socket_t * pSocket, void * pUser)
+u32 jf_network_useSocketForAsocket(
+    jf_network_asocket_t * pAsocket, jf_network_socket_t * pSocket, void * pUser)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *)pAsocket;
@@ -900,41 +907,44 @@ u32 useSocketForAsocket(asocket_t * pAsocket, socket_t * pSocket, void * pUser)
     {
         pia->ia_bFree = FALSE;
 
-        pia->ia_psSocket = pSocket;
+        pia->ia_pjnsSocket = pSocket;
 
         pia->ia_bFinConnect = TRUE;
 
         pia->ia_pUser = pUser;
 
         /*make sure the socket is non-blocking*/
-        setSocketNonblock(pia->ia_psSocket);
+        jf_network_setSocketNonblock(pia->ia_pjnsSocket);
     }
 
     return u32Ret;
 }
 
-void setRemoteAddressOfAsocket(asocket_t * pAsocket, ip_addr_t * piaAddr)
+void jf_network_setRemoteAddressOfAsocket(
+    jf_network_asocket_t * pAsocket, ip_addr_t * piaAddr)
 {
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
-    memcpy(&(pia->ia_iaRemote), piaAddr, sizeof(ip_addr_t));
+    ol_memcpy(&(pia->ia_iaRemote), piaAddr, sizeof(ip_addr_t));
 }
 
-void getRemoteInterfaceOfAsocket(asocket_t * pAsocket, ip_addr_t * piaAddr)
+void jf_network_getRemoteInterfaceOfAsocket(
+    jf_network_asocket_t * pAsocket, ip_addr_t * piaAddr)
 {
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
-    memcpy(piaAddr, &(pia->ia_iaRemote), sizeof(ip_addr_t));
+    ol_memcpy(piaAddr, &(pia->ia_iaRemote), sizeof(ip_addr_t));
 }
 
-void getLocalInterfaceOfAsocket(asocket_t * pAsocket, ip_addr_t * piaAddr)
+void jf_network_getLocalInterfaceOfAsocket(
+    jf_network_asocket_t * pAsocket, ip_addr_t * piaAddr)
 {
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
-    memcpy(piaAddr, &(pia->ia_iaLocal), sizeof(ip_addr_t));
+    ol_memcpy(piaAddr, &(pia->ia_iaLocal), sizeof(ip_addr_t));
 }
 
-u32 resumeAsocket(asocket_t * pAsocket)
+u32 jf_network_resumeAsocket(jf_network_asocket_t * pAsocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
@@ -946,27 +956,28 @@ u32 resumeAsocket(asocket_t * pAsocket)
 
         logInfoMsg("resume as");
 
-        u32Ret = wakeupBasicChain(pia->ia_pbcChain);
+        u32Ret = jf_network_wakeupChain(pia->ia_pjncChain);
     }
 
     return u32Ret;
 }
 
-u32 asRecvData(asocket_t * pAsocket, u8 * pu8Buffer, olsize_t * psRecv)
+u32 jf_network_recvAsocketData(
+    jf_network_asocket_t * pAsocket, u8 * pu8Buffer, olsize_t * psRecv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
-    if ((! pia->ia_bFree) && (pia->ia_psSocket != NULL))
-        u32Ret = _asRecvn(pia->ia_psSocket, pu8Buffer, psRecv);
+    if ((! pia->ia_bFree) && (pia->ia_pjnsSocket != NULL))
+        u32Ret = _asRecvn(pia->ia_pjnsSocket, pu8Buffer, psRecv);
     else
         u32Ret = OLERR_SOCKET_ALREADY_CLOSED;
 
     return u32Ret;
 }
 
-u32 getAsocketOpt(
-    asocket_t * pAsocket, olint_t level, olint_t optname,
+u32 jf_network_getAsocketOpt(
+    jf_network_asocket_t * pAsocket, olint_t level, olint_t optname,
     void * optval, olsize_t * optlen)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -974,16 +985,17 @@ u32 getAsocketOpt(
 
     assert(pAsocket != NULL);
 
-    if ((! pia->ia_bFree) && (pia->ia_psSocket != NULL))
-        u32Ret = getSocketOpt(pia->ia_psSocket, level, optname, optval, optlen);
+    if ((! pia->ia_bFree) && (pia->ia_pjnsSocket != NULL))
+        u32Ret = jf_network_getSocketOpt(
+            pia->ia_pjnsSocket, level, optname, optval, optlen);
     else
         u32Ret = OLERR_SOCKET_ALREADY_CLOSED;
 
     return u32Ret;
 }
 
-u32 setAsocketOpt(
-    socket_t * pAsocket, olint_t level, olint_t optname,
+u32 jf_network_setAsocketOpt(
+    jf_network_asocket_t * pAsocket, olint_t level, olint_t optname,
     void * optval, olsize_t optlen)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -991,22 +1003,23 @@ u32 setAsocketOpt(
 
     assert(pAsocket != NULL);
 
-    if ((! pia->ia_bFree) && (pia->ia_psSocket != NULL))
-        u32Ret = setSocketOpt(pia->ia_psSocket, level, optname, optval, optlen);
+    if ((! pia->ia_bFree) && (pia->ia_pjnsSocket != NULL))
+        u32Ret = jf_network_setSocketOpt(
+            pia->ia_pjnsSocket, level, optname, optval, optlen);
     else
         u32Ret = OLERR_SOCKET_ALREADY_CLOSED;
 
     return u32Ret;
 }
 
-void * getTagOfAsocket(asocket_t * pAsocket)
+void * jf_network_getTagOfAsocket(jf_network_asocket_t * pAsocket)
 {
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
     return pia->ia_pTag;
 }
 
-void setTagOfAsocket(asocket_t * pAsocket, void * pTag)
+void jf_network_setTagOfAsocket(jf_network_asocket_t * pAsocket, void * pTag)
 {
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 

@@ -111,7 +111,7 @@ static u32 _parseCmdLineParam(
 THREAD_RETURN_VALUE _socketPairRead(void * pArg)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    socket_t * psRead = (socket_t *)pArg;
+    jf_network_socket_t * psRead = (jf_network_socket_t *)pArg;
     u8 u8Buffer[100];
     olsize_t u32Count;
 
@@ -122,7 +122,7 @@ THREAD_RETURN_VALUE _socketPairRead(void * pArg)
         sleep(5);
         memset(u8Buffer, 0, 100);
         u32Count = 100;
-        u32Ret = sRecv(psRead, u8Buffer, &u32Count);
+        u32Ret = jf_network_recv(psRead, u8Buffer, &u32Count);
         if (u32Ret == OLERR_NO_ERROR)
             ol_printf("got message, %s\n", u8Buffer);
         else
@@ -135,7 +135,7 @@ THREAD_RETURN_VALUE _socketPairRead(void * pArg)
 THREAD_RETURN_VALUE _socketPairWrite(void * pArg)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    socket_t * psWrite = (socket_t *)pArg;
+    jf_network_socket_t * psWrite = (jf_network_socket_t *)pArg;
     olchar_t buffer[100];
     olsize_t u32Count;
 
@@ -145,7 +145,7 @@ THREAD_RETURN_VALUE _socketPairWrite(void * pArg)
     {
         sleep(5);
         u32Count = ol_sprintf(buffer, "%s", "hello");
-        u32Ret = sSend(psWrite, buffer, &u32Count);
+        u32Ret = jf_network_send(psWrite, buffer, &u32Count);
         if (u32Ret == OLERR_NO_ERROR)
             ol_printf("send message\n");
         else
@@ -158,10 +158,10 @@ THREAD_RETURN_VALUE _socketPairWrite(void * pArg)
 static u32 _testSocketPair(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    socket_t * psPair[2];
+    jf_network_socket_t * psPair[2];
     thread_id_t tiread, tiwrite;
 
-    u32Ret = createSocketPair(AF_INET, SOCK_STREAM, psPair);
+    u32Ret = jf_network_createSocketPair(AF_INET, SOCK_STREAM, psPair);
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("successfully create socket pair\n");
@@ -187,7 +187,7 @@ static u32 _testSocketPair(void)
 
         sleep(1);
 
-        destroySocketPair(psPair);
+        jf_network_destroySocketPair(psPair);
     }
 
     return u32Ret;
@@ -201,18 +201,18 @@ static void _terminate(olint_t signal)
 static u32 _testConnectServer(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    socket_t * client = NULL;
+    jf_network_socket_t * client = NULL;
     ip_addr_t ipaddr;
 
     registerSignalHandlers(_terminate);
 
-    u32Ret = createSocket(AF_INET, SOCK_STREAM, 0, &client);
+    u32Ret = jf_network_createSocket(AF_INET, SOCK_STREAM, 0, &client);
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("connect to %s:%u\n", ls_pstrServerIp, ls_u16Port);
 
         getIpAddrFromString(ls_pstrServerIp, IP_ADDR_TYPE_V4, &ipaddr);
-        u32Ret = sConnect(client, &ipaddr, ls_u16Port);
+        u32Ret = jf_network_connect(client, &ipaddr, ls_u16Port);
         if (u32Ret == OLERR_NO_ERROR)
         {
             ol_printf("connected, press CTRL-x to return\n");
@@ -220,7 +220,7 @@ static u32 _testConnectServer(void)
                 sleep(1);
         }
 
-        destroySocket(&client);
+        jf_network_destroySocket(&client);
     }
 
     return u32Ret;
@@ -244,7 +244,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     {
         initLogger(&lpParam);
 
-        u32Ret = initNetLib();
+        u32Ret = jf_network_initLib();
         if (u32Ret == OLERR_NO_ERROR)
         {
             if (ls_bSocketPair)
@@ -257,7 +257,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
                 _printUsage();
             }
 
-            finiNetLib();            
+            jf_network_finiLib();
         }
 
         finiLogger();

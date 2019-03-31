@@ -21,9 +21,10 @@
 #include "network.h"
 #include "stringparse.h"
 #include "process.h"
+#include "comminit.h"
 
 /* --- private data/data structure section --------------------------------- */
-static basic_chain_t * ls_pbcChain;
+static jf_network_chain_t * ls_pjncChain;
 
 /* --- private routine section---------------------------------------------- */
 
@@ -32,8 +33,8 @@ static void _terminate(olint_t signal)
 {
     ol_printf("get signal\n");
 
-    if (ls_pbcChain != NULL)
-        stopBasicChain(ls_pbcChain);
+    if (ls_pjncChain != NULL)
+        jf_network_stopChain(ls_pjncChain);
 }
 
 /* --- public routine section ---------------------------------------------- */
@@ -42,8 +43,8 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strErrMsg[300];
-    asocket_t * pAsocket = NULL;
-    asocket_param_t ap;
+    jf_network_asocket_t * pAsocket = NULL;
+    jf_network_asocket_create_param_t jnacp;
     logger_param_t lp;
 
     memset(&lp, 0, sizeof(logger_param_t));
@@ -52,18 +53,18 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     initLogger(&lp);
 
-    u32Ret = initNetworkLib();
+    u32Ret = jf_network_initLib();
     if (u32Ret == OLERR_NO_ERROR)
     {
         u32Ret = registerSignalHandlers(_terminate);
         if (u32Ret == OLERR_NO_ERROR)
         {
-            u32Ret = createBasicChain(&ls_pbcChain);
+            u32Ret = jf_network_createChain(&ls_pjncChain);
         }
 
         if (u32Ret == OLERR_NO_ERROR)
         {
-            u32Ret = createAsocket(ls_pbcChain, &pAsocket, &ap);
+            u32Ret = jf_network_createAsocket(ls_pjncChain, &pAsocket, &jnacp);
         }
 
         if (u32Ret == OLERR_NO_ERROR)
@@ -71,7 +72,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
         }
 
-        finiNetworkLib();
+        jf_network_finiLib();
     }
 
     finiLogger();

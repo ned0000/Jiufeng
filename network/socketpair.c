@@ -29,7 +29,7 @@
 
 /* --- private routine section---------------------------------------------- */
 #if defined(LINUX)
-static u32 _createUnixSocketPair(olint_t type, socket_t * psPair[2])
+static u32 _createUnixSocketPair(olint_t type, jf_network_socket_t * psPair[2])
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t nRet;
@@ -41,70 +41,72 @@ static u32 _createUnixSocketPair(olint_t type, socket_t * psPair[2])
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = newIsocketWithSocket((internal_socket_t **)&(psPair[0]),
-            isPair[0]);
+        u32Ret = newIsocketWithSocket(
+            (internal_socket_t **)&(psPair[0]), isPair[0]);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = newIsocketWithSocket((internal_socket_t **)&(psPair[1]),
-            isPair[1]);
+        u32Ret = newIsocketWithSocket(
+            (internal_socket_t **)&(psPair[1]), isPair[1]);
     }
 
     return u32Ret;
 }
 #endif
-static u32 _createInetSocketPair(olint_t domain, olint_t type, socket_t * psPair[2])
+static u32 _createInetSocketPair(olint_t domain, olint_t type, jf_network_socket_t * psPair[2])
 {
     u32 u32Ret = OLERR_NO_ERROR;
     ip_addr_t ipaddr, clientaddr;
     u16 u16Port = 0, u16ClientPort = 0;
-    socket_t * pListener = NULL;
+    jf_network_socket_t * pListener = NULL;
 
     setIpV4Addr(&ipaddr, htonl(INADDR_LOOPBACK));
 
-    u32Ret = createStreamSocket(&ipaddr, &u16Port, &pListener);
+    u32Ret = jf_network_createStreamSocket(&ipaddr, &u16Port, &pListener);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = sListen(pListener, 5);
+        u32Ret = jf_network_listen(pListener, 5);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = createSocket(domain, type, 0, &(psPair[1]));
+        u32Ret = jf_network_createSocket(domain, type, 0, &(psPair[1]));
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        setSocketNonblock(psPair[1]);
+        jf_network_setSocketNonblock(psPair[1]);
 
-        u32Ret = sConnect(psPair[1], &ipaddr, u16Port);
+        u32Ret = jf_network_connect(psPair[1], &ipaddr, u16Port);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = sAccept(pListener, &clientaddr,
+        u32Ret = jf_network_accept(pListener, &clientaddr,
             &u16ClientPort, &(psPair[0]));
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        setSocketBlock(psPair[1]);
+        jf_network_setSocketBlock(psPair[1]);
     }
 
     if (pListener != NULL)
-        destroySocket(&pListener);
+        jf_network_destroySocket(&pListener);
 
     if (u32Ret != OLERR_NO_ERROR)
     {
-        destroySocketPair(psPair);
+        jf_network_destroySocketPair(psPair);
     }
 
     return u32Ret;
 }
 
 /* --- public routine section ---------------------------------------------- */
-u32 createSocketPair(olint_t domain, olint_t type, socket_t * psPair[2])
+
+u32 jf_network_createSocketPair(
+    olint_t domain, olint_t type, jf_network_socket_t * psPair[2])
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -140,15 +142,15 @@ u32 createSocketPair(olint_t domain, olint_t type, socket_t * psPair[2])
     return u32Ret;
 }
 
-u32 destroySocketPair(socket_t * psPair[2])
+u32 jf_network_destroySocketPair(jf_network_socket_t * psPair[2])
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
     if (psPair[0] != NULL)
-        destroySocket(&(psPair[0]));
+        jf_network_destroySocket(&(psPair[0]));
 
     if (psPair[1] != NULL)
-        destroySocket(&(psPair[1]));
+        jf_network_destroySocket(&(psPair[1]));
 
     return u32Ret;
 }

@@ -47,7 +47,8 @@ u32 newIsocketWithSocket(internal_socket_t ** ppIsocket, isocket_t sock);
 
 u32 freeIsocket(internal_socket_t ** ppIsocket);
 
-u32 createIsocket(olint_t domain, olint_t type, olint_t protocol,
+u32 createIsocket(
+    olint_t domain, olint_t type, olint_t protocol,
     internal_socket_t ** ppIsocket);
 
 u32 destroyIsocket(internal_socket_t ** ppIsocket);
@@ -55,24 +56,24 @@ u32 destroyIsocket(internal_socket_t ** ppIsocket);
 /** Allocates a UDP socket for a given interface, choosing a random port number
  *  from 55000 to 65000
  */
-u32 createDgramIsocket(ip_addr_t * piaLocal,
-    u16 * pu16Port, internal_socket_t ** ppIsocket);
+u32 createDgramIsocket(
+    ip_addr_t * piaLocal, u16 * pu16Port, internal_socket_t ** ppIsocket);
 
 /** Allocates a TCP socket for a given interface, choosing a random port number
  *  from 55000 to 65000
  */
-u32 createStreamIsocket(ip_addr_t * piaLocal,
-    u16 * pu16Port, internal_socket_t ** ppIsocket);
+u32 createStreamIsocket(
+    ip_addr_t * piaLocal, u16 * pu16Port, internal_socket_t ** ppIsocket);
 
-u32 ioctlIsocket(internal_socket_t * pis,
-    olint_t req, void * pArg);
+u32 ioctlIsocket(
+    internal_socket_t * pis, olint_t req, void * pArg);
 
 u32 setIsocketBlock(internal_socket_t * pis);
 
 u32 setIsocketNonblock(internal_socket_t * pis);
 
-u32 isJoinMulticastGroup(internal_socket_t * pis,
-    ip_addr_t * piaAddr, ip_addr_t * piaMulticaseAddr);
+u32 isJoinMulticastGroup(
+    internal_socket_t * pis, ip_addr_t * piaAddr, ip_addr_t * piaMulticaseAddr);
 
 u32 isEnableBroadcast(internal_socket_t * pis);
 
@@ -83,26 +84,26 @@ u32 isSend(internal_socket_t * pis, void * pBuffer, olsize_t * psSend);
 /** Try to send all data but only send once, unless timeout the actual sent
  *  size is in psSend
  */
-u32 isSendWithTimeout(internal_socket_t * pis,
-    void * pBuffer, olsize_t * psSend, u32 u32Timeout);
+u32 isSendWithTimeout(
+    internal_socket_t * pis, void * pBuffer, olsize_t * psSend, u32 u32Timeout);
 
 /** Try to send all data with possible several round, until an error occurs,
  *  the actual sent size is in psSend
  */
-u32 isSendn(internal_socket_t * pis,
-    void * pBuffer, olsize_t * psSend);
+u32 isSendn(
+    internal_socket_t * pis, void * pBuffer, olsize_t * psSend);
 
 /** Try to send all data with possible several round, until an error occurs or
  *  timeout, the actual sent size is in psSend
  */
-u32 isSendnWithTimeout(internal_socket_t * pis,
-    void * pBuffer, olsize_t * psSend, u32 u32Timeout);
+u32 isSendnWithTimeout(
+    internal_socket_t * pis, void * pBuffer, olsize_t * psSend, u32 u32Timeout);
 
 /** Try to recveive all data but only recveive once, the actual received size is
  *  in psRecv
  */
-u32 isRecv(internal_socket_t * pis,
-    void * pBuffer, olsize_t * psRecv);
+u32 isRecv(
+    internal_socket_t * pis, void * pBuffer, olsize_t * psRecv);
 
 /** Try to recveive all data but only recveive once, unless timeout the actual
  *  received size is in psRecv
@@ -161,6 +162,8 @@ boolean_t isIsocketSetInFdSet(
     internal_socket_t * pis, fd_set * set);
 
 void setIsocketToFdSet(internal_socket_t * pis, fd_set * set);
+
+void clearIsocketFdSet(fd_set * set);
 
 u32 isGetSockOpt(
     internal_socket_t * pis, olint_t level, olint_t optname,

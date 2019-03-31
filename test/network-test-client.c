@@ -104,20 +104,20 @@ static u32 _parseCmdLineParam(
 static u32 _networkTestClient(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    socket_t * pSocket = NULL;
+    jf_network_socket_t * pSocket = NULL;
     ip_addr_t ipaddr;
     olchar_t * pstrBuffer = "Hello world!";
     u8 u8Buffer[100];
     olsize_t u32Len;
 
-    u32Ret = createSocket(AF_INET, SOCK_STREAM, 0, &pSocket);
+    u32Ret = jf_network_createSocket(AF_INET, SOCK_STREAM, 0, &pSocket);
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("socket created\n");
 
         setIpV4Addr(&ipaddr, inet_addr(SERVER_IP));
 
-        u32Ret = sConnect(pSocket, &ipaddr, SERVER_PORT);
+        u32Ret = jf_network_connect(pSocket, &ipaddr, SERVER_PORT);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -125,7 +125,7 @@ static u32 _networkTestClient(void)
         ol_printf("connected\n");
         u32Len = ol_sprintf((olchar_t *)u8Buffer, "%s", pstrBuffer);
         ol_printf("send data\n");
-        u32Ret = sSend(pSocket, u8Buffer, &u32Len);
+        u32Ret = jf_network_send(pSocket, u8Buffer, &u32Len);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -133,7 +133,7 @@ static u32 _networkTestClient(void)
         ol_printf("recv data\n");
         memset(u8Buffer, 0, sizeof(u8Buffer));
         u32Len = 100;
-        u32Ret = sRecv(pSocket, u8Buffer, &u32Len);
+        u32Ret = jf_network_recv(pSocket, u8Buffer, &u32Len);
     }
 
     sleep(20);
@@ -145,7 +145,7 @@ static u32 _networkTestClient(void)
 
     if (pSocket != NULL)
     {
-        destroySocket(&pSocket);
+        jf_network_destroySocket(&pSocket);
         ol_printf("socket closed\n");
     }
 
@@ -169,12 +169,12 @@ olint_t main(olint_t argc, olchar_t ** argv)
     {
         initLogger(&lpParam);
 
-        u32Ret = initNetLib();
+        u32Ret = jf_network_initLib();
         if (u32Ret == OLERR_NO_ERROR)
         {
             u32Ret = _networkTestClient();
 
-            finiNetLib();
+            jf_network_finiLib();
         }
 
         finiLogger();

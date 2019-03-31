@@ -50,7 +50,6 @@
 
 /* --- private routine section---------------------------------------------- */
 
-
 /* --- public routine section ---------------------------------------------- */
 u32 newIsocket(internal_socket_t ** ppIsocket)
 {
@@ -456,7 +455,7 @@ u32 isSendWithTimeout(
 
     assert(pis != NULL);
 
-    clearFdSet(&writeset);
+    clearIsocketFdSet(&writeset);
     setIsocketToFdSet(pis, &writeset);
     tv.tv_sec = u32Timeout;
     tv.tv_usec = 0;
@@ -530,7 +529,7 @@ u32 isSendnWithTimeout(internal_socket_t * pis, void * pBuffer,
 
     while ((u32Ret == OLERR_NO_ERROR) && (tCur <= tEnd))
     {
-        clearFdSet(&writeset);
+        clearIsocketFdSet(&writeset);
         setIsocketToFdSet(pis, &writeset);
         tv.tv_sec = tEnd - tCur;
         tv.tv_usec = 0;
@@ -613,12 +612,12 @@ u32 isRecvWithTimeout(
 
     assert(pis != NULL);
 
-    clearFdSet(&readset);
+    clearIsocketFdSet(&readset);
     setIsocketToFdSet(pis, &readset);
     tv.tv_sec = u32Timeout;
     tv.tv_usec = 0;
 
-    sSelect(&readset, NULL, NULL, &tv, &u32Ready);
+    isSelect(&readset, NULL, NULL, &tv, &u32Ready);
     if (u32Ready > 0)
     {
         if (isIsocketSetInFdSet(pis, &readset))
@@ -656,12 +655,12 @@ u32 isRecvfromWithTimeout(
 
     assert(pis != NULL);
 
-    clearFdSet(&readset);
+    clearIsocketFdSet(&readset);
     setIsocketToFdSet(pis, &readset);
     tv.tv_sec = u32Timeout;
     tv.tv_usec = 0;
 
-    sSelect(&readset, NULL, NULL, &tv, &u32Ready);
+    isSelect(&readset, NULL, NULL, &tv, &u32Ready);
     if (u32Ready > 0)
     {
         if (isIsocketSetInFdSet(pis, &readset))
@@ -732,12 +731,12 @@ u32 isRecvnWithTimeout(
 
     while ((u32Ret == OLERR_NO_ERROR) && (tCur < tEnd))
     {
-        clearFdSet(&readset);
+        clearIsocketFdSet(&readset);
         setIsocketToFdSet(pis, &readset);
         tv.tv_sec = tEnd - tCur;
         tv.tv_usec = 0;
 
-        sSelect(&readset, NULL, NULL, &tv, &u32Ready);
+        isSelect(&readset, NULL, NULL, &tv, &u32Ready);
         if (u32Ready > 0)
         {
             if (isIsocketSetInFdSet(pis, &readset))
@@ -836,8 +835,8 @@ u32 isConnectWithTimeout(
 
     while ((u32Ret == OLERR_NO_ERROR) && (tCur < tEnd))
     {
-        clearFdSet(&writeset);
-        clearFdSet(&errorset);
+        clearIsocketFdSet(&writeset);
+        clearIsocketFdSet(&errorset);
         setIsocketToFdSet(pis, &writeset);
         setIsocketToFdSet(pis, &errorset);
         tv.tv_sec = tEnd - tCur;
@@ -976,7 +975,8 @@ u32 isRecvfrom(
     return u32Ret;
 }
 
-u32 isSelect(fd_set * readfds, fd_set * writefds, fd_set * exceptfds,
+u32 isSelect(
+    fd_set * readfds, fd_set * writefds, fd_set * exceptfds,
     struct timeval * timeout, u32 * pu32Ready)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -1064,7 +1064,7 @@ void setIsocketToFdSet(internal_socket_t * pis, fd_set * set)
     FD_SET(pis->is_isSocket, set);
 }
 
-void clearFdSet(fd_set * set)
+void clearIsocketFdSet(fd_set * set)
 {
     FD_ZERO(set);
 }
