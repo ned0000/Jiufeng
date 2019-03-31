@@ -29,8 +29,9 @@
 
 /* --- private routine section --------------------------------------------- */
 
-u32 createPersistency(
-    persistency_type_t type, persistency_config_t * ppc, persistency_t ** ppPersist)
+u32 jf_persistency_create(
+    jf_persistency_type_t type, jf_persistency_config_t * ppc,
+    jf_persistency_t ** ppPersist)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     persistency_manager_t * ppm = NULL;
@@ -40,12 +41,12 @@ u32 createPersistency(
     u32Ret = xmalloc((void **)&ppm, sizeof(persistency_manager_t));
     if (u32Ret == OLERR_NO_ERROR)
     {
-        ppm->pm_ptType = type;
+        ppm->pm_jptType = type;
     
         switch (type)
         {
-        case SQLITE_PERSISTENCY:
-            u32Ret = initSqlitePersistency(ppm, &ppc->pc_pcsConfigSqlite);
+        case JF_PERSISTENCY_TYPE_SQLITE:
+            u32Ret = initSqlitePersistency(ppm, &ppc->jpc_pcsConfigSqlite);
             break;
         default:
             u32Ret = OLERR_INVALID_PARAM;
@@ -65,13 +66,13 @@ u32 createPersistency(
     }
     else if (ppm != NULL)
     {
-        destroyPersistency((persistency_t **)&ppm);
+        jf_persistency_destroy((jf_persistency_t **)&ppm);
     }
     
     return u32Ret;
 }
 
-u32 destroyPersistency(persistency_t ** ppPersist)
+u32 jf_persistency_destroy(jf_persistency_t ** ppPersist)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)*ppPersist;
@@ -85,8 +86,9 @@ u32 destroyPersistency(persistency_t ** ppPersist)
     return u32Ret;
 }
 
-u32 getPersistencyValue(
-    persistency_t * pPersist, olchar_t * key, olchar_t * value, olsize_t valuelen)
+u32 jf_persistency_getValue(
+    jf_persistency_t * pPersist, olchar_t * key, olchar_t * value,
+    olsize_t valuelen)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
@@ -100,8 +102,8 @@ u32 getPersistencyValue(
     return u32Ret;
 }
 
-u32 setPersistencyValue(
-    persistency_t * pPersist, olchar_t * key, olchar_t * value)
+u32 jf_persistency_setValue(
+    jf_persistency_t * pPersist, olchar_t * key, olchar_t * value)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
@@ -115,7 +117,7 @@ u32 setPersistencyValue(
     return u32Ret;
 }
 
-u32 startPersistencyTransaction(persistency_t * pPersist)
+u32 jf_persistency_startTransaction(jf_persistency_t * pPersist)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
@@ -129,7 +131,7 @@ u32 startPersistencyTransaction(persistency_t * pPersist)
     return u32Ret;
 }
 
-u32 commitPersistencyTransaction(persistency_t * pPersist)
+u32 jf_persistency_commitTransaction(jf_persistency_t * pPersist)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
@@ -143,7 +145,7 @@ u32 commitPersistencyTransaction(persistency_t * pPersist)
     return u32Ret;
 }
 
-u32 rollbackPersistencyTransaction(persistency_t * pPersist)
+u32 jf_persistency_rollbackTransaction(jf_persistency_t * pPersist)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;

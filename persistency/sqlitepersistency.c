@@ -42,15 +42,15 @@ static u32 _rollbackSqliteTransaction(persistency_manager_t * ppm)
 static u32 _initSqlite(persistency_manager_t * ppm)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    persistency_config_sqlite_t * ppcs =
-        &ppm->pm_pdData.pd_spSqlite.sp_pcsConfigSqlite;
+    jf_persistency_config_sqlite_t * pjpcs =
+        &ppm->pm_pdData.pd_spSqlite.sp_jpcsConfigSqlite;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
     jt_sqlite_param_t jsp;
     olchar_t strRet[128];
     olchar_t strSql[256];
 
     ol_bzero(&jsp, sizeof(jt_sqlite_param_t));
-    jsp.jsp_pstrDbName = ppcs->pcs_strDbName;
+    jsp.jsp_pstrDbName = pjpcs->jpcs_strDbName;
     
     u32Ret = initJtSqlite(&pSqlite->sp_jsSqlite, &jsp);
     if (u32Ret != OLERR_NO_ERROR)
@@ -59,8 +59,8 @@ static u32 _initSqlite(persistency_manager_t * ppm)
             strSql,
             "CREATE TABLE IF NOT EXISTS"
             " %s(%s TEXT PRIMARY KEY, %s TEXT);",
-            ppcs->pcs_strTableName, ppcs->pcs_strKeyColumnName,
-            ppcs->pcs_strValueColumnName);
+            pjpcs->jpcs_strTableName, pjpcs->jpcs_strKeyColumnName,
+            pjpcs->jpcs_strValueColumnName);
         u32Ret = execJtSqliteSql(
             &pSqlite->sp_jsSqlite, strSql, strRet, sizeof(strRet));
     }
@@ -84,14 +84,14 @@ static u32 _getSqliteValue(
 {
     u32 u32Ret = OLERR_NO_ERROR;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
-    persistency_config_sqlite_t * ppcs =
-        &ppm->pm_pdData.pd_spSqlite.sp_pcsConfigSqlite;
+    jf_persistency_config_sqlite_t * pjpcs =
+        &ppm->pm_pdData.pd_spSqlite.sp_jpcsConfigSqlite;
     olchar_t strSql[512];
 
     ol_snprintf(
         strSql, sizeof(strSql), "SELECT %s FROM %s WHERE %s='%s';",
-        ppcs->pcs_strValueColumnName,
-        ppcs->pcs_strTableName, ppcs->pcs_strKeyColumnName, pKey);
+        pjpcs->jpcs_strValueColumnName,
+        pjpcs->jpcs_strTableName, pjpcs->jpcs_strKeyColumnName, pKey);
     u32Ret = execJtSqliteSql(&pSqlite->sp_jsSqlite, strSql, pValue, sValue);
 
     return u32Ret;
@@ -103,8 +103,8 @@ static u32 _setSqliteValue(
 {
     u32 u32Ret = OLERR_NO_ERROR;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
-    persistency_config_sqlite_t * ppcs =
-        &ppm->pm_pdData.pd_spSqlite.sp_pcsConfigSqlite;
+    jf_persistency_config_sqlite_t * pjpcs =
+        &ppm->pm_pdData.pd_spSqlite.sp_jpcsConfigSqlite;
     olchar_t * pstrSql = NULL;
     olchar_t strRet[128];
     olsize_t nsize = ol_strlen(pValue) + ol_strlen(pKey) + 256;
@@ -116,8 +116,8 @@ static u32 _setSqliteValue(
         ol_snprintf(
             pstrSql, nsize,
             "REPLACE INTO %s(%s, %s) VALUES ('%s', '%s');",
-            ppcs->pcs_strTableName, ppcs->pcs_strKeyColumnName,
-            ppcs->pcs_strValueColumnName, pKey, pValue);
+            pjpcs->jpcs_strTableName, pjpcs->jpcs_strKeyColumnName,
+            pjpcs->jpcs_strValueColumnName, pKey, pValue);
         u32Ret = execJtSqliteSql(
             &pSqlite->sp_jsSqlite, pstrSql, strRet, sizeof(strRet));
     }
@@ -151,15 +151,15 @@ static u32 _commitSqliteTransaction(persistency_manager_t * ppm)
 /* --- public routine section ---------------------------------------------- */
 
 u32 initSqlitePersistency(
-    persistency_manager_t * pManager, persistency_config_sqlite_t * pConfig)
+    persistency_manager_t * pManager, jf_persistency_config_sqlite_t * pConfig)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
     logInfoMsg("init sqlite persistency");
 
     ol_memcpy(
-        &pManager->pm_pdData.pd_spSqlite.sp_pcsConfigSqlite, pConfig,
-        sizeof(persistency_config_t));
+        &pManager->pm_pdData.pd_spSqlite.sp_jpcsConfigSqlite, pConfig,
+        sizeof(jf_persistency_config_t));
 
     pManager->pm_fnFini = _finiSqlite;
     pManager->pm_fnGetValue = _getSqliteValue;

@@ -25,8 +25,9 @@
 /* --- data structures ----------------------------------------------------- */
 
 /* --- functional routines ------------------------------------------------- */
+
 u32 initSqlitePersistency(
-    persistency_manager_t * pManager, persistency_config_sqlite_t * pConfig);
+    persistency_manager_t * pManager, jf_persistency_config_sqlite_t * pConfig);
 
 #endif /*PERSISTENCY_SQLITE_PERSISTENCY_H*/
 

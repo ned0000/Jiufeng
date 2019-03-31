@@ -61,7 +61,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
     return u32Ret;
 }
 
-static u32 _testRwPersistency(persistency_t * pPersist)
+static u32 _testRwPersistency(jf_persistency_t * pPersist)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t * key = "today";
@@ -73,10 +73,10 @@ static u32 _testRwPersistency(persistency_t * pPersist)
     ol_printf("Testing persistency library\n");
 
     ol_printf("set, %s = %s\n", key, monday);
-    u32Ret = setPersistencyValue(pPersist, key, monday);
+    u32Ret = jf_persistency_setValue(pPersist, key, monday);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = getPersistencyValue(pPersist, key, value, 512);
+        u32Ret = jf_persistency_getValue(pPersist, key, value, 512);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -84,19 +84,19 @@ static u32 _testRwPersistency(persistency_t * pPersist)
         ol_printf("get, %s = %s\n", key, value);
 
         ol_printf("set, %s = %s\n", key, tuesday);
-        u32Ret = setPersistencyValue(pPersist, key, tuesday);
+        u32Ret = jf_persistency_setValue(pPersist, key, tuesday);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = getPersistencyValue(pPersist, key, value, 512);
+        u32Ret = jf_persistency_getValue(pPersist, key, value, 512);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("get, %s = %s\n", key, value);
 
-        u32Ret = getPersistencyValue(pPersist, no_such_key, value, 512);
+        u32Ret = jf_persistency_getValue(pPersist, no_such_key, value, 512);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -107,34 +107,34 @@ static u32 _testRwPersistency(persistency_t * pPersist)
     return u32Ret;
 }
 
-static u32 _testPersistencyTransaction(persistency_t * pPersist)
+static u32 _testPersistencyTransaction(jf_persistency_t * pPersist)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
     ol_printf("Start transaction\n");
-    u32Ret = startPersistencyTransaction(pPersist);
+    u32Ret = jf_persistency_startTransaction(pPersist);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        setPersistencyValue(pPersist, "color", "red");
-        setPersistencyValue(pPersist, "name", "min");
-        setPersistencyValue(pPersist, "age", "32");
+        jf_persistency_setValue(pPersist, "color", "red");
+        jf_persistency_setValue(pPersist, "name", "min");
+        jf_persistency_setValue(pPersist, "age", "32");
 
         ol_printf("Commit transaction\n");
-        commitPersistencyTransaction(pPersist);
+        jf_persistency_commitTransaction(pPersist);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("Start transaction\n");
-        u32Ret = startPersistencyTransaction(pPersist);
+        u32Ret = jf_persistency_startTransaction(pPersist);
         if (u32Ret == OLERR_NO_ERROR)
         {
-            setPersistencyValue(pPersist, "book1", "1");
-            setPersistencyValue(pPersist, "book2", "2");
-            setPersistencyValue(pPersist, "book3", "3");
+            jf_persistency_setValue(pPersist, "book1", "1");
+            jf_persistency_setValue(pPersist, "book2", "2");
+            jf_persistency_setValue(pPersist, "book3", "3");
 
             ol_printf("Rollback transaction\n");
-            rollbackPersistencyTransaction(pPersist);
+            jf_persistency_rollbackTransaction(pPersist);
         }
     }
 
@@ -144,16 +144,16 @@ static u32 _testPersistencyTransaction(persistency_t * pPersist)
 static u32 _testPersistency(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    persistency_t * pPersist = NULL;
-    persistency_config_t config;
+    jf_persistency_t * pPersist = NULL;
+    jf_persistency_config_t config;
 
-    memset(&config, 0, sizeof(persistency_config_t));
-    ol_strcpy(config.pc_pcsConfigSqlite.pcs_strDbName, "env.db");
-    ol_strcpy(config.pc_pcsConfigSqlite.pcs_strTableName, "env");
-    ol_strcpy(config.pc_pcsConfigSqlite.pcs_strKeyColumnName, "key");
-    ol_strcpy(config.pc_pcsConfigSqlite.pcs_strValueColumnName, "value");
+    memset(&config, 0, sizeof(jf_persistency_config_t));
+    ol_strcpy(config.jpc_pcsConfigSqlite.jpcs_strDbName, "env.db");
+    ol_strcpy(config.jpc_pcsConfigSqlite.jpcs_strTableName, "env");
+    ol_strcpy(config.jpc_pcsConfigSqlite.jpcs_strKeyColumnName, "key");
+    ol_strcpy(config.jpc_pcsConfigSqlite.jpcs_strValueColumnName, "value");
 
-    u32Ret = createPersistency(SQLITE_PERSISTENCY, &config, &pPersist);
+    u32Ret = jf_persistency_create(JF_PERSISTENCY_TYPE_SQLITE, &config, &pPersist);
     if (u32Ret == OLERR_NO_ERROR)
         u32Ret = _testRwPersistency(pPersist);
 
@@ -161,7 +161,7 @@ static u32 _testPersistency(void)
         u32Ret = _testPersistencyTransaction(pPersist);
 
     if (pPersist != NULL)
-        destroyPersistency(&pPersist);
+        jf_persistency_destroy(&pPersist);
 
     return u32Ret;
 }

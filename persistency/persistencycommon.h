@@ -39,7 +39,7 @@ typedef u32 (* fnRollbackPersistencyTransaction_t)(struct persistency_manager * 
 typedef struct sqlite_persistency
 {
     jt_sqlite_t sp_jsSqlite;
-    persistency_config_sqlite_t sp_pcsConfigSqlite;
+    jf_persistency_config_sqlite_t sp_jpcsConfigSqlite;
 } sqlite_persistency_t;
 
 typedef union persistency_data
@@ -49,7 +49,7 @@ typedef union persistency_data
 
 typedef struct persistency_manager 
 {
-    persistency_type_t pm_ptType; 
+    jf_persistency_type_t pm_jptType; 
 
     fnFiniPersistency_t pm_fnFini;
     fnGetPersistencyValue_t pm_fnGetValue;
