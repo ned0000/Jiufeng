@@ -31,18 +31,18 @@
  *
  *  @param ppNode [in/out] the XML tree to clean up
  */
-static u32 _destroyXMLNodeList(xml_node_t ** ppNode)
+static u32 _destroyXMLNodeList(jf_xmlparser_xml_node_t ** ppNode)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    xml_node_t * temp;
-    xml_node_t * node = *ppNode;
+    jf_xmlparser_xml_node_t * temp;
+    jf_xmlparser_xml_node_t * node = *ppNode;
 
     while (node != NULL)
     {
-        temp = node->xn_pxnNext;
+        temp = node->jxxn_pjxxnNext;
 
         /*If there was a namespace table, delete it*/
-        finiHashtree(&node->xn_hNameSpace);
+        finiHashtree(&node->jxxn_hNameSpace);
 
         xfree((void **)&node);
         node = temp;
@@ -54,73 +54,71 @@ static u32 _destroyXMLNodeList(xml_node_t ** ppNode)
 /** The pprfContent is the content between 2 '<'
  */
 static u32 _newXMLNode(
-    xml_node_t ** ppRoot, xml_node_t ** ppCurrent,
+    jf_xmlparser_xml_node_t ** ppRoot, jf_xmlparser_xml_node_t ** ppCurrent,
     olchar_t * pstrTagName, olsize_t sTagName, boolean_t bStartTag,
     boolean_t bEmptyTag, olchar_t * pstrNSTag, olsize_t sNSTag,
     parse_result_field_t * pprfContent, parse_result_t * pElem)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    xml_node_t * xnNew = NULL;
+    jf_xmlparser_xml_node_t * jxxnNew = NULL;
     olchar_t * pu8Reserved;
 
-    u32Ret = xmalloc((void **)&xnNew, sizeof(xml_node_t));
+    u32Ret = xcalloc((void **)&jxxnNew, sizeof(jf_xmlparser_xml_node_t));
     if (u32Ret == OLERR_NO_ERROR)
     {
-        memset(xnNew, 0, sizeof(xml_node_t));
-
-        xnNew->xn_pstrName = pstrTagName;
-        xnNew->xn_sName = sTagName;
-        xnNew->xn_bStartTag = bStartTag;
-        xnNew->xn_pstrNs = pstrNSTag;
-        xnNew->xn_sNs = sNSTag;
+        jxxnNew->jxxn_pstrName = pstrTagName;
+        jxxnNew->jxxn_sName = sTagName;
+        jxxnNew->jxxn_bStartTag = bStartTag;
+        jxxnNew->jxxn_pstrNs = pstrNSTag;
+        jxxnNew->jxxn_sNs = sNSTag;
 
         if (! bStartTag)
         {
-            /* The xn_pReserved field of end elements point to the
+            /* The jxxn_pReserved field of end elements point to the
                first character before the '<' */
-            xnNew->xn_pReserved = pprfContent->prf_pstrData;
+            jxxnNew->jxxn_pReserved = pprfContent->prf_pstrData;
             do
             {
-                pu8Reserved = (olchar_t *) xnNew->xn_pReserved;
+                pu8Reserved = (olchar_t *) jxxnNew->jxxn_pReserved;
                 pu8Reserved --;
-                xnNew->xn_pReserved = pu8Reserved;
-            } while (*((olchar_t *) xnNew->xn_pReserved) == '<');
+                jxxnNew->jxxn_pReserved = pu8Reserved;
+            } while (*((olchar_t *) jxxnNew->jxxn_pReserved) == '<');
         }
         else
         {
-            /* The xn_pReserved field of start elements point to the
+            /* The jxxn_pReserved field of start elements point to the
                end of the element (the data segment) */
-            xnNew->xn_pReserved = pElem->pr_pprfLast->prf_pstrData;
+            jxxnNew->jxxn_pReserved = pElem->pr_pprfLast->prf_pstrData;
         }
 
         if (*ppRoot == NULL)
         {
-            *ppRoot = xnNew;
+            *ppRoot = jxxnNew;
         }
         else
         {
-            (*ppCurrent)->xn_pxnNext = xnNew;
+            (*ppCurrent)->jxxn_pjxxnNext = jxxnNew;
         }
-        *ppCurrent = xnNew;
+        *ppCurrent = jxxnNew;
         if (bEmptyTag)
         {
             /* If this was an empty element, we need to create
                a bogus EndElement, 
                just so the tree is consistent. No point in 
                introducing unnecessary complexity */
-            u32Ret = xmalloc((void **)&xnNew, sizeof(xml_node_t));
+            u32Ret = xmalloc((void **)&jxxnNew, sizeof(jf_xmlparser_xml_node_t));
             if (u32Ret == OLERR_NO_ERROR)
             {
-                memset(xnNew, 0, sizeof(xml_node_t));
-                xnNew->xn_pstrName = pstrTagName;
-                xnNew->xn_sName = sTagName;
-                xnNew->xn_pstrNs = pstrNSTag;
-                xnNew->xn_sNs = sNSTag;
+                memset(jxxnNew, 0, sizeof(jf_xmlparser_xml_node_t));
+                jxxnNew->jxxn_pstrName = pstrTagName;
+                jxxnNew->jxxn_sName = sTagName;
+                jxxnNew->jxxn_pstrNs = pstrNSTag;
+                jxxnNew->jxxn_sNs = sNSTag;
 
-                xnNew->xn_pReserved = (*ppCurrent)->xn_pReserved;
-                (*ppCurrent)->xn_bEmptyTag = TRUE;
-                (*ppCurrent)->xn_pxnNext = xnNew;
-                *ppCurrent = xnNew;
+                jxxnNew->jxxn_pReserved = (*ppCurrent)->jxxn_pReserved;
+                (*ppCurrent)->jxxn_bEmptyTag = TRUE;
+                (*ppCurrent)->jxxn_pjxxnNext = jxxnNew;
+                *ppCurrent = jxxnNew;
             }
         }
     }
@@ -275,7 +273,8 @@ static u32 _parseXmlElementName(
 /** Parse the XML document
  */
 static u32 _parseXML(
-    olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf, xml_node_t ** ppNode)
+    olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf,
+    jf_xmlparser_xml_node_t ** ppNode)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     parse_result_t * xml = NULL;
@@ -286,8 +285,8 @@ static u32 _parseXML(
     olsize_t sTagName;
     boolean_t bStartTag;
     boolean_t bEmptyTag;
-    xml_node_t * retval = NULL;
-    xml_node_t * current = NULL;
+    jf_xmlparser_xml_node_t * retval = NULL;
+    jf_xmlparser_xml_node_t * current = NULL;
     olchar_t * nsTag;
     olsize_t sNsTag;
 
@@ -357,15 +356,15 @@ static u32 _parseXML(
  *  on each node This method call will populate various helper properties such
  *  as Parent, Peer, etc, to aid in XML parsing.
  *
- *  @param pxd [in] the XML Tree to process
+ *  @param pjxxd [in] the XML Tree to process
  *
  *  @return the error code
  */
-static u32 _processXMLNodeList(xml_doc_t * pxd)
+static u32 _processXMLNodeList(jf_xmlparser_xml_doc_t * pjxxd)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    xml_node_t * current = pxd->xd_pxnRoot;
-    xml_node_t * temp, * parent;
+    jf_xmlparser_xml_node_t * current = pjxxd->jxxd_pjxxnRoot;
+    jf_xmlparser_xml_node_t * temp, * parent;
     void * TagStack = NULL;
 
     initStack(&TagStack);
@@ -374,44 +373,44 @@ static u32 _processXMLNodeList(xml_doc_t * pxd)
        And all StartElements have pointers to siblings and parents. */
     while (current != NULL)
     {
-        if (current->xn_bStartTag)
+        if (current->jxxn_bStartTag)
         {
             /* Start Tag */
             parent = peekStack(&TagStack);
-            current->xn_pxnParent = parent;
-            if ((parent != NULL) && (parent->xn_pxnChildren == NULL))
-                parent->xn_pxnChildren = current;
+            current->jxxn_pjxxnParent = parent;
+            if ((parent != NULL) && (parent->jxxn_pjxxnChildren == NULL))
+                parent->jxxn_pjxxnChildren = current;
             pushStack(&TagStack, current);
         }
         else
         {
             /* Close Tag */
             /* Check to see if there is supposed to be an EndElement */
-            temp = (xml_node_t *)popStack(&TagStack);
+            temp = (jf_xmlparser_xml_node_t *)popStack(&TagStack);
             if (temp != NULL)
             {
                 /* Checking to see if this end element is correct in scope */
-                if ((temp->xn_sName == current->xn_sName) &&
+                if ((temp->jxxn_sName == current->jxxn_sName) &&
                     (ol_memcmp(
-                        temp->xn_pstrName, current->xn_pstrName,
-                        current->xn_sName) == 0))
+                        temp->jxxn_pstrName, current->jxxn_pstrName,
+                        current->jxxn_sName) == 0))
                 {
                     /* The end element is correct, set the peer pointers of the
                        previous sibling */
-                    if (current->xn_pxnNext != NULL)
+                    if (current->jxxn_pjxxnNext != NULL)
                     {
-                        if (current->xn_pxnNext->xn_bStartTag)
+                        if (current->jxxn_pjxxnNext->jxxn_bStartTag)
                         {
-                            temp->xn_pxnSibling = current->xn_pxnNext;
+                            temp->jxxn_pjxxnSibling = current->jxxn_pjxxnNext;
                         }
                     }
-                    temp->xn_pxnClosingTag = current;
-                    current->xn_pxnStartingTag = temp;
+                    temp->jxxn_pjxxnClosingTag = current;
+                    current->jxxn_pjxxnStartingTag = temp;
                 }
                 else
                 {
                     /* Illegal Close Tag Order */
-                    pxd->xd_pxnError = temp;
+                    pjxxd->jxxd_pjxxnError = temp;
                     u32Ret = OLERR_UNMATCHED_CLOSE_TAG;
                     break;
                 }
@@ -419,12 +418,12 @@ static u32 _processXMLNodeList(xml_doc_t * pxd)
             else
             {
                 /* Illegal Close Tag */
-                pxd->xd_pxnError = current;
+                pjxxd->jxxd_pjxxnError = current;
                 u32Ret = OLERR_ILLEGAL_CLOSE_TAG;
                 break;
             }
         }
-        current = current->xn_pxnNext;
+        current = current->jxxn_pjxxnNext;
     }
 
     /* If there are still elements in the stack, that means not all the
@@ -442,11 +441,11 @@ static u32 _processXMLNodeList(xml_doc_t * pxd)
 }
 
 static u32 _getXmlAttribute(
-    parse_result_field_t * field, xml_attribute_t ** ppAttribute)
+    parse_result_field_t * field, jf_xmlparser_xml_attribute_t ** ppAttribute)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    xml_attribute_t * retval = NULL;
-    xml_attribute_t * current = NULL;
+    jf_xmlparser_xml_attribute_t * retval = NULL;
+    jf_xmlparser_xml_attribute_t * current = NULL;
     parse_result_t * pAttr;
     parse_result_t * pValue;
 
@@ -457,16 +456,16 @@ static u32 _getXmlAttribute(
         if (retval == NULL)
         {
             /* If we haven't already created an attribute node, create it now */
-            u32Ret = xcalloc((void **)&retval, sizeof(xml_attribute_t));
+            u32Ret = xcalloc((void **)&retval, sizeof(jf_xmlparser_xml_attribute_t));
         }
         else
         {
             /* We already created an attribute node, so simply create a new one,
                and attach it on the beginning of the old one. */
-            u32Ret = xcalloc((void **)&current, sizeof(xml_attribute_t));
+            u32Ret = xcalloc((void **)&current, sizeof(jf_xmlparser_xml_attribute_t));
             if (u32Ret == OLERR_NO_ERROR)
             {
-                current->xa_pxaNext = retval;
+                current->jxxa_pjxxaNext = retval;
                 retval = current;
             }
         }
@@ -486,8 +485,8 @@ static u32 _getXmlAttribute(
             {
                 /* This attribute has no prefix, so just parse on the '='. The
                    first token is the attribute name, the other is the value */
-                retval->xa_pstrPrefix = NULL;
-                retval->xa_sPrefix = 0;
+                retval->jxxa_pstrPrefix = NULL;
+                retval->jxxa_sPrefix = 0;
                 u32Ret = parseStringAdv(
                     &pValue, field->prf_pstrData, 0, field->prf_sData, "=", 1);
             }
@@ -496,20 +495,20 @@ static u32 _getXmlAttribute(
                 /* Since there is a namespace prefix, seperate that out, and
                    parse the remainder on the '=' to figure out what the
                    attribute name and value are */
-                retval->xa_pstrPrefix = pAttr->pr_pprfFirst->prf_pstrData;
-                retval->xa_sPrefix = pAttr->pr_pprfFirst->prf_sData;
+                retval->jxxa_pstrPrefix = pAttr->pr_pprfFirst->prf_pstrData;
+                retval->jxxa_sPrefix = pAttr->pr_pprfFirst->prf_sData;
                 u32Ret = parseStringAdv(
-                    &pValue, field->prf_pstrData, retval->xa_sPrefix + 1,
-                    field->prf_sData - retval->xa_sPrefix - 1, "=", 1);
+                    &pValue, field->prf_pstrData, retval->jxxa_sPrefix + 1,
+                    field->prf_sData - retval->jxxa_sPrefix - 1, "=", 1);
             }
         }
 
         if (u32Ret == OLERR_NO_ERROR)
         {
-            retval->xa_pstrName = pValue->pr_pprfFirst->prf_pstrData;
-            retval->xa_sName = pValue->pr_pprfFirst->prf_sData;
-            retval->xa_pstrValue = pValue->pr_pprfLast->prf_pstrData;
-            retval->xa_sValue = pValue->pr_pprfLast->prf_sData;
+            retval->jxxa_pstrName = pValue->pr_pprfFirst->prf_pstrData;
+            retval->jxxa_sName = pValue->pr_pprfFirst->prf_sData;
+            retval->jxxa_pstrValue = pValue->pr_pprfLast->prf_pstrData;
+            retval->jxxa_sValue = pValue->pr_pprfLast->prf_sData;
         }
 
         if (pAttr != NULL)
@@ -524,22 +523,22 @@ static u32 _getXmlAttribute(
     if (u32Ret == OLERR_NO_ERROR)
         *ppAttribute = retval;
     else if (retval != NULL)
-        destroyXMLAttributeList(&retval);
+        jf_xmlparser_destroyXMLAttributeList(&retval);
 
     return u32Ret;
 }
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 destroyXMLAttributeList(xml_attribute_t ** ppAttribute)
+u32 jf_xmlparser_destroyXMLAttributeList(jf_xmlparser_xml_attribute_t ** ppAttribute)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    xml_attribute_t * temp;
-    xml_attribute_t * attribute = *ppAttribute;
+    jf_xmlparser_xml_attribute_t * temp;
+    jf_xmlparser_xml_attribute_t * attribute = *ppAttribute;
 
     while (attribute != NULL)
     {
-        temp = attribute->xa_pxaNext;
+        temp = attribute->jxxa_pjxxaNext;
         xfree((void **)&attribute);
         attribute = temp;
     }
@@ -556,11 +555,12 @@ u32 destroyXMLAttributeList(xml_attribute_t ** ppAttribute)
  *
  *  @return the error code
  */
-u32 lookupXMLNamespace(
-    xml_node_t * node, olchar_t * prefix, olsize_t sPrefix, olchar_t ** ppstr)
+u32 jf_xmlparser_lookupXMLNamespace(
+    jf_xmlparser_xml_node_t * node, olchar_t * prefix, olsize_t sPrefix,
+    olchar_t ** ppstr)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    xml_node_t * temp = node;
+    jf_xmlparser_xml_node_t * temp = node;
 
     /*If the specified prefix is zero length, we interpret that to mean
       they want to lookup the default namespace*/
@@ -575,16 +575,16 @@ u32 lookupXMLNamespace(
       a match. Each step we go up, is a step wider in scope.*/
     do
     {
-        if (hasHashtreeEntry(&temp->xn_hNameSpace, prefix, sPrefix))
+        if (hasHashtreeEntry(&temp->jxxn_hNameSpace, prefix, sPrefix))
         {
             /*As soon as we find the namespace declaration, stop
               iterating the tree, as it would be a waste of time*/
             getHashtreeEntry(
-                &temp->xn_hNameSpace, prefix, sPrefix, (void **)ppstr);
+                &temp->jxxn_hNameSpace, prefix, sPrefix, (void **)ppstr);
             break;
         }
 
-        temp = temp->xn_pxnParent;
+        temp = temp->jxxn_pjxxnParent;
     } while ((temp != NULL) && (u32Ret == OLERR_NO_ERROR));
 
     return u32Ret;
@@ -596,27 +596,27 @@ u32 lookupXMLNamespace(
  *
  *  @return the error code
  */
-u32 buildXMLNamespaceLookupTable(xml_node_t * node)
+u32 jf_xmlparser_buildXMLNamespaceLookupTable(jf_xmlparser_xml_node_t * node)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    xml_attribute_t *attr, *currentAttr;
-    xml_node_t *current = node;
+    jf_xmlparser_xml_attribute_t *attr, *currentAttr;
+    jf_xmlparser_xml_node_t *current = node;
 
     /*Iterate through all the start elements, and build a table of the
       declared namespaces*/
     while (current != NULL)
     {
-        if (! current->xn_bStartTag)
+        if (! current->jxxn_bStartTag)
         {
-            current = current->xn_pxnNext;
+            current = current->jxxn_pjxxnNext;
             continue;
         }
 
-        /*xn_hNameSpace is the hash table containing the fully qualified
+        /*jxxn_hNameSpace is the hash table containing the fully qualified
           namespace keyed by the namespace prefix*/
-        initHashtree(&current->xn_hNameSpace);
+        initHashtree(&current->jxxn_hNameSpace);
 
-        u32Ret = getXMLAttributes(current, &attr);
+        u32Ret = jf_xmlparser_getXMLAttributes(current, &attr);
         if (u32Ret == OLERR_NO_ERROR)
         {
             currentAttr = attr;
@@ -624,39 +624,40 @@ u32 buildXMLNamespaceLookupTable(xml_node_t * node)
               declarations*/
             while (currentAttr != NULL)
             {
-                if (currentAttr->xa_sName == 5 &&
-                    ol_memcmp(currentAttr->xa_pstrName, "xmlns", 5) == 0)
+                if (currentAttr->jxxa_sName == 5 &&
+                    ol_memcmp(currentAttr->jxxa_pstrName, "xmlns", 5) == 0)
                 {
                     /*default namespace declaration*/
-                    currentAttr->xa_pstrValue[currentAttr->xa_sValue] = 0;
+                    currentAttr->jxxa_pstrValue[currentAttr->jxxa_sValue] = 0;
                     addHashtreeEntry(
-                        &current->xn_hNameSpace, "xmlns", 5,
-                        currentAttr->xa_pstrValue);
+                        &current->jxxn_hNameSpace, "xmlns", 5,
+                        currentAttr->jxxa_pstrValue);
                 }
-                else if (currentAttr->xa_sPrefix == 5 &&
-                         ol_memcmp(currentAttr->xa_pstrPrefix, "xmlns", 5) == 0)
+                else if (currentAttr->jxxa_sPrefix == 5 &&
+                         ol_memcmp(currentAttr->jxxa_pstrPrefix, "xmlns", 5) == 0)
                 {
                     /*Other Namespace Declaration*/
-                    currentAttr->xa_pstrValue[currentAttr->xa_sValue] = 0;
+                    currentAttr->jxxa_pstrValue[currentAttr->jxxa_sValue] = 0;
                     addHashtreeEntry(
-                        &current->xn_hNameSpace, currentAttr->xa_pstrName,
-                        currentAttr->xa_sName, currentAttr->xa_pstrValue);
+                        &current->jxxn_hNameSpace, currentAttr->jxxa_pstrName,
+                        currentAttr->jxxa_sName, currentAttr->jxxa_pstrValue);
                 }
-                currentAttr = currentAttr->xa_pxaNext;
+                currentAttr = currentAttr->jxxa_pjxxaNext;
             }
-            destroyXMLAttributeList(&attr);
+            jf_xmlparser_destroyXMLAttributeList(&attr);
         }
 
-        current = current->xn_pxnNext;
+        current = current->jxxn_pjxxnNext;
     }
 
     return u32Ret;
 }
 
-u32 readInnerXML(xml_node_t * node, olchar_t ** ppstrData, olsize_t * psData)
+u32 jf_xmlparser_readInnerXML(
+    jf_xmlparser_xml_node_t * node, olchar_t ** ppstrData, olsize_t * psData)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    xml_node_t *x = node;
+    jf_xmlparser_xml_node_t *x = node;
     olsize_t sBuf = 0;
     basic_stack_t *tagStack;
 
@@ -665,50 +666,51 @@ u32 readInnerXML(xml_node_t * node, olchar_t ** ppstrData, olsize_t * psData)
     initStack(&tagStack);
     do
     {
-        if (x->xn_bStartTag)
+        if (x->jxxn_bStartTag)
         {
             pushStack(&tagStack, x);
         }
-        x = x->xn_pxnNext;
+        x = x->jxxn_pjxxnNext;
 
-        if (x->xn_sName != node->xn_sName)
+        if (x->jxxn_sName != node->jxxn_sName)
             continue;
         
-        if (ol_memcmp(x->xn_pstrName, node->xn_pstrName, node->xn_sName) != 0)
+        if (ol_memcmp(x->jxxn_pstrName, node->jxxn_pstrName, node->jxxn_sName) != 0)
             continue;
-    } while (! ((! x->xn_bStartTag) && (popStack(&tagStack) == node)));
+    } while (! ((! x->jxxn_bStartTag) && (popStack(&tagStack) == node)));
 
     clearStack(&tagStack);
 
-    /*The xn_pReserved fields of the start element and end element are used as
+    /*The jxxn_pReserved fields of the start element and end element are used as
       pointers representing the data segment of the XML*/
     sBuf = (olsize_t)
-        ((olchar_t *)x->xn_pReserved - (olchar_t *)node->xn_pReserved - 1);
+        ((olchar_t *)x->jxxn_pReserved - (olchar_t *)node->jxxn_pReserved - 1);
     if (sBuf < 0)
     {
         sBuf = 0;
     }
-    *ppstrData = (olchar_t *) node->xn_pReserved;
+    *ppstrData = (olchar_t *) node->jxxn_pReserved;
     *psData = sBuf;
 
     return u32Ret;
 }
 
-u32 getXMLAttributes(xml_node_t * node, xml_attribute_t ** ppAttribute)
+u32 jf_xmlparser_getXMLAttributes(
+    jf_xmlparser_xml_node_t * node, jf_xmlparser_xml_attribute_t ** ppAttribute)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t *c;
-    olint_t nEndReserved = (! node->xn_bEmptyTag) ? 1 : 2;
+    olint_t nEndReserved = (! node->jxxn_bEmptyTag) ? 1 : 2;
     parse_result_t * xml;
     parse_result_field_t * field;
 
     /* The reserved field is used to show where the data segments start and
        stop. We can also use them to figure out where the attributes start
        and stop */
-    c = (olchar_t *) node->xn_pReserved - 1;
+    c = (olchar_t *) node->jxxn_pReserved - 1;
     while (*c != '<')
     {
-        /* The xn_pReserved field of the start element points to the first
+        /* The jxxn_pReserved field of the start element points to the first
            character after the '>' of the start element. Just work our way
            backwards to find the start of the start element */
         c = c - 1;
@@ -719,7 +721,7 @@ u32 getXMLAttributes(xml_node_t * node, xml_attribute_t ** ppAttribute)
        the string as delimited by ' '. Use parseStringAdv because these
        attributes can be within quotation marks */
     u32Ret = parseStringAdv(
-        &xml, c, 0, ((olchar_t *) node->xn_pReserved - c - nEndReserved),
+        &xml, c, 0, ((olchar_t *) node->jxxn_pReserved - c - nEndReserved),
         " ", 1);
     if (u32Ret == OLERR_NO_ERROR)
     {
@@ -737,23 +739,23 @@ u32 getXMLAttributes(xml_node_t * node, xml_attribute_t ** ppAttribute)
     return u32Ret;
 }
 
-u32 parseXML(
-    olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf, xml_doc_t * pxd)
+u32 jf_xmlparser_parseXML(
+    olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf, jf_xmlparser_xml_doc_t * pjxxd)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    ol_bzero(pxd, sizeof(xml_doc_t));
+    ol_bzero(pjxxd, sizeof(jf_xmlparser_xml_doc_t));
 
-    u32Ret = _parseXML(pstrBuf, sOffset, sBuf, &(pxd->xd_pxnRoot));
+    u32Ret = _parseXML(pstrBuf, sOffset, sBuf, &(pjxxd->jxxd_pjxxnRoot));
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = _processXMLNodeList(pxd);
+        u32Ret = _processXMLNodeList(pjxxd);
     }
 
     return u32Ret;
 }
 
-u32 destroyXMLNodeList(xml_node_t ** ppNode)
+u32 jf_xmlparser_destroyXMLNodeList(jf_xmlparser_xml_node_t ** ppNode)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -762,27 +764,28 @@ u32 destroyXMLNodeList(xml_node_t ** ppNode)
     return u32Ret;
 }
 
-u32 parseXMLFile(const olchar_t * pstrFilename, xml_file_t ** ppFile)
+u32 jf_xmlparser_parseXMLFile(
+    const olchar_t * pstrFilename, jf_xmlparser_xml_file_t ** ppFile)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     FILE * fp = NULL;
     olsize_t u32Size;
     file_stat_t filestat;
-    xml_file_t * pxf;
+    jf_xmlparser_xml_file_t * pjxxf;
 
     assert((pstrFilename != NULL) && (ppFile != NULL));
 
-    u32Ret = xmalloc((void **)&pxf, sizeof(xml_file_t));
+    u32Ret = xmalloc((void **)&pjxxf, sizeof(*pjxxf));
     if (u32Ret == OLERR_NO_ERROR)
     {
-        memset(pxf, 0, sizeof(xml_file_t));
+        memset(pjxxf, 0, sizeof(*pjxxf));
         u32Ret = getFileStat(pstrFilename, &filestat);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
         u32Size = (olsize_t)filestat.fs_u64Size;
-        u32Ret = xmalloc((void **)&(pxf->xf_pstrBuf), u32Size);
+        u32Ret = xmalloc((void **)&(pjxxf->jxxf_pstrBuf), u32Size);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -792,7 +795,7 @@ u32 parseXMLFile(const olchar_t * pstrFilename, xml_file_t ** ppFile)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = fpReadn(fp, pxf->xf_pstrBuf, &u32Size);
+        u32Ret = fpReadn(fp, pjxxf->jxxf_pstrBuf, &u32Size);
         if (u32Size != (u32)filestat.fs_u64Size)
             u32Ret = OLERR_CORRUPTED_XML_FILE;
     }
@@ -802,62 +805,63 @@ u32 parseXMLFile(const olchar_t * pstrFilename, xml_file_t ** ppFile)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = parseXML(pxf->xf_pstrBuf, 0, u32Size, &(pxf->xf_xdDoc));
+        u32Ret = jf_xmlparser_parseXML(
+            pjxxf->jxxf_pstrBuf, 0, u32Size, &(pjxxf->jxxf_jxxdDoc));
     }
 
-    if (pxf != NULL)
-        *ppFile = pxf;
+    if (pjxxf != NULL)
+        *ppFile = pjxxf;
 
     return u32Ret;
 }
 
-u32 destroyXMLFile(xml_file_t ** ppFile)
+u32 jf_xmlparser_destroyXMLFile(jf_xmlparser_xml_file_t ** ppFile)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    xml_file_t * pxf;
+    jf_xmlparser_xml_file_t * pjxxf;
 
     assert((ppFile != NULL) && (*ppFile != NULL));
 
-    pxf = *ppFile;
+    pjxxf = *ppFile;
 
-    if (pxf->xf_xdDoc.xd_pxnRoot != NULL)
-        _destroyXMLNodeList(&(pxf->xf_xdDoc.xd_pxnRoot));
+    if (pjxxf->jxxf_jxxdDoc.jxxd_pjxxnRoot != NULL)
+        _destroyXMLNodeList(&(pjxxf->jxxf_jxxdDoc.jxxd_pjxxnRoot));
 
-    if (pxf->xf_pstrBuf != NULL)
-        xfree((void **)&(pxf->xf_pstrBuf));
+    if (pjxxf->jxxf_pstrBuf != NULL)
+        xfree((void **)&(pjxxf->jxxf_pstrBuf));
 
     return u32Ret;
 }
 
-void printXMLNodeList(xml_node_t * pxn, u8 u8Indent)
+void jf_xmlparser_printXMLNodeList(jf_xmlparser_xml_node_t * pjxxn, u8 u8Indent)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t tagname[50];
     olchar_t value[50];
     olchar_t * pstrValue;
     olsize_t sBuf;
-    xml_node_t * temp;
+    jf_xmlparser_xml_node_t * temp;
     u8 u8Index;
 
-    temp = pxn;
+    temp = pjxxn;
     while (temp != NULL)
     {
-        memcpy(tagname, temp->xn_pstrName, temp->xn_sName);
-        tagname[temp->xn_sName] = '\0';
+        memcpy(tagname, temp->jxxn_pstrName, temp->jxxn_sName);
+        tagname[temp->jxxn_sName] = '\0';
 
         for (u8Index = 0; u8Index < u8Indent; u8Index ++)
             ol_printf(" ");
 
         ol_printf("%s", tagname);
 
-        if (temp->xn_pxnChildren != NULL)
+        if (temp->jxxn_pjxxnChildren != NULL)
         {
             ol_printf("\n");
-            printXMLNodeList(temp->xn_pxnChildren, u8Indent + 2);
+            jf_xmlparser_printXMLNodeList(temp->jxxn_pjxxnChildren, u8Indent + 2);
         }
         else
         {
-            u32Ret = readInnerXML(temp, &pstrValue, &sBuf);
+            u32Ret = jf_xmlparser_readInnerXML(temp, &pstrValue, &sBuf);
             if (u32Ret == OLERR_NO_ERROR)
             {
                 memcpy(value, pstrValue, sBuf);
@@ -866,7 +870,7 @@ void printXMLNodeList(xml_node_t * pxn, u8 u8Indent)
             }
         }
 
-        temp = temp->xn_pxnSibling;
+        temp = temp->jxxn_pjxxnSibling;
     }
 }
 

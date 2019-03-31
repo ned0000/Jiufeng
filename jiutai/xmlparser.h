@@ -37,58 +37,59 @@
 /* --- constant definitions ------------------------------------------------ */
 
 /* --- data structures ----------------------------------------------------- */
-typedef struct xml_node
+
+typedef struct jf_xmlparser_xml_node
 {
     /** Tag name */
-    olchar_t * xn_pstrName;
-    olsize_t xn_sName;
-    u32 xn_u32Reserved;
+    olchar_t * jxxn_pstrName;
+    olsize_t jxxn_sName;
+    u32 jxxn_u32Reserved;
     /** Namespace */
-    olchar_t * xn_pstrNs;
-    olsize_t xn_sNs;
-    u32 xn_u32Reserved2;
+    olchar_t * jxxn_pstrNs;
+    olsize_t jxxn_sNs;
+    u32 jxxn_u32Reserved2;
 
-    boolean_t xn_bStartTag;
-    boolean_t xn_bEmptyTag;
-    u8 xn_u8Reserved[6];
+    boolean_t jxxn_bStartTag;
+    boolean_t jxxn_bEmptyTag;
+    u8 jxxn_u8Reserved[6];
 
-    void * xn_pReserved;
-    hashtree_t xn_hNameSpace;
+    void * jxxn_pReserved;
+    hashtree_t jxxn_hNameSpace;
 
-    struct xml_node * xn_pxnNext;
-    struct xml_node * xn_pxnParent;
-    struct xml_node * xn_pxnChildren;
-    struct xml_node * xn_pxnSibling;
+    struct jf_xmlparser_xml_node * jxxn_pjxxnNext;
+    struct jf_xmlparser_xml_node * jxxn_pjxxnParent;
+    struct jf_xmlparser_xml_node * jxxn_pjxxnChildren;
+    struct jf_xmlparser_xml_node * jxxn_pjxxnSibling;
 
-    struct xml_node * xn_pxnClosingTag;
-    struct xml_node * xn_pxnStartingTag;
-} xml_node_t;
+    struct jf_xmlparser_xml_node * jxxn_pjxxnClosingTag;
+    struct jf_xmlparser_xml_node * jxxn_pjxxnStartingTag;
+} jf_xmlparser_xml_node_t;
 
-typedef struct xml_attribute
+typedef struct jf_xmlparser_xml_attribute
 {
-    olchar_t * xa_pstrName;
-    olsize_t xa_sName;
+    olchar_t * jxxa_pstrName;
+    olsize_t jxxa_sName;
 
-    olchar_t * xa_pstrPrefix;
-    olsize_t xa_sPrefix;
+    olchar_t * jxxa_pstrPrefix;
+    olsize_t jxxa_sPrefix;
 
-    olchar_t * xa_pstrValue;
-    olsize_t xa_sValue;
-    struct xml_attribute * xa_pxaNext;
-} xml_attribute_t;
+    olchar_t * jxxa_pstrValue;
+    olsize_t jxxa_sValue;
+    struct jf_xmlparser_xml_attribute * jxxa_pjxxaNext;
+} jf_xmlparser_xml_attribute_t;
 
-typedef struct xml_doc
+typedef struct jf_xmlparser_xml_doc
 {
-    xml_node_t * xd_pxnRoot;
-    xml_node_t * xd_pxnError;
-    u8 xd_u8Reserved[32];
-} xml_doc_t;
+    jf_xmlparser_xml_node_t * jxxd_pjxxnRoot;
+    jf_xmlparser_xml_node_t * jxxd_pjxxnError;
+    u8 jxxd_u8Reserved[32];
+} jf_xmlparser_xml_doc_t;
 
-typedef struct xml_file
+typedef struct jf_xmlparser_xml_file
 {
-    olchar_t * xf_pstrBuf;
-    xml_doc_t xf_xdDoc;
-} xml_file_t;
+    olchar_t * jxxf_pstrBuf;
+    jf_xmlparser_xml_doc_t jxxf_jxxdDoc;
+} jf_xmlparser_xml_file_t;
 
 /* --- functional routines ------------------------------------------------- */
 
@@ -97,17 +98,19 @@ typedef struct xml_file
  *  @param pstrBuffer [in] the buffer to parse
  *  @param sOffset [in] the offset in the buffer to start parsing
  *  @param sBuf [in] the length of the buffer
- *  @param pxd [out] a tree of xml node, representing the XML document
+ *  @param pjxxd [out] a tree of xml node, representing the XML document
  *
  *  @return the error code
  *
  *  @note The strings are never copied. Everything is referenced via pointers
  *   into the original buffer
  */
-XMLPARSERAPI u32 XMLPARSERCALL parseXML(
-    olchar_t * pstrBuffer, olsize_t sOffset, olsize_t sBuf, xml_doc_t * pxd);
+XMLPARSERAPI u32 XMLPARSERCALL jf_xmlparser_parseXML(
+    olchar_t * pstrBuffer, olsize_t sOffset, olsize_t sBuf,
+    jf_xmlparser_xml_doc_t * pjxxd);
 
-XMLPARSERAPI u32 XMLPARSERCALL destroyXMLNodeList(xml_node_t ** ppNode);
+XMLPARSERAPI u32 XMLPARSERCALL jf_xmlparser_destroyXMLNodeList(
+    jf_xmlparser_xml_node_t ** ppNode);
 
 /** Read the attributes from an XML node
  *
@@ -116,8 +119,8 @@ XMLPARSERAPI u32 XMLPARSERCALL destroyXMLNodeList(xml_node_t ** ppNode);
  *
  *  @return the error code
  */
-XMLPARSERAPI u32 XMLPARSERCALL getXMLAttributes(
-    xml_node_t * node, xml_attribute_t ** ppAttribute);
+XMLPARSERAPI u32 XMLPARSERCALL jf_xmlparser_getXMLAttributes(
+    jf_xmlparser_xml_node_t * node, jf_xmlparser_xml_attribute_t ** ppAttribute);
 
 /** Frees resources from an attribute list returned from getXMLAttributes
  *
@@ -125,8 +128,8 @@ XMLPARSERAPI u32 XMLPARSERCALL getXMLAttributes(
  *
  *  @return the error code
  */
-XMLPARSERAPI u32 XMLPARSERCALL destroyXMLAttributeList(
-    xml_attribute_t ** ppAttribute);
+XMLPARSERAPI u32 XMLPARSERCALL jf_xmlparser_destroyXMLAttributeList(
+    jf_xmlparser_xml_attribute_t ** ppAttribute);
 
 /** Reads the data segment from an xml node. The data is a pointer into the
  *  original string that the XML was read from.
@@ -137,15 +140,17 @@ XMLPARSERAPI u32 XMLPARSERCALL destroyXMLAttributeList(
  *
  *  @return the error code
  */
-XMLPARSERAPI u32 XMLPARSERCALL readInnerXML(
-    xml_node_t * node, olchar_t ** ppstrData, olsize_t * psData);
+XMLPARSERAPI u32 XMLPARSERCALL jf_xmlparser_readInnerXML(
+    jf_xmlparser_xml_node_t * node, olchar_t ** ppstrData, olsize_t * psData);
 
-XMLPARSERAPI u32 XMLPARSERCALL parseXMLFile(
-    const olchar_t * pstrFilename, xml_file_t ** ppFile);
+XMLPARSERAPI u32 XMLPARSERCALL jf_xmlparser_parseXMLFile(
+    const olchar_t * pstrFilename, jf_xmlparser_xml_file_t ** ppFile);
 
-XMLPARSERAPI u32 XMLPARSERCALL destroyXMLFile(xml_file_t ** ppFile);
+XMLPARSERAPI u32 XMLPARSERCALL jf_xmlparser_destroyXMLFile(
+    jf_xmlparser_xml_file_t ** ppFile);
 
-XMLPARSERAPI void XMLPARSERCALL printXMLNodeList(xml_node_t * pxn, u8 u8Indent);
+XMLPARSERAPI void XMLPARSERCALL jf_xmlparser_printXMLNodeList(
+    jf_xmlparser_xml_node_t * pjxxn, u8 u8Indent);
 
 #endif /*JIUFENG_XMLPARSER_H*/
 

@@ -160,7 +160,7 @@ typedef struct
 static u32 _testXmlParser_1()
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    xml_doc_t xmldoc;
+    jf_xmlparser_xml_doc_t xmldoc;
     olchar_t strErrMsg[300];
     test_xml_parser_t txp[] = {
         {"", OLERR_CORRUPTED_XML_FILE},
@@ -178,12 +178,12 @@ static u32 _testXmlParser_1()
     for (u32Index = 0; u32Index < u32NumOfCase; u32Index ++)
     {
         ol_printf("Parse following XML document:\n%s\n", txp[u32Index].pstrXml);
-        u32Ret = parseXML(
+        u32Ret = jf_xmlparser_parseXML(
             txp[u32Index].pstrXml, 0, strlen(txp[u32Index].pstrXml), &xmldoc);
         if (u32Ret == OLERR_NO_ERROR)
         {
             ol_printf("Parse result:\n");            
-            printXMLNodeList(xmldoc.xd_pxnRoot, 4);
+            jf_xmlparser_printXMLNodeList(xmldoc.jxxd_pjxxnRoot, 4);
         }
         else if (u32Ret != txp[u32Index].u32ErrCode)
         {
@@ -195,91 +195,91 @@ static u32 _testXmlParser_1()
             ol_printf("Parse result:\n");
             getErrMsg(u32Ret, strErrMsg, 300);
             ol_printf("%s\n", strErrMsg);
-            if (xmldoc.xd_pxnError != NULL)
+            if (xmldoc.jxxd_pjxxnError != NULL)
             {
                 strErrMsg[0] = '\0';
-                if (xmldoc.xd_pxnError->xn_pstrNs != NULL)
+                if (xmldoc.jxxd_pjxxnError->jxxn_pstrNs != NULL)
                     ol_strncat(
-                        strErrMsg, xmldoc.xd_pxnError->xn_pstrNs,
-                        xmldoc.xd_pxnError->xn_sNs);
+                        strErrMsg, xmldoc.jxxd_pjxxnError->jxxn_pstrNs,
+                        xmldoc.jxxd_pjxxnError->jxxn_sNs);
                 ol_strcat(strErrMsg, ":");
                 ol_strncat(
-                    strErrMsg, xmldoc.xd_pxnError->xn_pstrName,
-                    xmldoc.xd_pxnError->xn_sName);
+                    strErrMsg, xmldoc.jxxd_pjxxnError->jxxn_pstrName,
+                    xmldoc.jxxd_pjxxnError->jxxn_sName);
                 ol_printf("Error node: %s\n", strErrMsg);
             }
             u32Ret = OLERR_NO_ERROR;
         }
         ol_printf("\n");
 
-        if (xmldoc.xd_pxnRoot != NULL)
-            destroyXMLNodeList(&xmldoc.xd_pxnRoot);
+        if (xmldoc.jxxd_pjxxnRoot != NULL)
+            jf_xmlparser_destroyXMLNodeList(&xmldoc.jxxd_pjxxnRoot);
     }
 
     return u32Ret;
 }
 
-static u32 _printXmlNodeAttributes(xml_attribute_t * pAttr)
+static u32 _printXmlNodeAttributes(jf_xmlparser_xml_attribute_t * pAttr)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t value[64];
 
     while (pAttr != NULL)
     {
-        if (pAttr->xa_sPrefix > 0)
+        if (pAttr->jxxa_sPrefix > 0)
         {
-            memcpy(value, pAttr->xa_pstrPrefix, pAttr->xa_sPrefix);
-            value[pAttr->xa_sPrefix] = '\0';
+            memcpy(value, pAttr->jxxa_pstrPrefix, pAttr->jxxa_sPrefix);
+            value[pAttr->jxxa_sPrefix] = '\0';
             ol_printf("Attribute Name Prefix: %s\n", value);
         }
 
-        memcpy(value, pAttr->xa_pstrName, pAttr->xa_sName);
-        value[pAttr->xa_sName] = '\0';
+        memcpy(value, pAttr->jxxa_pstrName, pAttr->jxxa_sName);
+        value[pAttr->jxxa_sName] = '\0';
         ol_printf("Attribute Name: %s\n", value);
 
-        memcpy(value, pAttr->xa_pstrValue, pAttr->xa_sValue);
-        value[pAttr->xa_sValue] = '\0';
+        memcpy(value, pAttr->jxxa_pstrValue, pAttr->jxxa_sValue);
+        value[pAttr->jxxa_sValue] = '\0';
         ol_printf("Attribute Value: %s\n", value);
 
         ol_printf("\n");
 
-        pAttr = pAttr->xa_pxaNext;
+        pAttr = pAttr->jxxa_pjxxaNext;
     }
 
     return u32Ret;
 }
 
-static u32 _printXmlNodeAttr(xml_node_t * node)
+static u32 _printXmlNodeAttr(jf_xmlparser_xml_node_t * node)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    xml_node_t * temp, * child;
+    jf_xmlparser_xml_node_t * temp, * child;
     olchar_t tagname[64];
     olchar_t value[64];
     olchar_t * pData;
     olsize_t sData;
-    xml_attribute_t * pAttr;
+    jf_xmlparser_xml_attribute_t * pAttr;
 
     ol_printf("\n----------------------------------------------------\n");
 
     temp = node;
     while (temp != NULL)
     {
-        memcpy(tagname, temp->xn_pstrName, temp->xn_sName);
-        tagname[temp->xn_sName] = '\0';
+        memcpy(tagname, temp->jxxn_pstrName, temp->jxxn_sName);
+        tagname[temp->jxxn_sName] = '\0';
 
         ol_printf("%s", tagname);
         ol_printf("\n");
 
-        child = temp->xn_pxnChildren;
+        child = temp->jxxn_pjxxnChildren;
         if (child != NULL)
         {
-            memcpy(tagname, child->xn_pstrName, child->xn_sName);
-            tagname[child->xn_sName] = '\0';
+            memcpy(tagname, child->jxxn_pstrName, child->jxxn_sName);
+            tagname[child->jxxn_sName] = '\0';
 
-            u32Ret = readInnerXML(child, &pData, &sData);
+            u32Ret = jf_xmlparser_readInnerXML(child, &pData, &sData);
             if (u32Ret == OLERR_NO_ERROR)
             {
-                memcpy(value, pData, sData);
+                ol_memcpy(value, pData, sData);
                 value[sData] = '\0';
             }
             
@@ -287,18 +287,18 @@ static u32 _printXmlNodeAttr(xml_node_t * node)
 
             if (u32Ret == OLERR_NO_ERROR)
             {
-                u32Ret = getXMLAttributes(child, &pAttr);
+                u32Ret = jf_xmlparser_getXMLAttributes(child, &pAttr);
                 if (u32Ret == OLERR_NO_ERROR)
                 {
                     _printXmlNodeAttributes(pAttr);
-                    destroyXMLAttributeList(&pAttr);
+                    jf_xmlparser_destroyXMLAttributeList(&pAttr);
                 }
             }
 
             ol_printf("\n");
         }
         
-        temp = temp->xn_pxnSibling;
+        temp = temp->jxxn_pjxxnSibling;
     }
 
     return u32Ret;
@@ -309,30 +309,30 @@ static u32 _testXmlParser_2(olchar_t * pstrXmlFile)
     u32 u32Ret = OLERR_NO_ERROR;
 	char strErrMsg[300];
     olchar_t strTagName[100];
-    xml_file_t * pxf = NULL;
+    jf_xmlparser_xml_file_t * pjxxf = NULL;
 
-    u32Ret = parseXMLFile(pstrXmlFile, &pxf);
+    u32Ret = jf_xmlparser_parseXMLFile(pstrXmlFile, &pjxxf);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        printXMLNodeList(pxf->xf_xdDoc.xd_pxnRoot, 2);
-        _printXmlNodeAttr(pxf->xf_xdDoc.xd_pxnRoot);
+        jf_xmlparser_printXMLNodeList(pjxxf->jxxf_jxxdDoc.jxxd_pjxxnRoot, 2);
+        _printXmlNodeAttr(pjxxf->jxxf_jxxdDoc.jxxd_pjxxnRoot);
     }
     else
 	{
 		getErrMsg(u32Ret, strErrMsg, 300);
         printf("%s\n", strErrMsg);
-		if ((pxf != NULL) && (pxf->xf_xdDoc.xd_pxnError == NULL))
+		if ((pjxxf != NULL) && (pjxxf->jxxf_jxxdDoc.jxxd_pjxxnError == NULL))
 		{
             ol_strncpy(
-                strTagName, pxf->xf_xdDoc.xd_pxnError->xn_pstrName,
-                pxf->xf_xdDoc.xd_pxnError->xn_sName);
-            strTagName[pxf->xf_xdDoc.xd_pxnError->xn_sName] = '\0';
+                strTagName, pjxxf->jxxf_jxxdDoc.jxxd_pjxxnError->jxxn_pstrName,
+                pjxxf->jxxf_jxxdDoc.jxxd_pjxxnError->jxxn_sName);
+            strTagName[pjxxf->jxxf_jxxdDoc.jxxd_pjxxnError->jxxn_sName] = '\0';
             ol_printf("%s, %s\n", strErrMsg, strTagName);
 		}
 	}
 
-    if (pxf != NULL)
-        destroyXMLFile(&pxf);
+    if (pjxxf != NULL)
+        jf_xmlparser_destroyXMLFile(&pjxxf);
 
     return u32Ret;
 }
