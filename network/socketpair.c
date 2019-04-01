@@ -57,11 +57,11 @@ static u32 _createUnixSocketPair(olint_t type, jf_network_socket_t * psPair[2])
 static u32 _createInetSocketPair(olint_t domain, olint_t type, jf_network_socket_t * psPair[2])
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    ip_addr_t ipaddr, clientaddr;
+    jf_ipaddr_t ipaddr, clientaddr;
     u16 u16Port = 0, u16ClientPort = 0;
     jf_network_socket_t * pListener = NULL;
 
-    setIpV4Addr(&ipaddr, htonl(INADDR_LOOPBACK));
+    jf_ipaddr_setIpV4Addr(&ipaddr, htonl(INADDR_LOOPBACK));
 
     u32Ret = jf_network_createStreamSocket(&ipaddr, &u16Port, &pListener);
     if (u32Ret == OLERR_NO_ERROR)

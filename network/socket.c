@@ -46,27 +46,27 @@
 /* --- public routine section ---------------------------------------------- */
 
 u32 jf_network_createDgramSocket(
-    ip_addr_t * piaLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket)
+    jf_ipaddr_t * pjiLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    assert((piaLocal != NULL) && (pu16Port != NULL));
+    assert((pjiLocal != NULL) && (pu16Port != NULL));
     assert(ppSocket != NULL);
 
-    u32Ret = createDgramIsocket(piaLocal, pu16Port,
+    u32Ret = createDgramIsocket(pjiLocal, pu16Port,
         (internal_socket_t **)ppSocket);
 
     return u32Ret;
 }
 
 u32 jf_network_createStreamSocket(
-    ip_addr_t * piaLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket)
+    jf_ipaddr_t * pjiLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    assert((piaLocal != NULL) && (pu16Port != NULL) && (ppSocket != NULL));
+    assert((pjiLocal != NULL) && (pu16Port != NULL) && (ppSocket != NULL));
 
-    u32Ret = createStreamIsocket(piaLocal, pu16Port,
+    u32Ret = createStreamIsocket(pjiLocal, pu16Port,
         (internal_socket_t **)ppSocket);
 
     return u32Ret;
@@ -79,7 +79,7 @@ u32 jf_network_createTypeStreamSocket(
 
     assert(ppSocket != NULL);
 
-    if (u8AddrType == IP_ADDR_TYPE_V6)
+    if (u8AddrType == JF_IPADDR_TYPE_V6)
         u32Ret = createIsocket(
             AF_INET6, SOCK_STREAM, 0, (internal_socket_t **)ppSocket);
     else
@@ -152,16 +152,16 @@ u32 jf_network_setSocketNonblock(jf_network_socket_t * pSocket)
 }
 
 u32 jf_network_joinMulticastGroup(
-    jf_network_socket_t * pSocket, ip_addr_t * piaAddr,
-    ip_addr_t * piaMulticaseAddr)
+    jf_network_socket_t * pSocket, jf_ipaddr_t * pjiAddr,
+    jf_ipaddr_t * pjiMulticaseAddr)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
-    assert((piaAddr != NULL) && (piaMulticaseAddr != NULL));
+    assert((pjiAddr != NULL) && (pjiMulticaseAddr != NULL));
 
-    u32Ret = isJoinMulticastGroup(pis, piaAddr, piaMulticaseAddr);
+    u32Ret = isJoinMulticastGroup(pis, pjiAddr, pjiMulticaseAddr);
 
     return u32Ret;
 }
@@ -278,7 +278,7 @@ u32 jf_network_recvWithTimeout(
  */
 u32 jf_network_recvfromWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
-    u32 u32Timeout, ip_addr_t * piaFrom, u16 * pu16Port)
+    u32 u32Timeout, jf_ipaddr_t * pjiFrom, u16 * pu16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
@@ -286,7 +286,7 @@ u32 jf_network_recvfromWithTimeout(
     assert(pSocket != NULL);
 
     u32Ret = isRecvfromWithTimeout(
-        pis, pBuffer, psRecv, u32Timeout, piaFrom, pu16Port);
+        pis, pBuffer, psRecv, u32Timeout, pjiFrom, pu16Port);
 
     return u32Ret;
 }
@@ -337,20 +337,20 @@ u32 jf_network_listen(jf_network_socket_t * pListen, olint_t backlog)
 }
 
 u32 jf_network_connect(
-    jf_network_socket_t * pSocket, const ip_addr_t * pia, u16 u16Port)
+    jf_network_socket_t * pSocket, const jf_ipaddr_t * pji, u16 u16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
 
-    u32Ret = isConnect(pis, pia, u16Port);
+    u32Ret = isConnect(pis, pji, u16Port);
 
     return u32Ret;
 }
 
 u32 jf_network_connectWithTimeout(
-    jf_network_socket_t * pSocket, const ip_addr_t * pia, u16 u16Port,
+    jf_network_socket_t * pSocket, const jf_ipaddr_t * pji, u16 u16Port,
     u32 u32Timeout)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -358,13 +358,13 @@ u32 jf_network_connectWithTimeout(
 
     assert(pSocket != NULL);
 
-    u32Ret = isConnectWithTimeout(pis, pia, u16Port, u32Timeout);
+    u32Ret = isConnectWithTimeout(pis, pji, u16Port, u32Timeout);
 
     return u32Ret;
 }
 
 u32 jf_network_accept(
-    jf_network_socket_t * pListen, ip_addr_t * pia, u16 * pu16Port,
+    jf_network_socket_t * pListen, jf_ipaddr_t * pji, u16 * pu16Port,
     jf_network_socket_t ** ppSocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -372,35 +372,35 @@ u32 jf_network_accept(
 
     assert((pListen != NULL) && (ppSocket != NULL));
 
-    u32Ret = isAccept(pis, pia, pu16Port, (internal_socket_t **)ppSocket);
+    u32Ret = isAccept(pis, pji, pu16Port, (internal_socket_t **)ppSocket);
 
     return u32Ret;
 }
 
 u32 jf_network_sendto(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend,
-    const ip_addr_t * piaTo, u16 u16Port)
+    const jf_ipaddr_t * pjiTo, u16 u16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
 
-    u32Ret = isSendto(pis, pBuffer, psSend, piaTo, u16Port);
+    u32Ret = isSendto(pis, pBuffer, psSend, pjiTo, u16Port);
 
     return u32Ret;
 }
 
 u32 jf_network_recvfrom(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
-    ip_addr_t * piaFrom, u16 * pu16Port)
+    jf_ipaddr_t * pjiFrom, u16 * pu16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
 
-    u32Ret = isRecvfrom(pis, pBuffer, psRecv, piaFrom, pu16Port);
+    u32Ret = isRecvfrom(pis, pBuffer, psRecv, pjiFrom, pu16Port);
 
     return u32Ret;
 }

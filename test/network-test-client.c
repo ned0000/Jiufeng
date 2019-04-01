@@ -105,7 +105,7 @@ static u32 _networkTestClient(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     jf_network_socket_t * pSocket = NULL;
-    ip_addr_t ipaddr;
+    jf_ipaddr_t ipaddr;
     olchar_t * pstrBuffer = "Hello world!";
     u8 u8Buffer[100];
     olsize_t u32Len;
@@ -115,7 +115,7 @@ static u32 _networkTestClient(void)
     {
         ol_printf("socket created\n");
 
-        setIpV4Addr(&ipaddr, inet_addr(SERVER_IP));
+        jf_ipaddr_setIpV4Addr(&ipaddr, inet_addr(SERVER_IP));
 
         u32Ret = jf_network_connect(pSocket, &ipaddr, SERVER_PORT);
     }

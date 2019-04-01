@@ -299,7 +299,7 @@ static u32 _initUuidGenV1(uuid_gen_t * pug)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    u32Ret = getMacOfFirstIf(pug->ug_u8Mac);
+    u32Ret = jf_ifmgmt_getMacOfFirstIf(pug->ug_u8Mac);
     if (u32Ret != OLERR_NO_ERROR)
     {
         ol_bzero(pug->ug_u8Mac, MAC_LEN);

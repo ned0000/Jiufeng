@@ -42,12 +42,12 @@ typedef struct
     olsize_t ia_sPendingBytesToSend;
     olsize_t ia_sTotalBytesSent;
 
-    ip_addr_t ia_iaRemote;
+    jf_ipaddr_t ia_jiRemote;
     u16 ia_u16Port;
     u16 ia_u16Reserved[2];
 
     u16 ia_u16LocalPort;
-    ip_addr_t ia_iaLocal;
+    jf_ipaddr_t ia_jiLocal;
 
     void * ia_pUser;
 
@@ -138,10 +138,10 @@ static u32 _clearAsocket(internal_asocket_t * pia)
 
     pia->ia_u32Status = 0;
 
-    memset(&(pia->ia_iaRemote), 0, sizeof(ip_addr_t));
+    memset(&(pia->ia_jiRemote), 0, sizeof(jf_ipaddr_t));
     pia->ia_u16Port = 0;
 
-    memset(&(pia->ia_iaLocal), 0, sizeof(ip_addr_t));
+    memset(&(pia->ia_jiLocal), 0, sizeof(jf_ipaddr_t));
 
     return u32Ret;
 }
@@ -462,8 +462,8 @@ static u32 _postSelectAsocket(
 
             jf_network_getSocketName(pia->ia_pjnsSocket, psa, &nLen);
 
-            convertSockAddrToIpAddr(
-                psa, nLen, &(pia->ia_iaLocal), &(pia->ia_u16LocalPort));
+            jf_ipaddr_convertSockAddrToIpAddr(
+                psa, nLen, &(pia->ia_jiLocal), &(pia->ia_u16LocalPort));
 
             pia->ia_bFinConnect = TRUE;
 
@@ -485,7 +485,7 @@ static u32 _postSelectAsocket(
 }
 
 static u32 _asConnectTo(
-    internal_asocket_t * pia, ip_addr_t * piaRemote, u16 u16Port, void * pUser)
+    internal_asocket_t * pia, jf_ipaddr_t * pjiRemote, u16 u16Port, void * pUser)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -494,7 +494,7 @@ static u32 _asConnectTo(
     /*If there isn't a socket already allocated, we need to allocate one*/
     if (pia->ia_pjnsSocket == NULL)
     {
-        if (piaRemote->ia_u8AddrType == IP_ADDR_TYPE_V4)
+        if (pjiRemote->ji_u8AddrType == JF_IPADDR_TYPE_V4)
             u32Ret = jf_network_createSocket(
                 AF_INET, SOCK_STREAM, 0, &pia->ia_pjnsSocket);
         else
@@ -508,7 +508,7 @@ static u32 _asConnectTo(
 
         /*Connect the socket, and force the chain to unblock, since the select
           statement doesn't have us in the fdset yet.*/
-        u32Ret = jf_network_connect(pia->ia_pjnsSocket, piaRemote, u16Port);
+        u32Ret = jf_network_connect(pia->ia_pjnsSocket, pjiRemote, u16Port);
     }
 
     return u32Ret;
@@ -785,18 +785,18 @@ u32 jf_network_sendnAsocket(
 }
 
 u32 jf_network_connectAsocketTo(
-    jf_network_asocket_t * pAsocket, ip_addr_t * piaRemote, u16 u16Port,
+    jf_network_asocket_t * pAsocket, jf_ipaddr_t * pjiRemote, u16 u16Port,
     void * pUser)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
     olchar_t strServer[50];
 
-    assert((pAsocket != NULL) && (piaRemote != NULL));
-    assert((piaRemote->ia_u8AddrType == IP_ADDR_TYPE_V4) ||
-           (piaRemote->ia_u8AddrType == IP_ADDR_TYPE_V6));
+    assert((pAsocket != NULL) && (pjiRemote != NULL));
+    assert((pjiRemote->ji_u8AddrType == JF_IPADDR_TYPE_V4) ||
+           (pjiRemote->ji_u8AddrType == JF_IPADDR_TYPE_V6));
 
-    getStringIpAddr(strServer, piaRemote);
+    jf_ipaddr_getStringIpAddr(strServer, pjiRemote);
     logInfoMsg("as connect to %s:%u", strServer, u16Port);
 
     if (! pia->ia_bFree)
@@ -809,10 +809,10 @@ u32 jf_network_connectAsocketTo(
 
         pia->ia_pUser = pUser;
 
-        ol_bzero(&pia->ia_iaRemote, sizeof(ip_addr_t));
+        ol_bzero(&pia->ia_jiRemote, sizeof(jf_ipaddr_t));
         pia->ia_u16Port = u16Port;
 
-        u32Ret = _asConnectTo(pia, piaRemote, u16Port, pUser);
+        u32Ret = _asConnectTo(pia, pjiRemote, u16Port, pUser);
         if (u32Ret == OLERR_NO_ERROR)
         {
             jf_network_wakeupChain(pia->ia_pjncChain);
@@ -921,27 +921,27 @@ u32 jf_network_useSocketForAsocket(
 }
 
 void jf_network_setRemoteAddressOfAsocket(
-    jf_network_asocket_t * pAsocket, ip_addr_t * piaAddr)
+    jf_network_asocket_t * pAsocket, jf_ipaddr_t * pjiAddr)
 {
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
-    ol_memcpy(&(pia->ia_iaRemote), piaAddr, sizeof(ip_addr_t));
+    ol_memcpy(&(pia->ia_jiRemote), pjiAddr, sizeof(jf_ipaddr_t));
 }
 
 void jf_network_getRemoteInterfaceOfAsocket(
-    jf_network_asocket_t * pAsocket, ip_addr_t * piaAddr)
+    jf_network_asocket_t * pAsocket, jf_ipaddr_t * pjiAddr)
 {
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
-    ol_memcpy(piaAddr, &(pia->ia_iaRemote), sizeof(ip_addr_t));
+    ol_memcpy(pjiAddr, &(pia->ia_jiRemote), sizeof(jf_ipaddr_t));
 }
 
 void jf_network_getLocalInterfaceOfAsocket(
-    jf_network_asocket_t * pAsocket, ip_addr_t * piaAddr)
+    jf_network_asocket_t * pAsocket, jf_ipaddr_t * pjiAddr)
 {
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
-    ol_memcpy(piaAddr, &(pia->ia_iaLocal), sizeof(ip_addr_t));
+    ol_memcpy(pjiAddr, &(pia->ia_jiLocal), sizeof(jf_ipaddr_t));
 }
 
 u32 jf_network_resumeAsocket(jf_network_asocket_t * pAsocket)

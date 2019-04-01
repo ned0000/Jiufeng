@@ -123,7 +123,7 @@ typedef struct internal_web_dataobject
     u32 iwd_u32PipelineFlags;
     u32 iwd_u32ActivityCounter;
 
-    ip_addr_t iwd_iaRemote;
+    jf_ipaddr_t iwd_jiRemote;
     u16 iwd_u16Port;
     u16 iwd_u16Reserved[3];
 
@@ -159,18 +159,18 @@ typedef struct internal_web_dataobject
     basic_queue_t iwd_baRequest;
     jf_network_asocket_t * iwd_pjnaSock;
 
-    ip_addr_t iwd_iaLocal;
+    jf_ipaddr_t iwd_jiLocal;
 
 } internal_web_dataobject_t;
 
 /* --- private routine section---------------------------------------------- */
 
-static olint_t _getStringHashKey(olchar_t * key, ip_addr_t * addr, u16 port)
+static olint_t _getStringHashKey(olchar_t * key, jf_ipaddr_t * addr, u16 port)
 {
     olint_t keyLength;
     olchar_t strIpAddr[50];
 
-    getStringIpAddr(strIpAddr, addr);
+    jf_ipaddr_getStringIpAddr(strIpAddr, addr);
     keyLength = ol_sprintf(key, "%s:%d", strIpAddr, port);
 
     return keyLength;
@@ -237,7 +237,7 @@ static u32 _destroyWebDataobject(jf_webclient_dataobject_t ** ppDataobject)
     olchar_t addr[64];
 //    olint_t addrlen;
 
-    _getStringHashKey(addr, &piwd->iwd_iaRemote, piwd->iwd_u16Port);
+    _getStringHashKey(addr, &piwd->iwd_jiRemote, piwd->iwd_u16Port);
     logInfoMsg("destroy web data obj %s", addr);
 
     if ((piwd->iwd_pjnaSock != NULL) &&
@@ -286,7 +286,7 @@ static u32 _destroyWebDataobject(jf_webclient_dataobject_t ** ppDataobject)
 
 static u32 _createWebDataobject(
     internal_web_dataobject_t ** ppiwd, jf_network_asocket_t * pAsocket,
-    internal_webclient_t * piw, ip_addr_t * piaRemote, u16 u16Port)
+    internal_webclient_t * piw, jf_ipaddr_t * pjiRemote, u16 u16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_web_dataobject_t * piwd = NULL;
@@ -301,10 +301,10 @@ static u32 _createWebDataobject(
         initQueue(&piwd->iwd_baRequest);
         piwd->iwd_pjnaSock = pAsocket;
         piwd->iwd_piwParent = piw;
-        memcpy(&piwd->iwd_iaRemote, piaRemote, sizeof(ip_addr_t));
+        memcpy(&piwd->iwd_jiRemote, pjiRemote, sizeof(jf_ipaddr_t));
         piwd->iwd_u16Port = u16Port;
 
-        addrlen = _getStringHashKey(addr, piaRemote, u16Port);
+        addrlen = _getStringHashKey(addr, pjiRemote, u16Port);
         u32Ret = addHashtreeEntry(&piw->iw_hData, addr, addrlen, piwd);
     }
 
@@ -317,7 +317,7 @@ static u32 _createWebDataobject(
 }
 
 static u32 _processWebRequest(
-    internal_webclient_t * piw, ip_addr_t * piaRemote, u16 u16Port,
+    internal_webclient_t * piw, jf_ipaddr_t * pjiRemote, u16 u16Port,
     internal_web_request_t * request)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -328,7 +328,7 @@ static u32 _processWebRequest(
     olint_t i;
     boolean_t bHashEntry = FALSE, bQueueEmpty = FALSE;
 
-    addrlen = _getStringHashKey(addr, piaRemote, u16Port);
+    addrlen = _getStringHashKey(addr, pjiRemote, u16Port);
 
     logInfoMsg("process web req, %s", addr);
 
@@ -343,7 +343,7 @@ static u32 _processWebRequest(
     else
     {
         /*There is no previous connection, so we need to set it up*/
-        u32Ret = _createWebDataobject(&piwd, NULL, piw, piaRemote, u16Port);
+        u32Ret = _createWebDataobject(&piwd, NULL, piw, pjiRemote, u16Port);
         if (u32Ret == OLERR_NO_ERROR)
         {
             /*Queue it up in our Backlog, because we don't want to burden
@@ -442,7 +442,7 @@ static u32 _preWebclientProcess(
                 piwd = dequeue(&piw->iw_bqBacklog);
                 piwd->iwd_nClosing = 0;
                 u32Ret = jf_network_connectAsocketTo(
-                    piw->iw_ppjnaAsockets[i], &piwd->iwd_iaRemote,
+                    piw->iw_ppjnaAsockets[i], &piwd->iwd_jiRemote,
                     piwd->iwd_u16Port, piwd);
             }
             if (isQueueEmpty(&piw->iw_bqBacklog))
@@ -518,7 +518,7 @@ static u32 _webclientTimerSink(void * object)
         }
 
         /*Add this DataObject into the iw_hIdle for use later*/
-        addrlen = _getStringHashKey(addr, &piwd->iwd_iaRemote, piwd->iwd_u16Port);
+        addrlen = _getStringHashKey(addr, &piwd->iwd_jiRemote, piwd->iwd_u16Port);
         logInfoMsg(
             "web client timer sink, add data object %s to idle hashtree", addr);
         addHashtreeEntry(
@@ -808,7 +808,7 @@ static u32 _retrySink(void * object)
     piwd->iwd_u32ExponentialBackoff = (piwd->iwd_u32ExponentialBackoff == 0) ?
         1 : piwd->iwd_u32ExponentialBackoff * 2;
 
-    keyLength = _getStringHashKey(key, &piwd->iwd_iaRemote, piwd->iwd_u16Port);
+    keyLength = _getStringHashKey(key, &piwd->iwd_jiRemote, piwd->iwd_u16Port);
     logInfoMsg("retry sink, %s, eb %u", key, piwd->iwd_u32ExponentialBackoff);
 
     if (piwd->iwd_u32ExponentialBackoff >=
@@ -854,7 +854,7 @@ static u32 _webclientOnConnect(
     {
         logInfoMsg("web client connected");
         //Success: Send First Request
-        jf_network_getLocalInterfaceOfAsocket(pAsocket, &piwd->iwd_iaLocal);
+        jf_network_getLocalInterfaceOfAsocket(pAsocket, &piwd->iwd_jiLocal);
         r = peekQueue(&piwd->iwd_baRequest);
         for (i = 0; i < r->iwr_u32NumOfBuffers; ++i)
         {
@@ -1399,7 +1399,7 @@ u32 jf_webclient_create(
 }
 
 u32 jf_webclient_pipelineWebRequest(
-    jf_webclient_t * pWebClient, ip_addr_t * piaRemote, u16 u16Port,
+    jf_webclient_t * pWebClient, jf_ipaddr_t * pjiRemote, u16 u16Port,
     jf_httpparser_packet_header_t * packet, jf_webclient_fnOnResponse_t fnOnResponse,
     void * user)
 {
@@ -1425,14 +1425,14 @@ u32 jf_webclient_pipelineWebRequest(
             (fnOnResponse == NULL) ? _internalWebclientOnResponse : fnOnResponse;
         request->iwr_pUser = user;
 
-        u32Ret = _processWebRequest(piw, piaRemote, u16Port, request);
+        u32Ret = _processWebRequest(piw, pjiRemote, u16Port, request);
     }
 
     return u32Ret;
 }
 
 u32 jf_webclient_pipelineWebRequestEx(
-    jf_webclient_t * pWebclient, ip_addr_t * piaRemote, u16 u16Port,
+    jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port,
     olchar_t * pstrHeader, olsize_t sHeader, boolean_t bStaticHeader,
     olchar_t * pstrBody, olsize_t sBody, boolean_t bStaticBody,
     jf_webclient_fnOnResponse_t fnOnResponse, void * user)
@@ -1478,7 +1478,7 @@ u32 jf_webclient_pipelineWebRequestEx(
     }
 
     if (u32Ret == OLERR_NO_ERROR)
-        u32Ret = _processWebRequest(piw, piaRemote, u16Port, request);
+        u32Ret = _processWebRequest(piw, pjiRemote, u16Port, request);
 
     return u32Ret;
 }
@@ -1496,7 +1496,7 @@ jf_httpparser_packet_header_t * jf_webclient_getPacketHeaderFromDataobject(
 }
 
 u32 jf_webclient_deleteWebRequests(
-    jf_webclient_t * pWebclient, ip_addr_t * piaRemote, u16 u16Port)
+    jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_webclient_t *piw = (internal_webclient_t *) pWebclient;
@@ -1509,7 +1509,7 @@ u32 jf_webclient_deleteWebRequests(
 
     initQueue(&bqRemove);
 
-    addrlen = _getStringHashKey(addr, piaRemote, u16Port);
+    addrlen = _getStringHashKey(addr, pjiRemote, u16Port);
 
     /* Are there any pending requests to this IP/Port combo */
 //    acquireSyncMutex(&(piw->iw_smLock));

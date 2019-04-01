@@ -35,7 +35,7 @@ static jf_webclient_t * ls_pwWebclient = NULL;
 static jf_network_utimer_t * ls_pjnuUtimer = NULL;
 
 static olchar_t * ls_pstrQuotationServer = "hq.sinajs.cn";
-static ip_addr_t ls_iaServerAddr;
+static jf_ipaddr_t ls_jiServerAddr;
 static olchar_t * ls_pstrStocks = "sh000001,sh600000";
 
 /* --- private routine section---------------------------------------------- */
@@ -182,7 +182,7 @@ static u32 _getSinaQuotation(void * object)
 
 #endif
     u32Ret = jf_webclient_pipelineWebRequestEx(
-        ls_pwWebclient, &ls_iaServerAddr, 80, buffer, len, FALSE, NULL, 0,
+        ls_pwWebclient, &ls_jiServerAddr, 80, buffer, len, FALSE, NULL, 0,
         FALSE, _wcTestOnResponse, NULL);
 
 //    jf_network_addUtimerItem(ls_pjnuUtimer, NULL, 30, _getSinaQuotation, NULL);
@@ -200,7 +200,7 @@ static u32 _testWebclient(olint_t argc, olchar_t ** argv)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        setIpV4Addr(&ls_iaServerAddr, *(long *)(servp->h_addr));
+        jf_ipaddr_setIpV4Addr(&ls_jiServerAddr, *(long *)(servp->h_addr));
 
         u32Ret = jf_network_createChain(&ls_pjncChain);
     }

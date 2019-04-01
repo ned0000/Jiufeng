@@ -526,9 +526,9 @@ u32 jf_network_sendnAcsocket(
     return u32Ret;
 }
 
-u32 jf_network_cConnectAcsocketTo(
+u32 jf_network_connectAcsocketTo(
     jf_network_acsocket_t * pAcsocket,
-    ip_addr_t * piaRemote, u16 u16RemotePortNumber, void * pUser)
+    jf_ipaddr_t * pjiRemote, u16 u16RemotePortNumber, void * pUser)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_acsocket_t * pia = (internal_acsocket_t *) pAcsocket;
@@ -551,7 +551,7 @@ u32 jf_network_cConnectAcsocketTo(
 
     acquireSyncMutex(&pia->ia_psmAsockets[u32Index]);
     u32Ret = jf_network_connectAsocketTo(
-        pia->ia_pjnaAsockets[u32Index], piaRemote, u16RemotePortNumber, pad);
+        pia->ia_pjnaAsockets[u32Index], pjiRemote, u16RemotePortNumber, pad);
     releaseSyncMutex(&pia->ia_psmAsockets[u32Index]);
 
     return u32Ret;

@@ -31,7 +31,7 @@
 #if defined(LINUX)
 
 static u32 _getIfmgmtIfAddr(
-    const olchar_t * name, olint_t sock, olint_t req, ip_addr_t * pia)
+    const olchar_t * name, olint_t sock, olint_t req, jf_ipaddr_t * pji)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     struct ifreq ifr;
@@ -45,20 +45,20 @@ static u32 _getIfmgmtIfAddr(
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        convertSockAddrToIpAddr(
-            &ifr.ifr_addr, sizeof(ifr.ifr_addr), pia, NULL);
+        jf_ipaddr_convertSockAddrToIpAddr(
+            &ifr.ifr_addr, sizeof(ifr.ifr_addr), pji, NULL);
     }
 
     return u32Ret;
 }
 
-static u32 _getIfmgmtIfFlag(olint_t sock, ifmgmt_if_t * pIf)
+static u32 _getIfmgmtIfFlag(olint_t sock, jf_ifmgmt_if_t * pIf)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     struct ifreq ifr;
     olint_t ret;
 
-    ol_strcpy(ifr.ifr_name, pIf->ii_strName);
+    ol_strcpy(ifr.ifr_name, pIf->jii_strName);
 
     ret = ioctl(sock, SIOCGIFFLAGS, &ifr);
     if (ret != 0)
@@ -67,39 +67,39 @@ static u32 _getIfmgmtIfFlag(olint_t sock, ifmgmt_if_t * pIf)
     if (u32Ret == OLERR_NO_ERROR)
     {
         if (ifr.ifr_flags & IFF_UP)
-            pIf->ii_bUp = TRUE;
+            pIf->jii_bUp = TRUE;
         else
-            pIf->ii_bUp = FALSE;
+            pIf->jii_bUp = FALSE;
 
         if (ifr.ifr_flags & IFF_BROADCAST)
-            pIf->ii_bBroadcast = TRUE;
+            pIf->jii_bBroadcast = TRUE;
 
         if (ifr.ifr_flags & IFF_POINTOPOINT)
-            pIf->ii_bPointopoint = TRUE;
+            pIf->jii_bPointopoint = TRUE;
 
         if (ifr.ifr_flags & IFF_LOOPBACK)
-            pIf->ii_bLoopback = TRUE;
+            pIf->jii_bLoopback = TRUE;
 
         if (ifr.ifr_flags & IFF_RUNNING)
-            pIf->ii_bRunning = TRUE;
+            pIf->jii_bRunning = TRUE;
 
         if (ifr.ifr_flags & IFF_PROMISC)
-            pIf->ii_bPromisc = TRUE;
+            pIf->jii_bPromisc = TRUE;
 
         if (ifr.ifr_flags & IFF_MULTICAST)
-            pIf->ii_bMulticast = TRUE;
+            pIf->jii_bMulticast = TRUE;
     }
 
     return u32Ret;
 }
 
-static u32 _getIfmgmtIfHwAddr(olint_t sock, ifmgmt_if_t * pIf)
+static u32 _getIfmgmtIfHwAddr(olint_t sock, jf_ifmgmt_if_t * pIf)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     struct ifreq ifr;
     olint_t ret;
 
-    ol_strcpy(ifr.ifr_name, pIf->ii_strName);
+    ol_strcpy(ifr.ifr_name, pIf->jii_strName);
 
     ret = ioctl(sock, SIOCGIFHWADDR, &ifr);
     if (ret != 0)
@@ -107,7 +107,7 @@ static u32 _getIfmgmtIfHwAddr(olint_t sock, ifmgmt_if_t * pIf)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        memcpy(pIf->ii_u8Mac, ifr.ifr_hwaddr.sa_data, MAC_LEN);
+        memcpy(pIf->jii_u8Mac, ifr.ifr_hwaddr.sa_data, MAC_LEN);
     }
 
     return u32Ret;
@@ -115,7 +115,7 @@ static u32 _getIfmgmtIfHwAddr(olint_t sock, ifmgmt_if_t * pIf)
 
 #endif
 
-static u32 _getIfmgmtIf(const olchar_t * pstrIfName, ifmgmt_if_t * pif)
+static u32 _getIfmgmtIf(const olchar_t * pstrIfName, jf_ifmgmt_if_t * pif)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 #if defined(LINUX)
@@ -129,26 +129,26 @@ static u32 _getIfmgmtIf(const olchar_t * pstrIfName, ifmgmt_if_t * pif)
     {
         ol_memset(pif, 0, sizeof(*pif));
         ol_strncpy(
-            pif->ii_strName, pstrIfName, MAX_IF_NAME_LEN);
+            pif->jii_strName, pstrIfName, JF_IFMGMT_MAX_IF_NAME_LEN);
 
         u32Ret = _getIfmgmtIfFlag(sock, pif);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        if (pif->ii_bUp && pif->ii_bRunning)
+        if (pif->jii_bUp && pif->jii_bRunning)
         {
             if (u32Ret == OLERR_NO_ERROR)
                 u32Ret = _getIfmgmtIfAddr(
-                    pstrIfName, sock, SIOCGIFADDR, &pif->ii_iaAddr);
+                    pstrIfName, sock, SIOCGIFADDR, &pif->jii_jiAddr);
 
             if (u32Ret == OLERR_NO_ERROR)
                 u32Ret = _getIfmgmtIfAddr(
-                    pstrIfName, sock, SIOCGIFNETMASK, &pif->ii_iaNetmask);
+                    pstrIfName, sock, SIOCGIFNETMASK, &pif->jii_jiNetmask);
 
             if (u32Ret == OLERR_NO_ERROR)
                 u32Ret = _getIfmgmtIfAddr(
-                    pstrIfName, sock, SIOCGIFBRDADDR, &pif->ii_iaBroadcast);
+                    pstrIfName, sock, SIOCGIFBRDADDR, &pif->jii_jiBroadcast);
         }
     }
 
@@ -183,7 +183,7 @@ static boolean_t _isValidMacAddress(u8 u8Mac[MAC_LEN])
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 getAllIfmgmtIf(ifmgmt_if_t * pif, u32 * pu32NumOfIf)
+u32 jf_ifmgmt_getAllIf(jf_ifmgmt_if_t * pif, u32 * pu32NumOfIf)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 #if defined(LINUX)
@@ -193,7 +193,7 @@ u32 getAllIfmgmtIf(ifmgmt_if_t * pif, u32 * pu32NumOfIf)
     olsize_t sbyte;
     olchar_t strName[32];
 
-    memset(pif, 0, sizeof(ifmgmt_if_t) * (*pu32NumOfIf));
+    memset(pif, 0, sizeof(jf_ifmgmt_if_t) * (*pu32NumOfIf));
 
     u32Ret = fpOpenFile(SYSTEM_NET_DEV_FILE, "r", &fp);
     if (u32Ret == OLERR_NO_ERROR)
@@ -248,11 +248,11 @@ u32 getAllIfmgmtIf(ifmgmt_if_t * pif, u32 * pu32NumOfIf)
     return u32Ret;
 }
 
-u32 getIfmgmtIf(const olchar_t * pstrIfName, ifmgmt_if_t * pif)
+u32 jf_ifmgmt_getIf(const olchar_t * pstrIfName, jf_ifmgmt_if_t * pif)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    memset(pif, 0, sizeof(ifmgmt_if_t));
+    memset(pif, 0, sizeof(jf_ifmgmt_if_t));
 
     u32Ret = _getIfmgmtIf(pstrIfName, pif);
 
@@ -260,7 +260,7 @@ u32 getIfmgmtIf(const olchar_t * pstrIfName, ifmgmt_if_t * pif)
 }
 
 /*port operation*/
-u32 upIfmgmtIf(const olchar_t * pstrIfName)
+u32 jf_ifmgmt_upIf(const olchar_t * pstrIfName)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 #if defined(LINUX)
@@ -311,8 +311,7 @@ u32 upIfmgmtIf(const olchar_t * pstrIfName)
     return u32Ret;
 }
 
-
-u32 downIfmgmtIf(const olchar_t * pstrIfName)
+u32 jf_ifmgmt_downIf(const olchar_t * pstrIfName)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 #if defined(LINUX)
@@ -363,33 +362,33 @@ u32 downIfmgmtIf(const olchar_t * pstrIfName)
     return u32Ret;
 }
 
-u32 getStringIfmgmtIfFlags(olchar_t * pstrFlags, ifmgmt_if_t * pIf)
+u32 jf_ifmgmt_getStringIfFlags(olchar_t * pstrFlags, jf_ifmgmt_if_t * pIf)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
     pstrFlags[0] = '\0';
 
-    if (pIf->ii_bUp)
+    if (pIf->jii_bUp)
         ol_strcat(pstrFlags, "Up");
     else
         ol_strcat(pstrFlags, "Down");
 
-    if (pIf->ii_bBroadcast)
+    if (pIf->jii_bBroadcast)
         ol_strcat(pstrFlags, ", Broadcast");
 
-    if (pIf->ii_bPointopoint)
+    if (pIf->jii_bPointopoint)
         ol_strcat(pstrFlags, ", Pointtopoint");
 
-    if (pIf->ii_bLoopback)
+    if (pIf->jii_bLoopback)
         ol_strcat(pstrFlags, ", Loopback");
 
-    if (pIf->ii_bRunning)
+    if (pIf->jii_bRunning)
         ol_strcat(pstrFlags, ", Running");
 
-    if (pIf->ii_bPromisc)
+    if (pIf->jii_bPromisc)
         ol_strcat(pstrFlags, ", Promisc");
 
-    if (pIf->ii_bMulticast)
+    if (pIf->jii_bMulticast)
         ol_strcat(pstrFlags, ", Multicast");
 
     return u32Ret;
@@ -398,25 +397,25 @@ u32 getStringIfmgmtIfFlags(olchar_t * pstrFlags, ifmgmt_if_t * pIf)
 /* Return the Media Access Control (MAC) address of the first network interface
  * card (NIC)
  */
-u32 getMacOfFirstIf(u8 u8Mac[MAC_LEN])
+u32 jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[MAC_LEN])
 {
     u32 u32Ret = OLERR_NO_ERROR;
 #if defined(LINUX)
-    ifmgmt_if_t ifmgmts[MAX_IFMGMT_IF];
-    u32 u32Ifmgmt = MAX_IFMGMT_IF;
+    jf_ifmgmt_if_t ifmgmts[JF_IFMGMT_MAX_IF];
+    u32 u32Ifmgmt = JF_IFMGMT_MAX_IF;
     u32 u32Index;
 
-    u32Ret = getAllIfmgmtIf(ifmgmts, &u32Ifmgmt);
+    u32Ret = jf_ifmgmt_getAllIf(ifmgmts, &u32Ifmgmt);
     if (u32Ret == OLERR_NO_ERROR)
     {
         for (u32Index = 0; u32Index < u32Ifmgmt; u32Index ++)
         {
-            if (ifmgmts[u32Index].ii_bLoopback)
+            if (ifmgmts[u32Index].jii_bLoopback)
                 continue;
 
-            if (_isValidMacAddress(ifmgmts[u32Index].ii_u8Mac))
+            if (_isValidMacAddress(ifmgmts[u32Index].jii_u8Mac))
             {
-                ol_memcpy(u8Mac, ifmgmts[u32Index].ii_u8Mac, MAC_LEN);
+                ol_memcpy(u8Mac, ifmgmts[u32Index].jii_u8Mac, MAC_LEN);
                 break;
             }
         }

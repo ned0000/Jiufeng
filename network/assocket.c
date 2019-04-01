@@ -42,7 +42,7 @@ typedef struct internal_assocket
     u16 ia_u16PortNumber;
     boolean_t ia_bListening;
     u8 ia_u8Reserved[3];
-    ip_addr_t ia_iaAddr;
+    jf_ipaddr_t ia_jiAddr;
 
     jf_network_socket_t * ia_pjnsListenSocket;
 
@@ -113,7 +113,7 @@ static u32 _postSelectAssocket(
     assocket_data_t * pad;
     internal_assocket_t * pia = (internal_assocket_t *)pAssocket;
     jf_network_socket_t * pNewSocket;
-    ip_addr_t ipaddr;
+    jf_ipaddr_t ipaddr;
     u16 u16Port;
     u32 u32Index;
 
@@ -359,7 +359,7 @@ u32 jf_network_createAssocket(
         pia->ia_pjnsListenSocket = NULL;
         pia->ia_u32MaxConn = pjnacp->jnacp_u32MaxConn;
         pia->ia_u16PortNumber = pjnacp->jnacp_u16PortNumber;
-        memcpy(&(pia->ia_iaAddr), &(pjnacp->jnacp_iaAddr), sizeof(ip_addr_t));
+        memcpy(&(pia->ia_jiAddr), &(pjnacp->jnacp_jiAddr), sizeof(jf_ipaddr_t));
 
         u32Ret = xcalloc(
             (void **)&pia->ia_pjnaAsockets,
@@ -430,7 +430,7 @@ u32 jf_network_createAssocket(
     if (u32Ret == OLERR_NO_ERROR)
         /*Get our listening socket*/
         u32Ret = jf_network_createStreamSocket(
-            &pia->ia_iaAddr, &pia->ia_u16PortNumber, &pia->ia_pjnsListenSocket);
+            &pia->ia_jiAddr, &pia->ia_u16PortNumber, &pia->ia_pjnsListenSocket);
 
     if (u32Ret == OLERR_NO_ERROR)
         *ppAssocket = pia;

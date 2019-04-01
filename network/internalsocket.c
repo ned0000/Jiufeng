@@ -121,14 +121,14 @@ u32 freeIsocket(internal_socket_t ** ppIsocket)
 /** Allocates a UDP socket for a given interface, choosing a random port number
  *  from 55000 to 65000
  *
- *  @param piaLocal [in] the interface to bind to 
+ *  @param pjiLocal [in] the interface to bind to 
  *  @param pu16Port [in/out] the port number to bind to
  *  @param ppIsocket [out] the created UDP socket 
  *
  *  @return the error code
  */
 u32 createDgramIsocket(
-    ip_addr_t * piaLocal, u16 * pu16Port, internal_socket_t ** ppIsocket)
+    jf_ipaddr_t * pjiLocal, u16 * pu16Port, internal_socket_t ** ppIsocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = NULL;
@@ -138,10 +138,10 @@ u32 createDgramIsocket(
     struct sockaddr * psa = (struct sockaddr *)u8Addr;
     olint_t nAddr = sizeof(u8Addr);
 
-    assert((piaLocal != NULL) && (pu16Port != NULL));
+    assert((pjiLocal != NULL) && (pu16Port != NULL));
     assert(ppIsocket != NULL);
 
-    if (piaLocal->ia_u8AddrType == IP_ADDR_TYPE_V4)
+    if (pjiLocal->ji_u8AddrType == JF_IPADDR_TYPE_V4)
         u32Ret = createIsocket(AF_INET, SOCK_DGRAM, 0, ppIsocket);
     else
         u32Ret = createIsocket(AF_INET6, SOCK_DGRAM, 0, ppIsocket);
@@ -162,13 +162,13 @@ u32 createDgramIsocket(
                   IANA says to use for non standard ports */
                 *pu16Port = (unsigned short) (NET_MIN_PORT_NUMBER +
                     ((unsigned short) rand() % NET_PORT_NUMBER_RANGE));
-                convertIpAddrToSockAddr(piaLocal, *pu16Port, psa, &nAddr);
+                jf_ipaddr_convertIpAddrToSockAddr(pjiLocal, *pu16Port, psa, &nAddr);
             } while (bind(pis->is_isSocket, psa, nAddr) < 0);
         }
         else
         {
             /*If a specific port was specified, try to use that*/
-            convertIpAddrToSockAddr(piaLocal, *pu16Port, psa, &nAddr);
+            jf_ipaddr_convertIpAddrToSockAddr(pjiLocal, *pu16Port, psa, &nAddr);
             /*This doesn't matter if failed*/
             setsockopt(pis->is_isSocket, SOL_SOCKET, SO_REUSEADDR,
                        (olchar_t *) &ra, sizeof(ra));
@@ -188,14 +188,14 @@ u32 createDgramIsocket(
  *
  *  @note If the port is 0, select a random port from the port number range
  *
- *  @param piaLocal [in] the interface to bind to 
+ *  @param pjiLocal [in] the interface to bind to 
  *  @param pu16Port [in/out] the port number to bind to
  *  @param ppIsocket [out] the created UDP socket 
  *
  *  @return the error code
  */
 u32 createStreamIsocket(
-    ip_addr_t * piaLocal, u16 * pu16Port, internal_socket_t ** ppIsocket)
+    jf_ipaddr_t * pjiLocal, u16 * pu16Port, internal_socket_t ** ppIsocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_socket_t * pis = NULL;
@@ -205,9 +205,9 @@ u32 createStreamIsocket(
     struct sockaddr * psa = (struct sockaddr *)u8Addr;
     olint_t nAddr = sizeof(u8Addr);
 
-    assert((piaLocal != NULL) && (pu16Port != NULL) && (ppIsocket != NULL));
+    assert((pjiLocal != NULL) && (pu16Port != NULL) && (ppIsocket != NULL));
 
-    if (piaLocal->ia_u8AddrType == IP_ADDR_TYPE_V4)
+    if (pjiLocal->ji_u8AddrType == JF_IPADDR_TYPE_V4)
         u32Ret = createIsocket(AF_INET, SOCK_STREAM, 0, ppIsocket);
     else
         u32Ret = createIsocket(AF_INET6, SOCK_STREAM, 0, ppIsocket);
@@ -226,13 +226,13 @@ u32 createStreamIsocket(
             {
                 *pu16Port = (unsigned short) (NET_MIN_PORT_NUMBER +
                     ((unsigned short) rand() % NET_PORT_NUMBER_RANGE));
-                convertIpAddrToSockAddr(piaLocal, *pu16Port, psa, &nAddr);
+                jf_ipaddr_convertIpAddrToSockAddr(pjiLocal, *pu16Port, psa, &nAddr);
             } while (bind(pis->is_isSocket, psa, nAddr) < 0);
         }
         else
         {
             /*If a specific port was specified, try to use that*/
-            convertIpAddrToSockAddr(piaLocal, *pu16Port, psa, &nAddr);
+            jf_ipaddr_convertIpAddrToSockAddr(pjiLocal, *pu16Port, psa, &nAddr);
             /*This doesn't matter if failed*/
             setsockopt(pis->is_isSocket, SOL_SOCKET, SO_REUSEADDR,
                        (olchar_t *) &ra, sizeof(ra));
@@ -339,7 +339,7 @@ u32 setIsocketNonblock(internal_socket_t * pis)
 }
 
 u32 isJoinMulticastGroup(
-    internal_socket_t * pis, ip_addr_t * piaAddr, ip_addr_t * piaMulticaseAddr)
+    internal_socket_t * pis, jf_ipaddr_t * pjiAddr, jf_ipaddr_t * pjiMulticaseAddr)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t nRet;
@@ -347,15 +347,15 @@ u32 isJoinMulticastGroup(
     struct ipv6_mreq mreq6;
 
     assert(pis != NULL);
-    assert((piaAddr != NULL) && (piaMulticaseAddr != NULL));
+    assert((pjiAddr != NULL) && (pjiMulticaseAddr != NULL));
 
-    if (piaAddr->ia_u8AddrType == IP_ADDR_TYPE_V4)
+    if (pjiAddr->ji_u8AddrType == JF_IPADDR_TYPE_V4)
     {
         ol_memset(&mreq, 0, sizeof(struct ip_mreq));
         /* join using the multicast address passed in */
-        mreq.imr_multiaddr.s_addr = piaMulticaseAddr->ia_uAddr.iu_nAddr;
+        mreq.imr_multiaddr.s_addr = pjiMulticaseAddr->ji_uAddr.ju_nAddr;
         /* join with specified interface */
-        mreq.imr_interface.s_addr = piaAddr->ia_uAddr.iu_nAddr;
+        mreq.imr_interface.s_addr = pjiAddr->ji_uAddr.ju_nAddr;
 
         nRet = setsockopt(
             pis->is_isSocket, IPPROTO_IP, IP_ADD_MEMBERSHIP,
@@ -363,23 +363,23 @@ u32 isJoinMulticastGroup(
         if (nRet != 0)
             u32Ret = OLERR_FAIL_JOIN_MULTICAST_GROUP;
     }
-    else if (piaAddr->ia_u8AddrType == IP_ADDR_TYPE_V6)
+    else if (pjiAddr->ji_u8AddrType == JF_IPADDR_TYPE_V6)
     {
         ol_memset(&mreq6, 0, sizeof(struct ipv6_mreq));
 #if defined(LINUX)
         /* join using the multicast address passed in */
         ol_memcpy(
             mreq6.ipv6mr_multiaddr.s6_addr,
-            piaMulticaseAddr->ia_uAddr.iu_u8Addr, 16);
+            pjiMulticaseAddr->ji_uAddr.ju_u8Addr, 16);
         /* join with specified interface */
-        mreq6.ipv6mr_interface = piaAddr->ia_uAddr.iu_nAddr;
+        mreq6.ipv6mr_interface = pjiAddr->ji_uAddr.ju_nAddr;
 #elif defined(WINDOWS)
         /* join using the multicast address passed in */
         ol_memcpy(
             mreq6.ipv6mr_multiaddr.u.Byte,
-            piaMulticaseAddr->ia_uAddr.iu_u8Addr, 16);
+            pjiMulticaseAddr->ji_uAddr.ju_u8Addr, 16);
         /* join with specified interface */
-        mreq6.ipv6mr_interface = piaAddr->ia_uAddr.iu_nAddr;
+        mreq6.ipv6mr_interface = pjiAddr->ji_uAddr.ju_nAddr;
 #endif
         nRet = setsockopt(
             pis->is_isSocket, IPPROTO_IP, IPV6_ADD_MEMBERSHIP,
@@ -645,7 +645,7 @@ u32 isRecvWithTimeout(
  */
 u32 isRecvfromWithTimeout(
     internal_socket_t * pis, void * pBuffer, olsize_t * psRecv,
-    u32 u32Timeout, ip_addr_t * piaFrom, u16 * pu16Port)
+    u32 u32Timeout, jf_ipaddr_t * pjiFrom, u16 * pu16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olsize_t sRecved = 0;
@@ -667,7 +667,7 @@ u32 isRecvfromWithTimeout(
         {
             /*ready to read*/
             sRecved = *psRecv;
-            u32Ret = isRecvfrom(pis, pBuffer, &sRecved, piaFrom, pu16Port);
+            u32Ret = isRecvfrom(pis, pBuffer, &sRecved, pjiFrom, pu16Port);
             if ((u32Ret == OLERR_NO_ERROR) && (sRecved == 0))
                 u32Ret = OLERR_SOCKET_PEER_CLOSED;
         }
@@ -788,7 +788,7 @@ u32 isListen(internal_socket_t * pisListen, olint_t backlog)
     return u32Ret;
 }
 
-u32 isConnect(internal_socket_t * pis, const ip_addr_t * pia, u16 u16Port)
+u32 isConnect(internal_socket_t * pis, const jf_ipaddr_t * pji, u16 u16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u8 u8Sa[100];
@@ -796,7 +796,7 @@ u32 isConnect(internal_socket_t * pis, const ip_addr_t * pia, u16 u16Port)
     olint_t salen = sizeof(u8Sa);
     olint_t nRet;
 
-    convertIpAddrToSockAddr(pia, u16Port, psaTo, &salen);
+    jf_ipaddr_convertIpAddrToSockAddr(pji, u16Port, psaTo, &salen);
 
     nRet = connect(pis->is_isSocket, psaTo, salen);
 #if defined(LINUX)
@@ -818,7 +818,7 @@ u32 isConnect(internal_socket_t * pis, const ip_addr_t * pia, u16 u16Port)
 }
 
 u32 isConnectWithTimeout(
-    internal_socket_t * pis, const ip_addr_t * pia,
+    internal_socket_t * pis, const jf_ipaddr_t * pji,
     u16 u16Port, u32 u32Timeout)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -831,7 +831,7 @@ u32 isConnectWithTimeout(
     tCur = time(NULL);
     tEnd = tCur + u32Timeout;
 
-    u32Ret = isConnect(pis, pia, u16Port);
+    u32Ret = isConnect(pis, pji, u16Port);
 
     while ((u32Ret == OLERR_NO_ERROR) && (tCur < tEnd))
     {
@@ -874,7 +874,7 @@ u32 isConnectWithTimeout(
 }
 
 u32 isAccept(
-    internal_socket_t * pisListen, ip_addr_t * pia, u16 * pu16Port,
+    internal_socket_t * pisListen, jf_ipaddr_t * pji, u16 * pu16Port,
     internal_socket_t ** ppIsocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -900,7 +900,7 @@ u32 isAccept(
         if (pisAccept->is_isSocket == INVALID_ISOCKET)
             u32Ret = OLERR_FAIL_ACCEPT_CONNECTION;
         else
-            convertSockAddrToIpAddr(psaFrom, nFromLen, pia, pu16Port);
+            jf_ipaddr_convertSockAddrToIpAddr(psaFrom, nFromLen, pji, pu16Port);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -913,7 +913,7 @@ u32 isAccept(
 
 u32 isSendto(
     internal_socket_t * pis, void * pBuffer, olsize_t * psSend,
-    const ip_addr_t * piaTo, u16 u16Port)
+    const jf_ipaddr_t * pjiTo, u16 u16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u8 u8Addr[100];
@@ -923,7 +923,7 @@ u32 isSendto(
 
     assert(pis != NULL);
 
-    convertIpAddrToSockAddr(piaTo, u16Port, psaTo, &salen);
+    jf_ipaddr_convertIpAddrToSockAddr(pjiTo, u16Port, psaTo, &salen);
 
     sent = sendto(pis->is_isSocket, pBuffer, *psSend, 0, psaTo, salen);
     if (sent == -1)
@@ -945,7 +945,7 @@ u32 isSendto(
 
 u32 isRecvfrom(
     internal_socket_t * pis, void * pBuffer, olsize_t * psRecv,
-    ip_addr_t * piaFrom, u16 * pu16Port)
+    jf_ipaddr_t * pjiFrom, u16 * pu16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u8 u8Addr[100];
@@ -966,8 +966,8 @@ u32 isRecvfrom(
         u32Ret = OLERR_FAIL_RECV_DATA;
     else
     {
-        if (piaFrom != NULL)
-            convertSockAddrToIpAddr(psaFrom, nFromLen, piaFrom, pu16Port);
+        if (pjiFrom != NULL)
+            jf_ipaddr_convertSockAddrToIpAddr(psaFrom, nFromLen, pjiFrom, pu16Port);
 
         *psRecv = sRecved;
     }

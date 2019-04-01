@@ -25,8 +25,9 @@
 
 #define MAX_PATH_LEN             (512)
 
-#define BYTES_PER_WORD  (sizeof(void *))
+#define BYTES_PER_WORD           (sizeof(void *))
 
+#define MAC_LEN                  (6)
 
 #endif /*JIUTAI_LIMIT_H*/
 

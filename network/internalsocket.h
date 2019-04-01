@@ -57,13 +57,13 @@ u32 destroyIsocket(internal_socket_t ** ppIsocket);
  *  from 55000 to 65000
  */
 u32 createDgramIsocket(
-    ip_addr_t * piaLocal, u16 * pu16Port, internal_socket_t ** ppIsocket);
+    jf_ipaddr_t * pjiLocal, u16 * pu16Port, internal_socket_t ** ppIsocket);
 
 /** Allocates a TCP socket for a given interface, choosing a random port number
  *  from 55000 to 65000
  */
 u32 createStreamIsocket(
-    ip_addr_t * piaLocal, u16 * pu16Port, internal_socket_t ** ppIsocket);
+    jf_ipaddr_t * pjiLocal, u16 * pu16Port, internal_socket_t ** ppIsocket);
 
 u32 ioctlIsocket(
     internal_socket_t * pis, olint_t req, void * pArg);
@@ -73,7 +73,7 @@ u32 setIsocketBlock(internal_socket_t * pis);
 u32 setIsocketNonblock(internal_socket_t * pis);
 
 u32 isJoinMulticastGroup(
-    internal_socket_t * pis, ip_addr_t * piaAddr, ip_addr_t * piaMulticaseAddr);
+    internal_socket_t * pis, jf_ipaddr_t * pjiAddr, jf_ipaddr_t * pjiMulticaseAddr);
 
 u32 isEnableBroadcast(internal_socket_t * pis);
 
@@ -113,7 +113,7 @@ u32 isRecvWithTimeout(
 
 u32 isRecvfromWithTimeout(
     internal_socket_t * pis, void * pBuffer, olsize_t * psRecv,
-    u32 u32Timeout, ip_addr_t * piaFrom, u16 * pu16Port);
+    u32 u32Timeout, jf_ipaddr_t * pjiFrom, u16 * pu16Port);
 
 /** Try to recveive all data with possible several round, until an error occurs,
  *  the actual recveived size is in psRecv
@@ -128,25 +128,25 @@ u32 isRecvnWithTimeout(
     internal_socket_t * pis, void * pBuffer, olsize_t * psRecv, u32 u32Timeout);
 
 u32 isConnect(
-    internal_socket_t * pis, const ip_addr_t * pia, u16 u16Port);
+    internal_socket_t * pis, const jf_ipaddr_t * pji, u16 u16Port);
 
 u32 isConnectWithTimeout(
-    internal_socket_t * pis, const ip_addr_t * pia, u16 u16Port,
+    internal_socket_t * pis, const jf_ipaddr_t * pji, u16 u16Port,
     u32 u32Timeout);
 
 u32 isListen(internal_socket_t * pis, olint_t backlog);
 
 u32 isAccept(
-    internal_socket_t * pisListen, ip_addr_t * pia,
+    internal_socket_t * pisListen, jf_ipaddr_t * pji,
     u16 * pu16Port, internal_socket_t ** ppIsocket);
 
 u32 isSendto(
     internal_socket_t * pis, void * pBuffer,
-    olsize_t * psSend, const ip_addr_t * piaTo, u16 u16Port);
+    olsize_t * psSend, const jf_ipaddr_t * pjiTo, u16 u16Port);
 
 u32 isRecvfrom(
     internal_socket_t * pis, void * pBuffer,
-    olsize_t * psRecv, ip_addr_t * piaTo, u16 * pu16Port);
+    olsize_t * psRecv, jf_ipaddr_t * pjiTo, u16 * pu16Port);
 
 u32 isSelect(
     fd_set * readfds, fd_set * writefds,

@@ -319,7 +319,7 @@ static u32 _getHostNetworkInfo(host_info_t * phi)
     struct sockaddr_in localaddr;
     u16 u16Count = 0;
     olint_t i;
-    ip_addr_t ipaddr;
+    jf_ipaddr_t ipaddr;
 
     /* Create an unbound datagram socket to do the SIOCGIFADDR ioctl on. */
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
@@ -366,9 +366,9 @@ static u32 _getHostNetworkInfo(host_info_t * phi)
                 memcpy(&localaddr, &pifReq->ifr_addr, sizeof(pifReq->ifr_addr));
                 if (localaddr.sin_addr.s_addr != htonl(INADDR_LOOPBACK))
                 {
-                    ipaddr.ia_u8AddrType = IP_ADDR_TYPE_V4;
-                    ipaddr.ia_uAddr.iu_nAddr = localaddr.sin_addr.s_addr;
-                    getStringIpAddr(phi->hi_niNet[u16Count].ni_strIpAddr, &ipaddr);
+                    ipaddr.ji_u8AddrType = JF_IPADDR_TYPE_V4;
+                    ipaddr.ji_uAddr.ju_nAddr = localaddr.sin_addr.s_addr;
+                    jf_ipaddr_getStringIpAddr(phi->hi_niNet[u16Count].ni_strIpAddr, &ipaddr);
 
                     ol_strcpy(phi->hi_niNet[u16Count].ni_strName, ifReq.ifr_name);
 

@@ -218,7 +218,7 @@ typedef struct
     u8 jnacp_u8Reserved[1];
     /**The port number to bind to. 0 will select a random port*/
     u16 jnacp_u16PortNumber;
-    ip_addr_t jnacp_iaAddr;
+    jf_ipaddr_t jnacp_jiAddr;
     /**Function that triggers when a connection is established*/
     jf_network_fnAssocketOnConnect_t jnacp_fnOnConnect;
     /**Function that triggers when a connection is closed*/
@@ -287,7 +287,7 @@ typedef struct
 typedef u32 (* jf_network_fnAdgramOnData_t)(
     jf_network_adgram_t * pAdgram, u8 * pu8Buffer,
     olsize_t * psBeginPointer, olsize_t sEndPointer, void * pUser,
-    boolean_t * pbPause, ip_addr_t * piaRemote, u16 u16Port);
+    boolean_t * pbPause, jf_ipaddr_t * pjiRemote, u16 u16Port);
 
 typedef u32 (* jf_network_fnAdgramOnSendOK_t)(
     jf_network_adgram_t * pAdgram, void * pUser);
@@ -317,28 +317,28 @@ NETWORKAPI u32 NETWORKCALL jf_network_destroySocket(
 /** Allocates a UDP socket for a given interface, choosing a random port number
  *  from 55000 to 65000
  *
- *  @param piaLocal [in] the interface to bind to 
+ *  @param pjiLocal [in] the interface to bind to 
  *  @param pu16Port [in] the port number
  *  @param ppSocket [out] the created UDP socket 
  *
  *  @return the error code
  */
 NETWORKAPI u32 NETWORKCALL jf_network_createDgramSocket(
-    ip_addr_t * piaLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket);
+    jf_ipaddr_t * pjiLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket);
 
 /** Allocates a TCP socket for a given interface, choosing a random port number
  *  from 50000 to 65000 if port is 0, it will bind the address to socket
  *
  *  @note If the port is 0, we select a random port from the port number range
  *
- *  @param piaLocal [in] the interface to bind to 
+ *  @param pjiLocal [in] the interface to bind to 
  *  @param pu16Port [in/out] the port number to bind to
  *  @param ppSocket [out] the created UDP socket 
  *
  *  @return the error code
  */
 NETWORKAPI u32 NETWORKCALL jf_network_createStreamSocket(
-    ip_addr_t * piaLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket);
+    jf_ipaddr_t * pjiLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket);
 
 /** Allocate a TCP socket according to address type
  */
@@ -355,8 +355,8 @@ NETWORKAPI u32 NETWORKCALL jf_network_setSocketNonblock(
     jf_network_socket_t * pSocket);
 
 NETWORKAPI u32 NETWORKCALL jf_network_joinMulticastGroup(
-    jf_network_socket_t * pSocket, ip_addr_t * piaAddr,
-    ip_addr_t * piaMulticaseAddr);
+    jf_network_socket_t * pSocket, jf_ipaddr_t * pjiAddr,
+    jf_ipaddr_t * pjiMulticaseAddr);
 
 NETWORKAPI u32 NETWORKCALL jf_network_enableBroadcast(
     jf_network_socket_t * pSocket);
@@ -417,29 +417,29 @@ NETWORKAPI u32 NETWORKCALL jf_network_recvnWithTimeout(
  */
 NETWORKAPI u32 NETWORKCALL jf_network_recvfromWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
-    u32 u32Timeout, ip_addr_t * piaFrom, u16 * pu16Port);
+    u32 u32Timeout, jf_ipaddr_t * pjiFrom, u16 * pu16Port);
 
 NETWORKAPI u32 NETWORKCALL jf_network_connect(
-    jf_network_socket_t * pSocket, const ip_addr_t * pia, u16 u16Port);
+    jf_network_socket_t * pSocket, const jf_ipaddr_t * pji, u16 u16Port);
 
 NETWORKAPI u32 NETWORKCALL jf_network_connectWithTimeout(
-    jf_network_socket_t * pSocket, const ip_addr_t * pia, u16 u16Port,
+    jf_network_socket_t * pSocket, const jf_ipaddr_t * pji, u16 u16Port,
     u32 u32Timeout);
 
 NETWORKAPI u32 NETWORKCALL jf_network_listen(
     jf_network_socket_t * pSocket, olint_t backlog);
 
 NETWORKAPI u32 NETWORKCALL jf_network_accept(
-    jf_network_socket_t * pListen, ip_addr_t * pia, u16 * pu16Port,
+    jf_network_socket_t * pListen, jf_ipaddr_t * pji, u16 * pu16Port,
     jf_network_socket_t ** ppSocket);
 
 NETWORKAPI u32 NETWORKCALL jf_network_sendto(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend,
-    const ip_addr_t * piaTo, u16 u16Port);
+    const jf_ipaddr_t * pjiTo, u16 u16Port);
 
 NETWORKAPI u32 NETWORKCALL jf_network_recvfrom(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
-    ip_addr_t * piaTo, u16 * pu16Port);
+    jf_ipaddr_t * pjiTo, u16 * pu16Port);
 
 NETWORKAPI u32 NETWORKCALL jf_network_createSocketPair(
     olint_t domain, olint_t type, jf_network_socket_t * psPair[2]);
@@ -702,26 +702,26 @@ NETWORKAPI void NETWORKCALL jf_network_resetTotalBytesSentOfAsocket(
 /** Returns the Local Interface of a connected socket
  *
  *  @param pAsocket [in] the asocket to query
- *  @param piaAddr [in] the local interface
+ *  @param pjiAddr [in] the local interface
  */
 NETWORKAPI void NETWORKCALL jf_network_getLocalInterfaceOfAsocket(
-    jf_network_asocket_t * pAsocket, ip_addr_t * piaAddr);
+    jf_network_asocket_t * pAsocket, jf_ipaddr_t * pjiAddr);
 
 /** Returns the Remote Interface of a connected socket
  *
  *  @param pAsocket [in] the asocket to query
- *  @param piaAddr [out] the remote interface
+ *  @param pjiAddr [out] the remote interface
  */
 NETWORKAPI void NETWORKCALL jf_network_getRemoteInterfaceOfAsocket(
-    jf_network_asocket_t * pAsocket, ip_addr_t * piaAddr);
+    jf_network_asocket_t * pAsocket, jf_ipaddr_t * pjiAddr);
 
 /** Sets the remote address field. This is utilized by the asocket.
  *
  *  @param pAsocket [in] the asocket to modify
- *  @param piaAddr [in] the remote interface
+ *  @param pjiAddr [in] the remote interface
  */
 NETWORKAPI void NETWORKCALL jf_network_setRemoteAddressOfAsocket(
-    jf_network_asocket_t * pAsocket, ip_addr_t * piaAddr);
+    jf_network_asocket_t * pAsocket, jf_ipaddr_t * pjiAddr);
 
 /** Returns the user's tag associated with the asocket
  *
@@ -772,12 +772,12 @@ NETWORKAPI u32 NETWORKCALL jf_network_recvAsocketData(
 /** Attempts to establish a TCP connection
  *
  *  @param pAsocket [in] the asocket to initiate the connection
- *  @param piaRemote [in] the remote interface to connect to
+ *  @param pjiRemote [in] the remote interface to connect to
  *  @param u16RemotePortNumber [in] the remote port to connect to
  *  @param pUser [in] user object that will be passed to other method
  */
 NETWORKAPI u32 NETWORKCALL jf_network_connectAsocketTo(
-    jf_network_asocket_t * pAsocket, ip_addr_t * piaRemote,
+    jf_network_asocket_t * pAsocket, jf_ipaddr_t * pjiRemote,
     u16 u16RemotePortNumber, void * pUser);
 
 /** Resumes a paused asocket. Sessions can be paused, such that further data is
@@ -925,7 +925,7 @@ NETWORKAPI boolean_t NETWORKCALL jf_network_isAcsocketFree(
 
 NETWORKAPI u32 NETWORKCALL jf_network_connectAcsocketTo(
     jf_network_acsocket_t * pAcsocket,
-    ip_addr_t * piaRemote, u16 u16RemotePortNumber, void * pUser);
+    jf_ipaddr_t * pjiRemote, u16 u16RemotePortNumber, void * pUser);
 
 NETWORKAPI u32 NETWORKCALL jf_network_disconnectAcsocket(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket);
@@ -1070,14 +1070,14 @@ NETWORKAPI void NETWORKCALL jf_network_resetTotalBytesSentOfAdgram(
  *  @param pu8Buffer [in] the buffer to send
  *  @param sBuf [in] the length of the buffer to send
  *  @param memowner [in] flag indicating memory ownership.
- *  @param piaRemote [in] the remote host to send data to
+ *  @param pjiRemote [in] the remote host to send data to
  *  @param u16Port [in] the remote port
  *
  *  @return the error code
  */
 NETWORKAPI u32 NETWORKCALL jf_network_sendAdgramData(
     jf_network_adgram_t * pAdgram, u8 * pu8Buffer, olsize_t sBuf,
-    jf_network_mem_owner_t memowner, ip_addr_t * piaRemote, u16 u16Port);
+    jf_network_mem_owner_t memowner, jf_ipaddr_t * pjiRemote, u16 u16Port);
 
 /** Resumes a paused session
  *

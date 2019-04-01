@@ -77,7 +77,7 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_create(
  *  allows you to directly specify the buffers, rather than a packet structure
  *
  *  @param pWebclient [in] the webclient to queue the requests to
- *  @param piaRemote [in] the address of remote server
+ *  @param pjiRemote [in] the address of remote server
  *  @param u16Port [in] the port of remote server
  *  @param pjhph [in] the header of the message
  *  @param fnOnResponse [in] data reception handler
@@ -86,7 +86,7 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_create(
  *  @return the error code
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequest(
-    jf_webclient_t * pWebclient, ip_addr_t * piaRemote, u16 u16Port,
+    jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port,
     jf_httpparser_packet_header_t * pjhph, jf_webclient_fnOnResponse_t fnOnResponse,
     void * pUser);
 
@@ -96,7 +96,7 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequest(
  *  allows you to directly specify the buffers, rather than a packet structure
  *
  *  @param pWebclient [in] the webclient to queue the requests to
- *  @param piaRemote [in] the address of remote server
+ *  @param pjiRemote [in] the address of remote server
  *  @param u16Port [in] the port of remote server
  *  @param pstrHeader [in] the buffer containing the headers
  *  @param sHeader [in] the length of the headers
@@ -112,7 +112,7 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequest(
  *  @return the error code
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequestEx(
-    jf_webclient_t * pWebclient, ip_addr_t * piaRemote, u16 u16Port,
+    jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port,
     olchar_t * pstrHeader, olsize_t sHeader, boolean_t bStaticHeader,
     olchar_t * pstrBody, olsize_t sBody, boolean_t bStaticBody,
     jf_webclient_fnOnResponse_t fnOnResponse, void * pUser);
@@ -120,13 +120,13 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequestEx(
 /** Deletes all pending requests to a specific IP/Port combination
  *
  *  @param pWebclient [in] the web client
- *  @param piaRemote [in] the address of remote server
+ *  @param pjiRemote [in] the address of remote server
  *  @param u16Port [in] the port of remote server
  *
  *  @return the error code
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_deleteWebRequests(
-    jf_webclient_t * pWebclient, ip_addr_t * piaRemote, u16 u16Port);
+    jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port);
 
 /** Destory webclient object
  *

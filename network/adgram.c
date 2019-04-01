@@ -29,7 +29,7 @@ typedef struct send_data
     olsize_t sd_sBuf;
     olsize_t sd_sBytesSent;
 
-    ip_addr_t sd_iaRemote;
+    jf_ipaddr_t sd_jiRemote;
     u16 sd_u16RemotePort;
     u16 sd_u16Reserved[3];
 
@@ -45,7 +45,7 @@ typedef struct
 
     jf_network_socket_t * ia_pjnsSocket;
 
-    ip_addr_t ia_iaRemote;
+    jf_ipaddr_t ia_iaRemote;
     u16 ia_u16RemotePort;
     u16 is_u16Reserved3;
 
@@ -79,11 +79,11 @@ typedef struct
 /* --- private routine section---------------------------------------------- */
 static u32 _adRecvfrom(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
-    ip_addr_t * piaRemote, u16 * pu16Port)
+    jf_ipaddr_t * pjiRemote, u16 * pu16Port)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    u32Ret = jf_network_recvfrom(pSocket, pBuffer, psRecv, piaRemote, pu16Port);
+    u32Ret = jf_network_recvfrom(pSocket, pBuffer, psRecv, pjiRemote, pu16Port);
     if (u32Ret == OLERR_NO_ERROR)
     {
         if (*psRecv == 0)
@@ -229,7 +229,7 @@ static u32 _postSelectAdgram(
             bytesSent = psd->sd_sBuf - psd->sd_sBytesSent;
             u32Ret = jf_network_sendto(pia->ia_pjnsSocket,
                 psd->sd_pu8Buffer + psd->sd_sBytesSent,
-                &bytesSent, &(psd->sd_iaRemote), psd->sd_u16RemotePort);
+                &bytesSent, &(psd->sd_jiRemote), psd->sd_u16RemotePort);
             if (u32Ret == OLERR_NO_ERROR)
             {
                 pia->ia_sPendingBytesToSend -= bytesSent;
@@ -287,15 +287,15 @@ static u32 _postSelectAdgram(
 }
 
 static u32 _createDgramSocket(
-    ip_addr_t * piaRemote, jf_network_socket_t ** ppSocket)
+    jf_ipaddr_t * pjiRemote, jf_network_socket_t ** ppSocket)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    ip_addr_t ipaddr;
+    jf_ipaddr_t ipaddr;
     u16 u16Port;
 
-    memcpy(&ipaddr, piaRemote, sizeof(ip_addr_t));
+    memcpy(&ipaddr, pjiRemote, sizeof(jf_ipaddr_t));
 
-    setIpAddrToInaddrAny(&ipaddr);
+    jf_ipaddr_setIpAddrToInaddrAny(&ipaddr);
 
     u32Ret = jf_network_createDgramSocket(&ipaddr, &u16Port, ppSocket);
 
@@ -349,7 +349,7 @@ static u32 _adTrySendData(
     bytesSent = pData->sd_sBuf - pData->sd_sBytesSent;
     u32Ret = jf_network_sendto(
         pia->ia_pjnsSocket, pData->sd_pu8Buffer + pData->sd_sBytesSent,
-        &bytesSent, &pData->sd_iaRemote, pData->sd_u16RemotePort);
+        &bytesSent, &pData->sd_jiRemote, pData->sd_u16RemotePort);
     if (u32Ret == OLERR_NO_ERROR)
     {
         /*We were able to send something, so lets increment the counters*/
@@ -512,7 +512,7 @@ u32 jf_network_clearPendingSendOfAdgram(jf_network_adgram_t * pAdgram)
 
 u32 jf_network_sendAdgramData(
     jf_network_adgram_t * pAdgram, u8 * pu8Buffer, olsize_t sBuf,
-    jf_network_mem_owner_t memowner, ip_addr_t * piaRemote, u16 u16RemotePort)
+    jf_network_mem_owner_t memowner, jf_ipaddr_t * pjiRemote, u16 u16RemotePort)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_adgram_t * pia = (internal_adgram_t *) pAdgram;
@@ -526,7 +526,7 @@ u32 jf_network_sendAdgramData(
         data->sd_sBuf = sBuf;
         data->sd_jnmoOwner = memowner;
 
-        memcpy(&(data->sd_iaRemote), piaRemote, sizeof(ip_addr_t));
+        memcpy(&(data->sd_jiRemote), pjiRemote, sizeof(jf_ipaddr_t));
         data->sd_u16RemotePort = u16RemotePort;
     }
 
@@ -538,7 +538,7 @@ u32 jf_network_sendAdgramData(
             if (pia->ia_pjnsSocket == NULL)
             {
                 /*invalid socket, let's create one*/
-                u32Ret = _createDgramSocket(piaRemote, &(pia->ia_pjnsSocket));
+                u32Ret = _createDgramSocket(pjiRemote, &(pia->ia_pjnsSocket));
             }
 
             if (u32Ret == OLERR_NO_ERROR)
@@ -681,13 +681,13 @@ u32 jf_network_resumeAdgram(jf_network_adgram_t * pAdgram)
 
 u32 jf_network_joinMulticastGroupOfAdgram(
     jf_network_adgram_t * pAdgram,
-    ip_addr_t * piaAddr, ip_addr_t * piaMulticaseAddr)
+    jf_ipaddr_t * pjiAddr, jf_ipaddr_t * pjiMulticaseAddr)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_adgram_t * pia = (internal_adgram_t *) pAdgram;
 
     u32Ret = jf_network_joinMulticastGroup(
-        pia->ia_pjnsSocket, piaAddr, piaMulticaseAddr);
+        pia->ia_pjnsSocket, pjiAddr, pjiMulticaseAddr);
 
     return u32Ret;
 }

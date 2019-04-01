@@ -202,7 +202,7 @@ static u32 _testConnectServer(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     jf_network_socket_t * client = NULL;
-    ip_addr_t ipaddr;
+    jf_ipaddr_t ipaddr;
 
     registerSignalHandlers(_terminate);
 
@@ -211,7 +211,7 @@ static u32 _testConnectServer(void)
     {
         ol_printf("connect to %s:%u\n", ls_pstrServerIp, ls_u16Port);
 
-        getIpAddrFromString(ls_pstrServerIp, IP_ADDR_TYPE_V4, &ipaddr);
+        jf_ipaddr_getIpAddrFromString(ls_pstrServerIp, JF_IPADDR_TYPE_V4, &ipaddr);
         u32Ret = jf_network_connect(client, &ipaddr, ls_u16Port);
         if (u32Ret == OLERR_NO_ERROR)
         {
