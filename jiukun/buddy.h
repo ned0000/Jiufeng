@@ -25,7 +25,7 @@
 
 /* --- data structures ----------------------------------------------------- */
 
-#define BUDDY_PAGE_SIZE      (JIUKUN_PAGE_SIZE)
+#define BUDDY_PAGE_SIZE      (JF_JIUKUN_PAGE_SIZE)
 
 #define sizeToPages(size)    ((size + BUDDY_PAGE_SIZE - 1) / BUDDY_PAGE_SIZE)
 

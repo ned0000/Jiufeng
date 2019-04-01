@@ -39,7 +39,7 @@ typedef struct buddy_zone
 {
     u32 bz_u32FreePages;
 
-    free_area_t bz_faFreeArea[MAX_JIUKUN_PAGE_ORDER + 1];
+    free_area_t bz_faFreeArea[JF_JIUKUN_MAX_PAGE_ORDER + 1];
 
     u32 bz_u32MaxOrder;
     u32 bz_u32NumOfPage;
@@ -260,7 +260,7 @@ static u32 _createBuddyZone(
     {
         _initBuddyPage(pbz->bz_papPage, pbz->bz_u32NumOfPage, u32ZoneId);
 
-        for (u32Index = 0; u32Index < MAX_JIUKUN_PAGE_ORDER + 1; u32Index ++)
+        for (u32Index = 0; u32Index < JF_JIUKUN_MAX_PAGE_ORDER + 1; u32Index ++)
             listInit(&(pbz->bz_faFreeArea[u32Index].fa_lhFree));
 
         pbz->bz_faFreeArea[pbz->bz_u32MaxOrder - 1].fa_u32Free = 1;
@@ -405,7 +405,7 @@ u32 initJiukunBuddy(buddy_param_t * pbp)
     u32 u32Ret = OLERR_NO_ERROR;
     internal_jiukun_buddy_t * piab = &ls_ijbBuddy;
 
-    assert((pbp != NULL) && (pbp->bp_u8MaxOrder <= MAX_JIUKUN_PAGE_ORDER + 1) &&
+    assert((pbp != NULL) && (pbp->bp_u8MaxOrder <= JF_JIUKUN_MAX_PAGE_ORDER + 1) &&
            (pbp->bp_u8MaxOrder > 0));
     assert(! piab->ijb_bInitialized);
 
@@ -453,7 +453,7 @@ u32 finiJiukunBuddy(void)
     return u32Ret;
 }
 
-u32 allocJiukunPage(void ** pptr, u32 u32Order, olflag_t flag)
+u32 jf_jiukun_allocPage(void ** pptr, u32 u32Order, olflag_t flag)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     jiukun_page_t * pap = NULL;
@@ -467,7 +467,7 @@ u32 allocJiukunPage(void ** pptr, u32 u32Order, olflag_t flag)
     return u32Ret;
 }
 
-void freeJiukunPage(void ** pptr)
+void jf_jiukun_freePage(void ** pptr)
 {
     jiukun_page_t * pap;
 
@@ -513,7 +513,7 @@ u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, olflag_t flag)
 
             retrycount ++;
         }
-    } while (pap == NULL && ! GET_FLAG(flag, PAF_NOWAIT));
+    } while (pap == NULL && ! GET_FLAG(flag, JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT));
 
     if (pap == NULL)
     {

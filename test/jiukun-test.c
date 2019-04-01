@@ -135,11 +135,11 @@ u32 _testAllocMem(void)
             if (pu8Mem[u32Index] == NULL)
             {
                 nRand = rand();
-                u32Size = nRand % MAX_JIUKUN_MEMORY_SIZE;
+                u32Size = nRand % JF_JIUKUN_MAX_MEMORY_SIZE;
 
                 logInfoMsg("!!!! Allocate %u", u32Size);
 
-                u32Ret = allocMemory((void **)&(pu8Mem[u32Index]), u32Size, 0);
+                u32Ret = jf_jiukun_allocMemory((void **)&(pu8Mem[u32Index]), u32Size, 0);
                 if (u32Ret == OLERR_NO_ERROR)
                 {
                     logInfoMsg("success, at %u, %p\n", u32Index,
@@ -162,11 +162,11 @@ u32 _testAllocMem(void)
                 {
                     logInfoMsg("!!!! free at %u, %p", u32Idx, pu8Mem[u32Idx]);
 
-                    freeMemory((void **)&(pu8Mem[u32Idx]));
+                    jf_jiukun_freeMemory((void **)&(pu8Mem[u32Idx]));
 
                     pu8Mem[u32Idx] = NULL;
 #if defined(DEBUG_JIUKUN)
-                    dumpJiukun();
+                    jf_jiukun_dump();
 #endif
                     break;
                 }
@@ -175,7 +175,7 @@ u32 _testAllocMem(void)
 
     for (u32Loop = 0; u32Loop < DEBUG_LOOP_COUNT; u32Loop ++)
         if (pu8Mem[u32Loop] != NULL)
-            freeMemory((void **)&(pu8Mem[u32Loop]));
+            jf_jiukun_freeMemory((void **)&(pu8Mem[u32Loop]));
 
     return u32Ret;
 }
@@ -192,7 +192,7 @@ u32 _testJiukunPage(void)
     olint_t nRand;
     boolean_t bAlloc;
 
-    memset(pu8Mem, 0, sizeof(u8 *) * DEBUG_LOOP_COUNT);
+    ol_memset(pu8Mem, 0, sizeof(u8 *) * DEBUG_LOOP_COUNT);
     srand(time(NULL));
 
     nRand = rand();
@@ -224,12 +224,12 @@ u32 _testJiukunPage(void)
                 nRand = rand();
                 u32Order[u32Index] = nRand % MAX_ORDER;
 
-                u32Ret = allocJiukunPage(
+                u32Ret = jf_jiukun_allocPage(
                     (void **)&(pu8Mem[u32Index]), u32Order[u32Index], 0);
                 if (u32Ret == OLERR_NO_ERROR)
                 {
 #if defined(DEBUG_JIUKUN)
-                    dumpJiukun();
+                    jf_jiukun_dump();
 #endif
                     logInfoMsg("success, at %u, %p\n", u32Index,
                         pu8Mem[u32Index]);
@@ -248,9 +248,9 @@ u32 _testJiukunPage(void)
                 {
                     logInfoMsg("!!!! free at %u, %p", u32Idx, pu8Mem[u32Idx]);
 
-                    freeJiukunPage((void **)&(pu8Mem[u32Idx]));
+                    jf_jiukun_freePage((void **)&(pu8Mem[u32Idx]));
 #if defined(DEBUG_JIUKUN)
-                    dumpJiukun();
+                    jf_jiukun_dump();
 #endif
                     break;
                 }
@@ -259,13 +259,13 @@ u32 _testJiukunPage(void)
 
     for (u32Loop = 0; u32Loop < DEBUG_LOOP_COUNT; u32Loop ++)
         if (pu8Mem[u32Loop] != NULL)
-            freeJiukunPage((void **)&(pu8Mem[u32Loop]));
+            jf_jiukun_freePage((void **)&(pu8Mem[u32Loop]));
 
     return u32Ret;
 }
 
 #define TEST_CACHE "test-cache"
-static jiukun_cache_t * ls_pacCache = NULL;
+static jf_jiukun_cache_t * ls_pacCache = NULL;
 
 u32 _testJiukunCache(void)
 {
@@ -305,7 +305,8 @@ u32 _testJiukunCache(void)
             {
                 nRand = rand();
 
-                u32Ret = allocObject(ls_pacCache, (void **)&(pu8Mem[u32Index]), 0);
+                u32Ret = jf_jiukun_allocObject(
+                    ls_pacCache, (void **)&(pu8Mem[u32Index]), 0);
                 if (u32Ret == OLERR_NO_ERROR)
                 {
                     logInfoMsg("success, at %u, %p\n", u32Index,
@@ -325,7 +326,7 @@ u32 _testJiukunCache(void)
                 {
                     logInfoMsg("!!!! free at %u, %p", u32Idx, pu8Mem[u32Idx]);
 
-                    freeObject(ls_pacCache, (void **)&(pu8Mem[u32Idx]));
+                    jf_jiukun_freeObject(ls_pacCache, (void **)&(pu8Mem[u32Idx]));
 
                     pu8Mem[u32Idx] = NULL;
 
@@ -336,7 +337,7 @@ u32 _testJiukunCache(void)
 
     for (u32Loop = 0; u32Loop < DEBUG_LOOP_COUNT; u32Loop ++)
         if (pu8Mem[u32Loop] != NULL)
-            freeObject(ls_pacCache, (void **)&(pu8Mem[u32Loop]));
+            jf_jiukun_freeObject(ls_pacCache, (void **)&(pu8Mem[u32Loop]));
 
     return u32Ret;
 }
@@ -385,13 +386,13 @@ static u32 _testJiukunInThread(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32Index;
-    jiukun_cache_param_t jcp;
+    jf_jiukun_cache_create_param_t jjccp;
 
-    memset(&jcp, 0, sizeof(jiukun_cache_param_t));
-    jcp.jcp_pstrName = TEST_CACHE;
-    jcp.jcp_sObj = 28;
+    ol_memset(&jjccp, 0, sizeof(jjccp));
+    jjccp.jjccp_pstrName = TEST_CACHE;
+    jjccp.jjccp_sObj = 28;
 
-    u32Ret = createJiukunCache(&ls_pacCache, &jcp);
+    u32Ret = jf_jiukun_createCache(&ls_pacCache, &jjccp);
     if (u32Ret != OLERR_NO_ERROR)
         return u32Ret;
 
@@ -415,7 +416,7 @@ static u32 _testJiukunInThread(void)
     ls_bToTerminate = TRUE;
     sleep(1);
 
-    destroyJiukunCache(&ls_pacCache);
+    jf_jiukun_destroyCache(&ls_pacCache);
 
     return u32Ret;
 }
@@ -426,16 +427,16 @@ static u32 _baseJiukunFunc(void)
     u8 * page = NULL;
     olflag_t flags;
     olint_t order = 5;
-    jiukun_cache_param_t jcp;
-    jiukun_cache_t * cache;
+    jf_jiukun_cache_create_param_t jjccp;
+    jf_jiukun_cache_t * cache;
     void * object;
 
     ol_printf("get jiukun page memory with wait: ");
-    u32Ret = allocJiukunPage((void **)&page, order, 0);
+    u32Ret = jf_jiukun_allocPage((void **)&page, order, 0);
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("success\n");
-        freeJiukunPage((void **)&page);
+        jf_jiukun_freePage((void **)&page);
     }
     else
     {
@@ -445,12 +446,12 @@ static u32 _baseJiukunFunc(void)
 
     ol_printf("get jiukun page with nowait: ");
     INIT_FLAG(flags);
-    SET_FLAG(flags, PAF_NOWAIT);
-    u32Ret = allocJiukunPage((void **)&page, 10, flags);
+    SET_FLAG(flags, JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT);
+    u32Ret = jf_jiukun_allocPage((void **)&page, 10, flags);
     if (u32Ret == OLERR_NO_ERROR)
     {
         ol_printf("success\n");
-        freeJiukunPage((void **)&page);
+        jf_jiukun_freePage((void **)&page);
     }
     else
     {
@@ -458,26 +459,26 @@ static u32 _baseJiukunFunc(void)
     }
 
     ol_printf("create jiukun cache: ");
-    memset(&jcp, 0, sizeof(jiukun_cache_param_t));
-    jcp.jcp_pstrName = "jiukun-test";
-    jcp.jcp_sObj = 16;
-    SET_FLAG(jcp.jcp_fCache, JC_FLAG_ZERO);
+    ol_memset(&jjccp, 0, sizeof(jjccp));
+    jjccp.jjccp_pstrName = "jiukun-test";
+    jjccp.jjccp_sObj = 16;
+    SET_FLAG(jjccp.jjccp_fCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO);
 
-    u32Ret = createJiukunCache(&cache, &jcp);
+    u32Ret = jf_jiukun_createCache(&cache, &jjccp);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = allocObject(cache, &object, 0);
+        u32Ret = jf_jiukun_allocObject(cache, &object, 0);
         if (u32Ret == OLERR_NO_ERROR)
         {
             ol_printf("success\n");
-            freeObject(cache, &object);
+            jf_jiukun_freeObject(cache, &object);
         }
         else
         {
             ol_printf("fail\n");
         }
 
-        destroyJiukunCache(&cache);
+        jf_jiukun_destroyCache(&cache);
     }
 
     return u32Ret;
@@ -489,7 +490,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strErrMsg[300];
-    jiukun_param_t jp;
+    jf_jiukun_init_param_t jjip;
     logger_param_t lpParam;
 
     memset(&lpParam, 0, sizeof(logger_param_t));
@@ -507,11 +508,11 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        memset(&jp, 0, sizeof(jiukun_param_t));
-        jp.jp_sPool = MAX_JIUKUN_POOL_SIZE;
-        jp.jp_bNoGrow = TRUE;
+        memset(&jjip, 0, sizeof(jjip));
+        jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+        jjip.jjip_bNoGrow = TRUE;
 
-        u32Ret = initJiukun(&jp);
+        u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == OLERR_NO_ERROR)
         {
             if (ls_bMultiThread)
@@ -521,7 +522,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
             else
                 u32Ret = _baseJiukunFunc();
 
-            finiJiukun();
+            jf_jiukun_fini();
         }
     }
 

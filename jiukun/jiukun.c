@@ -51,7 +51,8 @@ static internal_jiukun_t ls_iaJiukun;
 /* --- private routine section---------------------------------------------- */
 
 /* --- public routine section ---------------------------------------------- */
-u32 initJiukun(jiukun_param_t * pjp)
+
+u32 jf_jiukun_init(jf_jiukun_init_param_t * pjjip)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_jiukun_t * pia = &ls_iaJiukun;
@@ -62,19 +63,19 @@ u32 initJiukun(jiukun_param_t * pjp)
     if (pia->ia_bInitialized)
         return u32Ret;
 
-    assert((pjp->jp_sPool >= MIN_JIUKUN_POOL_SIZE) &&
-           (pjp->jp_sPool <= MAX_JIUKUN_POOL_SIZE));
+    assert((pjjip->jjip_sPool >= MIN_JIUKUN_POOL_SIZE) &&
+           (pjjip->jjip_sPool <= JF_JIUKUN_MAX_POOL_SIZE));
 
     ol_bzero(pia, sizeof(internal_jiukun_t));
     ol_bzero(&bp, sizeof(buddy_param_t));
-    bp.bp_bNoGrow = pjp->jp_bNoGrow;
-    u32NumOfPages = sizeToPages(pjp->jp_sPool);
+    bp.bp_bNoGrow = pjjip->jjip_bNoGrow;
+    u32NumOfPages = sizeToPages(pjjip->jjip_sPool);
 
     while (u32NumOfPages > ls_u32OrderPrimes[bp.bp_u8MaxOrder])
         bp.bp_u8MaxOrder ++;
 
     logInfoMsg("init aehter, size: %u, page: %u, order: %u",
-           pjp->jp_sPool, u32NumOfPages, bp.bp_u8MaxOrder);
+           pjjip->jjip_sPool, u32NumOfPages, bp.bp_u8MaxOrder);
 
     u32Ret = initJiukunBuddy(&bp);
     if (u32Ret == OLERR_NO_ERROR)
@@ -87,12 +88,12 @@ u32 initJiukun(jiukun_param_t * pjp)
     if (u32Ret == OLERR_NO_ERROR)
         pia->ia_bInitialized = TRUE;
     else
-        finiJiukun();
+        jf_jiukun_fini();
 
     return u32Ret;
 }
 
-u32 finiJiukun(void)
+u32 jf_jiukun_fini(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_jiukun_t * pia = &ls_iaJiukun;
@@ -119,13 +120,13 @@ u32 reapJiukun(boolean_t bNoWait)
     u32Reap = reapJiukunSlab(bNoWait);
 #if defined(DEBUG_JIUKUN)
     logInfoMsg("reap jiukun, nowait %d, reaped %u", bNoWait, u32Reap);
-    dumpJiukun();
+    jf_jiukun_dump();
 #endif
     return u32Reap;
 }
 
 #if defined(DEBUG_JIUKUN)
-void dumpJiukun(void)
+void jf_jiukun_dump(void)
 {
     internal_jiukun_t * pia = &ls_iaJiukun;
 
