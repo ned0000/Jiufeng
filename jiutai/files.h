@@ -49,16 +49,15 @@
 #endif
 
 /* --- constant definitions ------------------------------------------------ */
-typedef FILE     olfile_t;
 
 #if defined(LINUX)
-    typedef olint_t  file_t;
-    typedef DIR      dir_t;
-    #define INVALID_FILE_VALUE  -1
+    typedef olint_t  jf_file_t;
+    typedef DIR      jf_dir_t;
+    #define JF_FILE_INVALID_FILE_VALUE  (-1)
 #elif defined(WINDOWS)
-    typedef HANDLE   file_t;
-    typedef void     dir_t;
-    #define INVALID_FILE_VALUE  INVALID_HANDLE_VALUE
+    typedef HANDLE   jf_file_t;
+    typedef void     jf_dir_t;
+    #define JF_FILE_INVALID_FILE_VALUE  (INVALID_HANDLE_VALUE)
 
     #ifndef O_RDONLY
         #define O_RDONLY          0x0000
@@ -91,189 +90,206 @@ typedef FILE     olfile_t;
 #endif
 
 /* Possible value for fs_u32Mode */
-#define FS_MODE_TYPE_MASK   0x001F0000
+#define JF_FILE_MODE_TYPE_MASK   0x001F0000
 
-#define FS_MODE_TSOCK  0x00070000   /* socket */
-#define FS_MODE_TLNK   0x00060000   /* symbolic link */
-#define FS_MODE_TREG   0x00050000   /* regular file */
-#define FS_MODE_TBLK   0x00040000   /* block device */
-#define FS_MODE_TDIR   0x00030000   /* directory */
-#define FS_MODE_TCHR   0x00020000   /* character device */
-#define FS_MODE_TFIFO  0x00010000   /* fifo */
+#define JF_FILE_MODE_TSOCK  0x00070000   /* socket */
+#define JF_FILE_MODE_TLNK   0x00060000   /* symbolic link */
+#define JF_FILE_MODE_TREG   0x00050000   /* regular file */
+#define JF_FILE_MODE_TBLK   0x00040000   /* block device */
+#define JF_FILE_MODE_TDIR   0x00030000   /* directory */
+#define JF_FILE_MODE_TCHR   0x00020000   /* character device */
+#define JF_FILE_MODE_TFIFO  0x00010000   /* fifo */
 
-#define FS_MODE_SUID   0x00004000
-#define FS_MODE_SGID   0x00002000
-#define FS_MODE_SVTX   0x00001000
+#define JF_FILE_MODE_SUID   0x00004000
+#define JF_FILE_MODE_SGID   0x00002000
+#define JF_FILE_MODE_SVTX   0x00001000
 
-#define FS_MODE_PERM_MASK   0x00000FFF
+#define JF_FILE_MODE_PERM_MASK   0x00000FFF
 
-#define FS_MODE_RUSR   0x00000400
-#define FS_MODE_WUSR   0x00000200
-#define FS_MODE_XUSR   0x00000100
+#define JF_FILE_MODE_RUSR   0x00000400
+#define JF_FILE_MODE_WUSR   0x00000200
+#define JF_FILE_MODE_XUSR   0x00000100
 
-#define FS_MODE_RGRP   0x00000040
-#define FS_MODE_WGRP   0x00000020
-#define FS_MODE_XGRP   0x00000010
+#define JF_FILE_MODE_RGRP   0x00000040
+#define JF_FILE_MODE_WGRP   0x00000020
+#define JF_FILE_MODE_XGRP   0x00000010
 
-#define FS_MODE_ROTH   0x00000004
-#define FS_MODE_WOTH   0x00000002
-#define FS_MODE_XOTH   0x00000001
+#define JF_FILE_MODE_ROTH   0x00000004
+#define JF_FILE_MODE_WOTH   0x00000002
+#define JF_FILE_MODE_XOTH   0x00000001
 
 typedef struct
 {
-    u32 fs_u32Mode;
-    u32 fs_u32Dev;
-    u32 fs_u32RDev;
-    u32 fs_u32INode;
-    u64 fs_u64Size;
-    u16 fs_u16Link;
-    u16 fs_u16UserId;
-    u16 fs_u16GroupId;
-    u16 fs_u16Reserved;
-    u32 fs_u32AccessTime; /* 00:00:00 UTC, January 1, 1970, in seconds*/
-    u32 fs_u32ModifyTime;
-    u32 fs_u32Createtime;
-    u32 fs_u32Reserved2;
-    u32 fs_u32Reserved3[8];
-} file_stat_t;
+    u32 jfs_u32Mode;
+    u32 jfs_u32Dev;
+    u32 jfs_u32RDev;
+    u32 jfs_u32INode;
+    u64 jfs_u64Size;
+    u16 jfs_u16Link;
+    u16 jfs_u16UserId;
+    u16 jfs_u16GroupId;
+    u16 jfs_u16Reserved;
+    u32 jfs_u32AccessTime; /* 00:00:00 UTC, January 1, 1970, in seconds*/
+    u32 jfs_u32ModifyTime;
+    u32 jfs_u32Createtime;
+    u32 jfs_u32Reserved2;
+    u32 jfs_u32Reserved3[8];
+} jf_file_stat_t;
 
-FILESAPI boolean_t FILESCALL isDirFile(u32 u32Mode);
-FILESAPI boolean_t FILESCALL isRegFile(u32 u32Mode);
-FILESAPI boolean_t FILESCALL isCharDevice(u32 u32Mode);
-FILESAPI boolean_t FILESCALL isBlockDevice(u32 u32Mode);
-FILESAPI boolean_t FILESCALL isFifoFile(u32 u32Mode);
-FILESAPI boolean_t FILESCALL isSockFile(u32 u32Mode);
-FILESAPI boolean_t FILESCALL isLinkFile(u32 u32Mode);
+FILESAPI boolean_t FILESCALL jf_file_isDirFile(u32 u32Mode);
+FILESAPI boolean_t FILESCALL jf_file_isRegFile(u32 u32Mode);
+FILESAPI boolean_t FILESCALL jf_file_isCharDevice(u32 u32Mode);
+FILESAPI boolean_t FILESCALL jf_file_isBlockDevice(u32 u32Mode);
+FILESAPI boolean_t FILESCALL jf_file_isFifoFile(u32 u32Mode);
+FILESAPI boolean_t FILESCALL jf_file_isSockFile(u32 u32Mode);
+FILESAPI boolean_t FILESCALL jf_file_isLinkFile(u32 u32Mode);
 
-#if defined(WINDOWS)
-    typedef u16 mode_t;
+#if defined(LINUX)
+    typedef mode_t    jf_file_mode_t;
+#elif defined(WINDOWS)
+    typedef u16       jf_file_mode_t;
 #endif
 
+#define JF_FILE_DEFAULT_CREATE_MODE    (0644)
+
+#define JF_DIR_DEFAULT_CREATE_MODE     (0755)
+
+typedef FILE     jf_filestream_t;
 
 /* --- data structures ----------------------------------------------------- */
 
 typedef struct
 {
-    olchar_t de_strName[MAX_PATH_LEN];
-    olsize_t de_sName;
-    u8 de_u8Reserved[60];
-} dir_entry_t;
+    olchar_t jde_strName[MAX_PATH_LEN];
+    olsize_t jde_sName;
+    u8 jde_u8Reserved[60];
+} jf_dir_entry_t;
 
 /* --- functional routines ------------------------------------------------- */
 
-FILESAPI u32 FILESCALL getFileStat(
-    const olchar_t * pstrFilename, file_stat_t * pStat);
+FILESAPI u32 FILESCALL jf_file_getStat(
+    const olchar_t * pstrFilename, jf_file_stat_t * pStat);
 
-FILESAPI void FILESCALL getDirectoryName(
+FILESAPI void FILESCALL jf_file_getDirectoryName(
     olchar_t * pstrDirName, olsize_t sDir, const olchar_t * pstrFullpath);
 
-FILESAPI void FILESCALL getFileName(
+FILESAPI void FILESCALL jf_file_getFileName(
     olchar_t * pstrFileName, olsize_t sFileName, const olchar_t * pstrFullpath);
 
-FILESAPI u32 FILESCALL removeTrailingPathSeparator(olchar_t * pstrFullpath);
+FILESAPI u32 FILESCALL jf_file_removeTrailingPathSeparator(olchar_t * pstrFullpath);
 
+FILESAPI u32 FILESCALL jf_file_create(
+    const olchar_t * pstrFilename, jf_file_mode_t mode);
 
-
-#define DEFAULT_CREATE_FILE_MODE  0644
-
-FILESAPI u32 FILESCALL createFile(const olchar_t * pstrFilename, mode_t mode);
-
-FILESAPI u32 FILESCALL openFile(
-    const olchar_t * pstrFilename, olint_t flags, file_t * pFile);
+FILESAPI u32 FILESCALL jf_file_open(
+    const olchar_t * pstrFilename, olint_t flags, jf_file_t * pFile);
 
 /*for Linux, mode is used when flag O_CREAT is set
  for Windows, the routine is the same as openFile */
-FILESAPI u32 FILESCALL openFile2(
-    const olchar_t * pstrFilename, olint_t flags, mode_t mode, file_t * pFile);
+FILESAPI u32 FILESCALL jf_file_openWithMode(
+    const olchar_t * pstrFilename, olint_t flags, jf_file_mode_t mode,
+    jf_file_t * pFile);
 
-FILESAPI u32 FILESCALL closeFile(file_t * pFile);
+FILESAPI u32 FILESCALL jf_file_close(jf_file_t * pFile);
 
-FILESAPI u32 FILESCALL removeFile(const olchar_t * pstrFilename);
+FILESAPI u32 FILESCALL jf_file_remove(const olchar_t * pstrFilename);
 
-FILESAPI u32 FILESCALL renameFile(
+FILESAPI u32 FILESCALL jf_file_rename(
     const olchar_t *oldpath, const olchar_t *newpath);
 
-FILESAPI u32 FILESCALL lockFile(file_t fd);
+FILESAPI u32 FILESCALL jf_file_lock(jf_file_t fd);
 
-FILESAPI u32 FILESCALL unlockFile(file_t fd);
+FILESAPI u32 FILESCALL jf_file_unlock(jf_file_t fd);
 
-FILESAPI u32 FILESCALL readn(file_t fd, void * pBuffer, olsize_t * psRead);
+FILESAPI u32 FILESCALL jf_file_readn(
+    jf_file_t fd, void * pBuffer, olsize_t * psRead);
 
-FILESAPI u32 FILESCALL readWithTimeout(
-    file_t fd, void * pBuffer, olsize_t * psRead, struct timeval * timeout);
+FILESAPI u32 FILESCALL jf_file_readWithTimeout(
+    jf_file_t fd, void * pBuffer, olsize_t * psRead, struct timeval * timeout);
 
-FILESAPI u32 FILESCALL writen(file_t fd, const void * pBuffer, olsize_t sWrite);
+FILESAPI u32 FILESCALL jf_file_writen(
+    jf_file_t fd, const void * pBuffer, olsize_t sWrite);
 
-FILESAPI u32 FILESCALL readLine(file_t fd, void * pBuffer, olsize_t * psRead);
+FILESAPI u32 FILESCALL jf_file_readLine(
+    jf_file_t fd, void * pBuffer, olsize_t * psRead);
 
 /*stream operation*/
-FILESAPI u32 FILESCALL fpOpenFile(
-    const olchar_t * pstrFilename, const olchar_t * mode, olfile_t ** pfp);
+FILESAPI u32 FILESCALL jf_filestream_open(
+    const olchar_t * pstrFilename, const olchar_t * mode, jf_filestream_t ** pjf);
 
-FILESAPI u32 FILESCALL fpCloseFile(olfile_t ** pfp);
+FILESAPI u32 FILESCALL jf_filestream_close(jf_filestream_t ** pjf);
 
-FILESAPI u32 FILESCALL fpSeekFile(olfile_t * fp, long offset, olint_t whence);
+FILESAPI u32 FILESCALL jf_filestream_seek(
+    jf_filestream_t * pjf, long offset, olint_t whence);
 
-FILESAPI u32 FILESCALL fpReadn(olfile_t * fp, void * pBuffer, olsize_t * psRead);
+FILESAPI u32 FILESCALL jf_filestream_readn(
+    jf_filestream_t * pjf, void * pBuffer, olsize_t * psRead);
 
-FILESAPI u32 FILESCALL fpWriten(
-    olfile_t * fp, const void * pBuffer, olsize_t sWrite);
+FILESAPI u32 FILESCALL jf_filestream_writen(
+    jf_filestream_t * pjf, const void * pBuffer, olsize_t sWrite);
 
-FILESAPI u32 FILESCALL fpReadVec(olfile_t * fp, data_vec_t * pdvData,
-           olsize_t * psRead);
+FILESAPI u32 FILESCALL jf_filestream_readVec(
+    jf_filestream_t * pjf, data_vec_t * pdvData, olsize_t * psRead);
 
-FILESAPI u32 FILESCALL fpWriteVec(olfile_t * fp, data_vec_t * pdvData,
-            olsize_t sWrite);
+FILESAPI u32 FILESCALL jf_filestream_writeVec(
+    jf_filestream_t * pjf, data_vec_t * pdvData, olsize_t sWrite);
 
-FILESAPI u32 FILESCALL fpReadVecOffset(olfile_t * fp, data_vec_t * pdvData,
-           olsize_t sVecOffset, olsize_t * psRead);
+FILESAPI u32 FILESCALL jf_filestream_readVecOffset(
+    jf_filestream_t * pjf, data_vec_t * pdvData, olsize_t sVecOffset,
+    olsize_t * psRead);
 
-FILESAPI u32 FILESCALL fpWriteVecOffset(olfile_t * fp, data_vec_t * pdvData,
-           olsize_t sVecOffset, olsize_t sWrite);
+FILESAPI u32 FILESCALL jf_filestream_writeVecOffset(
+    jf_filestream_t * pjf, data_vec_t * pdvData, olsize_t sVecOffset,
+    olsize_t sWrite);
 
-FILESAPI u32 FILESCALL fpReadLine(olfile_t * fp, void * ptr, olsize_t * psRead);
+FILESAPI u32 FILESCALL jf_filestream_readLine(
+    jf_filestream_t * pjf, void * ptr, olsize_t * psRead);
 
 /*copy file content from pstrSourceFile to fpDest, pu8Buffer is a buffer
  provided by caller for the function*/
-FILESAPI u32 FILESCALL fpCopyFile(olfile_t * fpDest, const olchar_t * pstrSourceFile,
+FILESAPI u32 FILESCALL jf_filestream_copyFile(
+    jf_filestream_t * fpDest, const olchar_t * pstrSourceFile,
     u8 * u8Buffer, olsize_t sBuf);
 
-FILESAPI u32 FILESCALL fpFlushFile(olfile_t * fp);
+FILESAPI u32 FILESCALL jf_filestream_flush(jf_filestream_t * pjf);
 
-FILESAPI boolean_t FILESCALL fpEndOfFile(olfile_t * fp);
+FILESAPI boolean_t FILESCALL jf_filestream_isEndOfFile(jf_filestream_t * pjf);
 
-#define DEFAULT_CREATE_DIR_MODE  0755
 /*'mode' is for Linux only, it specifies the permission to use*/
-FILESAPI u32 FILESCALL createDir(const olchar_t * pstrDirName, mode_t mode);
+FILESAPI u32 FILESCALL jf_dir_create(
+    const olchar_t * pstrDirName, jf_file_mode_t mode);
 
-FILESAPI u32 FILESCALL removeDir(const olchar_t * pstrDirName);
+FILESAPI u32 FILESCALL jf_dir_remove(const olchar_t * pstrDirName);
 
-FILESAPI u32 FILESCALL openDir(const olchar_t * pstrDirName, dir_t ** ppDir);
+FILESAPI u32 FILESCALL jf_dir_open(
+    const olchar_t * pstrDirName, jf_dir_t ** ppDir);
 
-FILESAPI u32 FILESCALL closeDir(dir_t ** ppDir);
+FILESAPI u32 FILESCALL jf_dir_close(jf_dir_t ** ppDir);
 
-FILESAPI u32 FILESCALL getFirstDirEntry(dir_t * pDir, dir_entry_t * pEntry);
+FILESAPI u32 FILESCALL jf_dir_getFirstDirEntry(
+    jf_dir_t * pDir, jf_dir_entry_t * pEntry);
 
-FILESAPI u32 FILESCALL getNextDirEntry(dir_t * pDir, dir_entry_t * pEntry);
+FILESAPI u32 FILESCALL jf_dir_getNextDirEntry(
+    jf_dir_t * pDir, jf_dir_entry_t * pEntry);
 
-typedef u32 (* fnHandleFile_t)(const olchar_t * pstrFullpath,
-    file_stat_t * pStat, void * pArg);
+typedef u32 (* jf_dir_fnHandleFile_t)(
+    const olchar_t * pstrFullpath, jf_file_stat_t * pStat, void * pArg);
 
-FILESAPI u32 FILESCALL traversalDirectory(const olchar_t * pstrDirName,
-    fnHandleFile_t fnHandleFile, void * pArg);
+FILESAPI u32 FILESCALL jf_dir_traversal(
+    const olchar_t * pstrDirName, jf_dir_fnHandleFile_t fnHandleFile, void * pArg);
 
-FILESAPI u32 FILESCALL parseDirectory(const olchar_t * pstrDirName,
-    fnHandleFile_t fnHandleFile, void * pArg);
+FILESAPI u32 FILESCALL jf_dir_parse(
+    const olchar_t * pstrDirName, jf_dir_fnHandleFile_t fnHandleFile, void * pArg);
 
 /*true, the entry is ignored*/
-typedef boolean_t (* fnFilterDirEntry_t)(dir_entry_t * entry);
-typedef olint_t (* fnCompareDirEntry_t)(const void * a, const void * b);
+typedef boolean_t (* jf_dir_fnFilterDirEntry_t)(jf_dir_entry_t * entry);
+typedef olint_t (* jf_dir_fnCompareDirEntry_t)(const void * a, const void * b);
 
-FILESAPI u32 FILESCALL scanDirectory(
-    const olchar_t * pstrDirName, dir_entry_t * entry, olint_t * numofentry,
-    fnFilterDirEntry_t fnFilter, fnCompareDirEntry_t fnCompare);
+FILESAPI u32 FILESCALL jf_dir_scan(
+    const olchar_t * pstrDirName, jf_dir_entry_t * entry, olint_t * numofentry,
+    jf_dir_fnFilterDirEntry_t fnFilter, jf_dir_fnCompareDirEntry_t fnCompare);
 
-FILESAPI olint_t FILESCALL compareDirEntry(const void * a, const void * b);
+FILESAPI olint_t FILESCALL jf_dir_compareDirEntry(const void * a, const void * b);
 
 
 #endif /*JIUFENG_FILES_H*/

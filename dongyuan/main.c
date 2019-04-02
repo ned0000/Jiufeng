@@ -153,7 +153,7 @@ static u32 _initDongyuan(olint_t argc, olchar_t ** argv)
     {
         initLogger(&lpParam);
 
-        getFileName(strExecutable, 100, argv[0]);
+        jf_file_getFileName(strExecutable, 100, argv[0]);
 
         if (bAlreadyRunning(strExecutable))
         {

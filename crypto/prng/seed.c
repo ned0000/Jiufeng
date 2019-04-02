@@ -60,11 +60,11 @@ static u32 _getSeedFromSystem(void)
     u8 tmpbuf[ENTROPY_NEEDED];
     olchar_t * randomfiles[] = { RANDOM_DEV };
     u32 u32NumOfRandomFile = ARRAY_SIZE(randomfiles);
-    file_stat_t filestats[ARRAY_SIZE(randomfiles)];
-    file_t fd;
+    jf_file_stat_t filestats[ARRAY_SIZE(randomfiles)];
+    jf_file_t fd;
     u32 i, j;
     olint_t usec = 10 * 1000; /* spend 10ms on each file */
-    file_stat_t * st;
+    jf_file_stat_t * st;
     olsize_t sread = 0, sleft = 0;
     struct timeval tv;
 
@@ -75,25 +75,25 @@ static u32 _getSeedFromSystem(void)
      */
     for (i = 0; i < u32NumOfRandomFile && sread < ENTROPY_NEEDED; i ++)
     {
-        u32Ret = openFile(
+        u32Ret = jf_file_open(
             randomfiles[i], O_RDONLY | O_NONBLOCK | O_NOCTTY, &fd);
         if (u32Ret == OLERR_NO_ERROR)
         {
             st = &filestats[i];
 
-            u32Ret = getFileStat(randomfiles[i], st);
+            u32Ret = jf_file_getStat(randomfiles[i], st);
             if (u32Ret == OLERR_NO_ERROR)
             {
                 /** Avoid using same device */
                 for (j = 0; j < i; j ++)
                 {
-                    if (filestats[j].fs_u32INode == st->fs_u32INode &&
-                        filestats[j].fs_u32Dev == st->fs_u32Dev)
+                    if (filestats[j].jfs_u32INode == st->jfs_u32INode &&
+                        filestats[j].jfs_u32Dev == st->jfs_u32Dev)
                         break;
                 }
                 if (j < i)
                 {
-                    closeFile(&fd);
+                    jf_file_close(&fd);
                     continue;
                 }
             }
@@ -103,7 +103,7 @@ static u32 _getSeedFromSystem(void)
                 tv.tv_sec = 0;
                 tv.tv_usec = usec;
                 sleft = ENTROPY_NEEDED - sread;
-                u32Ret = readWithTimeout(fd, tmpbuf + sread, &sleft, &tv);
+                u32Ret = jf_file_readWithTimeout(fd, tmpbuf + sread, &sleft, &tv);
             }
 
             if (u32Ret == OLERR_NO_ERROR)
@@ -111,7 +111,7 @@ static u32 _getSeedFromSystem(void)
                 sread += sleft;
             }
 
-            closeFile(&fd);
+            jf_file_close(&fd);
         }
     }
 

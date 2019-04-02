@@ -56,7 +56,7 @@ u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp)
         pig->ig_pstrSettingFile = pgp->gp_pstrSettingFile;
 
         /*change the working directory*/
-        getDirectoryName(strExecutablePath, MAX_PATH_LEN, pgp->gp_pstrCmdLine);
+        jf_file_getDirectoryName(strExecutablePath, MAX_PATH_LEN, pgp->gp_pstrCmdLine);
         if (strlen(strExecutablePath) > 0)
             u32Ret = setCurrentWorkingDirectory(strExecutablePath);
     }

@@ -140,30 +140,30 @@ static u32 _newServMgmtAttask(
     return u32Ret;
 }
 
-static u32 _lockStatusFile(const olchar_t * pstrFile, file_t * pFile)
+static u32 _lockStatusFile(const olchar_t * pstrFile, jf_file_t * pFile)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    u32Ret = openFile(pstrFile, O_RDONLY, pFile);
+    u32Ret = jf_file_open(pstrFile, O_RDONLY, pFile);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = lockFile(*pFile);
+        u32Ret = jf_file_lock(*pFile);
         if (u32Ret != OLERR_NO_ERROR)
-            closeFile(pFile);
+            jf_file_close(pFile);
     }
 
     return u32Ret;
 }
 
-static u32 _unlockStatusFile(file_t * pFile)
+static u32 _unlockStatusFile(jf_file_t * pFile)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    if (*pFile != INVALID_FILE_VALUE)
+    if (*pFile != JF_FILE_INVALID_FILE_VALUE)
     {
-        unlockFile(*pFile);
+        jf_file_unlock(*pFile);
 
-        closeFile(pFile);
+        jf_file_close(pFile);
     }
 
     return u32Ret;
@@ -174,7 +174,7 @@ static u32 _attaskStartService(void * pData)
     u32 u32Ret = OLERR_NO_ERROR;
     serv_mgmt_attask_t * psma = (serv_mgmt_attask_t *)pData;
     internal_service_info_t * pisi;
-    file_t fd = INVALID_FILE_VALUE;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
 
     logInfoMsg("attask start serv");
 
@@ -276,7 +276,7 @@ static u32 _waitForChildProcess(
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32ServIndex, u32Index, u32Reason;
-    file_t fd = INVALID_FILE_VALUE;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
     internal_service_info_t * pisi;
 
     logInfoMsg("wait for child");
@@ -330,7 +330,7 @@ static u32 _monitorServices(
     process_id_t pid[JF_SERVMGMT_MAX_NUM_OF_SERVICE];
     u32 u32ServIndex, u32Count;
     internal_service_info_t * pisi;
-    file_t fd = INVALID_FILE_VALUE;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
 
     logInfoMsg("monitor serv");
 
@@ -373,14 +373,14 @@ static u32 _saveServiceStatus(
 
     logInfoMsg("save service status");
 
-    u32Ret = fpOpenFile(SERV_MGMT_STATUS_FILE, "w", &fp);
+    u32Ret = jf_filestream_open(SERV_MGMT_STATUS_FILE, "w", &fp);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = fpWriten(fp, psiServiceStatus, ol_strlen(psiServiceStatus));
+        u32Ret = jf_filestream_writen(fp, psiServiceStatus, ol_strlen(psiServiceStatus));
     }
 
     if (fp != NULL)
-        fpCloseFile(&fp);
+        jf_filestream_close(&fp);
 
     return u32Ret;
 }
@@ -507,7 +507,7 @@ u32 jf_servmgmt_start(jf_servmgmt_start_param_t * pjssp)
 
     if (pisms != NULL)
     {
-        removeFile(SERV_MGMT_STATUS_FILE);
+        jf_file_remove(SERV_MGMT_STATUS_FILE);
 
 //        if (u32Ret == OLERR_NO_ERROR)
 //            _writeServMgmtSetting(pism, pisms);
@@ -542,7 +542,7 @@ u32 jf_servmgmt_getInfo(jf_servmgmt_info_t * pjsi)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32ServIndex;
-    file_t fd = INVALID_FILE_VALUE;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
     internal_serv_mgmt_setting_t * pisms = NULL;
     olchar_t strServ[60];
     olsize_t size = 60;
@@ -556,7 +556,7 @@ u32 jf_servmgmt_getInfo(jf_servmgmt_info_t * pjsi)
     if (u32Ret != OLERR_NO_ERROR)
         return u32Ret;
 
-    u32Ret = readn(fd, strServ, &size);
+    u32Ret = jf_file_readn(fd, strServ, &size);
     if (u32Ret == OLERR_NO_ERROR)
     {
         psiServSetting = strServ;
@@ -596,7 +596,7 @@ u32 jf_servmgmt_stopServ(olchar_t * pstrName)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32ServIndex;
-    file_t fd = INVALID_FILE_VALUE;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
     internal_serv_mgmt_setting_t * pisms = NULL;
     olchar_t strServ[60];
     olsize_t size = 60;
@@ -607,7 +607,7 @@ u32 jf_servmgmt_stopServ(olchar_t * pstrName)
     if (u32Ret != OLERR_NO_ERROR)
         return u32Ret;
 
-    u32Ret = readn(fd, strServ, &size);
+    u32Ret = jf_file_readn(fd, strServ, &size);
     if (u32Ret == OLERR_NO_ERROR)
     {
         psiServSetting = strServ;
@@ -648,7 +648,7 @@ u32 jf_servmgmt_startServ(olchar_t * pstrName)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32ServIndex;
-    file_t fd = INVALID_FILE_VALUE;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
     internal_serv_mgmt_setting_t * pisms = NULL;
     olchar_t strServ[60];
     olsize_t size = 60;
@@ -659,7 +659,7 @@ u32 jf_servmgmt_startServ(olchar_t * pstrName)
     if (u32Ret != OLERR_NO_ERROR)
         return u32Ret;
 
-    u32Ret = readn(fd, strServ, &size);
+    u32Ret = jf_file_readn(fd, strServ, &size);
     if (u32Ret == OLERR_NO_ERROR)
     {
         psiServSetting = strServ;
@@ -770,7 +770,7 @@ u32 jf_servmgmt_setServStartupType(olchar_t * pstrName, u8 u8StartupType)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     u32 u32ServIndex;
-    file_t fd = INVALID_FILE_VALUE;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
     internal_serv_mgmt_setting_t * pisms = NULL;
     olchar_t strServ[60];
     olsize_t size = 60;
@@ -788,7 +788,7 @@ u32 jf_servmgmt_setServStartupType(olchar_t * pstrName, u8 u8StartupType)
     if (u32Ret != OLERR_NO_ERROR)
         return u32Ret;
 
-    u32Ret = readn(fd, strServ, &size);
+    u32Ret = jf_file_readn(fd, strServ, &size);
     if (u32Ret == OLERR_NO_ERROR)
     {
         psiServSetting = strServ;

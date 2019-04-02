@@ -120,7 +120,7 @@ static u32 _wcTestOnResponse(
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t * buf = NULL;
     olsize_t size;
-    file_t fd = INVALID_FILE_VALUE;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
 
     logInfoMsg("wc test response, nEvent %d", nEvent);
 
@@ -137,14 +137,14 @@ static u32 _wcTestOnResponse(
 
     if (header->jhph_sBody > 0)
     {
-        u32Ret = openFile2(
+        u32Ret = jf_file_openWithMode(
             "webclient-http-data.xls", O_WRONLY | O_CREAT | O_TRUNC,
-            DEFAULT_CREATE_FILE_MODE, &fd);
+            JF_FILE_DEFAULT_CREATE_MODE, &fd);
         if (u32Ret == OLERR_NO_ERROR)
         {
-            u32Ret = writen(fd, header->jhph_pu8Body, header->jhph_sBody);
+            u32Ret = jf_file_writen(fd, header->jhph_pu8Body, header->jhph_sBody);
 
-            closeFile(&fd);
+            jf_file_close(&fd);
         }
     }
 

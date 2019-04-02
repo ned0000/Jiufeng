@@ -59,8 +59,8 @@ static u32 _getMemberFilename(archive_header_t * pah, file_handler_t * pfh)
     {
         if (pah->ah_u8NameLen == AH_NAME_LEN_LONG)
         {
-            u32Ret = _readDataForArchive(pfh->fh_pafArchive, (u8 *)strFilename,
-                ARCHIVE_BLOCK_SIZE);
+            u32Ret = _readDataForArchive(
+                pfh->fh_pafArchive, (u8 *)strFilename, ARCHIVE_BLOCK_SIZE);
             if (u32Ret == OLERR_NO_ERROR)
             {
                 ol_strncpy(pfh->fh_strFullpath, strFilename, MAX_PATH_LEN - 1);
@@ -77,15 +77,15 @@ static u32 _getMemberFilename(archive_header_t * pah, file_handler_t * pfh)
         u8DirDepth = pah->ah_u8DirDepth;
         while (u8DirDepth > 0)
         {
-            getDirectoryName(strFullpath, MAX_PATH_LEN, pfh->fh_strFullpath);
+            jf_file_getDirectoryName(strFullpath, MAX_PATH_LEN, pfh->fh_strFullpath);
 			strcpy(pfh->fh_strFullpath, strFullpath);
             u8DirDepth --;
         }
 
         if (pah->ah_u8NameLen == AH_NAME_LEN_LONG)
         {
-            u32Ret = _readDataForArchive(pfh->fh_pafArchive, (u8 *)strFilename,
-                ARCHIVE_BLOCK_SIZE);
+            u32Ret = _readDataForArchive(
+                pfh->fh_pafArchive, (u8 *)strFilename, ARCHIVE_BLOCK_SIZE);
             if (u32Ret == OLERR_NO_ERROR)
             {
                 ol_snprintf(pfh->fh_strFullpath, MAX_PATH_LEN - 1, "%s%c%s",
@@ -117,18 +117,18 @@ static u32 _getFileMode(archive_header_t * pah, mode_t * pMode)
 
     sscanf((olchar_t *)pah->ah_u8Mode, "%u", &u32Mode);
 
-    (*pMode) = ((u32Mode & AH_MODE_SUID ? FS_MODE_SUID : 0) |
-                (u32Mode & AH_MODE_SGID ? FS_MODE_SGID : 0) |
-                (u32Mode & AH_MODE_SVTX ? FS_MODE_SVTX : 0) |
-                (u32Mode & AH_MODE_UREAD ? FS_MODE_RUSR : 0) |
-                (u32Mode & AH_MODE_UWRITE ? FS_MODE_WUSR : 0) |
-                (u32Mode & AH_MODE_UEXEC ? FS_MODE_XUSR : 0) |
-                (u32Mode & AH_MODE_GREAD ? FS_MODE_RGRP : 0) |
-                (u32Mode & AH_MODE_GWRITE ? FS_MODE_WGRP : 0) |
-                (u32Mode & AH_MODE_GEXEC ? FS_MODE_XGRP : 0) |
-                (u32Mode & AH_MODE_OREAD ? FS_MODE_ROTH : 0) |
-                (u32Mode & AH_MODE_OWRITE ? FS_MODE_WOTH : 0) |
-                (u32Mode & AH_MODE_OEXEC ? FS_MODE_XOTH : 0));
+    (*pMode) = ((u32Mode & AH_MODE_SUID ? JF_FILE_MODE_SUID : 0) |
+                (u32Mode & AH_MODE_SGID ? JF_FILE_MODE_SGID : 0) |
+                (u32Mode & AH_MODE_SVTX ? JF_FILE_MODE_SVTX : 0) |
+                (u32Mode & AH_MODE_UREAD ? JF_FILE_MODE_RUSR : 0) |
+                (u32Mode & AH_MODE_UWRITE ? JF_FILE_MODE_WUSR : 0) |
+                (u32Mode & AH_MODE_UEXEC ? JF_FILE_MODE_XUSR : 0) |
+                (u32Mode & AH_MODE_GREAD ? JF_FILE_MODE_RGRP : 0) |
+                (u32Mode & AH_MODE_GWRITE ? JF_FILE_MODE_WGRP : 0) |
+                (u32Mode & AH_MODE_GEXEC ? JF_FILE_MODE_XGRP : 0) |
+                (u32Mode & AH_MODE_OREAD ? JF_FILE_MODE_ROTH : 0) |
+                (u32Mode & AH_MODE_OWRITE ? JF_FILE_MODE_WOTH : 0) |
+                (u32Mode & AH_MODE_OEXEC ? JF_FILE_MODE_XOTH : 0));
 
     return u32Ret;
 }
@@ -143,10 +143,10 @@ static u32 _writeFile(archive_header_t * pah, file_handler_t * pfh,
     mode_t mode = 0;
 
     _getFileMode(pah, &mode);
-    u32Ret = createFile(pfh->fh_strFullpath, mode);
+    u32Ret = jf_file_create(pfh->fh_strFullpath, mode);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = fpOpenFile(pfh->fh_strFullpath, "wb", &fp);
+        u32Ret = jf_filestream_open(pfh->fh_strFullpath, "wb", &fp);
         if (u32Ret == OLERR_NO_ERROR)
         {
             u64Len = u64Size;
@@ -161,7 +161,7 @@ static u32 _writeFile(archive_header_t * pah, file_handler_t * pfh,
                     pfh->fh_pafArchive, pfh->fh_pu8Buffer, u32Len);
                 if (u32Ret == OLERR_NO_ERROR)
                 {
-                    u32Ret = fpWriten(fp, pfh->fh_pu8Buffer, u32Len);
+                    u32Ret = jf_filestream_writen(fp, pfh->fh_pu8Buffer, u32Len);
                     if (u32Ret == OLERR_NO_ERROR)
                     {
                         u64Len -= (u64)u32Len;
@@ -171,7 +171,7 @@ static u32 _writeFile(archive_header_t * pah, file_handler_t * pfh,
                     u32Ret = OLERR_ARCHIVE_CORRUPTED;
             }
 
-            fpCloseFile(&fp);
+            jf_filestream_close(&fp);
         }
     }
 
@@ -226,7 +226,7 @@ static u32 _extractDir(archive_header_t * pah, file_handler_t * pfh)
     if (! pfh->fh_bListArchive)
     {
         _getFileMode(pah, &mode);
-        u32Ret = createDir(pfh->fh_strFullpath, mode);
+        u32Ret = jf_dir_create(pfh->fh_strFullpath, mode);
     }
 
     return u32Ret;

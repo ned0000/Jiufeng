@@ -80,7 +80,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
     return u32Ret;
 }
 
-static u32 _handleFile(const olchar_t * pstrFilename, file_stat_t * pStat,
+static u32 _handleFile(const olchar_t * pstrFilename, jf_file_stat_t * pStat,
     void * pArg)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -93,14 +93,14 @@ static u32 _handleFile(const olchar_t * pstrFilename, file_stat_t * pStat,
 static u32 _listDir(const olchar_t * pstrDir)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    file_stat_t filestat;
+    jf_file_stat_t filestat;
 
-    u32Ret = getFileStat(pstrDir, &filestat);
+    u32Ret = jf_file_getStat(pstrDir, &filestat);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        if (isDirFile(filestat.fs_u32Mode))
+        if (jf_file_isDirFile(filestat.jfs_u32Mode))
         {
-            u32Ret = traversalDirectory(ls_pstrDirName, _handleFile, NULL);
+            u32Ret = jf_dir_traversal(ls_pstrDirName, _handleFile, NULL);
         }
         else
             u32Ret = OLERR_NOT_A_DIR;
@@ -112,15 +112,15 @@ static u32 _listDir(const olchar_t * pstrDir)
 static u32 _testFpWrite(olchar_t * file)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    FILE * fp = NULL;
+    jf_filestream_t * pjf = NULL;
 
-    u32Ret = fpOpenFile(file, "r+", &fp);
+    u32Ret = jf_filestream_open(file, "r+", &pjf);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        fpSeekFile(fp, SEEK_SET, 0);
-        fpWriten(fp, "hello", 5);
+        jf_filestream_seek(pjf, SEEK_SET, 0);
+        jf_filestream_writen(pjf, "hello", 5);
 
-        fpCloseFile(&fp);
+        jf_filestream_close(&pjf);
     }
 
     return u32Ret;
@@ -132,24 +132,24 @@ THREAD_RETURN_VALUE _testLockFileThread(void * pArg)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t id = (olint_t)(ulong)pArg;
-    file_t fd = INVALID_FILE_VALUE;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
 
     ol_printf("thread %d\n", id);
 
-    u32Ret = openFile(ls_pstrLockFile, O_RDONLY, &fd);
+    u32Ret = jf_file_open(ls_pstrLockFile, O_RDONLY, &fd);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = lockFile(fd);
+        u32Ret = jf_file_lock(fd);
         if (u32Ret == OLERR_NO_ERROR)
         {
             ol_printf("thread %d acquire the lock\n", id);
             sleep(10);
 
-            unlockFile(fd);
+            jf_file_unlock(fd);
             ol_printf("thread %d release the lock\n", id);
         }
 
-        closeFile(&fd);
+        jf_file_close(&fd);
     }
 
     THREAD_RETURN(u32Ret);
@@ -158,13 +158,13 @@ THREAD_RETURN_VALUE _testLockFileThread(void * pArg)
 static u32 _testLockFile(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    file_t fd = INVALID_FILE_VALUE;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
 
-    u32Ret = openFile(ls_pstrLockFile, O_CREAT, &fd);
+    u32Ret = jf_file_open(ls_pstrLockFile, O_CREAT, &fd);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        writen(fd, "12345678", 8);
-        closeFile(&fd);
+        jf_file_writen(fd, "12345678", 8);
+        jf_file_close(&fd);
 
         u32Ret = createThread(NULL, NULL, _testLockFileThread, (void *)1);
     }
@@ -173,7 +173,7 @@ static u32 _testLockFile(void)
         u32Ret = createThread(NULL, NULL, _testLockFileThread, (void *)2);
 
     sleep(30);
-    removeFile(ls_pstrLockFile);
+    jf_file_remove(ls_pstrLockFile);
 
     return u32Ret;
 }
@@ -181,23 +181,24 @@ static u32 _testLockFile(void)
 static u32 _testAppendFile(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    file_t fd = INVALID_FILE_VALUE;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
     olchar_t * pstrFile = "appendfile.txt";
 
-    u32Ret = openFile2(
+    u32Ret = jf_file_openWithMode(
         pstrFile, O_WRONLY | O_APPEND | O_CREAT,
-        DEFAULT_CREATE_FILE_MODE, &fd);
+        JF_FILE_DEFAULT_CREATE_MODE, &fd);
 //    u32Ret = openFile(pstrFile, O_WRONLY | O_APPEND, &fd);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        writen(fd, "12345678", 8);
-        closeFile(&fd);
+        jf_file_writen(fd, "12345678", 8);
+        jf_file_close(&fd);
     }
 
     return u32Ret;
 }
 
 /* --- public routine section ---------------------------------------------- */
+
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;

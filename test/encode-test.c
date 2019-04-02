@@ -262,7 +262,7 @@ static u32 _testGenHuffmanCode(void)
     u32 u32Ret = OLERR_NO_ERROR;
     jf_encode_huffman_code_t pjehc[NUM_SYMBOL];
     u16 u16Index = 0;
-    FILE * fp;
+    jf_filestream_t * fp;
     olint_t c;
 
     if (ls_bCanonicalHuffman)
@@ -277,7 +277,7 @@ static u32 _testGenHuffmanCode(void)
         pjehc[u16Index].jehc_u16Symbol = u16Index;
     }
 
-    u32Ret = fpOpenFile(ls_pstrFile, "r", &fp);
+    u32Ret = jf_filestream_open(ls_pstrFile, "r", &fp);
     if (u32Ret == OLERR_NO_ERROR)
     {
         while ((c = fgetc(fp)) != EOF)
@@ -289,7 +289,7 @@ static u32 _testGenHuffmanCode(void)
             }
         }
 
-        fpCloseFile(&fp);
+        jf_filestream_close(&fp);
     }
 
     if (u32Ret == OLERR_NO_ERROR)

@@ -770,7 +770,7 @@ u32 jf_xmlparser_parseXMLFile(
     u32 u32Ret = OLERR_NO_ERROR;
     FILE * fp = NULL;
     olsize_t u32Size;
-    file_stat_t filestat;
+    jf_file_stat_t filestat;
     jf_xmlparser_xml_file_t * pjxxf;
 
     assert((pstrFilename != NULL) && (ppFile != NULL));
@@ -779,29 +779,29 @@ u32 jf_xmlparser_parseXMLFile(
     if (u32Ret == OLERR_NO_ERROR)
     {
         memset(pjxxf, 0, sizeof(*pjxxf));
-        u32Ret = getFileStat(pstrFilename, &filestat);
+        u32Ret = jf_file_getStat(pstrFilename, &filestat);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Size = (olsize_t)filestat.fs_u64Size;
+        u32Size = (olsize_t)filestat.jfs_u64Size;
         u32Ret = xmalloc((void **)&(pjxxf->jxxf_pstrBuf), u32Size);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = fpOpenFile(pstrFilename, "r", &fp);
+        u32Ret = jf_filestream_open(pstrFilename, "r", &fp);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = fpReadn(fp, pjxxf->jxxf_pstrBuf, &u32Size);
-        if (u32Size != (u32)filestat.fs_u64Size)
+        u32Ret = jf_filestream_readn(fp, pjxxf->jxxf_pstrBuf, &u32Size);
+        if (u32Size != (u32)filestat.jfs_u64Size)
             u32Ret = OLERR_CORRUPTED_XML_FILE;
     }
 
     if (fp != NULL)
-        fpCloseFile(&fp);
+        jf_filestream_close(&fp);
 
     if (u32Ret == OLERR_NO_ERROR)
     {

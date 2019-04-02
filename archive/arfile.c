@@ -28,7 +28,7 @@ typedef struct
 {
     boolean_t iaf_bExtract;
     u8 iaf_u8Reserved[7];
-    FILE * iaf_fpArchive;
+    jf_filestream_t * iaf_pjfArchive;
     u8 * iaf_pu8Buffer;
     olsize_t iaf_sBufLen;
     olsize_t iaf_sOffset;
@@ -40,11 +40,11 @@ static u32 _flushArBuffer(internal_ar_file_t * piaf)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    u32Ret = fpWriten(
-        piaf->iaf_fpArchive, piaf->iaf_pu8Buffer, piaf->iaf_sOffset);
+    u32Ret = jf_filestream_writen(
+        piaf->iaf_pjfArchive, piaf->iaf_pu8Buffer, piaf->iaf_sOffset);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = fpFlushFile(piaf->iaf_fpArchive);
+        u32Ret = jf_filestream_flush(piaf->iaf_pjfArchive);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -60,8 +60,8 @@ static u32 _fillArBuffer(internal_ar_file_t * piaf)
     u32 u32Ret = OLERR_NO_ERROR;
 
     piaf->iaf_sTotalLen = piaf->iaf_sBufLen;
-    u32Ret = fpReadn(
-        piaf->iaf_fpArchive, piaf->iaf_pu8Buffer, &(piaf->iaf_sTotalLen));
+    u32Ret = jf_filestream_readn(
+        piaf->iaf_pjfArchive, piaf->iaf_pu8Buffer, &(piaf->iaf_sTotalLen));
     if (u32Ret == OLERR_NO_ERROR)
     {
         piaf->iaf_sOffset = 0;
@@ -84,9 +84,11 @@ u32 createArFile(
 
         piaf->iaf_bExtract = pafp->afp_bExtract;
         if (piaf->iaf_bExtract)
-            u32Ret = fpOpenFile(pstrArchiveName, "rb", &(piaf->iaf_fpArchive));
+            u32Ret = jf_filestream_open(
+                pstrArchiveName, "rb", &(piaf->iaf_pjfArchive));
         else
-            u32Ret = fpOpenFile(pstrArchiveName, "wb", &(piaf->iaf_fpArchive));
+            u32Ret = jf_filestream_open(
+                pstrArchiveName, "wb", &(piaf->iaf_pjfArchive));
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -119,8 +121,8 @@ u32 destroyArFile(ar_file_t ** ppaf)
             _flushArBuffer(piaf);
     }
 
-    if (piaf->iaf_fpArchive != NULL)
-        fpCloseFile(&(piaf->iaf_fpArchive));
+    if (piaf->iaf_pjfArchive != NULL)
+        jf_filestream_close(&(piaf->iaf_pjfArchive));
 
     if (piaf->iaf_pu8Buffer != NULL)
         xfree((void **)&(piaf->iaf_pu8Buffer));
@@ -148,7 +150,7 @@ u32 readArFile(ar_file_t * paf, u8 * pu8Buffer, olsize_t * psBuf)
         {
             if (sCopy != 0)
             {
-                memcpy(
+                ol_memcpy(
                     pu8Start, piaf->iaf_pu8Buffer + piaf->iaf_sOffset, sCopy);
                 pu8Start += sCopy;
                 sLen -= sCopy;
@@ -159,7 +161,7 @@ u32 readArFile(ar_file_t * paf, u8 * pu8Buffer, olsize_t * psBuf)
         }
         else
         {
-            memcpy(pu8Start, piaf->iaf_pu8Buffer + piaf->iaf_sOffset, sLen);
+            ol_memcpy(pu8Start, piaf->iaf_pu8Buffer + piaf->iaf_sOffset, sLen);
             piaf->iaf_sOffset += sLen;
             sLen = 0;
         }
@@ -188,7 +190,7 @@ u32 writeArFile(ar_file_t * paf, u8 * pu8Buffer, olsize_t sBuf)
         {
             if (sCopy != 0)
             {
-                memcpy(
+                ol_memcpy(
                     piaf->iaf_pu8Buffer + piaf->iaf_sOffset, pu8Start, sCopy);
                 pu8Start += sCopy;
                 sAll -= sCopy;
@@ -199,7 +201,7 @@ u32 writeArFile(ar_file_t * paf, u8 * pu8Buffer, olsize_t sBuf)
         }
         else
         {
-            memcpy(piaf->iaf_pu8Buffer + piaf->iaf_sOffset, pu8Start, sAll);
+            ol_memcpy(piaf->iaf_pu8Buffer + piaf->iaf_sOffset, pu8Start, sAll);
             piaf->iaf_sOffset += sAll;
             sAll = 0;
         }
@@ -242,7 +244,7 @@ boolean_t isEndOfArFile(ar_file_t * paf)
     boolean_t bRet = FALSE;
     internal_ar_file_t * piaf = (internal_ar_file_t *)paf;
 
-    if ((fpEndOfFile(piaf->iaf_fpArchive)) &&
+    if ((jf_filestream_isEndOfFile(piaf->iaf_pjfArchive)) &&
         (piaf->iaf_sTotalLen == piaf->iaf_sOffset))
         bRet = TRUE;
 

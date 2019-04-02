@@ -88,7 +88,7 @@ u32 jf_encrypt_encryptFile(
     FILE * fpDest = NULL;
     u8 iv[AES_BLOCK_SIZE];
     olchar_t * pBuf = NULL;
-    file_stat_t filestat;
+    jf_file_stat_t filestat;
     olsize_t sread;
 
     u32Ret = _setEncryptKey(pKey, &aeskey);
@@ -99,22 +99,22 @@ u32 jf_encrypt_encryptFile(
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = getFileStat(pSrcFile, &filestat);
+        u32Ret = jf_file_getStat(pSrcFile, &filestat);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = fpOpenFile(pSrcFile, "r", &fpSrc);
+        u32Ret = jf_filestream_open(pSrcFile, "r", &fpSrc);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = fpOpenFile(pDestFile, "w", &fpDest);
+        u32Ret = jf_filestream_open(pDestFile, "w", &fpDest);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = fpWriten(fpDest, (void *)&filestat.fs_u64Size, sizeof(u64));
+        u32Ret = jf_filestream_writen(fpDest, (void *)&filestat.jfs_u64Size, sizeof(u64));
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -123,14 +123,14 @@ u32 jf_encrypt_encryptFile(
         do
         {
             sread = MAX_DATA_TRANSFER_SIZE;
-            u32Ret = fpReadn(fpSrc, pBuf, &sread);
+            u32Ret = jf_filestream_readn(fpSrc, pBuf, &sread);
             if (u32Ret == OLERR_NO_ERROR)
             {
                 sread = ALIGN(sread, 16);
                 AES_cbc_encrypt(
                     (u8 *)pBuf, (u8 *)pBuf, sread, &aeskey, iv, AES_ENCRYPT);
 
-                u32Ret = fpWriten(fpDest, pBuf, sread);
+                u32Ret = jf_filestream_writen(fpDest, pBuf, sread);
             }
             
         } while (u32Ret == OLERR_NO_ERROR);
@@ -142,9 +142,9 @@ u32 jf_encrypt_encryptFile(
     if (pBuf != NULL)
         xfree((void **)&pBuf);
     if (fpSrc != NULL)
-        fpCloseFile(&fpSrc);
+        jf_filestream_close(&fpSrc);
     if (fpDest != NULL)
-        fpCloseFile(&fpDest);
+        jf_filestream_close(&fpDest);
 
     return u32Ret; 
 }
@@ -169,18 +169,18 @@ u32 jf_encrypt_decryptFile(
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = fpOpenFile(pSrcFile, "r", &fpSrc);
+        u32Ret = jf_filestream_open(pSrcFile, "r", &fpSrc);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = fpOpenFile(pDestFile, "w", &fpDest);
+        u32Ret = jf_filestream_open(pDestFile, "w", &fpDest);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
         sread = sizeof(u64Size);
-        u32Ret = fpReadn(fpSrc, (void *)&u64Size, &sread);
+        u32Ret = jf_filestream_readn(fpSrc, (void *)&u64Size, &sread);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -190,7 +190,7 @@ u32 jf_encrypt_decryptFile(
         do
         {
             sread = MAX_DATA_TRANSFER_SIZE;
-            u32Ret = fpReadn(fpSrc, pBuf, &sread);
+            u32Ret = jf_filestream_readn(fpSrc, pBuf, &sread);
             if (u32Ret == OLERR_NO_ERROR)
             {
                 AES_cbc_encrypt(
@@ -198,7 +198,7 @@ u32 jf_encrypt_decryptFile(
 
                 if (sread > sleft)
                     sread = sleft;
-                u32Ret = fpWriten(fpDest, pBuf, sread);
+                u32Ret = jf_filestream_writen(fpDest, pBuf, sread);
             }
 
             if (u32Ret == OLERR_NO_ERROR)
@@ -216,9 +216,9 @@ u32 jf_encrypt_decryptFile(
     if (pBuf != NULL)
         xfree((void **)&pBuf);
     if (fpSrc != NULL)
-        fpCloseFile(&fpSrc);
+        jf_filestream_close(&fpSrc);
     if (fpDest != NULL)
-        fpCloseFile(&fpDest);
+        jf_filestream_close(&fpDest);
 
     return u32Ret;   
 }

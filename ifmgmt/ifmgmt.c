@@ -188,25 +188,25 @@ u32 jf_ifmgmt_getAllIf(jf_ifmgmt_if_t * pif, u32 * pu32NumOfIf)
     u32 u32Ret = OLERR_NO_ERROR;
 #if defined(LINUX)
     u32 u32If = 0;
-    olfile_t * fp = NULL;
+    jf_filestream_t * pjf = NULL;
     olchar_t buf[1024], * pName;
     olsize_t sbyte;
     olchar_t strName[32];
 
-    memset(pif, 0, sizeof(jf_ifmgmt_if_t) * (*pu32NumOfIf));
+    ol_memset(pif, 0, sizeof(jf_ifmgmt_if_t) * (*pu32NumOfIf));
 
-    u32Ret = fpOpenFile(SYSTEM_NET_DEV_FILE, "r", &fp);
+    u32Ret = jf_filestream_open(SYSTEM_NET_DEV_FILE, "r", &pjf);
     if (u32Ret == OLERR_NO_ERROR)
     {
         sbyte = sizeof(buf);
-        fpReadLine(fp, buf, &sbyte);
+        jf_filestream_readLine(pjf, buf, &sbyte);
         sbyte = sizeof(buf);
-        fpReadLine(fp, buf, &sbyte);
+        jf_filestream_readLine(pjf, buf, &sbyte);
 
         while (u32Ret == OLERR_NO_ERROR)
         {
             sbyte = sizeof(buf);
-            u32Ret = fpReadLine(fp, buf, &sbyte);
+            u32Ret = jf_filestream_readLine(pjf, buf, &sbyte);
             if (u32Ret == OLERR_NO_ERROR)
             {
                 pName = buf;
@@ -240,6 +240,9 @@ u32 jf_ifmgmt_getAllIf(jf_ifmgmt_if_t * pif, u32 * pu32NumOfIf)
     *pu32NumOfIf = u32If;
     if (u32Ret == OLERR_END_OF_FILE)
         u32Ret = OLERR_NO_ERROR;
+
+    if (pjf != NULL)
+        jf_filestream_close(&pjf);
 
 #elif defined(WINDOWS)
     u32Ret = OLERR_NOT_IMPLEMENTED;
