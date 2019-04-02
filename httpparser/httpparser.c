@@ -27,28 +27,28 @@
 /* --- private routine section---------------------------------------------- */
 
 static u32 _parseHttpStartLine(
-    jf_httpparser_packet_header_t * retval, parse_result_field_t * field)
+    jf_httpparser_packet_header_t * retval, jf_string_parse_result_field_t * field)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    parse_result_t * startline = NULL;
+    jf_string_parse_result_t * startline = NULL;
     olint_t nret;
-    parse_result_t * result;
-    parse_result_field_t * pprf;
+    jf_string_parse_result_t * result;
+    jf_string_parse_result_field_t * pjsprf;
 
     /* The first token is where we can figure out the method, path, version,
        etc.*/
     u32Ret = parseString(
-        &startline, field->prf_pstrData, 0, field->prf_sData, " ", 1);
+        &startline, field->jsprf_pstrData, 0, field->jsprf_sData, " ", 1);
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        if (startline->pr_u32NumOfResult < 3)
+        if (startline->jspr_u32NumOfResult < 3)
             u32Ret = OLERR_CORRUPTED_HTTP_MSG;
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        nret = ol_memcmp(startline->pr_pprfFirst->prf_pstrData, "HTTP/", 5);
+        nret = ol_memcmp(startline->jspr_pjsprfFirst->jsprf_pstrData, "HTTP/", 5);
         if (nret == 0)
         {
             /*If the startline starts with HTTP/, then this is a response packet.
@@ -56,12 +56,12 @@ static u32 _parseHttpStartLine(
               follows. 
               eg: HTTP/1.1 200 OK */
             u32Ret = parseString(
-                &result, startline->pr_pprfFirst->prf_pstrData, 0,
-                startline->pr_pprfFirst->prf_sData, "/", 1);
+                &result, startline->jspr_pjsprfFirst->jsprf_pstrData, 0,
+                startline->jspr_pjsprfFirst->jsprf_sData, "/", 1);
             if (u32Ret == OLERR_NO_ERROR)
             {
-                retval->jhph_pstrVersion = result->pr_pprfLast->prf_pstrData;
-                retval->jhph_sVersion = result->pr_pprfLast->prf_sData;
+                retval->jhph_pstrVersion = result->jspr_pjsprfLast->jsprf_pstrData;
+                retval->jhph_sVersion = result->jspr_pjsprfLast->jsprf_sData;
 
                 destroyParseResult(&result);
             }
@@ -69,23 +69,23 @@ static u32 _parseHttpStartLine(
             if (u32Ret == OLERR_NO_ERROR)
             {
                 /* The other tokens contain the status code and data */
-                pprf = startline->pr_pprfFirst->prf_pprfNext;
+                pjsprf = startline->jspr_pjsprfFirst->jsprf_pjsprfNext;
                 u32Ret = getS32FromString(
-                    pprf->prf_pstrData, pprf->prf_sData,
+                    pjsprf->jsprf_pstrData, pjsprf->jsprf_sData,
                     &retval->jhph_nStatusCode);
             }
 
             if (u32Ret == OLERR_NO_ERROR)
             {
-                pprf = pprf->prf_pprfNext;
-                retval->jhph_pstrStatusData = pprf->prf_pstrData;
-                retval->jhph_sStatusData = pprf->prf_sData;
+                pjsprf = pjsprf->jsprf_pjsprfNext;
+                retval->jhph_pstrStatusData = pjsprf->jsprf_pstrData;
+                retval->jhph_sStatusData = pjsprf->jsprf_sData;
 
-                pprf = pprf->prf_pprfNext;
-                while (pprf != NULL)
+                pjsprf = pjsprf->jsprf_pjsprfNext;
+                while (pjsprf != NULL)
                 {
-                    retval->jhph_sStatusData += pprf->prf_sData + 1;
-                    pprf = pprf->prf_pprfNext;
+                    retval->jhph_sStatusData += pjsprf->jsprf_sData + 1;
+                    pjsprf = pjsprf->jsprf_pjsprfNext;
                 }
             }
         }
@@ -96,23 +96,23 @@ static u32 _parseHttpStartLine(
                eg: GET /index.html HTTP/1.1
                The method (or directive), is the first token, and the Path
                (or jhph_pstrDirectiveObj) is the second, and version in the 3rd. */
-            pprf = startline->pr_pprfFirst;
-            retval->jhph_pstrDirective = pprf->prf_pstrData;
-            retval->jhph_sDirective = pprf->prf_sData;
+            pjsprf = startline->jspr_pjsprfFirst;
+            retval->jhph_pstrDirective = pjsprf->jsprf_pstrData;
+            retval->jhph_sDirective = pjsprf->jsprf_sData;
 
-            pprf = pprf->prf_pprfNext;
-            retval->jhph_pstrDirectiveObj = pprf->prf_pstrData;
-            retval->jhph_sDirectiveObj = pprf->prf_sData;
+            pjsprf = pjsprf->jsprf_pjsprfNext;
+            retval->jhph_pstrDirectiveObj = pjsprf->jsprf_pstrData;
+            retval->jhph_sDirectiveObj = pjsprf->jsprf_sData;
             retval->jhph_nStatusCode = -1;
 
             /* We parse the last token on '/' to find the version */
             u32Ret = parseString(
-                &result, startline->pr_pprfLast->prf_pstrData, 0,
-                startline->pr_pprfLast->prf_sData, "/", 1);
+                &result, startline->jspr_pjsprfLast->jsprf_pstrData, 0,
+                startline->jspr_pjsprfLast->jsprf_sData, "/", 1);
             if (u32Ret == OLERR_NO_ERROR)
             {
-                retval->jhph_pstrVersion = result->pr_pprfLast->prf_pstrData;
-                retval->jhph_sVersion = result->pr_pprfLast->prf_sData;
+                retval->jhph_pstrVersion = result->jspr_pjsprfLast->jsprf_pstrData;
+                retval->jhph_sVersion = result->jspr_pjsprfLast->jsprf_sData;
 
                 destroyParseResult(&result);
             }
@@ -126,10 +126,10 @@ static u32 _parseHttpStartLine(
 }
 
 static u32 _parseHttpHeaderLine(
-    jf_httpparser_packet_header_t * retval, parse_result_field_t * field)
+    jf_httpparser_packet_header_t * retval, jf_string_parse_result_field_t * field)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    parse_result_field_t * headerline = field;
+    jf_string_parse_result_field_t * headerline = field;
     jf_httpparser_packet_header_field_t * node;
     olint_t i = 0;
     olint_t FLNWS = -1;
@@ -139,7 +139,7 @@ static u32 _parseHttpHeaderLine(
        the rest of the tokens*/
     while (headerline != NULL)
     {
-        if (headerline->prf_sData == 0)
+        if (headerline->jsprf_sData == 0)
         {
             /* An empty line signals the end of the headers */
             break;
@@ -149,14 +149,14 @@ static u32 _parseHttpHeaderLine(
         u32Ret = xcalloc((void **)&node, sizeof(jf_httpparser_packet_header_field_t));
         if (u32Ret == OLERR_NO_ERROR)
         {
-            for (i = 0; i < headerline->prf_sData; ++i)
+            for (i = 0; i < headerline->jsprf_sData; ++i)
             {
-                if (*((headerline->prf_pstrData) + i) == ':')
+                if (*((headerline->jsprf_pstrData) + i) == ':')
                 {
-                    node->jhphf_pstrName = headerline->prf_pstrData;
+                    node->jhphf_pstrName = headerline->jsprf_pstrData;
                     node->jhphf_sName = i;
-                    node->jhphf_pstrData = headerline->prf_pstrData + i + 1;
-                    node->jhphf_sData = (headerline->prf_sData) - i - 1;
+                    node->jhphf_pstrData = headerline->jsprf_pstrData + i + 1;
+                    node->jhphf_sData = (headerline->jsprf_sData) - i - 1;
                     break;
                 }
             }
@@ -210,7 +210,7 @@ static u32 _parseHttpHeaderLine(
             }
             retval->jhph_pjhphfLast = node;
 
-            headerline = headerline->prf_pprfNext;
+            headerline = headerline->jsprf_pjsprfNext;
         }
     }
 
@@ -409,9 +409,9 @@ u32 jf_httpparser_parsePacketHeader(
 {
     u32 u32Ret = OLERR_NO_ERROR;
     jf_httpparser_packet_header_t * retval = NULL;
-    parse_result_t * pPacket = NULL;
-    parse_result_field_t * headerline;
-    parse_result_field_t * field;
+    jf_string_parse_result_t * pPacket = NULL;
+    jf_string_parse_result_field_t * headerline;
+    jf_string_parse_result_field_t * field;
 
     u32Ret = xcalloc((void **)&retval, sizeof(jf_httpparser_packet_header_t));
     if (u32Ret == OLERR_NO_ERROR)
@@ -422,8 +422,8 @@ u32 jf_httpparser_parsePacketHeader(
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        field = pPacket->pr_pprfFirst;
-        headerline = field->prf_pprfNext;
+        field = pPacket->jspr_pjsprfFirst;
+        headerline = field->jsprf_pjsprfNext;
 
         u32Ret = _parseHttpStartLine(retval, field);
     }
@@ -562,7 +562,7 @@ u32 jf_httpparser_parseUri(
     olchar_t ** ppstrPath)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    parse_result_t *result = NULL, *result2 = NULL, *result3 = NULL;
+    jf_string_parse_result_t *result = NULL, *result2 = NULL, *result3 = NULL;
     olchar_t * str1;
     olsize_t len1, len2;
 
@@ -575,14 +575,14 @@ u32 jf_httpparser_parseUri(
         &result, pstrUri, 0, (olint_t) ol_strlen(pstrUri), "://", 3);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        if (result->pr_u32NumOfResult < 2)
+        if (result->jspr_u32NumOfResult < 2)
             u32Ret = OLERR_INVALID_HTTP_URI;
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        str1 = result->pr_pprfLast->prf_pstrData;
-        len1 = result->pr_pprfLast->prf_sData;
+        str1 = result->jspr_pjsprfLast->jsprf_pstrData;
+        len1 = result->jspr_pjsprfLast->jsprf_sData;
 
         /* Parse path. The first '/' will occur after the IPAddress:port
            combination*/
@@ -591,22 +591,22 @@ u32 jf_httpparser_parseUri(
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        len2 = len1 - result2->pr_pprfFirst->prf_sData;
+        len2 = len1 - result2->jspr_pjsprfFirst->jsprf_sData;
 
         u32Ret = dupStringWithLen(
-            ppstrPath, str1 + result2->pr_pprfFirst->prf_sData, len2);
+            ppstrPath, str1 + result2->jspr_pjsprfFirst->jsprf_sData, len2);
         if (u32Ret == OLERR_NO_ERROR)
         {
             /* Parse port Number */
             u32Ret = parseString(
-                &result3, result2->pr_pprfFirst->prf_pstrData,
-                0, result2->pr_pprfFirst->prf_sData, ":", 1);
+                &result3, result2->jspr_pjsprfFirst->jsprf_pstrData,
+                0, result2->jspr_pjsprfFirst->jsprf_sData, ":", 1);
         }
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        if (result3->pr_u32NumOfResult == 1)
+        if (result3->jspr_u32NumOfResult == 1)
         {
             /* The default port is 80, if non is specified, because we are
                assuming an HTTP scheme*/
@@ -616,8 +616,8 @@ u32 jf_httpparser_parseUri(
         {
             /* If a port was specified, use that */
             u32Ret = getU16FromString(
-                result3->pr_pprfLast->prf_pstrData,
-                result3->pr_pprfLast->prf_sData, pu16Port);
+                result3->jspr_pjsprfLast->jsprf_pstrData,
+                result3->jspr_pjsprfLast->jsprf_sData, pu16Port);
         }
     }
 
@@ -625,8 +625,8 @@ u32 jf_httpparser_parseUri(
     {
         /* Parse IP Address */
         u32Ret = dupStringWithLen(
-            ppstrIp, result3->pr_pprfFirst->prf_pstrData,
-            result3->pr_pprfFirst->prf_sData);
+            ppstrIp, result3->jspr_pjsprfFirst->jsprf_pstrData,
+            result3->jspr_pjsprfFirst->jsprf_sData);
     }
 
     if (u32Ret != OLERR_NO_ERROR)

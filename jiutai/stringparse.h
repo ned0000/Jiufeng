@@ -42,27 +42,27 @@
 /* --- data structures ----------------------------------------------------- */
 /** Parse result field
  */
-typedef struct parse_result_field
+typedef struct jf_string_parse_result_field
 {
     /** Token */
-    olchar_t * prf_pstrData;
+    olchar_t * jsprf_pstrData;
     /** Length of the token */
-    olsize_t prf_sData;
+    olsize_t jsprf_sData;
     /** Next field */
-    struct parse_result_field * prf_pprfNext;
-} parse_result_field_t;
+    struct jf_string_parse_result_field * jsprf_pjsprfNext;
+} jf_string_parse_result_field_t;
 
 /** Parse result
  */
-typedef struct parse_result
+typedef struct jf_string_parse_result
 {
     /** First result */
-    parse_result_field_t *pr_pprfFirst;
+    jf_string_parse_result_field_t * jspr_pjsprfFirst;
     /** Last result */
-    parse_result_field_t *pr_pprfLast;
+    jf_string_parse_result_field_t * jspr_pjsprfLast;
     /** Numbers of results */
-    u32 pr_u32NumOfResult;
-} parse_result_t;
+    u32 jspr_u32NumOfResult;
+} jf_string_parse_result_t;
 
 /* --- functional routines ------------------------------------------------- */
 
@@ -85,7 +85,7 @@ typedef struct parse_result
  *   characters contained within quotation marks, whereas parseStringAdv does.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL parseString(
-    parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
+    jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
     olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter);
 
 
@@ -107,7 +107,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL parseString(
  *   contained within quotation marks, whereas parseString does not.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL parseStringAdv(
-    parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
+    jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
     olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter);
 
 /** Frees resources associated with the list of tokens returned from parseString
@@ -119,7 +119,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL parseStringAdv(
  *  @retval OLERR_NO_ERROR success
  */
 STRINGPARSEAPI u32 STRINGPARSECALL destroyParseResult(
-    parse_result_t ** ppResult);
+    jf_string_parse_result_t ** ppResult);
 
 /** Remove the blank space(s) from the left and the right of the string
  *

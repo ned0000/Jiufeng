@@ -51,13 +51,13 @@ static u32 _destroyXMLNodeList(jf_xmlparser_xml_node_t ** ppNode)
     return u32Ret;
 }
 
-/** The pprfContent is the content between 2 '<'
+/** The pjsprfContent is the content between 2 '<'
  */
 static u32 _newXMLNode(
     jf_xmlparser_xml_node_t ** ppRoot, jf_xmlparser_xml_node_t ** ppCurrent,
     olchar_t * pstrTagName, olsize_t sTagName, boolean_t bStartTag,
     boolean_t bEmptyTag, olchar_t * pstrNSTag, olsize_t sNSTag,
-    parse_result_field_t * pprfContent, parse_result_t * pElem)
+    jf_string_parse_result_field_t * pjsprfContent, jf_string_parse_result_t * pElem)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     jf_xmlparser_xml_node_t * jxxnNew = NULL;
@@ -76,7 +76,7 @@ static u32 _newXMLNode(
         {
             /* The jxxn_pReserved field of end elements point to the
                first character before the '<' */
-            jxxnNew->jxxn_pReserved = pprfContent->prf_pstrData;
+            jxxnNew->jxxn_pReserved = pjsprfContent->jsprf_pstrData;
             do
             {
                 pu8Reserved = (olchar_t *) jxxnNew->jxxn_pReserved;
@@ -88,7 +88,7 @@ static u32 _newXMLNode(
         {
             /* The jxxn_pReserved field of start elements point to the
                end of the element (the data segment) */
-            jxxnNew->jxxn_pReserved = pElem->pr_pprfLast->prf_pstrData;
+            jxxnNew->jxxn_pReserved = pElem->jspr_pjsprfLast->jsprf_pstrData;
         }
 
         if (*ppRoot == NULL)
@@ -127,30 +127,30 @@ static u32 _newXMLNode(
 }
 
 static u32 _parseXmlDeclaration(
-    parse_result_t * xml, parse_result_field_t ** ppDoc)
+    jf_string_parse_result_t * xml, jf_string_parse_result_field_t ** ppDoc)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    parse_result_field_t * field;
+    jf_string_parse_result_field_t * field;
 
-    if (xml->pr_u32NumOfResult < 2)
+    if (xml->jspr_u32NumOfResult < 2)
         u32Ret = OLERR_CORRUPTED_XML_FILE;
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        field = xml->pr_pprfFirst->prf_pprfNext;
+        field = xml->jspr_pjsprfFirst->jsprf_pjsprfNext;
         if (field == NULL)
             u32Ret = OLERR_CORRUPTED_XML_FILE;
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        if (field->prf_sData < 1)
+        if (field->jsprf_sData < 1)
             u32Ret = OLERR_INVALID_XML_DECLARATION;
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        if (memcmp(field->prf_pstrData, "?", 1) != 0)
+        if (memcmp(field->jsprf_pstrData, "?", 1) != 0)
             u32Ret = OLERR_INVALID_XML_DECLARATION;
     }
     
@@ -162,30 +162,30 @@ static u32 _parseXmlDeclaration(
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        *ppDoc = field->prf_pprfNext;
+        *ppDoc = field->jsprf_pjsprfNext;
     }
 
     return u32Ret;
 }
 
 static u32 _parseXmlElement(
-    parse_result_field_t * field, boolean_t * pbEmptyTag,
-    boolean_t * pbStartTag, parse_result_t ** ppElem)
+    jf_string_parse_result_field_t * field, boolean_t * pbEmptyTag,
+    boolean_t * pbStartTag, jf_string_parse_result_t ** ppElem)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
     *pbEmptyTag = FALSE;
-    if (memcmp(field->prf_pstrData, "/", 1) == 0)
+    if (memcmp(field->jsprf_pstrData, "/", 1) == 0)
     {
         /* The first character after the '<' was a '/', so it is the end
            element */
         *pbStartTag = FALSE;
-        field->prf_pstrData ++;
-        field->prf_sData --;
+        field->jsprf_pstrData ++;
+        field->jsprf_sData --;
 
         /* If we look for the '>' we can find the end of this element */
         u32Ret = parseString(
-            ppElem, field->prf_pstrData, 0, field->prf_sData, ">", 1);
+            ppElem, field->jsprf_pstrData, 0, field->jsprf_sData, ">", 1);
     }
     else
     {
@@ -195,11 +195,11 @@ static u32 _parseXmlElement(
 
         /* If we look for the '>' we can find the end of this element */
         u32Ret = parseString(
-            ppElem, field->prf_pstrData, 0, field->prf_sData, ">", 1);
+            ppElem, field->jsprf_pstrData, 0, field->jsprf_sData, ">", 1);
         if (u32Ret == OLERR_NO_ERROR)
         {
-            if ((*ppElem)->pr_pprfFirst->
-                prf_pstrData[(*ppElem)->pr_pprfFirst->prf_sData - 1] == '/')
+            if ((*ppElem)->jspr_pjsprfFirst->
+                jsprf_pstrData[(*ppElem)->jspr_pjsprfFirst->jsprf_sData - 1] == '/')
             {
                 /* If this element ended with a '/' this is an EmptyElement */
                 *pbEmptyTag = TRUE;
@@ -211,51 +211,51 @@ static u32 _parseXmlElement(
 }
 
 static u32 _parseXmlAttribute(
-    parse_result_t * pElem, parse_result_t ** ppAttr)
+    jf_string_parse_result_t * pElem, jf_string_parse_result_t ** ppAttr)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
     /* Parsing on the ' ', isolate the element name from the attributes.
        The first token is the element name */
     u32Ret = parseString(
-        ppAttr, pElem->pr_pprfFirst->prf_pstrData, 0,
-        pElem->pr_pprfFirst->prf_sData, " ", 1);
+        ppAttr, pElem->jspr_pjsprfFirst->jsprf_pstrData, 0,
+        pElem->jspr_pjsprfFirst->jsprf_sData, " ", 1);
 
     return u32Ret;
 }
 
 static u32 _parseXmlElementName(
-    parse_result_t * pAttr, olchar_t ** ppNs, olsize_t * psNs,
+    jf_string_parse_result_t * pAttr, olchar_t ** ppNs, olsize_t * psNs,
     olchar_t ** ppName, olsize_t * psName)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    parse_result_t * pTag = NULL;
+    jf_string_parse_result_t * pTag = NULL;
 
     /* Now that we have the token that contains the element name,
        we need to parse on the ":" because we need to figure out
        what the namespace qualifiers are */
     u32Ret = parseString(
-        &pTag, pAttr->pr_pprfFirst->prf_pstrData, 0,
-        pAttr->pr_pprfFirst->prf_sData, ":", 1);
+        &pTag, pAttr->jspr_pjsprfFirst->jsprf_pstrData, 0,
+        pAttr->jspr_pjsprfFirst->jsprf_sData, ":", 1);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        if (pTag->pr_u32NumOfResult == 1)
+        if (pTag->jspr_u32NumOfResult == 1)
         {
             /* If there is only one token, there was no namespace prefix. 
                The whole token is the attribute name */
             *ppNs = NULL;
             *psNs = 0;
-            *ppName = pTag->pr_pprfFirst->prf_pstrData;
-            *psName = pTag->pr_pprfFirst->prf_sData;
+            *ppName = pTag->jspr_pjsprfFirst->jsprf_pstrData;
+            *psName = pTag->jspr_pjsprfFirst->jsprf_sData;
         }
         else
         {
             /* The first token is the namespace prefix, the second is
                the attribute name */
-            *ppNs = pTag->pr_pprfFirst->prf_pstrData;
-            *psNs = pTag->pr_pprfFirst->prf_sData;
-            *ppName = pTag->pr_pprfFirst->prf_pprfNext->prf_pstrData;
-            *psName = pTag->pr_pprfFirst->prf_pprfNext->prf_sData;
+            *ppNs = pTag->jspr_pjsprfFirst->jsprf_pstrData;
+            *psNs = pTag->jspr_pjsprfFirst->jsprf_sData;
+            *ppName = pTag->jspr_pjsprfFirst->jsprf_pjsprfNext->jsprf_pstrData;
+            *psName = pTag->jspr_pjsprfFirst->jsprf_pjsprfNext->jsprf_sData;
         }
 
         destroyParseResult(&pTag);
@@ -277,10 +277,10 @@ static u32 _parseXML(
     jf_xmlparser_xml_node_t ** ppNode)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    parse_result_t * xml = NULL;
-    parse_result_field_t * field;
-    parse_result_t * pAttr = NULL;
-    parse_result_t * pElem = NULL;
+    jf_string_parse_result_t * xml = NULL;
+    jf_string_parse_result_field_t * field;
+    jf_string_parse_result_t * pAttr = NULL;
+    jf_string_parse_result_t * pElem = NULL;
     olchar_t * tagName;
     olsize_t sTagName;
     boolean_t bStartTag;
@@ -334,7 +334,7 @@ static u32 _parseXML(
         if (pAttr != NULL)
             destroyParseResult(&pAttr);
 
-        field = field->prf_pprfNext;
+        field = field->jsprf_pjsprfNext;
     }
 
     if (xml != NULL)
@@ -441,13 +441,13 @@ static u32 _processXMLNodeList(jf_xmlparser_xml_doc_t * pjxxd)
 }
 
 static u32 _getXmlAttribute(
-    parse_result_field_t * field, jf_xmlparser_xml_attribute_t ** ppAttribute)
+    jf_string_parse_result_field_t * field, jf_xmlparser_xml_attribute_t ** ppAttribute)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     jf_xmlparser_xml_attribute_t * retval = NULL;
     jf_xmlparser_xml_attribute_t * current = NULL;
-    parse_result_t * pAttr;
-    parse_result_t * pValue;
+    jf_string_parse_result_t * pAttr;
+    jf_string_parse_result_t * pValue;
 
     /* Iterate through all the other tokens, as these are all attributes */
     while ((field != NULL) && (u32Ret == OLERR_NO_ERROR))
@@ -476,39 +476,39 @@ static u32 _getXmlAttribute(
                token, we can figure that the first token is the namespace
                prefix */
             u32Ret = parseStringAdv(
-                &pAttr, field->prf_pstrData, 0, field->prf_sData, ":", 1);
+                &pAttr, field->jsprf_pstrData, 0, field->jsprf_sData, ":", 1);
         }
 
         if (u32Ret == OLERR_NO_ERROR)
         {
-            if (pAttr->pr_u32NumOfResult == 1)
+            if (pAttr->jspr_u32NumOfResult == 1)
             {
                 /* This attribute has no prefix, so just parse on the '='. The
                    first token is the attribute name, the other is the value */
                 retval->jxxa_pstrPrefix = NULL;
                 retval->jxxa_sPrefix = 0;
                 u32Ret = parseStringAdv(
-                    &pValue, field->prf_pstrData, 0, field->prf_sData, "=", 1);
+                    &pValue, field->jsprf_pstrData, 0, field->jsprf_sData, "=", 1);
             }
             else
             {
                 /* Since there is a namespace prefix, seperate that out, and
                    parse the remainder on the '=' to figure out what the
                    attribute name and value are */
-                retval->jxxa_pstrPrefix = pAttr->pr_pprfFirst->prf_pstrData;
-                retval->jxxa_sPrefix = pAttr->pr_pprfFirst->prf_sData;
+                retval->jxxa_pstrPrefix = pAttr->jspr_pjsprfFirst->jsprf_pstrData;
+                retval->jxxa_sPrefix = pAttr->jspr_pjsprfFirst->jsprf_sData;
                 u32Ret = parseStringAdv(
-                    &pValue, field->prf_pstrData, retval->jxxa_sPrefix + 1,
-                    field->prf_sData - retval->jxxa_sPrefix - 1, "=", 1);
+                    &pValue, field->jsprf_pstrData, retval->jxxa_sPrefix + 1,
+                    field->jsprf_sData - retval->jxxa_sPrefix - 1, "=", 1);
             }
         }
 
         if (u32Ret == OLERR_NO_ERROR)
         {
-            retval->jxxa_pstrName = pValue->pr_pprfFirst->prf_pstrData;
-            retval->jxxa_sName = pValue->pr_pprfFirst->prf_sData;
-            retval->jxxa_pstrValue = pValue->pr_pprfLast->prf_pstrData;
-            retval->jxxa_sValue = pValue->pr_pprfLast->prf_sData;
+            retval->jxxa_pstrName = pValue->jspr_pjsprfFirst->jsprf_pstrData;
+            retval->jxxa_sName = pValue->jspr_pjsprfFirst->jsprf_sData;
+            retval->jxxa_pstrValue = pValue->jspr_pjsprfLast->jsprf_pstrData;
+            retval->jxxa_sValue = pValue->jspr_pjsprfLast->jsprf_sData;
         }
 
         if (pAttr != NULL)
@@ -517,7 +517,7 @@ static u32 _getXmlAttribute(
         if (pValue != NULL)
             destroyParseResult(&pValue);
 
-        field = field->prf_pprfNext;
+        field = field->jsprf_pjsprfNext;
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -701,8 +701,8 @@ u32 jf_xmlparser_getXMLAttributes(
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t *c;
     olint_t nEndReserved = (! node->jxxn_bEmptyTag) ? 1 : 2;
-    parse_result_t * xml;
-    parse_result_field_t * field;
+    jf_string_parse_result_t * xml;
+    jf_string_parse_result_field_t * field;
 
     /* The reserved field is used to show where the data segments start and
        stop. We can also use them to figure out where the attributes start
@@ -725,12 +725,12 @@ u32 jf_xmlparser_getXMLAttributes(
         " ", 1);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        field = xml->pr_pprfFirst;
+        field = xml->jspr_pjsprfFirst;
 
         /* We skip the first token, because the first token, is the Element name */
         if (field != NULL)
         {
-            field = field->prf_pprfNext;
+            field = field->jsprf_pjsprfNext;
         }
 
         u32Ret = _getXmlAttribute(field, ppAttribute);

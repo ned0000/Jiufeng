@@ -81,22 +81,22 @@ static boolean_t _isblank(olchar_t c)
 /* String Parsing Methods */
 
 u32 parseStringAdv(
-    parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
+    jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
     olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    parse_result_t * ppr;
+    jf_string_parse_result_t * ppr;
     olint_t i = 0;
     olchar_t * token = NULL;
     olint_t tokenlength = 0;
-    parse_result_field_t *pprf;
+    jf_string_parse_result_field_t *pjsprf;
     olint_t ignore = 0;
     olchar_t cDelimiter = 0;
 
-    u32Ret = xmalloc((void **)&ppr, sizeof(parse_result_t));
+    u32Ret = xmalloc((void **)&ppr, sizeof(jf_string_parse_result_t));
     if (u32Ret == OLERR_NO_ERROR)
     {
-        memset(ppr, 0, sizeof(parse_result_t));
+        memset(ppr, 0, sizeof(jf_string_parse_result_t));
 
         /* By default we will always return at least one token, which will be the
            entire string if the delimiter is not found.
@@ -136,27 +136,27 @@ u32 parseStringAdv(
                 _isDelimiter(pstrBuf, i, sBuf, pstrDelimiter, sDelimiter))
             {
                 /* we found a delimiter in the string */
-                u32Ret = xmalloc((void **)&pprf, sizeof(parse_result_field_t));
+                u32Ret = xmalloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
                 if (u32Ret == OLERR_NO_ERROR)
                 {
-                    memset(pprf, 0, sizeof(parse_result_field_t));
-                    pprf->prf_pstrData = token;
-                    pprf->prf_sData = tokenlength;
-                    pprf->prf_pprfNext = NULL;
-                    if (ppr->pr_pprfFirst != NULL)
+                    memset(pjsprf, 0, sizeof(jf_string_parse_result_field_t));
+                    pjsprf->jsprf_pstrData = token;
+                    pjsprf->jsprf_sData = tokenlength;
+                    pjsprf->jsprf_pjsprfNext = NULL;
+                    if (ppr->jspr_pjsprfFirst != NULL)
                     {
-                        ppr->pr_pprfLast->prf_pprfNext = pprf;
-                        ppr->pr_pprfLast = pprf;
+                        ppr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
+                        ppr->jspr_pjsprfLast = pjsprf;
                     }
                     else
                     {
-                        ppr->pr_pprfFirst = pprf;
-                        ppr->pr_pprfLast = pprf;
+                        ppr->jspr_pjsprfFirst = pjsprf;
+                        ppr->jspr_pjsprfLast = pjsprf;
                     }
 
                     /* after we populate the values, we advance the token to after 
                        the delimiter to prep for the next token */
-                    ++ppr->pr_u32NumOfResult;
+                    ++ppr->jspr_u32NumOfResult;
                     i = i + sDelimiter - 1;
                     token = token + tokenlength + sDelimiter;
                     tokenlength = 0;
@@ -174,27 +174,27 @@ u32 parseStringAdv(
     {
         /* create a result for the last token, since it won't be caught in 
            the above loop. because if there are no more delimiters */
-        u32Ret = xmalloc((void **)&pprf, sizeof(parse_result_field_t));
+        u32Ret = xmalloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        memset(pprf, 0, sizeof(parse_result_field_t));
+        memset(pjsprf, 0, sizeof(jf_string_parse_result_field_t));
 
-        pprf->prf_pstrData = token;
-        pprf->prf_sData = tokenlength;
-        pprf->prf_pprfNext = NULL;
-        if (ppr->pr_pprfFirst != NULL)
+        pjsprf->jsprf_pstrData = token;
+        pjsprf->jsprf_sData = tokenlength;
+        pjsprf->jsprf_pjsprfNext = NULL;
+        if (ppr->jspr_pjsprfFirst != NULL)
         {
-            ppr->pr_pprfLast->prf_pprfNext = pprf;
-            ppr->pr_pprfLast = pprf;
+            ppr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
+            ppr->jspr_pjsprfLast = pjsprf;
         }
         else
         {
-            ppr->pr_pprfFirst = pprf;
-            ppr->pr_pprfLast = pprf;
+            ppr->jspr_pjsprfFirst = pjsprf;
+            ppr->jspr_pjsprfLast = pjsprf;
         }
-        ++ppr->pr_u32NumOfResult;
+        ++ppr->jspr_u32NumOfResult;
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -210,20 +210,20 @@ u32 parseStringAdv(
 }
 
 u32 parseString(
-    parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
+    jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
     olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    parse_result_t * ppr;
+    jf_string_parse_result_t * ppr;
     olint_t i = 0;
     olchar_t * token = NULL;
     olsize_t tokenlength = 0;
-    parse_result_field_t *pprf;
+    jf_string_parse_result_field_t *pjsprf;
 
-    u32Ret = xmalloc((void **)&ppr, sizeof(parse_result_t));
+    u32Ret = xmalloc((void **)&ppr, sizeof(jf_string_parse_result_t));
     if (u32Ret == OLERR_NO_ERROR)
     {
-        memset(ppr, 0, sizeof(parse_result_t));
+        memset(ppr, 0, sizeof(jf_string_parse_result_t));
 
         /*By default we will always return at least one token, which will be the
           entire string if the delimiter is not found.
@@ -234,28 +234,28 @@ u32 parseString(
             if (_isDelimiter(pstrBuf, i, sBuf, pstrDelimiter, sDelimiter))
             {
                 /*We found a delimiter in the string*/
-                u32Ret = xmalloc((void **)&pprf, sizeof(parse_result_field_t));
+                u32Ret = xmalloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
                 if (u32Ret == OLERR_NO_ERROR)
                 {
-                    memset(pprf, 0, sizeof(parse_result_field_t));
+                    memset(pjsprf, 0, sizeof(jf_string_parse_result_field_t));
 
-                    pprf->prf_pstrData = token;
-                    pprf->prf_sData = tokenlength;
-                    pprf->prf_pprfNext = NULL;
-                    if (ppr->pr_pprfFirst != NULL)
+                    pjsprf->jsprf_pstrData = token;
+                    pjsprf->jsprf_sData = tokenlength;
+                    pjsprf->jsprf_pjsprfNext = NULL;
+                    if (ppr->jspr_pjsprfFirst != NULL)
                     {
-                        ppr->pr_pprfLast->prf_pprfNext = pprf;
-                        ppr->pr_pprfLast = pprf;
+                        ppr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
+                        ppr->jspr_pjsprfLast = pjsprf;
                     }
                     else
                     {
-                        ppr->pr_pprfFirst = pprf;
-                        ppr->pr_pprfLast = pprf;
+                        ppr->jspr_pjsprfFirst = pjsprf;
+                        ppr->jspr_pjsprfLast = pjsprf;
                     }
 
                     /* After we populate the values, we advance the token to 
                        after the delimiter to prep for the next token */
-                    ++ppr->pr_u32NumOfResult;
+                    ++ppr->jspr_u32NumOfResult;
                     i = i + sDelimiter - 1;
                     token = token + tokenlength + sDelimiter;
                     tokenlength = 0;
@@ -274,25 +274,25 @@ u32 parseString(
         /* Create a result for the last token, since it won't be caught in the
            above loop because if there are no more delimiters. The last token
            is counted in even the length is 0 */
-        u32Ret = xmalloc((void **)&pprf, sizeof(parse_result_field_t));
+        u32Ret = xmalloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
         if (u32Ret == OLERR_NO_ERROR)
         {
-            memset(pprf, 0, sizeof(parse_result_field_t));
+            memset(pjsprf, 0, sizeof(jf_string_parse_result_field_t));
 
-            pprf->prf_pstrData = token;
-            pprf->prf_sData = tokenlength;
-            pprf->prf_pprfNext = NULL;
-            if (ppr->pr_pprfFirst != NULL)
+            pjsprf->jsprf_pstrData = token;
+            pjsprf->jsprf_sData = tokenlength;
+            pjsprf->jsprf_pjsprfNext = NULL;
+            if (ppr->jspr_pjsprfFirst != NULL)
             {
-                ppr->pr_pprfLast->prf_pprfNext = pprf;
-                ppr->pr_pprfLast = pprf;
+                ppr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
+                ppr->jspr_pjsprfLast = pjsprf;
             }
             else
             {
-                ppr->pr_pprfFirst = pprf;
-                ppr->pr_pprfLast = pprf;
+                ppr->jspr_pjsprfFirst = pjsprf;
+                ppr->jspr_pjsprfLast = pjsprf;
             }
-            ++ppr->pr_u32NumOfResult;
+            ++ppr->jspr_u32NumOfResult;
         }
     }
 
@@ -308,17 +308,17 @@ u32 parseString(
     return u32Ret;
 }
 
-u32 destroyParseResult(parse_result_t ** ppResult)
+u32 destroyParseResult(jf_string_parse_result_t ** ppResult)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     /* all of these nodes only contain pointers
        so we just need to iterate through all the nodes and free them */
-    parse_result_field_t *node = (*ppResult)->pr_pprfFirst;
-    parse_result_field_t *temp;
+    jf_string_parse_result_field_t *node = (*ppResult)->jspr_pjsprfFirst;
+    jf_string_parse_result_field_t *temp;
 
     while (node != NULL)
     {
-        temp = node->prf_pprfNext;
+        temp = node->jsprf_pjsprfNext;
         xfree((void **)&node);
         node = temp;
     }

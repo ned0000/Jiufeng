@@ -76,26 +76,26 @@ static u32 _parseCmdLineParam(
     return u32Ret;
 }
 
-static void _printParseResult(parse_result_t * result)
+static void _printParseResult(jf_string_parse_result_t * result)
 {
-    parse_result_field_t * field;
+    jf_string_parse_result_field_t * field;
     u32 u32Index;
     olchar_t str[64];
 
-    ol_printf("Number of result: %d\n", result->pr_u32NumOfResult);
+    ol_printf("Number of result: %d\n", result->jspr_u32NumOfResult);
 
-    field = result->pr_pprfFirst;
-    for (u32Index = 0; u32Index < result->pr_u32NumOfResult; u32Index ++)
+    field = result->jspr_pjsprfFirst;
+    for (u32Index = 0; u32Index < result->jspr_u32NumOfResult; u32Index ++)
     {
-        ol_printf("%u, size: %d, data: ", u32Index, field->prf_sData);
-        if (field->prf_sData != 0)
+        ol_printf("%u, size: %d, data: ", u32Index, field->jsprf_sData);
+        if (field->jsprf_sData != 0)
         {
-            strncpy(str, field->prf_pstrData, field->prf_sData);
-            str[field->prf_sData] = '\0';
+            strncpy(str, field->jsprf_pstrData, field->jsprf_sData);
+            str[field->jsprf_sData] = '\0';
             ol_printf("%s", str);
         }
         ol_printf("\n");
-        field = field->prf_pprfNext;
+        field = field->jsprf_pjsprfNext;
     }
 
 }
@@ -104,7 +104,7 @@ static u32 _testParseStringWithDelimiter(
     olchar_t * pstr, olchar_t * pdelimiter)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    parse_result_t * xml = NULL;
+    jf_string_parse_result_t * xml = NULL;
 
     u32Ret = parseString(
         &xml, pstr, 0, strlen(pstr), pdelimiter, strlen(pdelimiter));
@@ -126,7 +126,7 @@ static u32 _testParseStringAdvWithDelimiter(
     olchar_t * pstr, olchar_t * pdelimiter)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    parse_result_t * xml = NULL;
+    jf_string_parse_result_t * xml = NULL;
 
     u32Ret = parseStringAdv(
         &xml, pstr, 0, strlen(pstr), pdelimiter, strlen(pdelimiter));
