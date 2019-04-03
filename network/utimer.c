@@ -190,7 +190,7 @@ u32 jf_network_addUtimerItem(
     internal_utimer_t * piu = (internal_utimer_t *) pUtimer;
 
 #if defined(DEBUG_UTIMER)
-    logInfoMsg("add utimer item");
+    jf_logger_logInfoMsg("add utimer item");
 #endif
     u32Ret = xmalloc((void **)&pui, sizeof(utimer_item_t));
     if (u32Ret == OLERR_NO_ERROR)

@@ -98,7 +98,7 @@ LOGGERAPI u32 LOGGERCALL jf_logger_fini(void);
  *  @return the error code
  *  @retval OLERR_NO_ERROR success
  */
-LOGGERAPI u32 LOGGERCALL logInfoMsg(const olchar_t * fmt, ...);
+LOGGERAPI u32 LOGGERCALL jf_logger_logInfoMsg(const olchar_t * fmt, ...);
 
 /** Log an debug type msg.
  *
@@ -108,7 +108,7 @@ LOGGERAPI u32 LOGGERCALL logInfoMsg(const olchar_t * fmt, ...);
  *  @return the error code
  *  @retval OLERR_NO_ERROR success
  */
-LOGGERAPI u32 LOGGERCALL logDebugMsg(const olchar_t * fmt, ...);
+LOGGERAPI u32 LOGGERCALL jf_logger_logDebugMsg(const olchar_t * fmt, ...);
 
 /** Log an error type msg.
  *
@@ -119,7 +119,7 @@ LOGGERAPI u32 LOGGERCALL logDebugMsg(const olchar_t * fmt, ...);
  *  @return the error code
  *  @retval OLERR_NO_ERROR success
  */
-LOGGERAPI u32 LOGGERCALL logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...);
+LOGGERAPI u32 LOGGERCALL jf_logger_logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...);
 
 /** Log a data msg. The system error code is in errno.
  *
@@ -131,7 +131,7 @@ LOGGERAPI u32 LOGGERCALL logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...);
  *  @return the error code
  *  @retval OLERR_NO_ERROR success
  */
-LOGGERAPI u32 LOGGERCALL logDataMsg(
+LOGGERAPI u32 LOGGERCALL jf_logger_logDataMsg(
     u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...);
 
 /** Log a data msg with ascii string. The system error code is in errno.
@@ -144,7 +144,7 @@ LOGGERAPI u32 LOGGERCALL logDataMsg(
  *  @return the error code
  *  @retval OLERR_NO_ERROR success
  */
-LOGGERAPI u32 LOGGERCALL logDataMsgWithAscii(
+LOGGERAPI u32 LOGGERCALL jf_logger_logDataMsgWithAscii(
     u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...);
 
 #endif /*JIUFENG_LOGGER_H*/

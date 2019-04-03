@@ -184,7 +184,7 @@ u32 jf_prng_init(void)
 
     assert(! pip->ip_bInitialized);
 
-    logInfoMsg("init prng");
+    jf_logger_logInfoMsg("init prng");
 
     /** Get seed */
     u32Ret = getSeed();

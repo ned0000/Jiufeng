@@ -119,12 +119,12 @@ u32 _testAllocMem(void)
         if ((nRand % 3) != 0)
         {
             bAlloc = TRUE;
-            logInfoMsg("Allocate memory");
+            jf_logger_logInfoMsg("Allocate memory");
         }
         else
         {
             bAlloc = FALSE;
-            logInfoMsg("free memory");
+            jf_logger_logInfoMsg("free memory");
         }
 
         nRand = rand();
@@ -137,12 +137,12 @@ u32 _testAllocMem(void)
                 nRand = rand();
                 u32Size = nRand % JF_JIUKUN_MAX_MEMORY_SIZE;
 
-                logInfoMsg("!!!! Allocate %u", u32Size);
+                jf_logger_logInfoMsg("!!!! Allocate %u", u32Size);
 
                 u32Ret = jf_jiukun_allocMemory((void **)&(pu8Mem[u32Index]), u32Size, 0);
                 if (u32Ret == OLERR_NO_ERROR)
                 {
-                    logInfoMsg("success, at %u, %p\n", u32Index,
+                    jf_logger_logInfoMsg("success, at %u, %p\n", u32Index,
                         pu8Mem[u32Index]);
 #if defined(DEBUG_JIUKUN)
                     dumpJiukun();
@@ -151,7 +151,7 @@ u32 _testAllocMem(void)
                 else
                 {
                     getErrMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
-                    logInfoMsg("failed, %s\n", strErrMsg);
+                    jf_logger_logInfoMsg("failed, %s\n", strErrMsg);
                 }
             }
         }
@@ -160,7 +160,7 @@ u32 _testAllocMem(void)
             for (u32Idx = u32Index; u32Idx < DEBUG_LOOP_COUNT; u32Idx ++)
                 if (pu8Mem[u32Idx] != NULL)
                 {
-                    logInfoMsg("!!!! free at %u, %p", u32Idx, pu8Mem[u32Idx]);
+                    jf_logger_logInfoMsg("!!!! free at %u, %p", u32Idx, pu8Mem[u32Idx]);
 
                     jf_jiukun_freeMemory((void **)&(pu8Mem[u32Idx]));
 
@@ -206,12 +206,12 @@ u32 _testJiukunPage(void)
         if ((nRand % 3) != 0)
         {
             bAlloc = TRUE;
-            logInfoMsg("Allocate page");
+            jf_logger_logInfoMsg("Allocate page");
         }
         else
         {
             bAlloc = FALSE;
-            logInfoMsg("free page");
+            jf_logger_logInfoMsg("free page");
         }
 
         nRand = rand();
@@ -231,13 +231,13 @@ u32 _testJiukunPage(void)
 #if defined(DEBUG_JIUKUN)
                     jf_jiukun_dump();
 #endif
-                    logInfoMsg("success, at %u, %p\n", u32Index,
+                    jf_logger_logInfoMsg("success, at %u, %p\n", u32Index,
                         pu8Mem[u32Index]);
                 }
                 else
                 {
                     getErrMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
-                    logInfoMsg("failed, %s\n", strErrMsg);
+                    jf_logger_logInfoMsg("failed, %s\n", strErrMsg);
                 }
             }
         }
@@ -246,7 +246,7 @@ u32 _testJiukunPage(void)
             for (u32Idx = u32Index; u32Idx < DEBUG_LOOP_COUNT; u32Idx ++)
                 if (pu8Mem[u32Idx] != NULL)
                 {
-                    logInfoMsg("!!!! free at %u, %p", u32Idx, pu8Mem[u32Idx]);
+                    jf_logger_logInfoMsg("!!!! free at %u, %p", u32Idx, pu8Mem[u32Idx]);
 
                     jf_jiukun_freePage((void **)&(pu8Mem[u32Idx]));
 #if defined(DEBUG_JIUKUN)
@@ -288,12 +288,12 @@ u32 _testJiukunCache(void)
         if ((nRand % 3) != 0)
         {
             bAlloc = TRUE;
-            logInfoMsg("Allocate object");
+            jf_logger_logInfoMsg("Allocate object");
         }
         else
         {
             bAlloc = FALSE;
-            logInfoMsg("free object");
+            jf_logger_logInfoMsg("free object");
         }
 
         nRand = rand();
@@ -309,13 +309,13 @@ u32 _testJiukunCache(void)
                     ls_pacCache, (void **)&(pu8Mem[u32Index]), 0);
                 if (u32Ret == OLERR_NO_ERROR)
                 {
-                    logInfoMsg("success, at %u, %p\n", u32Index,
+                    jf_logger_logInfoMsg("success, at %u, %p\n", u32Index,
                         pu8Mem[u32Index]);
                 }
                 else
                 {
                     getErrMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
-                    logInfoMsg("failed, %s\n", strErrMsg);
+                    jf_logger_logInfoMsg("failed, %s\n", strErrMsg);
                 }
             }
         }
@@ -324,7 +324,7 @@ u32 _testJiukunCache(void)
             for (u32Idx = u32Index; u32Idx < DEBUG_LOOP_COUNT; u32Idx ++)
                 if (pu8Mem[u32Idx] != NULL)
                 {
-                    logInfoMsg("!!!! free at %u, %p", u32Idx, pu8Mem[u32Idx]);
+                    jf_logger_logInfoMsg("!!!! free at %u, %p", u32Idx, pu8Mem[u32Idx]);
 
                     jf_jiukun_freeObject(ls_pacCache, (void **)&(pu8Mem[u32Idx]));
 
@@ -361,22 +361,22 @@ THREAD_RETURN_VALUE _allocFree(void * pArg)
     olchar_t strErrMsg[300];
     u32 u32Index = (u32)(ulong)pArg;
 
-    logInfoMsg("alloc-free thread %u starts", u32Index);
+    jf_logger_logInfoMsg("alloc-free thread %u starts", u32Index);
 
     while ((! ls_bToTerminate) && (u32Ret == OLERR_NO_ERROR))
     {
-        logInfoMsg("alloc-free thread %u starts testing", u32Index);
+        jf_logger_logInfoMsg("alloc-free thread %u starts testing", u32Index);
 
         u32Ret = _testJiukunCache();
     }
 
 
     if (u32Ret == OLERR_NO_ERROR)
-        logInfoMsg("alloc-free thread %u quits", u32Index);
+        jf_logger_logInfoMsg("alloc-free thread %u quits", u32Index);
     else
     {
         getErrMsg(u32Ret, strErrMsg, 300);
-        logInfoMsg("alloc-free thread %u quits, %s", u32Index, strErrMsg);
+        jf_logger_logInfoMsg("alloc-free thread %u quits, %s", u32Index, strErrMsg);
     }
 
     THREAD_RETURN(u32Ret);

@@ -63,7 +63,7 @@ static u32 _readServMgmtSetting(
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    logInfoMsg("read serv setting, %s", pisms->isms_strSettingFile);
+    jf_logger_logInfoMsg("read serv setting, %s", pisms->isms_strSettingFile);
 
     u32Ret = readServMgmtSetting(pisms);
 
@@ -75,7 +75,7 @@ static u32 _writeServMgmtSetting(
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    logInfoMsg("write serv setting, %s", pisms->isms_strSettingFile);
+    jf_logger_logInfoMsg("write serv setting, %s", pisms->isms_strSettingFile);
 
     u32Ret = writeServMgmtSetting(pisms);
 
@@ -88,7 +88,7 @@ static u32 _startService(
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strCmdLine[2 * MAX_PATH_LEN + 128];
 
-    logInfoMsg("start serv, %s", pisi->isi_strCmdPath);
+    jf_logger_logInfoMsg("start serv, %s", pisi->isi_strCmdPath);
 
     memset(strCmdLine, 0, sizeof(strCmdLine));
 
@@ -101,7 +101,7 @@ static u32 _startService(
         pisi->isi_u8Status = JF_SERVMGMT_SERV_STATUS_RUNNING;
     else
     {
-        logErrMsg(u32Ret, "start serv");
+        jf_logger_logErrMsg(u32Ret, "start serv");
         pisi->isi_u8Status = JF_SERVMGMT_SERV_STATUS_ERROR;
     }
 
@@ -176,7 +176,7 @@ static u32 _attaskStartService(void * pData)
     internal_service_info_t * pisi;
     jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
 
-    logInfoMsg("attask start serv");
+    jf_logger_logInfoMsg("attask start serv");
 
     pisi = psma->sma_pisiServInfo;
 
@@ -198,7 +198,7 @@ static u32 _tryStartService(
     serv_mgmt_attask_t * psma;
     u32 u32Delay;
 
-    logInfoMsg("try to restart service %s", pisi->isi_strName);
+    jf_logger_logInfoMsg("try to restart service %s", pisi->isi_strName);
     pisi->isi_u8Status = JF_SERVMGMT_SERV_STATUS_ERROR;
 
     u32Delay = pisi->isi_u8RestartDelay + pisi->isi_u8RestartCount;
@@ -230,7 +230,7 @@ static u32 _startAllServices(
     u32 u32Index;
     internal_service_info_t * pisi;
 
-    logInfoMsg("start all serv");
+    jf_logger_logInfoMsg("start all serv");
 
     for (u32Index = 0;
          (u32Index < pisms->isms_u32NumOfService) && (u32Ret == OLERR_NO_ERROR);
@@ -252,7 +252,7 @@ static u32 _stopService(
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    logInfoMsg("stop serv %s", pisi->isi_strName);
+    jf_logger_logInfoMsg("stop serv %s", pisi->isi_strName);
 
     u32Ret = terminateProcess(&(pisi->isi_piProcessId));
     if (u32Ret == OLERR_NO_ERROR)
@@ -263,7 +263,7 @@ static u32 _stopService(
 
 static void _dumpServMgmtInfo(internal_service_info_t * pisi)
 {
-    logInfoMsg(
+    jf_logger_logInfoMsg(
         "serv %s, role %d, startuptype %s, status %s",
         pisi->isi_strName, pisi->isi_u8Role,
         jf_servmgmt_getStringServStartupType(pisi->isi_u8StartupType),
@@ -279,13 +279,13 @@ static u32 _waitForChildProcess(
     jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
     internal_service_info_t * pisi;
 
-    logInfoMsg("wait for child");
+    jf_logger_logInfoMsg("wait for child");
 
     u32Ret = waitForChildProcessTermination(
         pid, u32Count, u32BlockTime, &u32Index, &u32Reason);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        logInfoMsg("wait for child, terminated by %u",
+        jf_logger_logInfoMsg("wait for child, terminated by %u",
             u32Reason);
 
         _lockStatusFile(SERV_MGMT_STATUS_FILE, &fd);
@@ -332,7 +332,7 @@ static u32 _monitorServices(
     internal_service_info_t * pisi;
     jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
 
-    logInfoMsg("monitor serv");
+    jf_logger_logInfoMsg("monitor serv");
 
     _lockStatusFile(SERV_MGMT_STATUS_FILE, &fd);
 
@@ -371,7 +371,7 @@ static u32 _saveServiceStatus(
     u32 u32Ret = OLERR_NO_ERROR;
     FILE * fp = NULL;
 
-    logInfoMsg("save service status");
+    jf_logger_logInfoMsg("save service status");
 
     u32Ret = jf_filestream_open(SERV_MGMT_STATUS_FILE, "w", &fp);
     if (u32Ret == OLERR_NO_ERROR)
@@ -393,7 +393,7 @@ static u32 _enterMonitorServices(internal_serv_mgmt_t * pism,
 
     while (! pism->ism_bToTerminate)
     {
-        logInfoMsg("enter monitor, %u", u32BlockTime);
+        jf_logger_logInfoMsg("enter monitor, %u", u32BlockTime);
 
         u32Ret = _monitorServices(pism, pisms, pAttask, u32BlockTime);
 
@@ -407,12 +407,12 @@ static u32 _wakeupServMgmt(internal_service_info_t * pisiWakeup)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    logInfoMsg("wakeup servmgmt");
+    jf_logger_logInfoMsg("wakeup servmgmt");
 
     if ((pisiWakeup->isi_u8Status == JF_SERVMGMT_SERV_STATUS_RUNNING) &&
         isValidProcessId(&pisiWakeup->isi_piProcessId))
     {
-        logInfoMsg("wakeup servmgmt, %s", pisiWakeup->isi_strName);
+        jf_logger_logInfoMsg("wakeup servmgmt, %s", pisiWakeup->isi_strName);
         u32Ret = terminateProcess(&pisiWakeup->isi_piProcessId);
         if (u32Ret == OLERR_NO_ERROR)
             pisiWakeup->isi_u8Status = JF_SERVMGMT_SERV_STATUS_TERMINATED;
@@ -430,7 +430,7 @@ u32 jf_servmgmt_init(jf_servmgmt_init_param_t * pjsip)
 
     assert(pjsip != NULL);
 
-    logInfoMsg("init serv mgmt");
+    jf_logger_logInfoMsg("init serv mgmt");
 
     if (u32Ret == OLERR_NO_ERROR)
         pism->ism_bInitialized = TRUE;
@@ -444,7 +444,7 @@ u32 jf_servmgmt_fini(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    logInfoMsg("fini serv mgmt");
+    jf_logger_logInfoMsg("fini serv mgmt");
 
     return u32Ret;
 }
@@ -458,7 +458,7 @@ u32 jf_servmgmt_start(jf_servmgmt_start_param_t * pjssp)
     shm_id_t * psiServSetting = NULL;
     attask_t * pAttask = NULL;
 
-    logInfoMsg("start serv mgmt");
+    jf_logger_logInfoMsg("start serv mgmt");
 
     assert(pjssp != NULL);
 
@@ -531,7 +531,7 @@ u32 jf_servmgmt_stop(void)
     u32 u32Ret = OLERR_NO_ERROR;
     internal_serv_mgmt_t * pism = &ls_ismServMgmt;
 
-    logInfoMsg("stop serv mgmt");
+    jf_logger_logInfoMsg("stop serv mgmt");
 
     pism->ism_bToTerminate = TRUE;
 
@@ -780,7 +780,7 @@ u32 jf_servmgmt_setServStartupType(olchar_t * pstrName, u8 u8StartupType)
     assert(u8StartupType == JF_SERVMGMT_SERV_STARTUPTYPE_AUTOMATIC ||
            u8StartupType == JF_SERVMGMT_SERV_STARTUPTYPE_MANUAL);
 
-    logInfoMsg(
+    jf_logger_logInfoMsg(
         "set serv %s startup type to %s", pstrName,
         jf_servmgmt_getStringServStartupType(u8StartupType));
 

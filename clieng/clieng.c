@@ -62,7 +62,7 @@ static u32 _createCmdHistory(
     u32 u32Ret = OLERR_NO_ERROR;
     clieng_cmd_history_param_t param;
     
-    logInfoMsg("create cmd history");
+    jf_logger_logInfoMsg("create cmd history");
 
     param.cchp_sCmdHistroyBuf = pjcip->jcip_sCmdHistroyBuf;
     param.cchp_sMaxCmdLine = pjcip->jcip_sMaxCmdLine;
@@ -78,7 +78,7 @@ static u32 _createInputOutput(
     u32 u32Ret = OLERR_NO_ERROR;
     clieng_io_param_t param;
     
-    logInfoMsg("create input output");
+    jf_logger_logInfoMsg("create input output");
     
     param.cip_pstrNewLine = pjcip->jcip_pstrNewLine;
     param.cip_fhOutput = pjcip->jcip_fhOutput;
@@ -94,7 +94,7 @@ static u32 _createParser(
     u32 u32Ret = OLERR_NO_ERROR;
     clieng_parser_param_t param;
     
-    logInfoMsg("create parser");
+    jf_logger_logInfoMsg("create parser");
 
     memset(&param, 0, sizeof(clieng_parser_param_t));
 
@@ -127,7 +127,7 @@ static u32 _registerSignalHandlers(internal_clieng_t * pic)
     	if (nRet == -1)
         {
             u32Ret = OLERR_OPERATION_FAIL;
-    	    logErrMsg(
+    	    jf_logger_logErrMsg(
                 u32Ret, "register signal, sigemptyset() for signals[%d] failed",
                 nIndex);
     	}
@@ -137,7 +137,7 @@ static u32 _registerSignalHandlers(internal_clieng_t * pic)
             if (nRet == -1)
     	    {
                 u32Ret = OLERR_OPERATION_FAIL;
-	            logErrMsg(u32Ret, "register signal, sigaddset() failed");
+	            jf_logger_logErrMsg(u32Ret, "register signal, sigaddset() failed");
     	    }
         }
 
@@ -155,7 +155,7 @@ static u32 _registerSignalHandlers(internal_clieng_t * pic)
             nRet = sigaction(nSignals[nIndex], &act, &oact);
             if (nRet == -1)
             {
-                logErrMsg(
+                jf_logger_logErrMsg(
                     u32Ret,
                     "register signal, sigaction() for signals[%d] failed",
                     nIndex);
@@ -224,7 +224,7 @@ static u32 _cliengLoop(internal_clieng_t * pic)
             else 
             {
                 u32Ret = OLERR_NOT_IMPLEMENTED;
-                logErrMsg(u32Ret, "_cliengLoop() got input with type %d",
+                jf_logger_logErrMsg(u32Ret, "_cliengLoop() got input with type %d",
                     citInputType);
     	        return u32Ret;
             }
@@ -317,7 +317,7 @@ u32 jf_clieng_run(void)
     u32 u32Ret = OLERR_NO_ERROR;
     internal_clieng_t * pic = &ls_icClieng;
 
-    logInfoMsg("run clieng");
+    jf_logger_logInfoMsg("run clieng");
 
     /* Print greeting */
     if (pic->ic_fnPrintGreeting != NULL)
@@ -342,7 +342,7 @@ u32 jf_clieng_run(void)
         }
     }
 
-    logInfoMsg(
+    jf_logger_logInfoMsg(
         "Clieng receives a signal of %d and returns %d(0x%X)", 
         ls_nTerminationSignal, u32Ret, u32Ret);
 
@@ -367,7 +367,7 @@ u32 jf_clieng_fini()
     u32 u32Ret = OLERR_NO_ERROR;
     internal_clieng_t * pic = &ls_icClieng;
     
-    logInfoMsg("destroy clieng");
+    jf_logger_logInfoMsg("destroy clieng");
 
     if (pic->ic_pcpParser != NULL)
         destroyParser(&(pic->ic_pcpParser));

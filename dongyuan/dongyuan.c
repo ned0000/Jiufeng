@@ -48,7 +48,7 @@ u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp)
     jf_servmgmt_init_param_t jsip;
     olchar_t strExecutablePath[MAX_PATH_LEN];
 
-    logInfoMsg("create dongyuan");
+    jf_logger_logInfoMsg("create dongyuan");
 
     u32Ret = xcalloc((void **)&pig, sizeof(internal_dongyuan_t));
     if (u32Ret == OLERR_NO_ERROR)

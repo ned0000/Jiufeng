@@ -166,15 +166,15 @@ static u32 _formCmdLineArguments(
     u32Ret = _trimCmdLine(pstrCmd);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        logInfoMsg("clieng form arg, pstrCmd %s", pstrCmd);
+        jf_logger_logInfoMsg("clieng form arg, pstrCmd %s", pstrCmd);
 
         picp->icp_sArgc = MAX_ARGC;
         u32Ret = formCmdLineArguments(
             pstrCmd, &picp->icp_sArgc, picp->icp_pstrArgv);
 
-        logInfoMsg("clieng form arg, argc %d", picp->icp_sArgc);
+        jf_logger_logInfoMsg("clieng form arg, argc %d", picp->icp_sArgc);
         for (u32Index = 0; u32Index < picp->icp_sArgc; u32Index ++)
-            logInfoMsg("arg %d: %s", u32Index, picp->icp_pstrArgv[u32Index]);
+            jf_logger_logInfoMsg("arg %d: %s", u32Index, picp->icp_pstrArgv[u32Index]);
 
         if (picp->icp_sArgc < 1 && u32Ret == OLERR_NO_ERROR)
             u32Ret = OLERR_BLANK_CMD;
@@ -199,7 +199,7 @@ static u32 _preProcessCmdLine(internal_clieng_parser_t * picp)
         if (picp->icp_pstrArgv[u32Index][0] == '"')
         {
             argv = picp->icp_pstrArgv[u32Index];
-            logInfoMsg("original option %d: %s", u32Index, argv);
+            jf_logger_logInfoMsg("original option %d: %s", u32Index, argv);
 
             j = 0;
             length = ol_strlen(argv) - 1;
@@ -211,7 +211,7 @@ static u32 _preProcessCmdLine(internal_clieng_parser_t * picp)
 
             argv[j - 1] = 0;
 
-            logInfoMsg("new option %d: %s", u32Index, argv);
+            jf_logger_logInfoMsg("new option %d: %s", u32Index, argv);
         }
     }
     
@@ -319,7 +319,7 @@ u32 createParser(clieng_parser_t ** pcp, clieng_parser_param_t * pcpp)
 
     assert((pcp != NULL) && (pcpp != NULL));
 
-    logInfoMsg("create parser");
+    jf_logger_logInfoMsg("create parser");
 
     u32Ret = xcalloc((void **)&picp, sizeof(internal_clieng_parser_t));
     if (u32Ret == OLERR_NO_ERROR)
@@ -368,7 +368,7 @@ u32 destroyParser(clieng_parser_t ** pcp)
 
     picp = (internal_clieng_parser_t *)*pcp;
 
-    logInfoMsg("destroy parser");
+    jf_logger_logInfoMsg("destroy parser");
 
     if (picp->icp_piccsCmdSet != NULL)
         free(picp->icp_piccsCmdSet);
@@ -390,7 +390,7 @@ u32 parseCmd(clieng_parser_t * pcp, olchar_t * pstrCmd)
 
     picp = (internal_clieng_parser_t *)pcp;
 
-    logInfoMsg("parse cmd %s", pstrCmd);
+    jf_logger_logInfoMsg("parse cmd %s", pstrCmd);
 
     u32Ret = _formCmdLineArguments(picp, pstrCmd);
 

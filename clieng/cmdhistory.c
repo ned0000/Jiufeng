@@ -46,7 +46,7 @@ u32 createCommandHistory(
     olsize_t size = 0;
     internal_clieng_cmd_history_t * picch = NULL;
 
-    logInfoMsg("create cmd history" );
+    jf_logger_logInfoMsg("create cmd history" );
     
     assert((ppcch != NULL) && (pcchp != NULL));
         
@@ -77,7 +77,7 @@ u32 destroyCommandHistory(clieng_cmd_history_t ** ppcch)
     picch = (internal_clieng_cmd_history_t *)*ppcch;
     *ppcch = NULL;
             
-    logInfoMsg("destroy cmd history" );
+    jf_logger_logInfoMsg("destroy cmd history" );
             
     xfree((void **)&picch);
     
@@ -93,7 +93,7 @@ u32 clearCommandHistory(clieng_cmd_history_t * pcch)
 
     picch = (internal_clieng_cmd_history_t *)pcch;
             
-    logInfoMsg("clear cmd history");
+    jf_logger_logInfoMsg("clear cmd history");
 
     picch->icch_iFirstCmd = INVALID_CMD_INDEX;
     picch->icch_iLastCmd = INVALID_CMD_INDEX;
@@ -112,7 +112,7 @@ u32 appendCommand(clieng_cmd_history_t * pcch, olchar_t * pstrCmd)
     
     assert((pcch != NULL) && (pstrCmd != NULL));
 
-    logInfoMsg("append cmd");
+    jf_logger_logInfoMsg("append cmd");
         
     length = ol_strlen(pstrCmd);
     if (length > picch->icch_sMaxCmdLine)
@@ -160,7 +160,7 @@ u32 getPreviousCommand(
 
     assert(pcch != NULL && pstrCmdBuf != NULL && sBuf > 0);
 
-    logInfoMsg("get previous command");    
+    jf_logger_logInfoMsg("get previous command");    
 
     if (picch->icch_iLastCmd == INVALID_CMD_INDEX)
         pstrCmdBuf[0] = 0;
@@ -204,7 +204,7 @@ u32 getNextCommand(
 
     assert(pcch != NULL && pstrCmdBuf != NULL && sBuf > 0);
 
-    logInfoMsg("get next command");
+    jf_logger_logInfoMsg("get next command");
         
     if (picch->icch_iLastCmd == -1)
         pstrCmdBuf[0] = 0; /* history buffer is empty */

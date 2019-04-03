@@ -124,7 +124,7 @@ static u32 _startDongyuan(void)
 
     u32Ret = startDongyuan(ls_pgDongyuan);
     if (u32Ret != OLERR_NO_ERROR)
-        logErrMsg(u32Ret, "quit dongyuan");
+        jf_logger_logErrMsg(u32Ret, "quit dongyuan");
 
     if (ls_pgDongyuan != NULL)
         destroyDongyuan(&ls_pgDongyuan);

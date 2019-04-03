@@ -172,7 +172,7 @@ static u32 _preSelectAdgram(
     u32 u32Ret = OLERR_NO_ERROR;
     internal_adgram_t * pia = (internal_adgram_t *) pAdgram;
 
-    logInfoMsg("before select adgram");
+    jf_logger_logInfoMsg("before select adgram");
 
     if (pia->ia_pjnsSocket != NULL)
     {
@@ -214,7 +214,7 @@ static u32 _postSelectAdgram(
     olsize_t bytesSent = 0;
     internal_adgram_t *pia = (internal_adgram_t *) pAdgram;
 
-    logInfoMsg("after select adgram");
+    jf_logger_logInfoMsg("after select adgram");
 
     /*Write Handling*/
     if (pia->ia_pjnsSocket != NULL &&

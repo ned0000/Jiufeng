@@ -36,7 +36,7 @@ u32 jf_persistency_create(
     u32 u32Ret = OLERR_NO_ERROR;
     persistency_manager_t * ppm = NULL;
 
-    logInfoMsg("create persistency");
+    jf_logger_logInfoMsg("create persistency");
 
     u32Ret = xmalloc((void **)&ppm, sizeof(persistency_manager_t));
     if (u32Ret == OLERR_NO_ERROR)

@@ -399,7 +399,7 @@ static u32 _addFileToArchive(const olchar_t * pstrFullpath,
     }
     else
     {
-        logInfoMsg("unrecognized file type: %s",
+        jf_logger_logInfoMsg("unrecognized file type: %s",
             pFilestat->jfs_u32Mode);
         u32Ret = OLERR_UNRECOGNIZED_FILE_TYPE;
     }
@@ -415,7 +415,7 @@ static u32 _handleMemberFile(const olchar_t * pstrFullpath, jf_file_stat_t * pFi
     if (pfh->fh_bVerbose)
         ol_printf("add file: %s\n", pstrFullpath);
 
-    logInfoMsg("add file: %s", pstrFullpath);
+    jf_logger_logInfoMsg("add file: %s", pstrFullpath);
 
     u32Ret = _addFileToArchive(pstrFullpath, pFilestat, pfh);
 

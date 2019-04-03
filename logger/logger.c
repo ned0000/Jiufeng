@@ -403,7 +403,7 @@ u32 jf_logger_init(jf_logger_init_param_t * pParam)
     {
         pil->il_bInitialized = TRUE;
 
-        logInfoMsg("Logger started");
+        jf_logger_logInfoMsg("Logger started");
     }
     else
     {
@@ -418,7 +418,7 @@ u32 jf_logger_fini(void)
     u32 u32Ret = OLERR_NO_ERROR;
     internal_logger_t * pil = &ls_ilLogger;
 
-    logInfoMsg("Logger stopped");
+    jf_logger_logInfoMsg("Logger stopped");
 #ifdef LINUX
     if (pil->il_nTTY != -1)
     {
@@ -429,7 +429,7 @@ u32 jf_logger_fini(void)
     return u32Ret; 
 }
 
-u32 logInfoMsg(const olchar_t * fmt, ...)
+u32 jf_logger_logInfoMsg(const olchar_t * fmt, ...)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     va_list ap; 
@@ -453,7 +453,7 @@ u32 logInfoMsg(const olchar_t * fmt, ...)
     return u32Ret;    
 }
 
-u32 logDebugMsg(const olchar_t * fmt, ...)
+u32 jf_logger_logDebugMsg(const olchar_t * fmt, ...)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     va_list ap; 
@@ -477,7 +477,7 @@ u32 logDebugMsg(const olchar_t * fmt, ...)
     return u32Ret;    
 }
 
-u32 logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...)
+u32 jf_logger_logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     va_list ap; 
@@ -502,7 +502,7 @@ u32 logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...)
     return u32Ret;    
 }
 
-u32 logDataMsg(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
+u32 jf_logger_logDataMsg(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_logger_t * pil = &ls_ilLogger;
@@ -543,7 +543,8 @@ u32 logDataMsg(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
     return u32Ret;    
 }
 
-u32 logDataMsgWithAscii(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
+u32 jf_logger_logDataMsgWithAscii(
+    u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_logger_t * pil = &ls_ilLogger;

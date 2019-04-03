@@ -241,7 +241,7 @@ static u32 _createBuddyZone(
     buddy_zone_t * pbz = NULL;
     u32 u32Index;
 
-    logInfoMsg(
+    jf_logger_logInfoMsg(
         "create jiukun zone, order: %u, zoneid: %u", u32MaxOrder, u32ZoneId);
 
     u32Ret = xcalloc((void **)&pbz, sizeof(buddy_zone_t));
@@ -280,7 +280,7 @@ static u32 _createBuddyZone(
         pbz->bz_pu8PoolEnd =
             pbz->bz_pu8Pool + pbz->bz_u32NumOfPage * BUDDY_PAGE_SIZE;
 
-        logInfoMsg("create jiukun zone, start: %p, end: %p",
+        jf_logger_logInfoMsg("create jiukun zone, start: %p, end: %p",
             pbz->bz_pu8Pool, pbz->bz_pu8PoolEnd);
     }
 
@@ -349,8 +349,8 @@ static void _dumpBuddyZone(buddy_zone_t * pbz)
     list_head_t * plh;
     jiukun_page_t * pap;
 
-    logInfoMsg("  max page: %u, %p", pbz->bz_u32NumOfPage, pbz->bz_papPage);
-    logInfoMsg("  free page: %u", pbz->bz_u32FreePages);
+    jf_logger_logInfoMsg("  max page: %u, %p", pbz->bz_u32NumOfPage, pbz->bz_papPage);
+    jf_logger_logInfoMsg("  free page: %u", pbz->bz_u32FreePages);
 
     for (u32Index = 0; u32Index < pbz->bz_u32MaxOrder; u32Index ++)
     {
@@ -358,14 +358,14 @@ static void _dumpBuddyZone(buddy_zone_t * pbz)
 
         if (pfa->fa_u32Free != 0)
         {
-            logInfoMsg("    area index: %u", u32Index);
-            logInfoMsg("      free page in area: %u", pfa->fa_u32Free);
+            jf_logger_logInfoMsg("    area index: %u", u32Index);
+            jf_logger_logInfoMsg("      free page in area: %u", pfa->fa_u32Free);
 
-            logInfoMsg("      free page:");
+            jf_logger_logInfoMsg("      free page:");
             listForEach(&(pfa->fa_lhFree), plh)
             {
                 pap = listEntry(plh, jiukun_page_t, jp_lhLru);
-                logInfoMsg("        %u, %p",
+                jf_logger_logInfoMsg("        %u, %p",
                            pageToIndex(pap, pbz->bz_papPage), pap);
             }
         }
@@ -381,11 +381,11 @@ static void _dumpBuddy(internal_jiukun_buddy_t * piab)
     {
         assert(piab->ijb_pbzZone[u32Index] != NULL);
 
-        logInfoMsg("zone: %u", u32Index);
+        jf_logger_logInfoMsg("zone: %u", u32Index);
         _dumpBuddyZone(piab->ijb_pbzZone[u32Index]);
     }
     releaseSyncMutex(&piab->ijb_smLock);
-    logInfoMsg("");
+    jf_logger_logInfoMsg("");
 }
 #endif
 
@@ -409,7 +409,7 @@ u32 initJiukunBuddy(buddy_param_t * pbp)
            (pbp->bp_u8MaxOrder > 0));
     assert(! piab->ijb_bInitialized);
 
-    logInfoMsg("init jiukun buddy");
+    jf_logger_logInfoMsg("init jiukun buddy");
 
     piab->ijb_u32MaxOrder = pbp->bp_u8MaxOrder + 1;
     piab->ijb_bNoGrow = pbp->bp_bNoGrow;
@@ -437,7 +437,7 @@ u32 finiJiukunBuddy(void)
     u32 u32Index;
     internal_jiukun_buddy_t * piab = &ls_ijbBuddy;
 
-    logInfoMsg("fini jiukun buddy");
+    jf_logger_logInfoMsg("fini jiukun buddy");
 
 #if defined(DEBUG_JIUKUN)
     _dumpBuddy(piab);
@@ -491,7 +491,7 @@ u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, olflag_t flag)
     assert(ppPage != NULL);
 
 #if defined(DEBUG_JIUKUN)
-    logInfoMsg("get aehter page, order: %u, flag 0x%llX", u32Order, flag);
+    jf_logger_logInfoMsg("get aehter page, order: %u, flag 0x%llX", u32Order, flag);
 #endif
 
     *ppPage = NULL;
@@ -525,7 +525,7 @@ u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, olflag_t flag)
         setJpAllocated(pap);
         *ppPage = pap;
 #if defined(DEBUG_JIUKUN)
-        logInfoMsg("get aehter page, page addr: %p", pap);
+        jf_logger_logInfoMsg("get aehter page, page addr: %p", pap);
 #endif
     }
 
@@ -544,7 +544,7 @@ void putJiukunPage(jiukun_page_t ** ppPage)
     u32Order = getJpOrder((*ppPage));
 
 #if defined(DEBUG_JIUKUN)
-    logInfoMsg("put aehter page, paga addr: %p, order: %u", *ppPage, u32Order);
+    jf_logger_logInfoMsg("put aehter page, paga addr: %p, order: %u", *ppPage, u32Order);
 #endif
 
     acquireSyncMutex(&(piab->ijb_smLock));

@@ -227,7 +227,7 @@ void _dumpSlabCache(slab_cache_t * pCache)
     u32 full_slabs = 0, partial_slabs = 0, free_slabs = 0;
     u32 full_use_objs = 0, partial_use_objs = 0, free_use_objs = 0;
 
-    logInfoMsg(
+    jf_logger_logInfoMsg(
         "cachep name %s, order %u, num %u",
         pCache->sc_strName, pCache->sc_u32Order, pCache->sc_u32Num);
 
@@ -256,7 +256,7 @@ void _dumpSlabCache(slab_cache_t * pCache)
         free_slabs ++;
     }
 
-    logInfoMsg(
+    jf_logger_logInfoMsg(
         "full slabs %u, full objs %u, full use objs %u, "
         "partial slabs %u, partial objs %u, partial use objs %u, "
         "free slabs %u, free objs %u, free use objs %u",
@@ -264,7 +264,7 @@ void _dumpSlabCache(slab_cache_t * pCache)
         partial_slabs, partial_objs, partial_use_objs,
         free_slabs, free_objs, free_use_objs);
 #if DEBUG_JIUKUN_STAT
-    logInfoMsg(
+    jf_logger_logInfoMsg(
         "high mark %u, active %u, allocation %u, "
         "grown %u, reaped %u, error %u",
         pCache->sc_ulNumHighMark, pCache->sc_ulNumActive,
@@ -318,7 +318,7 @@ static inline void _freePages(
     void * pAddr = addr;
 
 #if defined(DEBUG_JIUKUN)
-    logInfoMsg("slab free page, %p", addr);
+    jf_logger_logInfoMsg("slab free page, %p", addr);
 #endif
 
     while (i--)
@@ -387,7 +387,7 @@ static inline void * _allocOneObjFromTail(
     if (GET_FLAG(pCache->sc_fCache, SC_FLAG_POISON))
         if (_checkPoisonObj(pCache, objp))
         {
-            logInfoMsg("Out of bound access");
+            jf_logger_logInfoMsg("Out of bound access");
             abort();
         }
 
@@ -398,7 +398,7 @@ static inline void * _allocOneObjFromTail(
             (*((ulong *)(objp + pCache->sc_u32ObjSize - SLAB_ALIGN_SIZE)) !=
              RED_MAGIC1))
         {
-            logInfoMsg("Invalid red zone");
+            jf_logger_logInfoMsg("Invalid red zone");
             abort();
         }
 
@@ -505,7 +505,7 @@ static u32 _growSlabCache(
     if (u32Ret == OLERR_NO_ERROR)
     {
 #if DEBUG_JIUKUN
-        logInfoMsg("grow cache, %p", objp);
+        jf_logger_logInfoMsg("grow cache, %p", objp);
 #endif
         /* Get slab management. */
         slabp = _slabMgmt(pijs, pCache, objp);
@@ -513,7 +513,7 @@ static u32 _growSlabCache(
         {
             _freePages(pijs, pCache, objp);
             u32Ret = OLERR_FAIL_GROW_JIUKUN_CACHE;    
-            logErrMsg(u32Ret, "grow cache, slab error");
+            jf_logger_logErrMsg(u32Ret, "grow cache, slab error");
         }
     }
 
@@ -571,7 +571,7 @@ static inline u32 _allocObj(
     olflag_t jpflag = 0;
 
 #if defined(DEBUG_JIUKUN_VERBOSE)
-    logInfoMsg("alloc obj from %s", pCache->sc_strName);
+    jf_logger_logInfoMsg("alloc obj from %s", pCache->sc_strName);
 #endif
 
     *ppObj = NULL;
@@ -623,7 +623,7 @@ static inline u32 _allocObj(
     {                                  \
         if (! isJpSlab(page))          \
         {                              \
-            logInfoMsg("check page, bad ptr %lxh.", (ulong)objp);   \
+            jf_logger_logInfoMsg("check page, bad ptr %lxh.", (ulong)objp);   \
             abort();                         \
         }                                    \
     } while (0)
@@ -649,7 +649,7 @@ static olint_t _extraFreeChecks (slab_cache_t * pCache,
     {
         if (i == objnr)
         {
-            logInfoMsg("Double free is detected");
+            jf_logger_logInfoMsg("Double free is detected");
             abort();
         }
     }
@@ -677,7 +677,7 @@ static inline void _freeOneObj(
             (*((ulong *)(objp + pCache->sc_u32ObjSize - SLAB_ALIGN_SIZE)) !=
              RED_MAGIC2))
         {
-            logInfoMsg("Free an unallocated memory");
+            jf_logger_logInfoMsg("Free an unallocated memory");
             abort();
         }
 
@@ -779,7 +779,7 @@ static u32 _destroySlabCache(
     slab_t * slabp;
     struct list_head * p;
 
-    logInfoMsg("destroy jiukun cache %s", psc->sc_strName);
+    jf_logger_logInfoMsg("destroy jiukun cache %s", psc->sc_strName);
 
     acquireSyncMutex(&(psc->sc_smCache));
 
@@ -833,7 +833,7 @@ static u32 _createSlabCache(
     struct list_head * plh;
 #endif
 
-    logInfoMsg(
+    jf_logger_logInfoMsg(
         "create jiukun cache, %s, size: %u, flag: 0x%llX",
         pjjccp->jjccp_pstrName, pjjccp->jjccp_sObj, pjjccp->jjccp_fCache);
 
@@ -908,7 +908,7 @@ static u32 _createSlabCache(
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        logInfoMsg(
+        jf_logger_logInfoMsg(
             "create slab cache, %s, size: %u, order: %u, num: %u",
             pjjccp->jjccp_pstrName, pjjccp->jjccp_sObj, pCache->sc_u32Order,
             pCache->sc_u32Num);
@@ -916,7 +916,7 @@ static u32 _createSlabCache(
         if (pCache->sc_u32Num == 0)
         {
             u32Ret = OLERR_FAIL_CREATE_JIUKUN_CACHE;
-            logErrMsg(u32Ret, "create slab cache, couldn't create cache");
+            jf_logger_logErrMsg(u32Ret, "create slab cache, couldn't create cache");
         }
     }
 
@@ -1101,7 +1101,7 @@ u32 finiJiukunSlab(void)
     general_cache_t * pgc;
     slab_cache_t * psc;
 
-    logInfoMsg("fini jiukun slab");
+    jf_logger_logInfoMsg("fini jiukun slab");
 
     pgc = pijs->ijs_gcGeneral;
 
@@ -1178,7 +1178,7 @@ u32 reapJiukunSlab(boolean_t bNoWait)
 
     assert(pijs->ijs_bInitialized);
 
-    logInfoMsg("reap slab, nowait %d", bNoWait);
+    jf_logger_logInfoMsg("reap slab, nowait %d", bNoWait);
 
     if (bNoWait)
     {
@@ -1190,7 +1190,7 @@ u32 reapJiukunSlab(boolean_t bNoWait)
     {
         acquireSyncMutex(&(pijs->ijs_smLock));
     }
-    logInfoMsg("reap slab, start");
+    jf_logger_logInfoMsg("reap slab, start");
 
     listForEach(&(pijs->ijs_scCacheCache.sc_lhNext), plh)
     {
@@ -1198,25 +1198,25 @@ u32 reapJiukunSlab(boolean_t bNoWait)
 
         if (GET_FLAG(searchp->sc_fCache, JF_JIUKUN_CACHE_CREATE_FLAG_NOREAP))
         {
-            logInfoMsg("reap cache, %s no reap", searchp->sc_strName);
+            jf_logger_logInfoMsg("reap cache, %s no reap", searchp->sc_strName);
             continue;
         }
 
         if (GET_FLAG(searchp->sc_fCache, SC_FLAG_GROWN))
         {
-            logInfoMsg("reap cache, %s is growing", searchp->sc_strName);
+            jf_logger_logInfoMsg("reap cache, %s is growing", searchp->sc_strName);
             continue;
         }
 
         if (GET_FLAG(searchp->sc_fCache, SC_FLAG_LOCKED))
         {
-            logInfoMsg("reap cache, %s is locked", searchp->sc_strName);
+            jf_logger_logInfoMsg("reap cache, %s is locked", searchp->sc_strName);
             continue;
         }
 
         acquireSyncMutex(&(searchp->sc_smCache));
 #if DEBUG_JIUKUN
-        logInfoMsg(
+        jf_logger_logInfoMsg(
             "cache %p, name %s, flag 0x%llx", searchp, searchp->sc_strName,
             searchp->sc_fCache);
         _dumpSlabCache(searchp);
@@ -1288,7 +1288,7 @@ u32 jf_jiukun_allocMemory(void ** pptr, olsize_t size, olflag_t flag)
     }
 
 #if defined(DEBUG_JIUKUN_VERBOSE)
-    logDebugMsg("alloc sized obj %p, size: %u, flags: 0x%llX",
+    jf_logger_logDebugMsg("alloc sized obj %p, size: %u, flags: 0x%llX",
                 *pptr, size, flag);
 #endif
 
@@ -1308,7 +1308,7 @@ void jf_jiukun_freeMemory(void ** pptr)
     assert((pptr != NULL) && (*pptr != NULL));
 
 #if defined(DEBUG_JIUKUN_VERBOSE)
-    logInfoMsg("free sized obj, %p", *pptr);
+    jf_logger_logInfoMsg("free sized obj, %p", *pptr);
 #endif
 
     pCache = GET_PAGE_CACHE(addrToJiukunPage(objp));

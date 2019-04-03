@@ -78,7 +78,7 @@ static u32 _preSelectAssocket(
       If this variable is TRUE, that means we need to do that.*/
     if (! pia->ia_bListening)
     {
-        logInfoMsg("pre sel ass, listening on the socket");
+        jf_logger_logInfoMsg("pre sel ass, listening on the socket");
         /*Set the socket to non-block mode, so we can play nice and share the
           thread*/
         jf_network_setSocketNonblock(pia->ia_pjnsListenSocket);
@@ -96,7 +96,7 @@ static u32 _preSelectAssocket(
         if (! isEndOfListArray(pia->ia_plaAsocket))
             jf_network_setSocketToFdSet(pia->ia_pjnsListenSocket, readset);
         else
-            logInfoMsg("pre sel ass, no free asocket on the socket");
+            jf_logger_logInfoMsg("pre sel ass, no free asocket on the socket");
         releaseSyncMutex(&pia->ia_smAsocket);
     }
 
@@ -119,7 +119,7 @@ static u32 _postSelectAssocket(
 
     if (jf_network_isSocketSetInFdSet(pia->ia_pjnsListenSocket, readset))
     {
-        logInfoMsg("post select assocket, listen socket is in readset");
+        jf_logger_logInfoMsg("post select assocket, listen socket is in readset");
 
         /*There are pending TCP connection requests*/
         while (u32Ret == OLERR_NO_ERROR)
@@ -135,7 +135,7 @@ static u32 _postSelectAssocket(
                 releaseSyncMutex(&pia->ia_smAsocket);
                 if (u32Index != LIST_ARRAY_END)
                 {
-                    logInfoMsg(
+                    jf_logger_logInfoMsg(
                         "post select assocket, new connection, use %u",
                         u32Index);
 
@@ -162,7 +162,7 @@ static u32 _postSelectAssocket(
                 }
                 else
                 {
-                    logErrMsg(u32Ret,
+                    jf_logger_logErrMsg(u32Ret,
                         "post select assocket, no more free asocket");
                     jf_network_destroySocket(&pNewSocket);
                     break;
@@ -201,7 +201,7 @@ static u32 _assOnData(
     assocket_data_t * pad = (assocket_data_t *) pUser;
     internal_assocket_t * pia = pad->ad_iaAssocket;
 
-    logInfoMsg("ass on data");
+    jf_logger_logInfoMsg("ass on data");
 
     /*Pass the received data up*/
     if (pia->ia_fnOnData != NULL)
@@ -240,7 +240,7 @@ static u32 _assOnDisconnect(jf_network_asocket_t * pAsocket, u32 u32Status, void
     internal_assocket_t * pia = pad->ad_iaAssocket;
     u32 u32Index = _assGetTagOfAsocket(pAsocket);
 
-    logInfoMsg("ass on disconnect, put %u", u32Index);
+    jf_logger_logInfoMsg("ass on disconnect, put %u", u32Index);
     acquireSyncMutex(&pia->ia_smAsocket);
     putListArrayNode(pia->ia_plaAsocket, u32Index);
     releaseSyncMutex(&pia->ia_smAsocket);
@@ -268,7 +268,7 @@ static u32 _assOnSendOK(jf_network_asocket_t * pAsocket, void * pUser)
     assocket_data_t * pad = (assocket_data_t *) pUser;
     internal_assocket_t * pia = pad->ad_iaAssocket;
 
-    logInfoMsg("ass on send ok");
+    jf_logger_logInfoMsg("ass on send ok");
 
     /*Pass the OnSendOK event up*/
     if (pia->ia_fnOnSendOK != NULL)
@@ -288,7 +288,7 @@ u32 jf_network_destroyAssocket(jf_network_assocket_t ** ppAssocket)
     internal_assocket_t * pia = (internal_assocket_t *) *ppAssocket;
     u32 u32Index;
 
-    logInfoMsg("destroy assocket");
+    jf_logger_logInfoMsg("destroy assocket");
 
     if (pia->ia_pjnaAsockets != NULL)
     {
@@ -341,7 +341,7 @@ u32 jf_network_createAssocket(
            (pjnacp->jnacp_u32MaxConn <= ASS_MAX_CONNECTIONS) &&
            (pjnacp->jnacp_fnOnConnect != NULL));
 
-    logInfoMsg("create assocket, max conn %u", pjnacp->jnacp_u32MaxConn);
+    jf_logger_logInfoMsg("create assocket, max conn %u", pjnacp->jnacp_u32MaxConn);
 
     /*create a new assocket*/
     u32Ret = xcalloc((void **)&pia, sizeof(internal_assocket_t));
@@ -468,7 +468,7 @@ u32 jf_network_disconnectAssocket(
     internal_assocket_t * pia = (internal_assocket_t *) pAssocket;
     u32 u32Index = _assGetTagOfAsocket(pAsocket);
 
-    logInfoMsg("ass disconnect, index %u", u32Index);
+    jf_logger_logInfoMsg("ass disconnect, index %u", u32Index);
     assert(u32Index < pia->ia_u32MaxConn);
 
     acquireSyncMutex(&pia->ia_psmAsockets[u32Index]);
@@ -504,7 +504,7 @@ u32 jf_network_sendAssocketData(
     internal_assocket_t * pia = (internal_assocket_t *) pAssocket;
     u32 u32Index = _assGetTagOfAsocket(pAsocket);
 
-    logInfoMsg("ass send data");
+    jf_logger_logInfoMsg("ass send data");
 
     acquireSyncMutex(&pia->ia_psmAsockets[u32Index]);
     u32Ret = jf_network_sendAsocketData(pAsocket, pu8Buffer, sBuf, memowner);
@@ -520,7 +520,7 @@ u32 jf_network_resumeAssocket(
     internal_assocket_t * pia = (internal_assocket_t *) pAssocket;
     u32 u32Index = _assGetTagOfAsocket(pAsocket);
 
-    logInfoMsg("resume ass");
+    jf_logger_logInfoMsg("resume ass");
 
     acquireSyncMutex(&pia->ia_psmAsockets[u32Index]);
     u32Ret = jf_network_resumeAsocket(pAsocket);
@@ -537,7 +537,7 @@ u32 jf_network_recvAssocketData(
     internal_assocket_t * pia = (internal_assocket_t *) pAssocket;
     u32 u32Index = _assGetTagOfAsocket(pAsocket);
 
-    logInfoMsg("ass recv data");
+    jf_logger_logInfoMsg("ass recv data");
 
     acquireSyncMutex(&pia->ia_psmAsockets[u32Index]);
     u32Ret = jf_network_recvAsocketData(pAsocket, pu8Buffer, psRecv);
@@ -554,7 +554,7 @@ u32 jf_network_getAssocketOpt(
     internal_assocket_t * pia = (internal_assocket_t *) pAssocket;
     u32 u32Index = _assGetTagOfAsocket(pAsocket);
 
-    logInfoMsg("get ass socket opt");
+    jf_logger_logInfoMsg("get ass socket opt");
 
     acquireSyncMutex(&pia->ia_psmAsockets[u32Index]);
     u32Ret = jf_network_getAsocketOpt(pAsocket, level, optname, optval, optlen);
@@ -571,7 +571,7 @@ u32 jf_network_setAssocketOpt(
     internal_assocket_t * pia = (internal_assocket_t *) pAssocket;
     u32 u32Index = _assGetTagOfAsocket(pAsocket);
 
-    logInfoMsg("set ass socket opt");
+    jf_logger_logInfoMsg("set ass socket opt");
 
     acquireSyncMutex(&pia->ia_psmAsockets[u32Index]);
     u32Ret = jf_network_setAsocketOpt(pAsocket, level, optname, optval, optlen);
@@ -588,7 +588,7 @@ u32 jf_network_sendnAssocket(
     internal_assocket_t * pia = (internal_assocket_t *) pAssocket;
     u32 u32Index = _assGetTagOfAsocket(pAsocket);
 
-    logInfoMsg("ass sendn");
+    jf_logger_logInfoMsg("ass sendn");
 
     acquireSyncMutex(&pia->ia_psmAsockets[u32Index]);
     u32Ret = jf_network_sendnAsocket(pAsocket, pu8Buffer, psBuf);

@@ -188,7 +188,7 @@ static u32 _extractRegularFile(archive_header_t * pah, file_handler_t * pfh)
     u32Ret = jf_string_getU64FromString((olchar_t *)pah->ah_u8Size, sLen, &u64Size);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        logInfoMsg("file size: %llu", u64Size);
+        jf_logger_logInfoMsg("file size: %llu", u64Size);
         u64AlignedSize = ARCHIVE_ALIGH_SIZE(u64Size);
         if (! pfh->fh_bListArchive)
         {
@@ -286,7 +286,7 @@ static u32 _extractMemberFile(archive_header_t * pah, file_handler_t * pfh)
 
     if (pfh->fh_bVerbose)
         ol_printf("extract %s\n", pfh->fh_strFullpath);
-    logInfoMsg("extract %s", pfh->fh_strFullpath);
+    jf_logger_logInfoMsg("extract %s", pfh->fh_strFullpath);
 
     switch (pah->ah_u8Type)
     {

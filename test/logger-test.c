@@ -134,21 +134,21 @@ static void _testLogger(void)
     addErrCode(E_IRON_MAN, "Iron man");
     addErrCode(E_BAT_MAN, "Bat man");
 
-    logErrMsg(E_HELLO_WORLD, "Vendor error code");
-    logErrMsg(E_SUPER_MAN, "Vendor error code");
-    logErrMsg(E_IRON_MAN, "Vendor error code");
-    logErrMsg(E_BAT_MAN, "Vendor error code");
+    jf_logger_logErrMsg(E_HELLO_WORLD, "Vendor error code");
+    jf_logger_logErrMsg(E_SUPER_MAN, "Vendor error code");
+    jf_logger_logErrMsg(E_IRON_MAN, "Vendor error code");
+    jf_logger_logErrMsg(E_BAT_MAN, "Vendor error code");
 
-    logInfoMsg("logger test, info msg");
+    jf_logger_logInfoMsg("logger test, info msg");
 
-    logErrMsg(OLERR_NOT_FOUND, "logger test, err msg");
+    jf_logger_logErrMsg(OLERR_NOT_FOUND, "logger test, err msg");
 
-    logDataMsg(u8Data, sizeof(u8Data), "logger test, err msg");
+    jf_logger_logDataMsg(u8Data, sizeof(u8Data), "logger test, err msg");
 
 //        u32Ret = openDir("shit", &pDir);
 //    u32Ret = OLERR_OPERATION_FAIL;
 
-//    logErrMsg(u32Ret, "Quit");
+//    jf_logger_logErrMsg(u32Ret, "Quit");
 
     jf_logger_fini();
 }

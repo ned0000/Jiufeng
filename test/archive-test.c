@@ -177,11 +177,11 @@ olint_t main(olint_t argc, olchar_t ** argv)
         }
         else
         {
-            logInfoMsg("Unrecognized action");
+            jf_logger_logInfoMsg("Unrecognized action");
         }
     }
 
-    logErrMsg(u32Ret, "Quit");
+    jf_logger_logErrMsg(u32Ret, "Quit");
 
     jf_logger_fini();
 

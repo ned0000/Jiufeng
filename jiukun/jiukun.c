@@ -74,7 +74,7 @@ u32 jf_jiukun_init(jf_jiukun_init_param_t * pjjip)
     while (u32NumOfPages > ls_u32OrderPrimes[bp.bp_u8MaxOrder])
         bp.bp_u8MaxOrder ++;
 
-    logInfoMsg("init aehter, size: %u, page: %u, order: %u",
+    jf_logger_logInfoMsg("init aehter, size: %u, page: %u, order: %u",
            pjjip->jjip_sPool, u32NumOfPages, bp.bp_u8MaxOrder);
 
     u32Ret = initJiukunBuddy(&bp);
@@ -99,7 +99,7 @@ u32 jf_jiukun_fini(void)
     internal_jiukun_t * pia = &ls_iaJiukun;
 
 #if defined(DEBUG_JIUKUN)
-    logInfoMsg("fini aehter");
+    jf_logger_logInfoMsg("fini aehter");
 #endif
 
     finiJiukunSlab();
@@ -119,7 +119,7 @@ u32 reapJiukun(boolean_t bNoWait)
 
     u32Reap = reapJiukunSlab(bNoWait);
 #if defined(DEBUG_JIUKUN)
-    logInfoMsg("reap jiukun, nowait %d, reaped %u", bNoWait, u32Reap);
+    jf_logger_logInfoMsg("reap jiukun, nowait %d, reaped %u", bNoWait, u32Reap);
     jf_jiukun_dump();
 #endif
     return u32Reap;

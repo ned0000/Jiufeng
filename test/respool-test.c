@@ -60,14 +60,14 @@ THREAD_RETURN_VALUE _respoolTestWorkerThread(void * pArg)
     u32 u32Ret = OLERR_NO_ERROR;
     respool_test_worker_data_t * prtwd = (respool_test_worker_data_t *)pArg;
 
-    logDebugMsg("enter respool test worker thread");
+    jf_logger_logDebugMsg("enter respool test worker thread");
     
     while (! prtwd->rtwd_bToTerminate)
     {
         u32Ret = downSyncSem(prtwd->rtwd_pssSem);
         if ((u32Ret == OLERR_NO_ERROR) && (! prtwd->rtwd_bToTerminate))
         {
-            logInfoMsg("respool test worker thread, got work");
+            jf_logger_logInfoMsg("respool test worker thread, got work");
 
             acquireSyncMutex(prtwd->rtwd_psmLock);
             /*do the work*/
@@ -75,7 +75,7 @@ THREAD_RETURN_VALUE _respoolTestWorkerThread(void * pArg)
         }
     }
 
-    logDebugMsg("quit respool test worker thread");
+    jf_logger_logDebugMsg("quit respool test worker thread");
     xfree((void **)&prtwd);
     
     THREAD_RETURN(u32Ret);
@@ -85,12 +85,12 @@ THREAD_RETURN_VALUE _respoolTestProducerThread(void * pArg)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    logDebugMsg("enter respool test producer thread");
+    jf_logger_logDebugMsg("enter respool test producer thread");
     ls_bRespoolTestTerminateProducer = FALSE;
 
     while (! ls_bRespoolTestTerminateProducer)
     {
-        logInfoMsg("respool test producer thread, produce work");
+        jf_logger_logInfoMsg("respool test producer thread, produce work");
 
         acquireSyncMutex(&ls_smRespoolTestLock);
         /*produce the work*/
@@ -101,7 +101,7 @@ THREAD_RETURN_VALUE _respoolTestProducerThread(void * pArg)
         sleep(2);
     }
 
-    logDebugMsg("quit respool test producer thread");
+    jf_logger_logDebugMsg("quit respool test producer thread");
 
     THREAD_RETURN(u32Ret);
 }
@@ -111,7 +111,7 @@ static u32 _createRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
     u32 u32Ret = OLERR_NO_ERROR;
     respool_test_worker_data_t * prtwd = NULL;
 
-    logInfoMsg("create respool test worker");
+    jf_logger_logInfoMsg("create respool test worker");
 
     u32Ret = xmalloc((void **)&prtwd, sizeof(respool_test_worker_data_t));
     if (u32Ret == OLERR_NO_ERROR)
@@ -140,7 +140,7 @@ static u32 _destroyRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
     u32 u32Ret = OLERR_NO_ERROR;
     respool_test_worker_data_t * prtwd = (respool_test_worker_data_t *) *pprd;
 
-    logInfoMsg("destroy respool test worker");
+    jf_logger_logInfoMsg("destroy respool test worker");
 
     prtwd->rtwd_bToTerminate = TRUE;
 //    upSyncSem(prtwd->rtwd_pssSem);

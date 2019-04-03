@@ -123,7 +123,7 @@ static u32 _clearAsocket(internal_asocket_t * pia)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    logInfoMsg("clear as");
+    jf_logger_logInfoMsg("clear as");
 
     pia->ia_sPendingBytesToSend = 0;
     pia->ia_sTotalBytesSent = 0;
@@ -169,7 +169,7 @@ static u32 _freeAsocket(internal_asocket_t * pia)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    logInfoMsg("free as");
+    jf_logger_logInfoMsg("free as");
 
     /*Since the socket is closing, we need to clear the data that is pending to
       be sent*/
@@ -198,7 +198,7 @@ static u32 _asDisconnect(jf_network_asocket_t * pAsocket)
     u32 u32Status = pia->ia_u32Status;
     void * pUser = pia->ia_pUser;
 
-    logInfoMsg("as disconn");
+    jf_logger_logInfoMsg("as disconn");
 
     if ((! pia->ia_bSilent) && (pia->ia_fnOnDisconnect != NULL))
         /*Trigger the OnDissconnect event if necessary*/
@@ -233,7 +233,7 @@ static u32 _processAsocket(internal_asocket_t * pia)
         return u32Ret;
     }
 
-    logInfoMsg("as process");
+    jf_logger_logInfoMsg("as process");
 
     /* If the thing isn't paused, and the user set the pointers such that we
        still have data in our buffers, we need to call the user back with
@@ -263,7 +263,7 @@ static u32 _processAsocket(internal_asocket_t * pia)
     {
         pia->ia_bPause = TRUE;
         u32Ret = OLERR_BUFFER_IS_FULL;
-        logErrMsg(u32Ret, "buffer is full, pause the asocket");
+        jf_logger_logErrMsg(u32Ret, "buffer is full, pause the asocket");
         return u32Ret;
     }
 
@@ -272,7 +272,7 @@ static u32 _processAsocket(internal_asocket_t * pia)
         &bytesReceived);
     if (u32Ret != OLERR_NO_ERROR)
     {
-        logErrMsg(u32Ret, "as process");
+        jf_logger_logErrMsg(u32Ret, "as process");
         /*This means the socket was gracefully closed by peer*/
         pia->ia_u32Status = u32Ret;
         _asDisconnect(pia);
@@ -282,7 +282,7 @@ static u32 _processAsocket(internal_asocket_t * pia)
         /*Data was read, so increment our counters*/
         pia->ia_sEndPointer += bytesReceived;
 
-        logInfoMsg("as process, end %d", pia->ia_sEndPointer);
+        jf_logger_logInfoMsg("as process, end %d", pia->ia_sEndPointer);
 
         _onDataNotify(pia);
 
@@ -326,7 +326,7 @@ static u32 _preSelectAsocket(
         }
         else
         {
-            logInfoMsg("pre sel asocket, pause %u", pia->ia_bPause);
+            jf_logger_logInfoMsg("pre sel asocket, pause %u", pia->ia_bPause);
             if (! pia->ia_bPause)
             {
                 /* Already Connected, just needs reading */
@@ -446,7 +446,7 @@ static u32 _postSelectAsocket(
           maybe peer is closed*/
         if (jf_network_isSocketSetInFdSet(pia->ia_pjnsSocket, errorset) != 0)
         {
-            logInfoMsg("post as, in errorset");
+            jf_logger_logInfoMsg("post as, in errorset");
 
             /*Connection Failed*/
             if (pia->ia_fnOnConnect != NULL && ! pia->ia_bSilent)
@@ -458,7 +458,7 @@ static u32 _postSelectAsocket(
                  (jf_network_isSocketSetInFdSet(pia->ia_pjnsSocket, writeset) != 0))
         {
             /* Connected */
-            logInfoMsg("post as, connected");
+            jf_logger_logInfoMsg("post as, connected");
 
             jf_network_getSocketName(pia->ia_pjnsSocket, psa, &nLen);
 
@@ -489,7 +489,7 @@ static u32 _asConnectTo(
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    logInfoMsg("as connect");
+    jf_logger_logInfoMsg("as connect");
 
     /*If there isn't a socket already allocated, we need to allocate one*/
     if (pia->ia_pjnsSocket == NULL)
@@ -570,7 +570,7 @@ static u32 _asTrySendData(
             /*All of the data wasn't sent, so we need to copy the buffer if we
               don't own the memory, because the user may free the memory, before
               we have a chance to complete sending it.*/
-            logInfoMsg("as send data, partially send");
+            jf_logger_logInfoMsg("as send data, partially send");
             u32Ret = dupMemory((void **)&psd, (u8 *)pData, sizeof(*pData));
             if ((u32Ret == OLERR_NO_ERROR) && (memowner == JF_NETWORK_MEM_OWNER_USER))
             {
@@ -595,7 +595,7 @@ static u32 _asTrySendData(
     }
     else
     {
-        logInfoMsg(
+        jf_logger_logInfoMsg(
             "as send data, failed, add to utimer for disconnect");
         /*Send returned an error, so lets figure out what it was, as it could be
           normal. Most likely the socket closed while we tried to send*/
@@ -619,7 +619,7 @@ u32 jf_network_destroyAsocket(jf_network_asocket_t ** ppAsocket)
     assert((ppAsocket != NULL) && (*ppAsocket != NULL));
 
     pia = (internal_asocket_t *) *ppAsocket;
-    logInfoMsg("destroy as");
+    jf_logger_logInfoMsg("destroy as");
 
     /*Close socket if necessary*/
     if (pia->ia_pjnsSocket != NULL)
@@ -653,7 +653,7 @@ u32 jf_network_createAsocket(
     assert((pChain != NULL) && (pjnacp != NULL) && (ppAsocket != NULL));
     assert((pjnacp->jnacp_fnOnData != NULL));
 
-    logInfoMsg("create as");
+    jf_logger_logInfoMsg("create as");
 
     u32Ret = xcalloc((void **)&pia, sizeof(internal_asocket_t));
     if (u32Ret == OLERR_NO_ERROR)
@@ -696,12 +696,12 @@ u32 jf_network_disconnectAsocket(jf_network_asocket_t * pAsocket)
     u32 u32Ret = OLERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
-    logInfoMsg("as disconnect");
+    jf_logger_logInfoMsg("as disconnect");
 
     if (pia->ia_bFree)
     {
         u32Ret = OLERR_SOCKET_ALREADY_CLOSED;
-        logErrMsg(u32Ret, "as disconnect, asocket is free");
+        jf_logger_logErrMsg(u32Ret, "as disconnect, asocket is free");
         return u32Ret;
     }
 
@@ -728,7 +728,7 @@ u32 jf_network_sendAsocketData(
     send_data_t data;
     boolean_t bUnblock = FALSE;
 
-    logInfoMsg(
+    jf_logger_logInfoMsg(
         "as send data, %02x %02x %02x %02x, %d, %d",
         pu8Buffer[0], pu8Buffer[1], pu8Buffer[2], pu8Buffer[3], sBuf, memowner);
 
@@ -748,7 +748,7 @@ u32 jf_network_sendAsocketData(
 
         if (pia->ia_psdTail != NULL)
         {
-            logInfoMsg("as send data, pending data");
+            jf_logger_logInfoMsg("as send data, pending data");
 
             u32Ret = _asAddPendingData(
                 pia, &data, pu8Buffer, sBuf, memowner, &bUnblock);
@@ -774,7 +774,7 @@ u32 jf_network_sendnAsocket(
     u32 u32Ret = OLERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
-    logInfoMsg("as sendn");
+    jf_logger_logInfoMsg("as sendn");
 
     if ((! pia->ia_bFree) && (pia->ia_pjnsSocket != NULL))
         u32Ret = jf_network_sendn(pia->ia_pjnsSocket, pu8Buffer, psBuf);
@@ -797,7 +797,7 @@ u32 jf_network_connectAsocketTo(
            (pjiRemote->ji_u8AddrType == JF_IPADDR_TYPE_V6));
 
     jf_ipaddr_getStringIpAddr(strServer, pjiRemote);
-    logInfoMsg("as connect to %s:%u", strServer, u16Port);
+    jf_logger_logInfoMsg("as connect to %s:%u", strServer, u16Port);
 
     if (! pia->ia_bFree)
     {
@@ -819,7 +819,7 @@ u32 jf_network_connectAsocketTo(
         }
         else
         {
-            logErrMsg(u32Ret, "as connect failed");
+            jf_logger_logErrMsg(u32Ret, "as connect failed");
 
             _freeAsocket(pia);
         }
@@ -897,7 +897,7 @@ u32 jf_network_useSocketForAsocket(
     u32 u32Ret = OLERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *)pAsocket;
 
-    logInfoMsg("use socket for as");
+    jf_logger_logInfoMsg("use socket for as");
 
     if (! pia->ia_bFree)
     {
@@ -949,12 +949,12 @@ u32 jf_network_resumeAsocket(jf_network_asocket_t * pAsocket)
     u32 u32Ret = OLERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
-    logInfoMsg("resume as, pause %u", pia->ia_bPause);
+    jf_logger_logInfoMsg("resume as, pause %u", pia->ia_bPause);
     if (pia->ia_bPause)
     {
         pia->ia_bPause = FALSE;
 
-        logInfoMsg("resume as");
+        jf_logger_logInfoMsg("resume as");
 
         u32Ret = jf_network_wakeupChain(pia->ia_pjncChain);
     }

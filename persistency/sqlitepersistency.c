@@ -155,7 +155,7 @@ u32 initSqlitePersistency(
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    logInfoMsg("init sqlite persistency");
+    jf_logger_logInfoMsg("init sqlite persistency");
 
     ol_memcpy(
         &pManager->pm_pdData.pd_spSqlite.sp_jpcsConfigSqlite, pConfig,
