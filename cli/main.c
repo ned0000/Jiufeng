@@ -58,7 +58,7 @@ logger options:\n\
 }
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, 
-    jf_clieng_init_param_t * pjcip, logger_param_t * plp)
+    jf_clieng_init_param_t * pjcip, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t nOpt;
@@ -75,20 +75,20 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv,
             break;
         case 'T':
             if (sscanf(optarg, "%d", &u32Value) == 1)
-                plp->lp_u8TraceLevel = (u8)u32Value;
+                pjlip->jlip_u8TraceLevel = (u8)u32Value;
             else
                 u32Ret = OLERR_INVALID_PARAM;
             break;
         case 'F':
-            plp->lp_bLogToFile = TRUE;
-            plp->lp_pstrLogFilePath = optarg;
+            pjlip->jlip_bLogToFile = TRUE;
+            pjlip->jlip_pstrLogFilePath = optarg;
             break;
         case 'O':
-            plp->lp_bLogToStdout = TRUE;
+            pjlip->jlip_bLogToStdout = TRUE;
             break;
         case 'S':
             if (sscanf(optarg, "%d", &u32Value) == 1)
-                plp->lp_sLogFile = u32Value;
+                pjlip->jlip_sLogFile = u32Value;
             else
                 u32Ret = OLERR_INVALID_PARAM;
             break;
@@ -123,15 +123,15 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     jf_clieng_init_param_t jcip;
-    logger_param_t lpParam;
+    jf_logger_init_param_t jlipParam;
     cli_param_t cliParam;
 //    aether_param_t ap;
 
     u32Ret = xcalloc((void **)&ls_pocmMaster, sizeof(jiufeng_cli_master_t));
     if (u32Ret == OLERR_NO_ERROR)
     {
-        memset(&lpParam, 0, sizeof(logger_param_t));
-        lpParam.lp_pstrCallerName = "CLI";
+        memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+        jlipParam.jlip_pstrCallerName = "CLI";
 
         memset(&jcip, 0, sizeof(jcip));
 
@@ -142,7 +142,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jcip.jcip_pMaster = ls_pocmMaster;
         jcip.jcip_fnPrintGreeting = _printShellGreeting;
 
-        u32Ret = _parseCmdLineParam(argc, argv, &jcip, &lpParam);
+        u32Ret = _parseCmdLineParam(argc, argv, &jcip, &jlipParam);
     }
 
     if (u32Ret == OLERR_NO_ERROR)

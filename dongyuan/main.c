@@ -58,7 +58,7 @@ logger options:\n\
 
 static u32 _parseDongyuanCmdLineParam(
     olint_t argc, olchar_t ** argv, 
-    dongyuan_param_t * pgp, logger_param_t * plp)
+    dongyuan_param_t * pgp, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t nOpt;
@@ -84,20 +84,20 @@ static u32 _parseDongyuanCmdLineParam(
             exit(0);
         case 'T':
             if (sscanf(optarg, "%d", &u32Value) == 1)
-                plp->lp_u8TraceLevel = (u8)u32Value;
+                pjlip->jlip_u8TraceLevel = (u8)u32Value;
             else
                 u32Ret = OLERR_INVALID_PARAM;
             break;
         case 'F':
-            plp->lp_bLogToFile = TRUE;
-            plp->lp_pstrLogFilePath = optarg;
+            pjlip->jlip_bLogToFile = TRUE;
+            pjlip->jlip_pstrLogFilePath = optarg;
             break;
         case 'O':
-            plp->lp_bLogToStdout = TRUE;
+            pjlip->jlip_bLogToStdout = TRUE;
             break;
         case 'S':
             if (sscanf(optarg, "%d", &u32Value) == 1)
-                plp->lp_sLogFile = u32Value;
+                pjlip->jlip_sLogFile = u32Value;
             else
                 u32Ret = OLERR_INVALID_PARAM;
             break;
@@ -138,20 +138,20 @@ static u32 _initDongyuan(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     dongyuan_param_t gp;
-    logger_param_t lpParam;
+    jf_logger_init_param_t jlipParam;
     olchar_t strExecutable[100];
 
-    memset(&lpParam, 0, sizeof(logger_param_t));
-    lpParam.lp_pstrCallerName = "DONGYUAN";
-    lpParam.lp_u8TraceLevel = 0;
+    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    jlipParam.jlip_pstrCallerName = "DONGYUAN";
+    jlipParam.jlip_u8TraceLevel = 0;
 
     setDefaultDongyuanParam(&gp);
     gp.gp_pstrCmdLine = argv[0];
 
-    u32Ret = _parseDongyuanCmdLineParam(argc, argv, &gp, &lpParam);
+    u32Ret = _parseDongyuanCmdLineParam(argc, argv, &gp, &jlipParam);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        initLogger(&lpParam);
+        jf_logger_init(&jlipParam);
 
         jf_file_getFileName(strExecutable, 100, argv[0]);
 

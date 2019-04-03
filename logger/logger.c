@@ -195,24 +195,24 @@ static u32 _logMsg(internal_logger_t * pil, olint_t nLevel, olchar_t * pstrMsg)
 
 /** Set the default parameter of logger
  *
- *  @param plp [in] the pointer to logger parameter where the default
+ *  @param pjlip [in] the pointer to logger parameter where the default
  *   values are returned.
  *
  *  @return: none.
  */
-static void _setDefaultParam(logger_param_t * plp)
+static void _setDefaultParam(jf_logger_init_param_t * pjlip)
 {
-    memset(plp, 0, sizeof(logger_param_t));
-    plp->lp_bLogToFile = FALSE;
-    plp->lp_bLogToStdout = FALSE;
-    plp->lp_bLogToSysLog = FALSE;
-    plp->lp_bLogToTTY = FALSE;
-    plp->lp_pstrCallerName = NULL;
-    plp->lp_pstrLogFilePath = NULL;
-    plp->lp_pu8RemoteMachineIP = NULL;
-    plp->lp_pstrTTY = NULL;
-    plp->lp_sLogFile = 0;
-    plp->lp_u8TraceLevel = LOGGER_TRACE_NONE;
+    memset(pjlip, 0, sizeof(jf_logger_init_param_t));
+    pjlip->jlip_bLogToFile = FALSE;
+    pjlip->jlip_bLogToStdout = FALSE;
+    pjlip->jlip_bLogToSysLog = FALSE;
+    pjlip->jlip_bLogToTTY = FALSE;
+    pjlip->jlip_pstrCallerName = NULL;
+    pjlip->jlip_pstrLogFilePath = NULL;
+    pjlip->jlip_pu8RemoteMachineIP = NULL;
+    pjlip->jlip_pstrTTY = NULL;
+    pjlip->jlip_sLogFile = 0;
+    pjlip->jlip_u8TraceLevel = JF_LOGGER_TRACE_NONE;
 }
 
 static u32 _logSysErrMsg(internal_logger_t * pil, u32 u32ErrCode,
@@ -220,7 +220,7 @@ static u32 _logSysErrMsg(internal_logger_t * pil, u32 u32ErrCode,
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t nPrint;
-    olchar_t buf[MAX_MSG_SIZE];
+    olchar_t buf[JF_LOGGER_MAX_MSG_SIZE];
     olchar_t bufMsg[128 + 1];
 #if defined(WINDOWS)
     DWORD dwErrorCode = 0, dwRet = 0;
@@ -235,8 +235,8 @@ static u32 _logSysErrMsg(internal_logger_t * pil, u32 u32ErrCode,
 #endif
 
     ol_strcpy(buf, "ERR ");
-    nPrint = ol_vsnprintf(buf + 4, (MAX_MSG_SIZE - 5), fmt, ap);
-    buf[MAX_MSG_SIZE - 1] = 0;
+    nPrint = ol_vsnprintf(buf + 4, (JF_LOGGER_MAX_MSG_SIZE - 5), fmt, ap);
+    buf[JF_LOGGER_MAX_MSG_SIZE - 1] = 0;
 
     bufMsg[0] = '\0';
 #if defined(WINDOWS)
@@ -260,15 +260,15 @@ static u32 _logSysErrMsg(internal_logger_t * pil, u32 u32ErrCode,
     }
 
 #if defined(LINUX)
-    nPrint = ol_snprintf(buf + nPrint, MAX_MSG_SIZE - nPrint - 1,
+    nPrint = ol_snprintf(buf + nPrint, JF_LOGGER_MAX_MSG_SIZE - nPrint - 1,
         " - (0x%X) %s\n      %d, %s", 
         u32ErrCode, getErrorDescription(u32ErrCode), errno_save, bufMsg);
 #elif defined(WINDOWS)
-    nPrint = ol_snprintf(buf + nPrint, MAX_MSG_SIZE - nPrint - 1,
+    nPrint = ol_snprintf(buf + nPrint, JF_LOGGER_MAX_MSG_SIZE - nPrint - 1,
         " - (0x%X) %s\n      %d, %s", 
         u32ErrCode, getErrorDescription(u32ErrCode), dwErrorCode, bufMsg);
 #endif
-    buf[MAX_MSG_SIZE - 1] = 0;
+    buf[JF_LOGGER_MAX_MSG_SIZE - 1] = 0;
     u32Ret = _logMsg(pil, LOG_ERR, buf);
 
     return u32Ret;    
@@ -279,11 +279,11 @@ static u32 _logErrMsg(internal_logger_t * pil, u32 u32ErrCode,
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t nPrint;
-    olchar_t buf[MAX_MSG_SIZE];
+    olchar_t buf[JF_LOGGER_MAX_MSG_SIZE];
 
     ol_strcpy(buf, "ERR ");
-    nPrint = ol_vsnprintf(buf + 4, (MAX_MSG_SIZE - 5), fmt, ap);
-    buf[MAX_MSG_SIZE - 1] = 0;
+    nPrint = ol_vsnprintf(buf + 4, (JF_LOGGER_MAX_MSG_SIZE - 5), fmt, ap);
+    buf[JF_LOGGER_MAX_MSG_SIZE - 1] = 0;
 
     if (nPrint == -1)
     {
@@ -296,9 +296,9 @@ static u32 _logErrMsg(internal_logger_t * pil, u32 u32ErrCode,
         nPrint += 4;
     }
 
-    ol_snprintf(buf + nPrint, MAX_MSG_SIZE - nPrint - 1, " - (0x%X) %s",
+    ol_snprintf(buf + nPrint, JF_LOGGER_MAX_MSG_SIZE - nPrint - 1, " - (0x%X) %s",
         u32ErrCode, getErrorDescription(u32ErrCode));
-    buf[MAX_MSG_SIZE - 1] = 0;
+    buf[JF_LOGGER_MAX_MSG_SIZE - 1] = 0;
     u32Ret = _logMsg(pil, LOG_ERR, buf);
 
     return u32Ret;
@@ -306,12 +306,12 @@ static u32 _logErrMsg(internal_logger_t * pil, u32 u32ErrCode,
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 initLogger(logger_param_t * pParam)
+u32 jf_logger_init(jf_logger_init_param_t * pParam)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     FILE * fd = NULL;
     internal_logger_t * pil = &ls_ilLogger;
-    logger_param_t param, * plp;
+    jf_logger_init_param_t param, * pjlip;
 
     if (pil->il_bInitialized)
         return u32Ret;
@@ -320,32 +320,32 @@ u32 initLogger(logger_param_t * pParam)
 
     if (pParam != NULL)
     {
-        plp = pParam;
+        pjlip = pParam;
     }
     else
     {
         /* create default parameters */
-        plp = &param;
-        _setDefaultParam(plp);
+        pjlip = &param;
+        _setDefaultParam(pjlip);
     }
 
-    if (plp->lp_pstrCallerName != NULL)
+    if (pjlip->jlip_pstrCallerName != NULL)
     {
         ol_strncpy(
-            pil->il_strCallerName, plp->lp_pstrCallerName, MAX_CALLER_NAME - 1);
+            pil->il_strCallerName, pjlip->jlip_pstrCallerName, MAX_CALLER_NAME - 1);
     }
     else
     {
         ol_strcpy(pil->il_strCallerName, "NONAME");
     }
 
-    if (plp->lp_bLogToFile)
+    if (pjlip->jlip_bLogToFile)
     {
         pil->il_u8LogMask |= IL_LOG_MASK_LOGFILE;
 
-        if (plp->lp_pstrLogFilePath != NULL)
+        if (pjlip->jlip_pstrLogFilePath != NULL)
             ol_strncpy(
-                pil->il_strLogFilename, plp->lp_pstrLogFilePath,
+                pil->il_strLogFilename, pjlip->jlip_pstrLogFilePath,
                 MAX_PATH_LEN - 1);
         else
             ol_snprintf(
@@ -378,15 +378,15 @@ u32 initLogger(logger_param_t * pParam)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        if (plp->lp_bLogToStdout)
+        if (pjlip->jlip_bLogToStdout)
         {
             pil->il_u8LogMask |= IL_LOG_MASK_STDOUT;
         }
-        if (plp->lp_bLogToSysLog)
+        if (pjlip->jlip_bLogToSysLog)
         {
             pil->il_u8LogMask |= IL_LOG_MASK_SYSLOG;
         }
-        if (plp->lp_bLogToTTY)
+        if (pjlip->jlip_bLogToTTY)
         {
             pil->il_u8LogMask |= IL_LOG_MASK_TTY;
         }
@@ -395,8 +395,8 @@ u32 initLogger(logger_param_t * pParam)
 #ifdef LINUX
         pil->il_nTTY = -1;
 #endif
-        pil->il_u8TraceLevel = plp->lp_u8TraceLevel;
-        pil->il_u32LogFileLines = _getLogFileLines(plp->lp_sLogFile);
+        pil->il_u8TraceLevel = pjlip->jlip_u8TraceLevel;
+        pil->il_u32LogFileLines = _getLogFileLines(pjlip->jlip_sLogFile);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -432,17 +432,17 @@ u32 logInfoMsg(const olchar_t * fmt, ...)
     u32 u32Ret = OLERR_NO_ERROR;
     va_list ap; 
     internal_logger_t * pil = &ls_ilLogger;
-    olchar_t buf[MAX_MSG_SIZE];
+    olchar_t buf[JF_LOGGER_MAX_MSG_SIZE];
 
     if (! pil->il_bInitialized)
         return u32Ret;
 
     if ((pil->il_u8LogMask != IL_LOG_MASK_NONE) &&
-        (pil->il_u8TraceLevel >= LOGGER_TRACE_INFO))
+        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_INFO))
     {
         va_start(ap, fmt);
-        ol_vsnprintf(buf, MAX_MSG_SIZE - 1, fmt, ap);
-        buf[MAX_MSG_SIZE - 1] = 0;
+        ol_vsnprintf(buf, JF_LOGGER_MAX_MSG_SIZE - 1, fmt, ap);
+        buf[JF_LOGGER_MAX_MSG_SIZE - 1] = 0;
         va_end(ap);
     
         _logMsg(pil, LOG_INFO, buf);
@@ -456,17 +456,17 @@ u32 logDebugMsg(const olchar_t * fmt, ...)
     u32 u32Ret = OLERR_NO_ERROR;
     va_list ap; 
     internal_logger_t * pil = &ls_ilLogger;
-    olchar_t buf[MAX_MSG_SIZE];
+    olchar_t buf[JF_LOGGER_MAX_MSG_SIZE];
 
     if (! pil->il_bInitialized)
         return u32Ret;
 
     if ((pil->il_u8LogMask != IL_LOG_MASK_NONE) &&
-        (pil->il_u8TraceLevel >= LOGGER_TRACE_DEBUG))
+        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_DEBUG))
     {
         va_start(ap, fmt);
-        ol_vsnprintf(buf, MAX_MSG_SIZE - 1, fmt, ap);
-        buf[MAX_MSG_SIZE - 1] = 0;
+        ol_vsnprintf(buf, JF_LOGGER_MAX_MSG_SIZE - 1, fmt, ap);
+        buf[JF_LOGGER_MAX_MSG_SIZE - 1] = 0;
         va_end(ap);
     
         _logMsg(pil, LOG_INFO, buf);
@@ -485,7 +485,7 @@ u32 logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...)
         return u32Ret;
 
     if ((pil->il_u8LogMask != IL_LOG_MASK_NONE) &&
-        (pil->il_u8TraceLevel >= LOGGER_TRACE_ERROR))
+        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_ERROR))
     {
         va_start(ap, fmt);
 
@@ -505,7 +505,7 @@ u32 logDataMsg(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
     u32 u32Ret = OLERR_NO_ERROR;
     internal_logger_t * pil = &ls_ilLogger;
     va_list ap; 
-    olchar_t buf[MAX_MSG_SIZE];
+    olchar_t buf[JF_LOGGER_MAX_MSG_SIZE];
     olchar_t strLength[64];
     u32 u32Index, u32Logged;
 
@@ -513,12 +513,12 @@ u32 logDataMsg(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
         return u32Ret;
 
     if ((pil->il_u8LogMask != IL_LOG_MASK_NONE) &&
-        (pil->il_u8TraceLevel >= LOGGER_TRACE_DATA))
+        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_DATA))
     {
         va_start(ap, fmt);
-        ol_vsnprintf(buf, MAX_MSG_SIZE - 1, fmt, ap);
+        ol_vsnprintf(buf, JF_LOGGER_MAX_MSG_SIZE - 1, fmt, ap);
         va_end(ap);
-        buf[MAX_MSG_SIZE - 1] = '\0';
+        buf[JF_LOGGER_MAX_MSG_SIZE - 1] = '\0';
         
         ol_snprintf(strLength, 63, " (DATA length %d)", u32DataLen);
         ol_strcat(buf, strLength);
@@ -529,7 +529,7 @@ u32 logDataMsg(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
         while((u32Index < u32DataLen) && (u32Logged != 0))
         {
             u32Logged = getByteHexString(pu8Data, u32DataLen, u32Index,
-                 buf, MAX_MSG_SIZE - 1);
+                 buf, JF_LOGGER_MAX_MSG_SIZE - 1);
             if (u32Logged != 0)
             {
                 _log(pil, LOG_INFO, "", buf);
@@ -546,7 +546,7 @@ u32 logDataMsgWithAscii(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
     u32 u32Ret = OLERR_NO_ERROR;
     internal_logger_t * pil = &ls_ilLogger;
     va_list ap; 
-    olchar_t buf[MAX_MSG_SIZE];
+    olchar_t buf[JF_LOGGER_MAX_MSG_SIZE];
     olchar_t strLength[64];
     u32 u32Index, u32Logged;
 
@@ -554,12 +554,12 @@ u32 logDataMsgWithAscii(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
         return u32Ret;
 
     if ((pil->il_u8LogMask != IL_LOG_MASK_NONE) &&
-        (pil->il_u8TraceLevel >= LOGGER_TRACE_DATA))
+        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_DATA))
     {
         va_start(ap, fmt);
-        ol_vsnprintf(buf, MAX_MSG_SIZE - 1, fmt, ap);
+        ol_vsnprintf(buf, JF_LOGGER_MAX_MSG_SIZE - 1, fmt, ap);
         va_end(ap);
-        buf[MAX_MSG_SIZE - 1] = '\0';
+        buf[JF_LOGGER_MAX_MSG_SIZE - 1] = '\0';
 
         ol_snprintf(strLength, 63, " (DATA length %d)", u32DataLen);
         ol_strcat(buf, strLength);
@@ -570,7 +570,7 @@ u32 logDataMsgWithAscii(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
         while((u32Index < u32DataLen) && (u32Logged != 0))
         {
             u32Logged = getByteHexStringWithAscii(pu8Data, u32DataLen, u32Index,
-                 buf, MAX_MSG_SIZE - 1);
+                 buf, JF_LOGGER_MAX_MSG_SIZE - 1);
             if (u32Logged != 0)
             {
                 _log(pil, LOG_INFO, "", buf);

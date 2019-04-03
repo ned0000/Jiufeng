@@ -35,52 +35,53 @@
 #endif
 
 /* --- constant definitions ------------------------------------------------ */
-#define LOGGER_TRACE_NONE   (0)
-#define LOGGER_TRACE_ERROR  (1)
-#define LOGGER_TRACE_INFO   (2)
-#define LOGGER_TRACE_DEBUG  (3)
-#define LOGGER_TRACE_DATA   (4)
 
-#define MAX_MSG_SIZE 256
+#define JF_LOGGER_TRACE_NONE      (0)
+#define JF_LOGGER_TRACE_ERROR     (1)
+#define JF_LOGGER_TRACE_INFO      (2)
+#define JF_LOGGER_TRACE_DEBUG     (3)
+#define JF_LOGGER_TRACE_DATA      (4)
+
+#define JF_LOGGER_MAX_MSG_SIZE    (256)
 
 /* --- data structures ----------------------------------------------------- */
 typedef struct
 {
     /** log to the stdout */
-    boolean_t lp_bLogToStdout;
+    boolean_t jlip_bLogToStdout;
     /** log to the system log */
-    boolean_t lp_bLogToSysLog;
-    /** log to a file. If yes, lp_pstrLogFilePath must be specified */
-    boolean_t lp_bLogToFile;
-    /** log to the specified TTY. If yes, lp_pstrTTY must be specified.
+    boolean_t jlip_bLogToSysLog;
+    /** log to a file. If yes, jlip_pstrLogFilePath must be specified */
+    boolean_t jlip_bLogToFile;
+    /** log to the specified TTY. If yes, jlip_pstrTTY must be specified.
         Not supported for now */
-    boolean_t lp_bLogToTTY;
+    boolean_t jlip_bLogToTTY;
     /** trace level */
-    u8 lp_u8TraceLevel;
-    u8 lp_u8Reserved[3];
+    u8 jlip_u8TraceLevel;
+    u8 jlip_u8Reserved[3];
     /** the size of the log file in byte. If 0, no limit */
-    olsize_t lp_sLogFile;
+    olsize_t jlip_sLogFile;
     /** the IP address of the remote machine. Not supported for now */
-    u8 * lp_pu8RemoteMachineIP;
+    u8 * jlip_pu8RemoteMachineIP;
     /** the path to the log file */
-    olchar_t * lp_pstrLogFilePath;
+    olchar_t * jlip_pstrLogFilePath;
     /** the path to the TTY. Not supported for now */
-    olchar_t * lp_pstrTTY;
+    olchar_t * jlip_pstrTTY;
     /** the name of the caller. The length should not exceed 15 characters */
-    olchar_t * lp_pstrCallerName;
-} logger_param_t;
+    olchar_t * jlip_pstrCallerName;
+} jf_logger_init_param_t;
 
 /* --- functional routines ------------------------------------------------- */
 
 /** Initialize the looger according to the specified parameters.
  *
- *  @param plp [in] the pointer to the logger parameter
+ *  @param pjlip [in] the pointer to the logger parameter
  *
  *  @return the error code
  *  @retval OLERR_NO_ERROR success
  *  @retval OLERR_OUT_OF_MEMORY out of memeory
  */
-LOGGERAPI u32 LOGGERCALL initLogger(logger_param_t * plp);
+LOGGERAPI u32 LOGGERCALL jf_logger_init(jf_logger_init_param_t * pjlip);
 
 /** Finalize the logger
  *
