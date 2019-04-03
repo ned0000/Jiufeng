@@ -106,7 +106,7 @@ static u32 _testParseStringWithDelimiter(
     u32 u32Ret = OLERR_NO_ERROR;
     jf_string_parse_result_t * xml = NULL;
 
-    u32Ret = parseString(
+    u32Ret = jf_string_parse(
         &xml, pstr, 0, strlen(pstr), pdelimiter, strlen(pdelimiter));
     if (u32Ret == OLERR_NO_ERROR)
     {
@@ -115,7 +115,7 @@ static u32 _testParseStringWithDelimiter(
 
         _printParseResult(xml);
 
-        destroyParseResult(&xml);
+        jf_string_destroyParseResult(&xml);
         ol_printf("\n");
     }
     
@@ -128,7 +128,7 @@ static u32 _testParseStringAdvWithDelimiter(
     u32 u32Ret = OLERR_NO_ERROR;
     jf_string_parse_result_t * xml = NULL;
 
-    u32Ret = parseStringAdv(
+    u32Ret = jf_string_parseAdv(
         &xml, pstr, 0, strlen(pstr), pdelimiter, strlen(pdelimiter));
     if (u32Ret == OLERR_NO_ERROR)
     {
@@ -137,7 +137,7 @@ static u32 _testParseStringAdvWithDelimiter(
 
         _printParseResult(xml);
 
-        destroyParseResult(&xml);
+        jf_string_destroyParseResult(&xml);
         ol_printf("\n");
     }
     
@@ -196,19 +196,19 @@ static u32 _testScanString(void)
 	char * sdb3 = "230189685431.55";
 	oldouble_t db;
 
-	u32Ret = getDoubleFromString(sdb, ol_strlen(sdb), &db);
+	u32Ret = jf_string_getDoubleFromString(sdb, ol_strlen(sdb), &db);
 	if (u32Ret == OLERR_NO_ERROR)
 	{
 		printf("%s, %.2f\n", sdb, db);
 	}
 
-	u32Ret = getDoubleFromString(sdb2, ol_strlen(sdb2), &db);
+	u32Ret = jf_string_getDoubleFromString(sdb2, ol_strlen(sdb2), &db);
 	if (u32Ret == OLERR_NO_ERROR)
 	{
 		printf("%s, %.2f\n", sdb2, db);
 	}
 
-	u32Ret = getDoubleFromString(sdb3, ol_strlen(sdb3), &db);
+	u32Ret = jf_string_getDoubleFromString(sdb3, ol_strlen(sdb3), &db);
 	if (u32Ret == OLERR_NO_ERROR)
 	{
 		printf("%s, %.2f\n", sdb3, db);

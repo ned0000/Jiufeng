@@ -104,7 +104,7 @@ static u32 _showOneIfInfo(jf_ifmgmt_if_t * pif)
     ol_printf("  Netmask: %s\n", str);
     jf_ipaddr_getStringIpAddr(str, &pif->jii_jiBroadcast);
     ol_printf("  Broadcast: %s\n", str);
-    getStringMACAddress(str, pif->jii_u8Mac);
+    jf_string_getStringMACAddress(str, pif->jii_u8Mac);
     ol_printf("  Mac: %s\n", str);
 
     jf_ifmgmt_getStringIfFlags(str, pif);
@@ -172,7 +172,7 @@ static u32 _showIpInfo()
         u32Ret = jf_ifmgmt_getMacOfFirstIf(u8Mac);
         if (u32Ret == OLERR_NO_ERROR)
         {
-            getStringMACAddress(strIp, u8Mac);
+            jf_string_getStringMACAddress(strIp, u8Mac);
             ol_printf("MAC of First Interface: %s\n", strIp);
         }
         else

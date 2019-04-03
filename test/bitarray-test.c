@@ -183,8 +183,9 @@ static u32 _testBitArray(void)
     for (u32Index = 0; u32Index < u32NumOfTestPos; u32Index ++)
     {
         bRet = testBitArrayBit(pba, u32TestPos[u32Index]);
-        ol_printf("test position %u, %s\n", u32TestPos[u32Index],
-               getStringTrue(bRet));
+        ol_printf(
+            "test position %u, %s\n", u32TestPos[u32Index],
+            jf_string_getStringTrue(bRet));
     }
 
     for (u32Index = 0; u32Index < u32NumOfClearPos; u32Index ++)

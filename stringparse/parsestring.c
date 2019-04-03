@@ -80,7 +80,7 @@ static boolean_t _isblank(olchar_t c)
 
 /* String Parsing Methods */
 
-u32 parseStringAdv(
+u32 jf_string_parseAdv(
     jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
     olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
@@ -203,13 +203,13 @@ u32 parseStringAdv(
     }
     else if (ppr != NULL)
     {
-        destroyParseResult(&ppr);
+        jf_string_destroyParseResult(&ppr);
     }
 
     return u32Ret;
 }
 
-u32 parseString(
+u32 jf_string_parse(
     jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
     olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
@@ -302,13 +302,13 @@ u32 parseString(
     }
     else if (ppr != NULL)
     {
-        destroyParseResult(&ppr);
+        jf_string_destroyParseResult(&ppr);
     }
 
     return u32Ret;
 }
 
-u32 destroyParseResult(jf_string_parse_result_t ** ppResult)
+u32 jf_string_destroyParseResult(jf_string_parse_result_t ** ppResult)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     /* all of these nodes only contain pointers
@@ -328,7 +328,7 @@ u32 destroyParseResult(jf_string_parse_result_t ** ppResult)
     return u32Ret;
 }
 
-void skipBlank(olchar_t * pstrDest, const olchar_t * pstrSource)
+void jf_string_skipBlank(olchar_t * pstrDest, const olchar_t * pstrSource)
 {
     olsize_t right, left = 0;
 
@@ -352,7 +352,7 @@ void skipBlank(olchar_t * pstrDest, const olchar_t * pstrSource)
     pstrDest[right - left] = 0;
 }
 
-boolean_t isBlankLine(const olchar_t * pstrLine)
+boolean_t jf_string_isBlankLine(const olchar_t * pstrLine)
 {
     boolean_t bRet = TRUE;
 
@@ -372,7 +372,7 @@ boolean_t isBlankLine(const olchar_t * pstrLine)
     return bRet;
 }
 
-u32 freeString(olchar_t ** ppstrStr)
+u32 jf_string_free(olchar_t ** ppstrStr)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -381,7 +381,7 @@ u32 freeString(olchar_t ** ppstrStr)
     return u32Ret;
 }
 
-u32 dupStringWithLen(
+u32 jf_string_duplicateWithLen(
     olchar_t ** ppstrDest, const olchar_t * pstrSource, const olsize_t sSource)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -402,7 +402,7 @@ u32 dupStringWithLen(
     return u32Ret;
 }
 
-u32 dupString(olchar_t ** ppstrDest, const olchar_t * pstrSource)
+u32 jf_string_duplicate(olchar_t ** ppstrDest, const olchar_t * pstrSource)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t * pStr;
@@ -425,7 +425,7 @@ u32 dupString(olchar_t ** ppstrDest, const olchar_t * pstrSource)
     return u32Ret;
 }
 
-void filterComment(olchar_t * pstrDest, const olchar_t * pstrComment)
+void jf_string_filterComment(olchar_t * pstrDest, const olchar_t * pstrComment)
 {
     olchar_t *p;
 
@@ -438,7 +438,7 @@ void filterComment(olchar_t * pstrDest, const olchar_t * pstrComment)
     }
 }
 
-void lowerString(olchar_t * pstr)
+void jf_string_lower(olchar_t * pstr)
 {
     u32 u32Index, sBuf;
 
@@ -454,7 +454,7 @@ void lowerString(olchar_t * pstr)
     }
 }
 
-void upperString(olchar_t * pstr)
+void jf_string_upper(olchar_t * pstr)
 {
     u32 u32Index, sBuf;
 
@@ -470,7 +470,7 @@ void upperString(olchar_t * pstr)
     }
 }
 
-void removeLeadingSpace(olchar_t * pstr)
+void jf_string_removeLeadingSpace(olchar_t * pstr)
 {
     u32 u32Index = 0, sBuf;
 
@@ -492,7 +492,7 @@ void removeLeadingSpace(olchar_t * pstr)
     }
 }
 
-void removeTailingSpace(olchar_t * pstr)
+void jf_string_removeTailingSpace(olchar_t * pstr)
 {
     u32 sBuf;
 
@@ -511,14 +511,14 @@ void removeTailingSpace(olchar_t * pstr)
     pstr[sBuf] = '\0';
 }
 
-void trimBlankOfString(olchar_t * pstr)
+void jf_string_trimBlank(olchar_t * pstr)
 {
     u32 u32Index = 0, sBuf, u32SpaceLen = 0;
 
     assert(pstr != NULL);
 
-    removeLeadingSpace(pstr);
-    removeTailingSpace(pstr);
+    jf_string_removeLeadingSpace(pstr);
+    jf_string_removeTailingSpace(pstr);
 
     sBuf = ol_strlen(pstr);
 
@@ -546,7 +546,7 @@ void trimBlankOfString(olchar_t * pstr)
     }
 }
 
-u32 breakStringToLine(olchar_t * pstr, olsize_t sWidth)
+u32 jf_string_breakToLine(olchar_t * pstr, olsize_t sWidth)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 	olsize_t sIndex = 0, sBuf;
@@ -581,7 +581,8 @@ u32 breakStringToLine(olchar_t * pstr, olsize_t sWidth)
     return u32Ret;
 }
 
-u32 locateSubString(const olchar_t * pstr, const olchar_t * pstrSubStr, olchar_t ** ppstrLoc)
+u32 jf_string_locateSubString(
+    const olchar_t * pstr, const olchar_t * pstrSubStr, olchar_t ** ppstrLoc)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t * pstrLoc;
@@ -598,7 +599,7 @@ u32 locateSubString(const olchar_t * pstr, const olchar_t * pstrSubStr, olchar_t
     return u32Ret;
 }
 
-olchar_t * replaceString(
+olchar_t * jf_string_replace(
     olchar_t * pstrSrc, olsize_t sBuf, olchar_t * pstrNeedle, olchar_t * pstrSubst)
 {    /* "The string NEEDLE will be substituted"
       *                   ^- beg

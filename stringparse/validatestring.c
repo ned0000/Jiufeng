@@ -25,10 +25,11 @@
 /* --- private routine section---------------------------------------------- */
 
 /* --- public routine section ---------------------------------------------- */
-/* validate string for alias. The alias can contain digit, alpha-
- *       bet, space and underscore, but not started with space.
+
+/** Validate string for alias. The alias can contain digit, alphabet, space and
+ *  underscore, but not started with space.
  */
-u32 validateStringAlias(const olchar_t * pstrAlias)
+u32 jf_string_validateStringAlias(const olchar_t * pstrAlias)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olsize_t sIndex = 0, sLength = 0;
@@ -63,10 +64,10 @@ u32 validateStringAlias(const olchar_t * pstrAlias)
     return u32Ret;
 }
 
-/* validate string for username. The username can contain digit, alpha-
- *       bet, and underscore.
+/** Validate string for username. The username can contain digit, alphabet,
+ *  and underscore.
  */
-u32 validateStringUsername(const olchar_t * pstrUserName)
+u32 jf_string_validateStringUsername(const olchar_t * pstrUserName)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olsize_t sIndex = 0, sLength = 0;
@@ -91,9 +92,9 @@ u32 validateStringUsername(const olchar_t * pstrUserName)
     return u32Ret;
 }
 
-/* validate whether the input string is hex format
+/** Validate whether the input string is hex format
  */
-u32 validateHexString(const olchar_t * pstrHex, const olsize_t sHex)
+u32 jf_string_validateHexString(const olchar_t * pstrHex, const olsize_t sHex)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olsize_t i;
@@ -112,7 +113,8 @@ u32 validateHexString(const olchar_t * pstrHex, const olsize_t sHex)
     return u32Ret;
 }
 
-u32 validateIntegerString(const olchar_t * pstrInteger, const olsize_t size)
+u32 jf_string_validateIntegerString(
+    const olchar_t * pstrInteger, const olsize_t size)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olsize_t i;
@@ -128,7 +130,7 @@ u32 validateIntegerString(const olchar_t * pstrInteger, const olsize_t size)
     return u32Ret;
 }
 
-u32 validateFloatString(const olchar_t * pstrFloat, const olsize_t size)
+u32 jf_string_validateFloatString(const olchar_t * pstrFloat, const olsize_t size)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olsize_t i;

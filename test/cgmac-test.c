@@ -86,7 +86,7 @@ static u32 _testHmacSha1(void)
         (u8 *)"what do ya want for nothing?", 28, u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
+        jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
         str[JF_CGHASH_SHA1_DIGEST_LEN * 2] = '\0';
 
@@ -107,7 +107,7 @@ static u32 _testHmacSha1(void)
         54, u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
+        jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
         str[JF_CGHASH_SHA1_DIGEST_LEN * 2] = '\0';
 
@@ -127,7 +127,7 @@ static u32 _testHmacSha1(void)
         u8Key, 20, u8Data, 50, u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
+        jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
         str[JF_CGHASH_SHA1_DIGEST_LEN * 2] = '\0';
 
@@ -158,7 +158,7 @@ static u32 _testHmacMd5(void)
         (u8 *) "what do ya want for nothing?", 28, u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
+        jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
 
         str[JF_CGHASH_MD5_DIGEST_LEN * 2] = '\0';
 
@@ -179,7 +179,7 @@ static u32 _testHmacMd5(void)
         54, u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
+        jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
 
         str[JF_CGHASH_MD5_DIGEST_LEN * 2] = '\0';
 
@@ -199,7 +199,7 @@ static u32 _testHmacMd5(void)
         u8Key, 16, u8Data, 50, u8Digest);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
+        jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
 
         str[JF_CGHASH_MD5_DIGEST_LEN * 2] = '\0';
 

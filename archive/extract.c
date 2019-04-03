@@ -185,7 +185,7 @@ static u32 _extractRegularFile(archive_header_t * pah, file_handler_t * pfh)
     olsize_t sLen;
 
     sLen = ol_strlen((olchar_t *)pah->ah_u8Size);
-    u32Ret = getU64FromString((olchar_t *)pah->ah_u8Size, sLen, &u64Size);
+    u32Ret = jf_string_getU64FromString((olchar_t *)pah->ah_u8Size, sLen, &u64Size);
     if (u32Ret == OLERR_NO_ERROR)
     {
         logInfoMsg("file size: %llu", u64Size);

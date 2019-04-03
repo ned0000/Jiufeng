@@ -147,7 +147,7 @@ static u32 _newMenuEntry(internal_menu_t * pParent, const olchar_t * pstrName,
         pEntry->ime_u32Attribute = attr;
         pEntry->ime_imParent = pParent;
 
-        u32Ret = dupString(&(pEntry->ime_pstrName), pstrName);
+        u32Ret = jf_string_duplicate(&(pEntry->ime_pstrName), pstrName);
         if (u32Ret != OLERR_NO_ERROR)
         {
             xfree((void **)&pEntry);
@@ -156,7 +156,7 @@ static u32 _newMenuEntry(internal_menu_t * pParent, const olchar_t * pstrName,
         {
             if (pstrDesc != NULL)
             {
-                u32Ret = dupString(&(pEntry->ime_pstrDesc), pstrDesc);
+                u32Ret = jf_string_duplicate(&(pEntry->ime_pstrDesc), pstrDesc);
                 if (u32Ret != OLERR_NO_ERROR)
                 {
                     xfree((void **)&(pEntry->ime_pstrName));

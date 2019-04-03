@@ -218,7 +218,7 @@ u32 jf_ifmgmt_getAllIf(jf_ifmgmt_if_t * pif, u32 * pu32NumOfIf)
 
                 *pName = '\0';
                 strncpy(strName, buf, sizeof(strName));
-                removeLeadingSpace(strName);
+                jf_string_removeLeadingSpace(strName);
 
                 u32Ret = _getIfmgmtIf(strName, &pif[u32If]);
                 if (u32Ret == OLERR_NO_ERROR)

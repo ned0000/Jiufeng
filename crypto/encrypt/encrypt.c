@@ -255,7 +255,7 @@ u32 jf_encrypt_encryptString(
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        getStringHex(pDestStr, 2 * outlen + 1, pstr, outlen);
+        jf_string_getStringHex(pDestStr, 2 * outlen + 1, pstr, outlen);
     }
 
     if (pstr != NULL)
@@ -287,7 +287,7 @@ u32 jf_encrypt_decryptString(
     if (u32Ret == OLERR_NO_ERROR)
     {
         pDestStr[outlen] = '\0';
-        getHexFromString(
+        jf_string_getHexFromString(
             pSrcStr, ol_strlen(pSrcStr), (u8 *)pDestStr, outlen);
 
         _setEncryptIv(iv);

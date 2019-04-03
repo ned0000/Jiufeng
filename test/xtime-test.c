@@ -113,7 +113,7 @@ static void test5(void)
 
     for (i = 0; i < NUM_OF_TEST5_ENTRY; i ++)
     {
-        getTimeFromString(data[i], &hour, &min, &sec);
+        jf_string_getTimeFromString(data[i], &hour, &min, &sec);
         seconds = convertTimeToSeconds(hour, min, sec);
         ol_printf("%s, %d secondes\n", data[i], seconds);
     }
@@ -127,23 +127,23 @@ u32 getNextTradingDate(const olchar_t * pstrCurr, olchar_t * pstrNext)
     olint_t year, month, day;
     olint_t days, dw;
 
-    getDate2FromString(pstrCurr, &year, &month, &day);
+    jf_string_getDate2FromString(pstrCurr, &year, &month, &day);
     days = convertDateToDaysFrom1970(year, month, day);
     dw = getDayOfWeekFromDate(year, month, day);
     if (dw == 5)
     {
         convertDaysFrom1970ToDate(days + 3, &year, &month, &day);
-        getStringDate2(pstrNext, year, month, day);
+        jf_string_getStringDate2(pstrNext, year, month, day);
     }
     else if (dw == 6)
     {
         convertDaysFrom1970ToDate(days + 2, &year, &month, &day);
-        getStringDate2(pstrNext, year, month, day);
+        jf_string_getStringDate2(pstrNext, year, month, day);
     }
     else
     {
         convertDaysFrom1970ToDate(days + 1, &year, &month, &day);
-        getStringDate2(pstrNext, year, month, day);
+        jf_string_getStringDate2(pstrNext, year, month, day);
     }
 
     return u32Ret;

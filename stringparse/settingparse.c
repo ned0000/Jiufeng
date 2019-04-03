@@ -73,7 +73,8 @@ static u32 _trimSetting(olchar_t * pstrSetting, olchar_t * pstrValue, olsize_t s
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 processIdList(const olchar_t * pstrIdList, olid_t * pids, olsize_t * psId)
+u32 jf_string_processIdList(
+    const olchar_t * pstrIdList, olid_t * pids, olsize_t * psId)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strId[(2 * MAX_ID_LENGTH) + 1 + 1];  /* "####", or "####~####" */
@@ -199,7 +200,7 @@ u32 retrieveSettingsSize(olchar_t * pstrValue, u64 * pu64Value,
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    u32Ret = getSizeFromString(pstrValue, pu64Value);
+    u32Ret = jf_string_getSizeFromString(pstrValue, pu64Value);
     if (u32Ret == OLERR_NO_ERROR)
     {
         if ((*pu64Value < u64Min) || (*pu64Value > u64Max))
@@ -239,7 +240,7 @@ u32 retrieveSettingsU32(olchar_t * pstrValue, u32 * pu32Value,
     return u32Ret;
 }
 
-u32 retrieveSettingsEnable(olchar_t * pstrValue, boolean_t * pbEnable)
+u32 jf_string_retrieveSettingsEnable(olchar_t * pstrValue, boolean_t * pbEnable)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
@@ -263,7 +264,7 @@ u32 retrieveSettingsEnable(olchar_t * pstrValue, boolean_t * pbEnable)
     return u32Ret;
 }
 
-u32 retrieveSettings(
+u32 jf_string_retrieveSettings(
     olchar_t * pstrArray[], olsize_t sArray,
     const olchar_t * pstrName, olchar_t * pstrValue, olsize_t sValue)
 {
@@ -304,7 +305,8 @@ u32 retrieveSettings(
     return u32Ret;
 }
 
-u32 validateSettings(olchar_t * pstrNameArray[], olsize_t sNameArray, 
+u32 jf_string_validateSettings(
+    olchar_t * pstrNameArray[], olsize_t sNameArray, 
     olchar_t * pstrArray[], olsize_t sArray, olindex_t * piArray)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -355,7 +357,7 @@ u32 validateSettings(olchar_t * pstrNameArray[], olsize_t sNameArray,
     return u32Ret;
 }
 
-u32 processKeywordSettings(
+u32 jf_string_processKeywordSettings(
     u8 * pu8Settings, olsize_t sSettings,
     olchar_t * pstrArray[], olsize_t * psArray)
 {
@@ -415,7 +417,7 @@ u32 processKeywordSettings(
     return u32Ret;
 }
 
-u32 processSettings(
+u32 jf_string_processSettings(
     olchar_t * pstrSettings, olchar_t * pstrArray[], olsize_t * psArray)
 {
     u32 u32Ret = OLERR_NO_ERROR;
@@ -514,14 +516,14 @@ u32 processSettings(
     return u32Ret;
 }
 
-u32 getSettingsString(olchar_t * pstrArray[], olsize_t sArray,
-    const olchar_t * pstrSettingName, const olchar_t * pstrDefaultValue,
-    olchar_t * pstrValue, olsize_t sValue)
+u32 jf_string_getSettingsString(
+    olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
+    const olchar_t * pstrDefaultValue, olchar_t * pstrValue, olsize_t sValue)
 {
     u32 u32Ret = OLERR_NO_ERROR;
 
-    u32Ret = retrieveSettings(pstrArray, sArray, pstrSettingName,
-        pstrValue, sValue);
+    u32Ret = jf_string_retrieveSettings(
+        pstrArray, sArray, pstrSettingName, pstrValue, sValue);
     if (u32Ret == OLERR_NOT_FOUND)
     {
         ol_strncpy(pstrValue, pstrDefaultValue, sValue - 1);
@@ -532,14 +534,15 @@ u32 getSettingsString(olchar_t * pstrArray[], olsize_t sArray,
     return u32Ret;
 }
 
-u32 getSettingsU32(olchar_t * pstrArray[], olsize_t sArray,
-    const olchar_t * pstrSettingName, const u32 u32DefaultValue, u32 * pu32Value)
+u32 jf_string_getSettingsU32(
+    olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
+    const u32 u32DefaultValue, u32 * pu32Value)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strValue[200];
 
-    u32Ret = retrieveSettings(pstrArray, sArray, pstrSettingName,
-        strValue, 200);
+    u32Ret = jf_string_retrieveSettings(
+        pstrArray, sArray, pstrSettingName, strValue, 200);
     if (u32Ret == OLERR_NO_ERROR)
     {
         u32Ret = retrieveSettingsU32(strValue, pu32Value, 0, 0xFFFFFFFF);
@@ -558,22 +561,22 @@ u32 getSettingsU32(olchar_t * pstrArray[], olsize_t sArray,
 }
 
 
-/**  If setting name is not found in the string array, the default value is
- *   set and return OLERR_NO_ERROR. if setting name is found and the value 
- *   is incorrect, the default value is set and return OLERR_INVALID_SETTING
+/** If setting name is not found in the string array, the default value is
+ *  set and return OLERR_NO_ERROR. if setting name is found and the value 
+ *  is incorrect, the default value is set and return OLERR_INVALID_SETTING
  */
-u32 getSettingsBoolean(olchar_t * pstrArray[], olsize_t sArray,
-    const olchar_t * pstrSettingName, const boolean_t bDefaultValue,
-    boolean_t * pbValue)
+u32 jf_string_getSettingsBoolean(
+    olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
+    const boolean_t bDefaultValue, boolean_t * pbValue)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strValue[200];
 
-    u32Ret = retrieveSettings(pstrArray, sArray, pstrSettingName,
-        strValue, 200);
+    u32Ret = jf_string_retrieveSettings(
+        pstrArray, sArray, pstrSettingName, strValue, 200);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        u32Ret = retrieveSettingsEnable(strValue, pbValue);
+        u32Ret = jf_string_retrieveSettingsEnable(strValue, pbValue);
         if (u32Ret != OLERR_NO_ERROR)
         {
             *pbValue = bDefaultValue;
@@ -594,8 +597,8 @@ u32 getSettingsSize(olchar_t * pstrArray[], olsize_t sArray,
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strSize[16];
 
-    u32Ret = getSettingsString(pstrArray, sArray,
-        pstrSettingName, "", strSize, 16);
+    u32Ret = jf_string_getSettingsString(
+        pstrArray, sArray, pstrSettingName, "", strSize, 16);
     if (u32Ret == OLERR_NO_ERROR)
     {
         if (strSize[0] == 0)
@@ -604,7 +607,7 @@ u32 getSettingsSize(olchar_t * pstrArray[], olsize_t sArray,
         }
         else
         {
-            u32Ret = getSizeFromString(strSize, pu64Value);
+            u32Ret = jf_string_getSizeFromString(strSize, pu64Value);
         }
     }
 
@@ -615,8 +618,8 @@ u32 getSettingsSize(olchar_t * pstrArray[], olsize_t sArray,
  *  null-terminated
  *
  */
-u32 processSettingString(olchar_t * pstrSetting, olchar_t ** ppstrName,
-    olchar_t ** ppstrValue)
+u32 jf_string_processSettingString(
+    olchar_t * pstrSetting, olchar_t ** ppstrName, olchar_t ** ppstrValue)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t cEqual = '=';

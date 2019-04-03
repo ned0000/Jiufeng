@@ -30,49 +30,30 @@ const static olchar_t * ls_pstrMonth[] =
 /* --- private routine section---------------------------------------------- */
 
 /* --- public routine section ---------------------------------------------- */
-/* routines to convert data, time ... to string
- */
 
-/* get the string of not applicable "N/A".
- * Parameters: none.
- * Return: the string of not applicable.
- * Remarks: none.
- */
-const olchar_t * getStringNotApplicable(void)
+const olchar_t * jf_string_getStringNotApplicable(void)
 {
     return "N/A";
 }
 
-/* get the string of not supported
- * Parameters: none.
- * Return: the string of not applicable.
- * Remarks: none.
- */
-const olchar_t * getStringNotSupported(void)
+const olchar_t * jf_string_getStringNotSupported(void)
 {
     return "Not Supported";
 }
 
-/*
- * Remarks: This function does not check the size of the string buffer.
- *       please make sure it is big enough to avoid memory access violation.
- */
-void getStringWWN(olchar_t * pstrWwn, const u64 u64WWN)
+void jf_string_getStringWWN(olchar_t * pstrWwn, const u64 u64WWN)
 {
     u8 * pByte;
 
     assert(pstrWwn != NULL);
 
     pByte = (u8 *)&u64WWN;
-    ol_sprintf(pstrWwn, "%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x",
+    ol_sprintf(
+        pstrWwn, "%02x-%02x-%02x-%02x-%02x-%02x-%02x-%02x",
         pByte[0], pByte[1], pByte[2], pByte[3], pByte[4], pByte[5], pByte[6], pByte[7]);
 }
 
-/*
- * Remarks: This function does not check the size of the string buffer.
- *       please make sure it is big enough to avoid memory access violation.
- */
-void getStringU64Integer(olchar_t * pstrInteger, const u64 u64Integer)
+void jf_string_getStringU64Integer(olchar_t * pstrInteger, const u64 u64Integer)
 {
     assert(pstrInteger != NULL);
 #ifdef WINDOWS
@@ -82,53 +63,36 @@ void getStringU64Integer(olchar_t * pstrInteger, const u64 u64Integer)
 #endif
 }
 
-/* get the string of MAC Address
- * Parameters:
- *       [out] pstrMACAddr, the string buffer where the MAC address string will return
- *       [in] pu8MAC, the MAC addr info
- * Return: OLERR_NO_ERROR
- * Remarks: This function does not check the size of the string buffer.
- *       please make sure it is big enough to avoid memory access violation.
- */
-void getStringMACAddress(olchar_t * pstrMACAddr, const u8 * pu8MAC)
+void jf_string_getStringMACAddress(olchar_t * pstrMACAddr, const u8 * pu8MAC)
 {
-    ol_sprintf(pstrMACAddr, "%02X:%02X:%02X:%02X:%02X:%02X",
-        pu8MAC[0], pu8MAC[1], pu8MAC[2], pu8MAC[3],
-        pu8MAC[4], pu8MAC[5]);
+    ol_sprintf(
+        pstrMACAddr, "%02X:%02X:%02X:%02X:%02X:%02X",
+        pu8MAC[0], pu8MAC[1], pu8MAC[2], pu8MAC[3], pu8MAC[4], pu8MAC[5]);
 }
 
-/* get the string of date in the format of "<mon> <day>, <year>".
- * Parameters:
- *       [out] pstrDate, the string buffer where the date string will return
- *       [in] u8Month, the month of the year
- *       [in] u8Day, the day of the month
- *       [in] u16Year, the year
- * Return: None.
- * Remarks: This function does not check the size of the string buffer.
- *       please make sure it is big enough to avoid memory access violation.
- */
-void getStringDate(
+void jf_string_getStringDate(
     olchar_t * pstrDate, const olint_t year, const olint_t mon, const olint_t day)
 {
     if ((mon == 0) && (day == 0))
-        ol_strcpy(pstrDate, getStringNotApplicable());
+        ol_strcpy(pstrDate, jf_string_getStringNotApplicable());
     else if ((mon > 12) || (mon == 0))
         ol_sprintf(pstrDate, "Month(%d) %d, %04d", mon, day, year);
     else
-        ol_sprintf(pstrDate, "%s %d, %04d",
-                ls_pstrMonth[mon - 1], day, year);
+        ol_sprintf(
+            pstrDate, "%s %d, %04d", ls_pstrMonth[mon - 1], day, year);
 }
 
-void getStringDate2(
+void jf_string_getStringDate2(
     olchar_t * pstrDate, const olint_t year, const olint_t mon, const olint_t day)
 {
     if ((mon == 0) && (day == 0))
-        ol_strcpy(pstrDate, getStringNotApplicable());
+        ol_strcpy(pstrDate, jf_string_getStringNotApplicable());
     else
         ol_sprintf(pstrDate, "%4d-%02d-%02d", year, mon, day);
 }
 
-void getStringDate2ForDaysFrom1970(olchar_t * pstrDate, const olint_t nDays)
+void jf_string_getStringDate2ForDaysFrom1970(
+    olchar_t * pstrDate, const olint_t nDays)
 {
     olint_t year, mon, day;
 
@@ -136,16 +100,7 @@ void getStringDate2ForDaysFrom1970(olchar_t * pstrDate, const olint_t nDays)
     ol_sprintf(pstrDate, "%4d-%02d-%02d", year, mon, day);
 }
 
-/* get the string of time in the format of
- *       "hh:mm:ss <month> <day>, <year>". the time is UTC time
- * Parameters:
- *       [out] pstrDate, the string buffer where the date string will return
- *       [in] tTime, the time
- * Return: None.
- * Remarks: This function does not check the size of the string buffer.
- *       please make sure it is big enough to avoid memory access violation.
- */
-u32 getStringUTCTime(olchar_t * pstrTime, const time_t tTime)
+u32 jf_string_getStringUTCTime(olchar_t * pstrTime, const time_t tTime)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     struct tm * ptmLocal;
@@ -160,7 +115,7 @@ u32 getStringUTCTime(olchar_t * pstrTime, const time_t tTime)
     }
     else
     {
-        getStringDate(strDate,
+        jf_string_getStringDate(strDate,
             (ptmLocal->tm_year+1900), (ptmLocal->tm_mon+1), ptmLocal->tm_mday);
 
         ol_sprintf(pstrTime, "%s %02d:%02d:%02d", strDate,
@@ -170,16 +125,7 @@ u32 getStringUTCTime(olchar_t * pstrTime, const time_t tTime)
     return u32Ret;
 }
 
-/* get the string of time in the format of
- *       "hh:mm:ss <month> <day>, <year>". The time is local time
- * Parameters:
- *       [out] pstrDate, the string buffer where the date string will return
- *       [in] tTime, the time
- * Return: None.
- * Remarks: This function does not check the size of the string buffer.
- *       please make sure it is big enough to avoid memory access violation.
- */
-u32 getStringLocalTime(olchar_t * pstrTime, const time_t tTime)
+u32 jf_string_getStringLocalTime(olchar_t * pstrTime, const time_t tTime)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     struct tm * ptmLocal;
@@ -194,7 +140,7 @@ u32 getStringLocalTime(olchar_t * pstrTime, const time_t tTime)
     }
     else
     {
-        getStringDate(strDate,
+        jf_string_getStringDate(strDate,
             (ptmLocal->tm_year+1900), (ptmLocal->tm_mon+1), ptmLocal->tm_mday);
 
         ol_sprintf(pstrTime, "%s %02d:%02d:%02d", strDate,
@@ -204,16 +150,7 @@ u32 getStringLocalTime(olchar_t * pstrTime, const time_t tTime)
     return u32Ret;
 }
 
-/* get the string of time period in the format of
- *       "[# hr] [# min] [# sec]"
- * Parameters:
- *       [out] pstrTime, the string buffer where the period string will return
- *       [in] u32Period, the time
- * Return: None.
- * Remarks: This function does not check the size of the string buffer.
- *       please make sure it is big enough to avoid memory access violation.
- */
-void getStringTimePeriod(olchar_t * pstrTime, const u32 u32Period)
+void jf_string_getStringTimePeriod(olchar_t * pstrTime, const u32 u32Period)
 {
     u32 u32Temp, u32Seconds, u32Minutes, u32Hours;
     olchar_t strTemp[16];
@@ -266,16 +203,8 @@ void getStringTimePeriod(olchar_t * pstrTime, const u32 u32Period)
 #define ONE_GIGABYTE    0x40000000
 #define ONE_MEGABYTE    0x100000
 #define ONE_KILOBYTE    0x400
-/* get the size string in GB, MB, KB and B. The size string will
- *       be the format of "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>"
- * Parameters:
- *       [out] pstrSize, the size string to be returned;
- *       [in] u64Size, the size in bytes
- * Return: none.
- * Remarks: This function does not check the size of the string buffer.
- *       please make sure it is big enough to avoid memory access violation.
- */
-void getStringSize(olchar_t * pstrSize, const u64 u64Size)
+
+void jf_string_getStringSize(olchar_t * pstrSize, const u64 u64Size)
 {
     u64 u64Size1, u64Mod1;
 
@@ -360,16 +289,7 @@ void getStringSize(olchar_t * pstrSize, const u64 u64Size)
     }
 }
 
-/* get the size string in GB, MB, KB and B. The size string will
- *       be the format of "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>"
- * Parameters:
- *       [out] pstrSize, the size string to be returned;
- *       [in] u64Size, the size in bytes
- * Return: none.
- * Remarks: This function does not check the size of the string buffer.
- *       please make sure it is big enough to avoid memory access violation.
- */
-void getStringSizeMax(olchar_t * pstrSize, const u64 u64Size)
+void jf_string_getStringSizeMax(olchar_t * pstrSize, const u64 u64Size)
 {
     u64 u64Size1, u64Mod1;
 
@@ -458,16 +378,7 @@ void getStringSizeMax(olchar_t * pstrSize, const u64 u64Size)
 #define ONE_MEGABYTE_1000_BASED 0xF4240
 #define ONE_KILOBYTE_1000_BASED 0x3E8
 
-/** get the size string based 1000 in GB, MB, KB and B. The size string will
- *       be the format of "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>"
- *  Parameters:
- *       [out] pstrSize, the size string to be returned;
- *       [in] u64Size, the size in bytes
- *  Return: none.
- *  Remarks: This function does not check the size of the string buffer.
- *       please make sure it is big enough to avoid memory access violation.
- */
-void getStringSize1000Based(olchar_t * pstrSize, const u64 u64Size)
+void jf_string_getStringSize1000Based(olchar_t * pstrSize, const u64 u64Size)
 {
     u64 u64Size1, u64Mod1;
 
@@ -552,31 +463,15 @@ void getStringSize1000Based(olchar_t * pstrSize, const u64 u64Size)
     }
 }
 
-/* get the firmware revision string in the format of "#.##-##".
- * Parameters:
- *       [out] pstrVersion, the size string to be returned;
- *       [in] u8Major, the major version number;
- *       [in] u8Minor, the minor version number;
- *       [in] u32OEMCode, the OEM code;
- *       [in] u8BuildNo, the build number;
- * Return: none.
- * Remarks: This function does not check the size of the string buffer.
- *       please make sure it is big enough to avoid memory access violation.
- */
-void getStringVersion(olchar_t * pstrVersion, const u8 u8Major,
-    const u8 u8Minor, const u32 u8OEMCode, const u8 u8BuildNo)
+void jf_string_getStringVersion(
+    olchar_t * pstrVersion, const u8 u8Major,
+    const u8 u8Minor, const u32 u32OEMCode, const u8 u8BuildNo)
 {
-    ol_sprintf(pstrVersion, "%d.%02d.%04d.%02d", u8Major, u8Minor,
-        u8OEMCode, u8BuildNo);
+    ol_sprintf(
+        pstrVersion, "%d.%02d.%04d.%02d", u8Major, u8Minor, u32OEMCode, u8BuildNo);
 }
 
-/* get the enable/disable status
- * Parameters:
- *       [in] u8Enable, the enable status
- * Return: the string of the status. Either "Enabled" or "Disabled".
- * Remarks: none.
- */
-const olchar_t * getStringEnable(const boolean_t bEnable)
+const olchar_t * jf_string_getStringEnable(const boolean_t bEnable)
 {
     if (bEnable)
     {
@@ -588,13 +483,7 @@ const olchar_t * getStringEnable(const boolean_t bEnable)
     }
 }
 
-/* get the string of positive
- * Parameters:
- *       [in] bPositive
- * Return: the string of the positive. Either "Yes" or "No".
- * Remarks: none.
- */
-const olchar_t * getStringPositive(const boolean_t bPositive)
+const olchar_t * jf_string_getStringPositive(const boolean_t bPositive)
 {
     if (bPositive)
     {
@@ -606,14 +495,7 @@ const olchar_t * getStringPositive(const boolean_t bPositive)
     }
 }
 
-/* get the string of true/false
- *
- * Parameters:
- *       [in] bPositive
- *
- * Return: retur either "TRUE" or "FALSE".
- */
-const olchar_t * getStringTrue(const boolean_t bTrue)
+const olchar_t * jf_string_getStringTrue(const boolean_t bTrue)
 {
     if (bTrue)
     {
@@ -625,7 +507,7 @@ const olchar_t * getStringTrue(const boolean_t bTrue)
     }
 }
 
-olsize_t getStringHex(olchar_t * pstr, olsize_t size,
+olsize_t jf_string_getStringHex(olchar_t * pstr, olsize_t size,
     const u8 * pu8Hex, const olsize_t sHex)
 {
     olsize_t sLen, sIndex;

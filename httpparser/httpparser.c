@@ -37,7 +37,7 @@ static u32 _parseHttpStartLine(
 
     /* The first token is where we can figure out the method, path, version,
        etc.*/
-    u32Ret = parseString(
+    u32Ret = jf_string_parse(
         &startline, field->jsprf_pstrData, 0, field->jsprf_sData, " ", 1);
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -55,7 +55,7 @@ static u32 _parseHttpStartLine(
               We parse on the '/' character to determine the version, as it
               follows. 
               eg: HTTP/1.1 200 OK */
-            u32Ret = parseString(
+            u32Ret = jf_string_parse(
                 &result, startline->jspr_pjsprfFirst->jsprf_pstrData, 0,
                 startline->jspr_pjsprfFirst->jsprf_sData, "/", 1);
             if (u32Ret == OLERR_NO_ERROR)
@@ -63,14 +63,14 @@ static u32 _parseHttpStartLine(
                 retval->jhph_pstrVersion = result->jspr_pjsprfLast->jsprf_pstrData;
                 retval->jhph_sVersion = result->jspr_pjsprfLast->jsprf_sData;
 
-                destroyParseResult(&result);
+                jf_string_destroyParseResult(&result);
             }
 
             if (u32Ret == OLERR_NO_ERROR)
             {
                 /* The other tokens contain the status code and data */
                 pjsprf = startline->jspr_pjsprfFirst->jsprf_pjsprfNext;
-                u32Ret = getS32FromString(
+                u32Ret = jf_string_getS32FromString(
                     pjsprf->jsprf_pstrData, pjsprf->jsprf_sData,
                     &retval->jhph_nStatusCode);
             }
@@ -106,7 +106,7 @@ static u32 _parseHttpStartLine(
             retval->jhph_nStatusCode = -1;
 
             /* We parse the last token on '/' to find the version */
-            u32Ret = parseString(
+            u32Ret = jf_string_parse(
                 &result, startline->jspr_pjsprfLast->jsprf_pstrData, 0,
                 startline->jspr_pjsprfLast->jsprf_sData, "/", 1);
             if (u32Ret == OLERR_NO_ERROR)
@@ -114,13 +114,13 @@ static u32 _parseHttpStartLine(
                 retval->jhph_pstrVersion = result->jspr_pjsprfLast->jsprf_pstrData;
                 retval->jhph_sVersion = result->jspr_pjsprfLast->jsprf_sData;
 
-                destroyParseResult(&result);
+                jf_string_destroyParseResult(&result);
             }
         }
     }
 
     if (startline != NULL)
-        destroyParseResult(&startline);
+        jf_string_destroyParseResult(&startline);
 
     return u32Ret;
 }
@@ -417,7 +417,7 @@ u32 jf_httpparser_parsePacketHeader(
     if (u32Ret == OLERR_NO_ERROR)
     {
         /* All the headers are delineated with a CRLF, so we parse on that */
-        u32Ret = parseString(&pPacket, pstrBuf, sOffset, sBuf, "\r\n", 2);
+        u32Ret = jf_string_parse(&pPacket, pstrBuf, sOffset, sBuf, "\r\n", 2);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -434,7 +434,7 @@ u32 jf_httpparser_parsePacketHeader(
     }
 
     if (pPacket != NULL)
-        destroyParseResult(&pPacket);
+        jf_string_destroyParseResult(&pPacket);
 
     if (u32Ret == OLERR_NO_ERROR)
         *ppHeader = retval;
@@ -571,7 +571,7 @@ u32 jf_httpparser_parseUri(
 
     /* A scheme has the format xxx://yyy , so if we parse on ://, we can extract
        the path info */
-    u32Ret = parseString(
+    u32Ret = jf_string_parse(
         &result, pstrUri, 0, (olint_t) ol_strlen(pstrUri), "://", 3);
     if (u32Ret == OLERR_NO_ERROR)
     {
@@ -586,19 +586,19 @@ u32 jf_httpparser_parseUri(
 
         /* Parse path. The first '/' will occur after the IPAddress:port
            combination*/
-        u32Ret = parseString(&result2, str1, 0, len1, "/", 1);
+        u32Ret = jf_string_parse(&result2, str1, 0, len1, "/", 1);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
     {
         len2 = len1 - result2->jspr_pjsprfFirst->jsprf_sData;
 
-        u32Ret = dupStringWithLen(
+        u32Ret = jf_string_duplicateWithLen(
             ppstrPath, str1 + result2->jspr_pjsprfFirst->jsprf_sData, len2);
         if (u32Ret == OLERR_NO_ERROR)
         {
             /* Parse port Number */
-            u32Ret = parseString(
+            u32Ret = jf_string_parse(
                 &result3, result2->jspr_pjsprfFirst->jsprf_pstrData,
                 0, result2->jspr_pjsprfFirst->jsprf_sData, ":", 1);
         }
@@ -615,7 +615,7 @@ u32 jf_httpparser_parseUri(
         else
         {
             /* If a port was specified, use that */
-            u32Ret = getU16FromString(
+            u32Ret = jf_string_getU16FromString(
                 result3->jspr_pjsprfLast->jsprf_pstrData,
                 result3->jspr_pjsprfLast->jsprf_sData, pu16Port);
         }
@@ -624,7 +624,7 @@ u32 jf_httpparser_parseUri(
     if (u32Ret == OLERR_NO_ERROR)
     {
         /* Parse IP Address */
-        u32Ret = dupStringWithLen(
+        u32Ret = jf_string_duplicateWithLen(
             ppstrIp, result3->jspr_pjsprfFirst->jsprf_pstrData,
             result3->jspr_pjsprfFirst->jsprf_sData);
     }
@@ -639,13 +639,13 @@ u32 jf_httpparser_parseUri(
     }
 
     if (result3 != NULL)
-        destroyParseResult(&result3);
+        jf_string_destroyParseResult(&result3);
 
     if (result2 != NULL)
-        destroyParseResult(&result2);
+        jf_string_destroyParseResult(&result2);
 
     if (result != NULL)
-        destroyParseResult(&result);
+        jf_string_destroyParseResult(&result);
 
     return u32Ret;
 }
@@ -698,7 +698,7 @@ u32 jf_httpparser_clonePacketHeader(
     {
         jf_httpparser_addHeaderLine(
             retval, n->jhphf_pstrName, n->jhphf_sName,
-             n->jhphf_pstrData, n->jhphf_sData, TRUE);
+            n->jhphf_pstrData, n->jhphf_sData, TRUE);
         n = n->jhphf_pjhphfNext;
     }
 
@@ -721,7 +721,8 @@ u32 jf_httpparser_setVersion(
     u32 u32Ret = OLERR_NO_ERROR;
 
     if (pstrVersion != NULL)
-        u32Ret = dupStringWithLen(&(pjhph->jhph_pstrVersion), pstrVersion, sVersion);
+        u32Ret = jf_string_duplicateWithLen(
+            &(pjhph->jhph_pstrVersion), pstrVersion, sVersion);
 
     if (u32Ret == OLERR_NO_ERROR)
     {
@@ -741,7 +742,7 @@ u32 jf_httpparser_setStatusCode(
     pjhph->jhph_nStatusCode = nStatusCode;
 
     if (pstrStatusData != NULL)
-        u32Ret = dupStringWithLen(&(pjhph->jhph_pstrStatusData),
+        u32Ret = jf_string_duplicateWithLen(&(pjhph->jhph_pstrStatusData),
             pstrStatusData, sStatusData);
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -760,14 +761,14 @@ u32 jf_httpparser_setDirective(
     u32 u32Ret = OLERR_NO_ERROR;
 
     if (pstrDirective != NULL)
-        u32Ret = dupStringWithLen(&(pjhph->jhph_pstrDirective), pstrDirective, sDirective);
+        u32Ret = jf_string_duplicateWithLen(&(pjhph->jhph_pstrDirective), pstrDirective, sDirective);
 
     if (u32Ret == OLERR_NO_ERROR)
     {
         pjhph->jhph_sDirective = sDirective;
 
         if (pstrDirectiveObj != NULL)
-            u32Ret = dupStringWithLen(&(pjhph->jhph_pstrDirectiveObj),
+            u32Ret = jf_string_duplicateWithLen(&(pjhph->jhph_pstrDirectiveObj),
                 pstrDirectiveObj, sDirectiveObj);
         if (u32Ret == OLERR_NO_ERROR)
         {
@@ -776,7 +777,7 @@ u32 jf_httpparser_setDirective(
         }
         else
         {
-            freeString(&(pjhph->jhph_pstrDirective));
+            jf_string_free(&(pjhph->jhph_pstrDirective));
         }
     }
 
@@ -829,12 +830,12 @@ u32 jf_httpparser_addHeaderLine(
         }
         else
         {
-            u32Ret = dupStringWithLen(&(node->jhphf_pstrName), pstrName, sName);
+            u32Ret = jf_string_duplicateWithLen(&(node->jhphf_pstrName), pstrName, sName);
             if (u32Ret == OLERR_NO_ERROR)
             {
                 node->jhphf_sName = sName;
 
-                u32Ret = dupStringWithLen(&(node->jhphf_pstrData), pstrData, sData);
+                u32Ret = jf_string_duplicateWithLen(&(node->jhphf_pstrData), pstrData, sData);
             }
 
             if (u32Ret == OLERR_NO_ERROR)
@@ -844,10 +845,10 @@ u32 jf_httpparser_addHeaderLine(
             else
             {
                 if (node->jhphf_pstrName != NULL)
-                    freeString(&(node->jhphf_pstrName));
+                    jf_string_free(&(node->jhphf_pstrName));
 
                 if (node->jhphf_pstrData != NULL)
-                    freeString(&(node->jhphf_pstrData));
+                    jf_string_free(&(node->jhphf_pstrData));
 
                 xfree((void **)&node);
             }

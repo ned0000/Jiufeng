@@ -62,8 +62,8 @@ static u32 _getHostVersion(host_info_t * phi)
     }
     else
     {
-        ol_strcpy(phi->hi_strHostName, STRING_UNKNOWN);
-        ol_strcpy(phi->hi_strOSName, STRING_UNKNOWN);
+        ol_strcpy(phi->hi_strHostName, JF_STRING_UNKNOWN);
+        ol_strcpy(phi->hi_strOSName, JF_STRING_UNKNOWN);
     }
 #elif defined(WINDOWS)
     OSVERSIONINFOEX osvi;
@@ -82,7 +82,7 @@ static u32 _getHostVersion(host_info_t * phi)
     }
     else
     {
-        ol_strcpy(phi->hi_strHostName, STRING_UNKNOWN);
+        ol_strcpy(phi->hi_strHostName, JF_STRING_UNKNOWN);
     }
 
     /*get OS name*/
@@ -302,7 +302,7 @@ static u32 _getHostVersion(host_info_t * phi)
     }
 
     if (phi->hi_strOSName[0] == '\0')
-        ol_strcpy(phi->hi_strOSName, STRING_UNKNOWN);
+        ol_strcpy(phi->hi_strOSName, JF_STRING_UNKNOWN);
 #endif
     return u32Ret;
 }

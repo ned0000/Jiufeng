@@ -114,7 +114,7 @@ static void _printUserVerbose(user_info_t * pui)
 
     /* Group Id */
     ol_sprintf(strLeft, "%u", pui->ui_u8UserGroupId);
-    ol_strcpy(strRight, getStringPositive(pui->ui_bEnable));
+    ol_strcpy(strRight, jf_string_getStringPositive(pui->ui_bEnable));
     jf_clieng_printTwoHalfLine(pjcc, strLeft, strRight);
     pjcc += 2;
 }
@@ -155,7 +155,7 @@ static void _printUserBrief(user_info_t * pui)
 
     /* Enabled*/
     jf_clieng_appendBriefColumn(
-        pjcc, strInfo, getStringPositive(pui->ui_bEnable));
+        pjcc, strInfo, jf_string_getStringPositive(pui->ui_bEnable));
     pjcc++;
 
     jf_clieng_outputLine(strInfo);

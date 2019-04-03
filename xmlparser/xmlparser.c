@@ -184,7 +184,7 @@ static u32 _parseXmlElement(
         field->jsprf_sData --;
 
         /* If we look for the '>' we can find the end of this element */
-        u32Ret = parseString(
+        u32Ret = jf_string_parse(
             ppElem, field->jsprf_pstrData, 0, field->jsprf_sData, ">", 1);
     }
     else
@@ -194,7 +194,7 @@ static u32 _parseXmlElement(
         *pbStartTag = TRUE;
 
         /* If we look for the '>' we can find the end of this element */
-        u32Ret = parseString(
+        u32Ret = jf_string_parse(
             ppElem, field->jsprf_pstrData, 0, field->jsprf_sData, ">", 1);
         if (u32Ret == OLERR_NO_ERROR)
         {
@@ -217,7 +217,7 @@ static u32 _parseXmlAttribute(
 
     /* Parsing on the ' ', isolate the element name from the attributes.
        The first token is the element name */
-    u32Ret = parseString(
+    u32Ret = jf_string_parse(
         ppAttr, pElem->jspr_pjsprfFirst->jsprf_pstrData, 0,
         pElem->jspr_pjsprfFirst->jsprf_sData, " ", 1);
 
@@ -234,7 +234,7 @@ static u32 _parseXmlElementName(
     /* Now that we have the token that contains the element name,
        we need to parse on the ":" because we need to figure out
        what the namespace qualifiers are */
-    u32Ret = parseString(
+    u32Ret = jf_string_parse(
         &pTag, pAttr->jspr_pjsprfFirst->jsprf_pstrData, 0,
         pAttr->jspr_pjsprfFirst->jsprf_sData, ":", 1);
     if (u32Ret == OLERR_NO_ERROR)
@@ -258,7 +258,7 @@ static u32 _parseXmlElementName(
             *psName = pTag->jspr_pjsprfFirst->jsprf_pjsprfNext->jsprf_sData;
         }
 
-        destroyParseResult(&pTag);
+        jf_string_destroyParseResult(&pTag);
     }
 
     return u32Ret;
@@ -291,7 +291,7 @@ static u32 _parseXML(
     olsize_t sNsTag;
 
     /* All XML elements start with a '<' character */
-    u32Ret = parseString(&xml, pstrBuf, sOffset, sBuf, "<", 1);
+    u32Ret = jf_string_parse(&xml, pstrBuf, sOffset, sBuf, "<", 1);
     if (u32Ret == OLERR_NO_ERROR)
     {
         u32Ret = _parseXmlDeclaration(xml, &field);
@@ -329,16 +329,16 @@ static u32 _parseXML(
         }
 
         if (pElem != NULL)
-            destroyParseResult(&pElem);
+            jf_string_destroyParseResult(&pElem);
 
         if (pAttr != NULL)
-            destroyParseResult(&pAttr);
+            jf_string_destroyParseResult(&pAttr);
 
         field = field->jsprf_pjsprfNext;
     }
 
     if (xml != NULL)
-        destroyParseResult(&xml);
+        jf_string_destroyParseResult(&xml);
 
     if (u32Ret == OLERR_NO_ERROR)
     {
@@ -475,7 +475,7 @@ static u32 _getXmlAttribute(
             /* Parse each token by the ':'. If this results is more than one
                token, we can figure that the first token is the namespace
                prefix */
-            u32Ret = parseStringAdv(
+            u32Ret = jf_string_parseAdv(
                 &pAttr, field->jsprf_pstrData, 0, field->jsprf_sData, ":", 1);
         }
 
@@ -487,7 +487,7 @@ static u32 _getXmlAttribute(
                    first token is the attribute name, the other is the value */
                 retval->jxxa_pstrPrefix = NULL;
                 retval->jxxa_sPrefix = 0;
-                u32Ret = parseStringAdv(
+                u32Ret = jf_string_parseAdv(
                     &pValue, field->jsprf_pstrData, 0, field->jsprf_sData, "=", 1);
             }
             else
@@ -497,7 +497,7 @@ static u32 _getXmlAttribute(
                    attribute name and value are */
                 retval->jxxa_pstrPrefix = pAttr->jspr_pjsprfFirst->jsprf_pstrData;
                 retval->jxxa_sPrefix = pAttr->jspr_pjsprfFirst->jsprf_sData;
-                u32Ret = parseStringAdv(
+                u32Ret = jf_string_parseAdv(
                     &pValue, field->jsprf_pstrData, retval->jxxa_sPrefix + 1,
                     field->jsprf_sData - retval->jxxa_sPrefix - 1, "=", 1);
             }
@@ -512,10 +512,10 @@ static u32 _getXmlAttribute(
         }
 
         if (pAttr != NULL)
-            destroyParseResult(&pAttr);
+            jf_string_destroyParseResult(&pAttr);
 
         if (pValue != NULL)
-            destroyParseResult(&pValue);
+            jf_string_destroyParseResult(&pValue);
 
         field = field->jsprf_pjsprfNext;
     }
@@ -718,9 +718,9 @@ u32 jf_xmlparser_getXMLAttributes(
     c = c + 1;
 
     /* Now that we isolated the string between the '<' and the '>', we can parse
-       the string as delimited by ' '. Use parseStringAdv because these
+       the string as delimited by ' '. Use jf_string_parseAdv because these
        attributes can be within quotation marks */
-    u32Ret = parseStringAdv(
+    u32Ret = jf_string_parseAdv(
         &xml, c, 0, ((olchar_t *) node->jxxn_pReserved - c - nEndReserved),
         " ", 1);
     if (u32Ret == OLERR_NO_ERROR)
