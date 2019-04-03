@@ -29,15 +29,15 @@
 static u32 _readDataForArchive(
     ar_file_t * pafArchive, u8 * pu8Buffer, olsize_t u32Size)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t u32Read;
 
     u32Read = u32Size;
     u32Ret = readArFile(pafArchive, pu8Buffer, &u32Read);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (u32Read != u32Size)
-            u32Ret = OLERR_ARCHIVE_CORRUPTED;
+            u32Ret = JF_ERR_ARCHIVE_CORRUPTED;
     }
 
     return u32Ret;
@@ -45,7 +45,7 @@ static u32 _readDataForArchive(
 
 static u32 _getMemberFilename(archive_header_t * pah, file_handler_t * pfh)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 u8DirDepth;
     olchar_t strFullpath[MAX_PATH_LEN];
     olchar_t strFilename[ARCHIVE_BLOCK_SIZE];
@@ -61,7 +61,7 @@ static u32 _getMemberFilename(archive_header_t * pah, file_handler_t * pfh)
         {
             u32Ret = _readDataForArchive(
                 pfh->fh_pafArchive, (u8 *)strFilename, ARCHIVE_BLOCK_SIZE);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 ol_strncpy(pfh->fh_strFullpath, strFilename, MAX_PATH_LEN - 1);
             }
@@ -86,7 +86,7 @@ static u32 _getMemberFilename(archive_header_t * pah, file_handler_t * pfh)
         {
             u32Ret = _readDataForArchive(
                 pfh->fh_pafArchive, (u8 *)strFilename, ARCHIVE_BLOCK_SIZE);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 ol_snprintf(pfh->fh_strFullpath, MAX_PATH_LEN - 1, "%s%c%s",
                     strFullpath, PATH_SEPARATOR, strFilename);
@@ -104,7 +104,7 @@ static u32 _getMemberFilename(archive_header_t * pah, file_handler_t * pfh)
 
 static u32 _validateHeader(archive_header_t * pah, file_handler_t * pfh)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
 
     return u32Ret;
@@ -112,7 +112,7 @@ static u32 _validateHeader(archive_header_t * pah, file_handler_t * pfh)
 
 static u32 _getFileMode(archive_header_t * pah, mode_t * pMode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Mode;
 
     sscanf((olchar_t *)pah->ah_u8Mode, "%u", &u32Mode);
@@ -136,7 +136,7 @@ static u32 _getFileMode(archive_header_t * pah, mode_t * pMode)
 static u32 _writeFile(archive_header_t * pah, file_handler_t * pfh,
     u64 u64Size)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     FILE * fp = NULL;
     olsize_t u32Len;
     u64 u64Len;
@@ -144,14 +144,14 @@ static u32 _writeFile(archive_header_t * pah, file_handler_t * pfh,
 
     _getFileMode(pah, &mode);
     u32Ret = jf_file_create(pfh->fh_strFullpath, mode);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_filestream_open(pfh->fh_strFullpath, "wb", &fp);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             u64Len = u64Size;
 
-            while ((u64Len > 0) && (u32Ret == OLERR_NO_ERROR))
+            while ((u64Len > 0) && (u32Ret == JF_ERR_NO_ERROR))
             {
                 u32Len = pfh->fh_sBuf;
                 if (u64Len < (u64)u32Len)
@@ -159,16 +159,16 @@ static u32 _writeFile(archive_header_t * pah, file_handler_t * pfh,
 
                 u32Ret = _readDataForArchive(
                     pfh->fh_pafArchive, pfh->fh_pu8Buffer, u32Len);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     u32Ret = jf_filestream_writen(fp, pfh->fh_pu8Buffer, u32Len);
-                    if (u32Ret == OLERR_NO_ERROR)
+                    if (u32Ret == JF_ERR_NO_ERROR)
                     {
                         u64Len -= (u64)u32Len;
                     }
                 }
-                else if (u32Ret == OLERR_END_OF_FILE)
-                    u32Ret = OLERR_ARCHIVE_CORRUPTED;
+                else if (u32Ret == JF_ERR_END_OF_FILE)
+                    u32Ret = JF_ERR_ARCHIVE_CORRUPTED;
             }
 
             jf_filestream_close(&fp);
@@ -180,20 +180,20 @@ static u32 _writeFile(archive_header_t * pah, file_handler_t * pfh,
 
 static u32 _extractRegularFile(archive_header_t * pah, file_handler_t * pfh)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u64 u64Size, u64AlignedSize;
     olsize_t sLen;
 
     sLen = ol_strlen((olchar_t *)pah->ah_u8Size);
     u32Ret = jf_string_getU64FromString((olchar_t *)pah->ah_u8Size, sLen, &u64Size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_logInfoMsg("file size: %llu", u64Size);
         u64AlignedSize = ARCHIVE_ALIGH_SIZE(u64Size);
         if (! pfh->fh_bListArchive)
         {
             u32Ret = _writeFile(pah, pfh, u64Size);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 sLen = (u32)(u64AlignedSize - u64Size);
                 if (sLen != 0)
@@ -209,8 +209,8 @@ static u32 _extractRegularFile(archive_header_t * pah, file_handler_t * pfh)
             {
                 u32Ret = seekArFile(
                     pfh->fh_pafArchive, u64AlignedSize, SEEK_CUR);
-                if (u32Ret == OLERR_END_OF_FILE)
-                    u32Ret = OLERR_ARCHIVE_CORRUPTED;
+                if (u32Ret == JF_ERR_END_OF_FILE)
+                    u32Ret = JF_ERR_ARCHIVE_CORRUPTED;
             }
         }
     }
@@ -220,7 +220,7 @@ static u32 _extractRegularFile(archive_header_t * pah, file_handler_t * pfh)
 
 static u32 _extractDir(archive_header_t * pah, file_handler_t * pfh)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     mode_t mode = 0;
 
     if (! pfh->fh_bListArchive)
@@ -234,7 +234,7 @@ static u32 _extractDir(archive_header_t * pah, file_handler_t * pfh)
 
 static u32 _extractDeviceFile(archive_header_t * pah, file_handler_t * pfh)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (! pfh->fh_bListArchive)
     {
@@ -246,7 +246,7 @@ static u32 _extractDeviceFile(archive_header_t * pah, file_handler_t * pfh)
 
 static u32 _extractHardLinkFile(archive_header_t * pah, file_handler_t * pfh)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (! pfh->fh_bListArchive)
     {
@@ -258,7 +258,7 @@ static u32 _extractHardLinkFile(archive_header_t * pah, file_handler_t * pfh)
 
 static u32 _extractSymLinkFile(archive_header_t * pah, file_handler_t * pfh)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (! pfh->fh_bListArchive)
     {
@@ -270,7 +270,7 @@ static u32 _extractSymLinkFile(archive_header_t * pah, file_handler_t * pfh)
 
 static u32 _extractFifoFile(archive_header_t * pah, file_handler_t * pfh)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (! pfh->fh_bListArchive)
     {
@@ -282,7 +282,7 @@ static u32 _extractFifoFile(archive_header_t * pah, file_handler_t * pfh)
 
 static u32 _extractMemberFile(archive_header_t * pah, file_handler_t * pfh)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (pfh->fh_bVerbose)
         ol_printf("extract %s\n", pfh->fh_strFullpath);
@@ -310,7 +310,7 @@ static u32 _extractMemberFile(archive_header_t * pah, file_handler_t * pfh)
         u32Ret = _extractFifoFile(pah, pfh);
         break;
     default:
-        u32Ret = OLERR_INVALID_FILE_TYPE;
+        u32Ret = JF_ERR_INVALID_FILE_TYPE;
         break;
     }
 
@@ -322,7 +322,7 @@ u32 extractFromArchive(
     ar_file_t * pafArchive, u8 * pu8Buffer, olsize_t sBuf,
     jf_archive_extract_param_t * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     file_handler_t fh;
     archive_block_t ab;
     archive_header_t * pah = &(ab.ab_ahHeader);
@@ -333,26 +333,26 @@ u32 extractFromArchive(
     fh.fh_sBuf = sBuf;
     fh.fh_bListArchive = pParam->jaep_bListArchive;
 
-    while ((u32Ret == OLERR_NO_ERROR) && (! isEndOfArFile(pafArchive)))
+    while ((u32Ret == JF_ERR_NO_ERROR) && (! isEndOfArFile(pafArchive)))
     {
         memset(pah, 0, ARCHIVE_BLOCK_SIZE);
         u32Ret = _readDataForArchive(pafArchive, (u8 *)pah, ARCHIVE_BLOCK_SIZE);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = _validateHeader(pah, &fh);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 u32Ret = _getMemberFilename(pah, &fh);
             }
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 u32Ret = _extractMemberFile(pah, &fh);
             }
         }
-        else if (u32Ret == OLERR_END_OF_FILE)
+        else if (u32Ret == JF_ERR_END_OF_FILE)
         {
-            u32Ret = OLERR_NO_ERROR;
+            u32Ret = JF_ERR_NO_ERROR;
         }
     }
 

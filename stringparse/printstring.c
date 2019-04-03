@@ -102,7 +102,7 @@ void jf_string_getStringDate2ForDaysFrom1970(
 
 u32 jf_string_getStringUTCTime(olchar_t * pstrTime, const time_t tTime)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     struct tm * ptmLocal;
     time_t t = tTime;
     olchar_t strDate[64];
@@ -111,7 +111,7 @@ u32 jf_string_getStringUTCTime(olchar_t * pstrTime, const time_t tTime)
     if (ptmLocal == NULL)
     {
         ol_sprintf(pstrTime, "invalid time stamp (0x%x)", (u32)tTime);
-        u32Ret = OLERR_INVALID_TIME;
+        u32Ret = JF_ERR_INVALID_TIME;
     }
     else
     {
@@ -127,7 +127,7 @@ u32 jf_string_getStringUTCTime(olchar_t * pstrTime, const time_t tTime)
 
 u32 jf_string_getStringLocalTime(olchar_t * pstrTime, const time_t tTime)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     struct tm * ptmLocal;
     time_t t = tTime;
     olchar_t strDate[64];
@@ -136,7 +136,7 @@ u32 jf_string_getStringLocalTime(olchar_t * pstrTime, const time_t tTime)
     if (ptmLocal == NULL)
     {
         ol_sprintf(pstrTime, "invalid time stamp (0x%x)", (u32)tTime);
-        u32Ret = OLERR_INVALID_TIME;
+        u32Ret = JF_ERR_INVALID_TIME;
     }
     else
     {

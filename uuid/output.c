@@ -26,7 +26,7 @@
 /* --- private routine section---------------------------------------------- */
 static u32 _writeUuidBin(uuid_obj_t * puo, olchar_t * pstrUuid, olsize_t sUuid)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     uuid_uint32_t tmp32;
     uuid_uint16_t tmp16;
     u32 i;
@@ -68,7 +68,7 @@ static u32 _writeUuidBin(uuid_obj_t * puo, olchar_t * pstrUuid, olsize_t sUuid)
 
 static u32 _writeUuidStr(uuid_obj_t * puo, olchar_t * pstrUuid, olsize_t sUuid)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     /* format UUID into string representation */
     ol_sprintf(pstrUuid,
@@ -90,7 +90,7 @@ static u32 _writeUuidStr(uuid_obj_t * puo, olchar_t * pstrUuid, olsize_t sUuid)
 
 static u32 _writeUuidHex(uuid_obj_t * puo, olchar_t * pstrUuid, olsize_t sUuid)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     /* format UUID into string representation */
     ol_sprintf(pstrUuid,
@@ -112,7 +112,7 @@ static u32 _writeUuidHex(uuid_obj_t * puo, olchar_t * pstrUuid, olsize_t sUuid)
 
 static u32 _writeUuidSiv(uuid_obj_t * puo, olchar_t * pstrUuid, olsize_t sUuid)
 {
-    u32 u32Ret = OLERR_NOT_IMPLEMENTED;
+    u32 u32Ret = JF_ERR_NOT_IMPLEMENTED;
 
 
     return u32Ret;
@@ -122,7 +122,7 @@ static u32 _writeUuidSiv(uuid_obj_t * puo, olchar_t * pstrUuid, olsize_t sUuid)
 u32 outputUuid(
     uuid_obj_t * puo, jf_uuid_fmt_t fmt, olchar_t * pstrUuid, olsize_t sUuid)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (fmt == JF_UUID_FMT_BIN)
     {

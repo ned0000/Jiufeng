@@ -342,14 +342,14 @@ void jf_cghash_initSha1(jf_cghash_sha1_t * pSha1)
 u32 jf_cghash_updateSha1(
     jf_cghash_sha1_t * pSha1, const u8 * pu8Buffer, u32 u32Len)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nRet;
 
     assert((pSha1 != NULL) && (pu8Buffer != NULL));
 
     nRet = SHA1Input((SHA1Context *)&(pSha1->jcs_u8Ctx), pu8Buffer, u32Len);
     if (nRet == shaStateError)
-        u32Ret = OLERR_SHA1_STATE_ERROR;
+        u32Ret = JF_ERR_SHA1_STATE_ERROR;
 
     return u32Ret;
 }
@@ -357,14 +357,14 @@ u32 jf_cghash_updateSha1(
 u32 jf_cghash_finalSha1(
     jf_cghash_sha1_t * pSha1, u8 u8Digest[JF_CGHASH_SHA1_DIGEST_LEN])
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nRet;
 
     assert(pSha1 != NULL);
 
     nRet = SHA1Result((SHA1Context *)&(pSha1->jcs_u8Ctx), u8Digest);
     if (nRet == shaStateError)
-        u32Ret = OLERR_SHA1_STATE_ERROR;
+        u32Ret = JF_ERR_SHA1_STATE_ERROR;
 
     SHA1Reset((SHA1Context *)&(pSha1->jcs_u8Ctx));
 
@@ -374,13 +374,13 @@ u32 jf_cghash_finalSha1(
 u32 jf_cghash_doSha1(
     const u8 * pu8Input, u32 u32InputLen, u8 u8Digest[JF_CGHASH_SHA1_DIGEST_LEN])
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_cghash_sha1_t sha1;
 
     jf_cghash_initSha1(&sha1);
 
     u32Ret = jf_cghash_updateSha1(&sha1, pu8Input, u32InputLen);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_cghash_finalSha1(&sha1, u8Digest);
 
     return u32Ret;

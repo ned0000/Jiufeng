@@ -49,12 +49,12 @@ logger options:\n\
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
     u32 u32Value;
 
     while (((nOpt = getopt(argc, argv,
-        "tsOT:F:S:h")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "tsOT:F:S:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -73,7 +73,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
             if (sscanf(optarg, "%d", &u32Value) == 1)
                 pjlip->jlip_u8TraceLevel = (u8)u32Value;
             else
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
@@ -83,13 +83,13 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
             if (sscanf(optarg, "%d", &u32Value) == 1)
                 pjlip->jlip_sLogFile = u32Value;
             else
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             break;
         case 'O':
             pjlip->jlip_bLogToStdout = TRUE;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -100,7 +100,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
 #define DEBUG_LOOP_COUNT  100
 u32 _testAllocMem(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 * pu8Mem[DEBUG_LOOP_COUNT];
     u32 u32Index = 0, u32Idx, u32Loop, u32Size;
     olchar_t strErrMsg[300];
@@ -140,7 +140,7 @@ u32 _testAllocMem(void)
                 jf_logger_logInfoMsg("!!!! Allocate %u", u32Size);
 
                 u32Ret = jf_jiukun_allocMemory((void **)&(pu8Mem[u32Index]), u32Size, 0);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     jf_logger_logInfoMsg("success, at %u, %p\n", u32Index,
                         pu8Mem[u32Index]);
@@ -150,7 +150,7 @@ u32 _testAllocMem(void)
                 }
                 else
                 {
-                    getErrMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
+                    jf_err_getMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
                     jf_logger_logInfoMsg("failed, %s\n", strErrMsg);
                 }
             }
@@ -184,7 +184,7 @@ u32 _testAllocMem(void)
 
 u32 _testJiukunPage(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 * pu8Mem[DEBUG_LOOP_COUNT];
     u32 u32Order[DEBUG_LOOP_COUNT];
     u32 u32Index = 0, u32Idx, u32Loop;
@@ -226,7 +226,7 @@ u32 _testJiukunPage(void)
 
                 u32Ret = jf_jiukun_allocPage(
                     (void **)&(pu8Mem[u32Index]), u32Order[u32Index], 0);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
 #if defined(DEBUG_JIUKUN)
                     jf_jiukun_dump();
@@ -236,7 +236,7 @@ u32 _testJiukunPage(void)
                 }
                 else
                 {
-                    getErrMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
+                    jf_err_getMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
                     jf_logger_logInfoMsg("failed, %s\n", strErrMsg);
                 }
             }
@@ -269,7 +269,7 @@ static jf_jiukun_cache_t * ls_pacCache = NULL;
 
 u32 _testJiukunCache(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 * pu8Mem[DEBUG_LOOP_COUNT];
     u32 u32Index = 0, u32Idx, u32Loop;
     olchar_t strErrMsg[300];
@@ -307,14 +307,14 @@ u32 _testJiukunCache(void)
 
                 u32Ret = jf_jiukun_allocObject(
                     ls_pacCache, (void **)&(pu8Mem[u32Index]), 0);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     jf_logger_logInfoMsg("success, at %u, %p\n", u32Index,
                         pu8Mem[u32Index]);
                 }
                 else
                 {
-                    getErrMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
+                    jf_err_getMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
                     jf_logger_logInfoMsg("failed, %s\n", strErrMsg);
                 }
             }
@@ -344,7 +344,7 @@ u32 _testJiukunCache(void)
 
 static u32 _stressJiukun(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = _testJiukunPage();
 
@@ -357,13 +357,13 @@ static u32 _stressJiukun(void)
 
 THREAD_RETURN_VALUE _allocFree(void * pArg)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     u32 u32Index = (u32)(ulong)pArg;
 
     jf_logger_logInfoMsg("alloc-free thread %u starts", u32Index);
 
-    while ((! ls_bToTerminate) && (u32Ret == OLERR_NO_ERROR))
+    while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
         jf_logger_logInfoMsg("alloc-free thread %u starts testing", u32Index);
 
@@ -371,11 +371,11 @@ THREAD_RETURN_VALUE _allocFree(void * pArg)
     }
 
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         jf_logger_logInfoMsg("alloc-free thread %u quits", u32Index);
     else
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         jf_logger_logInfoMsg("alloc-free thread %u quits, %s", u32Index, strErrMsg);
     }
 
@@ -384,7 +384,7 @@ THREAD_RETURN_VALUE _allocFree(void * pArg)
 
 static u32 _testJiukunInThread(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index;
     jf_jiukun_cache_create_param_t jjccp;
 
@@ -393,20 +393,20 @@ static u32 _testJiukunInThread(void)
     jjccp.jjccp_sObj = 28;
 
     u32Ret = jf_jiukun_createCache(&ls_pacCache, &jjccp);
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
         return u32Ret;
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (u32Index = 0;
-             ((u32Index < MAX_THREAD_COUNT) && (u32Ret == OLERR_NO_ERROR));
+             ((u32Index < MAX_THREAD_COUNT) && (u32Ret == JF_ERR_NO_ERROR));
              u32Index ++)
         {
             u32Ret = createThread(NULL, NULL, _allocFree, (void *)(ulong)(u32Index + 1));
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("main thread, sleeping for 5 minutes\n");
         sleep(300);
@@ -423,7 +423,7 @@ static u32 _testJiukunInThread(void)
 
 static u32 _baseJiukunFunc(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 * page = NULL;
     olflag_t flags;
     olint_t order = 5;
@@ -433,7 +433,7 @@ static u32 _baseJiukunFunc(void)
 
     ol_printf("get jiukun page memory with wait: ");
     u32Ret = jf_jiukun_allocPage((void **)&page, order, 0);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("success\n");
         jf_jiukun_freePage((void **)&page);
@@ -448,7 +448,7 @@ static u32 _baseJiukunFunc(void)
     INIT_FLAG(flags);
     SET_FLAG(flags, JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT);
     u32Ret = jf_jiukun_allocPage((void **)&page, 10, flags);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("success\n");
         jf_jiukun_freePage((void **)&page);
@@ -465,10 +465,10 @@ static u32 _baseJiukunFunc(void)
     SET_FLAG(jjccp.jjccp_fCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO);
 
     u32Ret = jf_jiukun_createCache(&cache, &jjccp);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_jiukun_allocObject(cache, &object, 0);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_printf("success\n");
             jf_jiukun_freeObject(cache, &object);
@@ -488,7 +488,7 @@ static u32 _baseJiukunFunc(void)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     jf_jiukun_init_param_t jjip;
     jf_logger_init_param_t jlipParam;
@@ -501,19 +501,19 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
 
     u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(&jjip, 0, sizeof(jjip));
         jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
         jjip.jjip_bNoGrow = TRUE;
 
         u32Ret = jf_jiukun_init(&jjip);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (ls_bMultiThread)
                 u32Ret = _testJiukunInThread();
@@ -526,9 +526,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
         }
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
+        jf_err_getMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
         ol_printf("%s\n", strErrMsg);
     }
 

@@ -452,8 +452,8 @@ boolean_t hasHashtreeEntry(
  *  @param pValue [in] the data to add into the hashtree
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
- *  @retval OLERR_OUT_OF_MEMORY out of memory
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_OUT_OF_MEMORY out of memory
  *
  */
 u32 addHashtreeEntry(
@@ -467,8 +467,8 @@ u32 addHashtreeEntry(
  *  @param ppData [in/out] the pointer to the entry returned 
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
- *  @retval OLERR_HASHTREE_ENTRY_NOT_FOUND entry not found
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_HASHTREE_ENTRY_NOT_FOUND entry not found
  */
 u32 getHashtreeEntry(
     hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void ** ppData);
@@ -522,13 +522,13 @@ static inline boolean_t isHashtreeEnumeratorEmptyNode(
  *  @param pEnumerator [in] the enumerator to advance 
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
- *  @retval OLERR_END_OF_HASHTREE end of hashtree
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_END_OF_HASHTREE end of hashtree
  *
  */
 static inline u32 moveHashtreeNext(hashtree_enumerator_t * pEnumerator)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (pEnumerator->he_phnNode != NULL)
     {
@@ -539,7 +539,7 @@ static inline u32 moveHashtreeNext(hashtree_enumerator_t * pEnumerator)
     else
     {
         /*There are no more nodes*/
-        u32Ret = OLERR_END_OF_HASHTREE;
+        u32Ret = JF_ERR_END_OF_HASHTREE;
     }
 
     return u32Ret;

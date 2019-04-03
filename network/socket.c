@@ -48,7 +48,7 @@
 u32 jf_network_createDgramSocket(
     jf_ipaddr_t * pjiLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert((pjiLocal != NULL) && (pu16Port != NULL));
     assert(ppSocket != NULL);
@@ -62,7 +62,7 @@ u32 jf_network_createDgramSocket(
 u32 jf_network_createStreamSocket(
     jf_ipaddr_t * pjiLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert((pjiLocal != NULL) && (pu16Port != NULL) && (ppSocket != NULL));
 
@@ -75,7 +75,7 @@ u32 jf_network_createStreamSocket(
 u32 jf_network_createTypeStreamSocket(
     u8 u8AddrType, jf_network_socket_t ** ppSocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert(ppSocket != NULL);
 
@@ -93,7 +93,7 @@ u32 jf_network_createSocket(
     olint_t domain, olint_t type, olint_t protocol,
     jf_network_socket_t ** ppSocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert(ppSocket != NULL);
 
@@ -105,7 +105,7 @@ u32 jf_network_createSocket(
 
 u32 jf_network_destroySocket(jf_network_socket_t ** ppSocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert((ppSocket != NULL) && (*ppSocket != NULL));
 
@@ -117,7 +117,7 @@ u32 jf_network_destroySocket(jf_network_socket_t ** ppSocket)
 u32 jf_network_ioctlSocket(
     jf_network_socket_t * pSocket, olint_t req, void * pArg)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -129,7 +129,7 @@ u32 jf_network_ioctlSocket(
 
 u32 jf_network_setSocketBlock(jf_network_socket_t * pSocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -141,7 +141,7 @@ u32 jf_network_setSocketBlock(jf_network_socket_t * pSocket)
 
 u32 jf_network_setSocketNonblock(jf_network_socket_t * pSocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -155,7 +155,7 @@ u32 jf_network_joinMulticastGroup(
     jf_network_socket_t * pSocket, jf_ipaddr_t * pjiAddr,
     jf_ipaddr_t * pjiMulticaseAddr)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -168,7 +168,7 @@ u32 jf_network_joinMulticastGroup(
 
 u32 jf_network_enableBroadcast(jf_network_socket_t * pSocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -182,7 +182,7 @@ u32 jf_network_enableBroadcast(jf_network_socket_t * pSocket)
  */
 u32 jf_network_send(jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -199,7 +199,7 @@ u32 jf_network_sendWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend,
     u32 u32Timeout)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -214,7 +214,7 @@ u32 jf_network_sendWithTimeout(
  */
 u32 jf_network_sendn(jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -231,7 +231,7 @@ u32 jf_network_sendnWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend,
     u32 u32Timeout)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -246,7 +246,7 @@ u32 jf_network_sendnWithTimeout(
  */
 u32 jf_network_recv(jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -263,7 +263,7 @@ u32 jf_network_recvWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
     u32 u32Timeout)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -280,7 +280,7 @@ u32 jf_network_recvfromWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
     u32 u32Timeout, jf_ipaddr_t * pjiFrom, u16 * pu16Port)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -297,7 +297,7 @@ u32 jf_network_recvfromWithTimeout(
 u32 jf_network_recvn(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -314,7 +314,7 @@ u32 jf_network_recvnWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
     u32 u32Timeout)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -326,7 +326,7 @@ u32 jf_network_recvnWithTimeout(
 
 u32 jf_network_listen(jf_network_socket_t * pListen, olint_t backlog)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pListen;
 
     assert(pListen != NULL);
@@ -339,7 +339,7 @@ u32 jf_network_listen(jf_network_socket_t * pListen, olint_t backlog)
 u32 jf_network_connect(
     jf_network_socket_t * pSocket, const jf_ipaddr_t * pji, u16 u16Port)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -353,7 +353,7 @@ u32 jf_network_connectWithTimeout(
     jf_network_socket_t * pSocket, const jf_ipaddr_t * pji, u16 u16Port,
     u32 u32Timeout)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -367,7 +367,7 @@ u32 jf_network_accept(
     jf_network_socket_t * pListen, jf_ipaddr_t * pji, u16 * pu16Port,
     jf_network_socket_t ** ppSocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pListen;
 
     assert((pListen != NULL) && (ppSocket != NULL));
@@ -381,7 +381,7 @@ u32 jf_network_sendto(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend,
     const jf_ipaddr_t * pjiTo, u16 u16Port)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -395,7 +395,7 @@ u32 jf_network_recvfrom(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
     jf_ipaddr_t * pjiFrom, u16 * pu16Port)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
@@ -409,7 +409,7 @@ u32 jf_network_select(
     fd_set * readfds, fd_set * writefds, fd_set * exceptfds,
     struct timeval * timeout, u32 * pu32Ready)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = isSelect(readfds, writefds, exceptfds, timeout, pu32Ready);
 
@@ -419,7 +419,7 @@ u32 jf_network_select(
 u32 jf_network_getSocketName(
     jf_network_socket_t * pSocket, struct sockaddr * pName, olint_t * pnNameLen)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);

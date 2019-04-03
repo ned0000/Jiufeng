@@ -60,12 +60,12 @@ logger options:\n\
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, 
     jf_clieng_init_param_t * pjcip, jf_logger_init_param_t * pjlip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
     u32 u32Value;
 
     while (((nOpt = getopt(argc, argv, "T:F:S:Oh")) != -1) &&
-           (u32Ret == OLERR_NO_ERROR))
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -77,7 +77,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv,
             if (sscanf(optarg, "%d", &u32Value) == 1)
                 pjlip->jlip_u8TraceLevel = (u8)u32Value;
             else
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
@@ -90,10 +90,10 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv,
             if (sscanf(optarg, "%d", &u32Value) == 1)
                 pjlip->jlip_sLogFile = u32Value;
             else
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -103,7 +103,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv,
 
 static u32 _printShellGreeting(void * pMaster)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     jf_clieng_outputLine(
         "-------------------------------------------------------------");
@@ -121,14 +121,14 @@ static u32 _printShellGreeting(void * pMaster)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_clieng_init_param_t jcip;
     jf_logger_init_param_t jlipParam;
     cli_param_t cliParam;
 //    aether_param_t ap;
 
     u32Ret = xcalloc((void **)&ls_pocmMaster, sizeof(jiufeng_cli_master_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
         jlipParam.jlip_pstrCallerName = "CLI";
@@ -145,17 +145,17 @@ olint_t main(olint_t argc, olchar_t ** argv)
         u32Ret = _parseCmdLineParam(argc, argv, &jcip, &jlipParam);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_clieng_init(&jcip);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = addCmd(ls_pocmMaster, &cliParam);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_clieng_run();
     }

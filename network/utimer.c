@@ -56,7 +56,7 @@ static u32 _checkUtimer(
     jf_network_chain_object_t * pObject, fd_set * readset,
 	fd_set * writeset, fd_set * errorset, u32 * pu32Blocktime)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     struct timeval tv;
     utimer_item_t * temp = NULL, * evt = NULL, * last = NULL;
     u32 nexttick, current;
@@ -152,7 +152,7 @@ static u32 _checkUtimer(
  */
 static u32 _flushUtimer(internal_utimer_t * piu)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     utimer_item_t *temp, *temp2;
 
     acquireSyncMutex(&(piu->iu_smLock));
@@ -183,7 +183,7 @@ u32 jf_network_addUtimerItem(
     jf_network_fnCallbackOfUtimerItem_t fnCallback,
     jf_network_fnDestroyUtimerItem_t fnDestroy)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     boolean_t bUnblock = FALSE;
     struct timeval tv;
     utimer_item_t * pui, * temp;
@@ -193,7 +193,7 @@ u32 jf_network_addUtimerItem(
     jf_logger_logInfoMsg("add utimer item");
 #endif
     u32Ret = xmalloc((void **)&pui, sizeof(utimer_item_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pui, 0, sizeof(utimer_item_t));
 
@@ -274,7 +274,7 @@ u32 jf_network_addUtimerItem(
 
 u32 jf_network_removeUtimerItem(jf_network_utimer_t * pUtimer, void * pData)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_utimer_t * piu = (internal_utimer_t *) pUtimer;
     utimer_item_t *first, *last, *evt;
 
@@ -327,7 +327,7 @@ u32 jf_network_removeUtimerItem(jf_network_utimer_t * pUtimer, void * pData)
 
     /*Iterate through each node that is to be removed*/
     if (evt == NULL)
-        u32Ret = OLERR_UTIMER_ITEM_NOT_FOUND;
+        u32Ret = JF_ERR_UTIMER_ITEM_NOT_FOUND;
     else
         while (evt != NULL)
         {
@@ -345,7 +345,7 @@ u32 jf_network_removeUtimerItem(jf_network_utimer_t * pUtimer, void * pData)
 
 u32 jf_network_destroyUtimer(jf_network_utimer_t ** ppUtimer)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_utimer_t * piu;
 
     assert((ppUtimer != NULL) && (*ppUtimer != NULL));
@@ -365,11 +365,11 @@ u32 jf_network_destroyUtimer(jf_network_utimer_t ** ppUtimer)
 u32 jf_network_createUtimer(
     jf_network_chain_t * pChain, jf_network_utimer_t ** ppUtimer)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_utimer_t * piu;
 
     u32Ret = xmalloc((void **)&piu, sizeof(internal_utimer_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(piu, 0, sizeof(internal_utimer_t));
 
@@ -379,13 +379,13 @@ u32 jf_network_createUtimer(
         u32Ret = initSyncMutex(&(piu->iu_smLock));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_network_appendToChain(
             pChain, (jf_network_chain_object_t *)piu);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         *ppUtimer = piu;
     }

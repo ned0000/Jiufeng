@@ -41,7 +41,7 @@ static void _terminate(olint_t signal)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     jf_network_asocket_t * pAsocket = NULL;
     jf_network_asocket_create_param_t jnacp;
@@ -54,20 +54,20 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_logger_init(&jlipParam);
 
     u32Ret = jf_network_initLib();
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = registerSignalHandlers(_terminate);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = jf_network_createChain(&ls_pjncChain);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = jf_network_createAsocket(ls_pjncChain, &pAsocket, &jnacp);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
 
         }
@@ -77,9 +77,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     jf_logger_fini();
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

@@ -123,7 +123,7 @@ static void test5(void)
 
 u32 getNextTradingDate(const olchar_t * pstrCurr, olchar_t * pstrNext)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t year, month, day;
     olint_t days, dw;
 
@@ -154,7 +154,7 @@ u32 getNextTradingDate(const olchar_t * pstrCurr, olchar_t * pstrNext)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t year, mon, day;
     char curdate[16];
     char strdate[16];

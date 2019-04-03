@@ -81,13 +81,13 @@ static u32 _adRecvfrom(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
     jf_ipaddr_t * pjiRemote, u16 * pu16Port)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = jf_network_recvfrom(pSocket, pBuffer, psRecv, pjiRemote, pu16Port);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (*psRecv == 0)
-            u32Ret = OLERR_SOCKET_PEER_CLOSED;
+            u32Ret = JF_ERR_SOCKET_PEER_CLOSED;
     }
 
     return u32Ret;
@@ -95,7 +95,7 @@ static u32 _adRecvfrom(
 
 static u32 _destroySendData(send_data_t ** ppsd)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     send_data_t * psd = *ppsd;
 
     if (psd->sd_jnmoOwner == JF_NETWORK_MEM_OWNER_LIB)
@@ -113,7 +113,7 @@ static u32 _destroySendData(send_data_t ** ppsd)
  */
 static u32 _processAdgram(internal_adgram_t * pia)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t bytesReceived;
 
     if (pia->ia_bPause)
@@ -131,7 +131,7 @@ static u32 _processAdgram(internal_adgram_t * pia)
 
     u32Ret = _adRecvfrom(pia->ia_pjnsSocket, pia->ia_pu8Buffer + pia->ia_sEndPointer,
         &bytesReceived, &(pia->ia_iaRemote), &(pia->ia_u16RemotePort));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Data was read, so increment our counters*/
         pia->ia_sEndPointer += bytesReceived;
@@ -169,7 +169,7 @@ static u32 _preSelectAdgram(
     jf_network_chain_object_t * pAdgram, fd_set * readset,
     fd_set * writeset, fd_set * errorset, u32 * pu32BlockTime)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_adgram_t * pia = (internal_adgram_t *) pAdgram;
 
     jf_logger_logInfoMsg("before select adgram");
@@ -208,7 +208,7 @@ static u32 _postSelectAdgram(
     jf_network_chain_object_t * pAdgram, olint_t slct,
     fd_set * readset, fd_set * writeset, fd_set * errorset)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     boolean_t bTriggerSendOK = FALSE;
     send_data_t * temp, * psd;
     olsize_t bytesSent = 0;
@@ -223,14 +223,14 @@ static u32 _postSelectAdgram(
         /*The socket is writable, and data needs to be sent*/
         acquireSyncMutex(&(pia->ia_smLock));
         /*Keep trying to send data, until we are told we can't*/
-        while (u32Ret == OLERR_NO_ERROR)
+        while (u32Ret == JF_ERR_NO_ERROR)
         {
             psd = pia->ia_psdHead;
             bytesSent = psd->sd_sBuf - psd->sd_sBytesSent;
             u32Ret = jf_network_sendto(pia->ia_pjnsSocket,
                 psd->sd_pu8Buffer + psd->sd_sBytesSent,
                 &bytesSent, &(psd->sd_jiRemote), psd->sd_u16RemotePort);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 pia->ia_sPendingBytesToSend -= bytesSent;
                 pia->ia_sTotalBytesSent += bytesSent;
@@ -264,7 +264,7 @@ static u32 _postSelectAdgram(
         }
 
         /*This triggers OnSendOK, if all the pending data has been sent.*/
-        if (pia->ia_psdHead == NULL && u32Ret == OLERR_NO_ERROR)
+        if (pia->ia_psdHead == NULL && u32Ret == JF_ERR_NO_ERROR)
         {
             bTriggerSendOK = TRUE;
         }
@@ -289,7 +289,7 @@ static u32 _postSelectAdgram(
 static u32 _createDgramSocket(
     jf_ipaddr_t * pjiRemote, jf_network_socket_t ** ppSocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ipaddr_t ipaddr;
     u16 u16Port;
 
@@ -306,7 +306,7 @@ static u32 _adAddPendingData(
     internal_adgram_t * pia, send_data_t ** ppData, u8 * pu8Buffer,
     olsize_t sBuf, jf_network_mem_owner_t memowner, boolean_t * pbUnblock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     send_data_t * pData = *ppData;
 
     if (memowner == JF_NETWORK_MEM_OWNER_USER)
@@ -315,7 +315,7 @@ static u32 _adAddPendingData(
           user may free this memory before we have a chance to send it*/
         u32Ret = dupMemory(
             (void **)&pData->sd_pu8Buffer, pu8Buffer, pData->sd_sBuf);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             pData->sd_jnmoOwner = JF_NETWORK_MEM_OWNER_LIB;
         }
@@ -325,7 +325,7 @@ static u32 _adAddPendingData(
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*There are still bytes that are pending to be sent, so we need to queue
           this up */
@@ -342,7 +342,7 @@ static u32 _adTrySendData(
     olsize_t sBuf, jf_network_mem_owner_t memowner,
     boolean_t * pbUnblock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t bytesSent;
     send_data_t * pData = *ppData;
 
@@ -350,7 +350,7 @@ static u32 _adTrySendData(
     u32Ret = jf_network_sendto(
         pia->ia_pjnsSocket, pData->sd_pu8Buffer + pData->sd_sBytesSent,
         &bytesSent, &pData->sd_jiRemote, pData->sd_u16RemotePort);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*We were able to send something, so lets increment the counters*/
         pData->sd_sBytesSent += bytesSent;
@@ -364,7 +364,7 @@ static u32 _adTrySendData(
         _destroySendData(ppData);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pData->sd_sBytesSent == pData->sd_sBuf)
         {
@@ -380,7 +380,7 @@ static u32 _adTrySendData(
             {
                 u32Ret = dupMemory(
                     (void **)&pData->sd_pu8Buffer, pu8Buffer, pData->sd_sBuf);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     pData->sd_jnmoOwner = JF_NETWORK_MEM_OWNER_LIB;
                 }
@@ -390,7 +390,7 @@ static u32 _adTrySendData(
                 }
             }
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 /*There is data pending to be sent, so lets go ahead and try to
                   send it*/
@@ -410,7 +410,7 @@ static u32 _adTrySendData(
 
 u32 jf_network_destroyAdgram(jf_network_adgram_t ** ppAdgram)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_adgram_t *pia = (internal_adgram_t *) *ppAdgram;
 
     /*Close socket if necessary*/
@@ -443,11 +443,11 @@ u32 jf_network_createAdgram(
     jf_network_chain_t * pChain, jf_network_adgram_t ** ppAdgram,
     jf_network_adgram_create_param_t * pjnacp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_adgram_t * pia;
 
     u32Ret = xcalloc((void **)&pia, sizeof(internal_adgram_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pia->ia_jncohHeader.jncoh_fnPreSelect = _preSelectAdgram;
         pia->ia_jncohHeader.jncoh_fnPostSelect = _postSelectAdgram;
@@ -465,22 +465,22 @@ u32 jf_network_createAdgram(
             (void **)&(pia->ia_pu8Buffer), pjnacp->jnacp_sInitialBuf);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_network_createUtimer(pChain, &(pia->ia_pjnuUtimer));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = initSyncMutex(&(pia->ia_smLock));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_network_appendToChain(pChain, pia);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppAdgram = pia;
     else if (pia != NULL)
         jf_network_destroyAdgram((jf_network_adgram_t **)&pia);
@@ -490,7 +490,7 @@ u32 jf_network_createAdgram(
 
 u32 jf_network_clearPendingSendOfAdgram(jf_network_adgram_t * pAdgram)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_adgram_t *pia = (internal_adgram_t *) pAdgram;
     send_data_t *data, *temp;
 
@@ -514,13 +514,13 @@ u32 jf_network_sendAdgramData(
     jf_network_adgram_t * pAdgram, u8 * pu8Buffer, olsize_t sBuf,
     jf_network_mem_owner_t memowner, jf_ipaddr_t * pjiRemote, u16 u16RemotePort)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_adgram_t * pia = (internal_adgram_t *) pAdgram;
     send_data_t * data;
     boolean_t bUnblock = FALSE;
 
     u32Ret = xcalloc((void **)&data, sizeof(send_data_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         data->sd_pu8Buffer = pu8Buffer;
         data->sd_sBuf = sBuf;
@@ -530,10 +530,10 @@ u32 jf_network_sendAdgramData(
         data->sd_u16RemotePort = u16RemotePort;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = acquireSyncMutex(&(pia->ia_smLock));
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (pia->ia_pjnsSocket == NULL)
             {
@@ -541,7 +541,7 @@ u32 jf_network_sendAdgramData(
                 u32Ret = _createDgramSocket(pjiRemote, &(pia->ia_pjnsSocket));
             }
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 pia->ia_sPendingBytesToSend += sBuf;
                 if (pia->ia_psdTail != NULL)
@@ -618,7 +618,7 @@ void jf_network_clearBufferOfAdgram(jf_network_adgram_t * pAdgram)
 u32 jf_network_useSocketForAdgram(
     jf_network_adgram_t * pAdgram, jf_network_socket_t * pSocket, void * pUser)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_adgram_t * pia = (internal_adgram_t *) pAdgram;
 
     /* make sure the socket is invalid, if it's valid, we may create before*/
@@ -646,7 +646,7 @@ u32 jf_network_useSocketForAdgram(
 
 u32 jf_network_freeSocketForAdgram(jf_network_adgram_t * pAdgram)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_adgram_t * pia = (internal_adgram_t *) pAdgram;
 
     pia->ia_bFree = TRUE;
@@ -667,7 +667,7 @@ u32 jf_network_freeSocketForAdgram(jf_network_adgram_t * pAdgram)
 
 u32 jf_network_resumeAdgram(jf_network_adgram_t * pAdgram)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_adgram_t * pia = (internal_adgram_t *) pAdgram;
 
     if (pia->ia_bPause)
@@ -683,7 +683,7 @@ u32 jf_network_joinMulticastGroupOfAdgram(
     jf_network_adgram_t * pAdgram,
     jf_ipaddr_t * pjiAddr, jf_ipaddr_t * pjiMulticaseAddr)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_adgram_t * pia = (internal_adgram_t *) pAdgram;
 
     u32Ret = jf_network_joinMulticastGroup(
@@ -694,7 +694,7 @@ u32 jf_network_joinMulticastGroupOfAdgram(
 
 u32 jf_network_enableBroadcastOfAdgram(jf_network_adgram_t * pAdgram)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_adgram_t * pia = (internal_adgram_t *) pAdgram;
 
     u32Ret = jf_network_enableBroadcast(pia->ia_pjnsSocket);

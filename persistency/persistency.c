@@ -33,13 +33,13 @@ u32 jf_persistency_create(
     jf_persistency_type_t type, jf_persistency_config_t * ppc,
     jf_persistency_t ** ppPersist)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = NULL;
 
     jf_logger_logInfoMsg("create persistency");
 
     u32Ret = xmalloc((void **)&ppm, sizeof(persistency_manager_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ppm->pm_jptType = type;
     
@@ -49,17 +49,17 @@ u32 jf_persistency_create(
             u32Ret = initSqlitePersistency(ppm, &ppc->jpc_pcsConfigSqlite);
             break;
         default:
-            u32Ret = OLERR_INVALID_PARAM;
+            u32Ret = JF_ERR_INVALID_PARAM;
             break;
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = initSyncMutex(&ppm->pm_smLock);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ppm->pm_bInitialized = TRUE;
         *ppPersist = ppm;
@@ -74,7 +74,7 @@ u32 jf_persistency_create(
 
 u32 jf_persistency_destroy(jf_persistency_t ** ppPersist)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)*ppPersist;
 
     u32Ret = ppm->pm_fnFini(ppm);
@@ -90,7 +90,7 @@ u32 jf_persistency_getValue(
     jf_persistency_t * pPersist, olchar_t * key, olchar_t * value,
     olsize_t valuelen)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
 
     acquireSyncMutex(&ppm->pm_smLock);
@@ -105,7 +105,7 @@ u32 jf_persistency_getValue(
 u32 jf_persistency_setValue(
     jf_persistency_t * pPersist, olchar_t * key, olchar_t * value)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
 
     acquireSyncMutex(&ppm->pm_smLock);
@@ -119,7 +119,7 @@ u32 jf_persistency_setValue(
 
 u32 jf_persistency_startTransaction(jf_persistency_t * pPersist)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
 
     acquireSyncMutex(&ppm->pm_smLock);
@@ -133,7 +133,7 @@ u32 jf_persistency_startTransaction(jf_persistency_t * pPersist)
 
 u32 jf_persistency_commitTransaction(jf_persistency_t * pPersist)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
 
     acquireSyncMutex(&ppm->pm_smLock);
@@ -147,7 +147,7 @@ u32 jf_persistency_commitTransaction(jf_persistency_t * pPersist)
 
 u32 jf_persistency_rollbackTransaction(jf_persistency_t * pPersist)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
 
     acquireSyncMutex(&ppm->pm_smLock);

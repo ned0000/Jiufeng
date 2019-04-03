@@ -53,18 +53,18 @@
 /* --- public routine section ---------------------------------------------- */
 u32 newIsocket(internal_socket_t ** ppIsocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis;
 
     assert(ppIsocket != NULL);
 
     u32Ret = xcalloc((void **)&pis, sizeof(internal_socket_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pis->is_isSocket = INVALID_ISOCKET;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppIsocket = pis;
     else if (pis != NULL)
         freeIsocket(&pis);
@@ -74,18 +74,18 @@ u32 newIsocket(internal_socket_t ** ppIsocket)
 
 u32 newIsocketWithSocket(internal_socket_t ** ppIsocket, isocket_t sock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis;
 
     assert(ppIsocket != NULL);
 
     u32Ret = xcalloc((void **)&pis, sizeof(internal_socket_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pis->is_isSocket = sock;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppIsocket = pis;
     else if (pis != NULL)
         freeIsocket(&pis);
@@ -95,7 +95,7 @@ u32 newIsocketWithSocket(internal_socket_t ** ppIsocket, isocket_t sock)
 
 u32 freeIsocket(internal_socket_t ** ppIsocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis;
     olint_t nRet;
 
@@ -106,11 +106,11 @@ u32 freeIsocket(internal_socket_t ** ppIsocket)
 #if defined(LINUX)
     nRet = close(pis->is_isSocket);
     if (nRet == -1)
-        u32Ret = OLERR_FAIL_CLOSE_SOCKET;
+        u32Ret = JF_ERR_FAIL_CLOSE_SOCKET;
 #elif defined(WINDOWS)
     nRet = closesocket(pis->is_isSocket);
     if (nRet != 0)
-        u32Ret = OLERR_FAIL_CLOSE_SOCKET;
+        u32Ret = JF_ERR_FAIL_CLOSE_SOCKET;
 #endif
 
     xfree((void **)ppIsocket);
@@ -130,7 +130,7 @@ u32 freeIsocket(internal_socket_t ** ppIsocket)
 u32 createDgramIsocket(
     jf_ipaddr_t * pjiLocal, u16 * pu16Port, internal_socket_t ** ppIsocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = NULL;
     olint_t ra = 1;
     olint_t nRet = -1;
@@ -146,7 +146,7 @@ u32 createDgramIsocket(
     else
         u32Ret = createIsocket(AF_INET6, SOCK_DGRAM, 0, ppIsocket);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pis = *ppIsocket;
 
@@ -175,7 +175,7 @@ u32 createDgramIsocket(
 
             nRet = bind(pis->is_isSocket, psa, nAddr);
             if (nRet == -1)
-                u32Ret = OLERR_FAIL_BIND_SOCKET;
+                u32Ret = JF_ERR_FAIL_BIND_SOCKET;
         }
 
     }
@@ -197,7 +197,7 @@ u32 createDgramIsocket(
 u32 createStreamIsocket(
     jf_ipaddr_t * pjiLocal, u16 * pu16Port, internal_socket_t ** ppIsocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = NULL;
     olint_t ra = 1;
     olint_t nRet = -1;
@@ -212,7 +212,7 @@ u32 createStreamIsocket(
     else
         u32Ret = createIsocket(AF_INET6, SOCK_STREAM, 0, ppIsocket);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pis = *ppIsocket;
 
@@ -239,7 +239,7 @@ u32 createStreamIsocket(
 
             nRet = bind(pis->is_isSocket, psa, nAddr);
             if (nRet == -1)
-                u32Ret = OLERR_FAIL_BIND_SOCKET;
+                u32Ret = JF_ERR_FAIL_BIND_SOCKET;
         }
     }
 
@@ -250,22 +250,22 @@ u32 createIsocket(
     olint_t domain, olint_t type, olint_t protocol,
     internal_socket_t ** ppIsocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = NULL;
 
     *ppIsocket = NULL;
 
     u32Ret = newIsocket(&pis);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pis->is_isSocket = socket(domain, type, protocol);
         if (pis->is_isSocket == INVALID_ISOCKET)
         {
-            u32Ret = OLERR_FAIL_CREATE_SOCKET;
+            u32Ret = JF_ERR_FAIL_CREATE_SOCKET;
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppIsocket = pis;
     else if (pis != NULL)
         destroyIsocket(&pis);
@@ -275,7 +275,7 @@ u32 createIsocket(
 
 u32 destroyIsocket(internal_socket_t ** ppIsocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert((ppIsocket != NULL) && (*ppIsocket != NULL));
 
@@ -286,7 +286,7 @@ u32 destroyIsocket(internal_socket_t ** ppIsocket)
 
 u32 ioctlIsocket(internal_socket_t * pis, olint_t req, void * pArg)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t bRet;
 
     assert(pis != NULL);
@@ -297,14 +297,14 @@ u32 ioctlIsocket(internal_socket_t * pis, olint_t req, void * pArg)
     bRet = ioctlsocket(pis->is_isSocket, req, pArg);
 #endif
     if (bRet != 0)
-        u32Ret = OLERR_FAIL_IOCTL_SOCKET;
+        u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
 
     return u32Ret;
 }
 
 u32 setIsocketBlock(internal_socket_t * pis)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t flags;
 
     assert(pis != NULL);
@@ -322,7 +322,7 @@ u32 setIsocketBlock(internal_socket_t * pis)
 
 u32 setIsocketNonblock(internal_socket_t * pis)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t flags;
 
     assert(pis != NULL);
@@ -341,7 +341,7 @@ u32 setIsocketNonblock(internal_socket_t * pis)
 u32 isJoinMulticastGroup(
     internal_socket_t * pis, jf_ipaddr_t * pjiAddr, jf_ipaddr_t * pjiMulticaseAddr)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nRet;
     struct ip_mreq  mreq;
     struct ipv6_mreq mreq6;
@@ -361,7 +361,7 @@ u32 isJoinMulticastGroup(
             pis->is_isSocket, IPPROTO_IP, IP_ADD_MEMBERSHIP,
             (olchar_t *)&mreq, sizeof(mreq));
         if (nRet != 0)
-            u32Ret = OLERR_FAIL_JOIN_MULTICAST_GROUP;
+            u32Ret = JF_ERR_FAIL_JOIN_MULTICAST_GROUP;
     }
     else if (pjiAddr->ji_u8AddrType == JF_IPADDR_TYPE_V6)
     {
@@ -385,17 +385,17 @@ u32 isJoinMulticastGroup(
             pis->is_isSocket, IPPROTO_IP, IPV6_ADD_MEMBERSHIP,
             (olchar_t *)&mreq6, sizeof(mreq6));
         if (nRet != 0)
-            u32Ret = OLERR_FAIL_JOIN_MULTICAST_GROUP;
+            u32Ret = JF_ERR_FAIL_JOIN_MULTICAST_GROUP;
     }
     else
-        u32Ret = OLERR_INVALID_IP_ADDR_TYPE;
+        u32Ret = JF_ERR_INVALID_IP_ADDR_TYPE;
 
     return u32Ret;
 }
 
 u32 isEnableBroadcast(internal_socket_t * pis)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nRet = -1;
 #if defined(LINUX)
     const olint_t on = 1;
@@ -408,7 +408,7 @@ u32 isEnableBroadcast(internal_socket_t * pis)
     nRet = setsockopt(
         pis->is_isSocket, SOL_SOCKET, SO_BROADCAST, &on, sizeof(on));
     if (nRet != 0)
-        u32Ret = OLERR_FAIL_ENABLE_BROADCAST;
+        u32Ret = JF_ERR_FAIL_ENABLE_BROADCAST;
 
     return u32Ret;
 }
@@ -417,7 +417,7 @@ u32 isEnableBroadcast(internal_socket_t * pis)
  */
 u32 isSend(internal_socket_t * pis, void * pBuffer, olsize_t * psSend)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t sSent;
 
     assert(pis != NULL);
@@ -430,7 +430,7 @@ u32 isSend(internal_socket_t * pis, void * pBuffer, olsize_t * psSend)
 #elif defined(WINDOWS)
         if (WSAGetLastError() != WSAEWOULDBLOCK)
 #endif
-            u32Ret = OLERR_FAIL_SEND_DATA;
+            u32Ret = JF_ERR_FAIL_SEND_DATA;
 
         *psSend = 0;
     }
@@ -447,7 +447,7 @@ u32 isSendWithTimeout(
     internal_socket_t * pis, void * pBuffer, olsize_t * psSend,
     u32 u32Timeout)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t sSent = 0;
     fd_set writeset;
     struct timeval tv;
@@ -470,11 +470,11 @@ u32 isSendWithTimeout(
             u32Ret = isSend(pis, pBuffer, &sSent);
         }
         else
-            u32Ret = OLERR_FAIL_SEND_DATA;
+            u32Ret = JF_ERR_FAIL_SEND_DATA;
     }
 
-    if ((u32Ret == OLERR_NO_ERROR) && (sSent != *psSend))
-        u32Ret = OLERR_FAIL_SEND_DATA;
+    if ((u32Ret == JF_ERR_NO_ERROR) && (sSent != *psSend))
+        u32Ret = JF_ERR_FAIL_SEND_DATA;
 
     *psSend = sSent;
 
@@ -486,17 +486,17 @@ u32 isSendWithTimeout(
  */
 u32 isSendn(internal_socket_t * pis, void * pBuffer, olsize_t * psSend)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t sSent = 0, sent;
     u8 * pu8Start = pBuffer;
 
     assert(pis != NULL);
 
-    while ((u32Ret == OLERR_NO_ERROR) && (sSent < *psSend))
+    while ((u32Ret == JF_ERR_NO_ERROR) && (sSent < *psSend))
     {
         sent = *psSend - sSent;
         u32Ret = isSend(pis, pu8Start, &sent);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             pu8Start += sent;
             sSent += sent;
@@ -514,7 +514,7 @@ u32 isSendn(internal_socket_t * pis, void * pBuffer, olsize_t * psSend)
 u32 isSendnWithTimeout(internal_socket_t * pis, void * pBuffer,
     olsize_t * psSend, u32 u32Timeout)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t sSent = 0, sent;
     u8 * pu8Start = pBuffer;
     fd_set writeset;
@@ -527,7 +527,7 @@ u32 isSendnWithTimeout(internal_socket_t * pis, void * pBuffer,
     tCur = time(NULL);
     tEnd = tCur + u32Timeout;
 
-    while ((u32Ret == OLERR_NO_ERROR) && (tCur <= tEnd))
+    while ((u32Ret == JF_ERR_NO_ERROR) && (tCur <= tEnd))
     {
         clearIsocketFdSet(&writeset);
         setIsocketToFdSet(pis, &writeset);
@@ -542,7 +542,7 @@ u32 isSendnWithTimeout(internal_socket_t * pis, void * pBuffer,
                 /* ready to write */
                 sent = *psSend - sSent;
                 u32Ret = isSend(pis, pu8Start, &sent);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     pu8Start += sent;
                     sSent += sent;
@@ -551,7 +551,7 @@ u32 isSendnWithTimeout(internal_socket_t * pis, void * pBuffer,
                 }
             }
             else
-                u32Ret = OLERR_FAIL_SEND_DATA;
+                u32Ret = JF_ERR_FAIL_SEND_DATA;
         }
 
         tCur = time(NULL);
@@ -561,8 +561,8 @@ u32 isSendnWithTimeout(internal_socket_t * pis, void * pBuffer,
             tCur = tEnd;
     }
 
-    if ((u32Ret == OLERR_NO_ERROR) && (sSent != *psSend))
-        u32Ret = OLERR_FAIL_SEND_DATA;
+    if ((u32Ret == JF_ERR_NO_ERROR) && (sSent != *psSend))
+        u32Ret = JF_ERR_FAIL_SEND_DATA;
 
     *psSend = sSent;
 
@@ -574,7 +574,7 @@ u32 isSendnWithTimeout(internal_socket_t * pis, void * pBuffer,
  */
 u32 isRecv(internal_socket_t * pis, void * pBuffer, olsize_t * psRecv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     ssize_t recved;
 
     assert(pis != NULL);
@@ -588,10 +588,10 @@ u32 isRecv(internal_socket_t * pis, void * pBuffer, olsize_t * psRecv)
 #elif defined(WINDOWS)
         if (WSAGetLastError() != WSAEWOULDBLOCK)
 #endif
-            u32Ret = OLERR_FAIL_RECV_DATA;
+            u32Ret = JF_ERR_FAIL_RECV_DATA;
     }
     else if (recved == 0)
-        u32Ret = OLERR_SOCKET_PEER_CLOSED;
+        u32Ret = JF_ERR_SOCKET_PEER_CLOSED;
     else
         *psRecv = recved;
 
@@ -604,7 +604,7 @@ u32 isRecv(internal_socket_t * pis, void * pBuffer, olsize_t * psRecv)
 u32 isRecvWithTimeout(
     internal_socket_t * pis, void * pBuffer, olsize_t * psRecv, u32 u32Timeout)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t sRecved = 0;
     fd_set readset;
     struct timeval tv;
@@ -625,15 +625,15 @@ u32 isRecvWithTimeout(
             /*ready to read*/
             sRecved = *psRecv;
             u32Ret = isRecv(pis, pBuffer, &sRecved);
-            if ((u32Ret == OLERR_NO_ERROR) && (sRecved == 0))
-                u32Ret = OLERR_SOCKET_PEER_CLOSED;
+            if ((u32Ret == JF_ERR_NO_ERROR) && (sRecved == 0))
+                u32Ret = JF_ERR_SOCKET_PEER_CLOSED;
         }
         else
-            u32Ret = OLERR_FAIL_RECV_DATA;
+            u32Ret = JF_ERR_FAIL_RECV_DATA;
     }
 
-    if ((u32Ret == OLERR_NO_ERROR) && (sRecved == 0))
-        u32Ret = OLERR_FAIL_RECV_DATA;
+    if ((u32Ret == JF_ERR_NO_ERROR) && (sRecved == 0))
+        u32Ret = JF_ERR_FAIL_RECV_DATA;
 
     *psRecv = sRecved;
 
@@ -647,7 +647,7 @@ u32 isRecvfromWithTimeout(
     internal_socket_t * pis, void * pBuffer, olsize_t * psRecv,
     u32 u32Timeout, jf_ipaddr_t * pjiFrom, u16 * pu16Port)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t sRecved = 0;
     fd_set readset;
     struct timeval tv;
@@ -668,15 +668,15 @@ u32 isRecvfromWithTimeout(
             /*ready to read*/
             sRecved = *psRecv;
             u32Ret = isRecvfrom(pis, pBuffer, &sRecved, pjiFrom, pu16Port);
-            if ((u32Ret == OLERR_NO_ERROR) && (sRecved == 0))
-                u32Ret = OLERR_SOCKET_PEER_CLOSED;
+            if ((u32Ret == JF_ERR_NO_ERROR) && (sRecved == 0))
+                u32Ret = JF_ERR_SOCKET_PEER_CLOSED;
         }
         else
-            u32Ret = OLERR_FAIL_RECV_DATA;
+            u32Ret = JF_ERR_FAIL_RECV_DATA;
     }
 
-    if ((u32Ret == OLERR_NO_ERROR) && (sRecved == 0))
-        u32Ret = OLERR_FAIL_RECV_DATA;
+    if ((u32Ret == JF_ERR_NO_ERROR) && (sRecved == 0))
+        u32Ret = JF_ERR_FAIL_RECV_DATA;
 
     *psRecv = sRecved;
 
@@ -688,17 +688,17 @@ u32 isRecvfromWithTimeout(
  */
 u32 isRecvn(internal_socket_t * pis, void * pBuffer, olsize_t * psRecv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t sRecved = 0, recved = 0;
     u8 * pu8Start = pBuffer;
 
     assert(pis != NULL);
 
-    while ((u32Ret == OLERR_NO_ERROR) && (sRecved < *psRecv))
+    while ((u32Ret == JF_ERR_NO_ERROR) && (sRecved < *psRecv))
     {
         recved = *psRecv - sRecved;
         u32Ret = isRecv(pis, pu8Start, &recved);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             pu8Start += recved;
             sRecved += recved;
@@ -716,7 +716,7 @@ u32 isRecvn(internal_socket_t * pis, void * pBuffer, olsize_t * psRecv)
 u32 isRecvnWithTimeout(
     internal_socket_t * pis, void * pBuffer, olsize_t * psRecv, u32 u32Timeout)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t sRecved = 0, recved = 0;
     u8 * pu8Start = pBuffer;
     fd_set readset;
@@ -729,7 +729,7 @@ u32 isRecvnWithTimeout(
     tCur = time(NULL);
     tEnd = tCur + u32Timeout;
 
-    while ((u32Ret == OLERR_NO_ERROR) && (tCur < tEnd))
+    while ((u32Ret == JF_ERR_NO_ERROR) && (tCur < tEnd))
     {
         clearIsocketFdSet(&readset);
         setIsocketToFdSet(pis, &readset);
@@ -744,10 +744,10 @@ u32 isRecvnWithTimeout(
                 /*ready to read*/
                 recved = *psRecv - sRecved;
                 u32Ret = isRecv(pis, pu8Start, &recved);
-                if ((u32Ret == OLERR_NO_ERROR) && (recved == 0))
-                    u32Ret = OLERR_SOCKET_PEER_CLOSED;
+                if ((u32Ret == JF_ERR_NO_ERROR) && (recved == 0))
+                    u32Ret = JF_ERR_SOCKET_PEER_CLOSED;
 
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     pu8Start += recved;
                     sRecved += recved;
@@ -757,7 +757,7 @@ u32 isRecvnWithTimeout(
                 }
             }
             else
-                u32Ret = OLERR_FAIL_RECV_DATA;
+                u32Ret = JF_ERR_FAIL_RECV_DATA;
         }
 
         tCur = time(NULL);
@@ -774,7 +774,7 @@ u32 isRecvnWithTimeout(
 
 u32 isListen(internal_socket_t * pisListen, olint_t backlog)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nRet;
 
     assert(pisListen != NULL);
@@ -782,7 +782,7 @@ u32 isListen(internal_socket_t * pisListen, olint_t backlog)
     nRet = listen(pisListen->is_isSocket, backlog);
     if (nRet == -1)
     {
-        u32Ret = OLERR_FAIL_LISTEN_ON_SOCKET;
+        u32Ret = JF_ERR_FAIL_LISTEN_ON_SOCKET;
     }
 
     return u32Ret;
@@ -790,7 +790,7 @@ u32 isListen(internal_socket_t * pisListen, olint_t backlog)
 
 u32 isConnect(internal_socket_t * pis, const jf_ipaddr_t * pji, u16 u16Port)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 u8Sa[100];
     struct sockaddr * psaTo = (struct sockaddr *)u8Sa;
     olint_t salen = sizeof(u8Sa);
@@ -803,14 +803,14 @@ u32 isConnect(internal_socket_t * pis, const jf_ipaddr_t * pji, u16 u16Port)
     if (nRet != 0)
     {
         if (errno != EINPROGRESS)
-            u32Ret = OLERR_FAIL_INITIATE_CONNECTION;
+            u32Ret = JF_ERR_FAIL_INITIATE_CONNECTION;
     }
 #elif defined(WINDOWS)
     if (nRet == INVALID_ISOCKET)
     {
         if ((WSAGetLastError() != WSAEALREADY) &&
             (WSAGetLastError() != WSAEWOULDBLOCK))
-            u32Ret = OLERR_FAIL_INITIATE_CONNECTION;
+            u32Ret = JF_ERR_FAIL_INITIATE_CONNECTION;
     }
 #endif
 
@@ -821,7 +821,7 @@ u32 isConnectWithTimeout(
     internal_socket_t * pis, const jf_ipaddr_t * pji,
     u16 u16Port, u32 u32Timeout)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     boolean_t bConnect = FALSE;
     fd_set writeset, errorset;
     struct timeval tv;
@@ -833,7 +833,7 @@ u32 isConnectWithTimeout(
 
     u32Ret = isConnect(pis, pji, u16Port);
 
-    while ((u32Ret == OLERR_NO_ERROR) && (tCur < tEnd))
+    while ((u32Ret == JF_ERR_NO_ERROR) && (tCur < tEnd))
     {
         clearIsocketFdSet(&writeset);
         clearIsocketFdSet(&errorset);
@@ -855,7 +855,7 @@ u32 isConnectWithTimeout(
             if (isIsocketSetInFdSet(pis, &errorset))
             {
                 /* Error */
-                u32Ret = OLERR_FAIL_INITIATE_CONNECTION;
+                u32Ret = JF_ERR_FAIL_INITIATE_CONNECTION;
                 break;
             }
         }
@@ -867,8 +867,8 @@ u32 isConnectWithTimeout(
             tCur = tEnd;
     }
 
-    if ((u32Ret == OLERR_NO_ERROR) && (! bConnect))
-        u32Ret = OLERR_FAIL_INITIATE_CONNECTION;
+    if ((u32Ret == JF_ERR_NO_ERROR) && (! bConnect))
+        u32Ret = JF_ERR_FAIL_INITIATE_CONNECTION;
 
     return u32Ret;
 }
@@ -877,7 +877,7 @@ u32 isAccept(
     internal_socket_t * pisListen, jf_ipaddr_t * pji, u16 * pu16Port,
     internal_socket_t ** ppIsocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = (internal_socket_t *)pisListen;
     internal_socket_t * pisAccept = NULL;
     u8 u8Addr[100];
@@ -887,7 +887,7 @@ u32 isAccept(
     assert((pisListen != NULL) && (ppIsocket != NULL));
 
     u32Ret = xmalloc((void **)&pisAccept, sizeof(internal_socket_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pisAccept, 0, sizeof(internal_socket_t));
 
@@ -898,12 +898,12 @@ u32 isAccept(
         pisAccept->is_isSocket = accept(pis->is_isSocket, psaFrom, &nFromLen);
 #endif
         if (pisAccept->is_isSocket == INVALID_ISOCKET)
-            u32Ret = OLERR_FAIL_ACCEPT_CONNECTION;
+            u32Ret = JF_ERR_FAIL_ACCEPT_CONNECTION;
         else
             jf_ipaddr_convertSockAddrToIpAddr(psaFrom, nFromLen, pji, pu16Port);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppIsocket = pisAccept;
     else if (pisAccept != NULL)
         destroyIsocket(&pisAccept);
@@ -915,7 +915,7 @@ u32 isSendto(
     internal_socket_t * pis, void * pBuffer, olsize_t * psSend,
     const jf_ipaddr_t * pjiTo, u16 u16Port)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 u8Addr[100];
     struct sockaddr * psaTo = (struct sockaddr *)u8Addr;
     olint_t salen = sizeof(u8Addr);
@@ -935,7 +935,7 @@ u32 isSendto(
 #endif
             *psSend = 0;
         else
-            u32Ret = OLERR_FAIL_SEND_DATA;
+            u32Ret = JF_ERR_FAIL_SEND_DATA;
     }
     else
         *psSend = sent;
@@ -947,7 +947,7 @@ u32 isRecvfrom(
     internal_socket_t * pis, void * pBuffer, olsize_t * psRecv,
     jf_ipaddr_t * pjiFrom, u16 * pu16Port)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 u8Addr[100];
     struct sockaddr * psaFrom = (struct sockaddr *)u8Addr;
     olint_t nFromLen = sizeof(u8Addr);
@@ -963,7 +963,7 @@ u32 isRecvfrom(
         pis->is_isSocket, pBuffer, *psRecv, 0, psaFrom, &nFromLen);
 #endif
     if (sRecved < 0)
-        u32Ret = OLERR_FAIL_RECV_DATA;
+        u32Ret = JF_ERR_FAIL_RECV_DATA;
     else
     {
         if (pjiFrom != NULL)
@@ -979,7 +979,7 @@ u32 isSelect(
     fd_set * readfds, fd_set * writefds, fd_set * exceptfds,
     struct timeval * timeout, u32 * pu32Ready)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t slct;
 
     *pu32Ready = 0;
@@ -991,7 +991,7 @@ u32 isSelect(
     if (slct == SOCKET_ERROR)
 #endif
     {
-        u32Ret = OLERR_SELECT_ERROR;
+        u32Ret = JF_ERR_SELECT_ERROR;
     }
     else
         *pu32Ready = (u32)slct;
@@ -1002,7 +1002,7 @@ u32 isSelect(
 u32 getIsocketName(
     internal_socket_t * pis, struct sockaddr * pName, olint_t * pnNameLen)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nRet;
 
     assert(pis != NULL);
@@ -1012,7 +1012,7 @@ u32 getIsocketName(
     nRet = getsockname(pis->is_isSocket, pName, pnNameLen);
 #endif
     if (nRet == -1)
-        u32Ret = OLERR_FAIL_GET_SOCKET_NAME;
+        u32Ret = JF_ERR_FAIL_GET_SOCKET_NAME;
 
     return u32Ret;
 }
@@ -1024,7 +1024,7 @@ u32 WSAIoctlIsocket(
     DWORD cbOutBuffer, LPDWORD lpcbBytesReturned, LPWSAOVERLAPPED lpOverlapped,
     LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t bRet;
 
     bRet = WSAIoctl(
@@ -1032,7 +1032,7 @@ u32 WSAIoctlIsocket(
         lpvOutBuffer, cbOutBuffer, lpcbBytesReturned, lpOverlapped,
         lpCompletionRoutine);
     if (bRet != 0)
-        u32Ret = OLERR_FAIL_IOCTL_SOCKET;
+        u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
 
     return u32Ret;
 }
@@ -1073,7 +1073,7 @@ u32 isGetSockOpt(
     internal_socket_t * pis, olint_t level, olint_t optname,
     void * optval, olsize_t * optlen)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nRet = -1;
 
     assert(pis != NULL);
@@ -1081,7 +1081,7 @@ u32 isGetSockOpt(
     nRet = getsockopt(
         pis->is_isSocket, level, optname, optval, (socklen_t *)optlen);
     if (nRet != 0)
-        u32Ret = OLERR_FAIL_GET_SOCKET_OPT;
+        u32Ret = JF_ERR_FAIL_GET_SOCKET_OPT;
 
     return u32Ret;
 }
@@ -1090,14 +1090,14 @@ u32 isSetSockOpt(
     internal_socket_t * pis, olint_t level, olint_t optname,
     void * optval, olsize_t optlen)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nRet = -1;
 
     assert(pis != NULL);
 
     nRet = setsockopt(pis->is_isSocket, level, optname, optval, optlen);
     if (nRet != 0)
-        u32Ret = OLERR_FAIL_SET_SOCKET_OPT;
+        u32Ret = JF_ERR_FAIL_SET_SOCKET_OPT;
 
     return u32Ret;
 }

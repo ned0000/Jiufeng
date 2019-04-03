@@ -101,7 +101,7 @@ static void * _default_fnHtGetKeyFromEntry(void * pEntry)
 
 static u32 _default_fnHtFreeEntry(void ** ppEntry)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     return u32Ret;
 }
@@ -141,7 +141,7 @@ static hash_table_bucket_t ** getPositionOfKey(internal_hash_table_t * piht,
 
 static u32 _resizeHashTable(internal_hash_table_t ** ppiht)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_hash_table_t *newIht;
     olint_t i;
     internal_hash_table_t * piht = *ppiht;
@@ -158,7 +158,7 @@ static u32 _resizeHashTable(internal_hash_table_t ** ppiht)
     htp.htp_fnHtError = piht->iht_fnHtError;
 
     u32Ret = createHashTable((hash_table_t **)&newIht, &htp);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (i = 0; i < piht->iht_u32Size; i++)
         {
@@ -187,7 +187,7 @@ static u32 _resizeHashTable(internal_hash_table_t ** ppiht)
 static u32 _insertAtPosition(internal_hash_table_t * piht,
     hash_table_bucket_t ** ppPosition, void * pEntry)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     hash_table_bucket_t * phtb, ** position = ppPosition;
 
     assert(ppPosition != NULL);
@@ -200,7 +200,7 @@ static u32 _insertAtPosition(internal_hash_table_t * piht,
     }
 
     u32Ret = xmalloc((void **)&phtb, sizeof(hash_table_bucket_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(phtb, 0, sizeof(hash_table_bucket_t));
 
@@ -216,7 +216,7 @@ static u32 _insertAtPosition(internal_hash_table_t * piht,
 static u32 _overwriteAtPosition(internal_hash_table_t * piht,
     hash_table_bucket_t ** ppPosition, void * pEntry)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     hash_table_bucket_t * tmp;
 
     assert(ppPosition != NULL);
@@ -232,14 +232,14 @@ static u32 _overwriteAtPosition(internal_hash_table_t * piht,
 /* --- public routine section ---------------------------------------------- */
 u32 createHashTable(hash_table_t ** ppht, hash_table_param_t * phtp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_hash_table_t *piht;
     olint_t u32PrimesIndex = 0;
 
     assert((ppht != NULL) && (phtp != NULL));
 
     u32Ret = xmalloc((void **)&piht, sizeof(internal_hash_table_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(piht, 0, sizeof(internal_hash_table_t));
 
@@ -269,7 +269,7 @@ u32 createHashTable(hash_table_t ** ppht, hash_table_param_t * phtp)
             piht->iht_u32Size * sizeof(hash_table_bucket_t *));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(piht->iht_htbBucket, 0,
             piht->iht_u32Size * sizeof(hash_table_bucket_t *));
@@ -284,7 +284,7 @@ u32 createHashTable(hash_table_t ** ppht, hash_table_param_t * phtp)
 
 u32 destroyHashTable(hash_table_t ** ppht)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_hash_table_t * piht;
     olint_t i;
     fnHtFreeEntry_t fnHtFreeEntry;
@@ -318,7 +318,7 @@ u32 destroyHashTable(hash_table_t ** ppht)
 
 u32 insertHashTableEntry(hash_table_t * pht, void * pEntry)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_hash_table_t * piht = (internal_hash_table_t *)pht;
     hash_table_bucket_t **position =
         getPositionOfKey(piht, (piht->iht_fnHtGetKeyFromEntry) (pEntry));
@@ -331,7 +331,7 @@ u32 insertHashTableEntry(hash_table_t * pht, void * pEntry)
 
 u32 removeHashTableEntry(hash_table_t * pht, void * pEntry)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_hash_table_t * piht = (internal_hash_table_t *)pht;
     hash_table_bucket_t * tmp;
     hash_table_bucket_t ** position =
@@ -344,14 +344,14 @@ u32 removeHashTableEntry(hash_table_t * pht, void * pEntry)
         xfree((void **)&tmp);
     }
     else
-        u32Ret = OLERR_HASH_ENTRY_NOT_FOUND;
+        u32Ret = JF_ERR_HASH_ENTRY_NOT_FOUND;
 
     return u32Ret;
 }
 
 u32 overwriteHashTableEntry(hash_table_t * pht, void * pEntry)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_hash_table_t * piht = (internal_hash_table_t *)pht;
     hash_table_bucket_t ** position =
         getPositionOfKey(piht, (piht->iht_fnHtGetKeyFromEntry) (pEntry));
@@ -370,12 +370,12 @@ u32 overwriteHashTableEntry(hash_table_t * pht, void * pEntry)
 
 u32 getHashTableEntry(hash_table_t * pht, void * pKey, void ** ppEntry)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_hash_table_t * piht = (internal_hash_table_t *)pht;
     hash_table_bucket_t ** bucket = getPositionOfKey(piht, pKey);
 
     if ((*bucket) == NULL)
-        u32Ret = OLERR_HASH_ENTRY_NOT_FOUND;
+        u32Ret = JF_ERR_HASH_ENTRY_NOT_FOUND;
     else
         *ppEntry = (*bucket)->htb_pEntry;
 

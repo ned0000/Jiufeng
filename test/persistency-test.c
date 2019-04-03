@@ -40,11 +40,11 @@ Usage: persistency-test [-h] \n\
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
     while (((nOpt = getopt(argc, argv,
-        "?h")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "?h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -53,7 +53,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
             _printUsage();
             exit(0);
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -63,7 +63,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 
 static u32 _testRwPersistency(jf_persistency_t * pPersist)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * key = "today";
     olchar_t * no_such_key = "no-such-key";
     olchar_t * monday = "Monday";
@@ -74,12 +74,12 @@ static u32 _testRwPersistency(jf_persistency_t * pPersist)
 
     ol_printf("set, %s = %s\n", key, monday);
     u32Ret = jf_persistency_setValue(pPersist, key, monday);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_persistency_getValue(pPersist, key, value, 512);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("get, %s = %s\n", key, value);
 
@@ -87,19 +87,19 @@ static u32 _testRwPersistency(jf_persistency_t * pPersist)
         u32Ret = jf_persistency_setValue(pPersist, key, tuesday);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_persistency_getValue(pPersist, key, value, 512);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("get, %s = %s\n", key, value);
 
         u32Ret = jf_persistency_getValue(pPersist, no_such_key, value, 512);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("get, %s = %s\n", no_such_key, value);
     }
@@ -109,11 +109,11 @@ static u32 _testRwPersistency(jf_persistency_t * pPersist)
 
 static u32 _testPersistencyTransaction(jf_persistency_t * pPersist)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     ol_printf("Start transaction\n");
     u32Ret = jf_persistency_startTransaction(pPersist);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_persistency_setValue(pPersist, "color", "red");
         jf_persistency_setValue(pPersist, "name", "min");
@@ -123,11 +123,11 @@ static u32 _testPersistencyTransaction(jf_persistency_t * pPersist)
         jf_persistency_commitTransaction(pPersist);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("Start transaction\n");
         u32Ret = jf_persistency_startTransaction(pPersist);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             jf_persistency_setValue(pPersist, "book1", "1");
             jf_persistency_setValue(pPersist, "book2", "2");
@@ -143,7 +143,7 @@ static u32 _testPersistencyTransaction(jf_persistency_t * pPersist)
 
 static u32 _testPersistency(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_persistency_t * pPersist = NULL;
     jf_persistency_config_t config;
 
@@ -154,10 +154,10 @@ static u32 _testPersistency(void)
     ol_strcpy(config.jpc_pcsConfigSqlite.jpcs_strValueColumnName, "value");
 
     u32Ret = jf_persistency_create(JF_PERSISTENCY_TYPE_SQLITE, &config, &pPersist);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _testRwPersistency(pPersist);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _testPersistencyTransaction(pPersist);
 
     if (pPersist != NULL)
@@ -170,21 +170,21 @@ static u32 _testPersistency(void)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_logger_init_param_t jlipParam;
 
     if (argc < 1)
     {
         _printUsage();
-        u32Ret = OLERR_MISSING_PARAM;
+        u32Ret = JF_ERR_MISSING_PARAM;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _parseCmdLineParam(argc, argv);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
         jlipParam.jlip_pstrCallerName = "PERSISTENCY";
@@ -195,16 +195,16 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jf_logger_init(&jlipParam);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         _testPersistency();
     }
 
     jf_logger_fini();
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        ol_printf("Err (0x%X) %s\n", u32Ret, getErrorDescription(u32Ret));
+        ol_printf("Err (0x%X) %s\n", u32Ret, jf_err_getDescription(u32Ret));
     }
 
     return u32Ret;

@@ -53,7 +53,7 @@ u32 createHashTable(hash_table_t ** ppht, hash_table_param_t * phtp);
 u32 destroyHashTable(hash_table_t ** pht);
 
 /** Insert a entry into the HashTable but do not overwrite existing entry with
- *  the same key. The return value is OLERR_NO_ERROR if some entry with the same
+ *  the same key. The return value is JF_ERR_NO_ERROR if some entry with the same
  *  key is already stored in the hash table. In this case the user generally has
  *  to deallocate entry on his own.
  */

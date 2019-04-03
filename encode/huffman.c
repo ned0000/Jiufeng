@@ -52,7 +52,7 @@ typedef struct
 
 static u32 _destroyHuffmanNodePool(huffman_node_pool_t ** ppPool)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     huffman_node_pool_t * phnp = *ppPool;
 
     if (phnp->hnp_phnNodes != NULL)
@@ -66,11 +66,11 @@ static u32 _destroyHuffmanNodePool(huffman_node_pool_t ** ppPool)
 static u32 _createHuffmanNodePool(
     huffman_node_pool_t ** ppPool, u16 u16NumOfCode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     huffman_node_pool_t * phnp = NULL;
 
     u32Ret = xcalloc((void **)&phnp, sizeof(huffman_node_pool_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         phnp->hnp_u32MaxNode = 2 * u16NumOfCode;
 
@@ -79,12 +79,12 @@ static u32 _createHuffmanNodePool(
             sizeof(huffman_node_t) * phnp->hnp_u32MaxNode);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
 
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppPool = phnp;
     else if (phnp != NULL)
         _destroyHuffmanNodePool(&phnp);
@@ -123,7 +123,7 @@ static u32 _getHuffmanCompositeNode(
     huffman_node_pool_t * pPool, huffman_node_t * left, huffman_node_t * right,
     huffman_node_t ** ppNode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     huffman_node_t * phn = NULL;
 
     phn = _getHuffmanNode(pPool);
@@ -194,11 +194,11 @@ static u32 _buildHuffmanTree(
     huffman_node_t ** ppNode,
     huffman_node_pool_t * pPool, u16 u16NumOfCode, huffman_node_t ** ppRoot)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t min1, min2;
 
     /* keep looking until no more nodes can be found */
-    for ( ; u32Ret == OLERR_NO_ERROR; )
+    for ( ; u32Ret == JF_ERR_NO_ERROR; )
     {
         /* find node with lowest count */
         min1 = _findMinimumFreq(ppNode, u16NumOfCode);
@@ -227,10 +227,10 @@ static u32 _buildHuffmanTree(
         ppNode[min2] = NULL;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (min1 == HUFFMAN_NONE)
-            u32Ret = OLERR_FAIL_BUILD_HUFFMAN_TREE;
+            u32Ret = JF_ERR_FAIL_BUILD_HUFFMAN_TREE;
         else
             *ppRoot = ppNode[min1];
     }
@@ -242,7 +242,7 @@ static u32 _initHuffmanTreeLeaf(
     huffman_node_pool_t * pPool,
     huffman_node_t ** ppNode, jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u16 u16Index;
 
     for (u16Index = 0; u16Index < u16NumOfCode; u16Index ++)
@@ -271,13 +271,13 @@ static u32 _initHuffmanTreeLeaf(
  */
 static u32 _genHuffmanCode(huffman_node_t * pRoot, u16 u16NumOfCode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     bit_array_t code[JF_ENCODE_MAX_HUFFMAN_CODE_LEN];
     u8 depth = 0;
 
     INIT_BIT_ARRAY(code);
 
-    for( ; u32Ret == OLERR_NO_ERROR; )
+    for( ; u32Ret == JF_ERR_NO_ERROR; )
     {
         /* follow this branch all the way left */
         while (pRoot->hn_phnLeft != NULL)
@@ -334,7 +334,7 @@ static u32 _genHuffmanCode(huffman_node_t * pRoot, u16 u16NumOfCode)
  */
 static u32 _assignCanonicalCodes(jf_encode_huffman_code_t ** ppjehc, u16 u16NumOfCode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i;
     u8 length;
     bit_array_t code[JF_ENCODE_MAX_HUFFMAN_CODE_LEN];
@@ -426,10 +426,10 @@ static olint_t _compareByCodeLen(const void * item1, const void * item2)
 static u32 _genCanonicalHuffmanCode(
     huffman_node_t * pRoot, jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 depth = 0;
 
-    for( ; u32Ret == OLERR_NO_ERROR; )
+    for( ; u32Ret == JF_ERR_NO_ERROR; )
     {
         /* follow this branch all the way left */
         while (pRoot->hn_phnLeft != NULL)
@@ -470,7 +470,7 @@ static u32 _genCanonicalHuffmanCode(
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_encode_genCanonicalHuffmanCodeByCodeLen(pjehc, u16NumOfCode);
     }
@@ -482,29 +482,29 @@ static u32 _genCanonicalHuffmanCode(
 
 u32 jf_encode_genHuffmanCode(jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     huffman_node_t ** ppLeaf = NULL;
     huffman_node_t * pRoot = NULL;
     huffman_node_pool_t * pPool;
 
     u32Ret = xcalloc(
         (void **)&ppLeaf, sizeof(huffman_node_t *) * u16NumOfCode);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _createHuffmanNodePool(&pPool, u16NumOfCode);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _initHuffmanTreeLeaf(pPool, ppLeaf, pjehc, u16NumOfCode);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _buildHuffmanTree(ppLeaf, pPool, u16NumOfCode, &pRoot);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _genHuffmanCode(pRoot, u16NumOfCode);
     }
@@ -521,29 +521,29 @@ u32 jf_encode_genHuffmanCode(jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
 u32 jf_encode_genCanonicalHuffmanCode(
     jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     huffman_node_t ** ppLeaf = NULL;
     huffman_node_t * pRoot = NULL;
     huffman_node_pool_t * pPool;
 
     u32Ret = xcalloc(
         (void **)&ppLeaf, sizeof(huffman_node_t *) * u16NumOfCode);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _createHuffmanNodePool(&pPool, u16NumOfCode);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _initHuffmanTreeLeaf(pPool, ppLeaf, pjehc, u16NumOfCode);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _buildHuffmanTree(ppLeaf, pPool, u16NumOfCode, &pRoot);
     }
     
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _genCanonicalHuffmanCode(pRoot, pjehc, u16NumOfCode);
     }
@@ -560,13 +560,13 @@ u32 jf_encode_genCanonicalHuffmanCode(
 u32 jf_encode_genCanonicalHuffmanCodeByCodeLen(
     jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_encode_huffman_code_t ** ppjehc = NULL;
     u16 u16Index;
 
     u32Ret = xcalloc(
         (void **)&ppjehc, sizeof(jf_encode_huffman_code_t *) * u16NumOfCode);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (u16Index = 0; u16Index < u16NumOfCode; u16Index ++)
         {

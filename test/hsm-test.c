@@ -102,7 +102,7 @@ static boolean_t _guardPowerOffForPlugIn(hsm_event_t * pEvent)
 
 static u32 _actionPowerOn(hsm_event_t * pEvent)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
 
     return u32Ret;
@@ -130,7 +130,7 @@ static boolean_t _guardKeepWarmForPlugOut(hsm_event_t * pEvent)
 
 static u32 _actionCook(hsm_event_t * pEvent)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
 
     return u32Ret;
@@ -138,7 +138,7 @@ static u32 _actionCook(hsm_event_t * pEvent)
 
 static u32 _actionPlugOut(hsm_event_t * pEvent)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
 
     return u32Ret;
@@ -166,7 +166,7 @@ static boolean_t _guardCookForPlugOut(hsm_event_t * pEvent)
 
 static u32 _actionKeepWarm(hsm_event_t * pEvent)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
 
     return u32Ret;
@@ -242,7 +242,7 @@ static void _testHsm(void)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     jf_logger_init_param_t jlipParam;
 
@@ -255,9 +255,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     _testHsm();
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

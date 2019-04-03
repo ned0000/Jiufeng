@@ -40,7 +40,7 @@
 #if defined(LINUX)
 static u32 _setThreadAttr(thread_attr_t * pta, pthread_attr_t * ppa)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     pthread_attr_init(ppa);
     if (pta->ta_bDetached)
@@ -53,13 +53,13 @@ static u32 _setThreadAttr(thread_attr_t * pta, pthread_attr_t * ppa)
 
 static u32 _runCommandLine(olchar_t * pstrCommandLine)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t argc = 80;
     olchar_t * argv[80];
     olint_t ret;
 
     u32Ret = formCmdLineArguments(pstrCommandLine, &argc, argv);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ret = execv(argv[0], (olchar_t **)argv);
 
@@ -104,7 +104,7 @@ void getPidFilename(olchar_t * pstrPidFilename, olsize_t sFile, olchar_t * pstrD
 
 u32 formCmdLineArguments(olchar_t * pstrCmd, olsize_t * psArgc, olchar_t * argv[])
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t cDelimiter = ' ';
     olchar_t cQuote = '"';
     u32 u32Length = 0, u32Index = 0, u32Position = 0;
@@ -127,7 +127,7 @@ u32 formCmdLineArguments(olchar_t * pstrCmd, olsize_t * psArgc, olchar_t * argv[
             }
             if (pstrCmd[u32Index + 1] != cQuote)
             {
-                u32Ret = OLERR_MISSING_QUOTE;
+                u32Ret = JF_ERR_MISSING_QUOTE;
             }
             else
             {
@@ -171,7 +171,7 @@ u32 formCmdLineArguments(olchar_t * pstrCmd, olsize_t * psArgc, olchar_t * argv[
 
 u32 switchToDaemon(olchar_t * pstrDaemonName)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     pid_t pid;
     olchar_t strPidFile[MAX_PATH_LEN];
     FILE * fp;
@@ -182,7 +182,7 @@ u32 switchToDaemon(olchar_t * pstrDaemonName)
     pid = fork();
     if (pid == -1)
     {
-        u32Ret = OLERR_FAIL_CREATE_PROCESS;
+        u32Ret = JF_ERR_FAIL_CREATE_PROCESS;
     }
     else if (pid != 0)
     {
@@ -191,11 +191,11 @@ u32 switchToDaemon(olchar_t * pstrDaemonName)
         fp = fopen(strPidFile, "w");
         if (fp == NULL)
         {
-            u32Ret = OLERR_FILE_NOT_FOUND;
+            u32Ret = JF_ERR_FILE_NOT_FOUND;
         }
         else
         {
-            u32Ret = OLERR_PROCESS_CREATED;
+            u32Ret = JF_ERR_PROCESS_CREATED;
             fprintf(fp, "%d\n", pid);
             fclose(fp);
         }
@@ -348,13 +348,13 @@ boolean_t isValidProcessId(process_id_t * pProcessId)
 u32 createProcess(process_id_t * pProcessId, process_attr_t * pAttr,
     olchar_t * pstrCommandLine)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     pid_t pid;
 
     pid = fork();
     if (pid == -1)
-        u32Ret = OLERR_FAIL_CREATE_PROCESS;
+        u32Ret = JF_ERR_FAIL_CREATE_PROCESS;
     else if (pid > 0)
     {
         /* parent process */
@@ -377,9 +377,9 @@ u32 createProcess(process_id_t * pProcessId, process_attr_t * pAttr,
     bRet = CreateProcess(NULL, pstrCommandLine, NULL,
         NULL, FALSE, 0, NULL, NULL, &si, &pi);
     if (! bRet)
-        u32Ret = OLERR_FAIL_CREATE_PROCESS;
+        u32Ret = JF_ERR_FAIL_CREATE_PROCESS;
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pProcessId->pi_hProcess = pi.hProcess;
     }
@@ -390,13 +390,13 @@ u32 createProcess(process_id_t * pProcessId, process_attr_t * pAttr,
 
 u32 terminateProcess(process_id_t * pProcessId)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olint_t nRet;
 
     nRet = kill(pProcessId->pi_pId, SIGTERM);
     if (nRet != 0)
-        u32Ret = OLERR_FAIL_TERMINATE_PROCESS;
+        u32Ret = JF_ERR_FAIL_TERMINATE_PROCESS;
     else
         initProcessId(pProcessId);
 #elif defined(WINDOWS)
@@ -405,7 +405,7 @@ u32 terminateProcess(process_id_t * pProcessId)
 
     bRet = TerminateProcess(pProcessId->pi_hProcess, u32ExitCode);
     if (! bRet)
-        u32Ret = OLERR_FAIL_TERMINATE_PROCESS;
+        u32Ret = JF_ERR_FAIL_TERMINATE_PROCESS;
     else
     {
         CloseHandle(pProcessId->pi_hProcess);
@@ -422,7 +422,7 @@ u32 terminateProcess(process_id_t * pProcessId)
 u32 waitForChildProcessTermination(process_id_t pidChild[], u32 u32Count,
     u32 u32BlockTime, u32 * pu32Index, u32 * pu32Reason)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olint_t nStatus;
     pid_t pid = 0;
@@ -468,12 +468,12 @@ u32 waitForChildProcessTermination(process_id_t pidChild[], u32 u32Count,
         }
 
         if (u32Index == u32Count)
-            u32Ret = OLERR_FAIL_WAIT_PROCESS_TERMINATION;
+            u32Ret = JF_ERR_FAIL_WAIT_PROCESS_TERMINATION;
         else
             setProcessTerminationReason(nStatus, &u32Reason);
     }
     else
-        u32Ret = OLERR_FAIL_WAIT_PROCESS_TERMINATION;
+        u32Ret = JF_ERR_FAIL_WAIT_PROCESS_TERMINATION;
 
     if (pu32Reason != NULL)
         *pu32Reason = u32Reason;
@@ -500,7 +500,7 @@ u32 waitForChildProcessTermination(process_id_t pidChild[], u32 u32Count,
     u32Wait = WaitForMultipleObjects(u32HandleCount, hHandle,
         FALSE, u32BlockTime);
     if ((u32Wait == WAIT_FAILED) || (u32Wait == WAIT_ABANDONED))
-        u32Ret = OLERR_FAIL_WAIT_PROCESS_TERMINATION;
+        u32Ret = JF_ERR_FAIL_WAIT_PROCESS_TERMINATION;
     else if ((u32Wait >= WAIT_OBJECT_0) && (u32Wait < WAIT_OBJECT_0 + u32Count))
         *pu32Index = u32Wait - WAIT_OBJECT_0;
 
@@ -531,7 +531,7 @@ boolean_t isValidThreadId(thread_id_t * pThreadId)
 u32 createThread(thread_id_t * pThreadId, thread_attr_t * pAttr,
     fnThreadRoutine_t fnThreadRoutine, void * pArg)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     thread_id_t ti;
 #if defined(LINUX)
     pthread_attr_t attr;
@@ -541,14 +541,14 @@ u32 createThread(thread_id_t * pThreadId, thread_attr_t * pAttr,
     if (pAttr != NULL)
         u32Ret = _setThreadAttr(pAttr, &attr);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ret = pthread_create(&(ti.ti_ptThreadId), &attr, fnThreadRoutine, pArg);
         if (ret != 0)
-            u32Ret = OLERR_FAIL_CREATE_THREAD;
+            u32Ret = JF_ERR_FAIL_CREATE_THREAD;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pThreadId != NULL)
             memcpy(pThreadId, &ti, sizeof(thread_id_t));
@@ -556,9 +556,9 @@ u32 createThread(thread_id_t * pThreadId, thread_attr_t * pAttr,
 #elif defined(WINDOWS)
     ti.ti_hThread = CreateThread(NULL, 0, fnThreadRoutine, pArg, 0, NULL);
     if (ti.ti_hThread == NULL) 
-        u32Ret = OLERR_FAIL_CREATE_THREAD;
+        u32Ret = JF_ERR_FAIL_CREATE_THREAD;
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pThreadId != NULL)
             memcpy(pThreadId, &ti, sizeof(thread_id_t));
@@ -570,13 +570,13 @@ u32 createThread(thread_id_t * pThreadId, thread_attr_t * pAttr,
 
 u32 terminateThread(thread_id_t * pThreadId)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olint_t nRet;
 
     nRet = pthread_cancel(pThreadId->ti_ptThreadId);
     if (nRet != 0)
-        u32Ret = OLERR_FAIL_TERMINATE_THREAD;
+        u32Ret = JF_ERR_FAIL_TERMINATE_THREAD;
     else
         initThreadId(pThreadId);
 #elif defined(WINDOWS)
@@ -585,7 +585,7 @@ u32 terminateThread(thread_id_t * pThreadId)
 
     bRet = TerminateThread(pThreadId->ti_hThread, u32ExitCode);
     if (! bRet)
-        u32Ret = OLERR_FAIL_TERMINATE_THREAD;
+        u32Ret = JF_ERR_FAIL_TERMINATE_THREAD;
     else
         initThreadId(pThreadId);
 #endif
@@ -595,19 +595,19 @@ u32 terminateThread(thread_id_t * pThreadId)
 
 u32 waitForThreadTermination(thread_id_t threadId, u32 * pu32RetCode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olint_t ret;
 
     ret = pthread_join(threadId.ti_ptThreadId, NULL);
     if (ret != 0)
-        u32Ret = OLERR_FAIL_WAIT_THREAD_TERMINATION;
+        u32Ret = JF_ERR_FAIL_WAIT_THREAD_TERMINATION;
 #elif defined(WINDOWS)
     u32 u32Wait;
 
     u32Wait = WaitForSingleObject(threadId.ti_hThread, INFINITE);
     if (u32Wait != WAIT_OBJECT_0)
-        u32Ret = OLERR_FAIL_WAIT_THREAD_TERMINATION;
+        u32Ret = JF_ERR_FAIL_WAIT_THREAD_TERMINATION;
 #endif
 
     return u32Ret;
@@ -615,7 +615,7 @@ u32 waitForThreadTermination(thread_id_t threadId, u32 * pu32RetCode)
 
 u32 registerSignalHandlers(fnSignalHandler_t fnSignalHandler)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nIndex;
 #if defined(WINDOWS)
     olint_t nSignals[] = {SIGTERM, SIGINT};
@@ -631,29 +631,29 @@ u32 registerSignalHandlers(fnSignalHandler_t fnSignalHandler)
     nIndex = 0;
 
 #if defined(WINDOWS)
-    while ((u32Ret == OLERR_NO_ERROR) && (nIndex < nSignalCount))
+    while ((u32Ret == JF_ERR_NO_ERROR) && (nIndex < nSignalCount))
     {
         signal(nSignals[nIndex], fnSignalHandler);
         nIndex ++;
     }
 #elif defined(LINUX)
-    while ((u32Ret == OLERR_NO_ERROR) && (nIndex < nSignalCount))
+    while ((u32Ret == JF_ERR_NO_ERROR) && (nIndex < nSignalCount))
     {
         nRet = sigemptyset(&ssSignalSet);
         if (nRet == -1)
         {
-            u32Ret = OLERR_OPERATION_FAIL;
+            u32Ret = JF_ERR_OPERATION_FAIL;
         }
         else
         {
             nRet = sigaddset(&ssSignalSet, nSignals[nIndex]);
             if (nRet == -1)
             {
-                u32Ret = OLERR_OPERATION_FAIL;
+                u32Ret = JF_ERR_OPERATION_FAIL;
             }
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             /*act.sa_sigaction = fnSignalHandler;*/
             if (nSignals[nIndex] == SIGPIPE)
@@ -670,7 +670,7 @@ u32 registerSignalHandlers(fnSignalHandler_t fnSignalHandler)
             nRet = sigaction(nSignals[nIndex], &act, &oact);
             if (nRet == -1)
             {
-                u32Ret = OLERR_OPERATION_FAIL;
+                u32Ret = JF_ERR_OPERATION_FAIL;
             }
         }
         nIndex ++;
@@ -681,7 +681,7 @@ u32 registerSignalHandlers(fnSignalHandler_t fnSignalHandler)
 
 u32 getCurrentWorkingDirectory(olchar_t * pstrDir, olsize_t sDir)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olchar_t * pstr;
 
@@ -689,7 +689,7 @@ u32 getCurrentWorkingDirectory(olchar_t * pstrDir, olsize_t sDir)
 
     pstr = getcwd(pstrDir, sDir);
     if (pstr == NULL)
-        u32Ret = OLERR_FAIL_GET_CWD;
+        u32Ret = JF_ERR_FAIL_GET_CWD;
 
 #elif defined(WINDOWS)
     u32 u32RetLen;
@@ -698,14 +698,14 @@ u32 getCurrentWorkingDirectory(olchar_t * pstrDir, olsize_t sDir)
 
     u32RetLen = GetCurrentDirectory(sDir, pstrDir);
     if (u32RetLen == 0)
-        u32Ret = OLERR_FAIL_GET_CWD;
+        u32Ret = JF_ERR_FAIL_GET_CWD;
 #endif
     return u32Ret;
 }
 
 u32 setCurrentWorkingDirectory(const olchar_t * pstrDir)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olint_t nRet;
 
@@ -713,7 +713,7 @@ u32 setCurrentWorkingDirectory(const olchar_t * pstrDir)
 
     nRet = chdir(pstrDir);
     if (nRet == -1)
-        u32Ret = OLERR_FAIL_SET_CWD;
+        u32Ret = JF_ERR_FAIL_SET_CWD;
 
 #elif defined(WINDOWS)
     boolean_t bRet;
@@ -722,7 +722,7 @@ u32 setCurrentWorkingDirectory(const olchar_t * pstrDir)
 
     bRet = SetCurrentDirectory(pstrDir);
     if (! bRet)
-        u32Ret = OLERR_FAIL_SET_CWD;
+        u32Ret = JF_ERR_FAIL_SET_CWD;
 
 #endif
     return u32Ret;

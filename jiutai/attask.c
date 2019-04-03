@@ -48,7 +48,7 @@ typedef struct attask
  */
 static u32 _flushAttask(internal_attask_t * piu)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     attask_item_t *temp, *temp2;
 
     temp = piu->ia_paiItems;
@@ -72,7 +72,7 @@ static u32 _flushAttask(internal_attask_t * piu)
 
 u32 checkAttask(attask_t * pAttask, u32 * pu32Blocktime)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     struct timeval tv;
     attask_item_t * temp = NULL, * evt = NULL, * last = NULL;
     u32 current;
@@ -149,13 +149,13 @@ u32 addAttaskItem(
     attask_t * pAttask, void * pData, u32 u32Milliseconds,
     fnCallbackOfAttaskItem_t fnCallback, fnDestroyAttaskItem_t fnDestroy)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     struct timeval tv;
     attask_item_t * pai, * temp;
     internal_attask_t * pia = (internal_attask_t *) pAttask;
 
     u32Ret = xcalloc((void **)&pai, sizeof(attask_item_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Get the current time for reference*/
         getTimeOfDay(&tv);
@@ -223,7 +223,7 @@ u32 addAttaskItem(
 
 u32 removeAttaskItem(attask_t * pAttask, void * pData)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_attask_t * pia = (internal_attask_t *) pAttask;
     attask_item_t *first, *last, *evt;
 
@@ -272,7 +272,7 @@ u32 removeAttaskItem(attask_t * pAttask, void * pData)
 
     /*Iterate through each node that is to be removed*/
     if (evt == NULL)
-        u32Ret = OLERR_ATTASK_ITEM_NOT_FOUND;
+        u32Ret = JF_ERR_ATTASK_ITEM_NOT_FOUND;
     else
         while (evt != NULL)
         {
@@ -290,7 +290,7 @@ u32 removeAttaskItem(attask_t * pAttask, void * pData)
 
 u32 destroyAttask(attask_t ** ppAttask)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_attask_t * pia;
 
     assert((ppAttask != NULL) && (*ppAttask != NULL));
@@ -307,16 +307,16 @@ u32 destroyAttask(attask_t ** ppAttask)
 
 u32 createAttask(attask_t ** ppAttask)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_attask_t * pia;
 
     u32Ret = xcalloc((void **)&pia, sizeof(internal_attask_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
 
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppAttask = pia;
     else if (pia != NULL)
         destroyAttask((void **)&pia);

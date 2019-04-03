@@ -46,7 +46,7 @@ typedef struct
  *  @param pRwlock [in] the rwlock to be initialized
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 initSyncRwlock(sync_rwlock_t * pRwlock);
 
@@ -55,7 +55,7 @@ u32 initSyncRwlock(sync_rwlock_t * pRwlock);
  *  @param pRwlock [in] the rwlock to be finalized
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 finiSyncRwlock(sync_rwlock_t * pRwlock);
 
@@ -67,7 +67,7 @@ u32 finiSyncRwlock(sync_rwlock_t * pRwlock);
  *  @param pRwlock [in] the rwlock to be acquired
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 acquireSyncReadlock(sync_rwlock_t * pRwlock);
 
@@ -79,7 +79,7 @@ u32 acquireSyncReadlock(sync_rwlock_t * pRwlock);
  *  @param pRwlock [in] the rwlock to be acquired
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 tryAcquireSyncReadlock(sync_rwlock_t * pRwlock);
 
@@ -90,7 +90,7 @@ u32 tryAcquireSyncReadlock(sync_rwlock_t * pRwlock);
  *   acquired by another thread. In milliseconds.
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 acquireSyncReadlockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout);
 
@@ -99,7 +99,7 @@ u32 acquireSyncReadlockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout);
  *  @param pRwlock [in] the rwlock to be released
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 releaseSyncReadlock(sync_rwlock_t * pRwlock);
 
@@ -111,7 +111,7 @@ u32 releaseSyncReadlock(sync_rwlock_t * pRwlock);
  *  @param pRwlock [in] the rwlock to be acquired
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 acquireSyncWritelock(sync_rwlock_t * pRwlock);
 
@@ -123,7 +123,7 @@ u32 acquireSyncWritelock(sync_rwlock_t * pRwlock);
  *  @param pRwlock [in] the rwlock to be acquired
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 tryAcquireSyncWritelock(sync_rwlock_t * pRwlock);
 
@@ -134,7 +134,7 @@ u32 tryAcquireSyncWritelock(sync_rwlock_t * pRwlock);
  *   acquired by another thread in milliseconds.
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 acquireSyncWritelockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout);
 
@@ -143,7 +143,7 @@ u32 acquireSyncWritelockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout);
  *  @param pRwlock [in] the rwlock to be released
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 releaseSyncWritelock(sync_rwlock_t * pRwlock);
 

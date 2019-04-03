@@ -54,7 +54,7 @@ static internal_jiukun_t ls_iaJiukun;
 
 u32 jf_jiukun_init(jf_jiukun_init_param_t * pjjip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jiukun_t * pia = &ls_iaJiukun;
     u32 u32NumOfPages;
     buddy_param_t bp;
@@ -78,14 +78,14 @@ u32 jf_jiukun_init(jf_jiukun_init_param_t * pjjip)
            pjjip->jjip_sPool, u32NumOfPages, bp.bp_u8MaxOrder);
 
     u32Ret = initJiukunBuddy(&bp);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(&sp, 0, sizeof(slab_param_t));
 
         u32Ret = initJiukunSlab(&sp);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         pia->ia_bInitialized = TRUE;
     else
         jf_jiukun_fini();
@@ -95,7 +95,7 @@ u32 jf_jiukun_init(jf_jiukun_init_param_t * pjjip)
 
 u32 jf_jiukun_fini(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jiukun_t * pia = &ls_iaJiukun;
 
 #if defined(DEBUG_JIUKUN)

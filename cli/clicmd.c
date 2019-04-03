@@ -26,7 +26,7 @@
 
 static u32 _setDefaultParamUser(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_user_param_t * pcup = (cli_user_param_t *)pParam;
 
     memset(pcup, 0, sizeof(cli_user_param_t));
@@ -36,7 +36,7 @@ static u32 _setDefaultParamUser(void * pMaster, void * pParam)
 
 static u32 _userHelp(jiufeng_cli_master_t * pocm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     jf_clieng_outputLine("Add, list user");
     jf_clieng_outputLine("user [-l] [-u name]");
@@ -48,7 +48,7 @@ static u32 _userHelp(jiufeng_cli_master_t * pocm)
 
 static u32 _parseUser(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_user_param_t * pcup = (cli_user_param_t *)pParam;
 //    jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
     olint_t nOpt;
@@ -56,7 +56,7 @@ static u32 _parseUser(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
     optind = 0;  /* initialize the opt index */
 
     while (((nOpt = getopt(argc, argv, "lu:hv?")) != -1) &&
-           (u32Ret == OLERR_NO_ERROR))
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -68,7 +68,7 @@ static u32 _parseUser(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
             ol_strncpy(pcup->cup_strUsername, optarg, MAX_USER_NAME_LEN - 1);
             break;		
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case 'v':
             pcup->cup_bVerbose = TRUE;
@@ -163,7 +163,7 @@ static void _printUserBrief(user_info_t * pui)
 
 static u32 _processUser(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_user_param_t * pcup = (cli_user_param_t *)pParam;
     jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
     user_list_t userlist;
@@ -218,7 +218,7 @@ static u32 _processUser(void * pMaster, void * pParam)
 
 static u32 _setDefaultParamExit(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_exit_param_t * pcep = (cli_exit_param_t *)pParam;
 
     memset(pcep, 0, sizeof(cli_exit_param_t));
@@ -228,7 +228,7 @@ static u32 _setDefaultParamExit(void * pMaster, void * pParam)
 
 static u32 _exitHelp(jiufeng_cli_master_t * pocm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     jf_clieng_outputLine("exit: exit Jiufeng CLI");
 
@@ -237,7 +237,7 @@ static u32 _exitHelp(jiufeng_cli_master_t * pocm)
 
 static u32 _parseExit(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_exit_param_t * pcep = (cli_exit_param_t *)pParam;
 //    jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
     olint_t nOpt;
@@ -245,12 +245,12 @@ static u32 _parseExit(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
     optind = 0;  /* initialize the opt index */
 
     while (((nOpt = getopt(argc, argv, "h?")) != -1) &&
-           (u32Ret == OLERR_NO_ERROR))
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case '?':
         case 'h':
@@ -266,7 +266,7 @@ static u32 _parseExit(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
 
 static u32 _processExit(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
     cli_exit_param_t * pcep = (cli_exit_param_t *)pParam;
 
@@ -283,7 +283,7 @@ static u32 _processExit(void * pMaster, void * pParam)
 
 static u32 _setDefaultParamHelp(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_help_param_t * pchp = (cli_help_param_t *)pParam;
 
     memset(pchp, 0, sizeof(cli_help_param_t));
@@ -293,7 +293,7 @@ static u32 _setDefaultParamHelp(void * pMaster, void * pParam)
 
 static u32 _parseHelp(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     cli_help_param_t * pchp = (cli_help_param_t *)pParam;
 //    jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
     olint_t nOpt;
@@ -301,12 +301,12 @@ static u32 _parseHelp(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
     optind = 0;  /* initialize the opt index */
 
     while (((nOpt = getopt(argc, argv,
-        "h?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case '?':
         case 'h':
@@ -322,7 +322,7 @@ static u32 _parseHelp(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
 
 static u32 _processHelp(void * pMaster, void * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 //    jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
     cli_help_param_t * pchp = (cli_help_param_t *)pParam;
 
@@ -344,7 +344,7 @@ static u32 _processHelp(void * pMaster, void * pParam)
 
 u32 addCmd(jiufeng_cli_master_t * pocm, cli_param_t * pcp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_clieng_cmd_t * cmd;
 
     jf_clieng_newCmd(

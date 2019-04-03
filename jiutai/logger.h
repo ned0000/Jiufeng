@@ -78,15 +78,15 @@ typedef struct
  *  @param pjlip [in] the pointer to the logger parameter
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
- *  @retval OLERR_OUT_OF_MEMORY out of memeory
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_OUT_OF_MEMORY out of memeory
  */
 LOGGERAPI u32 LOGGERCALL jf_logger_init(jf_logger_init_param_t * pjlip);
 
 /** Finalize the logger
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 LOGGERAPI u32 LOGGERCALL jf_logger_fini(void);
 
@@ -96,7 +96,7 @@ LOGGERAPI u32 LOGGERCALL jf_logger_fini(void);
  *  @param ... [in] the input to the msg format
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 LOGGERAPI u32 LOGGERCALL jf_logger_logInfoMsg(const olchar_t * fmt, ...);
 
@@ -106,7 +106,7 @@ LOGGERAPI u32 LOGGERCALL jf_logger_logInfoMsg(const olchar_t * fmt, ...);
  *  @param ... [in] the input to the msg format
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 LOGGERAPI u32 LOGGERCALL jf_logger_logDebugMsg(const olchar_t * fmt, ...);
 
@@ -117,7 +117,7 @@ LOGGERAPI u32 LOGGERCALL jf_logger_logDebugMsg(const olchar_t * fmt, ...);
  *  @param ... [in] the input to the msg format
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 LOGGERAPI u32 LOGGERCALL jf_logger_logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...);
 
@@ -129,7 +129,7 @@ LOGGERAPI u32 LOGGERCALL jf_logger_logErrMsg(u32 u32ErrCode, const olchar_t * fm
  *  @param ... [in] the input to the msg format
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 LOGGERAPI u32 LOGGERCALL jf_logger_logDataMsg(
     u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...);
@@ -142,7 +142,7 @@ LOGGERAPI u32 LOGGERCALL jf_logger_logDataMsg(
  *  @param ... [in] the input to the msg format
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 LOGGERAPI u32 LOGGERCALL jf_logger_logDataMsgWithAscii(
     u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...);

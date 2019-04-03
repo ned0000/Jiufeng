@@ -50,12 +50,12 @@ logger options:\n\
 static u32 _parseCmdLineParam(
     olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
     u32 u32Value;
 
     while (((nOpt = getopt(argc, argv, "gupT:F:S:h")) != -1) &&
-           (u32Ret == OLERR_NO_ERROR))
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -80,7 +80,7 @@ static u32 _parseCmdLineParam(
             }
             else
             {
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             }
             break;
         case 'F':
@@ -94,11 +94,11 @@ static u32 _parseCmdLineParam(
             }
             else
             {
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             }
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -108,60 +108,60 @@ static u32 _parseCmdLineParam(
 
 static u32 _getRawHeader(jf_httpparser_packet_header_t ** ppHeader)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_httpparser_packet_header_t * pjhph;
     u8 u8Body[10];
     olchar_t str[100];
     olint_t len;
 
     u32Ret = jf_httpparser_createEmptyPacketHeader(&pjhph);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_httpparser_setDirective(pjhph, "POST", 4, "/login", 6);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = jf_httpparser_addHeaderLine(
                 pjhph, "Accept", 6, "*/*", 3, TRUE);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = jf_httpparser_addHeaderLine(
                 pjhph, "Accept-Language", 15, "zh-CN", 5, TRUE);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = jf_httpparser_addHeaderLine(
                 pjhph, "x-flash-version", 15, "10,1,53,64", 10, TRUE);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = jf_httpparser_addHeaderLine(
                 pjhph, "Content-Type", 12, "application/octet-stream", 24, TRUE);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             len = ol_snprintf(str, sizeof(str) - 1, "%u", (u32)sizeof(u8Body));
             u32Ret = jf_httpparser_addHeaderLine(
                 pjhph, "Content-Length", 14, str, len, TRUE);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = jf_httpparser_addHeaderLine(
                 pjhph, "Accept-Encoding", 15, "gzip, deflate", 13, TRUE);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = jf_httpparser_addHeaderLine(
                 pjhph, "User-Agent", 10, "greaty", 6, TRUE);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = jf_httpparser_addHeaderLine(
                 pjhph, "Host", 4, "192.168.88.3:8080", 17, TRUE);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = jf_httpparser_addHeaderLine(
                 pjhph, "Connection", 10, "Keep-Alive", 10, TRUE);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = jf_httpparser_addHeaderLine(
                 pjhph, "Cache-Control", 13, "no-cache", 8, TRUE);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = jf_httpparser_setBody(pjhph, u8Body, sizeof(u8Body), TRUE);
 
         *ppHeader = pjhph;
@@ -172,16 +172,16 @@ static u32 _getRawHeader(jf_httpparser_packet_header_t ** ppHeader)
 
 static u32 _testHttpMsg(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_httpparser_packet_header_t * pjhph = NULL;
     olchar_t * pstr;
     olsize_t size;
 
     u32Ret = _getRawHeader(&pjhph);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_httpparser_getRawPacket(pjhph, &pstr, &size);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_printf("HTTP message\n");
             dumpDataInByteHex((u8 *)pstr, size);
@@ -269,11 +269,11 @@ typedef struct
 
 static u32 _testParseHttp(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     test_http_parser_t thp[] = {
-        {HTTP_MSG_1, OLERR_NO_ERROR},
-        {HTTP_MSG_2, OLERR_NO_ERROR},
+        {HTTP_MSG_1, JF_ERR_NO_ERROR},
+        {HTTP_MSG_2, JF_ERR_NO_ERROR},
     };
     u32 u32NumOfCase = sizeof(thp) / sizeof(test_http_parser_t);
     u32 u32Index;
@@ -286,22 +286,22 @@ static u32 _testParseHttp(void)
 
         u32Ret = jf_httpparser_parsePacketHeader(
             &pjhph, thp[u32Index].pstrHttp, 0, strlen(thp[u32Index].pstrHttp));
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 ol_printf("Parse result:\n");            
                 _printHttpPacketHeader(pjhph);
             }
             else if (u32Ret != thp[u32Index].u32ErrCode)
             {
-                u32Ret = OLERR_PROGRAM_ERROR;
+                u32Ret = JF_ERR_PROGRAM_ERROR;
                 break;
             }
             else
             {
                 ol_printf("Parse result:\n");
-                getErrMsg(u32Ret, strErrMsg, 300);
+                jf_err_getMsg(u32Ret, strErrMsg, 300);
                 ol_printf("%s\n", strErrMsg);
             }
             
@@ -316,14 +316,14 @@ static u32 _testParseHttp(void)
 
 static u32 _testParseUri(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     olchar_t * pIp, * pPath;
     u16 u16Port;
     test_http_parser_t thp[] = {
-        {"http:/192.168.1.1:8080/home/index.html", OLERR_INVALID_HTTP_URI},
-        {"http://192.168.1.1:8080/home/index.html", OLERR_NO_ERROR},
-        {"http://www.google.com/application/index.html", OLERR_NO_ERROR},
+        {"http:/192.168.1.1:8080/home/index.html", JF_ERR_INVALID_HTTP_URI},
+        {"http://192.168.1.1:8080/home/index.html", JF_ERR_NO_ERROR},
+        {"http://www.google.com/application/index.html", JF_ERR_NO_ERROR},
     };
     u32 u32NumOfCase = sizeof(thp) / sizeof(test_http_parser_t);
     u32 u32Index;
@@ -334,7 +334,7 @@ static u32 _testParseUri(void)
 
         u32Ret = jf_httpparser_parseUri(
             thp[u32Index].pstrHttp, &pIp, &u16Port, &pPath);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_printf("URI: %s\n", thp[u32Index].pstrHttp);
             ol_printf("IP: %s\n", pIp);
@@ -346,12 +346,12 @@ static u32 _testParseUri(void)
         }
         else if (u32Ret != thp[u32Index].u32ErrCode)
         {
-            u32Ret = OLERR_PROGRAM_ERROR;
+            u32Ret = JF_ERR_PROGRAM_ERROR;
             break;
         }
         else
         {
-            getErrMsg(u32Ret, strErrMsg, 300);
+            jf_err_getMsg(u32Ret, strErrMsg, 300);
             ol_printf("%s\n", strErrMsg);
         }
 
@@ -365,7 +365,7 @@ static u32 _testParseUri(void)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     jf_logger_init_param_t jlipParam;
 
@@ -375,7 +375,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
 
     u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
 
@@ -389,9 +389,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jf_logger_fini();
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

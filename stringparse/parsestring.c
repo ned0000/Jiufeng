@@ -84,7 +84,7 @@ u32 jf_string_parseAdv(
     jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
     olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t * ppr;
     olint_t i = 0;
     olchar_t * token = NULL;
@@ -94,7 +94,7 @@ u32 jf_string_parseAdv(
     olchar_t cDelimiter = 0;
 
     u32Ret = xmalloc((void **)&ppr, sizeof(jf_string_parse_result_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(ppr, 0, sizeof(jf_string_parse_result_t));
 
@@ -102,7 +102,7 @@ u32 jf_string_parseAdv(
            entire string if the delimiter is not found.
            Iterate through the string to find delimiters  */
         token = pstrBuf + sOffset;
-        for (i = sOffset; (i < (sBuf + sOffset)) && (u32Ret == OLERR_NO_ERROR); ++i)
+        for (i = sOffset; (i < (sBuf + sOffset)) && (u32Ret == JF_ERR_NO_ERROR); ++i)
         {
             if (cDelimiter == 0)
             {
@@ -137,7 +137,7 @@ u32 jf_string_parseAdv(
             {
                 /* we found a delimiter in the string */
                 u32Ret = xmalloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     memset(pjsprf, 0, sizeof(jf_string_parse_result_field_t));
                     pjsprf->jsprf_pstrData = token;
@@ -170,14 +170,14 @@ u32 jf_string_parseAdv(
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* create a result for the last token, since it won't be caught in 
            the above loop. because if there are no more delimiters */
         u32Ret = xmalloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pjsprf, 0, sizeof(jf_string_parse_result_field_t));
 
@@ -197,7 +197,7 @@ u32 jf_string_parseAdv(
         ++ppr->jspr_u32NumOfResult;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         *ppResult = ppr;
     }
@@ -213,7 +213,7 @@ u32 jf_string_parse(
     jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
     olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t * ppr;
     olint_t i = 0;
     olchar_t * token = NULL;
@@ -221,7 +221,7 @@ u32 jf_string_parse(
     jf_string_parse_result_field_t *pjsprf;
 
     u32Ret = xmalloc((void **)&ppr, sizeof(jf_string_parse_result_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(ppr, 0, sizeof(jf_string_parse_result_t));
 
@@ -229,13 +229,13 @@ u32 jf_string_parse(
           entire string if the delimiter is not found.
           Iterate through the string to find delimiters*/
         token = pstrBuf + sOffset;
-        for (i = sOffset; (i < sBuf) && (u32Ret == OLERR_NO_ERROR); ++i)
+        for (i = sOffset; (i < sBuf) && (u32Ret == JF_ERR_NO_ERROR); ++i)
         {
             if (_isDelimiter(pstrBuf, i, sBuf, pstrDelimiter, sDelimiter))
             {
                 /*We found a delimiter in the string*/
                 u32Ret = xmalloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     memset(pjsprf, 0, sizeof(jf_string_parse_result_field_t));
 
@@ -269,13 +269,13 @@ u32 jf_string_parse(
         }
     }
 
-    if ((u32Ret == OLERR_NO_ERROR) && (tokenlength >= 0))
+    if ((u32Ret == JF_ERR_NO_ERROR) && (tokenlength >= 0))
     {
         /* Create a result for the last token, since it won't be caught in the
            above loop because if there are no more delimiters. The last token
            is counted in even the length is 0 */
         u32Ret = xmalloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             memset(pjsprf, 0, sizeof(jf_string_parse_result_field_t));
 
@@ -296,7 +296,7 @@ u32 jf_string_parse(
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         *ppResult = ppr;
     }
@@ -310,7 +310,7 @@ u32 jf_string_parse(
 
 u32 jf_string_destroyParseResult(jf_string_parse_result_t ** ppResult)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     /* all of these nodes only contain pointers
        so we just need to iterate through all the nodes and free them */
     jf_string_parse_result_field_t *node = (*ppResult)->jspr_pjsprfFirst;
@@ -374,7 +374,7 @@ boolean_t jf_string_isBlankLine(const olchar_t * pstrLine)
 
 u32 jf_string_free(olchar_t ** ppstrStr)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     xfree((void **)ppstrStr);
 
@@ -384,14 +384,14 @@ u32 jf_string_free(olchar_t ** ppstrStr)
 u32 jf_string_duplicateWithLen(
     olchar_t ** ppstrDest, const olchar_t * pstrSource, const olsize_t sSource)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pstr;
 
     *ppstrDest = NULL;
     if (sSource > 0)
     {
         u32Ret = xmalloc((void **)&pstr, sSource + 1);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             memcpy(pstr, pstrSource, sSource);
             pstr[sSource] = '\0';
@@ -404,7 +404,7 @@ u32 jf_string_duplicateWithLen(
 
 u32 jf_string_duplicate(olchar_t ** ppstrDest, const olchar_t * pstrSource)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pStr;
     olint_t nLen;
 
@@ -412,7 +412,7 @@ u32 jf_string_duplicate(olchar_t ** ppstrDest, const olchar_t * pstrSource)
     nLen = ol_strlen(pstrSource);
 
     u32Ret = xmalloc((void **)&pStr, nLen + 1);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (nLen > 0)
             ol_strcpy(pStr, pstrSource);
@@ -548,7 +548,7 @@ void jf_string_trimBlank(olchar_t * pstr)
 
 u32 jf_string_breakToLine(olchar_t * pstr, olsize_t sWidth)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 	olsize_t sIndex = 0, sBuf;
 	olsize_t sLastSpace = 0;
 	olsize_t sCol = 0;
@@ -584,12 +584,12 @@ u32 jf_string_breakToLine(olchar_t * pstr, olsize_t sWidth)
 u32 jf_string_locateSubString(
     const olchar_t * pstr, const olchar_t * pstrSubStr, olchar_t ** ppstrLoc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pstrLoc;
 
     pstrLoc = strstr(pstr, pstrSubStr);
     if (pstrLoc == NULL)
-        u32Ret = OLERR_SUBSTRING_NOT_FOUND;
+        u32Ret = JF_ERR_SUBSTRING_NOT_FOUND;
     else
     {
         if (ppstrLoc != NULL)

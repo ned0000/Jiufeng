@@ -24,7 +24,7 @@
 #if defined(WINDOWS)
 static u32 _acquireSyncReadlock(sync_rwlock_t * pRwlock, u32 u32Timeout)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     DWORD dwRet = 0;
     boolean_t wait = FALSE;
    
@@ -71,9 +71,9 @@ static u32 _acquireSyncReadlock(sync_rwlock_t * pRwlock, u32 u32Timeout)
                 LeaveCriticalSection(&(pRwlock->sr_csLock));
 
                 if (dwRet == WAIT_TIMEOUT)
-                    u32Ret = OLERR_TIMEOUT;
+                    u32Ret = JF_ERR_TIMEOUT;
 				else
-					u32Ret = OLERR_FAIL_ACQUIRE_MUTEX;
+					u32Ret = JF_ERR_FAIL_ACQUIRE_MUTEX;
 
                 return u32Ret;
             } 
@@ -85,7 +85,7 @@ static u32 _acquireSyncReadlock(sync_rwlock_t * pRwlock, u32 u32Timeout)
 
 static u32 _acquireSyncWritelock(sync_rwlock_t * pRwlock, u32 u32Timeout)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     DWORD dwRet = 0;
     boolean_t wait = FALSE;
    
@@ -132,9 +132,9 @@ static u32 _acquireSyncWritelock(sync_rwlock_t * pRwlock, u32 u32Timeout)
                 LeaveCriticalSection(&(pRwlock->sr_csLock));
 
 				if (dwRet == WAIT_TIMEOUT)
-                    u32Ret = OLERR_TIMEOUT;
+                    u32Ret = JF_ERR_TIMEOUT;
 				else
-					u32Ret = OLERR_FAIL_ACQUIRE_MUTEX;
+					u32Ret = JF_ERR_FAIL_ACQUIRE_MUTEX;
 
                 return u32Ret;
             }
@@ -151,7 +151,7 @@ static u32 _acquireSyncWritelock(sync_rwlock_t * pRwlock, u32 u32Timeout)
 
 u32 initSyncRwlock(sync_rwlock_t * pRwlock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert(pRwlock != NULL);
     
@@ -174,7 +174,7 @@ u32 initSyncRwlock(sync_rwlock_t * pRwlock)
     nRet = pthread_rwlock_init(&(pRwlock->sr_ptrRwlock), &attr);
     if (nRet != 0)
     {
-        u32Ret = OLERR_FAIL_CREATE_RWLOCK;
+        u32Ret = JF_ERR_FAIL_CREATE_RWLOCK;
     }
 #endif
 
@@ -183,7 +183,7 @@ u32 initSyncRwlock(sync_rwlock_t * pRwlock)
 
 u32 finiSyncRwlock(sync_rwlock_t * pRwlock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
 #if defined(WINDOWS)
     BOOL bRet;
@@ -206,7 +206,7 @@ u32 finiSyncRwlock(sync_rwlock_t * pRwlock)
 
 u32 acquireSyncReadlock(sync_rwlock_t * pRwlock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
 #if defined(WINDOWS)
 
@@ -222,7 +222,7 @@ u32 acquireSyncReadlock(sync_rwlock_t * pRwlock)
     nRet = pthread_rwlock_rdlock(&(pRwlock->sr_ptrRwlock));
     if (nRet != 0)
     {
-        u32Ret = OLERR_FAIL_ACQUIRE_RWLOCK;
+        u32Ret = JF_ERR_FAIL_ACQUIRE_RWLOCK;
     }
 #endif
     
@@ -231,7 +231,7 @@ u32 acquireSyncReadlock(sync_rwlock_t * pRwlock)
 
 u32 tryAcquireSyncReadlock(sync_rwlock_t * pRwlock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     
 #if defined(WINDOWS)
 
@@ -247,7 +247,7 @@ u32 tryAcquireSyncReadlock(sync_rwlock_t * pRwlock)
     nRet = pthread_rwlock_tryrdlock(&(pRwlock->sr_ptrRwlock));
     if (nRet != 0)
     {
-        u32Ret = OLERR_FAIL_ACQUIRE_RWLOCK;
+        u32Ret = JF_ERR_FAIL_ACQUIRE_RWLOCK;
     }
 #endif
     
@@ -256,7 +256,7 @@ u32 tryAcquireSyncReadlock(sync_rwlock_t * pRwlock)
 
 u32 acquireSyncReadlockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     
 #if defined(WINDOWS)
     
@@ -278,7 +278,7 @@ u32 acquireSyncReadlockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
     nRet = pthread_rwlock_timedrdlock(&(pRwlock->sr_ptrRwlock), &ts);
     if (nRet != 0)
     {
-        u32Ret = OLERR_FAIL_ACQUIRE_RWLOCK;
+        u32Ret = JF_ERR_FAIL_ACQUIRE_RWLOCK;
     }
 #endif
     
@@ -287,7 +287,7 @@ u32 acquireSyncReadlockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
 
 u32 releaseSyncReadlock(sync_rwlock_t * pRwlock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     
 #if defined(WINDOWS)
     BOOL bRet = TRUE;
@@ -324,7 +324,7 @@ u32 releaseSyncReadlock(sync_rwlock_t * pRwlock)
     nRet = pthread_rwlock_unlock(&(pRwlock->sr_ptrRwlock));
     if (nRet != 0)
     {
-        u32Ret = OLERR_FAIL_RELEASE_RWLOCK;
+        u32Ret = JF_ERR_FAIL_RELEASE_RWLOCK;
     }
 #endif
     
@@ -333,7 +333,7 @@ u32 releaseSyncReadlock(sync_rwlock_t * pRwlock)
 
 u32 acquireSyncWritelock(sync_rwlock_t * pRwlock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
 #if defined(WINDOWS)
     DWORD dwRet = 0;
@@ -350,7 +350,7 @@ u32 acquireSyncWritelock(sync_rwlock_t * pRwlock)
     nRet = pthread_rwlock_wrlock(&(pRwlock->sr_ptrRwlock));
     if (nRet != 0)
     {
-        u32Ret = OLERR_FAIL_ACQUIRE_RWLOCK;
+        u32Ret = JF_ERR_FAIL_ACQUIRE_RWLOCK;
     }
 #endif
     
@@ -359,7 +359,7 @@ u32 acquireSyncWritelock(sync_rwlock_t * pRwlock)
 
 u32 tryAcquireSyncWritelock(sync_rwlock_t * pRwlock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     
 #if defined(WINDOWS)
     DWORD dwRet = 0;
@@ -376,7 +376,7 @@ u32 tryAcquireSyncWritelock(sync_rwlock_t * pRwlock)
     nRet = pthread_rwlock_trywrlock(&(pRwlock->sr_ptrRwlock));
     if (nRet != 0)
     {
-        u32Ret = OLERR_FAIL_ACQUIRE_RWLOCK;
+        u32Ret = JF_ERR_FAIL_ACQUIRE_RWLOCK;
     }
 #endif
     
@@ -385,7 +385,7 @@ u32 tryAcquireSyncWritelock(sync_rwlock_t * pRwlock)
 
 u32 acquireSyncWritelockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     
 #if defined(WINDOWS)
     DWORD dwRet = 0;
@@ -408,7 +408,7 @@ u32 acquireSyncWritelockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
     nRet = pthread_rwlock_timedwrlock(&(pRwlock->sr_ptrRwlock), &ts);
     if (nRet != 0)
     {
-        u32Ret = OLERR_FAIL_ACQUIRE_RWLOCK;
+        u32Ret = JF_ERR_FAIL_ACQUIRE_RWLOCK;
     }
 #endif
     
@@ -417,7 +417,7 @@ u32 acquireSyncWritelockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
 
 u32 releaseSyncWritelock(sync_rwlock_t * pRwlock)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     
 #if defined(WINDOWS)
     BOOL bRet = TRUE;
@@ -453,7 +453,7 @@ u32 releaseSyncWritelock(sync_rwlock_t * pRwlock)
     nRet = pthread_rwlock_unlock(&(pRwlock->sr_ptrRwlock));
     if (nRet != 0)
     {
-        u32Ret = OLERR_FAIL_RELEASE_RWLOCK;
+        u32Ret = JF_ERR_FAIL_RELEASE_RWLOCK;
     }
 #endif
     

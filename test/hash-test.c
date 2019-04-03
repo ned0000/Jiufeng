@@ -42,11 +42,11 @@ Usage: hash-test [-u] [-t] [-h]\n\
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
     while (((nOpt = getopt(argc, argv,
-        "uth?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "uth?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -61,10 +61,10 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
             ls_bHashTable = TRUE;
             break;
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -81,12 +81,12 @@ static void _terminate(olint_t signal)
 
 static u32 _hashU32(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 rand;
     olint_t bits = 8;
 
     u32Ret = registerSignalHandlers(_terminate);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         srandom(time(NULL));
 
@@ -133,7 +133,7 @@ static void * _testHtGetKeyFromEntry(void * pEntry)
 
 static u32 _testHashTable(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     hash_table_t * pht;
     hash_table_param_t htp;
     test_hash_entry_t entry1, entry2;
@@ -146,7 +146,7 @@ static u32 _testHashTable(void)
     htp.htp_fnHtGetKeyFromEntry = _testHtGetKeyFromEntry;
 
     u32Ret = createHashTable(&pht, &htp);
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
         return u32Ret;
 
     memset(&entry1, 0, sizeof(test_hash_entry_t));
@@ -172,11 +172,11 @@ static u32 _testHashTable(void)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
     u32Ret = _parseCmdLineParam(argc, argv);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_bHashU32)
             u32Ret = _hashU32();
@@ -184,9 +184,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
             u32Ret = _testHashTable();
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

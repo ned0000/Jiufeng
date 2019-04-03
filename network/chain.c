@@ -51,12 +51,12 @@ typedef struct internal_basic_chain
 /* --- private routine section---------------------------------------------- */
 static u32 _readWakeupSocket(internal_basic_chain_t * pibc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 u8Buffer[100];
     olsize_t i, u32Count = 100;
 
     u32Ret = jf_network_recv(pibc->ibc_pjnsWakeup[0], u8Buffer, &u32Count);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (i = 0; i < u32Count; i ++)
             if (u8Buffer[i] == 'S')
@@ -69,7 +69,7 @@ static u32 _readWakeupSocket(internal_basic_chain_t * pibc)
     }
 
 #if defined(DEBUG_CHAIN)
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_logInfoMsg("read wakeup socket, %u", u32Count);
     }
@@ -81,11 +81,11 @@ static u32 _readWakeupSocket(internal_basic_chain_t * pibc)
 
 u32 jf_network_createChain(jf_network_chain_t ** ppChain)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_chain_t * pibc;
 
     u32Ret = xmalloc((void **)&pibc, sizeof(internal_basic_chain_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pibc, 0, sizeof(internal_basic_chain_t));
 
@@ -93,10 +93,10 @@ u32 jf_network_createChain(jf_network_chain_t ** ppChain)
             AF_INET, SOCK_STREAM, pibc->ibc_pjnsWakeup);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = initSyncMutex(&pibc->ibc_smLock);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         *ppChain = pibc;
     }
@@ -110,7 +110,7 @@ u32 jf_network_createChain(jf_network_chain_t ** ppChain)
 
 u32 jf_network_destroyChain(jf_network_chain_t ** ppChain)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_chain_t * pibc, * chain;
 
     assert((ppChain != NULL) && (*ppChain != NULL));
@@ -143,7 +143,7 @@ u32 jf_network_destroyChain(jf_network_chain_t ** ppChain)
 u32 jf_network_appendToChain(
     jf_network_chain_t * pChain, jf_network_chain_object_t * pObject)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_chain_t * pibc;
 
     pibc = (internal_basic_chain_t *) pChain;
@@ -157,13 +157,13 @@ u32 jf_network_appendToChain(
     {
         u32Ret = xcalloc(
             (void **)&pibc->ibc_pibcNext, sizeof(internal_basic_chain_t));
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             pibc = pibc->ibc_pibcNext;
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pibc->ibc_pbcoObject = pObject;
     }
@@ -173,7 +173,7 @@ u32 jf_network_appendToChain(
 
 u32 jf_network_startChain(jf_network_chain_t * pChain)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_chain_t * pibc, * pBasicChain;
     jf_network_chain_object_header_t * pjncoh;
     fd_set readset;
@@ -265,7 +265,7 @@ u32 jf_network_startChain(jf_network_chain_t * pChain)
 
 u32 jf_network_stopChain(jf_network_chain_t * pChain)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_chain_t * pibc = (internal_basic_chain_t *) pChain;
     olsize_t u32Count;
 
@@ -276,7 +276,7 @@ u32 jf_network_stopChain(jf_network_chain_t * pChain)
     u32Count = 1;
     u32Ret = jf_network_send(pibc->ibc_pjnsWakeup[1], "S", &u32Count);
 #if defined(DEBUG_CHAIN)
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_logInfoMsg("stop chain, done");
     }
@@ -287,7 +287,7 @@ u32 jf_network_stopChain(jf_network_chain_t * pChain)
 
 u32 jf_network_wakeupChain(jf_network_chain_t * pChain)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_chain_t * pibc = (internal_basic_chain_t *) pChain;
     olsize_t u32Count;
 
@@ -298,7 +298,7 @@ u32 jf_network_wakeupChain(jf_network_chain_t * pChain)
     u32Count = 1;
     u32Ret = jf_network_send(pibc->ibc_pjnsWakeup[1], "W", &u32Count);
 #if defined(DEBUG_CHAIN)
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_logInfoMsg("wakeup chain, done");
     }

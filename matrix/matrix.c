@@ -86,13 +86,13 @@ static oldouble_t _det(
 
 static u32 _determinant(oldouble_t * p, olint_t n, oldouble_t * dbc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     oldouble_t dbret = 0.0;
     olint_t i;
     olint_t * list = NULL;
 
     u32Ret = xcalloc((void **)&list, sizeof(olint_t) * n);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (i = 0; i < n; i++)
             list[i] = i;
@@ -111,7 +111,7 @@ static u32 _determinant(oldouble_t * p, olint_t n, oldouble_t * dbc)
 static u32 _algebraicCofactor(
     oldouble_t *p, olint_t m, olint_t n, olint_t k, oldouble_t * dbc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     oldouble_t dbret = 0.0;
     olint_t len = (k - 1) * (k - 1);
     oldouble_t * cofactor = NULL;
@@ -119,14 +119,14 @@ static u32 _algebraicCofactor(
     olint_t raw_len = k * k;
 
     u32Ret = xcalloc((void **)&cofactor, sizeof(oldouble_t) * len);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (i = 0; i < raw_len; i++)
             if (i / k != m && i % k != n)
                 *(cofactor + count++) = *(p + i);
 
         u32Ret = _determinant(cofactor, k - 1, &dbret);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if ((m + n) % 2)
                 dbret = -dbret;
@@ -145,13 +145,13 @@ static u32 _algebraicCofactor(
 
 u32 jf_matrix_alloc(olint_t row, olint_t col, matrix_t ** ppm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     matrix_t * pm = NULL;
     olint_t size;
 
     size = sizeof(matrix_t) + sizeof(oldouble_t) * row * col;
     u32Ret = xcalloc((void **)&pm, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pm->m_pdbData = (oldouble_t *)(pm + 1);
         pm->m_nRow = row;
@@ -165,7 +165,7 @@ u32 jf_matrix_alloc(olint_t row, olint_t col, matrix_t ** ppm)
 
 u32 jf_matrix_free(matrix_t ** ppm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = xfree((void **)ppm);
 
@@ -182,7 +182,7 @@ void jf_matrix_init(matrix_t * pm, olint_t row, olint_t col, oldouble_t * data)
 
 u32 jf_matrix_add(matrix_t * pma, matrix_t * pmb)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i;
 
     assert((pma != NULL) && (pmb != NULL));
@@ -198,7 +198,7 @@ u32 jf_matrix_add(matrix_t * pma, matrix_t * pmb)
 
 u32 jf_matrix_sub(matrix_t * pma, matrix_t * pmb)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i;
 
     assert((pma != NULL) && (pmb != NULL));
@@ -214,7 +214,7 @@ u32 jf_matrix_sub(matrix_t * pma, matrix_t * pmb)
 
 u32 jf_matrix_mul(matrix_t * pmr, matrix_t * pma, matrix_t * pmb)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, j, k;
 
     assert((pmr != NULL) && (pma != NULL) && (pmb != NULL));
@@ -256,7 +256,7 @@ void jf_matrix_print(matrix_t * pm)
 
 u32 jf_matrix_transpose(matrix_t * pmt, matrix_t * pmo)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, j;
 
     assert((pmt != NULL) && (pmo != NULL));
@@ -277,7 +277,7 @@ u32 jf_matrix_transpose(matrix_t * pmt, matrix_t * pmo)
 
 u32 jf_matrix_adjugate(matrix_t * pma, matrix_t * pmo)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t len = pma->m_nRow * pma->m_nCol;
     olint_t count = 0;
     olint_t i;
@@ -289,7 +289,7 @@ u32 jf_matrix_adjugate(matrix_t * pma, matrix_t * pmo)
     assert((pma->m_nRow == pma->m_nCol) && (pmo->m_nRow == pmo->m_nCol));
     assert(pma->m_nRow == pmo->m_nCol);
 
-    for (i = 0; (i < len) && (u32Ret == OLERR_NO_ERROR); i ++)
+    for (i = 0; (i < len) && (u32Ret == JF_ERR_NO_ERROR); i ++)
     {
         dbdata = pma->m_pdbData + count++;
         u32Ret = _algebraicCofactor(pmo->m_pdbData,
@@ -301,7 +301,7 @@ u32 jf_matrix_adjugate(matrix_t * pma, matrix_t * pmo)
 
 u32 jf_matrix_inverse(matrix_t * pmi, matrix_t * pmo)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i;
     oldouble_t det;
 
@@ -312,11 +312,11 @@ u32 jf_matrix_inverse(matrix_t * pmi, matrix_t * pmo)
     assert(pmi->m_nRow == pmo->m_nCol);
 
     u32Ret = _determinant(pmo->m_pdbData, pmo->m_nRow, &det);
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
         return u32Ret;
 
     if (det == 0)
-        return OLERR_MATRIX_SINGULAR;
+        return JF_ERR_MATRIX_SINGULAR;
 
     jf_matrix_adjugate(pmi, pmo);
 
@@ -333,33 +333,33 @@ u32 jf_matrix_getDeterminant(matrix_t * pm, oldouble_t * det)
 
 u32 jf_matrix_hat(matrix_t * pmh, matrix_t * pmo)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     matrix_t * pmt = NULL, * pmm = NULL, * pmi = NULL;
     matrix_t * pmm2 = NULL;
 
     u32Ret = jf_matrix_alloc(pmo->m_nCol, pmo->m_nRow, &pmt);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_matrix_alloc(pmo->m_nCol, pmo->m_nCol, &pmm);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_matrix_alloc(pmo->m_nCol, pmo->m_nCol, &pmi);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_matrix_alloc(pmo->m_nRow, pmo->m_nCol, &pmm2);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_matrix_transpose(pmt, pmo);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_matrix_mul(pmm, pmt, pmo);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_matrix_inverse(pmi, pmm);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_matrix_mul(pmm2, pmo, pmi);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_matrix_mul(pmh, pmm2, pmt);
 
     if (pmt != NULL)

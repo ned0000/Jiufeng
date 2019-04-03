@@ -41,11 +41,11 @@ Usage: jtsqlite-test [-h] \n\
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
     while (((nOpt = getopt(argc, argv,
-        "?h")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "?h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -54,7 +54,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
             _printUsage();
             exit(0);
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -65,13 +65,13 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 static u32 _setJtSqliteValue(
     jt_sqlite_t * pjs, olchar_t * pKey, olchar_t * pValue)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pstrSql = NULL;
     olchar_t strRet[128];
     olsize_t nsize = ol_strlen(pValue) + ol_strlen(pKey) + 256;
 
     u32Ret = xmalloc((void **)&pstrSql, nsize);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*update or insert the value into the DB*/
         ol_snprintf(
@@ -90,7 +90,7 @@ static u32 _setJtSqliteValue(
 static u32 _getJtSqliteValue(
     jt_sqlite_t * pjs, olchar_t * pKey, olchar_t * pValue, olsize_t sValue)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strSql[512];
 
     ol_snprintf(
@@ -102,7 +102,7 @@ static u32 _getJtSqliteValue(
 
 static u32 _testRwJtSqlite(jt_sqlite_t * pjs)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * key = "today";
     olchar_t * no_such_key = "no-such-key";
     olchar_t * monday = "Monday";
@@ -113,12 +113,12 @@ static u32 _testRwJtSqlite(jt_sqlite_t * pjs)
 
     ol_printf("set, %s = %s\n", key, monday);
     u32Ret = _setJtSqliteValue(pjs, key, monday);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _getJtSqliteValue(pjs, key, value, 512);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("get, %s = %s\n", key, value);
 
@@ -126,19 +126,19 @@ static u32 _testRwJtSqlite(jt_sqlite_t * pjs)
         u32Ret = _setJtSqliteValue(pjs, key, tuesday);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _getJtSqliteValue(pjs, key, value, 512);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("get, %s = %s\n", key, value);
 
         u32Ret = _getJtSqliteValue(pjs, no_such_key, value, 512);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("get, %s = %s\n", no_such_key, value);
     }
@@ -148,11 +148,11 @@ static u32 _testRwJtSqlite(jt_sqlite_t * pjs)
 
 static u32 _testJtSqliteTransaction(jt_sqlite_t * pjs)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     ol_printf("Start jt sqlite transaction\n");
     u32Ret = startJtSqliteTransaction(pjs);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         _setJtSqliteValue(pjs, "color", "red");
         _setJtSqliteValue(pjs, "name", "min");
@@ -162,11 +162,11 @@ static u32 _testJtSqliteTransaction(jt_sqlite_t * pjs)
         commitJtSqliteTransaction(pjs);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("Start jt sqlite transaction\n");
         u32Ret = startJtSqliteTransaction(pjs);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             _setJtSqliteValue(pjs, "book1", "1");
             _setJtSqliteValue(pjs, "book2", "2");
@@ -182,7 +182,7 @@ static u32 _testJtSqliteTransaction(jt_sqlite_t * pjs)
 
 static u32 _testJtSqlite(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jt_sqlite_t js;
     jt_sqlite_param_t config;
 
@@ -190,12 +190,12 @@ static u32 _testJtSqlite(void)
     config.jsp_pstrDbName = "env.db";
 
     u32Ret = initJtSqlite(&js, &config);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = _testRwJtSqlite(&js);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = _testJtSqliteTransaction(&js);
 
         finiJtSqlite(&js);
@@ -208,21 +208,21 @@ static u32 _testJtSqlite(void)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_logger_init_param_t jlipParam;
 
     if (argc < 1)
     {
         _printUsage();
-        u32Ret = OLERR_MISSING_PARAM;
+        u32Ret = JF_ERR_MISSING_PARAM;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _parseCmdLineParam(argc, argv);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
         jlipParam.jlip_pstrCallerName = "JTSQLITE";
@@ -233,16 +233,16 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jf_logger_init(&jlipParam);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _testJtSqlite();
     }
 
     jf_logger_fini();
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        ol_printf("Err (0x%X) %s\n", u32Ret, getErrorDescription(u32Ret));
+        ol_printf("Err (0x%X) %s\n", u32Ret, jf_err_getDescription(u32Ret));
     }
 
     return u32Ret;

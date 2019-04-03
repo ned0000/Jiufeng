@@ -47,13 +47,13 @@ u32 fileTimeToSecondsSince1970(FILETIME * pTime)
 
 u32 getTimeOfDay(struct timeval * tv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olint_t nRet;
 
     nRet = gettimeofday(tv, NULL);
     if (nRet == -1)
-        u32Ret = OLERR_FAIL_GET_TIME;
+        u32Ret = JF_ERR_FAIL_GET_TIME;
 #elif defined(WINDOWS)
     FILETIME systime;
     u64 u64Time;
@@ -77,7 +77,7 @@ u32 getTimeOfDay(struct timeval * tv)
 
 u32 msleep(u32 u32Milliseconds)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
 #if defined(LINUX)
     usleep(u32Milliseconds * 1000);
@@ -90,7 +90,7 @@ u32 msleep(u32 u32Milliseconds)
 
 u32 nsleep(u32 u32Nanoseconds)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     struct timespec ts;
 

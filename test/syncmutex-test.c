@@ -32,12 +32,12 @@ static olint_t nMutex = 0;
 /* --- private routine section---------------------------------------------- */
 THREAD_RETURN_VALUE consumer(void * pArg)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
     ol_printf("consumer %lu starts\n", getCurrentThreadId());
 
-    while ((! ls_bToTerminate) && (u32Ret == OLERR_NO_ERROR))
+    while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
         acquireSyncMutex(&ls_ssLock);
         sleep(5);
@@ -47,11 +47,11 @@ THREAD_RETURN_VALUE consumer(void * pArg)
         releaseSyncMutex(&ls_ssLock);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         ol_printf("consumer quits\n");
     else
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("consumer quits, %s\n", strErrMsg);
     }
 
@@ -60,12 +60,12 @@ THREAD_RETURN_VALUE consumer(void * pArg)
 
 THREAD_RETURN_VALUE producer(void * pArg)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
     ol_printf("producer %lu starts\n", getCurrentThreadId());
 
-    while ((! ls_bToTerminate) && (u32Ret == OLERR_NO_ERROR))
+    while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
         acquireSyncMutex(&ls_ssLock);
 
@@ -75,11 +75,11 @@ THREAD_RETURN_VALUE producer(void * pArg)
         releaseSyncMutex(&ls_ssLock);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         ol_printf("producer quits\n");
     else
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("producer quits, %s\n", strErrMsg);
     }
 
@@ -90,19 +90,19 @@ THREAD_RETURN_VALUE producer(void * pArg)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
     u32Ret = initSyncMutex(&ls_ssLock);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = createThread(NULL, NULL, producer, (void *)1);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = createThread(NULL, NULL, consumer, (void *)1);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_printf("main thread, sleeping for 1 minutes\n");
             sleep(30);
@@ -120,9 +120,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
         ol_printf("main thread quits\n");
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

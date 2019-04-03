@@ -26,7 +26,7 @@
 /* --- private routine section---------------------------------------------- */
 static u32 _printHexDumpInByte(u8 * pu8Buffer, u32 u32Length)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index = 0, u32Dumped = 0xff;
     olchar_t strLine[80];
 
@@ -150,14 +150,14 @@ static void _testCrc32c()
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
     _testCrc32c();
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

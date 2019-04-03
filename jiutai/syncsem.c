@@ -46,7 +46,7 @@ union semun
 
 u32 initSyncSem(sync_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
 #if defined(WINDOWS)
     assert(pSem != NULL);
@@ -57,7 +57,7 @@ u32 initSyncSem(sync_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount)
     pSem->is_hSem = CreateSemaphore(NULL, u32InitialCount, u32MaxCount, NULL);
     if (pSem->is_hSem == NULL)
     {
-        u32Ret = OLERR_FAIL_CREATE_SEM;
+        u32Ret = JF_ERR_FAIL_CREATE_SEM;
     }
 #elif defined(LINUX)
     olint_t nRet;
@@ -72,16 +72,16 @@ u32 initSyncSem(sync_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount)
     pSem->is_nSem = semget(IPC_PRIVATE, 1, SEM_FLAG);
     if (pSem->is_nSem == -1)
     {
-        u32Ret = OLERR_FAIL_CREATE_SEM;
+        u32Ret = JF_ERR_FAIL_CREATE_SEM;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         init.val = u32InitialCount;
         nRet = semctl(pSem->is_nSem, 0, SETVAL, init);
         if (nRet == -1)
         {
-            u32Ret = OLERR_FAIL_CREATE_SEM;
+            u32Ret = JF_ERR_FAIL_CREATE_SEM;
         }
     }
 #endif
@@ -91,7 +91,7 @@ u32 initSyncSem(sync_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount)
 
 u32 finiSyncSem(sync_sem_t * pSem)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     
 #if defined(WINDOWS)
     BOOL bRet = TRUE;
@@ -103,7 +103,7 @@ u32 finiSyncSem(sync_sem_t * pSem)
         bRet = CloseHandle(pSem->is_hSem);
         if (! bRet)
         {
-            u32Ret = OLERR_FAIL_DESTROY_SEM;
+            u32Ret = JF_ERR_FAIL_DESTROY_SEM;
         }
     }
 #elif defined(LINUX)
@@ -116,7 +116,7 @@ u32 finiSyncSem(sync_sem_t * pSem)
         nRet = semctl(pSem->is_nSem, 0, IPC_RMID);
         if (nRet == -1)
         {
-            u32Ret = OLERR_FAIL_DESTROY_SEM;
+            u32Ret = JF_ERR_FAIL_DESTROY_SEM;
         }
     }
 #endif
@@ -126,7 +126,7 @@ u32 finiSyncSem(sync_sem_t * pSem)
 
 u32 downSyncSem(sync_sem_t * pSem)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     
 #if defined(WINDOWS)
     DWORD dwRet = 0;
@@ -136,11 +136,11 @@ u32 downSyncSem(sync_sem_t * pSem)
     dwRet = WaitForSingleObject(pSem->is_hSem, INFINITE);
     if (dwRet == WAIT_FAILED)
     {
-        u32Ret = OLERR_FAIL_ACQUIRE_SEM;
+        u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
     }
     else if (dwRet == WAIT_TIMEOUT)
     {
-        u32Ret = OLERR_TIMEOUT;
+        u32Ret = JF_ERR_TIMEOUT;
     }
 #elif defined(LINUX)
     olint_t nRet = 0;
@@ -154,7 +154,7 @@ u32 downSyncSem(sync_sem_t * pSem)
     nRet = semop(pSem->is_nSem, &semlock, 1);
     if (nRet != 0)
     {
-        u32Ret = OLERR_FAIL_ACQUIRE_SEM;
+        u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
     }
 #endif
     
@@ -163,7 +163,7 @@ u32 downSyncSem(sync_sem_t * pSem)
 
 u32 tryDownSyncSem(sync_sem_t * pSem)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     
 #if defined(WINDOWS)
     DWORD dwRet = 0;
@@ -173,11 +173,11 @@ u32 tryDownSyncSem(sync_sem_t * pSem)
     dwRet = WaitForSingleObject(pSem->is_hSem, 0);
     if (dwRet == WAIT_FAILED)
     {
-        u32Ret = OLERR_FAIL_ACQUIRE_SEM;
+        u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
     }
     else if (dwRet == WAIT_TIMEOUT)
     {
-        u32Ret = OLERR_TIMEOUT;
+        u32Ret = JF_ERR_TIMEOUT;
     }
 #elif defined(LINUX)
     olint_t nRet = 0;
@@ -191,7 +191,7 @@ u32 tryDownSyncSem(sync_sem_t * pSem)
     nRet = semop(pSem->is_nSem, &semlock, 1);
     if (nRet != 0)
     {
-        u32Ret = OLERR_FAIL_ACQUIRE_SEM;
+        u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
     }
 #endif
     
@@ -200,7 +200,7 @@ u32 tryDownSyncSem(sync_sem_t * pSem)
 
 u32 downSyncSemWithTimeout(sync_sem_t * pSem, u32 u32Timeout)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     
 #if defined(WINDOWS)
     DWORD dwRet = 0;
@@ -210,11 +210,11 @@ u32 downSyncSemWithTimeout(sync_sem_t * pSem, u32 u32Timeout)
     dwRet = WaitForSingleObject(pSem->is_hSem, u32Timeout);
     if (dwRet == WAIT_FAILED)
     {
-        u32Ret = OLERR_FAIL_ACQUIRE_SEM;
+        u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
     }
     else if (dwRet == WAIT_TIMEOUT)
     {
-        u32Ret = OLERR_TIMEOUT;
+        u32Ret = JF_ERR_TIMEOUT;
     }
 #elif defined(LINUX)
     olint_t nRet = 0;
@@ -234,7 +234,7 @@ u32 downSyncSemWithTimeout(sync_sem_t * pSem, u32 u32Timeout)
     nRet = semtimedop(pSem->is_nSem, &semlock, 1, &timeout);
     if (nRet != 0)
     {
-        u32Ret = OLERR_FAIL_ACQUIRE_SEM;
+        u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
     }
 #endif
     
@@ -243,7 +243,7 @@ u32 downSyncSemWithTimeout(sync_sem_t * pSem, u32 u32Timeout)
 
 u32 upSyncSem(sync_sem_t * pSem)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     
 #if defined(WINDOWS)
     BOOL bRet = TRUE;
@@ -253,7 +253,7 @@ u32 upSyncSem(sync_sem_t * pSem)
     bRet = ReleaseSemaphore(pSem->is_hSem, 1, NULL);
     if (! bRet)
     {
-        u32Ret = OLERR_FAIL_RELEASE_SEM;
+        u32Ret = JF_ERR_FAIL_RELEASE_SEM;
     }
 #elif defined(LINUX)
     olint_t nRet = 0;
@@ -267,7 +267,7 @@ u32 upSyncSem(sync_sem_t * pSem)
     nRet = semop(pSem->is_nSem, &semunlock, 1);
     if (nRet != 0)
     {
-        u32Ret = OLERR_FAIL_RELEASE_SEM;
+        u32Ret = JF_ERR_FAIL_RELEASE_SEM;
     }
 #endif
     

@@ -57,12 +57,12 @@ logger options:\n\
 static u32 _parseCmdLineParam(
     olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
     u32 u32Value;
 
     while (((nOpt = getopt(argc, argv, "T:F:S:h")) != -1) &&
-           (u32Ret == OLERR_NO_ERROR))
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -72,7 +72,7 @@ static u32 _parseCmdLineParam(
             exit(0);
             break;
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case 'T':
             if (ol_sscanf(optarg, "%d", &u32Value) == 1)
@@ -81,7 +81,7 @@ static u32 _parseCmdLineParam(
             }
             else
             {
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             }
             break;
         case 'F':
@@ -95,11 +95,11 @@ static u32 _parseCmdLineParam(
             }
             else
             {
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             }
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -119,13 +119,13 @@ static u32 _onNtsConnect(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
     void ** ppUser)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     server_data_t * psd = NULL;
 
     ol_printf("New connection\n");
 
     u32Ret = xcalloc((void **)&psd, sizeof(server_data_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_strcpy((olchar_t *)psd->sd_u8Id, "network-test-server");
 
@@ -139,7 +139,7 @@ static u32 _onNtsDisConnect(
     jf_network_assocket_t * pAssocket, void * pAsocket, u32 u32Status,
     void * pUser)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     server_data_t * psd = (server_data_t *)pUser;
 
     ol_printf("connection closed, id: %s\n", psd->sd_u8Id);
@@ -153,7 +153,7 @@ static u32 _onNtsSendOK(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * connection,
     void * pUser)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     ol_printf("send ok\n");
 
@@ -165,7 +165,7 @@ static u32 _onNtsData(
     u8 * pu8Buffer, olsize_t * pu32BeginPointer, olsize_t u32EndPointer,
     void * pUser, boolean_t * bPause)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     server_data_t * psd = (server_data_t *)pUser;
     u32 u32Begin = *pu32BeginPointer;
     u8 u8Buffer[100];
@@ -188,7 +188,7 @@ static u32 _onNtsData(
 /* --- public routine section ---------------------------------------------- */
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     jf_network_assocket_t * pAssocket = NULL;
     jf_network_assocket_create_param_t jnacp;
@@ -200,19 +200,19 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jlipParam.jlip_u8TraceLevel = 3;
 
     u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = registerSignalHandlers(_terminate);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
 
         u32Ret = jf_network_initLib();
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = jf_network_createChain(&ls_pjncChain);
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 ol_memset(&jnacp, 0, sizeof(jnacp));
 
@@ -227,7 +227,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
                 u32Ret = jf_network_createAssocket(ls_pjncChain, &pAssocket, &jnacp);
             }
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 u32Ret = jf_network_startChain(ls_pjncChain);
             }
@@ -241,9 +241,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
     if (ls_pjncChain != NULL)
         jf_network_destroyChain(&ls_pjncChain);
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

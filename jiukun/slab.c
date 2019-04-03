@@ -418,7 +418,7 @@ static inline void * _allocOneObjFromTail(
 static inline slab_t * _slabMgmt(
     internal_jiukun_slab_t * pijs, slab_cache_t * pCache, u8 * objp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olflag_t flags = 0;
     slab_t * slabp = NULL;
     olint_t offset = 0;
@@ -428,7 +428,7 @@ static inline slab_t * _slabMgmt(
         /* Slab management obj is off-slab. */
         u32Ret = _allocObj(
             pijs, pCache->sc_pscSlab, (void **)&slabp, flags);
-        if (u32Ret != OLERR_NO_ERROR)
+        if (u32Ret != JF_ERR_NO_ERROR)
             return NULL;
     }
     else
@@ -491,7 +491,7 @@ static inline void _initSlabCacheObjs(slab_cache_t * pCache, slab_t * slabp)
 static u32 _growSlabCache(
     internal_jiukun_slab_t * pijs, slab_cache_t * pCache, olflag_t jpflag)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     slab_t * slabp;
     jiukun_page_t * page;
     void * objp;
@@ -502,7 +502,7 @@ static u32 _growSlabCache(
     /* Get mem for the objs. */
     jpflag |= pCache->sc_fPage;
     u32Ret = jf_jiukun_allocPage(&objp, pCache->sc_u32Order, jpflag);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
 #if DEBUG_JIUKUN
         jf_logger_logInfoMsg("grow cache, %p", objp);
@@ -512,12 +512,12 @@ static u32 _growSlabCache(
         if (slabp == NULL)
         {
             _freePages(pijs, pCache, objp);
-            u32Ret = OLERR_FAIL_GROW_JIUKUN_CACHE;    
+            u32Ret = JF_ERR_FAIL_GROW_JIUKUN_CACHE;    
             jf_logger_logErrMsg(u32Ret, "grow cache, slab error");
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         i = 1 << pCache->sc_u32Order;
         page = addrToJiukunPage(objp);
@@ -565,7 +565,7 @@ static inline u32 _allocObj(
     internal_jiukun_slab_t * pijs,
     slab_cache_t * pCache, void ** ppObj, olflag_t flag)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     struct list_head * entry;
     slab_t * slabp;
     olflag_t jpflag = 0;
@@ -591,7 +591,7 @@ static inline u32 _allocObj(
                     SET_FLAG(jpflag, JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT);
 
                 u32Ret = _growSlabCache(pijs, pCache, jpflag);
-                if (u32Ret != OLERR_NO_ERROR)
+                if (u32Ret != JF_ERR_NO_ERROR)
                     break;
 
                 entry = pCache->sc_lhFree.lh_plhNext;
@@ -775,7 +775,7 @@ static void _destroySlab(
 static u32 _destroySlabCache(
     internal_jiukun_slab_t * pijs, slab_cache_t * psc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     slab_t * slabp;
     struct list_head * p;
 
@@ -783,7 +783,7 @@ static u32 _destroySlabCache(
 
     acquireSyncMutex(&(psc->sc_smCache));
 
-    while (u32Ret == OLERR_NO_ERROR)
+    while (u32Ret == JF_ERR_NO_ERROR)
     {
         p = psc->sc_lhFree.lh_plhPrev;
         if (p == &(psc->sc_lhFree))
@@ -825,7 +825,7 @@ static u32 _createSlabCache(
     internal_jiukun_slab_t * pijs,
     jf_jiukun_cache_t ** ppCache, jf_jiukun_cache_create_param_t * pjjccp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t left_over, slab_size;
     slab_cache_t * pCache = NULL;
     u32 realobjsize = pjjccp->jjccp_sObj;
@@ -855,7 +855,7 @@ static u32 _createSlabCache(
     /* Get cache's description obj. */
     u32Ret = _allocObj(
         pijs, &(pijs->ijs_scCacheCache), (void **)&pCache, 0);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pCache, 0, sizeof(slab_cache_t));
 
@@ -873,7 +873,7 @@ static u32 _createSlabCache(
             SET_FLAG(pjjccp->jjccp_fCache, SC_FLAG_OFF_SLAB);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* Cal size (in pages) of slabs, and the num of objs per slab.
          */
@@ -906,7 +906,7 @@ static u32 _createSlabCache(
         } while (1);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_logInfoMsg(
             "create slab cache, %s, size: %u, order: %u, num: %u",
@@ -915,12 +915,12 @@ static u32 _createSlabCache(
 
         if (pCache->sc_u32Num == 0)
         {
-            u32Ret = OLERR_FAIL_CREATE_JIUKUN_CACHE;
+            u32Ret = JF_ERR_FAIL_CREATE_JIUKUN_CACHE;
             jf_logger_logErrMsg(u32Ret, "create slab cache, couldn't create cache");
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         slab_size = ALIGN(
             pCache->sc_u32Num * sizeof(slab_bufctl_t) + sizeof(slab_t),
@@ -942,7 +942,7 @@ static u32 _createSlabCache(
         u32Ret = initSyncMutex(&(pCache->sc_smCache));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pCache->sc_u32ObjSize = pjjccp->jjccp_sObj;
         pCache->sc_u32RealObjSize = realobjsize;
@@ -967,7 +967,7 @@ static u32 _createSlabCache(
         releaseSyncMutex(&(pijs->ijs_smLock));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppCache = pCache;
     else if (pCache != NULL)
     {
@@ -979,7 +979,7 @@ static u32 _createSlabCache(
 
 static u32 _initSlabCache(internal_jiukun_slab_t * pijs)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     slab_cache_t * pkc = &(pijs->ijs_scCacheCache);
     olsize_t left_over;
     general_cache_t *sizes;
@@ -1003,7 +1003,7 @@ static u32 _initSlabCache(internal_jiukun_slab_t * pijs)
     sizes = &(pijs->ijs_gcGeneral[0]);
 
     while ((ls_sCacheSize[u16NumOfSize] != OLSIZE_MAX) &&
-           (u32Ret == OLERR_NO_ERROR))
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         sizes->gc_sSize = ls_sCacheSize[u16NumOfSize];
         ol_snprintf(name, sizeof(name), "size-%d", sizes->gc_sSize);
@@ -1017,7 +1017,7 @@ static u32 _initSlabCache(internal_jiukun_slab_t * pijs)
             pijs, (jf_jiukun_cache_t **)&(sizes->gc_pscCache), &jjccp);
 
         /* Inc off-slab bufctl limit until the ceiling is hit. */
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (! OFF_SLAB(sizes->gc_pscCache))
             {
@@ -1030,7 +1030,7 @@ static u32 _initSlabCache(internal_jiukun_slab_t * pijs)
         u16NumOfSize ++;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         assert(u16NumOfSize < MAX_NUM_OF_GENERAL_CACHE);
 
@@ -1074,19 +1074,19 @@ static olint_t _shrinkSlabCache(
 /* --- public routine section ---------------------------------------------- */
 u32 initJiukunSlab(slab_param_t * psp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jiukun_slab_t * pijs = &ls_iasSlab;
 
     assert(psp != NULL);
     assert(! pijs->ijs_bInitialized);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = initSyncMutex(&(pijs->ijs_smLock));
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _initSlabCache(pijs);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         pijs->ijs_bInitialized = TRUE;
     else if (pijs != NULL)
         finiJiukunSlab();
@@ -1096,7 +1096,7 @@ u32 initJiukunSlab(slab_param_t * psp)
 
 u32 finiJiukunSlab(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jiukun_slab_t * pijs = &ls_iasSlab;
     general_cache_t * pgc;
     slab_cache_t * psc;
@@ -1127,7 +1127,7 @@ u32 finiJiukunSlab(void)
 u32 jf_jiukun_createCache(
     jf_jiukun_cache_t ** ppCache, jf_jiukun_cache_create_param_t * pjjccp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jiukun_slab_t * pijs = &ls_iasSlab;
 
     /*
@@ -1146,7 +1146,7 @@ u32 jf_jiukun_createCache(
 
 u32 jf_jiukun_destroyCache(jf_jiukun_cache_t ** ppCache)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jiukun_slab_t * pijs = &ls_iasSlab;
     slab_cache_t * psc;
 
@@ -1170,7 +1170,7 @@ u32 jf_jiukun_destroyCache(jf_jiukun_cache_t ** ppCache)
 
 u32 reapJiukunSlab(boolean_t bNoWait)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jiukun_slab_t * pijs = &ls_iasSlab;
     slab_cache_t * searchp;
     olint_t ret = 0;
@@ -1183,7 +1183,7 @@ u32 reapJiukunSlab(boolean_t bNoWait)
     if (bNoWait)
     {
         u32Ret = tryAcquireSyncMutex(&(pijs->ijs_smLock));
-        if (u32Ret != OLERR_NO_ERROR)
+        if (u32Ret != JF_ERR_NO_ERROR)
             return u32Ret;
     }
     else
@@ -1227,10 +1227,10 @@ u32 reapJiukunSlab(boolean_t bNoWait)
         releaseSyncMutex(&(searchp->sc_smCache));
     }
 
-    if ((u32Ret == OLERR_NO_ERROR) && (ret == 0))
+    if ((u32Ret == JF_ERR_NO_ERROR) && (ret == 0))
     {
         /*no cache is reaped*/
-        u32Ret = OLERR_FAIL_REAP_JIUKUN;
+        u32Ret = JF_ERR_FAIL_REAP_JIUKUN;
     }
 
     return u32Ret;
@@ -1250,7 +1250,7 @@ void jf_jiukun_freeObject(jf_jiukun_cache_t * pCache, void ** pptr)
 u32 jf_jiukun_allocObject(
     jf_jiukun_cache_t * pCache, void ** pptr, olflag_t flag)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jiukun_slab_t * pijs = &ls_iasSlab;
     slab_cache_t * cache = (slab_cache_t *)pCache;
 
@@ -1258,7 +1258,7 @@ u32 jf_jiukun_allocObject(
     assert((pCache != NULL) && (pptr != NULL));
 
     u32Ret = _allocObj(pijs, cache, pptr, flag);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (GET_FLAG(cache->sc_fCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO) ||
             GET_FLAG(flag, JF_JIUKUN_MEM_ALLOC_FLAG_ZERO))
@@ -1270,7 +1270,7 @@ u32 jf_jiukun_allocObject(
 
 u32 jf_jiukun_allocMemory(void ** pptr, olsize_t size, olflag_t flag)
 {
-    u32 u32Ret = OLERR_UNSUPPORTED_MEMORY_SIZE;
+    u32 u32Ret = JF_ERR_UNSUPPORTED_MEMORY_SIZE;
     internal_jiukun_slab_t * pijs = &ls_iasSlab;
     general_cache_t * pgc = pijs->ijs_gcGeneral;
 
@@ -1292,7 +1292,7 @@ u32 jf_jiukun_allocMemory(void ** pptr, olsize_t size, olflag_t flag)
                 *pptr, size, flag);
 #endif
 
-    if (u32Ret == OLERR_NO_ERROR && GET_FLAG(flag, JF_JIUKUN_MEM_ALLOC_FLAG_ZERO))
+    if (u32Ret == JF_ERR_NO_ERROR && GET_FLAG(flag, JF_JIUKUN_MEM_ALLOC_FLAG_ZERO))
         memset(*pptr, 0, size);
 
     return u32Ret;
@@ -1318,12 +1318,12 @@ void jf_jiukun_freeMemory(void ** pptr)
 
 u32 jf_jiukun_copyMemory(void ** pptr, u8 * pu8Buffer, olsize_t size)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert((pptr != NULL) && (pu8Buffer != NULL) && (size > 0));
 
     u32Ret = jf_jiukun_allocMemory(pptr, size, 0);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memcpy(*pptr, pu8Buffer, size);
     }

@@ -55,12 +55,12 @@ static u32 _parseCmdLineParam(
     olint_t argc, olchar_t ** argv, 
     jf_archive_create_param_t * pjacp, jf_logger_init_param_t * pjlip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
     u32 u32Value;
 
     while (((nOpt = getopt(argc, argv, "ctxvm:f:T:F:S:h")) != -1) &&
-           (u32Ret == OLERR_NO_ERROR))
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -95,7 +95,7 @@ static u32 _parseCmdLineParam(
             }
             else
             {
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             }
             break;
         case 'F':
@@ -109,11 +109,11 @@ static u32 _parseCmdLineParam(
             }
             else
             {
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             }
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -125,7 +125,7 @@ static u32 _parseCmdLineParam(
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_archive_create_param_t jacp;
     jf_archive_extract_param_t jaep;
     jf_logger_init_param_t jlipParam;
@@ -141,27 +141,27 @@ olint_t main(olint_t argc, olchar_t ** argv)
     initLinkList(&ls_llMemberFile);
 
     u32Ret = _parseCmdLineParam(argc, argv, &jacp, &jlipParam);
-    if ((u32Ret == OLERR_NO_ERROR) && (ls_bCreateArchive))
+    if ((u32Ret == JF_ERR_NO_ERROR) && (ls_bCreateArchive))
     {
         if (isLinkListEmpty(&ls_llMemberFile))
         {
             ol_printf("Member files are not specified!!!\n");
             _printUsage();
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_pstrArchiveName == NULL)
         {
             ol_printf("Archive file is not specified!!!\n");
             _printUsage();
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_bCreateArchive)
         {

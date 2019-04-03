@@ -37,7 +37,7 @@ u32 jf_archive_create(
     link_list_t * pMemberFile, olchar_t * pstrArchiveName,
     jf_archive_create_param_t * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 * pu8Fullpath;
     u8 * pu8Buffer;
     ar_file_param_t afp;
@@ -48,16 +48,16 @@ u32 jf_archive_create(
         (pMemberFile != NULL) && (pstrArchiveName != NULL) && (pParam != NULL));
 
     u32Ret = xmalloc((void **)&pu8Buffer, MAX_ARCHIVE_BUFFER_LEN);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(&afp, 0, sizeof(ar_file_param_t));
         u32Ret = createArFile(pstrArchiveName, &afp, &paf);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
 		pNode = getFirstNodeOfLinkList(pMemberFile);
-		while ((pNode != NULL) && (u32Ret == OLERR_NO_ERROR))
+		while ((pNode != NULL) && (u32Ret == JF_ERR_NO_ERROR))
 		{
             pu8Fullpath = (u8 *)getDataFromLinkListNode(pNode);
             if (pu8Fullpath != NULL)
@@ -83,7 +83,7 @@ u32 jf_archive_create(
 u32 jf_archive_extract(
     olchar_t * pstrArchiveName, jf_archive_extract_param_t * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 * pu8Buffer;
     ar_file_param_t afp;
     ar_file_t * paf = NULL;
@@ -91,14 +91,14 @@ u32 jf_archive_extract(
     assert((pstrArchiveName != NULL) && (pParam != NULL));
 
     u32Ret = xmalloc((void **)&pu8Buffer, MAX_ARCHIVE_BUFFER_LEN);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(&afp, 0, sizeof(ar_file_param_t));
         afp.afp_bExtract = TRUE;
         u32Ret = createArFile(pstrArchiveName, &afp, &paf);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = extractFromArchive(
             paf, pu8Buffer, MAX_ARCHIVE_BUFFER_LEN, pParam);

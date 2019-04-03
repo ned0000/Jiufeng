@@ -53,7 +53,7 @@ Usage: logger-test [-l] [-c error code] \n\
 
 static u32 _scanErrorCode(olchar_t * strcode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (strlen(strcode) > 2)
     {
@@ -70,11 +70,11 @@ static u32 _scanErrorCode(olchar_t * strcode)
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
     while (((nOpt = getopt(argc, argv,
-        "c:lh")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "c:lh")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -94,7 +94,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
             ls_bTestLogger = TRUE;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -104,7 +104,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 
 static void _testLogger(void)
 {
-//    u32 u32Ret = OLERR_NO_ERROR;
+//    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_logger_init_param_t jlipParam;
     u8 u8Data[94];
     test_struct_t * pts = &ls_tsStruct;
@@ -124,15 +124,15 @@ static void _testLogger(void)
 
     jf_logger_init(&jlipParam);
 
-#define E_HELLO_WORLD (OLERR_VENDOR_SPEC_ERROR_START + 0x0)
-#define E_SUPER_MAN (OLERR_VENDOR_SPEC_ERROR_START + 0x1)
-#define E_IRON_MAN (OLERR_VENDOR_SPEC_ERROR_START + 0x2)
-#define E_BAT_MAN (OLERR_VENDOR_SPEC_ERROR_START + ERRCODE_FLAG_SYSTEM + 0x3)
+#define E_HELLO_WORLD (JF_ERR_VENDOR_SPEC_ERROR_START + 0x0)
+#define E_SUPER_MAN (JF_ERR_VENDOR_SPEC_ERROR_START + 0x1)
+#define E_IRON_MAN (JF_ERR_VENDOR_SPEC_ERROR_START + 0x2)
+#define E_BAT_MAN (JF_ERR_VENDOR_SPEC_ERROR_START + JF_ERR_CODE_FLAG_SYSTEM + 0x3)
 
-    addErrCode(E_HELLO_WORLD, "Hello world");
-    addErrCode(E_SUPER_MAN, "Super man");
-    addErrCode(E_IRON_MAN, "Iron man");
-    addErrCode(E_BAT_MAN, "Bat man");
+    jf_err_addCode(E_HELLO_WORLD, "Hello world");
+    jf_err_addCode(E_SUPER_MAN, "Super man");
+    jf_err_addCode(E_IRON_MAN, "Iron man");
+    jf_err_addCode(E_BAT_MAN, "Bat man");
 
     jf_logger_logErrMsg(E_HELLO_WORLD, "Vendor error code");
     jf_logger_logErrMsg(E_SUPER_MAN, "Vendor error code");
@@ -141,12 +141,12 @@ static void _testLogger(void)
 
     jf_logger_logInfoMsg("logger test, info msg");
 
-    jf_logger_logErrMsg(OLERR_NOT_FOUND, "logger test, err msg");
+    jf_logger_logErrMsg(JF_ERR_NOT_FOUND, "logger test, err msg");
 
     jf_logger_logDataMsg(u8Data, sizeof(u8Data), "logger test, err msg");
 
 //        u32Ret = openDir("shit", &pDir);
-//    u32Ret = OLERR_OPERATION_FAIL;
+//    u32Ret = JF_ERR_OPERATION_FAIL;
 
 //    jf_logger_logErrMsg(u32Ret, "Quit");
 
@@ -158,13 +158,13 @@ static void _printErrorCode(void)
     olchar_t msg[512];
     olint_t module, code;
 
-    module = (ls_u32ErrorCode & ERRCODE_MODULE_MASK) >> ERRCODE_MODULE_SHIFT;
-    code = ls_u32ErrorCode & ERRCODE_CODE_MASK;
+    module = (ls_u32ErrorCode & JF_ERR_CODE_MODULE_MASK) >> JF_ERR_CODE_MODULE_SHIFT;
+    code = ls_u32ErrorCode & JF_ERR_CODE_CODE_MASK;
 
     ol_printf("Module 0x%x\n", module);
     ol_printf("Code 0x%x\n", code);
 
-    getErrMsg(ls_u32ErrorCode, msg, sizeof(msg));
+    jf_err_getMsg(ls_u32ErrorCode, msg, sizeof(msg));
 
     ol_printf("%s\n", msg);
 }
@@ -173,10 +173,10 @@ static void _printErrorCode(void)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = _parseCmdLineParam(argc, argv);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_bTestLogger)
             _testLogger();

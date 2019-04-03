@@ -59,7 +59,7 @@ static internal_clieng_t ls_icClieng;
 static u32 _createCmdHistory(
     internal_clieng_t * pic, jf_clieng_init_param_t * pjcip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     clieng_cmd_history_param_t param;
     
     jf_logger_logInfoMsg("create cmd history");
@@ -75,7 +75,7 @@ static u32 _createCmdHistory(
 static u32 _createInputOutput(
     internal_clieng_t * pic, jf_clieng_init_param_t * pjcip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     clieng_io_param_t param;
     
     jf_logger_logInfoMsg("create input output");
@@ -91,7 +91,7 @@ static u32 _createInputOutput(
 static u32 _createParser(
     internal_clieng_t * pic, jf_clieng_init_param_t * pjcip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     clieng_parser_param_t param;
     
     jf_logger_logInfoMsg("create parser");
@@ -113,7 +113,7 @@ void _terminateCliengShell(olint_t signal)
 #ifndef WINDOWS
 static u32 _registerSignalHandlers(internal_clieng_t * pic)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nRet;
     olint_t nSignals[] = { SIGABRT, SIGHUP, SIGPIPE, SIGQUIT, SIGTERM, SIGTSTP };
     olint_t nIndex, nSignalCount = 6;
@@ -121,12 +121,12 @@ static u32 _registerSignalHandlers(internal_clieng_t * pic)
     struct sigaction act, oact;
 
     nIndex = 0;
-    while ((u32Ret == OLERR_NO_ERROR) && (nIndex<nSignalCount))
+    while ((u32Ret == JF_ERR_NO_ERROR) && (nIndex<nSignalCount))
     {
         nRet = sigemptyset(&ssSignalSet);
     	if (nRet == -1)
         {
-            u32Ret = OLERR_OPERATION_FAIL;
+            u32Ret = JF_ERR_OPERATION_FAIL;
     	    jf_logger_logErrMsg(
                 u32Ret, "register signal, sigemptyset() for signals[%d] failed",
                 nIndex);
@@ -136,12 +136,12 @@ static u32 _registerSignalHandlers(internal_clieng_t * pic)
             nRet = sigaddset(&ssSignalSet, nSignals[nIndex]);
             if (nRet == -1)
     	    {
-                u32Ret = OLERR_OPERATION_FAIL;
+                u32Ret = JF_ERR_OPERATION_FAIL;
 	            jf_logger_logErrMsg(u32Ret, "register signal, sigaddset() failed");
     	    }
         }
 
-    	if (u32Ret == OLERR_NO_ERROR)
+    	if (u32Ret == JF_ERR_NO_ERROR)
         {
             /*act.sa_sigaction = terminate;*/
             act.sa_handler = _terminateCliengShell;
@@ -159,7 +159,7 @@ static u32 _registerSignalHandlers(internal_clieng_t * pic)
                     u32Ret,
                     "register signal, sigaction() for signals[%d] failed",
                     nIndex);
-                u32Ret = OLERR_OPERATION_FAIL;
+                u32Ret = JF_ERR_OPERATION_FAIL;
             }
         }
 
@@ -172,7 +172,7 @@ static u32 _registerSignalHandlers(internal_clieng_t * pic)
 
 static u32 _printPrompt(internal_clieng_t * pic)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (pic->ic_strPrompt[0] != '\0')
         u32Ret = engioOutput("%s", pic->ic_strPrompt);
@@ -184,7 +184,7 @@ static u32 _printPrompt(internal_clieng_t * pic)
 
 static u32 _cliengLoop(internal_clieng_t * pic)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     clieng_input_type_t citInputType = cit_unknown;
     olsize_t length = JF_CLIENG_MAX_COMMAND_LINE_SIZE;
     olchar_t cmd_str[JF_CLIENG_MAX_COMMAND_LINE_SIZE];
@@ -193,12 +193,12 @@ static u32 _cliengLoop(internal_clieng_t * pic)
     /* Prompt */
     _printPrompt(pic);
 
-    while (u32Ret == OLERR_NO_ERROR)
+    while (u32Ret == JF_ERR_NO_ERROR)
     {
     	u32Ret = engioInput(
             &citInputType, pic->ic_strInputBuffer, &length,
             ol_strlen(pic->ic_strPrompt));
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             /* navigation command */
             if (citInputType == cit_navigation_cmd)
@@ -223,7 +223,7 @@ static u32 _cliengLoop(internal_clieng_t * pic)
             }
             else 
             {
-                u32Ret = OLERR_NOT_IMPLEMENTED;
+                u32Ret = JF_ERR_NOT_IMPLEMENTED;
                 jf_logger_logErrMsg(u32Ret, "_cliengLoop() got input with type %d",
                     citInputType);
     	        return u32Ret;
@@ -231,11 +231,11 @@ static u32 _cliengLoop(internal_clieng_t * pic)
         }
     }
     
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
     	ol_strcpy(cmd_str, pic->ic_strInputBuffer);
         u32Ret = parseCmd(pic->ic_pcpParser, pic->ic_strInputBuffer);
-        if (u32Ret != OLERR_BLANK_CMD && u32Ret != OLERR_COMMENT_CMD)
+        if (u32Ret != JF_ERR_BLANK_CMD && u32Ret != JF_ERR_COMMENT_CMD)
 	    {
 	        appendCommand(pic->ic_pcchCmdHistory, cmd_str);
             engioOutput("");
@@ -243,7 +243,7 @@ static u32 _cliengLoop(internal_clieng_t * pic)
     }
     else
     {
-        pstrDesc = getErrorDescription(u32Ret);
+        pstrDesc = jf_err_getDescription(u32Ret);
         outputLine("Error (0x%x): %s", u32Ret, pstrDesc);
         outputLine("");
     }
@@ -253,7 +253,7 @@ static u32 _cliengLoop(internal_clieng_t * pic)
 
 static u32 _processScriptCmd(internal_clieng_t * pic, olchar_t * pstrInput)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = parseCmd(pic->ic_pcpParser, pstrInput);   
     
@@ -264,7 +264,7 @@ static u32 _processScriptCmd(internal_clieng_t * pic, olchar_t * pstrInput)
 
 u32 jf_clieng_clearCommandHistory(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_t * pic = &ls_icClieng;
 
     clearCommandHistory(pic->ic_pcchCmdHistory);
@@ -274,7 +274,7 @@ u32 jf_clieng_clearCommandHistory(void)
 
 u32 jf_clieng_init(jf_clieng_init_param_t * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_t * pic = &ls_icClieng;
 
     memset(pic, 0, sizeof(internal_clieng_t));
@@ -294,17 +294,17 @@ u32 jf_clieng_init(jf_clieng_init_param_t * pParam)
 #endif       
 
     u32Ret = _createCmdHistory(pic, pParam);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _createInputOutput(pic, pParam);
     }
         
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _createParser(pic, pParam);
     }
         
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         pic->ic_bInitialized = TRUE;
     else
         jf_clieng_fini();
@@ -314,7 +314,7 @@ u32 jf_clieng_init(jf_clieng_init_param_t * pParam)
 
 u32 jf_clieng_run(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_t * pic = &ls_icClieng;
 
     jf_logger_logInfoMsg("run clieng");
@@ -326,7 +326,7 @@ u32 jf_clieng_run(void)
     if (pic->ic_fnPreEnterLoop != NULL)
         u32Ret = pic->ic_fnPreEnterLoop(pic->ic_pMaster);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pic->ic_bEnableScriptEngine)
         {
@@ -354,7 +354,7 @@ u32 jf_clieng_run(void)
 
 u32 jf_clieng_stop(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_t * pic = &ls_icClieng;
 
     pic->ic_bTerminateClieng = TRUE;
@@ -364,7 +364,7 @@ u32 jf_clieng_stop(void)
 
 u32 jf_clieng_fini()
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_t * pic = &ls_icClieng;
     
     jf_logger_logInfoMsg("destroy clieng");
@@ -385,7 +385,7 @@ u32 jf_clieng_newCmd(
     jf_clieng_fnParseCmd_t fnParseCmd, jf_clieng_fnProcessCmd_t fnProcessCmd,
     void * pParam, jf_clieng_cmd_t ** ppCmd)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_t * pic = &ls_icClieng;
 
     assert((pstrName != NULL) && (pParam != NULL) &&
@@ -401,7 +401,7 @@ u32 jf_clieng_newCmd(
 u32 jf_clieng_newCmdSet(
     const olchar_t * pstrName, jf_clieng_cmd_set_t ** ppCmdSet)
 {
-    u32 u32Ret = OLERR_NOT_IMPLEMENTED;
+    u32 u32Ret = JF_ERR_NOT_IMPLEMENTED;
 
     return u32Ret;
 }
@@ -409,22 +409,22 @@ u32 jf_clieng_newCmdSet(
 u32 jf_clieng_addToCmdSet(
     jf_clieng_cmd_t * pCmd, jf_clieng_cmd_set_t * pCmdSet)
 {
-    u32 u32Ret = OLERR_NOT_IMPLEMENTED;
+    u32 u32Ret = JF_ERR_NOT_IMPLEMENTED;
 
     return u32Ret;
 }
 
 u32 jf_clieng_setPrompt(const olchar_t * pstrPrompt)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_t * pic = &ls_icClieng;;
 
     assert(pstrPrompt != NULL);
 
     if (strlen(pstrPrompt) > MAX_PROMPT_LEN - 1)
-        u32Ret = OLERR_CLIENG_PROMPT_TOO_LONG;
+        u32Ret = JF_ERR_CLIENG_PROMPT_TOO_LONG;
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_strcpy(pic->ic_strPrompt, pstrPrompt);
     }

@@ -29,18 +29,18 @@ static boolean_t ls_bToTerminate = FALSE;
 /* --- private routine section---------------------------------------------- */
 THREAD_RETURN_VALUE _testThread(void * pArg)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index = (u32)(ulong)pArg;
 
     ol_printf("_testThread %u starts\n", u32Index);
 
-    while ((! ls_bToTerminate) && (u32Ret == OLERR_NO_ERROR))
+    while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
         ol_printf("_testThread %u shout\n", u32Index);
         sleep(5);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         ol_printf("_testThread %u quits\n", u32Index);
 
     THREAD_RETURN(u32Ret);
@@ -50,19 +50,19 @@ THREAD_RETURN_VALUE _testThread(void * pArg)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     u32 u32Index;
 
     for (u32Index = 0;
-         ((u32Index < MAX_THREAD_COUNT) && (u32Ret == OLERR_NO_ERROR));
+         ((u32Index < MAX_THREAD_COUNT) && (u32Ret == JF_ERR_NO_ERROR));
          u32Index ++)
     {
         ol_printf("main tread, create thread %u\n", u32Index);
         u32Ret = createThread(NULL, NULL, _testThread, (void *)(ulong)(u32Index + 1));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("main thread, sleeping for 5 minutes\n");
         sleep(300);
@@ -75,9 +75,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     ol_printf("main thread quits\n");
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

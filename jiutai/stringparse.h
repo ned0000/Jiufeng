@@ -78,8 +78,8 @@ typedef struct jf_string_parse_result
  *  @param sDelimiter [in] The length of the delimiter 
  * 
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
- *  @retval OLERR_OUT_OF_MEMORY out of memeory
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_OUT_OF_MEMORY out of memeory
  *
  *  @note differs from parseStringAdv, this method does not ignore
  *   characters contained within quotation marks, whereas parseStringAdv does.
@@ -100,8 +100,8 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_parse(
  *  @param sDelimiter [in] The length of the delimiter 
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
- *  @retval OLERR_OUT_OF_MEMORY out of memeory
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_OUT_OF_MEMORY out of memeory
  *
  *  @note differs from parseString, this method ignores characters
  *   contained within quotation marks, whereas parseString does not.
@@ -116,7 +116,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_parseAdv(
  *  @param ppResult [in] The list of tokens to free 
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_destroyParseResult(
     jf_string_parse_result_t ** ppResult);
@@ -127,7 +127,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_destroyParseResult(
  *  @param pstrSource [in] the input string to be removed the blank space(s)
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_skipBlank(
     olchar_t * pstrDest, const olchar_t * pstrSource);
@@ -172,7 +172,7 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_trimBlank(olchar_t * pstr);
  *  @param sWidth [in] the maximal column count of the wrapped string.
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_breakToLine(
     olchar_t * pstr, olsize_t sWidth);
@@ -436,7 +436,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getU32FromString(
  *  @param numeric [in] the long value extracted from the string 
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getLongFromString(
     const olchar_t * pstrInteger, const olsize_t size, long * numeric);
@@ -448,7 +448,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getLongFromString(
  *  @param numeric [in] the unsigned long value extracted from the string 
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getUlongFromString(
     const olchar_t * pstrInteger, const olsize_t size, unsigned long * numeric);
@@ -468,7 +468,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getS64FromString(
  *   is returned
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getBinaryFromString(
     const olchar_t * pstr, const olsize_t size, u8 * pu8Binary,
@@ -481,7 +481,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getBinaryFromString(
  *  @param pu64Size [out] the size in bytes to be returned
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSizeFromString(
     const olchar_t * pstrSize, u64 * pu64Size);
@@ -528,7 +528,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getDoubleFromString(
  *   as out param, the actually inputed count of ids from the command line.
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  *
  *  @note pids is a buffer can at least hold *psId ids.
  *  @note if pstrIdList = "2,5,9~11", after processing
@@ -546,7 +546,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processIdList(
  *  @param sValue [in] length of value string
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  *
  *  @note processSettings() should be called before
  */
@@ -566,7 +566,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_retrieveSettingsEnable(
  *  @param piArray [out] the index of the invalid setting
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  *
  *  @note processSettings() should be called before
  */
@@ -589,7 +589,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateSettings(
  *  @param psArray [in/out] number of element in the string array
  * 
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  *
  *  @note for iSCSI keywords process, the tag is seperated by '\0'
  *  @note psArray specifies the array size. If numbers of tags are more
@@ -616,7 +616,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processSettingString(
  *  @param psArray [out] number of element in the string array
  * 
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  *
  *  @note the tag is seperated by ',' 
  */

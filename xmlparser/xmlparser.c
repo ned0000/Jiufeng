@@ -33,7 +33,7 @@
  */
 static u32 _destroyXMLNodeList(jf_xmlparser_xml_node_t ** ppNode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_xmlparser_xml_node_t * temp;
     jf_xmlparser_xml_node_t * node = *ppNode;
 
@@ -59,12 +59,12 @@ static u32 _newXMLNode(
     boolean_t bEmptyTag, olchar_t * pstrNSTag, olsize_t sNSTag,
     jf_string_parse_result_field_t * pjsprfContent, jf_string_parse_result_t * pElem)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_xmlparser_xml_node_t * jxxnNew = NULL;
     olchar_t * pu8Reserved;
 
     u32Ret = xcalloc((void **)&jxxnNew, sizeof(jf_xmlparser_xml_node_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jxxnNew->jxxn_pstrName = pstrTagName;
         jxxnNew->jxxn_sName = sTagName;
@@ -107,7 +107,7 @@ static u32 _newXMLNode(
                just so the tree is consistent. No point in 
                introducing unnecessary complexity */
             u32Ret = xmalloc((void **)&jxxnNew, sizeof(jf_xmlparser_xml_node_t));
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 memset(jxxnNew, 0, sizeof(jf_xmlparser_xml_node_t));
                 jxxnNew->jxxn_pstrName = pstrTagName;
@@ -129,38 +129,38 @@ static u32 _newXMLNode(
 static u32 _parseXmlDeclaration(
     jf_string_parse_result_t * xml, jf_string_parse_result_field_t ** ppDoc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_field_t * field;
 
     if (xml->jspr_u32NumOfResult < 2)
-        u32Ret = OLERR_CORRUPTED_XML_FILE;
+        u32Ret = JF_ERR_CORRUPTED_XML_FILE;
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         field = xml->jspr_pjsprfFirst->jsprf_pjsprfNext;
         if (field == NULL)
-            u32Ret = OLERR_CORRUPTED_XML_FILE;
+            u32Ret = JF_ERR_CORRUPTED_XML_FILE;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (field->jsprf_sData < 1)
-            u32Ret = OLERR_INVALID_XML_DECLARATION;
+            u32Ret = JF_ERR_INVALID_XML_DECLARATION;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (memcmp(field->jsprf_pstrData, "?", 1) != 0)
-            u32Ret = OLERR_INVALID_XML_DECLARATION;
+            u32Ret = JF_ERR_INVALID_XML_DECLARATION;
     }
     
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*parse the attribute in the declaration*/
 
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         *ppDoc = field->jsprf_pjsprfNext;
     }
@@ -172,7 +172,7 @@ static u32 _parseXmlElement(
     jf_string_parse_result_field_t * field, boolean_t * pbEmptyTag,
     boolean_t * pbStartTag, jf_string_parse_result_t ** ppElem)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     *pbEmptyTag = FALSE;
     if (memcmp(field->jsprf_pstrData, "/", 1) == 0)
@@ -196,7 +196,7 @@ static u32 _parseXmlElement(
         /* If we look for the '>' we can find the end of this element */
         u32Ret = jf_string_parse(
             ppElem, field->jsprf_pstrData, 0, field->jsprf_sData, ">", 1);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if ((*ppElem)->jspr_pjsprfFirst->
                 jsprf_pstrData[(*ppElem)->jspr_pjsprfFirst->jsprf_sData - 1] == '/')
@@ -213,7 +213,7 @@ static u32 _parseXmlElement(
 static u32 _parseXmlAttribute(
     jf_string_parse_result_t * pElem, jf_string_parse_result_t ** ppAttr)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     /* Parsing on the ' ', isolate the element name from the attributes.
        The first token is the element name */
@@ -228,7 +228,7 @@ static u32 _parseXmlElementName(
     jf_string_parse_result_t * pAttr, olchar_t ** ppNs, olsize_t * psNs,
     olchar_t ** ppName, olsize_t * psName)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t * pTag = NULL;
 
     /* Now that we have the token that contains the element name,
@@ -237,7 +237,7 @@ static u32 _parseXmlElementName(
     u32Ret = jf_string_parse(
         &pTag, pAttr->jspr_pjsprfFirst->jsprf_pstrData, 0,
         pAttr->jspr_pjsprfFirst->jsprf_sData, ":", 1);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pTag->jspr_u32NumOfResult == 1)
         {
@@ -276,7 +276,7 @@ static u32 _parseXML(
     olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf,
     jf_xmlparser_xml_node_t ** ppNode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t * xml = NULL;
     jf_string_parse_result_field_t * field;
     jf_string_parse_result_t * pAttr = NULL;
@@ -292,33 +292,33 @@ static u32 _parseXML(
 
     /* All XML elements start with a '<' character */
     u32Ret = jf_string_parse(&xml, pstrBuf, sOffset, sBuf, "<", 1);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _parseXmlDeclaration(xml, &field);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (field == NULL)
-            u32Ret = OLERR_CORRUPTED_XML_FILE;
+            u32Ret = JF_ERR_CORRUPTED_XML_FILE;
     }
 
-    while ((field != NULL) && (u32Ret == OLERR_NO_ERROR))
+    while ((field != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
         u32Ret = _parseXmlElement(field, &bEmptyTag, &bStartTag, &pElem);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = _parseXmlAttribute(pElem, &pAttr);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = _parseXmlElementName(
                 pAttr, &nsTag, &sNsTag, &tagName, &sTagName);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (sTagName != 0)
             {
@@ -340,7 +340,7 @@ static u32 _parseXML(
     if (xml != NULL)
         jf_string_destroyParseResult(&xml);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         *ppNode = retval;
     }
@@ -362,7 +362,7 @@ static u32 _parseXML(
  */
 static u32 _processXMLNodeList(jf_xmlparser_xml_doc_t * pjxxd)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_xmlparser_xml_node_t * current = pjxxd->jxxd_pjxxnRoot;
     jf_xmlparser_xml_node_t * temp, * parent;
     void * TagStack = NULL;
@@ -411,7 +411,7 @@ static u32 _processXMLNodeList(jf_xmlparser_xml_doc_t * pjxxd)
                 {
                     /* Illegal Close Tag Order */
                     pjxxd->jxxd_pjxxnError = temp;
-                    u32Ret = OLERR_UNMATCHED_CLOSE_TAG;
+                    u32Ret = JF_ERR_UNMATCHED_CLOSE_TAG;
                     break;
                 }
             }
@@ -419,7 +419,7 @@ static u32 _processXMLNodeList(jf_xmlparser_xml_doc_t * pjxxd)
             {
                 /* Illegal Close Tag */
                 pjxxd->jxxd_pjxxnError = current;
-                u32Ret = OLERR_ILLEGAL_CLOSE_TAG;
+                u32Ret = JF_ERR_ILLEGAL_CLOSE_TAG;
                 break;
             }
         }
@@ -432,8 +432,8 @@ static u32 _processXMLNodeList(jf_xmlparser_xml_doc_t * pjxxd)
     if (TagStack != NULL)
     {
         /* Incomplete XML */
-        if (u32Ret == OLERR_NO_ERROR)
-            u32Ret = OLERR_INCOMPLETE_XML;
+        if (u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = JF_ERR_INCOMPLETE_XML;
         clearStack(&TagStack);
     }
 
@@ -443,14 +443,14 @@ static u32 _processXMLNodeList(jf_xmlparser_xml_doc_t * pjxxd)
 static u32 _getXmlAttribute(
     jf_string_parse_result_field_t * field, jf_xmlparser_xml_attribute_t ** ppAttribute)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_xmlparser_xml_attribute_t * retval = NULL;
     jf_xmlparser_xml_attribute_t * current = NULL;
     jf_string_parse_result_t * pAttr;
     jf_string_parse_result_t * pValue;
 
     /* Iterate through all the other tokens, as these are all attributes */
-    while ((field != NULL) && (u32Ret == OLERR_NO_ERROR))
+    while ((field != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
         pAttr = pValue = NULL;
         if (retval == NULL)
@@ -463,14 +463,14 @@ static u32 _getXmlAttribute(
             /* We already created an attribute node, so simply create a new one,
                and attach it on the beginning of the old one. */
             u32Ret = xcalloc((void **)&current, sizeof(jf_xmlparser_xml_attribute_t));
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 current->jxxa_pjxxaNext = retval;
                 retval = current;
             }
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             /* Parse each token by the ':'. If this results is more than one
                token, we can figure that the first token is the namespace
@@ -479,7 +479,7 @@ static u32 _getXmlAttribute(
                 &pAttr, field->jsprf_pstrData, 0, field->jsprf_sData, ":", 1);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (pAttr->jspr_u32NumOfResult == 1)
             {
@@ -503,7 +503,7 @@ static u32 _getXmlAttribute(
             }
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             retval->jxxa_pstrName = pValue->jspr_pjsprfFirst->jsprf_pstrData;
             retval->jxxa_sName = pValue->jspr_pjsprfFirst->jsprf_sData;
@@ -520,7 +520,7 @@ static u32 _getXmlAttribute(
         field = field->jsprf_pjsprfNext;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppAttribute = retval;
     else if (retval != NULL)
         jf_xmlparser_destroyXMLAttributeList(&retval);
@@ -532,7 +532,7 @@ static u32 _getXmlAttribute(
 
 u32 jf_xmlparser_destroyXMLAttributeList(jf_xmlparser_xml_attribute_t ** ppAttribute)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_xmlparser_xml_attribute_t * temp;
     jf_xmlparser_xml_attribute_t * attribute = *ppAttribute;
 
@@ -559,7 +559,7 @@ u32 jf_xmlparser_lookupXMLNamespace(
     jf_xmlparser_xml_node_t * node, olchar_t * prefix, olsize_t sPrefix,
     olchar_t ** ppstr)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_xmlparser_xml_node_t * temp = node;
 
     /*If the specified prefix is zero length, we interpret that to mean
@@ -585,7 +585,7 @@ u32 jf_xmlparser_lookupXMLNamespace(
         }
 
         temp = temp->jxxn_pjxxnParent;
-    } while ((temp != NULL) && (u32Ret == OLERR_NO_ERROR));
+    } while ((temp != NULL) && (u32Ret == JF_ERR_NO_ERROR));
 
     return u32Ret;
 }
@@ -598,7 +598,7 @@ u32 jf_xmlparser_lookupXMLNamespace(
  */
 u32 jf_xmlparser_buildXMLNamespaceLookupTable(jf_xmlparser_xml_node_t * node)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_xmlparser_xml_attribute_t *attr, *currentAttr;
     jf_xmlparser_xml_node_t *current = node;
 
@@ -617,7 +617,7 @@ u32 jf_xmlparser_buildXMLNamespaceLookupTable(jf_xmlparser_xml_node_t * node)
         initHashtree(&current->jxxn_hNameSpace);
 
         u32Ret = jf_xmlparser_getXMLAttributes(current, &attr);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             currentAttr = attr;
             /*Iterate through all the attributes to find namespace
@@ -656,7 +656,7 @@ u32 jf_xmlparser_buildXMLNamespaceLookupTable(jf_xmlparser_xml_node_t * node)
 u32 jf_xmlparser_readInnerXML(
     jf_xmlparser_xml_node_t * node, olchar_t ** ppstrData, olsize_t * psData)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_xmlparser_xml_node_t *x = node;
     olsize_t sBuf = 0;
     basic_stack_t *tagStack;
@@ -698,7 +698,7 @@ u32 jf_xmlparser_readInnerXML(
 u32 jf_xmlparser_getXMLAttributes(
     jf_xmlparser_xml_node_t * node, jf_xmlparser_xml_attribute_t ** ppAttribute)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t *c;
     olint_t nEndReserved = (! node->jxxn_bEmptyTag) ? 1 : 2;
     jf_string_parse_result_t * xml;
@@ -723,7 +723,7 @@ u32 jf_xmlparser_getXMLAttributes(
     u32Ret = jf_string_parseAdv(
         &xml, c, 0, ((olchar_t *) node->jxxn_pReserved - c - nEndReserved),
         " ", 1);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         field = xml->jspr_pjsprfFirst;
 
@@ -742,12 +742,12 @@ u32 jf_xmlparser_getXMLAttributes(
 u32 jf_xmlparser_parseXML(
     olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf, jf_xmlparser_xml_doc_t * pjxxd)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     ol_bzero(pjxxd, sizeof(jf_xmlparser_xml_doc_t));
 
     u32Ret = _parseXML(pstrBuf, sOffset, sBuf, &(pjxxd->jxxd_pjxxnRoot));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _processXMLNodeList(pjxxd);
     }
@@ -757,7 +757,7 @@ u32 jf_xmlparser_parseXML(
 
 u32 jf_xmlparser_destroyXMLNodeList(jf_xmlparser_xml_node_t ** ppNode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = _destroyXMLNodeList(ppNode);
 
@@ -767,7 +767,7 @@ u32 jf_xmlparser_destroyXMLNodeList(jf_xmlparser_xml_node_t ** ppNode)
 u32 jf_xmlparser_parseXMLFile(
     const olchar_t * pstrFilename, jf_xmlparser_xml_file_t ** ppFile)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     FILE * fp = NULL;
     olsize_t u32Size;
     jf_file_stat_t filestat;
@@ -776,34 +776,34 @@ u32 jf_xmlparser_parseXMLFile(
     assert((pstrFilename != NULL) && (ppFile != NULL));
 
     u32Ret = xmalloc((void **)&pjxxf, sizeof(*pjxxf));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pjxxf, 0, sizeof(*pjxxf));
         u32Ret = jf_file_getStat(pstrFilename, &filestat);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Size = (olsize_t)filestat.jfs_u64Size;
         u32Ret = xmalloc((void **)&(pjxxf->jxxf_pstrBuf), u32Size);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_filestream_open(pstrFilename, "r", &fp);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_filestream_readn(fp, pjxxf->jxxf_pstrBuf, &u32Size);
         if (u32Size != (u32)filestat.jfs_u64Size)
-            u32Ret = OLERR_CORRUPTED_XML_FILE;
+            u32Ret = JF_ERR_CORRUPTED_XML_FILE;
     }
 
     if (fp != NULL)
         jf_filestream_close(&fp);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_xmlparser_parseXML(
             pjxxf->jxxf_pstrBuf, 0, u32Size, &(pjxxf->jxxf_jxxdDoc));
@@ -817,7 +817,7 @@ u32 jf_xmlparser_parseXMLFile(
 
 u32 jf_xmlparser_destroyXMLFile(jf_xmlparser_xml_file_t ** ppFile)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_xmlparser_xml_file_t * pjxxf;
 
     assert((ppFile != NULL) && (*ppFile != NULL));
@@ -835,7 +835,7 @@ u32 jf_xmlparser_destroyXMLFile(jf_xmlparser_xml_file_t ** ppFile)
 
 void jf_xmlparser_printXMLNodeList(jf_xmlparser_xml_node_t * pjxxn, u8 u8Indent)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t tagname[50];
     olchar_t value[50];
     olchar_t * pstrValue;
@@ -862,7 +862,7 @@ void jf_xmlparser_printXMLNodeList(jf_xmlparser_xml_node_t * pjxxn, u8 u8Indent)
         else
         {
             u32Ret = jf_xmlparser_readInnerXML(temp, &pstrValue, &sBuf);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 memcpy(value, pstrValue, sBuf);
                 value[sBuf] = '\0';

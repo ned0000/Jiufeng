@@ -47,13 +47,13 @@ typedef struct
 /* --- private routine section---------------------------------------------- */
 static u32 _getFirstDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     struct dirent * pdirent;
 
     pdirent = readdir(pDir);
     if (pdirent == NULL)
-        u32Ret = OLERR_DIR_ENTRY_NOT_FOUND;
+        u32Ret = JF_ERR_DIR_ENTRY_NOT_FOUND;
     else
     {
         memset(pEntry, 0, sizeof(jf_dir_entry_t));
@@ -71,9 +71,9 @@ static u32 _getFirstDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
         PATH_SEPARATOR);
     pid->id_hFind = FindFirstFile(strDirName, &FindFileData);
     if (pid->id_hFind == INVALID_HANDLE_VALUE) 
-        u32Ret = OLERR_DIR_ENTRY_NOT_FOUND;
+        u32Ret = JF_ERR_DIR_ENTRY_NOT_FOUND;
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pEntry, 0, sizeof(jf_dir_entry_t));
         pEntry->jde_sName = ol_strlen(FindFileData.cFileName);
@@ -86,13 +86,13 @@ static u32 _getFirstDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
 
 static u32 _getNextDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     struct dirent * pdirent;
 
     pdirent = readdir(pDir);
     if (pdirent == NULL)
-        u32Ret = OLERR_DIR_ENTRY_NOT_FOUND;
+        u32Ret = JF_ERR_DIR_ENTRY_NOT_FOUND;
     else
     {
         memset(pEntry, 0, sizeof(jf_dir_entry_t));
@@ -114,9 +114,9 @@ static u32 _getNextDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
     else
     {
         if (GetLastError() == ERROR_NO_MORE_FILES)
-            u32Ret = OLERR_DIR_ENTRY_NOT_FOUND;
+            u32Ret = JF_ERR_DIR_ENTRY_NOT_FOUND;
         else
-            u32Ret = OLERR_FAIL_GET_ENTRY;
+            u32Ret = JF_ERR_FAIL_GET_ENTRY;
     }
 #endif
 
@@ -137,17 +137,17 @@ static boolean_t _isIgnoreEntry(olchar_t * pstrEntryName)
 static u32 _traversalDirectory(
     olchar_t * pstrDirName, jf_dir_fnHandleFile_t fnHandleFile, void * pArg)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_file_stat_t filestat;
     jf_dir_t * pDir = NULL;
     jf_dir_entry_t direntry;
     olchar_t strFullname[MAX_PATH_LEN * 2];
 
     u32Ret = jf_dir_open(pstrDirName, &pDir);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _getFirstDirEntry(pDir, &direntry);
-        while (u32Ret == OLERR_NO_ERROR)
+        while (u32Ret == JF_ERR_NO_ERROR)
         {
             if (! _isIgnoreEntry(direntry.jde_strName))
             {
@@ -157,12 +157,12 @@ static u32 _traversalDirectory(
                     PATH_SEPARATOR, direntry.jde_strName);
 
                 u32Ret = jf_file_getStat(strFullname, &filestat);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     u32Ret = fnHandleFile(strFullname, &filestat, pArg);
                 }
 
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     if (jf_file_isDirFile(filestat.jfs_u32Mode))
                     {
@@ -171,12 +171,12 @@ static u32 _traversalDirectory(
                 }
             }
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = _getNextDirEntry(pDir, &direntry);
         }
 
-        if (u32Ret == OLERR_DIR_ENTRY_NOT_FOUND)
-            u32Ret = OLERR_NO_ERROR;
+        if (u32Ret == JF_ERR_DIR_ENTRY_NOT_FOUND)
+            u32Ret = JF_ERR_NO_ERROR;
     }
 
     if (pDir != NULL)
@@ -189,7 +189,7 @@ static u32 _traversalDirectory(
 
 u32 jf_dir_open(const olchar_t * pstrDirName, jf_dir_t ** ppDir)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dir_t * pDir = NULL;
 
     assert((pstrDirName != NULL) && (ppDir != NULL));
@@ -199,17 +199,17 @@ u32 jf_dir_open(const olchar_t * pstrDirName, jf_dir_t ** ppDir)
     if (pDir != NULL)
         *ppDir = pDir;
     else
-        u32Ret = OLERR_FAIL_OPEN_DIR;
+        u32Ret = JF_ERR_FAIL_OPEN_DIR;
 #elif defined(WINDOWS)
     u32Ret = xmalloc(&pDir, sizeof(internal_dir_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pDir, 0, sizeof(internal_dir_t));
         pDir->id_hDir = CreateFile(pstrDirName, GENERIC_READ, FILE_SHARE_READ, NULL,
              OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
         if (pDir->id_hDir == INVALID_HANDLE_VALUE)
         {
-            u32Ret = OLERR_FAIL_OPEN_DIR;
+            u32Ret = JF_ERR_FAIL_OPEN_DIR;
             xfree(&pDir);
         }
         else
@@ -226,7 +226,7 @@ u32 jf_dir_open(const olchar_t * pstrDirName, jf_dir_t ** ppDir)
 
 u32 jf_dir_close(jf_dir_t ** ppDir)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dir_t * pDir;
 
     assert(ppDir != NULL);
@@ -259,7 +259,7 @@ u32 jf_dir_getNextDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
 
 u32 jf_dir_create(const olchar_t * pstrDirName, jf_file_mode_t mode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olint_t ret;
 
@@ -267,16 +267,16 @@ u32 jf_dir_create(const olchar_t * pstrDirName, jf_file_mode_t mode)
     if (ret != 0)
     {
         if (errno == EEXIST)
-            u32Ret = OLERR_DIR_ALREADY_EXIST;
+            u32Ret = JF_ERR_DIR_ALREADY_EXIST;
         else
-            u32Ret = OLERR_FAIL_CREATE_DIR;
+            u32Ret = JF_ERR_FAIL_CREATE_DIR;
     }
 #elif defined(WINDOWS)
     boolean_t bRet;
 
     bRet = CreateDirectory(pstrDirName, NULL);
     if (! bRet)
-        u32Ret = OLERR_FAIL_CREATE_DIR;
+        u32Ret = JF_ERR_FAIL_CREATE_DIR;
 #endif
 
     return u32Ret;
@@ -284,19 +284,19 @@ u32 jf_dir_create(const olchar_t * pstrDirName, jf_file_mode_t mode)
 
 u32 jf_dir_remove(const olchar_t * pstrDirName)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olint_t ret;
 
     ret = rmdir(pstrDirName);
     if (ret != 0)
-        u32Ret = OLERR_FAIL_REMOVE_DIR;
+        u32Ret = JF_ERR_FAIL_REMOVE_DIR;
 #elif defined(WINDOWS)
     boolean_t bRet;
 
     bRet = RemoveDirectory(pstrDirName);
     if (! bRet)
-        u32Ret = OLERR_FAIL_REMOVE_DIR;
+        u32Ret = JF_ERR_FAIL_REMOVE_DIR;
 #endif
 
     return u32Ret;
@@ -305,7 +305,7 @@ u32 jf_dir_remove(const olchar_t * pstrDirName)
 u32 jf_dir_traversal(
     const olchar_t * pstrDirName, jf_dir_fnHandleFile_t fnHandleFile, void * pArg)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strName[MAX_PATH_LEN];
 
     ol_strncpy(strName, pstrDirName, MAX_PATH_LEN - 1);
@@ -319,7 +319,7 @@ u32 jf_dir_traversal(
 u32 jf_dir_parse(
     const olchar_t * pstrDirName, jf_dir_fnHandleFile_t fnHandleFile, void * pArg)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strName[MAX_PATH_LEN];
     jf_file_stat_t filestat;
     jf_dir_t * pDir = NULL;
@@ -330,10 +330,10 @@ u32 jf_dir_parse(
     strName[MAX_PATH_LEN - 1] = '\0';
 
     u32Ret = jf_dir_open(strName, &pDir);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _getFirstDirEntry(pDir, &direntry);
-        while (u32Ret == OLERR_NO_ERROR)
+        while (u32Ret == JF_ERR_NO_ERROR)
         {
             if (! _isIgnoreEntry(direntry.jde_strName))
             {
@@ -342,18 +342,18 @@ u32 jf_dir_parse(
                          PATH_SEPARATOR, direntry.jde_strName);
 
                 u32Ret = jf_file_getStat(strFullname, &filestat);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     u32Ret = fnHandleFile(strFullname, &filestat, pArg);
                 }
             }
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = _getNextDirEntry(pDir, &direntry);
         }
 
-        if (u32Ret == OLERR_DIR_ENTRY_NOT_FOUND)
-            u32Ret = OLERR_NO_ERROR;
+        if (u32Ret == JF_ERR_DIR_ENTRY_NOT_FOUND)
+            u32Ret = JF_ERR_NO_ERROR;
     }
 
     if (pDir != NULL)
@@ -366,16 +366,16 @@ FILESAPI u32 FILESCALL jf_dir_scan(
     const olchar_t * pstrDirName, jf_dir_entry_t * entry, olint_t * numofentry,
     jf_dir_fnFilterDirEntry_t fnFilter, jf_dir_fnCompareDirEntry_t fnCompare)
 {
-	u32 u32Ret = OLERR_NO_ERROR;
+	u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t num = 0;
     jf_dir_t * pDir = NULL;
     jf_dir_entry_t direntry, *start = entry;
 
     u32Ret = jf_dir_open(pstrDirName, &pDir);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _getFirstDirEntry(pDir, &direntry);
-        while (u32Ret == OLERR_NO_ERROR)
+        while (u32Ret == JF_ERR_NO_ERROR)
         {
             if ((! _isIgnoreEntry(direntry.jde_strName)) &&
 				((fnFilter == NULL) || (! fnFilter(&direntry))))
@@ -388,15 +388,15 @@ FILESAPI u32 FILESCALL jf_dir_scan(
 					break;
             }
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = _getNextDirEntry(pDir, &direntry);
         }
 
-        if (u32Ret == OLERR_DIR_ENTRY_NOT_FOUND)
-            u32Ret = OLERR_NO_ERROR;
+        if (u32Ret == JF_ERR_DIR_ENTRY_NOT_FOUND)
+            u32Ret = JF_ERR_NO_ERROR;
     }
 
-	if ((u32Ret == OLERR_NO_ERROR) && (num != 0) && (fnCompare != NULL))
+	if ((u32Ret == JF_ERR_NO_ERROR) && (num != 0) && (fnCompare != NULL))
 	{
 		qsort(entry, num, sizeof(jf_dir_entry_t), fnCompare);
 	}

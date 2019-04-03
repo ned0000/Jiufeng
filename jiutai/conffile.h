@@ -43,7 +43,7 @@ typedef struct
  *  @param pstrFile [in] the path to the configuraiton file
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 openConfFile(conf_file_t * pcf, const olchar_t * pstrFile);
 
@@ -53,7 +53,7 @@ u32 openConfFile(conf_file_t * pcf, const olchar_t * pstrFile);
  *   destruction, it will be set to NULL.
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 closeConfFile(conf_file_t * pcf);
 
@@ -67,7 +67,7 @@ u32 closeConfFile(conf_file_t * pcf);
  *  @param pnValue [in/out] the option value will be return to it.
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 getConfFileInt(
     conf_file_t * pcf, const olchar_t * pstrTag, olint_t nDefault,
@@ -84,7 +84,7 @@ u32 getConfFileInt(
  *  @param sBuf [in] the size of the pstrValueBuf.
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 getConfFileString(
     conf_file_t * pcf, const olchar_t * pstrTag, const olchar_t * pstrDefault, 

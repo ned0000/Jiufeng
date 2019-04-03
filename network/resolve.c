@@ -28,7 +28,7 @@
 u32 jf_network_getHostByName(
     const olchar_t * pstrName, struct hostent ** ppHostent)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     struct hostent * pHost = NULL;
 
     pHost = gethostbyname(pstrName);
@@ -38,19 +38,19 @@ u32 jf_network_getHostByName(
         switch (h_errno)
         {
         case HOST_NOT_FOUND:
-            u32Ret = OLERR_HOST_NOT_FOUND;
+            u32Ret = JF_ERR_HOST_NOT_FOUND;
             break;
         case NO_ADDRESS:
-            u32Ret = OLERR_HOST_NO_ADDRESS;
+            u32Ret = JF_ERR_HOST_NO_ADDRESS;
             break;
         case NO_RECOVERY:
-            u32Ret = OLERR_NAME_SERVER_NO_RECOVERY;
+            u32Ret = JF_ERR_NAME_SERVER_NO_RECOVERY;
             break;
         case TRY_AGAIN:
-            u32Ret = OLERR_RESOLVE_TRY_AGAIN;
+            u32Ret = JF_ERR_RESOLVE_TRY_AGAIN;
             break;
         default:
-            u32Ret = OLERR_FAIL_RESOLVE_HOST;
+            u32Ret = JF_ERR_FAIL_RESOLVE_HOST;
             break;
         }
 #elif defined(WINDOWS)
@@ -59,13 +59,13 @@ u32 jf_network_getHostByName(
         case WSAHOST_NOT_FOUND:
             break;
         default:
-            u32Ret = OLERR_FAIL_RESOLVE_HOST;
+            u32Ret = JF_ERR_FAIL_RESOLVE_HOST;
             break;
         }
 #endif
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppHostent = pHost;
     else
         *ppHostent = NULL;

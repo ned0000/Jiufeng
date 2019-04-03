@@ -42,7 +42,7 @@ typedef struct
 u32 createCommandHistory(
     clieng_cmd_history_t ** ppcch, clieng_cmd_history_param_t * pcchp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t size = 0;
     internal_clieng_cmd_history_t * picch = NULL;
 
@@ -53,7 +53,7 @@ u32 createCommandHistory(
     size = sizeof(internal_clieng_cmd_history_t) + 
         (pcchp->cchp_sCmdHistroyBuf * (pcchp->cchp_sMaxCmdLine + 1)) - 4;
     u32Ret = xcalloc((void **)&picch, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         picch->icch_sMaxCmdLine = pcchp->cchp_sMaxCmdLine;
         picch->icch_sCmdHistroyBuf = pcchp->cchp_sCmdHistroyBuf;
@@ -69,7 +69,7 @@ u32 createCommandHistory(
 
 u32 destroyCommandHistory(clieng_cmd_history_t ** ppcch)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_cmd_history_t * picch = NULL;
  
     assert((ppcch != NULL) && (*ppcch != NULL));
@@ -86,7 +86,7 @@ u32 destroyCommandHistory(clieng_cmd_history_t ** ppcch)
 
 u32 clearCommandHistory(clieng_cmd_history_t * pcch)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_cmd_history_t * picch = NULL;
     
     assert(pcch != NULL);
@@ -104,7 +104,7 @@ u32 clearCommandHistory(clieng_cmd_history_t * pcch)
 
 u32 appendCommand(clieng_cmd_history_t * pcch, olchar_t * pstrCmd)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t length = 0;
     olchar_t * pstrLastCmd = NULL;
     internal_clieng_cmd_history_t * picch =
@@ -116,7 +116,7 @@ u32 appendCommand(clieng_cmd_history_t * pcch, olchar_t * pstrCmd)
         
     length = ol_strlen(pstrCmd);
     if (length > picch->icch_sMaxCmdLine)
-        u32Ret = OLERR_CMD_TOO_LONG;
+        u32Ret = JF_ERR_CMD_TOO_LONG;
     else
     {
         /* adjust the indexes */
@@ -152,7 +152,7 @@ u32 appendCommand(clieng_cmd_history_t * pcch, olchar_t * pstrCmd)
 u32 getPreviousCommand(
     clieng_cmd_history_t * pcch, olchar_t * pstrCmdBuf, olsize_t sBuf)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t length = 0;
     olindex_t previous = 0;
     olchar_t * pstrPreviousCmd = NULL;
@@ -181,7 +181,7 @@ u32 getPreviousCommand(
         length = ol_strlen(pstrPreviousCmd);
             
         if ((length + 1) > sBuf)
-            u32Ret = OLERR_BUFFER_TOO_SMALL;
+            u32Ret = JF_ERR_BUFFER_TOO_SMALL;
         else
         {
             ol_strcpy(pstrCmdBuf, pstrPreviousCmd);
@@ -195,7 +195,7 @@ u32 getPreviousCommand(
 u32 getNextCommand(
     clieng_cmd_history_t * pcch, olchar_t * pstrCmdBuf, olsize_t sBuf)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t length = 0;
     olindex_t next = 0;
     olchar_t * pstrNextCmd = NULL;
@@ -220,7 +220,7 @@ u32 getNextCommand(
                 (picch->icch_sMaxCmdLine + 1) * next;
             length = ol_strlen(pstrNextCmd);
             if ((length + 1) > sBuf)
-                u32Ret = OLERR_BUFFER_TOO_SMALL;
+                u32Ret = JF_ERR_BUFFER_TOO_SMALL;
             else
             {
                 ol_strcpy(pstrCmdBuf, pstrNextCmd);

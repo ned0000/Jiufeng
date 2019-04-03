@@ -28,13 +28,13 @@ boolean_t isSysErrorCode(u32 u32ErrCode)
 {
     boolean_t bRet = FALSE;
 
-    if (u32ErrCode == OLERR_OPERATION_FAIL)
+    if (u32ErrCode == JF_ERR_OPERATION_FAIL)
     {
         bRet = TRUE;
     }
     else
     {
-        if (u32ErrCode & ERRCODE_FLAG_SYSTEM)
+        if (u32ErrCode & JF_ERR_CODE_FLAG_SYSTEM)
             bRet = TRUE;
     }
 

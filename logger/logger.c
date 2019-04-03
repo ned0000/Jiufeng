@@ -82,7 +82,7 @@ static internal_logger_t ls_ilLogger;
  *  @param u32Size [in] the file size
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 static u32 _getLogFileLines(u32 u32Size)
 {
@@ -173,11 +173,11 @@ static void _log(
  *  @param pstrMsg [in] the log message
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 static u32 _logMsg(internal_logger_t * pil, olint_t nLevel, olchar_t * pstrMsg)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strHeader[256];
     olint_t nOffset;
 
@@ -218,7 +218,7 @@ static void _setDefaultParam(jf_logger_init_param_t * pjlip)
 static u32 _logSysErrMsg(internal_logger_t * pil, u32 u32ErrCode,
     const olchar_t * fmt, va_list ap)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nPrint;
     olchar_t buf[JF_LOGGER_MAX_MSG_SIZE];
     olchar_t bufMsg[128 + 1];
@@ -262,11 +262,11 @@ static u32 _logSysErrMsg(internal_logger_t * pil, u32 u32ErrCode,
 #if defined(LINUX)
     nPrint = ol_snprintf(buf + nPrint, JF_LOGGER_MAX_MSG_SIZE - nPrint - 1,
         " - (0x%X) %s\n      %d, %s", 
-        u32ErrCode, getErrorDescription(u32ErrCode), errno_save, bufMsg);
+        u32ErrCode, jf_err_getDescription(u32ErrCode), errno_save, bufMsg);
 #elif defined(WINDOWS)
     nPrint = ol_snprintf(buf + nPrint, JF_LOGGER_MAX_MSG_SIZE - nPrint - 1,
         " - (0x%X) %s\n      %d, %s", 
-        u32ErrCode, getErrorDescription(u32ErrCode), dwErrorCode, bufMsg);
+        u32ErrCode, jf_err_getDescription(u32ErrCode), dwErrorCode, bufMsg);
 #endif
     buf[JF_LOGGER_MAX_MSG_SIZE - 1] = 0;
     u32Ret = _logMsg(pil, LOG_ERR, buf);
@@ -277,7 +277,7 @@ static u32 _logSysErrMsg(internal_logger_t * pil, u32 u32ErrCode,
 static u32 _logErrMsg(internal_logger_t * pil, u32 u32ErrCode,
     const olchar_t * fmt, va_list ap)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nPrint;
     olchar_t buf[JF_LOGGER_MAX_MSG_SIZE];
 
@@ -297,7 +297,7 @@ static u32 _logErrMsg(internal_logger_t * pil, u32 u32ErrCode,
     }
 
     ol_snprintf(buf + nPrint, JF_LOGGER_MAX_MSG_SIZE - nPrint - 1, " - (0x%X) %s",
-        u32ErrCode, getErrorDescription(u32ErrCode));
+        u32ErrCode, jf_err_getDescription(u32ErrCode));
     buf[JF_LOGGER_MAX_MSG_SIZE - 1] = 0;
     u32Ret = _logMsg(pil, LOG_ERR, buf);
 
@@ -308,7 +308,7 @@ static u32 _logErrMsg(internal_logger_t * pil, u32 u32ErrCode,
 
 u32 jf_logger_init(jf_logger_init_param_t * pParam)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     FILE * fd = NULL;
     internal_logger_t * pil = &ls_ilLogger;
     jf_logger_init_param_t param, * pjlip;
@@ -363,7 +363,7 @@ u32 jf_logger_init(jf_logger_init_param_t * pParam)
                 strerror(errno));
 #endif
             fflush(stdout);
-            u32Ret = OLERR_OPERATION_FAIL;
+            u32Ret = JF_ERR_OPERATION_FAIL;
         }
         else
         {
@@ -376,7 +376,7 @@ u32 jf_logger_init(jf_logger_init_param_t * pParam)
         pil->il_strLogFilename[0] = 0;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pjlip->jlip_bLogToStdout)
         {
@@ -399,7 +399,7 @@ u32 jf_logger_init(jf_logger_init_param_t * pParam)
         pil->il_u32LogFileLines = _getLogFileLines(pjlip->jlip_sLogFile);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pil->il_bInitialized = TRUE;
 
@@ -415,7 +415,7 @@ u32 jf_logger_init(jf_logger_init_param_t * pParam)
 
 u32 jf_logger_fini(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_logger_t * pil = &ls_ilLogger;
 
     jf_logger_logInfoMsg("Logger stopped");
@@ -431,7 +431,7 @@ u32 jf_logger_fini(void)
 
 u32 jf_logger_logInfoMsg(const olchar_t * fmt, ...)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     va_list ap; 
     internal_logger_t * pil = &ls_ilLogger;
     olchar_t buf[JF_LOGGER_MAX_MSG_SIZE];
@@ -455,7 +455,7 @@ u32 jf_logger_logInfoMsg(const olchar_t * fmt, ...)
 
 u32 jf_logger_logDebugMsg(const olchar_t * fmt, ...)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     va_list ap; 
     internal_logger_t * pil = &ls_ilLogger;
     olchar_t buf[JF_LOGGER_MAX_MSG_SIZE];
@@ -479,7 +479,7 @@ u32 jf_logger_logDebugMsg(const olchar_t * fmt, ...)
 
 u32 jf_logger_logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     va_list ap; 
     internal_logger_t * pil = &ls_ilLogger;
 
@@ -504,7 +504,7 @@ u32 jf_logger_logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...)
 
 u32 jf_logger_logDataMsg(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_logger_t * pil = &ls_ilLogger;
     va_list ap; 
     olchar_t buf[JF_LOGGER_MAX_MSG_SIZE];
@@ -546,7 +546,7 @@ u32 jf_logger_logDataMsg(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...
 u32 jf_logger_logDataMsgWithAscii(
     u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_logger_t * pil = &ls_ilLogger;
     va_list ap; 
     olchar_t buf[JF_LOGGER_MAX_MSG_SIZE];

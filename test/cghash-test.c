@@ -42,11 +42,11 @@ Usage: cghash-test [-m] [-s] [-a string] [-h] \n\
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
     while (((nOpt = getopt(argc, argv,
-        "va:msh?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "va:msh?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -67,10 +67,10 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
             ls_bSha1 = TRUE;
             break;
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -80,7 +80,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 
 static u32 _testMd5(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 u8Digest[JF_CGHASH_MD5_DIGEST_LEN];
     olchar_t str[JF_CGHASH_MD5_DIGEST_LEN * 2 + 1];
 
@@ -115,7 +115,7 @@ static u32 _testMd5(void)
 
 static u32 _testSha1(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 u8Digest[JF_CGHASH_SHA1_DIGEST_LEN];
     olchar_t str[JF_CGHASH_SHA1_DIGEST_LEN * 2 + 1];
 
@@ -124,7 +124,7 @@ static u32 _testSha1(void)
     ol_printf("test case 1\n");
 
     u32Ret = jf_cghash_doSha1((u8 *)"Jefe", 4, u8Digest);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
@@ -140,7 +140,7 @@ static u32 _testSha1(void)
     ol_printf("test case 2\n");
 
     u32Ret = jf_cghash_doSha1((u8 *)"Doing a market survey.", 22, u8Digest);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
@@ -158,14 +158,14 @@ static u32 _testSha1(void)
 
 static u32 _sha1Str(olchar_t * source)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 u8Digest[JF_CGHASH_SHA1_DIGEST_LEN];
     olchar_t str[JF_CGHASH_SHA1_DIGEST_LEN * 2 + 1];
 
     ol_printf("source string: %s\n", source);
 
     u32Ret = jf_cghash_doSha1((u8 *)source, ol_strlen(source), u8Digest);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
@@ -181,11 +181,11 @@ static u32 _sha1Str(olchar_t * source)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
     u32Ret = _parseCmdLineParam(argc, argv);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_pstrSource != NULL)
             u32Ret = _sha1Str(ls_pstrSource);
@@ -200,9 +200,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
         }
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

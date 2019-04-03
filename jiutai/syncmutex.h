@@ -36,7 +36,7 @@ typedef struct
  *  @param pMutex [in] the mutex to be initialized
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 initSyncMutex(sync_mutex_t * pMutex);
 
@@ -45,7 +45,7 @@ u32 initSyncMutex(sync_mutex_t * pMutex);
  *  @param pMutex [in] the mutex to be finalized
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 finiSyncMutex(sync_mutex_t * pMutex);
 
@@ -57,7 +57,7 @@ u32 finiSyncMutex(sync_mutex_t * pMutex);
  *  @param pMutex [in] the mutex to be acquired
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 acquireSyncMutex(sync_mutex_t * pMutex);
 
@@ -69,7 +69,7 @@ u32 acquireSyncMutex(sync_mutex_t * pMutex);
  *  @param pMutex [in] the mutex to be acquired
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 tryAcquireSyncMutex(sync_mutex_t * pMutex);
 
@@ -80,7 +80,7 @@ u32 tryAcquireSyncMutex(sync_mutex_t * pMutex);
  *   acquired by another thread in milliseconds.
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 acquireSyncMutexWithTimeout(sync_mutex_t * pMutex, u32 u32Timeout);
 
@@ -89,7 +89,7 @@ u32 acquireSyncMutexWithTimeout(sync_mutex_t * pMutex, u32 u32Timeout);
  *  @param pMutex [in] the mutex to be released
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 releaseSyncMutex(sync_mutex_t * pMutex);
 

@@ -31,7 +31,7 @@
 
 static u32 _startInstall(void * pArg)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t install = *(olint_t *)pArg;
 
     ol_printf("install: %d\n", install);
@@ -42,28 +42,28 @@ static u32 _startInstall(void * pArg)
 /* --- public routine section ---------------------------------------------- */
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     menu_t *topMenu = NULL;
     menu_t * pInstall, * pQuery;
     olint_t install = 1;
 
     u32Ret = createTopMenu(NULL, NULL, NULL, &topMenu);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = addSubMenu(topMenu, "Install", NULL, 0, NULL, NULL, NULL, &pInstall);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = addSubMenu(pInstall, "query", NULL, 0, NULL, NULL, NULL, &pQuery);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = addMenuEntry(pInstall, "Start", NULL, 0, _startInstall, (void *)&install);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         startMenu(topMenu);
     }

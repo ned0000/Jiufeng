@@ -41,34 +41,34 @@ typedef struct
 /* --- public routine section ---------------------------------------------- */
 u32 loadDynLib(const olchar_t * pstrLibFile, dyn_lib_t ** ppLib)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dyn_lib_t * pidl = NULL;
 
 #if defined(LINUX)
     u32Ret = xmalloc((void **)&pidl, sizeof(internal_dyn_lib_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pidl, 0, sizeof(internal_dyn_lib_t));
         
         pidl->idl_pDynLib = dlopen(pstrLibFile, RTLD_LAZY);
         if (pidl->idl_pDynLib == NULL)
-            u32Ret = OLERR_FAIL_LOAD_DYNLIB;
+            u32Ret = JF_ERR_FAIL_LOAD_DYNLIB;
     }
 
 #elif defined(WINDOWS)
     u32Ret = xmalloc((void **)&pidl, sizeof(internal_dyn_lib_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pidl, 0, sizeof(internal_dyn_lib_t));
 
         pidl->idl_hDynLib = LoadLibrary(pstrLibFile);
         if (pidl->idl_hDynLib == NULL)
-            u32Ret = OLERR_FAIL_LOAD_DYNLIB;
+            u32Ret = JF_ERR_FAIL_LOAD_DYNLIB;
     }
 
 #endif
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppLib = pidl;
     else if (pidl != NULL)
         freeDynLib((dyn_lib_t **)&pidl);
@@ -78,7 +78,7 @@ u32 loadDynLib(const olchar_t * pstrLibFile, dyn_lib_t ** ppLib)
 
 u32 freeDynLib(dyn_lib_t ** ppLib)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dyn_lib_t * pidl = NULL;
 
 #if defined(LINUX)
@@ -92,7 +92,7 @@ u32 freeDynLib(dyn_lib_t ** ppLib)
     {
         nRet = dlclose(pidl->idl_pDynLib);
         if (nRet != 0)
-            u32Ret = OLERR_FAIL_FREE_DYNLIB;
+            u32Ret = JF_ERR_FAIL_FREE_DYNLIB;
     }
 
     xfree(ppLib);
@@ -108,7 +108,7 @@ u32 freeDynLib(dyn_lib_t ** ppLib)
     {
         bRet = FreeLibrary(pidl->idl_hDynLib);
         if (! bRet)
-            u32Ret = OLERR_FAIL_FREE_DYNLIB;
+            u32Ret = JF_ERR_FAIL_FREE_DYNLIB;
     }
 
     xfree(ppLib);
@@ -121,7 +121,7 @@ u32 freeDynLib(dyn_lib_t ** ppLib)
 u32 getSymbolAddress(dyn_lib_t * pLib, const olchar_t * pstrSymbol,
     void ** ppAddress)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dyn_lib_t * pidl = (internal_dyn_lib_t *)pLib;
 
 #if defined(LINUX)
@@ -129,14 +129,14 @@ u32 getSymbolAddress(dyn_lib_t * pLib, const olchar_t * pstrSymbol,
 
     *ppAddress = dlsym(pidl->idl_pDynLib, pstrSymbol);
     if (*ppAddress == NULL)
-        u32Ret = OLERR_FAIL_GET_SYMBOL_ADDR;
+        u32Ret = JF_ERR_FAIL_GET_SYMBOL_ADDR;
 
 #elif defined(WINDOWS)
     assert(pLib != NULL);
 
     *ppAddress = GetProcAddress(pidl->idl_hDynLib, pstrSymbol);
     if (*ppAddress == NULL)
-        u32Ret = OLERR_FAIL_GET_SYMBOL_ADDR;
+        u32Ret = JF_ERR_FAIL_GET_SYMBOL_ADDR;
 
 #endif
 

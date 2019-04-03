@@ -48,7 +48,7 @@ static u32 _getDateFromString(
     const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay,
     olchar_t sep)
 {
-    u32 u32Ret = OLERR_INVALID_DATE;
+    u32 u32Ret = JF_ERR_INVALID_DATE;
     olsize_t size = 0;
     olchar_t * firstChar, * psubStr;
     olchar_t u8Data[100];
@@ -70,21 +70,21 @@ static u32 _getDateFromString(
             {
                 firstChar = psubStr + 1;
                 *pYear = u32Value;
-                u32Ret = OLERR_NO_ERROR;
+                u32Ret = JF_ERR_NO_ERROR;
             }
         }
     }
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
         return u32Ret;
     }
 
     /* Month */
-    u32Ret = OLERR_INVALID_DATE;
+    u32Ret = JF_ERR_INVALID_DATE;
     psubStr = strchr(firstChar, sep);
     if(psubStr != NULL)
     {
-        u32Ret = OLERR_INVALID_DATE;
+        u32Ret = JF_ERR_INVALID_DATE;
         size = (u32)(psubStr - firstChar);
         firstChar[size] = 0;
         if (sscanf(firstChar, "%02d", &u32Value) == 1)
@@ -93,23 +93,23 @@ static u32 _getDateFromString(
             {
                 firstChar = psubStr + 1;
                 *pMon = u32Value;
-                u32Ret = OLERR_NO_ERROR;
+                u32Ret = JF_ERR_NO_ERROR;
             }
         }
     }
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
         return u32Ret;
     }
 
     /* Day */
-    u32Ret = OLERR_INVALID_DATE;
+    u32Ret = JF_ERR_INVALID_DATE;
     if (sscanf(firstChar, "%02d", &u32Value) == 1)
     {
         if (_isDayInRange(*pYear, *pMon, u32Value) == TRUE)
         {
             *pDay = u32Value;
-            u32Ret = OLERR_NO_ERROR;
+            u32Ret = JF_ERR_NO_ERROR;
         }
     }
 
@@ -122,15 +122,15 @@ static u32 _getDateFromString(
 u32 jf_string_getS32FromString(
     const olchar_t * pstrInteger, const olsize_t size, s32 * ps32Value)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     s32 s32Value;
     olchar_t * temp_buf = NULL;
 
     u32Ret = jf_string_validateIntegerString(pstrInteger, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if ((sscanf(temp_buf, "%d", &s32Value) == 1))
             {
@@ -138,7 +138,7 @@ u32 jf_string_getS32FromString(
             }
             else
             {
-                u32Ret = OLERR_INVALID_INTEGER;
+                u32Ret = JF_ERR_INVALID_INTEGER;
             }
 
             jf_string_free(&temp_buf);
@@ -151,15 +151,15 @@ u32 jf_string_getS32FromString(
 u32 jf_string_getS32FromHexString(
     const olchar_t * pstrHex, const olsize_t size, s32 * ps32Value)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     s32 s32Value;
     olchar_t * temp_buf = NULL;
 
     u32Ret = jf_string_validateHexString(pstrHex, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrHex, size);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if ((sscanf(temp_buf, "%x", &s32Value) == 1))
             {
@@ -167,7 +167,7 @@ u32 jf_string_getS32FromHexString(
             }
             else
             {
-                u32Ret = OLERR_INVALID_INTEGER;
+                u32Ret = JF_ERR_INVALID_INTEGER;
             }
 
             jf_string_free(&temp_buf);
@@ -180,15 +180,15 @@ u32 jf_string_getS32FromHexString(
 u32 jf_string_getU32FromString(
     const olchar_t * pstrInteger, const olsize_t size, u32 * pu32Value)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Value;
     olchar_t * temp_buf = NULL;
 
     u32Ret = jf_string_validateIntegerString(pstrInteger, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if ((sscanf(temp_buf, "%u", &u32Value) == 1))
             {
@@ -196,7 +196,7 @@ u32 jf_string_getU32FromString(
             }
             else
             {
-                u32Ret = OLERR_INVALID_INTEGER;
+                u32Ret = JF_ERR_INVALID_INTEGER;
             }
 
             jf_string_free(&temp_buf);
@@ -209,26 +209,26 @@ u32 jf_string_getU32FromString(
 u32 jf_string_getU16FromString(
     const olchar_t * pstrInteger, const olsize_t size, u16 * pu16Value)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Value;
     olchar_t * temp_buf = NULL;
 
     u32Ret = jf_string_validateIntegerString(pstrInteger, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if ((sscanf(temp_buf, "%u", &u32Value) == 1))
             {
                 if (u32Value > 65535)
-                    u32Ret = OLERR_INTEGER_OUT_OF_RANGE;
+                    u32Ret = JF_ERR_INTEGER_OUT_OF_RANGE;
                 else
                     *pu16Value = (u16)u32Value;
             }
             else
             {
-                u32Ret = OLERR_INVALID_INTEGER;
+                u32Ret = JF_ERR_INVALID_INTEGER;
             }
 
             jf_string_free(&temp_buf);
@@ -241,26 +241,26 @@ u32 jf_string_getU16FromString(
 u32 jf_string_getU8FromString(
     const olchar_t * pstrInteger, const olsize_t size, u8 * pu8Value)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Value;
     olchar_t * temp_buf = NULL;
 
     u32Ret = jf_string_validateIntegerString(pstrInteger, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if ((sscanf(temp_buf, "%u", &u32Value) == 1))
             {
                 if (u32Value > 255)
-                    u32Ret = OLERR_INTEGER_OUT_OF_RANGE;
+                    u32Ret = JF_ERR_INTEGER_OUT_OF_RANGE;
                 else
                     *pu8Value = (u8)u32Value;
             }
             else
             {
-                u32Ret = OLERR_INVALID_INTEGER;
+                u32Ret = JF_ERR_INVALID_INTEGER;
             }
 
             jf_string_free(&temp_buf);
@@ -273,18 +273,18 @@ u32 jf_string_getU8FromString(
 u32 jf_string_getLongFromString(
     const olchar_t * pstrInteger, const olsize_t size, long * numeric)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * stop_str;
     olchar_t * temp_buf = NULL;
 
     u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         *numeric = strtol(temp_buf, (olchar_t **)&stop_str, 10);
         if (*stop_str != '\0')
         {
             // If strtol stopped somewhere other than the end, there was an error
-            u32Ret = OLERR_INVALID_INTEGER;
+            u32Ret = JF_ERR_INVALID_INTEGER;
         }
         else
         {
@@ -292,7 +292,7 @@ u32 jf_string_getLongFromString(
 #if defined(LINUX)
             if (errno == ERANGE)
             {
-                u32Ret = OLERR_INVALID_INTEGER;
+                u32Ret = JF_ERR_INVALID_INTEGER;
             }
 #endif
         }
@@ -306,18 +306,18 @@ u32 jf_string_getLongFromString(
 u32 jf_string_getUlongFromString(
     const olchar_t * pstrInteger, const olsize_t size, unsigned long * numeric)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * stop_str;
     olchar_t * temp_buf = NULL;
 
     u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         *numeric = strtoul(temp_buf, &stop_str, 10);
         if (*stop_str != '\0')
         {
             jf_string_free(&temp_buf);
-            u32Ret = OLERR_INVALID_INTEGER;
+            u32Ret = JF_ERR_INVALID_INTEGER;
         }
         else
         {
@@ -327,12 +327,12 @@ u32 jf_string_getUlongFromString(
             {
                 if (memcmp(pstrInteger, "-", 1) == 0)
                 {
-                    u32Ret = OLERR_INVALID_INTEGER;
+                    u32Ret = JF_ERR_INVALID_INTEGER;
                 }
             }
             else
             {
-                u32Ret = OLERR_INVALID_INTEGER;
+                u32Ret = JF_ERR_INVALID_INTEGER;
             }
 #endif
         }
@@ -344,12 +344,12 @@ u32 jf_string_getUlongFromString(
 u32 jf_string_getU64FromString(
     const olchar_t * pstrInteger, const olsize_t size, u64 * pu64Value)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * stop_str;
     olchar_t * temp_buf = NULL;
 
     u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
 #if defined(WINDOWS)
         *pu64Value = _strtoui64(temp_buf, &stop_str, 10);
@@ -359,7 +359,7 @@ u32 jf_string_getU64FromString(
         if (*stop_str != '\0')
         {
             jf_string_free(&temp_buf);
-            u32Ret = OLERR_INVALID_INTEGER;
+            u32Ret = JF_ERR_INVALID_INTEGER;
         }
         else
         {
@@ -367,7 +367,7 @@ u32 jf_string_getU64FromString(
 #if defined(LINUX)
             if (errno == ERANGE)
             {
-                u32Ret = OLERR_INVALID_INTEGER;
+                u32Ret = JF_ERR_INVALID_INTEGER;
             }
 #endif
         }
@@ -379,12 +379,12 @@ u32 jf_string_getU64FromString(
 u32 jf_string_getS64FromString(
     const olchar_t * pstrInteger, const olsize_t size, s64 * ps64Value)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * stop_str;
     olchar_t * temp_buf = NULL;
 
     u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
 #if defined(WINDOWS)
         *ps64Value = _strtoi64(temp_buf, &stop_str, 10);
@@ -394,7 +394,7 @@ u32 jf_string_getS64FromString(
         if (*stop_str != '\0')
         {
             jf_string_free(&temp_buf);
-            u32Ret = OLERR_INVALID_INTEGER;
+            u32Ret = JF_ERR_INVALID_INTEGER;
         }
         else
         {
@@ -402,7 +402,7 @@ u32 jf_string_getS64FromString(
 #if defined(LINUX)
             if (errno == ERANGE)
             {
-                u32Ret = OLERR_INVALID_INTEGER;
+                u32Ret = JF_ERR_INVALID_INTEGER;
             }
 #endif
         }
@@ -415,7 +415,7 @@ u32 jf_string_getBinaryFromString(
     const olchar_t * pstr, const olsize_t size, u8 * pu8Binary,
     olsize_t * psBinary)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Value, i;
     olsize_t sLen = 0;
     olchar_t buffer[10], * pend;
@@ -424,7 +424,7 @@ u32 jf_string_getBinaryFromString(
            (pstr != NULL) && (size != 0));
 
     u32Ret = jf_string_validateHexString(pstr, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         while (sLen < size)
         {
@@ -457,7 +457,7 @@ u32 jf_string_getBinaryFromString(
 
 u32 jf_string_getSizeFromString(const olchar_t * pstrSize, u64 * pu64Size)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u64 u64Base, u64Integer, u64Fraction;
     olsize_t size = ol_strlen(pstrSize);
     olchar_t strInteger[8], strFraction[8];
@@ -469,7 +469,7 @@ u32 jf_string_getSizeFromString(const olchar_t * pstrSize, u64 * pu64Size)
     if ((toupper(pstrSize[size - 1]) != 'B') ||
         (size > 10) || (size < 2))
     {
-        u32Ret = OLERR_INVALID_SIZE;
+        u32Ret = JF_ERR_INVALID_SIZE;
     }
     else
     {
@@ -507,11 +507,11 @@ u32 jf_string_getSizeFromString(const olchar_t * pstrSize, u64 * pu64Size)
                 if (pstrSize[i] == '.')
                     nCount++;
                 else
-                    return OLERR_INVALID_SIZE;
+                    return JF_ERR_INVALID_SIZE;
             }
 
         if (nCount > 1)  /* There can't be more than 1 dot */
-            return OLERR_INVALID_SIZE;
+            return JF_ERR_INVALID_SIZE;
 
         memset(strInteger, 0, 8);
         memset(strFraction, 0, 8);
@@ -532,7 +532,7 @@ u32 jf_string_getSizeFromString(const olchar_t * pstrSize, u64 * pu64Size)
             }
             else
             {
-                return OLERR_INVALID_SIZE;
+                return JF_ERR_INVALID_SIZE;
             }
         }
         else
@@ -554,7 +554,7 @@ u32 jf_string_getSizeFromString(const olchar_t * pstrSize, u64 * pu64Size)
             {
                 if (u64Base < ONE_KILOBYTE)
                 {
-                    u32Ret = OLERR_INVALID_SIZE;
+                    u32Ret = JF_ERR_INVALID_SIZE;
                 }
                 else
                 {
@@ -564,7 +564,7 @@ u32 jf_string_getSizeFromString(const olchar_t * pstrSize, u64 * pu64Size)
         }
         else
         {
-            u32Ret = OLERR_INVALID_SIZE;
+            u32Ret = JF_ERR_INVALID_SIZE;
         }
     }
 
@@ -577,7 +577,7 @@ u32 jf_string_getSizeFromString(const olchar_t * pstrSize, u64 * pu64Size)
 u32 jf_string_getTimeFromString(
     const olchar_t * pstrTime, olint_t * pHour, olint_t * pMin, olint_t * pSec)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * firstChar, * psubStr, cCol = ':';
     olchar_t strTime[100];
     u32 u32Value;
@@ -595,11 +595,11 @@ u32 jf_string_getTimeFromString(
         firstChar[size] = 0;
         if (sscanf(firstChar, "%02d", &u32Value) != 1)
         {
-            return OLERR_INVALID_TIME;
+            return JF_ERR_INVALID_TIME;
         }
         else if (u32Value > 23)
         {
-            return OLERR_INVALID_TIME;
+            return JF_ERR_INVALID_TIME;
         }
         else
         {
@@ -609,7 +609,7 @@ u32 jf_string_getTimeFromString(
     }
     else
     {
-        return OLERR_INVALID_TIME;
+        return JF_ERR_INVALID_TIME;
     }
 
     /* Minute */
@@ -620,11 +620,11 @@ u32 jf_string_getTimeFromString(
         firstChar[size] = 0;
         if (sscanf(firstChar, "%02d", &u32Value) != 1)
         {
-            return OLERR_INVALID_TIME;
+            return JF_ERR_INVALID_TIME;
         }
         else if (u32Value >= 60)
         {
-            return OLERR_INVALID_TIME;
+            return JF_ERR_INVALID_TIME;
         }
         else
         {
@@ -634,17 +634,17 @@ u32 jf_string_getTimeFromString(
     }
     else
     {
-        return OLERR_INVALID_TIME;
+        return JF_ERR_INVALID_TIME;
     }
 
     /* Second */
     if (sscanf(firstChar, "%02d", &u32Value) != 1)
     {
-        return OLERR_INVALID_TIME;
+        return JF_ERR_INVALID_TIME;
     }
     else if (u32Value >= 60)
     {
-        return OLERR_INVALID_TIME;
+        return JF_ERR_INVALID_TIME;
     }
     else
     {
@@ -659,7 +659,7 @@ u32 jf_string_getTimeFromString(
 u32 jf_string_getDateFromString(
     const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay)
 {
-    u32 u32Ret = OLERR_INVALID_DATE;
+    u32 u32Ret = JF_ERR_INVALID_DATE;
     olchar_t cSlash = '/';
 
     u32Ret = _getDateFromString(pstrDate, pYear, pMon, pDay, cSlash);
@@ -672,7 +672,7 @@ u32 jf_string_getDateFromString(
 u32 jf_string_getDate2FromString(
     const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay)
 {
-    u32 u32Ret = OLERR_INVALID_DATE;
+    u32 u32Ret = JF_ERR_INVALID_DATE;
     olchar_t cSlash = '-';
 
     u32Ret = _getDateFromString(pstrDate, pYear, pMon, pDay, cSlash);
@@ -682,7 +682,7 @@ u32 jf_string_getDate2FromString(
 
 u32 jf_string_getMACAddressFromString(const olchar_t * pMACString, u8 * pu8Value)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t size;
     olchar_t strTemp[32];
     olchar_t * firstChar, * psubStr;
@@ -692,7 +692,7 @@ u32 jf_string_getMACAddressFromString(const olchar_t * pMACString, u8 * pu8Value
 
     j = 6;
     if (strlen(pMACString) < 17)
-        return OLERR_INVALID_SETTING;
+        return JF_ERR_INVALID_SETTING;
 
     memset(strTemp, 0, sizeof(strTemp));
     ol_strncpy(strTemp, pMACString, sizeof(strTemp) - 1);
@@ -706,7 +706,7 @@ u32 jf_string_getMACAddressFromString(const olchar_t * pMACString, u8 * pu8Value
            firstChar[size] = 0;
            if (sscanf(firstChar, "%x", &u32Value[i]) != 1)
            {
-               return OLERR_INVALID_SETTING;
+               return JF_ERR_INVALID_SETTING;
            }
            else
            {
@@ -718,7 +718,7 @@ u32 jf_string_getMACAddressFromString(const olchar_t * pMACString, u8 * pu8Value
                }
                else
                {
-                   return OLERR_INVALID_SETTING;
+                   return JF_ERR_INVALID_SETTING;
                }
             }
         }
@@ -728,7 +728,7 @@ u32 jf_string_getMACAddressFromString(const olchar_t * pMACString, u8 * pu8Value
             {
                 if (sscanf(firstChar, "%x", &u32Value[i]) != 1)
                 {
-                    return OLERR_INVALID_SETTING;
+                    return JF_ERR_INVALID_SETTING;
                 }
                 if (u32Value[i] <= 255)
                 {
@@ -736,12 +736,12 @@ u32 jf_string_getMACAddressFromString(const olchar_t * pMACString, u8 * pu8Value
                 }
                 else
                 {
-                    return OLERR_INVALID_SETTING;
+                    return JF_ERR_INVALID_SETTING;
                 }
             }
             else
             {
-                return OLERR_INVALID_SETTING;
+                return JF_ERR_INVALID_SETTING;
             }
         }
     }
@@ -749,7 +749,7 @@ u32 jf_string_getMACAddressFromString(const olchar_t * pMACString, u8 * pu8Value
     if (pu8Value[0] == 0 && pu8Value[1] == 0 &&
         pu8Value[2] == 0 && pu8Value[3] == 0 && pu8Value[4] && pu8Value[5])
     {
-        return OLERR_NULL_IP_ADDRESS;
+        return JF_ERR_NULL_IP_ADDRESS;
     }
 
     return u32Ret;
@@ -786,15 +786,15 @@ olsize_t jf_string_getHexFromString(
 u32 jf_string_getFloatFromString(
     const olchar_t * pstrFloat, const olsize_t size, olfloat_t * pflValue)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olfloat_t flValue;
     olchar_t * temp_buf = NULL;
 
     u32Ret = jf_string_validateFloatString(pstrFloat, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrFloat, size);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if ((sscanf(temp_buf, "%f", &flValue) == 1))
             {
@@ -802,7 +802,7 @@ u32 jf_string_getFloatFromString(
             }
             else
             {
-                u32Ret = OLERR_INVALID_FLOAT;
+                u32Ret = JF_ERR_INVALID_FLOAT;
             }
 
             jf_string_free(&temp_buf);
@@ -815,15 +815,15 @@ u32 jf_string_getFloatFromString(
 u32 jf_string_getDoubleFromString(
     const olchar_t * pstrDouble, const olsize_t size, oldouble_t * pdbValue)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     oldouble_t dbValue;
     olchar_t * temp_buf = NULL;
 
     u32Ret = jf_string_validateFloatString(pstrDouble, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrDouble, size);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if ((sscanf(temp_buf, "%lf", &dbValue) == 1))
             {
@@ -831,7 +831,7 @@ u32 jf_string_getDoubleFromString(
             }
             else
             {
-                u32Ret = OLERR_INVALID_FLOAT;
+                u32Ret = JF_ERR_INVALID_FLOAT;
             }
 
             jf_string_free(&temp_buf);

@@ -60,12 +60,12 @@ logger options:\n\
 static u32 _parseCmdLineParam(
     olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
     u32 u32Value;
 
     while (((nOpt = getopt(argc, argv, "VT:F:S:Oh")) != -1) &&
-           (u32Ret == OLERR_NO_ERROR))
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -81,7 +81,7 @@ static u32 _parseCmdLineParam(
             if (ol_sscanf(optarg, "%d", &u32Value) == 1)
                 pjlip->jlip_u8TraceLevel = (u8)u32Value;
             else
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
@@ -94,10 +94,10 @@ static u32 _parseCmdLineParam(
             if (ol_sscanf(optarg, "%d", &u32Value) == 1)
                 pjlip->jlip_sLogFile = u32Value;
             else
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -117,7 +117,7 @@ static u32 _wcTestOnResponse(
     jf_network_asocket_t * pAsocket, olint_t nEvent,
     jf_httpparser_packet_header_t * header, void * user, boolean_t * pbPause)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * buf = NULL;
     olsize_t size;
     jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
@@ -140,7 +140,7 @@ static u32 _wcTestOnResponse(
         u32Ret = jf_file_openWithMode(
             "webclient-http-data.xls", O_WRONLY | O_CREAT | O_TRUNC,
             JF_FILE_DEFAULT_CREATE_MODE, &fd);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = jf_file_writen(fd, header->jhph_pu8Body, header->jhph_sBody);
 
@@ -153,7 +153,7 @@ static u32 _wcTestOnResponse(
 
 static u32 _getSinaQuotation(void * object)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t buffer[2048];
     olsize_t len;
 #if 1
@@ -192,26 +192,26 @@ static u32 _getSinaQuotation(void * object)
 
 static u32 _testWebclient(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_webclient_create_param_t jwcp;
     struct hostent * servp;
 
     u32Ret = jf_network_getHostByName(ls_pstrQuotationServer, &servp);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_ipaddr_setIpV4Addr(&ls_jiServerAddr, *(long *)(servp->h_addr));
 
         u32Ret = jf_network_createChain(&ls_pjncChain);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = registerSignalHandlers(_terminate);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_network_createUtimer(ls_pjncChain, &ls_pjnuUtimer);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(&jwcp, 0, sizeof(jwcp));
         jwcp.jwcp_nPoolSize = 5;
@@ -220,7 +220,7 @@ static u32 _testWebclient(olint_t argc, olchar_t ** argv)
         u32Ret = jf_webclient_create(ls_pjncChain, &ls_pwWebclient, &jwcp);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_network_addUtimerItem(ls_pjnuUtimer, NULL, 5, _getSinaQuotation, NULL);
 
@@ -236,7 +236,7 @@ static u32 _testWebclient(olint_t argc, olchar_t ** argv)
 /* --- public routine section ---------------------------------------------- */
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     jf_logger_init_param_t jlipParam;
 
@@ -248,12 +248,12 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jlipParam.jlip_pstrLogFilePath = "webclient-test.log";
 
     u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
 
         u32Ret = jf_network_initLib();
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = _testWebclient(argc, argv);
 
@@ -263,9 +263,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jf_logger_fini();
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

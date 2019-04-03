@@ -38,7 +38,7 @@ typedef struct
  *  @param u32MaxCount [in] the maximum value of the semaphore
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 initSyncSem(sync_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount);
 
@@ -47,7 +47,7 @@ u32 initSyncSem(sync_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount);
  *  @param pSem [in] the semaphore to be finilized
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 finiSyncSem(sync_sem_t * pSem);
 
@@ -59,7 +59,7 @@ u32 finiSyncSem(sync_sem_t * pSem);
  *  @param pSem [in] the semaphore to be downed
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 downSyncSem(sync_sem_t * pSem);
 
@@ -70,7 +70,7 @@ u32 downSyncSem(sync_sem_t * pSem);
  *  @param pSem [in] the semaphore to be downed
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 tryDownSyncSem(sync_sem_t * pSem);
 
@@ -81,7 +81,7 @@ u32 tryDownSyncSem(sync_sem_t * pSem);
  *   been up by another thread in milliseconds.
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 downSyncSemWithTimeout(sync_sem_t * pSem, u32 u32Timeout);
 
@@ -90,7 +90,7 @@ u32 downSyncSemWithTimeout(sync_sem_t * pSem, u32 u32Timeout);
  *  @param pSem [in] the semaphore to be uped
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 upSyncSem(sync_sem_t * pSem);
 

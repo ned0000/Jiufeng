@@ -37,11 +37,11 @@ Usage: bitarray-test [-h] [-t]\n\
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
     while (((nOpt = getopt(argc, argv,
-        "th?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "th?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -51,13 +51,13 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
             exit(0);
             break;
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case 't':
             ls_bSizeof = TRUE;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -67,7 +67,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 
 static u32 _testBitArrayLogical(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     bit_array_t pba1[8], pba2[8], pba3[8], pba4[8];
 
     INIT_BIT_ARRAY(pba1);
@@ -142,7 +142,7 @@ static u32 _testBitArrayLogical(void)
 
 static u32 _testBitArray(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     bit_array_t pba[8];
     u32 u32SetPos[] = {2, 3, 6, 8, 10, 13, 16, 18, 20, 23, 24, 27, 31, 32,
                        35, 37, 39, 40, 42, 43, 44, 47, 48, 50, 55, 57, 60, 64, 65, 66, 70};
@@ -265,11 +265,11 @@ static void _testSizeof(void)
 /* --- public routine section ---------------------------------------------- */
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
     u32Ret = _parseCmdLineParam(argc, argv);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_bSizeof)
         {
@@ -283,14 +283,14 @@ olint_t main(olint_t argc, olchar_t ** argv)
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
 
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

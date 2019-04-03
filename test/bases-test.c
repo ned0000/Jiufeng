@@ -44,12 +44,12 @@ Usage: bases-test [-l] [-t] \n\
 static u32 _parseCmdLineParam(
     olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
     u32 u32Value;
 
     while (((nOpt = getopt(argc, argv,
-        "ltaT:F:S:h")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "ltaT:F:S:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -74,7 +74,7 @@ static u32 _parseCmdLineParam(
             }
             else
             {
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             }
             break;
         case 'F':
@@ -88,11 +88,11 @@ static u32 _parseCmdLineParam(
             }
             else
             {
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             }
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -111,7 +111,7 @@ typedef struct
 
 static u32 _initTestListhead(test_listhead_t * ptl)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     static u32 u32Counter = 1;
 
     xcalloc((void **)ptl, sizeof(test_listhead_t));
@@ -142,7 +142,7 @@ static void _listHeadEntry(list_head_t * head)
 
 static u32 _testListHead(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     test_listhead_t tl1, tl2, tl3, tl4, tl5;
     LIST_HEAD(head1);
     LIST_HEAD(head2);
@@ -230,7 +230,7 @@ static void _printHashTree(hashtree_t * pHashtree)
 
 static u32 _testHashTree(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     hashtree_t hashtree;
 
     olchar_t * pstrEntry = "one";
@@ -263,7 +263,7 @@ static u32 _testHashTree(void)
     u32Ret = addHashtreeEntry(
         &hashtree, strKey, sKey, pstrEntry);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("Add entry %s with key %s\n", pstrEntry, strKey);
         bRet = hasHashtreeEntry(&hashtree, strKey, sKey);
@@ -273,11 +273,11 @@ static u32 _testHashTree(void)
             &hashtree, strKey2, sKey2, pstrEntry2);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("Add entry %s with key %s\n", pstrEntry2, strKey2);
         if (getHashtreeEntry(&hashtree, strKey3, sKey3, (void **)&data) ==
-            OLERR_NO_ERROR)
+            JF_ERR_NO_ERROR)
             ol_printf("Get entry %s with key %s\n", data, strKey3);
         else
             ol_printf("Cannot get entry with key %s\n", strKey3);
@@ -286,65 +286,65 @@ static u32 _testHashTree(void)
     _printHashTree(&hashtree);
     ol_printf("\n");
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = addHashtreeEntry(
             &hashtree, strKey3, sKey3, pstrEntry3);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             ol_printf("Add entry %s with key %s\n", pstrEntry3, strKey3);
     }
     _printHashTree(&hashtree);
     ol_printf("\n");
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = deleteHashtreeEntry(&hashtree, strKey3, sKey3);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             ol_printf("Delete entry with key %s\n", strKey3);
     }
     _printHashTree(&hashtree);
     ol_printf("\n");
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = addHashtreeEntry(
             &hashtree, strKey3, sKey3, pstrEntry3);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             ol_printf("Add entry %s with key %s\n", pstrEntry3, strKey3);
     }
     _printHashTree(&hashtree);
     ol_printf("\n");
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = deleteHashtreeEntry(&hashtree, strKey2, sKey2);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             ol_printf("Delete entry with key %s\n", strKey2);
     }
     _printHashTree(&hashtree);
     ol_printf("\n");
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = deleteHashtreeEntry(&hashtree, strKey, sKey);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             ol_printf("Delete entry with key %s\n", strKey);
     }
     _printHashTree(&hashtree);
     ol_printf("\n");
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (deleteHashtreeEntry(&hashtree, strKey4, sKey4) != OLERR_NO_ERROR)
+        if (deleteHashtreeEntry(&hashtree, strKey4, sKey4) != JF_ERR_NO_ERROR)
             ol_printf("Failed to delete entry with key %s\n", strKey4);
     }
     _printHashTree(&hashtree);
     ol_printf("\n");
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = deleteHashtreeEntry(&hashtree, strKey3, sKey3);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             ol_printf("Delete entry with key %s\n", strKey3);
     }
     _printHashTree(&hashtree);
@@ -377,7 +377,7 @@ static void _dumpListArray(list_array_t * pla)
 #define DEBUG_NODE_COUNT  10
 static u32 _testListArray(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     list_array_t * pla = NULL;
     u32 u32NumOfNode = DEBUG_NODE_COUNT;
     olsize_t size;
@@ -395,7 +395,7 @@ static u32 _testListArray(void)
     ol_printf("size of list array %u\n", size);
 
     u32Ret = xmalloc((void **)&pla, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         initListArray(pla, u32NumOfNode);
         _dumpListArray(pla);
@@ -453,21 +453,21 @@ static u32 _testListArray(void)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_logger_init_param_t jlipParam;
 
     memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
     jlipParam.jlip_pstrCallerName = "BASES-TEST";
 
     u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jlipParam.jlip_bLogToStdout = TRUE;
         jlipParam.jlip_u8TraceLevel = 0;
         jf_logger_init(&jlipParam);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_bListHead)
             u32Ret = _testListHead();

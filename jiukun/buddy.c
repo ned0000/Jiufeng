@@ -203,7 +203,7 @@ static inline void _freeOnePage(
 
 static u32 _destroyBuddyZone(buddy_zone_t ** ppZone)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     buddy_zone_t * pbz = NULL;
 
     assert((ppZone != NULL) && (*ppZone != NULL));
@@ -237,7 +237,7 @@ static void _initBuddyPage(
 static u32 _createBuddyZone(
     buddy_zone_t ** ppZone, u32 u32MaxOrder, u32 u32ZoneId)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     buddy_zone_t * pbz = NULL;
     u32 u32Index;
 
@@ -245,7 +245,7 @@ static u32 _createBuddyZone(
         "create jiukun zone, order: %u, zoneid: %u", u32MaxOrder, u32ZoneId);
 
     u32Ret = xcalloc((void **)&pbz, sizeof(buddy_zone_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pbz->bz_u32MaxOrder = u32MaxOrder;
         pbz->bz_u32NumOfPage = 1UL << (pbz->bz_u32MaxOrder - 1);
@@ -256,7 +256,7 @@ static u32 _createBuddyZone(
             pbz->bz_u32NumOfPage * sizeof(jiukun_page_t));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         _initBuddyPage(pbz->bz_papPage, pbz->bz_u32NumOfPage, u32ZoneId);
 
@@ -275,7 +275,7 @@ static u32 _createBuddyZone(
             pbz->bz_u32NumOfPage * BUDDY_PAGE_SIZE);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pbz->bz_pu8PoolEnd =
             pbz->bz_pu8Pool + pbz->bz_u32NumOfPage * BUDDY_PAGE_SIZE;
@@ -284,7 +284,7 @@ static u32 _createBuddyZone(
             pbz->bz_pu8Pool, pbz->bz_pu8PoolEnd);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppZone = pbz;
     else if (pbz != NULL)
         _destroyBuddyZone(&pbz);
@@ -295,7 +295,7 @@ static u32 _createBuddyZone(
 static jiukun_page_t * _allocPages(
     internal_jiukun_buddy_t * piab, u32 u32Order, olflag_t flag)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Pages = 1UL << u32Order;
     u32 u32Index, u32Left = U32_MAX, u32Id = U32_MAX;
     buddy_zone_t * pbz;
@@ -323,12 +323,12 @@ static jiukun_page_t * _allocPages(
     if (piab->ijb_u32NumOfZone == MAX_BUDDY_ZONES || piab->ijb_bNoGrow)
         return NULL;
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _createBuddyZone(
             &(piab->ijb_pbzZone[piab->ijb_u32NumOfZone]),
             piab->ijb_u32MaxOrder, piab->ijb_u32NumOfZone);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pbz = piab->ijb_pbzZone[piab->ijb_u32NumOfZone];
         piab->ijb_u32NumOfZone ++;
@@ -402,7 +402,7 @@ static inline u32 _u32Log2(u32 x)
 /* --- public routine section ---------------------------------------------- */
 u32 initJiukunBuddy(buddy_param_t * pbp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jiukun_buddy_t * piab = &ls_ijbBuddy;
 
     assert((pbp != NULL) && (pbp->bp_u8MaxOrder <= JF_JIUKUN_MAX_PAGE_ORDER + 1) &&
@@ -416,14 +416,14 @@ u32 initJiukunBuddy(buddy_param_t * pbp)
 
     u32Ret = _createBuddyZone(
         &(piab->ijb_pbzZone[0]), piab->ijb_u32MaxOrder, 0);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         piab->ijb_u32NumOfZone ++;
 
         u32Ret = initSyncMutex(&(piab->ijb_smLock));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         piab->ijb_bInitialized = TRUE;
     else
         finiJiukunBuddy();
@@ -433,7 +433,7 @@ u32 initJiukunBuddy(buddy_param_t * pbp)
 
 u32 finiJiukunBuddy(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index;
     internal_jiukun_buddy_t * piab = &ls_ijbBuddy;
 
@@ -455,13 +455,13 @@ u32 finiJiukunBuddy(void)
 
 u32 jf_jiukun_allocPage(void ** pptr, u32 u32Order, olflag_t flag)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jiukun_page_t * pap = NULL;
 
     *pptr = NULL;
 
     u32Ret = getJiukunPage(&pap, u32Order, flag);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *pptr = jiukunPageToAddr(pap);
 
     return u32Ret;
@@ -482,7 +482,7 @@ void jf_jiukun_freePage(void ** pptr)
 
 u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, olflag_t flag)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jiukun_buddy_t * piab = &ls_ijbBuddy;
     jiukun_page_t * pap = NULL;
     olint_t retrycount = 0;
@@ -496,7 +496,7 @@ u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, olflag_t flag)
 
     *ppPage = NULL;
     if (u32Order >= piab->ijb_u32MaxOrder)
-        return OLERR_INVALID_JIUKUN_PAGE_ORDER;
+        return JF_ERR_INVALID_JIUKUN_PAGE_ORDER;
 
     do
     {
@@ -517,7 +517,7 @@ u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, olflag_t flag)
 
     if (pap == NULL)
     {
-        u32Ret = OLERR_JIUKUN_OUT_OF_MEMORY;
+        u32Ret = JF_ERR_JIUKUN_OUT_OF_MEMORY;
     }
     else
     {

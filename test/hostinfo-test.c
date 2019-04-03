@@ -28,13 +28,13 @@
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     host_info_t hi;
     olchar_t strErrMsg[300];
     u16 u16Index;
 
     u32Ret = getHostInfo(&hi);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("host name: %s\n", hi.hi_strHostName);
         ol_printf("OS name: %s\n", hi.hi_strOSName);
@@ -47,9 +47,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
         }
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

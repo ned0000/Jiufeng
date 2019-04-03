@@ -27,26 +27,26 @@
 
 u32 xmalloc(void ** pptr, olsize_t size)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert((pptr != NULL) && (size > 0));
 
     *pptr = malloc(size);
     if (*pptr == NULL)
-        u32Ret = OLERR_OUT_OF_MEMORY;
+        u32Ret = JF_ERR_OUT_OF_MEMORY;
 
     return u32Ret;
 }
 
 u32 xcalloc(void ** pptr, olsize_t size)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert((pptr != NULL) && (size > 0));
 
     *pptr = malloc(size);
     if (*pptr == NULL)
-        u32Ret = OLERR_OUT_OF_MEMORY;
+        u32Ret = JF_ERR_OUT_OF_MEMORY;
     else
         memset(*pptr, 0, size);
 
@@ -55,7 +55,7 @@ u32 xcalloc(void ** pptr, olsize_t size)
 
 u32 xrealloc(void ** pptr, olsize_t size)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     void * ptr;
 
     assert((pptr != NULL) && (size > 0));
@@ -68,7 +68,7 @@ u32 xrealloc(void ** pptr, olsize_t size)
 
 u32 xfree(void ** pptr)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert(pptr != NULL);
 
@@ -80,12 +80,12 @@ u32 xfree(void ** pptr)
 
 u32 dupMemory(void ** pptr, const u8 * pu8Buffer, const olsize_t size)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert((pptr != NULL) && (pu8Buffer != NULL) && (size > 0));
 
     u32Ret = xmalloc(pptr, size);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memcpy(*pptr, pu8Buffer, size);
     }

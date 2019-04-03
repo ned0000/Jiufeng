@@ -78,14 +78,14 @@ static u32 _newHashtreeEntry(
     hashtree_t * pHashtree, void * pKey, olsize_t sKey, olint_t value,
     hash_node_t ** ppNode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     hash_node_t * node = NULL;
 
     u32Ret = xcalloc((void **)&node, sizeof(hash_node_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = dupMemory((void **)&node->hn_pstrKeyValue, pKey, sKey);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             node->hn_nKey = value;
             node->hn_sKey = sKey;
@@ -119,7 +119,7 @@ static u32 _findHashtreeEntry(
     hashtree_t * pHashtree, void * pKey,
     olsize_t sKey, boolean_t bCreate, hash_node_t ** ppNode)
 {
-    u32 u32Ret = OLERR_HASHTREE_ENTRY_NOT_FOUND;
+    u32 u32Ret = JF_ERR_HASHTREE_ENTRY_NOT_FOUND;
     hash_node_t * current = pHashtree->h_phnRoot;
     olint_t value = _getHashValue(pKey, sKey);
 
@@ -138,7 +138,7 @@ static u32 _findHashtreeEntry(
                 memcmp(current->hn_pstrKeyValue, pKey, sKey) == 0)
             {
                 *ppNode = current;
-                u32Ret = OLERR_NO_ERROR;
+                u32Ret = JF_ERR_NO_ERROR;
                 break;
             }
         }
@@ -201,11 +201,11 @@ boolean_t isQueueEmpty(basic_queue_t * pbq)
 
 u32 enqueue(basic_queue_t * pbq, void * data)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     queue_node_t * pqn;
 
     u32Ret = xcalloc((void **)&pqn, sizeof(queue_node_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pqn->qn_pData = data;
 
@@ -268,11 +268,11 @@ void initStack(basic_stack_t ** ppStack)
 
 u32 pushStack(basic_stack_t ** ppStack, void * data)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     stack_node_t * retval;
 
     u32Ret = xmalloc((void **)&retval, sizeof(stack_node_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         retval->sn_pData = data;
         retval->sn_psnNext = * ppStack;
@@ -381,13 +381,13 @@ void finiLinkListAndData(link_list_t * pList,
  */
 u32 appendToLinkList(link_list_t * pList, void * pData)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     link_list_node_t * pNode, * plln;
 
     assert(pList != NULL);
 
     u32Ret = xcalloc((void **)&pNode, sizeof(link_list_node_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
 		pNode->lln_pData = pData;
 
@@ -413,13 +413,13 @@ u32 appendToLinkList(link_list_t * pList, void * pData)
  */
 u32 insertToLinkList(link_list_t * pList, void * pData)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     link_list_node_t * pNode;
 
     assert((pList != NULL) && (pData != NULL));
 
     u32Ret = xcalloc((void **)&pNode, sizeof(link_list_node_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
 		pNode->lln_pData = pData;
 
@@ -519,7 +519,7 @@ u32 findFirstDataFromDlinkList(
     dlink_list_t * pList, void ** ppData,
     fnFindListNodeData_t fnFindData, void * pKey)
 {
-    u32 u32Ret = OLERR_NOT_FOUND;
+    u32 u32Ret = JF_ERR_NOT_FOUND;
     dlink_list_node_t * pdln;
 
     assert((pList != NULL) && (ppData != NULL) &&
@@ -533,7 +533,7 @@ u32 findFirstDataFromDlinkList(
         if (fnFindData(pdln->dln_pData, pKey))
         {
             *ppData = pdln->dln_pData;
-            u32Ret = OLERR_NO_ERROR;
+            u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
@@ -550,7 +550,7 @@ u32 findFirstNodeFromDlinkList(
     dlink_list_t * pList, dlink_list_node_t ** ppNode,
     fnFindListNodeData_t fnFindData, void * pKey)
 {
-    u32 u32Ret = OLERR_NOT_FOUND;
+    u32 u32Ret = JF_ERR_NOT_FOUND;
     dlink_list_node_t * pdln;
 
     assert((pList != NULL) && (ppNode != NULL) &&
@@ -564,7 +564,7 @@ u32 findFirstNodeFromDlinkList(
         if (fnFindData(pdln->dln_pData, pKey))
         {
             *ppNode = pdln;
-            u32Ret = OLERR_NO_ERROR;
+            u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
@@ -581,7 +581,7 @@ u32 findLastDataFromDlinkList(
     dlink_list_t * pList, void ** ppData,
     fnFindListNodeData_t fnFindData, void * pKey)
 {
-    u32 u32Ret = OLERR_NOT_FOUND;
+    u32 u32Ret = JF_ERR_NOT_FOUND;
     dlink_list_node_t * pdln;
 
     assert((pList != NULL) && (ppData != NULL) &&
@@ -595,7 +595,7 @@ u32 findLastDataFromDlinkList(
         if (fnFindData(pdln->dln_pData, pKey))
         {
             *ppData = pdln->dln_pData;
-            u32Ret = OLERR_NO_ERROR;
+            u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
@@ -611,7 +611,7 @@ u32 findLastDataFromDlinkList(
 u32 findLastNodeFromDlinkList(dlink_list_t * pList, dlink_list_node_t ** ppNode,
     fnFindListNodeData_t fnFindData, void * pKey)
 {
-    u32 u32Ret = OLERR_NOT_FOUND;
+    u32 u32Ret = JF_ERR_NOT_FOUND;
     dlink_list_node_t * pdln;
 
     assert((pList != NULL) && (ppNode != NULL) &&
@@ -625,7 +625,7 @@ u32 findLastNodeFromDlinkList(dlink_list_t * pList, dlink_list_node_t ** ppNode,
         if (fnFindData(pdln->dln_pData, pKey))
         {
             *ppNode = pdln;
-            u32Ret = OLERR_NO_ERROR;
+            u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
@@ -642,7 +642,7 @@ u32 findNextNodeFromDlinkList(
     dlink_list_node_t * pNode, dlink_list_node_t ** ppNode,
     fnFindListNodeData_t fnFindData, void * pKey)
 {
-    u32 u32Ret = OLERR_NOT_FOUND;
+    u32 u32Ret = JF_ERR_NOT_FOUND;
 
     assert((pNode != NULL) && (ppNode != NULL) &&
            (fnFindData != NULL));
@@ -654,7 +654,7 @@ u32 findNextNodeFromDlinkList(
         if (fnFindData(pNode->dln_pData, pKey))
         {
             *ppNode = pNode;
-            u32Ret = OLERR_NO_ERROR;
+            u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
@@ -671,7 +671,7 @@ u32 findPrevNodeFromDlinkList(
     dlink_list_node_t * pNode, dlink_list_node_t ** ppNode,
     fnFindListNodeData_t fnFindData, void * pKey)
 {
-    u32 u32Ret = OLERR_NOT_FOUND;
+    u32 u32Ret = JF_ERR_NOT_FOUND;
 
     assert((pNode != NULL) && (ppNode != NULL) &&
            (fnFindData != NULL));
@@ -683,7 +683,7 @@ u32 findPrevNodeFromDlinkList(
         if (fnFindData(pNode->dln_pData, pKey))
         {
             *ppNode = pNode;
-            u32Ret = OLERR_NO_ERROR;
+            u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
@@ -698,13 +698,13 @@ u32 findPrevNodeFromDlinkList(
  */
 u32 appendToDlinkList(dlink_list_t * pList, void * pData)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     dlink_list_node_t * pNode;
 
     assert(pList != NULL);
 
     u32Ret = xcalloc((void **)&pNode, sizeof(dlink_list_node_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pNode->dln_pData = pData;
 
@@ -780,12 +780,12 @@ boolean_t hasHashtreeEntry(hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t 
 {
     boolean_t bRet = FALSE;
     hash_node_t * phn;
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     /*This can be duplicated by calling Find entry, 
       but setting the create flag to false*/
     u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, FALSE, &phn);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         bRet = TRUE;
 
     return bRet;
@@ -794,12 +794,12 @@ boolean_t hasHashtreeEntry(hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t 
 u32 addHashtreeEntry(
     hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void * value)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     /*This can be duplicated by calling FindEntry, and setting create to true*/
     hash_node_t * phn;
 
     u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, TRUE, &phn);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         phn->hn_pData = value;
 
     return u32Ret;
@@ -808,13 +808,13 @@ u32 addHashtreeEntry(
 u32 getHashtreeEntry(
     hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void ** ppData)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     /*This can be duplicated by calling FindEntry and setting create to false.
       If a match is found, just return the data*/
     hash_node_t * phn;
 
     u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, FALSE, &phn);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         *ppData = phn->hn_pData;
     }
@@ -824,11 +824,11 @@ u32 getHashtreeEntry(
 
 u32 deleteHashtreeEntry(hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     hash_node_t * phn;
 
     u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, FALSE, &phn);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Then remove it from the tree*/
         if (phn == pHashtree->h_phnRoot)

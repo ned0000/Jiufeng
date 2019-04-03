@@ -39,7 +39,7 @@
 /* --- private routine section---------------------------------------------- */
 static u32 _getIpV4LocalIpAddrList(jf_ipaddr_t * pAddr, u16 * pu16Count)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olchar_t strBuffer[16 * sizeof(struct ifreq)];
     struct ifconf ifConf;
@@ -54,19 +54,19 @@ static u32 _getIpV4LocalIpAddrList(jf_ipaddr_t * pAddr, u16 * pu16Count)
     /* Create an unbound datagram socket to do the SIOCGIFADDR ioctl on. */
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sock == -1)
-        u32Ret = OLERR_FAIL_CREATE_SOCKET;
+        u32Ret = JF_ERR_FAIL_CREATE_SOCKET;
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* Get the interface configuration information... */
         ifConf.ifc_len = sizeof strBuffer;
         ifConf.ifc_ifcu.ifcu_buf = (caddr_t)strBuffer;
         ret = ioctl(sock, SIOCGIFCONF, &ifConf);
         if (ret == -1)
-            u32Ret = OLERR_FAIL_IOCTL_SOCKET;
+            u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* Cycle through the list of interfaces looking for IP addresses. */
         for (i = 0; (i < ifConf.ifc_len); )
@@ -80,7 +80,7 @@ static u32 _getIpV4LocalIpAddrList(jf_ipaddr_t * pAddr, u16 * pu16Count)
             ret = ioctl(sock, SIOCGIFFLAGS, &ifReq);
             if (ret == -1)
             {
-                u32Ret = OLERR_FAIL_IOCTL_SOCKET;
+                u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
                 break;
             }
 
@@ -104,13 +104,13 @@ static u32 _getIpV4LocalIpAddrList(jf_ipaddr_t * pAddr, u16 * pu16Count)
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (u16Count > *pu16Count)
-            u32Ret = OLERR_BUFFER_TOO_SMALL;
+            u32Ret = JF_ERR_BUFFER_TOO_SMALL;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (u16Index = 0; u16Index < u16Count; u16Index ++)
         {
@@ -134,9 +134,9 @@ static u32 _getIpV4LocalIpAddrList(jf_ipaddr_t * pAddr, u16 * pu16Count)
 
     sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock == INVALID_SOCKET)
-        u32Ret = OLERR_FAIL_CREATE_SOCKET;
+        u32Ret = JF_ERR_FAIL_CREATE_SOCKET;
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         WSAIoctl(sock, SIO_ADDRESS_LIST_QUERY,
              NULL, 0, buffer, 16 * sizeof(SOCKET_ADDRESS_LIST), &bufferSize,
@@ -149,13 +149,13 @@ static u32 _getIpV4LocalIpAddrList(jf_ipaddr_t * pAddr, u16 * pu16Count)
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (u16Count > *pu16Count)
-            u32Ret = OLERR_BUFFER_TOO_SMALL;
+            u32Ret = JF_ERR_BUFFER_TOO_SMALL;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (u16Index = 0; u16Index < u16Count; u16Index ++)
         {
@@ -178,7 +178,7 @@ static u32 _getIpV4LocalIpAddrList(jf_ipaddr_t * pAddr, u16 * pu16Count)
 u32 jf_ipaddr_getLocalIpAddrList(
     u8 u8AddrType, jf_ipaddr_t * pAddr, u16 * pu16Count)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert((u8AddrType == JF_IPADDR_TYPE_V4) || (u8AddrType == JF_IPADDR_TYPE_V6));
     assert((pAddr != NULL) && (pu16Count != NULL));
@@ -186,9 +186,9 @@ u32 jf_ipaddr_getLocalIpAddrList(
     if (u8AddrType == JF_IPADDR_TYPE_V4)
         u32Ret = _getIpV4LocalIpAddrList(pAddr, pu16Count);
     else if (u8AddrType == JF_IPADDR_TYPE_V6)
-        u32Ret = OLERR_NOT_IMPLEMENTED;
+        u32Ret = JF_ERR_NOT_IMPLEMENTED;
     else
-        u32Ret = OLERR_INVALID_IP_ADDR_TYPE;
+        u32Ret = JF_ERR_INVALID_IP_ADDR_TYPE;
 
     return u32Ret;
 }
@@ -197,7 +197,7 @@ u32 jf_ipaddr_convertSockAddrToIpAddr(
     const struct sockaddr * psa, const olint_t nSaLen,
     jf_ipaddr_t * pji, u16 * pu16Port)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     struct sockaddr_in * pInet4Addr;
     struct sockaddr_in6 * pInet6Addr;
 
@@ -226,7 +226,7 @@ u32 jf_ipaddr_convertSockAddrToIpAddr(
             *pu16Port = ntohs(pInet6Addr->sin6_port);
         break;
     default:
-        u32Ret = OLERR_INVALID_IP_ADDR_TYPE;
+        u32Ret = JF_ERR_INVALID_IP_ADDR_TYPE;
         break;
     }
 
@@ -237,7 +237,7 @@ u32 jf_ipaddr_convertIpAddrToSockAddr(
     const jf_ipaddr_t * pji, const u16 u16Port,
     struct sockaddr * psa, olint_t * pnSaLen)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     struct sockaddr_in * pInet4Addr;
     struct sockaddr_in6 * pInet6Addr;
 
@@ -274,14 +274,14 @@ u32 jf_ipaddr_convertIpAddrToSockAddr(
         *pnSaLen = sizeof(struct sockaddr_in6);
     }
     else
-        u32Ret = OLERR_INVALID_IP_ADDR_TYPE;
+        u32Ret = JF_ERR_INVALID_IP_ADDR_TYPE;
 
     return u32Ret;
 }
 
 u32 jf_ipaddr_setIpAddrToInaddrAny(jf_ipaddr_t * pji)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     struct in6_addr in6addr;
 
     if (pji->ji_u8AddrType == JF_IPADDR_TYPE_V4)
@@ -298,14 +298,14 @@ u32 jf_ipaddr_setIpAddrToInaddrAny(jf_ipaddr_t * pji)
 #endif
     }
     else
-        u32Ret = OLERR_INVALID_IP_ADDR_TYPE;
+        u32Ret = JF_ERR_INVALID_IP_ADDR_TYPE;
 
     return u32Ret;
 }
 
 u32 jf_ipaddr_setIpV4AddrToInaddrAny(jf_ipaddr_t * pji)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     pji->ji_u8AddrType = JF_IPADDR_TYPE_V4;
     jf_ipaddr_setIpAddrToInaddrAny(pji);
@@ -315,7 +315,7 @@ u32 jf_ipaddr_setIpV4AddrToInaddrAny(jf_ipaddr_t * pji)
 
 u32 jf_ipaddr_setIpV6AddrToInaddrAny(jf_ipaddr_t * pji)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     pji->ji_u8AddrType = JF_IPADDR_TYPE_V6;
     jf_ipaddr_setIpAddrToInaddrAny(pji);
@@ -344,7 +344,7 @@ boolean_t jf_ipaddr_isIpV4Addr(jf_ipaddr_t * pji)
 u32 jf_ipaddr_getIpAddrFromString(
     const olchar_t * pIpString, u8 u8AddrType, jf_ipaddr_t * pji)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t bRet;
     struct in_addr inaddr;
 
@@ -358,19 +358,19 @@ u32 jf_ipaddr_getIpAddrFromString(
         if (bRet != 0)
             pji->ji_uAddr.ju_nAddr = inaddr.s_addr;
         else
-            u32Ret = OLERR_INVALID_IP;
+            u32Ret = JF_ERR_INVALID_IP;
 #elif defined(WINDOWS)
         pji->ji_uAddr.ju_nAddr = inet_addr(pIpString);
         if (pji->ji_uAddr.ju_nAddr == INADDR_NONE)
-            u32Ret = OLERR_INVALID_IP;
+            u32Ret = JF_ERR_INVALID_IP;
 #endif
     }
     else if (u8AddrType == JF_IPADDR_TYPE_V6)
     {
-        u32Ret = OLERR_NOT_IMPLEMENTED;
+        u32Ret = JF_ERR_NOT_IMPLEMENTED;
     }
     else
-        u32Ret = OLERR_INVALID_IP_ADDR_TYPE;
+        u32Ret = JF_ERR_INVALID_IP_ADDR_TYPE;
 
     return u32Ret;
 }
@@ -378,7 +378,7 @@ u32 jf_ipaddr_getIpAddrFromString(
 u32 jf_ipaddr_getIpAddrPortFromString(
     const olchar_t * pIpString, u8 u8AddrType, jf_ipaddr_t * pji, u16 * pu16Port)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t bRet;
     struct in_addr inaddr;
     olchar_t strIp[100];
@@ -392,7 +392,7 @@ u32 jf_ipaddr_getIpAddrPortFromString(
         port --;
 
     if (*port != ':')
-        return OLERR_INVALID_IP;
+        return JF_ERR_INVALID_IP;
 
     *port = '\0';
     port ++;
@@ -409,19 +409,19 @@ u32 jf_ipaddr_getIpAddrPortFromString(
         if (bRet != 0)
             pji->ji_uAddr.ju_nAddr = inaddr.s_addr;
         else
-            u32Ret = OLERR_INVALID_IP;
+            u32Ret = JF_ERR_INVALID_IP;
 #elif defined(WINDOWS)
         pji->ji_uAddr.ju_nAddr = inet_addr(strIp);
         if (pji->ji_uAddr.ju_nAddr == INADDR_NONE)
-            u32Ret = OLERR_INVALID_IP;
+            u32Ret = JF_ERR_INVALID_IP;
 #endif
     }
     else if (u8AddrType == JF_IPADDR_TYPE_V6)
     {
-        u32Ret = OLERR_NOT_IMPLEMENTED;
+        u32Ret = JF_ERR_NOT_IMPLEMENTED;
     }
     else
-        u32Ret = OLERR_INVALID_IP_ADDR_TYPE;
+        u32Ret = JF_ERR_INVALID_IP_ADDR_TYPE;
 
     return u32Ret;
 }
@@ -442,11 +442,11 @@ u32 jf_ipaddr_validateIpAddr(const olchar_t * pstrIp, const u8 u8AddrType)
  *   [in] pstrIpAddr, the string buffer where the IP address string will return
  *   [out] pji, the ip address.
  *
- * @return: OLERR_NO_ERROR, OLERR_INVALID_IP_ADDR_TYPE.
+ * @return: JF_ERR_NO_ERROR, JF_ERR_INVALID_IP_ADDR_TYPE.
  */
 u32 jf_ipaddr_getStringIpAddr(olchar_t * pstrIpAddr, const jf_ipaddr_t * pji)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     struct in_addr inaddr;
 
     if (pji->ji_u8AddrType == JF_IPADDR_TYPE_V4)
@@ -454,7 +454,7 @@ u32 jf_ipaddr_getStringIpAddr(olchar_t * pstrIpAddr, const jf_ipaddr_t * pji)
         inaddr.s_addr = pji->ji_uAddr.ju_nAddr;
 #if defined(LINUX)
         if (inet_ntop(AF_INET, (void *)&inaddr, pstrIpAddr, 16) == NULL)
-            u32Ret = OLERR_INVALID_IP;
+            u32Ret = JF_ERR_INVALID_IP;
 #elif defined(WINDOWS)
         ol_strcpy(pstrIpAddr, inet_ntoa(inaddr));
 #endif
@@ -465,7 +465,7 @@ u32 jf_ipaddr_getStringIpAddr(olchar_t * pstrIpAddr, const jf_ipaddr_t * pji)
     }
     else
     {
-        u32Ret = OLERR_INVALID_IP_ADDR_TYPE;
+        u32Ret = JF_ERR_INVALID_IP_ADDR_TYPE;
     }
 
     return u32Ret;

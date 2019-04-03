@@ -45,17 +45,17 @@
 #if defined(LINUX)
 static u32 _getShmId(shm_id_t * psi, olint_t * pnShmId)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (sscanf(psi, "%d", pnShmId) != 1)
-        u32Ret = OLERR_INVALID_SHAREDMEMORY_ID;
+        u32Ret = JF_ERR_INVALID_SHAREDMEMORY_ID;
 
     return u32Ret;
 }
 #elif defined(WINDOWS)
 static u32 _getShmId(shm_id_t * psi)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     uuid_param_t up;
 
 	memset(&up, 0, sizeof(uuid_param_t));
@@ -63,9 +63,9 @@ static u32 _getShmId(shm_id_t * psi)
 	up.up_ufFmt = UUID_FMT_HEX;
 
 	u32Ret = getUuid(psi, SHM_ID_LEN, UUID_VER_1, &up);
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
 	{
-		u32Ret = OLERR_FAIL_CREATE_SHAREDMEMORY;
+		u32Ret = JF_ERR_FAIL_CREATE_SHAREDMEMORY;
 	}
 
 	return u32Ret;
@@ -75,7 +75,7 @@ static u32 _getShmId(shm_id_t * psi)
 /* --- public routine section ---------------------------------------------- */
 u32 createSharedMemory(shm_id_t ** ppShmId, u32 u32MemorySize)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     shm_id_t * psi = NULL;
 #if defined(LINUX)
     olint_t nShmId;
@@ -83,16 +83,16 @@ u32 createSharedMemory(shm_id_t ** ppShmId, u32 u32MemorySize)
     assert(ppShmId != NULL);
 
     u32Ret = xmalloc((void **)&psi, SHM_ID_LEN);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(psi, 0, SHM_ID_LEN);
 
         nShmId = shmget(IPC_PRIVATE, u32MemorySize, SVSHM_MODE | IPC_CREAT);
         if (nShmId == -1)
-            u32Ret = OLERR_FAIL_CREATE_SHAREDMEMORY;
+            u32Ret = JF_ERR_FAIL_CREATE_SHAREDMEMORY;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* remove the shared memory id to avoid memory leak due to
          * ungraceful client exit or crash
@@ -109,23 +109,23 @@ u32 createSharedMemory(shm_id_t ** ppShmId, u32 u32MemorySize)
     assert(ppShmId != NULL);
 
     u32Ret = xmalloc((void **)&psi, SHM_ID_LEN);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(psi, 0, SHM_ID_LEN);
 
         u32Ret = _getShmId(psi);
     }
 
-	if (u32Ret == OLERR_NO_ERROR)
+	if (u32Ret == JF_ERR_NO_ERROR)
 	{
         hMap = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
             0, u32MemorySize, psi);
 	    if (hMap == NULL)
-		    u32Ret = OLERR_FAIL_CREATE_SHAREDMEMORY;
+		    u32Ret = JF_ERR_FAIL_CREATE_SHAREDMEMORY;
 	}
 
 #endif
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppShmId = psi;
     else if (psi != NULL)
         destroySharedMemory((shm_id_t **)&psi);
@@ -135,7 +135,7 @@ u32 createSharedMemory(shm_id_t ** ppShmId, u32 u32MemorySize)
 
 u32 destroySharedMemory(shm_id_t ** ppShmId)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     shm_id_t * psi = NULL;
 #if defined(LINUX)
     olint_t nRet, nShmId;
@@ -145,11 +145,11 @@ u32 destroySharedMemory(shm_id_t ** ppShmId)
     psi = *ppShmId;
 
     u32Ret = _getShmId(psi, &nShmId);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         nRet = shmctl(nShmId, IPC_RMID, NULL);
         if (nRet == -1)
-            u32Ret = OLERR_FAIL_DESTROY_SHAREDMEMORY;
+            u32Ret = JF_ERR_FAIL_DESTROY_SHAREDMEMORY;
     }
 #elif defined(WINDOWS)
 	HANDLE hMap;
@@ -161,7 +161,7 @@ u32 destroySharedMemory(shm_id_t ** ppShmId)
     hMap = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
         0, DEFAULT_SHARED_MEMORY_SIZE, psi);
 	if (hMap == NULL)
-		u32Ret = OLERR_FAIL_DESTROY_SHAREDMEMORY;
+		u32Ret = JF_ERR_FAIL_DESTROY_SHAREDMEMORY;
 	else
 	{
 		if (GetLastError() != ERROR_ALREADY_EXISTS)
@@ -169,11 +169,11 @@ u32 destroySharedMemory(shm_id_t ** ppShmId)
 			/* The shared memory must exist before, otherwise we were creating 
 			   a new shared memory, close it and return an error */
 			CloseHandle(hMap);
-			u32Ret = OLERR_INVALID_SHAREDMEMORY_ID;
+			u32Ret = JF_ERR_INVALID_SHAREDMEMORY_ID;
 		}
 	}
 
-	if (u32Ret == OLERR_NO_ERROR)
+	if (u32Ret == JF_ERR_NO_ERROR)
 		CloseHandle(hMap);
 #endif
 
@@ -182,7 +182,7 @@ u32 destroySharedMemory(shm_id_t ** ppShmId)
 
 u32 attachSharedMemory(shm_id_t * pShmId, void ** ppMapAddress)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     void * pMap;
     olint_t nShmId;
@@ -190,12 +190,12 @@ u32 attachSharedMemory(shm_id_t * pShmId, void ** ppMapAddress)
     assert(pShmId != NULL);
 
     u32Ret = _getShmId(pShmId, &nShmId);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pMap = shmat(nShmId, NULL, 0);
         if ((s64)pMap == -1)
         {
-            u32Ret = OLERR_FAIL_ATTACH_SHAREDMEMORY;
+            u32Ret = JF_ERR_FAIL_ATTACH_SHAREDMEMORY;
         }
         else
         {
@@ -212,7 +212,7 @@ u32 attachSharedMemory(shm_id_t * pShmId, void ** ppMapAddress)
     hMap = CreateFileMapping(INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE,
         0, DEFAULT_SHARED_MEMORY_SIZE, pShmId);
 	if (hMap == NULL)
-		u32Ret = OLERR_INVALID_SHAREDMEMORY_ID;
+		u32Ret = JF_ERR_INVALID_SHAREDMEMORY_ID;
 	else
 	{
 		if (GetLastError() != ERROR_ALREADY_EXISTS)
@@ -220,18 +220,18 @@ u32 attachSharedMemory(shm_id_t * pShmId, void ** ppMapAddress)
 			/* The shared memory must exist before, otherwise we were creating 
 			   a new shared memory, close it and return an error */
 			CloseHandle(hMap);
-			u32Ret = OLERR_INVALID_SHAREDMEMORY_ID;
+			u32Ret = JF_ERR_INVALID_SHAREDMEMORY_ID;
 		}
 	}
 
-	if (u32Ret == OLERR_NO_ERROR)
+	if (u32Ret == JF_ERR_NO_ERROR)
 	{
 		pMap = MapViewOfFile(hMap, FILE_MAP_WRITE, 0, 0, 0);
 		if (pMap == NULL)
-			u32Ret = OLERR_FAIL_ATTACH_SHAREDMEMORY;
+			u32Ret = JF_ERR_FAIL_ATTACH_SHAREDMEMORY;
 	}
 
-	if (u32Ret == OLERR_NO_ERROR)
+	if (u32Ret == JF_ERR_NO_ERROR)
         *ppMapAddress = pMap;
 #endif
 
@@ -240,20 +240,20 @@ u32 attachSharedMemory(shm_id_t * pShmId, void ** ppMapAddress)
 
 u32 detachSharedMemory(void ** ppMapAddress)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olint_t nRet;
 
     nRet = shmdt(*ppMapAddress);
     if (nRet == -1)
-        u32Ret = OLERR_FAIL_DETACH_SHAREDMEMORY;
+        u32Ret = JF_ERR_FAIL_DETACH_SHAREDMEMORY;
 
 #elif defined(WINDOWS)
     boolean_t bRet;
 
 	bRet = UnmapViewOfFile(*ppMapAddress);
 	if (! bRet)
-		u32Ret = OLERR_FAIL_DETACH_SHAREDMEMORY;
+		u32Ret = JF_ERR_FAIL_DETACH_SHAREDMEMORY;
 
 #endif
 

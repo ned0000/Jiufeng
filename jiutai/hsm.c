@@ -26,7 +26,7 @@
 
 u32 initHsmStateMachine(hsm_statemachine_t * phs, hsm_state_t * pInitial)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     phs->hs_phsInitial = pInitial;
     phs->hs_phsCurrent = phs->hs_phsInitial;
@@ -46,7 +46,7 @@ hsm_state_t * getHsmCurrentState(hsm_statemachine_t * phs)
 
 u32 handleHsmEvent(hsm_statemachine_t * phs, hsm_event_t * pEvent)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     hsm_transition_t * pht;
     boolean_t bRet;
 

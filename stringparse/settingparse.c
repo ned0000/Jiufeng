@@ -30,7 +30,7 @@
  */
 static u32 _trimSetting(olchar_t * pstrSetting, olchar_t * pstrValue, olsize_t sValue)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pstrBegin = pstrSetting;
     olsize_t sEndIndex = 0;
 
@@ -54,7 +54,7 @@ static u32 _trimSetting(olchar_t * pstrSetting, olchar_t * pstrValue, olsize_t s
         sEndIndex++;
         if (sEndIndex > sValue)
         {
-            u32Ret = OLERR_SETTING_TOO_LONG;
+            u32Ret = JF_ERR_SETTING_TOO_LONG;
         }
         else
         {
@@ -65,7 +65,7 @@ static u32 _trimSetting(olchar_t * pstrSetting, olchar_t * pstrValue, olsize_t s
     else
     {
         pstrValue[0] = 0;
-        u32Ret = OLERR_SETTING_EMPTY;
+        u32Ret = JF_ERR_SETTING_EMPTY;
     }
 
     return u32Ret;
@@ -76,7 +76,7 @@ static u32 _trimSetting(olchar_t * pstrSetting, olchar_t * pstrValue, olsize_t s
 u32 jf_string_processIdList(
     const olchar_t * pstrIdList, olid_t * pids, olsize_t * psId)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strId[(2 * MAX_ID_LENGTH) + 1 + 1];  /* "####", or "####~####" */
     const static olchar_t cDelimit = ',', cRange = '~';
     olchar_t * pstrList = NULL, * pstrRange = NULL, * pstrDelimit;
@@ -108,7 +108,7 @@ u32 jf_string_processIdList(
                 continue;
             else
             {
-                u32Ret = OLERR_INVALID_SETTING;
+                u32Ret = JF_ERR_INVALID_SETTING;
                 i = sLength;
             }
         }
@@ -116,7 +116,7 @@ u32 jf_string_processIdList(
 
     sCount = 0;
     pstrList = (olchar_t *)pstrIdList;
-    while ((pstrList != NULL) && (u32Ret == OLERR_NO_ERROR))
+    while ((pstrList != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
         sLength = ol_strlen(pstrList);
 
@@ -143,7 +143,7 @@ u32 jf_string_processIdList(
             if ((isdigit(strId[i]) == 0) &&
                 (strId[i] != cRange) &&
                 (strId[i] != cDelimit))
-                return OLERR_INVALID_SETTING;
+                return JF_ERR_INVALID_SETTING;
         }
 
         pstrRange = strchr(strId, cRange);
@@ -151,14 +151,14 @@ u32 jf_string_processIdList(
         {
             if (sscanf(strId, "%d~%d", &sValue1, &sValue2) != 2)
             {
-                u32Ret = OLERR_INVALID_SETTING;
+                u32Ret = JF_ERR_INVALID_SETTING;
             }
         }
         else
         {
             if (sscanf(strId, "%d", &sValue1) != 1)
             {
-                u32Ret = OLERR_INVALID_SETTING;
+                u32Ret = JF_ERR_INVALID_SETTING;
             }
             else
             {
@@ -166,15 +166,15 @@ u32 jf_string_processIdList(
             }
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (sValue2 < sValue1)
             {
-                u32Ret = OLERR_INVALID_SETTING;
+                u32Ret = JF_ERR_INVALID_SETTING;
             }
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             /* fill the id array */
             while ((sCount < *psId) && (sValue1 <= sValue2))
@@ -187,7 +187,7 @@ u32 jf_string_processIdList(
 
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         *psId = sCount;
     }
@@ -198,14 +198,14 @@ u32 jf_string_processIdList(
 u32 retrieveSettingsSize(olchar_t * pstrValue, u64 * pu64Value,
     u64 u64Min, u64 u64Max)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = jf_string_getSizeFromString(pstrValue, pu64Value);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if ((*pu64Value < u64Min) || (*pu64Value > u64Max))
         {
-            u32Ret = OLERR_INVALID_SETTING;
+            u32Ret = JF_ERR_INVALID_SETTING;
         }
     }
 
@@ -215,26 +215,26 @@ u32 retrieveSettingsSize(olchar_t * pstrValue, u64 * pu64Value,
 u32 retrieveSettingsU32(olchar_t * pstrValue, u32 * pu32Value,
     u32 u32Min, u32 u32Max)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t i;
 
     for (i = 0; i < ol_strlen(pstrValue); i++)
     {
         if (isdigit(pstrValue[i]) == 0)
-            return OLERR_INVALID_SETTING;
+            return JF_ERR_INVALID_SETTING;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (sscanf(pstrValue, "%d", pu32Value) != 1)
         {
-            u32Ret = OLERR_INVALID_SETTING;
+            u32Ret = JF_ERR_INVALID_SETTING;
         }
     }
 
     if ((*pu32Value < u32Min) || (*pu32Value > u32Max))
     {
-        u32Ret = OLERR_INVALID_SETTING;
+        u32Ret = JF_ERR_INVALID_SETTING;
     }
 
     return u32Ret;
@@ -242,9 +242,9 @@ u32 retrieveSettingsU32(olchar_t * pstrValue, u32 * pu32Value,
 
 u32 jf_string_retrieveSettingsEnable(olchar_t * pstrValue, boolean_t * pbEnable)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (strcasecmp((const olchar_t *)pstrValue, "enable") == 0 ||
             ol_strcasecmp((const olchar_t *)pstrValue, "yes") == 0)
@@ -258,7 +258,7 @@ u32 jf_string_retrieveSettingsEnable(olchar_t * pstrValue, boolean_t * pbEnable)
         }
         else
         {
-            u32Ret = OLERR_INVALID_SETTING;
+            u32Ret = JF_ERR_INVALID_SETTING;
         }
     }
     return u32Ret;
@@ -268,7 +268,7 @@ u32 jf_string_retrieveSettings(
     olchar_t * pstrArray[], olsize_t sArray,
     const olchar_t * pstrName, olchar_t * pstrValue, olsize_t sValue)
 {
-    u32 u32Ret = OLERR_NOT_FOUND;
+    u32 u32Ret = JF_ERR_NOT_FOUND;
     olchar_t cEqual = '=';
     olchar_t * psubStr = NULL, * pstrPos = NULL;
     olsize_t sTagLength = ol_strlen(pstrName);
@@ -282,12 +282,12 @@ u32 jf_string_retrieveSettings(
             psubStr = strchr(pstrPos, cEqual);
             if (psubStr != NULL)
             {
-                u32Ret = OLERR_NO_ERROR;
-                while ((pstrPos < psubStr) && (u32Ret == OLERR_NO_ERROR))
+                u32Ret = JF_ERR_NO_ERROR;
+                while ((pstrPos < psubStr) && (u32Ret == JF_ERR_NO_ERROR))
                 {
                     if (*pstrPos != ' ')
                     {
-                        u32Ret = OLERR_NOT_FOUND;
+                        u32Ret = JF_ERR_NOT_FOUND;
                     }
 
                     pstrPos++;
@@ -295,7 +295,7 @@ u32 jf_string_retrieveSettings(
             }
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = _trimSetting((psubStr + 1), pstrValue, sValue);
             break;
@@ -309,14 +309,14 @@ u32 jf_string_validateSettings(
     olchar_t * pstrNameArray[], olsize_t sNameArray, 
     olchar_t * pstrArray[], olsize_t sArray, olindex_t * piArray)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * psubStr = NULL;
     olchar_t u8Equal = '=';
     olsize_t sLen = 0, sTagLen = 0, i = 0, j = 0;
 
-    for (i = 0; (i < sArray) && (u32Ret == OLERR_NO_ERROR); i++)
+    for (i = 0; (i < sArray) && (u32Ret == JF_ERR_NO_ERROR); i++)
     {
-        u32Ret = OLERR_INVALID_SETTING;
+        u32Ret = JF_ERR_INVALID_SETTING;
         psubStr = strchr(pstrArray[i], u8Equal);
         if ((psubStr != NULL) && (psubStr != pstrArray[i]))
         {
@@ -341,14 +341,14 @@ u32 jf_string_validateSettings(
                 {
                     if (sTagLen == sLen)
                     {
-                        u32Ret = OLERR_NO_ERROR;
+                        u32Ret = JF_ERR_NO_ERROR;
                         break;
                     }
                 }
             }
         }
 
-        if (u32Ret == OLERR_INVALID_SETTING)
+        if (u32Ret == JF_ERR_INVALID_SETTING)
         {
             *piArray = i;
         }
@@ -361,7 +361,7 @@ u32 jf_string_processKeywordSettings(
     u8 * pu8Settings, olsize_t sSettings,
     olchar_t * pstrArray[], olsize_t * psArray)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t u8Space = ' ';
     u8 * firstChar;
     olsize_t sIndex=0, sInd = 0, sArrayIndex = 0;
@@ -396,7 +396,7 @@ u32 jf_string_processKeywordSettings(
 
             if (sInd < 3)  /* *=* */
             {
-                return OLERR_INVALID_SETTING;
+                return JF_ERR_INVALID_SETTING;
             }
 
             firstChar[sInd] = 0;
@@ -420,13 +420,13 @@ u32 jf_string_processKeywordSettings(
 u32 jf_string_processSettings(
     olchar_t * pstrSettings, olchar_t * pstrArray[], olsize_t * psArray)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t u8Devider = ',', u8Quote = '"', u8Space = ' ';
     olchar_t * firstChar, * psubStr;
     olsize_t sIndex = 0, sLength, sInd = 0;
 
     if (pstrSettings == NULL)
-        return OLERR_INVALID_SETTING;
+        return JF_ERR_INVALID_SETTING;
 
     sLength = ol_strlen(pstrSettings);
 
@@ -434,7 +434,7 @@ u32 jf_string_processSettings(
     if (pstrSettings[0] == u8Quote)
     {
         if (pstrSettings[sLength - 1] != u8Quote)
-            return OLERR_MISSING_QUOTE;
+            return JF_ERR_MISSING_QUOTE;
 
         firstChar = pstrSettings + 1;
         pstrSettings[sLength - 1] = 0;
@@ -469,7 +469,7 @@ u32 jf_string_processSettings(
 
             if (sInd < 3)  /* *=* */
             {
-                return OLERR_INVALID_SETTING;
+                return JF_ERR_INVALID_SETTING;
             }
 
             firstChar[sInd] = '\0';
@@ -502,7 +502,7 @@ u32 jf_string_processSettings(
 
             if (sInd < 3)  /* *=* */
             {
-                return OLERR_INVALID_SETTING;
+                return JF_ERR_INVALID_SETTING;
             }
 
             firstChar[sInd] = '\0';
@@ -520,15 +520,15 @@ u32 jf_string_getSettingsString(
     olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
     const olchar_t * pstrDefaultValue, olchar_t * pstrValue, olsize_t sValue)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = jf_string_retrieveSettings(
         pstrArray, sArray, pstrSettingName, pstrValue, sValue);
-    if (u32Ret == OLERR_NOT_FOUND)
+    if (u32Ret == JF_ERR_NOT_FOUND)
     {
         ol_strncpy(pstrValue, pstrDefaultValue, sValue - 1);
         pstrValue[sValue - 1] = 0;
-        u32Ret = OLERR_NO_ERROR;
+        u32Ret = JF_ERR_NO_ERROR;
     }
 
     return u32Ret;
@@ -538,23 +538,23 @@ u32 jf_string_getSettingsU32(
     olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
     const u32 u32DefaultValue, u32 * pu32Value)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strValue[200];
 
     u32Ret = jf_string_retrieveSettings(
         pstrArray, sArray, pstrSettingName, strValue, 200);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = retrieveSettingsU32(strValue, pu32Value, 0, 0xFFFFFFFF);
-        if (u32Ret != OLERR_NO_ERROR)
+        if (u32Ret != JF_ERR_NO_ERROR)
         {
             *pu32Value = u32DefaultValue;
         }
     }
-    else if (u32Ret == OLERR_NOT_FOUND)
+    else if (u32Ret == JF_ERR_NOT_FOUND)
     {
         *pu32Value = u32DefaultValue;
-        u32Ret = OLERR_NO_ERROR;
+        u32Ret = JF_ERR_NO_ERROR;
     }
 
     return u32Ret;
@@ -562,30 +562,30 @@ u32 jf_string_getSettingsU32(
 
 
 /** If setting name is not found in the string array, the default value is
- *  set and return OLERR_NO_ERROR. if setting name is found and the value 
- *  is incorrect, the default value is set and return OLERR_INVALID_SETTING
+ *  set and return JF_ERR_NO_ERROR. if setting name is found and the value 
+ *  is incorrect, the default value is set and return JF_ERR_INVALID_SETTING
  */
 u32 jf_string_getSettingsBoolean(
     olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
     const boolean_t bDefaultValue, boolean_t * pbValue)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strValue[200];
 
     u32Ret = jf_string_retrieveSettings(
         pstrArray, sArray, pstrSettingName, strValue, 200);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_string_retrieveSettingsEnable(strValue, pbValue);
-        if (u32Ret != OLERR_NO_ERROR)
+        if (u32Ret != JF_ERR_NO_ERROR)
         {
             *pbValue = bDefaultValue;
         }
     }
-    else if (u32Ret == OLERR_NOT_FOUND)
+    else if (u32Ret == JF_ERR_NOT_FOUND)
     {
         *pbValue = bDefaultValue;
-        u32Ret = OLERR_NO_ERROR;
+        u32Ret = JF_ERR_NO_ERROR;
     }
 
     return u32Ret;
@@ -594,12 +594,12 @@ u32 jf_string_getSettingsBoolean(
 u32 getSettingsSize(olchar_t * pstrArray[], olsize_t sArray,
     const olchar_t * pstrSettingName, const u64 u64DefaultValue, u64 * pu64Value)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strSize[16];
 
     u32Ret = jf_string_getSettingsString(
         pstrArray, sArray, pstrSettingName, "", strSize, 16);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (strSize[0] == 0)
         {
@@ -621,7 +621,7 @@ u32 getSettingsSize(olchar_t * pstrArray[], olsize_t sArray,
 u32 jf_string_processSettingString(
     olchar_t * pstrSetting, olchar_t ** ppstrName, olchar_t ** ppstrValue)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t cEqual = '=';
     olchar_t * pstrSubStr = NULL;
 
@@ -638,7 +638,7 @@ u32 jf_string_processSettingString(
         *pstrSubStr = '\0';
     }
     else
-        u32Ret = OLERR_INVALID_SETTING;
+        u32Ret = JF_ERR_INVALID_SETTING;
 
     return u32Ret;
 }

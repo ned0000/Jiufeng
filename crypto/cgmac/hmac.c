@@ -32,7 +32,7 @@ u32 jf_cgmac_doHmacMd5(
     const u8 * pu8Key, olsize_t sKey, const u8 * pu8Input, olsize_t sInput,
     u8 u8Digest[JF_CGHASH_MD5_DIGEST_LEN])
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 isha[JF_CGHASH_MD5_DIGEST_LEN], osha[JF_CGHASH_MD5_DIGEST_LEN];
     u8 key[JF_CGHASH_MD5_DIGEST_LEN];
     u8 buf[MD5_BLOCK_SIZE];
@@ -82,7 +82,7 @@ u32 jf_cgmac_doHmacSha1(
     const u8 * pu8Key, olsize_t sKey, const u8 * pu8Input, olsize_t sInput,
     u8 u8Digest[JF_CGHASH_SHA1_DIGEST_LEN])
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 isha[JF_CGHASH_SHA1_DIGEST_LEN], osha[JF_CGHASH_SHA1_DIGEST_LEN];
     u8 key[JF_CGHASH_SHA1_DIGEST_LEN];
     u8 buf[SHA1_BLOCK_SIZE];

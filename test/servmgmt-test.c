@@ -58,12 +58,12 @@ logger options:\n\
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
     u32 u32Value;
 
     while (((nOpt = getopt(argc, argv,
-        "ln:u:stVOT:F:S:h?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "ln:u:stVOT:F:S:h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -89,7 +89,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
             ls_bStart = TRUE;
             break;
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case 'V':
             ol_printf("%s %s\n", ls_pstrProgramName, ls_pstrVersion);
@@ -98,7 +98,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
             if (sscanf(optarg, "%d", &u32Value) == 1)
                 pjlip->jlip_u8TraceLevel = (u8)u32Value;
             else
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
@@ -111,10 +111,10 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
             if (sscanf(optarg, "%d", &u32Value) == 1)
                 pjlip->jlip_sLogFile = u32Value;
             else
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -124,13 +124,13 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
 
 static u32 _listService(olchar_t * name)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_servmgmt_info_t jsi;
     jf_servmgmt_serv_info_t * pjssi;
     u8 u8Index;
 
     u32Ret = jf_servmgmt_getInfo(&jsi);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("%-12s %-12s %-10s\n", "Name", "StartupType", "Status");
         ol_printf("----------------------------------------------\n");
@@ -158,15 +158,15 @@ static u32 _listService(olchar_t * name)
 
 static u32 _stopService(olchar_t * name)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (name == NULL)
     {
         ol_printf("service name is not specified\n");
-        u32Ret = OLERR_INVALID_PARAM;
+        u32Ret = JF_ERR_INVALID_PARAM;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_servmgmt_stopServ(name);
 
     return u32Ret;
@@ -174,15 +174,15 @@ static u32 _stopService(olchar_t * name)
 
 static u32 _startService(olchar_t * name)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (name == NULL)
     {
         ol_printf("service name is not specified\n");
-        u32Ret = OLERR_INVALID_PARAM;
+        u32Ret = JF_ERR_INVALID_PARAM;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_servmgmt_startServ(name);
 
     return u32Ret;
@@ -190,15 +190,15 @@ static u32 _startService(olchar_t * name)
 
 static u32 _changeServiceStartupType(olchar_t * name, u8 u8Type)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (name == NULL)
     {
         ol_printf("service name is not specified\n");
-        u32Ret = OLERR_INVALID_PARAM;
+        u32Ret = JF_ERR_INVALID_PARAM;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_servmgmt_setServStartupType(name, u8Type);
 
     return u32Ret;
@@ -207,7 +207,7 @@ static u32 _changeServiceStartupType(olchar_t * name, u8 u8Type)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     jf_logger_init_param_t jlipParam;
     jf_servmgmt_init_param_t jsip;
@@ -219,14 +219,14 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jlipParam.jlip_u8TraceLevel = 0;
 
     u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
 
         ol_memset(&jsip, 0, sizeof(jsip));
 
         u32Ret = jf_servmgmt_init(&jsip);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (ls_bStop)
                 u32Ret = _stopService(ls_pstrServName);
@@ -244,9 +244,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jf_logger_fini();
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

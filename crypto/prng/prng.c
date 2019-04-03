@@ -59,7 +59,7 @@ static internal_prng_t ls_ipPrng;
 
 static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i, j, k;
     u32 u32Idx;
     u32 u32Count, u32PoolSize;
@@ -87,19 +87,19 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
     {
         /* stir all data in pool */
         u32PoolSize = PRNG_POOL_SIZE;
-        while ((u32PoolSize > 0) && (u32Ret == OLERR_NO_ERROR))
+        while ((u32PoolSize > 0) && (u32Ret == JF_ERR_NO_ERROR))
         {
             /* At least JF_CGHASH_MD5_DIGEST_LEN */
 #define DUMMY_SEED "...................."
             u32Ret = jf_prng_seed((u8 *)DUMMY_SEED, JF_CGHASH_MD5_DIGEST_LEN, 0.0);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
                 u32PoolSize -= JF_CGHASH_MD5_DIGEST_LEN;
         }
         if (bEntropy)
             pip->ip_bPoolStirred = TRUE;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Idx = pip->ip_u32PoolIndex;
         memcpy(local_md, pip->ip_u8Md, sizeof(pip->ip_u8Md));
@@ -114,7 +114,7 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
         jf_cghash_initMd5(&md5);
     }
 
-    while ((u32Len > 0) && (u32Ret == OLERR_NO_ERROR))
+    while ((u32Len > 0) && (u32Ret == JF_ERR_NO_ERROR))
     {
         j = (u32Len >= JF_CGHASH_MD5_DIGEST_LEN / 2) ? JF_CGHASH_MD5_DIGEST_LEN / 2 : u32Len;
         u32Len -= j;
@@ -156,7 +156,7 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_cghash_updateMd5(&md5, (u8 *)&pip->ip_u32NumOfGet, sizeof(pip->ip_u32NumOfGet));
         jf_cghash_updateMd5(&md5, local_md, JF_CGHASH_MD5_DIGEST_LEN);
@@ -168,7 +168,7 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
             /* prng is not seeded and entropy is not enough, the random data
              * are pseudo
              */
-            u32Ret = OLERR_PRNG_NOT_SEEDED;
+            u32Ret = JF_ERR_PRNG_NOT_SEEDED;
         }
     }
 
@@ -179,7 +179,7 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
 
 u32 jf_prng_init(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_prng_t * pip = &ls_ipPrng;
 
     assert(! pip->ip_bInitialized);
@@ -188,10 +188,10 @@ u32 jf_prng_init(void)
 
     /** Get seed */
     u32Ret = getSeed();
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = initSyncMutex(&(pip->ip_smLock));
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         pip->ip_bInitialized = TRUE;
     else if (pip != NULL)
         jf_prng_fini();
@@ -201,7 +201,7 @@ u32 jf_prng_init(void)
 
 u32 jf_prng_fini(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_prng_t * pip = &ls_ipPrng;
 
     finiSyncMutex(&(pip->ip_smLock));
@@ -213,7 +213,7 @@ u32 jf_prng_fini(void)
 
 u32 jf_prng_getData(u8 * pu8Data, u32 u32Len)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_prng_t * pip = &ls_ipPrng;
 
     assert((pu8Data != NULL) && (u32Len > 0));
@@ -229,18 +229,18 @@ u32 jf_prng_getData(u8 * pu8Data, u32 u32Len)
 
 u32 jf_prng_getPseudoData(u8 * pu8Data, u32 u32Len)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = jf_prng_getData(pu8Data, u32Len);
-    if (u32Ret == OLERR_PRNG_NOT_SEEDED)
-        u32Ret = OLERR_NO_ERROR;
+    if (u32Ret == JF_ERR_PRNG_NOT_SEEDED)
+        u32Ret = JF_ERR_NO_ERROR;
 
     return u32Ret;
 }
 
 u32 jf_prng_seed(const u8 * pu8Data, olint_t u32Len, oldouble_t dbEntropy)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_prng_t * pip = &ls_ipPrng;
     olint_t i, j, k;
     u8 local_md[JF_CGHASH_MD5_DIGEST_LEN];

@@ -71,12 +71,12 @@ logger options:\n\
 static u32 _parseCmdLineParam(
     olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
     u32 u32Value;
 
     while (((nOpt = getopt(argc, argv, "f:T:F:S:h")) != -1) &&
-           (u32Ret == OLERR_NO_ERROR))
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -95,7 +95,7 @@ static u32 _parseCmdLineParam(
             }
             else
             {
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             }
             break;
         case 'F':
@@ -109,11 +109,11 @@ static u32 _parseCmdLineParam(
             }
             else
             {
-                u32Ret = OLERR_INVALID_PARAM;
+                u32Ret = JF_ERR_INVALID_PARAM;
             }
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -159,18 +159,18 @@ typedef struct
 
 static u32 _testXmlParser_1()
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_xmlparser_xml_doc_t xmldoc;
     olchar_t strErrMsg[300];
     test_xml_parser_t txp[] = {
-        {"", OLERR_CORRUPTED_XML_FILE},
-        {"corrupted xml content", OLERR_CORRUPTED_XML_FILE},
-        {"<name>", OLERR_INVALID_XML_DECLARATION},
-        {"<?xml version=\"1.0\" ?>", OLERR_CORRUPTED_XML_FILE},
-        {XML_DOCUMENT_1, OLERR_UNMATCHED_CLOSE_TAG},
-        {XML_DOCUMENT_2, OLERR_NO_ERROR},
-        {XML_DOCUMENT_3, OLERR_NO_ERROR},
-        {XML_DOCUMENT_4, OLERR_NO_ERROR},
+        {"", JF_ERR_CORRUPTED_XML_FILE},
+        {"corrupted xml content", JF_ERR_CORRUPTED_XML_FILE},
+        {"<name>", JF_ERR_INVALID_XML_DECLARATION},
+        {"<?xml version=\"1.0\" ?>", JF_ERR_CORRUPTED_XML_FILE},
+        {XML_DOCUMENT_1, JF_ERR_UNMATCHED_CLOSE_TAG},
+        {XML_DOCUMENT_2, JF_ERR_NO_ERROR},
+        {XML_DOCUMENT_3, JF_ERR_NO_ERROR},
+        {XML_DOCUMENT_4, JF_ERR_NO_ERROR},
     };
     u32 u32NumOfCase = sizeof(txp) / sizeof(test_xml_parser_t);
     u32 u32Index;
@@ -180,20 +180,20 @@ static u32 _testXmlParser_1()
         ol_printf("Parse following XML document:\n%s\n", txp[u32Index].pstrXml);
         u32Ret = jf_xmlparser_parseXML(
             txp[u32Index].pstrXml, 0, strlen(txp[u32Index].pstrXml), &xmldoc);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_printf("Parse result:\n");            
             jf_xmlparser_printXMLNodeList(xmldoc.jxxd_pjxxnRoot, 4);
         }
         else if (u32Ret != txp[u32Index].u32ErrCode)
         {
-            u32Ret = OLERR_PROGRAM_ERROR;
+            u32Ret = JF_ERR_PROGRAM_ERROR;
             break;
         }
         else
         {
             ol_printf("Parse result:\n");
-            getErrMsg(u32Ret, strErrMsg, 300);
+            jf_err_getMsg(u32Ret, strErrMsg, 300);
             ol_printf("%s\n", strErrMsg);
             if (xmldoc.jxxd_pjxxnError != NULL)
             {
@@ -208,7 +208,7 @@ static u32 _testXmlParser_1()
                     xmldoc.jxxd_pjxxnError->jxxn_sName);
                 ol_printf("Error node: %s\n", strErrMsg);
             }
-            u32Ret = OLERR_NO_ERROR;
+            u32Ret = JF_ERR_NO_ERROR;
         }
         ol_printf("\n");
 
@@ -221,7 +221,7 @@ static u32 _testXmlParser_1()
 
 static u32 _printXmlNodeAttributes(jf_xmlparser_xml_attribute_t * pAttr)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t value[64];
 
     while (pAttr != NULL)
@@ -251,7 +251,7 @@ static u32 _printXmlNodeAttributes(jf_xmlparser_xml_attribute_t * pAttr)
 
 static u32 _printXmlNodeAttr(jf_xmlparser_xml_node_t * node)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_xmlparser_xml_node_t * temp, * child;
     olchar_t tagname[64];
     olchar_t value[64];
@@ -277,7 +277,7 @@ static u32 _printXmlNodeAttr(jf_xmlparser_xml_node_t * node)
             tagname[child->jxxn_sName] = '\0';
 
             u32Ret = jf_xmlparser_readInnerXML(child, &pData, &sData);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 ol_memcpy(value, pData, sData);
                 value[sData] = '\0';
@@ -285,10 +285,10 @@ static u32 _printXmlNodeAttr(jf_xmlparser_xml_node_t * node)
             
             ol_printf("%s: %s\n", tagname, value);
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 u32Ret = jf_xmlparser_getXMLAttributes(child, &pAttr);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     _printXmlNodeAttributes(pAttr);
                     jf_xmlparser_destroyXMLAttributeList(&pAttr);
@@ -306,20 +306,20 @@ static u32 _printXmlNodeAttr(jf_xmlparser_xml_node_t * node)
 
 static u32 _testXmlParser_2(olchar_t * pstrXmlFile)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 	char strErrMsg[300];
     olchar_t strTagName[100];
     jf_xmlparser_xml_file_t * pjxxf = NULL;
 
     u32Ret = jf_xmlparser_parseXMLFile(pstrXmlFile, &pjxxf);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_xmlparser_printXMLNodeList(pjxxf->jxxf_jxxdDoc.jxxd_pjxxnRoot, 2);
         _printXmlNodeAttr(pjxxf->jxxf_jxxdDoc.jxxd_pjxxnRoot);
     }
     else
 	{
-		getErrMsg(u32Ret, strErrMsg, 300);
+		jf_err_getMsg(u32Ret, strErrMsg, 300);
         printf("%s\n", strErrMsg);
 		if ((pjxxf != NULL) && (pjxxf->jxxf_jxxdDoc.jxxd_pjxxnError == NULL))
 		{
@@ -341,7 +341,7 @@ static u32 _testXmlParser_2(olchar_t * pstrXmlFile)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_logger_init_param_t jlipParam;
 	char strErrMsg[300];
     
@@ -351,7 +351,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
 
     u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
 
@@ -367,9 +367,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jf_logger_fini();
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

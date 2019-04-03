@@ -90,7 +90,7 @@ static void _decodeBlock(const u8 in[4], u8 out[3])
 u32 jf_encode_encodeBase64(
     const u8 * pu8Input, const olsize_t sInput, olchar_t ** ppstrOutput)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 * out;
     const u8 * in;
     olsize_t slen;
@@ -98,7 +98,7 @@ u32 jf_encode_encodeBase64(
     assert((pu8Input != NULL) && (sInput != 0));
 
     u32Ret = xmalloc((void **)ppstrOutput, ((sInput * 4) / 3) + 6);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         out = (u8 *)*ppstrOutput;
         in = pu8Input;
@@ -126,7 +126,7 @@ u32 jf_encode_encodeBase64(
 u32 jf_encode_decodeBase64(
     const olchar_t * pstrInput, u8 ** ppu8Output, olsize_t * psOutput)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     const olchar_t * input;
     u8 * out, v;
     u8 in[4];
@@ -136,7 +136,7 @@ u32 jf_encode_decodeBase64(
     assert((pstrInput != NULL) && (sInput != 0));
 
     u32Ret = xmalloc((void **)ppu8Output, ((sInput * 3) / 4) + 6);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         out = *ppu8Output;
         input = pstrInput;
@@ -187,7 +187,7 @@ u32 jf_encode_decodeBase64(
 
 u32 jf_encode_freeBase64Buffer(u8 ** ppu8Output)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert((ppu8Output != NULL) && (*ppu8Output != NULL));
 

@@ -31,7 +31,7 @@
 
 static u32 _rollbackSqliteTransaction(persistency_manager_t * ppm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
 
     u32Ret = rollbackJtSqliteTransaction(&pSqlite->sp_jsSqlite);
@@ -41,7 +41,7 @@ static u32 _rollbackSqliteTransaction(persistency_manager_t * ppm)
 
 static u32 _initSqlite(persistency_manager_t * ppm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_persistency_config_sqlite_t * pjpcs =
         &ppm->pm_pdData.pd_spSqlite.sp_jpcsConfigSqlite;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
@@ -53,7 +53,7 @@ static u32 _initSqlite(persistency_manager_t * ppm)
     jsp.jsp_pstrDbName = pjpcs->jpcs_strDbName;
     
     u32Ret = initJtSqlite(&pSqlite->sp_jsSqlite, &jsp);
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
         ol_sprintf(
             strSql,
@@ -70,7 +70,7 @@ static u32 _initSqlite(persistency_manager_t * ppm)
 
 static u32 _finiSqlite(persistency_manager_t * ppm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
 
     u32Ret = finiJtSqlite(&pSqlite->sp_jsSqlite);
@@ -82,7 +82,7 @@ static u32 _getSqliteValue(
     persistency_manager_t * ppm, olchar_t * pKey,
     olchar_t * pValue, olsize_t sValue)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
     jf_persistency_config_sqlite_t * pjpcs =
         &ppm->pm_pdData.pd_spSqlite.sp_jpcsConfigSqlite;
@@ -101,7 +101,7 @@ static u32 _getSqliteValue(
 static u32 _setSqliteValue(
     persistency_manager_t * ppm, olchar_t * pKey, olchar_t * pValue)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
     jf_persistency_config_sqlite_t * pjpcs =
         &ppm->pm_pdData.pd_spSqlite.sp_jpcsConfigSqlite;
@@ -110,7 +110,7 @@ static u32 _setSqliteValue(
     olsize_t nsize = ol_strlen(pValue) + ol_strlen(pKey) + 256;
 
     u32Ret = xmalloc((void **)&pstrSql, nsize);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*update or insert the value into the DB*/
         ol_snprintf(
@@ -130,7 +130,7 @@ static u32 _setSqliteValue(
 
 static u32 _startSqliteTransaction(persistency_manager_t * ppm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
 
     u32Ret = startJtSqliteTransaction(&pSqlite->sp_jsSqlite);
@@ -140,7 +140,7 @@ static u32 _startSqliteTransaction(persistency_manager_t * ppm)
 
 static u32 _commitSqliteTransaction(persistency_manager_t * ppm)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
 
     u32Ret = commitJtSqliteTransaction(&pSqlite->sp_jsSqlite);
@@ -153,7 +153,7 @@ static u32 _commitSqliteTransaction(persistency_manager_t * ppm)
 u32 initSqlitePersistency(
     persistency_manager_t * pManager, jf_persistency_config_sqlite_t * pConfig)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     jf_logger_logInfoMsg("init sqlite persistency");
 

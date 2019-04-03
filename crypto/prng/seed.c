@@ -55,7 +55,7 @@
 
 static u32 _getSeedFromSystem(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     u8 tmpbuf[ENTROPY_NEEDED];
     olchar_t * randomfiles[] = { RANDOM_DEV };
@@ -77,12 +77,12 @@ static u32 _getSeedFromSystem(void)
     {
         u32Ret = jf_file_open(
             randomfiles[i], O_RDONLY | O_NONBLOCK | O_NOCTTY, &fd);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             st = &filestats[i];
 
             u32Ret = jf_file_getStat(randomfiles[i], st);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 /** Avoid using same device */
                 for (j = 0; j < i; j ++)
@@ -98,7 +98,7 @@ static u32 _getSeedFromSystem(void)
                 }
             }
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 tv.tv_sec = 0;
                 tv.tv_usec = usec;
@@ -106,7 +106,7 @@ static u32 _getSeedFromSystem(void)
                 u32Ret = jf_file_readWithTimeout(fd, tmpbuf + sread, &sleft, &tv);
             }
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 sread += sleft;
             }
@@ -131,7 +131,7 @@ static u32 _getSeedFromSystem(void)
 
 static u32 _getSeedFromProcess(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     pid_t pid = getpid();
     uid_t uid = getuid();
@@ -149,19 +149,19 @@ static u32 _getSeedFromProcess(void)
 
 static u32 _getSeedFromTime(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     struct timeval tv;
 
     u32Ret = getTimeOfDay(&tv);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_prng_seed((u8 *)&tv.tv_sec, sizeof(tv.tv_sec), 0.0);
         jf_prng_seed((u8 *)&tv.tv_usec, sizeof(tv.tv_usec), 0.0);
     }
     else
     {
-        u32Ret = OLERR_NO_ERROR;
+        u32Ret = JF_ERR_NO_ERROR;
     }
 #elif defined(WINDOWS)
 
@@ -175,16 +175,16 @@ static u32 _getSeedFromTime(void)
 
 u32 getSeed(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
 
     u32Ret = _getSeedFromSystem();
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _getSeedFromProcess();
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _getSeedFromTime();
     }

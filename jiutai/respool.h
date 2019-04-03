@@ -43,8 +43,8 @@ typedef void  resource_data_t;
  *  @param ppData [in/out] the pointer to the resource data
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
- *  @retval OLERR_INVALID_PARAM invalid parameter
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_INVALID_PARAM invalid parameter
  *
  *  @note the function cannot be blocked, otherwise it blocks others who are
  *   getting resource from pool
@@ -58,7 +58,7 @@ typedef u32 (* fnCreateResource_t)(resource_t * pr, resource_data_t ** ppData);
  *  @param ppData [in/out] the pointer to the resource data
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  *
  *  @note fnCreateResource_t must be called successfully before this func is
  *   called.
@@ -95,9 +95,9 @@ typedef struct
  *  @param prpp [in] the parameters for creating the resource pool.
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
- *  @retval OLERR_OUT_OF_MEMORY out of memeory
- *  @retval OLERR_INVALID_PARAM invalid parameter
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_OUT_OF_MEMORY out of memeory
+ *  @retval JF_ERR_INVALID_PARAM invalid parameter
  *
  *  @note no resources are created in this function
  */
@@ -109,7 +109,7 @@ u32 createResourcePool(resource_pool_t ** pprp, resource_pool_param_t * prpp);
  *   After destruction, it will be set to NULL.
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 destroyResourcePool(resource_pool_t ** pprp);
 
@@ -119,7 +119,7 @@ u32 destroyResourcePool(resource_pool_t ** pprp);
  *  @param ppRes [in/out] the pointer to the resource. 
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 getResourceFromPool(resource_pool_t * prp, resource_t ** ppRes);
 
@@ -129,7 +129,7 @@ u32 getResourceFromPool(resource_pool_t * prp, resource_t ** ppRes);
  *  @param ppRes [in/out] the pointer to the resource. 
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  *
  *  @note getResourceFromPool must be called successfully before this func is
  *   called.
@@ -141,7 +141,7 @@ u32 putResourceInPool(resource_pool_t * prp, resource_t ** ppRes);
  *  @param prp [in] the pointer to the resource pool. 
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 reapResourceInPool(resource_pool_t * prp);
 

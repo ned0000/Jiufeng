@@ -74,7 +74,7 @@ typedef struct internal_acsocket
 static u32 _preSelectAcsocket(void * pAcsocket, fd_set * readset,
     fd_set * writeset, fd_set * errorset, u32 * pu32BlockTime)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 //    internal_acsocket_t * pia = (internal_acsocket_t *) pAcsocket;
 
 
@@ -95,7 +95,7 @@ static u32 _postSelectAcsocket(
     void * pAcsocket, olint_t slct, fd_set * readset,
     fd_set * writeset, fd_set * errorset)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 //    acsocket_data_t * pad;
 //    internal_acsocket_t * pia = (internal_acsocket_t *)pAcsocket;
 
@@ -118,7 +118,7 @@ static u32 _acsOnData(
     void * pAsocket, u8 * pu8Buffer, olsize_t * psBeginPointer,
     olsize_t sEndPointer, void * pUser, boolean_t * bPause)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     acsocket_data_t * pad = (acsocket_data_t *) pUser;
     internal_acsocket_t * pia = pad->ad_iaAcsocket;
 
@@ -146,7 +146,7 @@ static u32 _acsOnData(
 static u32 _acsOnConnect(
     jf_network_asocket_t * pAsocket, boolean_t bOK, void * pUser)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     acsocket_data_t * pad = (acsocket_data_t *) pUser;
     internal_acsocket_t * pia = pad->ad_iaAcsocket;
 
@@ -183,7 +183,7 @@ static u32 _acsGetTagOfAsocket(jf_network_asocket_t * pAsocket)
 static u32 _acsOnDisconnect(
     jf_network_asocket_t * pAsocket, u32 u32Status, void * pUser)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     acsocket_data_t * pad = (acsocket_data_t *) pUser;
     internal_acsocket_t * pia = pad->ad_iaAcsocket;
     u32 u32Index = _acsGetTagOfAsocket(pAsocket);
@@ -212,7 +212,7 @@ static u32 _acsOnDisconnect(
  */
 static u32 _acsOnSendOK(jf_network_asocket_t * pAsocket, void * pUser)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     acsocket_data_t * pad = (acsocket_data_t *) pUser;
     internal_acsocket_t * pia = pad->ad_iaAcsocket;
 
@@ -231,7 +231,7 @@ static u32 _acsOnSendOK(jf_network_asocket_t * pAsocket, void * pUser)
 
 u32 jf_network_destroyAcsocket(jf_network_acsocket_t ** ppAcsocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_acsocket_t * pia = (internal_acsocket_t *) *ppAcsocket;
     u32 u32Index;
 
@@ -240,7 +240,7 @@ u32 jf_network_destroyAcsocket(jf_network_acsocket_t ** ppAcsocket)
     if (pia->ia_pjnaAsockets != NULL)
     {
         for (u32Index = 0;
-             ((u32Index < pia->ia_u32MaxConn) && (u32Ret == OLERR_NO_ERROR));
+             ((u32Index < pia->ia_u32MaxConn) && (u32Ret == JF_ERR_NO_ERROR));
              u32Index ++)
         {
             if (pia->ia_pjnaAsockets[u32Index] != NULL)
@@ -275,7 +275,7 @@ u32 jf_network_createAcsocket(
     jf_network_chain_t * pChain, jf_network_acsocket_t ** ppAcsocket,
     jf_network_acsocket_create_param_t * pjnacp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_acsocket_t * pia = (internal_acsocket_t *) *ppAcsocket;
     jf_network_asocket_create_param_t jnacp;
     u32 u32Index;
@@ -289,7 +289,7 @@ u32 jf_network_createAcsocket(
 
     /*create a new acsocket*/
     u32Ret = xcalloc((void **)&pia, sizeof(internal_acsocket_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pia->ia_jncohHeader.jncoh_fnPreSelect = _preSelectAcsocket;
         pia->ia_jncohHeader.jncoh_fnPostSelect = _postSelectAcsocket;
@@ -307,13 +307,13 @@ u32 jf_network_createAcsocket(
             pjnacp->jnacp_u32MaxConn * sizeof(jf_network_asocket_t *));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = xcalloc(
             (void **)&pia->ia_plaAsocket, sizeOfListArray(pjnacp->jnacp_u32MaxConn));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         initListArray(pia->ia_plaAsocket, pjnacp->jnacp_u32MaxConn);
 
@@ -322,15 +322,15 @@ u32 jf_network_createAcsocket(
             pjnacp->jnacp_u32MaxConn * sizeof(acsocket_data_t));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = initSyncMutex(&pia->ia_smAsocket);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = xcalloc(
             (void **)&pia->ia_psmAsockets,
             pjnacp->jnacp_u32MaxConn * sizeof(sync_mutex_t));
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(&jnacp, 0, sizeof(jnacp));
 
@@ -344,7 +344,7 @@ u32 jf_network_createAcsocket(
 
         /*Create our socket pool*/
         for (u32Index = 0; 
-             ((u32Index < pjnacp->jnacp_u32MaxConn) && (u32Ret == OLERR_NO_ERROR));
+             ((u32Index < pjnacp->jnacp_u32MaxConn) && (u32Ret == JF_ERR_NO_ERROR));
              u32Index ++)
         {
             initSyncMutex(&pia->ia_psmAsockets[u32Index]);
@@ -352,7 +352,7 @@ u32 jf_network_createAcsocket(
 
             u32Ret = jf_network_createAsocket(
                 pChain, &pia->ia_pjnaAsockets[u32Index], &jnacp);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
 #if defined(JIUFENG_64BIT)
                 jf_network_setTagOfAsocket(
@@ -365,10 +365,10 @@ u32 jf_network_createAcsocket(
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_network_appendToChain(pChain, pia);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppAcsocket = pia;
     else if (pia != NULL)
         jf_network_destroyAcsocket((jf_network_acsocket_t **)&pia);
@@ -393,7 +393,7 @@ void jf_network_setTagOfAcsocket(jf_network_acsocket_t * pAcsocket, void * pTag)
 u32 jf_network_disconnectAcsocket(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_acsocket_t * pia = (internal_acsocket_t *) pAcsocket;
     u32 u32Index = _acsGetTagOfAsocket(pAsocket);
 
@@ -429,7 +429,7 @@ u32 jf_network_sendAcsocketData(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
     u8 * pu8Buffer, olsize_t sBuf, jf_network_mem_owner_t memowner)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_acsocket_t * pia = (internal_acsocket_t *) pAcsocket;
     u32 u32Index = _acsGetTagOfAsocket(pAsocket);
 
@@ -445,7 +445,7 @@ u32 jf_network_sendAcsocketData(
 u32 jf_network_resumeAcsocket(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_acsocket_t * pia = (internal_acsocket_t *) pAcsocket;
     u32 u32Index = _acsGetTagOfAsocket(pAsocket);
 
@@ -462,7 +462,7 @@ u32 jf_network_recvAcsocketData(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
     u8 * pu8Buffer, olsize_t * psRecv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_acsocket_t * pia = (internal_acsocket_t *) pAcsocket;
     u32 u32Index = _acsGetTagOfAsocket(pAsocket);
 
@@ -479,7 +479,7 @@ u32 jf_network_getAcsocketOpt(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
     olint_t level, olint_t optname, void * optval, olsize_t * optlen)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_acsocket_t * pia = (internal_acsocket_t *) pAcsocket;
     u32 u32Index = _acsGetTagOfAsocket(pAsocket);
 
@@ -496,7 +496,7 @@ u32 jf_network_setAcsocketOpt(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
     olint_t level, olint_t optname, void * optval, olsize_t optlen)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_acsocket_t * pia = (internal_acsocket_t *) pAcsocket;
     u32 u32Index = _acsGetTagOfAsocket(pAsocket);
 
@@ -513,7 +513,7 @@ u32 jf_network_sendnAcsocket(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
     u8 * pu8Buffer, olsize_t * psBuf)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_acsocket_t * pia = (internal_acsocket_t *) pAcsocket;
     u32 u32Index = _acsGetTagOfAsocket(pAsocket);
 
@@ -530,7 +530,7 @@ u32 jf_network_connectAcsocketTo(
     jf_network_acsocket_t * pAcsocket,
     jf_ipaddr_t * pjiRemote, u16 u16RemotePortNumber, void * pUser)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_acsocket_t * pia = (internal_acsocket_t *) pAcsocket;
     acsocket_data_t * pad;
     u32 u32Index;

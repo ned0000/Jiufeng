@@ -57,7 +57,7 @@ static resource_t * ls_prRespoolTestResource[RESPOOL_TEST_MAX_RESOURCES];
 
 THREAD_RETURN_VALUE _respoolTestWorkerThread(void * pArg)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     respool_test_worker_data_t * prtwd = (respool_test_worker_data_t *)pArg;
 
     jf_logger_logDebugMsg("enter respool test worker thread");
@@ -65,7 +65,7 @@ THREAD_RETURN_VALUE _respoolTestWorkerThread(void * pArg)
     while (! prtwd->rtwd_bToTerminate)
     {
         u32Ret = downSyncSem(prtwd->rtwd_pssSem);
-        if ((u32Ret == OLERR_NO_ERROR) && (! prtwd->rtwd_bToTerminate))
+        if ((u32Ret == JF_ERR_NO_ERROR) && (! prtwd->rtwd_bToTerminate))
         {
             jf_logger_logInfoMsg("respool test worker thread, got work");
 
@@ -83,7 +83,7 @@ THREAD_RETURN_VALUE _respoolTestWorkerThread(void * pArg)
 
 THREAD_RETURN_VALUE _respoolTestProducerThread(void * pArg)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     jf_logger_logDebugMsg("enter respool test producer thread");
     ls_bRespoolTestTerminateProducer = FALSE;
@@ -108,13 +108,13 @@ THREAD_RETURN_VALUE _respoolTestProducerThread(void * pArg)
 
 static u32 _createRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     respool_test_worker_data_t * prtwd = NULL;
 
     jf_logger_logInfoMsg("create respool test worker");
 
     u32Ret = xmalloc((void **)&prtwd, sizeof(respool_test_worker_data_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(prtwd, 0, sizeof(respool_test_worker_data_t));
 
@@ -127,7 +127,7 @@ static u32 _createRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
             &(prtwd->rtwd_tiThreadId), NULL, _respoolTestWorkerThread, prtwd);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *pprd = prtwd;
     else if (prtwd != NULL)
         xfree((void **)&prtwd);
@@ -137,7 +137,7 @@ static u32 _createRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
 
 static u32 _destroyRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     respool_test_worker_data_t * prtwd = (respool_test_worker_data_t *) *pprd;
 
     jf_logger_logInfoMsg("destroy respool test worker");
@@ -152,7 +152,7 @@ static u32 _destroyRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
 
 static u32 _createTestRespool(resource_pool_t ** pprp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     resource_pool_param_t rpp, * prpp = &rpp;
 
     ol_memset(prpp, 0, sizeof(resource_pool_param_t));
@@ -172,18 +172,18 @@ static u32 _createTestRespool(resource_pool_t ** pprp)
 
 static u32 _testRespool(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32 u32Index;
 
     u32Ret = initSyncSem(&ls_ssRespoolTestSem, 0, RESPOOL_TEST_MAX_RESOURCES);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = initSyncMutex(&ls_smRespoolTestLock);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _createTestRespool(&ls_prpRespoolTestWorkerPool);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (u32Index = 0; u32Index < RESPOOL_TEST_MAX_RESOURCES; u32Index ++)
         {
@@ -192,7 +192,7 @@ static u32 _testRespool(void)
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* create a thread for the worker, using default thread attributes */
         u32Ret = createThread(
@@ -211,7 +211,7 @@ static void _terminate(olint_t signal)
 
 static u32 _releaseRespoolTestResource(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index;
 
     for (u32Index = 0; u32Index < RESPOOL_TEST_MAX_RESOURCES; u32Index ++)
@@ -229,7 +229,7 @@ static u32 _releaseRespoolTestResource(void)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     jf_logger_init_param_t jlipParam;
 
@@ -243,10 +243,10 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     u32Ret = registerSignalHandlers(_terminate);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _testRespool();
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         while (! ls_bRespoolTestTerminateProducer)
         {
@@ -254,16 +254,16 @@ olint_t main(olint_t argc, olchar_t ** argv)
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         _releaseRespoolTestResource();
         sleep(3);
         
     }
     
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

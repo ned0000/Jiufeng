@@ -120,13 +120,13 @@ static void _skipBlank(olchar_t * pstrBufOut, const olchar_t * pstrBufIn)
  *  @param strBuf [out] the value string of the option. 
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 static u32 _getValueStringByTag(
     conf_file_t * pcf, 
     const olchar_t * pstrTag, olchar_t strBuf[MAX_CONFFILE_LINE_LEN])
 {
-    u32 u32Ret = OLERR_NOT_FOUND;
+    u32 u32Ret = JF_ERR_NOT_FOUND;
     olchar_t strLine[MAX_CONFFILE_LINE_LEN];
     olchar_t * pcEqual, * pstrLine;
     olint_t nChar;
@@ -154,7 +154,7 @@ static u32 _getValueStringByTag(
                 {
                     _skipBlank(strBuf, &(pcEqual[1]));
                     nChar = EOF;
-                    u32Ret = OLERR_NO_ERROR;
+                    u32Ret = JF_ERR_NO_ERROR;
                 }
             }
         }
@@ -166,7 +166,7 @@ static u32 _getValueStringByTag(
 /* --- public routine section ---------------------------------------------- */
 u32 openConfFile(conf_file_t * pcf, const olchar_t * pstrPath)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert(pcf != NULL);
 
@@ -175,7 +175,7 @@ u32 openConfFile(conf_file_t * pcf, const olchar_t * pstrPath)
     pcf->cf_pfConfFile = fopen(pstrPath, "r");
     if (pcf->cf_pfConfFile == NULL)
     {
-        u32Ret = OLERR_FILE_NOT_FOUND;
+        u32Ret = JF_ERR_FILE_NOT_FOUND;
     }
 
     return u32Ret;
@@ -183,7 +183,7 @@ u32 openConfFile(conf_file_t * pcf, const olchar_t * pstrPath)
 
 u32 closeConfFile(conf_file_t * pcf)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     
     assert(pcf != NULL);
         
@@ -200,7 +200,7 @@ u32 closeConfFile(conf_file_t * pcf)
 u32 getConfFileInt(conf_file_t * pcf, 
     const olchar_t * pstrTag, olint_t nDefault, olint_t * pnValue)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     char strLine[MAX_CONFFILE_LINE_LEN];
     olint_t nRet = 0;
     
@@ -208,7 +208,7 @@ u32 getConfFileInt(conf_file_t * pcf,
 
     rewind(pcf->cf_pfConfFile); 
     u32Ret = _getValueStringByTag(pcf, pstrTag, strLine);
-    while (u32Ret == OLERR_NO_ERROR)
+    while (u32Ret == JF_ERR_NO_ERROR)
     {
         nRet = sscanf(strLine, "%d", pnValue);
         if (nRet == 1)
@@ -222,10 +222,10 @@ u32 getConfFileInt(conf_file_t * pcf,
         }
     }
         
-    if (u32Ret == OLERR_NOT_FOUND)
+    if (u32Ret == JF_ERR_NOT_FOUND)
     {
         /* set the option value to default */
-        u32Ret = OLERR_NO_ERROR;
+        u32Ret = JF_ERR_NO_ERROR;
         *pnValue = nDefault;
     }
     
@@ -236,7 +236,7 @@ u32 getConfFileString(conf_file_t * pcf,
     const olchar_t * pstrTag, const olchar_t * pstrDefault, 
     olchar_t * pstrValueBuf, olsize_t sBuf)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strLine[MAX_CONFFILE_LINE_LEN];
     olsize_t size = 0;
     
@@ -244,7 +244,7 @@ u32 getConfFileString(conf_file_t * pcf,
 
     rewind(pcf->cf_pfConfFile); 
     u32Ret = _getValueStringByTag(pcf, pstrTag, strLine);
-    while (u32Ret == OLERR_NO_ERROR)
+    while (u32Ret == JF_ERR_NO_ERROR)
     {
         size = ol_strlen(strLine);
         if (size > 0)
@@ -256,7 +256,7 @@ u32 getConfFileString(conf_file_t * pcf,
             }
             else
             {
-                u32Ret = OLERR_BUFFER_TOO_SMALL;
+                u32Ret = JF_ERR_BUFFER_TOO_SMALL;
             }
         }
         else
@@ -265,18 +265,18 @@ u32 getConfFileString(conf_file_t * pcf,
         }
     }
         
-    if (u32Ret == OLERR_NOT_FOUND && pstrDefault != NULL)
+    if (u32Ret == JF_ERR_NOT_FOUND && pstrDefault != NULL)
     {
         /* set the option value to default */
         size = ol_strlen(pstrDefault);
         if (size < sBuf)
         {
             ol_strcpy(pstrValueBuf, pstrDefault);
-            u32Ret = OLERR_NO_ERROR;
+            u32Ret = JF_ERR_NO_ERROR;
         }
         else
         {
-            u32Ret = OLERR_BUFFER_TOO_SMALL;
+            u32Ret = JF_ERR_BUFFER_TOO_SMALL;
         }
     }
     

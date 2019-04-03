@@ -28,11 +28,11 @@
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 * pu8Buffer;
 
     u32Ret = xmalloc((void **)&pu8Buffer, 50);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("Succeed to allocate memory\n");
     }

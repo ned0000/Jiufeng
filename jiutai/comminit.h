@@ -46,7 +46,7 @@
 /*init net-related library*/
 static inline u32 jf_network_initLib(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
 #if defined(LINUX)
 
@@ -62,10 +62,10 @@ static inline u32 jf_network_initLib(void)
     err = WSAStartup(wVersionRequested, &wsaData);
     if (err != 0)
     {
-        u32Ret = OLERR_FAIL_INIT_NET_LIB;
+        u32Ret = JF_ERR_FAIL_INIT_NET_LIB;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* Confirm that the WinSock DLL supports 2.0.*/
         /* Note that if the DLL supports versions greater    */
@@ -77,7 +77,7 @@ static inline u32 jf_network_initLib(void)
         {
             /* Tell the user that we could not find a usable WinSock DLL.*/
             WSACleanup();
-            u32Ret = OLERR_FAIL_INIT_NET_LIB;
+            u32Ret = JF_ERR_FAIL_INIT_NET_LIB;
         }
     }
 
@@ -88,7 +88,7 @@ static inline u32 jf_network_initLib(void)
 
 static inline u32 jf_network_finiLib(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
 
 #elif defined(WINDOWS)

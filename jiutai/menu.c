@@ -137,18 +137,18 @@ static olint_t _quitMenu(internal_menu_t * pMenu)
 static u32 _newMenuEntry(internal_menu_t * pParent, const olchar_t * pstrName, 
     const olchar_t * pstrDesc, const u32 attr, internal_menu_entry_t ** ppEntry)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_entry_t *pEntry;
 
     u32Ret = xmalloc((void **)&pEntry, sizeof(internal_menu_entry_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pEntry, 0, sizeof(internal_menu_entry_t));
         pEntry->ime_u32Attribute = attr;
         pEntry->ime_imParent = pParent;
 
         u32Ret = jf_string_duplicate(&(pEntry->ime_pstrName), pstrName);
-        if (u32Ret != OLERR_NO_ERROR)
+        if (u32Ret != JF_ERR_NO_ERROR)
         {
             xfree((void **)&pEntry);
         }
@@ -157,7 +157,7 @@ static u32 _newMenuEntry(internal_menu_t * pParent, const olchar_t * pstrName,
             if (pstrDesc != NULL)
             {
                 u32Ret = jf_string_duplicate(&(pEntry->ime_pstrDesc), pstrDesc);
-                if (u32Ret != OLERR_NO_ERROR)
+                if (u32Ret != JF_ERR_NO_ERROR)
                 {
                     xfree((void **)&(pEntry->ime_pstrName));
                     xfree((void **)&pEntry);
@@ -166,7 +166,7 @@ static u32 _newMenuEntry(internal_menu_t * pParent, const olchar_t * pstrName,
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppEntry = pEntry;
 
     return u32Ret;
@@ -174,7 +174,7 @@ static u32 _newMenuEntry(internal_menu_t * pParent, const olchar_t * pstrName,
 
 static u32 _destroyEntry(internal_menu_entry_t ** ppEntry)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     free(*ppEntry);
     *ppEntry = NULL;
@@ -184,11 +184,11 @@ static u32 _destroyEntry(internal_menu_entry_t ** ppEntry)
 
 static u32 _newQuitEntry(internal_menu_t * pParent, internal_menu_entry_t ** ppEntry)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_entry_t * pEntry;
 
     u32Ret = _newMenuEntry(pParent, "quit", NULL, 0, &pEntry);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pEntry->ime_etType = ENTRY_TYPE_QUIT;
         *ppEntry = pEntry;
@@ -199,11 +199,11 @@ static u32 _newQuitEntry(internal_menu_t * pParent, internal_menu_entry_t ** ppE
 
 static u32 _newUponelevelEntry(internal_menu_t * pParent, internal_menu_entry_t ** ppEntry)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_entry_t * pEntry;
 
     u32Ret = _newMenuEntry(pParent, "up", "up one level", 0, &pEntry);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pEntry->ime_etType = ENTRY_TYPE_UPONELEVEL;
         *ppEntry = pEntry;
@@ -214,7 +214,7 @@ static u32 _newUponelevelEntry(internal_menu_t * pParent, internal_menu_entry_t 
 
 static u32 _addEntry(internal_menu_t * pParent, internal_menu_entry_t *pEntry)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     pEntry->ime_imeNext = pParent->im_imeEntries;
     pParent->im_imeEntries = pEntry;
@@ -225,12 +225,12 @@ static u32 _addEntry(internal_menu_t * pParent, internal_menu_entry_t *pEntry)
 static u32 _newMenu(internal_menu_t * pParent, fnPreShow_t fnPreShow,
     fnPostShow_t fnPostShow, void * pArg, internal_menu_t ** ppMenu)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_t *pMenu;
     internal_menu_entry_t *pEntry;
 
     u32Ret = xmalloc((void **)&pMenu, sizeof(internal_menu_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pMenu, 0, sizeof(internal_menu_t));
 
@@ -241,13 +241,13 @@ static u32 _newMenu(internal_menu_t * pParent, fnPreShow_t fnPreShow,
 
         // setup the quit entry
         u32Ret = _newQuitEntry(pMenu, &pEntry);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             _addEntry(pMenu, pEntry);
             if (pParent != NULL)
             {
                 u32Ret = _newUponelevelEntry(pMenu, &pEntry);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     _addEntry(pMenu, pEntry);
                 }
@@ -264,7 +264,7 @@ static u32 _newMenu(internal_menu_t * pParent, fnPreShow_t fnPreShow,
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         *ppMenu = pMenu;
     }
@@ -398,7 +398,7 @@ static olint_t _destroyMenu(internal_menu_t * pTop)
 u32 createTopMenu(fnPreShow_t fnPreShow, fnPostShow_t fnPostShow, void * pArg,
     menu_t ** ppMenu)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = _newMenu(NULL, fnPreShow, fnPostShow, pArg,
         (internal_menu_t **)ppMenu);
@@ -410,7 +410,7 @@ u32 addMenuEntry(menu_t * pParent, const olchar_t * pstrName,
     const olchar_t * pstrDesc, const u32 attr,
     fnHandler_t fnHandler, void * pArg)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_entry_t * pEntry;
     internal_menu_t * pParentMenu = (internal_menu_t *)pParent;
 
@@ -418,7 +418,7 @@ u32 addMenuEntry(menu_t * pParent, const olchar_t * pstrName,
            (fnHandler != NULL));
 
     u32Ret = _newMenuEntry(pParentMenu, pstrName, pstrDesc, attr, &pEntry);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pEntry->ime_etType = ENTRY_TYPE_COMMAND;
         pEntry->ime_uContent.iu_stCommand.is_pArg = pArg;
@@ -435,7 +435,7 @@ u32 addSubMenu(menu_t * pParent, const olchar_t * pstrName,
     fnPreShow_t fnPreShow, fnPostShow_t fnPostShow,
     void * pArg, menu_t ** ppMenu)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_entry_t * pEntry;
     internal_menu_t * pMenu;
     internal_menu_t * pParentMenu = (internal_menu_t *)pParent;
@@ -443,11 +443,11 @@ u32 addSubMenu(menu_t * pParent, const olchar_t * pstrName,
     assert((pstrName != NULL) && (pParent != NULL));
 
     u32Ret = _newMenuEntry(pParentMenu, pstrName, pstrDesc, attr, &pEntry);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pEntry->ime_etType = ENTRY_TYPE_MENU;
         u32Ret = _newMenu(pParentMenu, fnPreShow, fnPostShow, pArg, &pMenu);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             pEntry->ime_uContent.iu_imMenu = pMenu;
             *ppMenu = pMenu;
@@ -464,7 +464,7 @@ u32 addSubMenu(menu_t * pParent, const olchar_t * pstrName,
 
 u32 startMenu(menu_t * pTop)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_t * p, * pMenu = (internal_menu_t *)pTop;
 
     assert(pMenu != NULL && pMenu->im_imParent == NULL);

@@ -103,16 +103,16 @@ static void _parseSettingValue(
 static u32 _servmgmtXmlNewChild(
     xmlNodePtr root, olchar_t * name, olchar_t * content, xmlNodePtr * ppNode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     xmlNodePtr node = NULL;
 
     node = xmlNewChild(root, NULL, BAD_CAST name, BAD_CAST content);
     if (node == NULL)
     {
-        u32Ret = OLERR_OUT_OF_MEMORY;
+        u32Ret = JF_ERR_OUT_OF_MEMORY;
     }
 
-    if ((u32Ret == OLERR_NO_ERROR) && (ppNode != NULL))
+    if ((u32Ret == JF_ERR_NO_ERROR) && (ppNode != NULL))
         *ppNode = node;
 
     return u32Ret;
@@ -122,7 +122,7 @@ static u32 _servmgmtXmlNewChild(
 
 u32 readServMgmtSetting(internal_serv_mgmt_setting_t * pisms)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     xmlDocPtr doc = NULL;
     xmlNodePtr root = NULL, cur = NULL, overall = NULL, repository = NULL;
     xmlNodePtr service = NULL;
@@ -134,10 +134,10 @@ u32 readServMgmtSetting(internal_serv_mgmt_setting_t * pisms)
     doc = xmlParseFile(pisms->isms_strSettingFile);
     if (doc == NULL)
     {
-        u32Ret = OLERR_LIBXML_PARSE_ERROR;
+        u32Ret = JF_ERR_LIBXML_PARSE_ERROR;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Get the root element node */
         root = xmlDocGetRootElement(doc);
@@ -146,7 +146,7 @@ u32 readServMgmtSetting(internal_serv_mgmt_setting_t * pisms)
             (strcmp((olchar_t *)root->name, "servMgmtSetting") == 0))
             overall = root->xmlChildrenNode;
         
-        while ((overall != NULL) && (u32Ret == OLERR_NO_ERROR))
+        while ((overall != NULL) && (u32Ret == JF_ERR_NO_ERROR))
         {   
             key = xmlNodeListGetString(doc, overall->xmlChildrenNode, 1);
 
@@ -163,13 +163,13 @@ u32 readServMgmtSetting(internal_serv_mgmt_setting_t * pisms)
         if (repository != NULL)
             service = repository->xmlChildrenNode;
 
-        while ((service != NULL) && (u32Ret == OLERR_NO_ERROR))
+        while ((service != NULL) && (u32Ret == JF_ERR_NO_ERROR))
         {
             if ((service != NULL) &&
                 (strcmp((olchar_t *)service->name, "service") == 0))
             {
                 cur = service->xmlChildrenNode;
-                while (cur != NULL && u32Ret == OLERR_NO_ERROR)
+                while (cur != NULL && u32Ret == JF_ERR_NO_ERROR)
                 {
                     key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
 
@@ -195,7 +195,7 @@ u32 modifyServiceStartupType(
     const olchar_t * pstrSettingFile, olchar_t * pstrServiceName,
     u8 u8StartupType)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strSettingFilename[MAX_PATH_LEN];
     xmlDocPtr doc = NULL;
     xmlNodePtr root = NULL, servicesetting = NULL;
@@ -212,10 +212,10 @@ u32 modifyServiceStartupType(
     doc = xmlParseFile(strSettingFilename);
     if (doc == NULL)
     {
-        u32Ret = OLERR_LIBXML_PARSE_ERROR;
+        u32Ret = JF_ERR_LIBXML_PARSE_ERROR;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
          /*Get the root element node */
         root = xmlDocGetRootElement(doc);
@@ -223,7 +223,7 @@ u32 modifyServiceStartupType(
         repository = overall->next;
         
         repository = repository->xmlChildrenNode;
-        while (repository != NULL && u32Ret == OLERR_NO_ERROR)
+        while (repository != NULL && u32Ret == JF_ERR_NO_ERROR)
         {
             if (strcmp((olchar_t *)repository->name, "serviceSetting") == 0)
             {
@@ -232,7 +232,7 @@ u32 modifyServiceStartupType(
             }
         }
 
-        while (servicesetting != NULL && u32Ret == OLERR_NO_ERROR)
+        while (servicesetting != NULL && u32Ret == JF_ERR_NO_ERROR)
         {
             if (strcmp((olchar_t *)servicesetting->name, "name") == 0)
             {
@@ -240,7 +240,7 @@ u32 modifyServiceStartupType(
                 if (strcmp((olchar_t *)key, pstrServiceName) == 0)
                 {
                     cur2 = repository->xmlChildrenNode;
-                    while (cur2 != NULL && u32Ret == OLERR_NO_ERROR)
+                    while (cur2 != NULL && u32Ret == JF_ERR_NO_ERROR)
                     {
                         if (strcmp((olchar_t *)cur2->name, "startupType") == 0)
                         {
@@ -278,7 +278,7 @@ u32 modifyServiceStartupType(
 u32 writeServMgmtSetting(
     internal_serv_mgmt_setting_t * pisms)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_service_info_t * pisi;
     xmlDocPtr doc = NULL;       /* document pointer */
     xmlNodePtr root = NULL, setting_node = NULL, serv_node = NULL;
@@ -290,28 +290,28 @@ u32 writeServMgmtSetting(
      */
     doc = xmlNewDoc(BAD_CAST "1.0");
     if (doc == NULL)
-        u32Ret = OLERR_OUT_OF_MEMORY;
+        u32Ret = JF_ERR_OUT_OF_MEMORY;
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         root = xmlNewNode(NULL, BAD_CAST "servMgmtSetting");
         if (root == NULL)
-            u32Ret = OLERR_OUT_OF_MEMORY;
+            u32Ret = JF_ERR_OUT_OF_MEMORY;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         xmlDocSetRootElement(doc, root);
 
         u32Ret = _servmgmtXmlNewChild(root, "version", "1.0", NULL);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _servmgmtXmlNewChild(
             root, "serviceSetting", NULL, &setting_node);
 
     for (u32Index = 0;
-         (u32Index < pisms->isms_u32NumOfService) && (u32Ret == OLERR_NO_ERROR);
+         (u32Index < pisms->isms_u32NumOfService) && (u32Ret == JF_ERR_NO_ERROR);
          u32Index ++)
     {
         pisi = &pisms->isms_isiService[u32Index];
@@ -319,38 +319,38 @@ u32 writeServMgmtSetting(
         u32Ret = _servmgmtXmlNewChild(
             setting_node, "service", NULL, &serv_node);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = _servmgmtXmlNewChild(
                 serv_node, "name", pisi->isi_strName, NULL);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = _servmgmtXmlNewChild(
                 serv_node, "startupType",
                 (olchar_t *)jf_servmgmt_getStringServStartupType(
                     pisi->isi_u8StartupType), NULL);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = _servmgmtXmlNewChild(
                 serv_node, "role",
                 _getStringServRole(pisi->isi_u8Role), NULL);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = _servmgmtXmlNewChild(
                 serv_node, "cmdPath", pisi->isi_strCmdPath, NULL);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_sprintf(str, "%u", pisi->isi_u8RestartDelay);
             u32Ret = _servmgmtXmlNewChild(
                 serv_node, "restartDelay", str, NULL);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = _servmgmtXmlNewChild(
                 serv_node, "cmdParam", pisi->isi_strCmdParam, NULL);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         xmlSaveFormatFileEnc(pisms->isms_strSettingFile, doc, "UTF-8", 1);
 
     if (doc != NULL)

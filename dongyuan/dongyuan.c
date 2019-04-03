@@ -43,7 +43,7 @@ typedef struct
 /* --- public routine section ---------------------------------------------- */
 u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dongyuan_t * pig;
     jf_servmgmt_init_param_t jsip;
     olchar_t strExecutablePath[MAX_PATH_LEN];
@@ -51,7 +51,7 @@ u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp)
     jf_logger_logInfoMsg("create dongyuan");
 
     u32Ret = xcalloc((void **)&pig, sizeof(internal_dongyuan_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pig->ig_pstrSettingFile = pgp->gp_pstrSettingFile;
 
@@ -61,14 +61,14 @@ u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp)
             u32Ret = setCurrentWorkingDirectory(strExecutablePath);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(&jsip, 0, sizeof(jsip));
 
         u32Ret = jf_servmgmt_init(&jsip);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppDongyuan = pig;
     else if (pig != NULL)
         destroyDongyuan((dongyuan_t **)&pig);
@@ -78,7 +78,7 @@ u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp)
 
 u32 destroyDongyuan(dongyuan_t ** ppDongyuan)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert((ppDongyuan != NULL) && (*ppDongyuan != NULL));
 
@@ -90,7 +90,7 @@ u32 destroyDongyuan(dongyuan_t ** ppDongyuan)
 
 u32 startDongyuan(dongyuan_t * pDongyuan)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dongyuan_t * pig;
     jf_servmgmt_start_param_t jssp;
 
@@ -108,7 +108,7 @@ u32 startDongyuan(dongyuan_t * pDongyuan)
 
 u32 stopDongyuan(dongyuan_t * pDongyuan)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 //    internal_dongyuan_t * pig;
 
     assert(pDongyuan != NULL);
@@ -122,7 +122,7 @@ u32 stopDongyuan(dongyuan_t * pDongyuan)
 
 u32 setDefaultDongyuanParam(dongyuan_param_t * pgp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     memset(pgp, 0, sizeof(dongyuan_param_t));
 

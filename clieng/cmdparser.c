@@ -78,10 +78,10 @@ typedef struct
 
 static u32 _printError(internal_clieng_parser_t * picp, const u32 u32ErrorCode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pstrDesc = NULL;
 
-    pstrDesc = getErrorDescription(u32ErrorCode);
+    pstrDesc = jf_err_getDescription(u32ErrorCode);
 
     u32Ret = outputLine(
         "Error (0x%x): %s", u32ErrorCode, pstrDesc);
@@ -94,21 +94,21 @@ static u32 _printError(internal_clieng_parser_t * picp, const u32 u32ErrorCode)
  *  @param pstrCmd [in] the command string
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR on success
- *  @retval OLERR_BLANK_CMD if the command line is blank;
- *  @retval OLERR_COMMENT_CMD if the command line is comment;
+ *  @retval JF_ERR_NO_ERROR on success
+ *  @retval JF_ERR_BLANK_CMD if the command line is blank;
+ *  @retval JF_ERR_COMMENT_CMD if the command line is comment;
  */
 static u32 _trimCmdLine(olchar_t * pstrCmd)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t i = 0, j = 0;
     olint_t length = 0;
 
     if (pstrCmd == NULL || ol_strlen(pstrCmd) == 0)
-        return OLERR_BLANK_CMD;
+        return JF_ERR_BLANK_CMD;
 
     if (pstrCmd[0] == '#')
-        return OLERR_COMMENT_CMD;
+        return JF_ERR_COMMENT_CMD;
 
     length = ol_strlen(pstrCmd);
     i = 0;
@@ -120,7 +120,7 @@ static u32 _trimCmdLine(olchar_t * pstrCmd)
     }
 
     if (i == length)
-        return OLERR_BLANK_CMD;
+        return JF_ERR_BLANK_CMD;
 
     j = 0;
     length = length - i;
@@ -160,11 +160,11 @@ static u32 _trimCmdLine(olchar_t * pstrCmd)
 static u32 _formCmdLineArguments(
     internal_clieng_parser_t * picp, olchar_t * pstrCmd)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index = 0;
 
     u32Ret = _trimCmdLine(pstrCmd);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_logInfoMsg("clieng form arg, pstrCmd %s", pstrCmd);
 
@@ -176,8 +176,8 @@ static u32 _formCmdLineArguments(
         for (u32Index = 0; u32Index < picp->icp_sArgc; u32Index ++)
             jf_logger_logInfoMsg("arg %d: %s", u32Index, picp->icp_pstrArgv[u32Index]);
 
-        if (picp->icp_sArgc < 1 && u32Ret == OLERR_NO_ERROR)
-            u32Ret = OLERR_BLANK_CMD;
+        if (picp->icp_sArgc < 1 && u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = JF_ERR_BLANK_CMD;
     }
 
     return u32Ret;
@@ -188,7 +188,7 @@ static u32 _formCmdLineArguments(
  */
 static u32 _preProcessCmdLine(internal_clieng_parser_t * picp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * argv;
     olsize_t length = 0, j = 0;
     u32 u32Index;
@@ -249,30 +249,30 @@ static boolean_t _findMore(olsize_t * psArgc, olchar_t ** ppstrArgv)
  */
 static u32 _parseAndProcess(internal_clieng_parser_t * picp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_cmd_t * picc;
 
     u32Ret = getHashTableEntry(
         picp->icp_htCmd, (void *)picp->icp_pstrArgv[0], (void **)&picc);
-    if (u32Ret != OLERR_NO_ERROR)
-        u32Ret = OLERR_INVALID_COMMAND;
+    if (u32Ret != JF_ERR_NO_ERROR)
+        u32Ret = JF_ERR_INVALID_COMMAND;
     else
     {
         u32Ret = picc->icc_fnSetDefaultParam(
             picp->icp_pMaster, picc->icc_pParam);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = picc->icc_fnParseCmd(
                 picp->icp_pMaster, picp->icp_sArgc, picp->icp_pstrArgv,
                 picc->icc_pParam);
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = picc->icc_fnProcessCmd(
                 picp->icp_pMaster, picc->icc_pParam);
     }
 
     setMoreDisable();
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
         _printError(picp, u32Ret);
     }
@@ -287,7 +287,7 @@ static olint_t _cmpKeys(void * pKey1, void * pKey2)
 
 static u32 _freeCmd(void ** ppCmd)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_cmd_t * picc = *ppCmd;
 
     free(picc);
@@ -313,7 +313,7 @@ static void * _getKeyFromCmd(void * pCmd)
 
 u32 createParser(clieng_parser_t ** pcp, clieng_parser_param_t * pcpp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_parser_t * picp = NULL;
     hash_table_param_t htp;
 
@@ -322,7 +322,7 @@ u32 createParser(clieng_parser_t ** pcp, clieng_parser_param_t * pcpp)
     jf_logger_logInfoMsg("create parser");
 
     u32Ret = xcalloc((void **)&picp, sizeof(internal_clieng_parser_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         picp->icp_sArgc = 0;
         picp->icp_pMaster = pcpp->cpp_pMaster;
@@ -335,7 +335,7 @@ u32 createParser(clieng_parser_t ** pcp, clieng_parser_param_t * pcpp)
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         picp->icp_u32MaxCmd = (pcpp->cpp_u32MaxCmd > 0) ?
             pcpp->cpp_u32MaxCmd : MAX_CMD;
@@ -351,7 +351,7 @@ u32 createParser(clieng_parser_t ** pcp, clieng_parser_param_t * pcpp)
         u32Ret = createHashTable(&(picp->icp_htCmd), &htp);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *pcp = picp;
     else if (picp != NULL)
         destroyParser((clieng_parser_t **)&picp);
@@ -361,7 +361,7 @@ u32 createParser(clieng_parser_t ** pcp, clieng_parser_param_t * pcpp)
 
 u32 destroyParser(clieng_parser_t ** pcp)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_parser_t * picp;
 
     assert((pcp != NULL) && (*pcp != NULL));
@@ -383,7 +383,7 @@ u32 destroyParser(clieng_parser_t ** pcp)
 
 u32 parseCmd(clieng_parser_t * pcp, olchar_t * pstrCmd)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_parser_t * picp;
 
     assert((pcp != NULL) && (pstrCmd != NULL));
@@ -394,7 +394,7 @@ u32 parseCmd(clieng_parser_t * pcp, olchar_t * pstrCmd)
 
     u32Ret = _formCmdLineArguments(picp, pstrCmd);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* check for "| more" command*/
         setMoreDisable();
@@ -406,11 +406,11 @@ u32 parseCmd(clieng_parser_t * pcp, olchar_t * pstrCmd)
         u32Ret = _preProcessCmdLine(picp);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _parseAndProcess(picp);
     }
-    else if (u32Ret != OLERR_BLANK_CMD && u32Ret != OLERR_COMMENT_CMD)
+    else if (u32Ret != JF_ERR_BLANK_CMD && u32Ret != JF_ERR_COMMENT_CMD)
     {
         _printError(picp, u32Ret);
     }
@@ -424,27 +424,27 @@ u32 newCmd(
     jf_clieng_fnParseCmd_t fnParseCmd, jf_clieng_fnProcessCmd_t fnProcessCmd,
     void * pParam, jf_clieng_cmd_t ** ppCmd)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_parser_t * picp = (internal_clieng_parser_t *)pcp;
     internal_clieng_cmd_t * picc = NULL;
 
     assert(pstrName != NULL);
 
     if (strlen(pstrName) > MAX_CMD_NAME_LEN - 1)
-        u32Ret = OLERR_CMD_NAME_TOO_LONG;
+        u32Ret = JF_ERR_CMD_NAME_TOO_LONG;
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (isKeyInHashTable(picp->icp_htCmd, (void *)pstrName))
-            u32Ret = OLERR_CMD_ALREADY_EXIST;
+            u32Ret = JF_ERR_CMD_ALREADY_EXIST;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = xcalloc((void **)&picc, sizeof(internal_clieng_cmd_t));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_strncpy(picc->icc_strName, pstrName, MAX_CMD_NAME_LEN - 1);
         picc->icc_fnSetDefaultParam = fnSetDefaultParam;
@@ -455,7 +455,7 @@ u32 newCmd(
         u32Ret = insertHashTableEntry(picp->icp_htCmd, (void *)picc);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ppCmd != NULL)
             *ppCmd = picc;

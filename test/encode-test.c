@@ -46,11 +46,11 @@ Usage: encode-test [-b] [-m filename] [-c] \n\
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
     while (((nOpt = getopt(argc, argv,
-        "cm:bh?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "cm:bh?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -70,10 +70,10 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
             ls_bCanonicalHuffman = TRUE;
             break;
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -85,7 +85,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 
 static u32 _testBase64(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pstrOutput = NULL;
     u8 * pu8Decode = NULL;
     olsize_t sLen, sDecode;
@@ -114,13 +114,13 @@ static u32 _testBase64(void)
         ol_printf("Source data: %d, %s\n", sLen, pstrData[u32Index]);
 
         u32Ret = jf_encode_encodeBase64((u8 *)pstrData[u32Index], sLen, &pstrOutput);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             sLen = ol_strlen(pstrOutput);
             ol_printf("Encoded data: %d, %s\n", sLen, pstrOutput);
 
             u32Ret = jf_encode_decodeBase64(pstrOutput, &pu8Decode, &sDecode);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 pu8Decode[sDecode] = '\0';
                 ol_printf("Decoded data: %d, %s\n", sDecode, pu8Decode);
@@ -198,14 +198,14 @@ static olint_t _encodeTestCompare(const void * item1, const void * item2)
 static void _printCanonicalHuffmanCode(
     jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u16 u16Index;
     olchar_t strBit[100];
     jf_encode_huffman_code_t ** ppjehc = NULL;
 
     u32Ret = xcalloc(
         (void **)&ppjehc, sizeof(jf_encode_huffman_code_t *) * u16NumOfCode);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (u16Index = 0; u16Index < u16NumOfCode; u16Index ++)
         {
@@ -259,7 +259,7 @@ static void _printHuffmanCode(jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode
 
 static u32 _testGenHuffmanCode(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_encode_huffman_code_t pjehc[NUM_SYMBOL];
     u16 u16Index = 0;
     jf_filestream_t * fp;
@@ -278,7 +278,7 @@ static u32 _testGenHuffmanCode(void)
     }
 
     u32Ret = jf_filestream_open(ls_pstrFile, "r", &fp);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         while ((c = fgetc(fp)) != EOF)
         {
@@ -292,18 +292,18 @@ static u32 _testGenHuffmanCode(void)
         jf_filestream_close(&fp);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_bCanonicalHuffman)
         {
             u32Ret = jf_encode_genCanonicalHuffmanCode(pjehc, NUM_SYMBOL);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
                 _printCanonicalHuffmanCode(pjehc, NUM_SYMBOL);
         }
         else
         {
             u32Ret = jf_encode_genHuffmanCode(pjehc, NUM_SYMBOL);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
                 _printHuffmanCode(pjehc, NUM_SYMBOL);
         }
     }
@@ -313,7 +313,7 @@ static u32 _testGenHuffmanCode(void)
 
 static u32 _testHuffman(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = _testGenHuffmanCode();
 
@@ -324,11 +324,11 @@ static u32 _testHuffman(void)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
     u32Ret = _parseCmdLineParam(argc, argv);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_bBase64)
             u32Ret = _testBase64();
@@ -341,9 +341,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
         }
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

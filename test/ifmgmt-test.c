@@ -49,11 +49,11 @@ Usage: ifmgmt-test [-i] [-f if-name] [-u if-name] [-d if-name] [-a] \n\
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
     while (((nOpt = getopt(argc, argv,
-        "au:d:f:iph?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "au:d:f:iph?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -80,10 +80,10 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
             ls_pstrIfName = (olchar_t *)optarg;
             break;
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -93,7 +93,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 
 static u32 _showOneIfInfo(jf_ifmgmt_if_t * pif)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t str[JF_IFMGMT_IF_FLAGS_STR_SIZE];
  
     ol_printf("Interface: %s\n", pif->jii_strName);
@@ -115,11 +115,11 @@ static u32 _showOneIfInfo(jf_ifmgmt_if_t * pif)
 
 static u32 _showIfInfo(olchar_t * name)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ifmgmt_if_t jiif;
 
     u32Ret = jf_ifmgmt_getIf(name, &jiif);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _showOneIfInfo(&jiif);
     }
@@ -129,13 +129,13 @@ static u32 _showIfInfo(olchar_t * name)
 
 static u32 _showAllIfInfo(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #define MAX_IF   (6)
     jf_ifmgmt_if_t jiif[MAX_IF];
     u32 u32NumOfIf = MAX_IF, index;
 
     u32Ret = jf_ifmgmt_getAllIf(jiif, &u32NumOfIf);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("Total %d interface(s).\n", u32NumOfIf);
         for (index = 0; index < u32NumOfIf; index ++)
@@ -150,14 +150,14 @@ static u32 _showAllIfInfo(void)
 
 static u32 _showIpInfo()
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ipaddr_t ipaddr[16];
     u16 u16Count = 16, u16Index;
     olchar_t strIp[20];
     u8 u8Mac[MAC_LEN];
 
     u32Ret = jf_ipaddr_getLocalIpAddrList(JF_IPADDR_TYPE_V4, &ipaddr[0], &u16Count);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("Local IP Address List:\n");
         for (u16Index = 0; u16Index < u16Count; u16Index ++)
@@ -167,10 +167,10 @@ static u32 _showIpInfo()
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_ifmgmt_getMacOfFirstIf(u8Mac);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             jf_string_getStringMACAddress(strIp, u8Mac);
             ol_printf("MAC of First Interface: %s\n", strIp);
@@ -186,10 +186,10 @@ static u32 _showIpInfo()
 
 static u32 _upIf(olchar_t * name)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = jf_ifmgmt_upIf(name);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         ol_printf("Interface is up\n");
 
     return u32Ret;
@@ -197,10 +197,10 @@ static u32 _upIf(olchar_t * name)
 
 static u32 _downIf(olchar_t * name)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = jf_ifmgmt_downIf(name);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         ol_printf("Interface is down\n");
 
     return u32Ret;
@@ -210,14 +210,14 @@ static u32 _downIf(olchar_t * name)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
     u32Ret = _parseCmdLineParam(argc, argv);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_network_initLib();
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (ls_bShowIpInfo)
                 u32Ret = _showIpInfo();
@@ -239,9 +239,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jf_network_finiLib();
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
+        jf_err_getMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
         ol_printf("%s\n", strErrMsg);
     }
 

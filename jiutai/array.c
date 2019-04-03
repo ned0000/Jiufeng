@@ -38,7 +38,7 @@ typedef struct
 static u32 _getElementAt(internal_basic_array_t * piba, u32 u32Index,
 	      basic_array_element_t ** ppbae)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_array_node_t *piban;
     u32 u32Pos;
 
@@ -53,7 +53,7 @@ static u32 _getElementAt(internal_basic_array_t * piba, u32 u32Index,
     if ((u32Pos == u32Index) && (piban != NULL))
         *ppbae = piban->iban_pbaeElement;
     else
-        u32Ret = OLERR_OUT_OF_RANGE;
+        u32Ret = JF_ERR_OUT_OF_RANGE;
 
     return u32Ret;
 }
@@ -61,7 +61,7 @@ static u32 _getElementAt(internal_basic_array_t * piba, u32 u32Index,
 static u32 _removeElementAt(internal_basic_array_t * piba, u32 u32Index,
     fnDestroyBasicArrayElement_t fnDestoryElement)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_array_node_t * pibanPrevious, * piban;
     u32 u32Pos;
 
@@ -76,7 +76,7 @@ static u32 _removeElementAt(internal_basic_array_t * piba, u32 u32Index,
     }
 
     if ((u32Pos != u32Index) || (piban == NULL))
-        u32Ret = OLERR_OUT_OF_RANGE;
+        u32Ret = JF_ERR_OUT_OF_RANGE;
     else
     {
         if (fnDestoryElement != NULL)
@@ -99,7 +99,7 @@ static u32 _removeElementAt(internal_basic_array_t * piba, u32 u32Index,
 static u32 _insertElementAt(internal_basic_array_t * piba, u32 u32Index,
 		 basic_array_element_t * pbae)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_array_node_t *pibanPrevious, *piban, *pibanNew;
     u32 u32Pos;
 
@@ -114,7 +114,7 @@ static u32 _insertElementAt(internal_basic_array_t * piba, u32 u32Index,
     }
 
     u32Ret = xmalloc((void **)&pibanNew, sizeof(internal_basic_array_node_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pibanNew->iban_pbaeElement = pbae;
 
@@ -136,11 +136,11 @@ static u32 _insertElementAt(internal_basic_array_t * piba, u32 u32Index,
 
 u32 createBasicArray(basic_array_t ** ppba)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_array_t * piba;
 
     u32Ret = xmalloc((void **)&piba, sizeof(internal_basic_array_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         piba->iba_u32ArraySize = 0;
         piba->iba_pibanElements = NULL;
@@ -153,7 +153,7 @@ u32 createBasicArray(basic_array_t ** ppba)
 
 u32 destroyBasicArray(basic_array_t ** ppba)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_array_t * piba;
 
     assert((ppba != NULL) && (*ppba != NULL));
@@ -181,14 +181,14 @@ u32 getBasicArraySize(basic_array_t * pba)
 u32 getAtBasicArray(basic_array_t * pba, u32 u32Index,
 		basic_array_element_t ** ppbae)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_array_t *piba;
 
     assert(pba != NULL);
 
     piba = (internal_basic_array_t *) pba;
     if (u32Index >= piba->iba_u32ArraySize)
-        u32Ret = OLERR_OUT_OF_RANGE;
+        u32Ret = JF_ERR_OUT_OF_RANGE;
     else
         u32Ret = _getElementAt(piba, u32Index, ppbae);
 
@@ -197,14 +197,14 @@ u32 getAtBasicArray(basic_array_t * pba, u32 u32Index,
 
 u32 removeAtBasicArray(basic_array_t * pba, u32 u32Index)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_array_t *piba;
 
     assert(pba != NULL);
 
     piba = (internal_basic_array_t *) pba;
     if (u32Index >= piba->iba_u32ArraySize)
-        u32Ret = OLERR_OUT_OF_RANGE;
+        u32Ret = JF_ERR_OUT_OF_RANGE;
     else
     {
         u32Ret = _removeElementAt(piba, u32Index, NULL);
@@ -215,7 +215,7 @@ u32 removeAtBasicArray(basic_array_t * pba, u32 u32Index)
 
 u32 removeBasicArrayElement(basic_array_t * pba, basic_array_element_t * pbae)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_array_t * piba;
     internal_basic_array_node_t * piban, * pibanPrevious;
     u32 u32Index, u32Size;
@@ -244,7 +244,7 @@ u32 removeBasicArrayElement(basic_array_t * pba, basic_array_element_t * pbae)
     }
 
     if (bFound == FALSE)
-        u32Ret = OLERR_NOT_FOUND;
+        u32Ret = JF_ERR_NOT_FOUND;
     else
     {
         if (pibanPrevious != NULL)
@@ -260,7 +260,7 @@ u32 removeBasicArrayElement(basic_array_t * pba, basic_array_element_t * pbae)
 
 u32 removeAllBasicArrayElements(basic_array_t * pba)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index, u32Size, u32Ret2;
     internal_basic_array_t *piba;
 
@@ -272,7 +272,7 @@ u32 removeAllBasicArrayElements(basic_array_t * pba)
     while (u32Index < u32Size)
     {
         u32Ret2 = _removeElementAt(piba, 0, NULL);
-        if (u32Ret2 != OLERR_NO_ERROR)
+        if (u32Ret2 != JF_ERR_NO_ERROR)
             u32Ret = u32Ret2;
         u32Index = u32Index + 1;
     }
@@ -283,7 +283,7 @@ u32 removeAllBasicArrayElements(basic_array_t * pba)
 u32 insertAtBasicArray(basic_array_t * pba, u32 u32Index,
 		   basic_array_element_t * pbae)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_array_t *piba;
 
     assert(pba != NULL);
@@ -296,7 +296,7 @@ u32 insertAtBasicArray(basic_array_t * pba, u32 u32Index,
 
 u32 appendToBasicArray(basic_array_t * pba, basic_array_element_t * pbae)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_array_t *piba;
 
     assert(pba != NULL);
@@ -310,7 +310,7 @@ u32 appendToBasicArray(basic_array_t * pba, basic_array_element_t * pbae)
 u32 destroyAllBasicArrayElements(basic_array_t * pba,
     fnDestroyBasicArrayElement_t fnDestroyElement)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index, u32Size;
     internal_basic_array_t * piba;
 
@@ -332,7 +332,7 @@ u32 destroyAllBasicArrayElements(basic_array_t * pba,
 u32 destroyBasicArrayAndElements(basic_array_t ** ppba,
     fnDestroyBasicArrayElement_t fnDestroyElement)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_array_t * piba = (internal_basic_array_t *)*ppba;
 
     assert((ppba != NULL) && (*ppba != NULL));
@@ -348,7 +348,7 @@ u32 findBasicArrayElement(basic_array_t * pba,
     basic_array_element_t ** ppElement,
     fnFindBasicArrayElement_t fnFindElement, void * pKey)
 {
-    u32 u32Ret = OLERR_NOT_FOUND;
+    u32 u32Ret = JF_ERR_NOT_FOUND;
     u32 u32Index, u32Size;
     internal_basic_array_t * piba;
     internal_basic_array_node_t * piban;
@@ -365,7 +365,7 @@ u32 findBasicArrayElement(basic_array_t * pba,
         if (fnFindElement(piban->iban_pbaeElement, pKey))
         {
             *ppElement = piban->iban_pbaeElement;
-            u32Ret = OLERR_NO_ERROR;
+            u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
@@ -380,7 +380,7 @@ u32 findBasicArrayElement(basic_array_t * pba,
 u32 traverseBasicArray(basic_array_t * pba,
     fnOpOnBasicArrayElement_t fnOpOnElement, void * pData)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index, u32Size;
     internal_basic_array_t * piba;
     internal_basic_array_node_t * piban;

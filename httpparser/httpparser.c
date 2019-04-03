@@ -29,7 +29,7 @@
 static u32 _parseHttpStartLine(
     jf_httpparser_packet_header_t * retval, jf_string_parse_result_field_t * field)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t * startline = NULL;
     olint_t nret;
     jf_string_parse_result_t * result;
@@ -40,13 +40,13 @@ static u32 _parseHttpStartLine(
     u32Ret = jf_string_parse(
         &startline, field->jsprf_pstrData, 0, field->jsprf_sData, " ", 1);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (startline->jspr_u32NumOfResult < 3)
-            u32Ret = OLERR_CORRUPTED_HTTP_MSG;
+            u32Ret = JF_ERR_CORRUPTED_HTTP_MSG;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         nret = ol_memcmp(startline->jspr_pjsprfFirst->jsprf_pstrData, "HTTP/", 5);
         if (nret == 0)
@@ -58,7 +58,7 @@ static u32 _parseHttpStartLine(
             u32Ret = jf_string_parse(
                 &result, startline->jspr_pjsprfFirst->jsprf_pstrData, 0,
                 startline->jspr_pjsprfFirst->jsprf_sData, "/", 1);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 retval->jhph_pstrVersion = result->jspr_pjsprfLast->jsprf_pstrData;
                 retval->jhph_sVersion = result->jspr_pjsprfLast->jsprf_sData;
@@ -66,7 +66,7 @@ static u32 _parseHttpStartLine(
                 jf_string_destroyParseResult(&result);
             }
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 /* The other tokens contain the status code and data */
                 pjsprf = startline->jspr_pjsprfFirst->jsprf_pjsprfNext;
@@ -75,7 +75,7 @@ static u32 _parseHttpStartLine(
                     &retval->jhph_nStatusCode);
             }
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 pjsprf = pjsprf->jsprf_pjsprfNext;
                 retval->jhph_pstrStatusData = pjsprf->jsprf_pstrData;
@@ -109,7 +109,7 @@ static u32 _parseHttpStartLine(
             u32Ret = jf_string_parse(
                 &result, startline->jspr_pjsprfLast->jsprf_pstrData, 0,
                 startline->jspr_pjsprfLast->jsprf_sData, "/", 1);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 retval->jhph_pstrVersion = result->jspr_pjsprfLast->jsprf_pstrData;
                 retval->jhph_sVersion = result->jspr_pjsprfLast->jsprf_sData;
@@ -128,7 +128,7 @@ static u32 _parseHttpStartLine(
 static u32 _parseHttpHeaderLine(
     jf_httpparser_packet_header_t * retval, jf_string_parse_result_field_t * field)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_field_t * headerline = field;
     jf_httpparser_packet_header_field_t * node;
     olint_t i = 0;
@@ -147,7 +147,7 @@ static u32 _parseHttpHeaderLine(
 
         /* Instantiate a new header entry for each token */
         u32Ret = xcalloc((void **)&node, sizeof(jf_httpparser_packet_header_field_t));
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             for (i = 0; i < headerline->jsprf_sData; ++i)
             {
@@ -221,7 +221,7 @@ static u32 _parseHttpHeaderLine(
 
 u32 jf_httpparser_destroyPacketHeader(jf_httpparser_packet_header_t ** ppHeader)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_httpparser_packet_header_t * packet = *ppHeader;
     jf_httpparser_packet_header_field_t *node = packet->jhph_pjhphfFirst;
     jf_httpparser_packet_header_field_t *nextnode;
@@ -407,20 +407,20 @@ u32 jf_httpparser_parsePacketHeader(
     jf_httpparser_packet_header_t ** ppHeader, olchar_t * pstrBuf,
     olsize_t sOffset, olsize_t sBuf)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_httpparser_packet_header_t * retval = NULL;
     jf_string_parse_result_t * pPacket = NULL;
     jf_string_parse_result_field_t * headerline;
     jf_string_parse_result_field_t * field;
 
     u32Ret = xcalloc((void **)&retval, sizeof(jf_httpparser_packet_header_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* All the headers are delineated with a CRLF, so we parse on that */
         u32Ret = jf_string_parse(&pPacket, pstrBuf, sOffset, sBuf, "\r\n", 2);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         field = pPacket->jspr_pjsprfFirst;
         headerline = field->jsprf_pjsprfNext;
@@ -428,7 +428,7 @@ u32 jf_httpparser_parsePacketHeader(
         u32Ret = _parseHttpStartLine(retval, field);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _parseHttpHeaderLine(retval, headerline);
     }
@@ -436,7 +436,7 @@ u32 jf_httpparser_parsePacketHeader(
     if (pPacket != NULL)
         jf_string_destroyParseResult(&pPacket);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppHeader = retval;
     else if (retval != NULL)
         jf_httpparser_destroyPacketHeader(&retval);
@@ -448,7 +448,7 @@ u32 jf_httpparser_getRawPacket(
     jf_httpparser_packet_header_t * pjhph, olchar_t ** ppstrBuf,
     olsize_t * psBuf)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t total;
     olsize_t sBuffer = 0;
     olchar_t *pBuffer;
@@ -489,7 +489,7 @@ u32 jf_httpparser_getRawPacket(
 
     /* Allocate the buffer */
     u32Ret = xmalloc((void **)ppstrBuf, sBuffer);
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
         return u32Ret;
 
     pBuffer = *ppstrBuf;
@@ -561,7 +561,7 @@ u32 jf_httpparser_parseUri(
     olchar_t * pstrUri, olchar_t ** ppstrIp, u16 * pu16Port,
     olchar_t ** ppstrPath)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t *result = NULL, *result2 = NULL, *result3 = NULL;
     olchar_t * str1;
     olsize_t len1, len2;
@@ -573,13 +573,13 @@ u32 jf_httpparser_parseUri(
        the path info */
     u32Ret = jf_string_parse(
         &result, pstrUri, 0, (olint_t) ol_strlen(pstrUri), "://", 3);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (result->jspr_u32NumOfResult < 2)
-            u32Ret = OLERR_INVALID_HTTP_URI;
+            u32Ret = JF_ERR_INVALID_HTTP_URI;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         str1 = result->jspr_pjsprfLast->jsprf_pstrData;
         len1 = result->jspr_pjsprfLast->jsprf_sData;
@@ -589,13 +589,13 @@ u32 jf_httpparser_parseUri(
         u32Ret = jf_string_parse(&result2, str1, 0, len1, "/", 1);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         len2 = len1 - result2->jspr_pjsprfFirst->jsprf_sData;
 
         u32Ret = jf_string_duplicateWithLen(
             ppstrPath, str1 + result2->jspr_pjsprfFirst->jsprf_sData, len2);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             /* Parse port Number */
             u32Ret = jf_string_parse(
@@ -604,7 +604,7 @@ u32 jf_httpparser_parseUri(
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (result3->jspr_u32NumOfResult == 1)
         {
@@ -621,7 +621,7 @@ u32 jf_httpparser_parseUri(
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* Parse IP Address */
         u32Ret = jf_string_duplicateWithLen(
@@ -629,7 +629,7 @@ u32 jf_httpparser_parseUri(
             result3->jspr_pjsprfFirst->jsprf_sData);
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
         if (*ppstrIp != NULL)
             xfree((void **)ppstrIp);
@@ -653,11 +653,11 @@ u32 jf_httpparser_parseUri(
 u32 jf_httpparser_createEmptyPacketHeader(
     jf_httpparser_packet_header_t ** ppHeader)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_httpparser_packet_header_t * retval = NULL;
 
     u32Ret = xcalloc((void **)&retval, sizeof(jf_httpparser_packet_header_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         retval->jhph_nStatusCode = -1;
         retval->jhph_pstrVersion = "1.0";
@@ -672,12 +672,12 @@ u32 jf_httpparser_createEmptyPacketHeader(
 u32 jf_httpparser_clonePacketHeader(
     jf_httpparser_packet_header_t ** dest, jf_httpparser_packet_header_t * pjhph)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_httpparser_packet_header_t *retval;
     jf_httpparser_packet_header_field_t *n;
 
     u32Ret = jf_httpparser_createEmptyPacketHeader(&retval);
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
         return u32Ret;
     
     /*These three calls will result in the fields being copied*/
@@ -706,7 +706,7 @@ u32 jf_httpparser_clonePacketHeader(
         u32Ret = jf_httpparser_setBody(
             retval, pjhph->jhph_pu8Body, pjhph->jhph_sBody, TRUE);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *dest = retval;
     else if (retval != NULL)
         jf_httpparser_destroyPacketHeader(&retval);
@@ -718,13 +718,13 @@ u32 jf_httpparser_setVersion(
     jf_httpparser_packet_header_t * pjhph, olchar_t * pstrVersion,
     olsize_t sVersion)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (pstrVersion != NULL)
         u32Ret = jf_string_duplicateWithLen(
             &(pjhph->jhph_pstrVersion), pstrVersion, sVersion);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pjhph->jhph_sVersion = sVersion;
         pjhph->jhph_bAllocVersion = TRUE;
@@ -737,7 +737,7 @@ u32 jf_httpparser_setStatusCode(
     jf_httpparser_packet_header_t * pjhph, olint_t nStatusCode,
     olchar_t * pstrStatusData, olsize_t sStatusData)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     pjhph->jhph_nStatusCode = nStatusCode;
 
@@ -745,7 +745,7 @@ u32 jf_httpparser_setStatusCode(
         u32Ret = jf_string_duplicateWithLen(&(pjhph->jhph_pstrStatusData),
             pstrStatusData, sStatusData);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pjhph->jhph_sStatusData = sStatusData;
         pjhph->jhph_bAllocStatus = TRUE;
@@ -758,19 +758,19 @@ u32 jf_httpparser_setDirective(
     jf_httpparser_packet_header_t * pjhph, olchar_t * pstrDirective,
     olsize_t sDirective, olchar_t * pstrDirectiveObj, olsize_t sDirectiveObj)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (pstrDirective != NULL)
         u32Ret = jf_string_duplicateWithLen(&(pjhph->jhph_pstrDirective), pstrDirective, sDirective);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         pjhph->jhph_sDirective = sDirective;
 
         if (pstrDirectiveObj != NULL)
             u32Ret = jf_string_duplicateWithLen(&(pjhph->jhph_pstrDirectiveObj),
                 pstrDirectiveObj, sDirectiveObj);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             pjhph->jhph_sDirectiveObj = sDirectiveObj;
             pjhph->jhph_bAllocDirective = TRUE;
@@ -788,12 +788,12 @@ u32 jf_httpparser_setBody(
     jf_httpparser_packet_header_t * pjhph, u8 * pu8Body, olsize_t sBody,
     boolean_t bAlloc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (bAlloc)
     {
         u32Ret = dupMemory((void **)&pjhph->jhph_pu8Body, pu8Body, sBody);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             pjhph->jhph_bAllocBody = bAlloc;
             pjhph->jhph_sBody = sBody;
@@ -813,12 +813,12 @@ u32 jf_httpparser_addHeaderLine(
     jf_httpparser_packet_header_t * pjhph, olchar_t * pstrName,
     olsize_t sName, olchar_t * pstrData, olsize_t sData, boolean_t bAlloc)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_httpparser_packet_header_field_t * node = NULL;
     
     /* Create the header node */
     u32Ret = xcalloc((void **)&node, sizeof(jf_httpparser_packet_header_field_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         node->jhphf_bAlloc = bAlloc;
         if (! bAlloc)
@@ -831,14 +831,14 @@ u32 jf_httpparser_addHeaderLine(
         else
         {
             u32Ret = jf_string_duplicateWithLen(&(node->jhphf_pstrName), pstrName, sName);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 node->jhphf_sName = sName;
 
                 u32Ret = jf_string_duplicateWithLen(&(node->jhphf_pstrData), pstrData, sData);
             }
 
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 node->jhphf_sData = sData;
             }
@@ -855,7 +855,7 @@ u32 jf_httpparser_addHeaderLine(
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* attach it to the linked list */
         if(pjhph->jhph_pjhphfLast != NULL)
@@ -888,12 +888,12 @@ u32 jf_httpparser_getHeaderLine(
         {
             *ppHeader = node;
 
-            return OLERR_NO_ERROR;
+            return JF_ERR_NO_ERROR;
         }
         node = node->jhphf_pjhphfNext;
     }
     
-    return OLERR_NOT_FOUND;
+    return JF_ERR_NOT_FOUND;
 }
 
 /*---------------------------------------------------------------------------*/

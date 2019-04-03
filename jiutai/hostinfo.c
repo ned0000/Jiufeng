@@ -49,7 +49,7 @@
 
 static u32 _getHostVersion(host_info_t * phi)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olint_t nRet;
     struct utsname name;
@@ -309,7 +309,7 @@ static u32 _getHostVersion(host_info_t * phi)
 
 static u32 _getHostNetworkInfo(host_info_t * phi)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olchar_t strBuffer[16 * sizeof(struct ifreq)];
     struct ifconf ifConf;
@@ -324,19 +324,19 @@ static u32 _getHostNetworkInfo(host_info_t * phi)
     /* Create an unbound datagram socket to do the SIOCGIFADDR ioctl on. */
     sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
     if (sock == -1)
-        u32Ret = OLERR_FAIL_CREATE_SOCKET;
+        u32Ret = JF_ERR_FAIL_CREATE_SOCKET;
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* Get the interface configuration information... */
         ifConf.ifc_len = sizeof strBuffer;
         ifConf.ifc_ifcu.ifcu_buf = (caddr_t)strBuffer;
         ret = ioctl(sock, SIOCGIFCONF, &ifConf);
         if (ret == -1)
-            u32Ret = OLERR_FAIL_IOCTL_SOCKET;
+            u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* Cycle through the list of interfaces looking for IP addresses. */
         for (i = 0; (i < ifConf.ifc_len); )
@@ -349,7 +349,7 @@ static u32 _getHostNetworkInfo(host_info_t * phi)
             ret = ioctl(sock, SIOCGIFFLAGS, &ifReq);
             if (ret == -1)
             {
-                u32Ret = OLERR_FAIL_IOCTL_SOCKET;
+                u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
                 break;
             }
 
@@ -378,7 +378,7 @@ static u32 _getHostNetworkInfo(host_info_t * phi)
         }
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         phi->hi_u16NetCount = u16Count;
     }
@@ -447,12 +447,12 @@ void getHostName(olchar_t * pstrName, u32 u32Len)
 
 u32 getHostInfo(host_info_t * phi)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     
     memset(phi, 0, sizeof(host_info_t));
 
     u32Ret = _getHostVersion(phi);
-    if(u32Ret == OLERR_NO_ERROR)
+    if(u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _getHostNetworkInfo(phi);
     }

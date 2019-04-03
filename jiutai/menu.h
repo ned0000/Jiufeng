@@ -62,8 +62,8 @@ u32 createTopMenu(
  *  @param ppMenu [in/out] pointer to sub-menu handle
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
- *  @retval OLERR_OUT_OF_MEMORY out of memory
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_OUT_OF_MEMORY out of memory
  *
  */
 u32 addSubMenu(
@@ -82,8 +82,8 @@ u32 addSubMenu(
  *  @param pArg [in] argument for the fnHandler
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
- *  @retval OLERR_OUT_OF_MEMORY out of memory
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_OUT_OF_MEMORY out of memory
  *
  */
 u32 addMenuEntry(
@@ -96,7 +96,7 @@ u32 addMenuEntry(
  *  @param pTop [in] the top menu handle
  *
  *  @return the error code
- *  @retval OLERR_NO_ERROR success
+ *  @retval JF_ERR_NO_ERROR success
  */
 u32 startMenu(menu_t * pTop);
 

@@ -48,11 +48,11 @@ logger options:\n\
 static u32 _parseCmdLineParam(
     olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
     while (((nOpt = getopt(argc, argv,
-        "sph?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "sph?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -68,7 +68,7 @@ static u32 _parseCmdLineParam(
             exit(u32Ret);
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -103,12 +103,12 @@ static void _printParseResult(jf_string_parse_result_t * result)
 static u32 _testParseStringWithDelimiter(
     olchar_t * pstr, olchar_t * pdelimiter)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t * xml = NULL;
 
     u32Ret = jf_string_parse(
         &xml, pstr, 0, strlen(pstr), pdelimiter, strlen(pdelimiter));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("String to parse: %s\n", pstr);
         ol_printf("Delimiter: %s\n", pdelimiter);
@@ -125,12 +125,12 @@ static u32 _testParseStringWithDelimiter(
 static u32 _testParseStringAdvWithDelimiter(
     olchar_t * pstr, olchar_t * pdelimiter)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t * xml = NULL;
 
     u32Ret = jf_string_parseAdv(
         &xml, pstr, 0, strlen(pstr), pdelimiter, strlen(pdelimiter));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("String to parse: %s\n", pstr);
         ol_printf("Delimiter: %s\n", pdelimiter);
@@ -146,7 +146,7 @@ static u32 _testParseStringAdvWithDelimiter(
 
 static u32 _testParseString(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pstrXml = "<name>";
     olchar_t * pstrAdv = "<My name is\">\" adv>";
     olchar_t * pstrAdv2 = "<My name is\'>\' adv>";
@@ -156,22 +156,22 @@ static u32 _testParseString(void)
     ol_printf("Test string parse\n");
 
     u32Ret = _testParseStringWithDelimiter(pstrXml, "<");
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _testParseStringWithDelimiter(pstrXml, "=");
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _testParseStringWithDelimiter(pstrXml, ">");
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _testParseStringWithDelimiter(pstrXml, "m");
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _testParseStringWithDelimiter(pstrAdv, ">");
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _testParseStringWithDelimiter(pstrAdv3, ">");
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("----------------------------------------------------\n");        
         ol_printf("Test adv string parse\n");
@@ -179,10 +179,10 @@ static u32 _testParseString(void)
         u32Ret = _testParseStringAdvWithDelimiter(pstrAdv, ">");
     }
     
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _testParseStringAdvWithDelimiter(pstrAdv2, ">");
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
          u32Ret = _testParseStringAdvWithDelimiter(pstrAdv3, ">");
 
     return u32Ret;
@@ -190,26 +190,26 @@ static u32 _testParseString(void)
 
 static u32 _testScanString(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 	char * sdb = "226303136636.85";
 	char * sdb2 = "2298363628138.857";
 	char * sdb3 = "230189685431.55";
 	oldouble_t db;
 
 	u32Ret = jf_string_getDoubleFromString(sdb, ol_strlen(sdb), &db);
-	if (u32Ret == OLERR_NO_ERROR)
+	if (u32Ret == JF_ERR_NO_ERROR)
 	{
 		printf("%s, %.2f\n", sdb, db);
 	}
 
 	u32Ret = jf_string_getDoubleFromString(sdb2, ol_strlen(sdb2), &db);
-	if (u32Ret == OLERR_NO_ERROR)
+	if (u32Ret == JF_ERR_NO_ERROR)
 	{
 		printf("%s, %.2f\n", sdb2, db);
 	}
 
 	u32Ret = jf_string_getDoubleFromString(sdb3, ol_strlen(sdb3), &db);
-	if (u32Ret == OLERR_NO_ERROR)
+	if (u32Ret == JF_ERR_NO_ERROR)
 	{
 		printf("%s, %.2f\n", sdb3, db);
 	}
@@ -221,7 +221,7 @@ static u32 _testScanString(void)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     jf_logger_init_param_t jlipParam;
 	olchar_t strErrMsg[300];
 
@@ -231,7 +231,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
 
     u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
 
@@ -243,9 +243,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jf_logger_fini();
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

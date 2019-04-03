@@ -40,11 +40,11 @@ Usage: encrypt-test [-s] [-f file] [-h] \n\
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
     while (((nOpt = getopt(argc, argv,
-        "sf:h?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "sf:h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -60,10 +60,10 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
             ls_pstrSrcFile = (olchar_t *)optarg;
             break;
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -73,7 +73,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 
 static u32 _testEncryptFile(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strEncryptFile[MAX_PATH_LEN];
     olchar_t strDecryptFile[MAX_PATH_LEN];
     olchar_t * pKey = "abcdefghijklmnop";
@@ -82,7 +82,7 @@ static u32 _testEncryptFile(void)
     ol_sprintf(strDecryptFile, "%s.decrypt", ls_pstrSrcFile);
 
     u32Ret = jf_encrypt_encryptFile(ls_pstrSrcFile, strEncryptFile, pKey);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_encrypt_decryptFile(strEncryptFile, strDecryptFile, pKey);
     }
@@ -92,7 +92,7 @@ static u32 _testEncryptFile(void)
 
 static u32 _testEncryptString(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pstr[] =
         {"hello world!",
          "1234567890123456",
@@ -108,13 +108,13 @@ static u32 _testEncryptString(void)
         pEnStr = pDeStr = NULL;
         ol_printf("Source String: %s\n", pstr[u32Index]);
         u32Ret = jf_encrypt_encryptString(pstr[u32Index], &pEnStr, pKey);
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_printf("Encrypt String: %s\n", pEnStr);
             u32Ret = jf_encrypt_decryptString(pEnStr, &pDeStr, pKey);
         }
 
-        if (u32Ret == OLERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_printf("Decrypt String: %s\n", pDeStr);
             if (ol_strcmp(pstr[u32Index], pDeStr) == 0)
@@ -141,11 +141,11 @@ static u32 _testEncryptString(void)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
     u32Ret = _parseCmdLineParam(argc, argv);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_bTestEncryptString)
             u32Ret = _testEncryptString();
@@ -158,9 +158,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
         }
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

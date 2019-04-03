@@ -35,11 +35,11 @@ Usage: conffile-test [-h] conffile\n\
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
     while (((nOpt = getopt(argc, argv,
-        "h?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -49,10 +49,10 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
             exit(0);
             break;
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -85,7 +85,7 @@ static u32 ls_u32NumOfConfFileTag = sizeof(ls_cftConfFileTag) / \
 
 static u32 _testConfFile(const olchar_t * pstrFilename)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     conf_file_t cfConfFile;
     conf_file_t * pcf = &cfConfFile;
     u32 u32Index;
@@ -95,7 +95,7 @@ static u32 _testConfFile(const olchar_t * pstrFilename)
     ol_printf("conffile: %s\n", pstrFilename);
 
     u32Ret = openConfFile(pcf, pstrFilename);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (u32Index = 0; u32Index < ls_u32NumOfConfFileTag; u32Index ++)
         {
@@ -105,7 +105,7 @@ static u32 _testConfFile(const olchar_t * pstrFilename)
                     ls_cftConfFileTag[u32Index].cft_pstrTag,
                     ls_cftConfFileTag[u32Index].cft_nDefault,
                     &nValue);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                     ol_printf("%s=%d(%d)\n", ls_cftConfFileTag[u32Index].cft_pstrTag,
                         nValue, ls_cftConfFileTag[u32Index].cft_nDefault);
                 else
@@ -117,7 +117,7 @@ static u32 _testConfFile(const olchar_t * pstrFilename)
                     ls_cftConfFileTag[u32Index].cft_pstrTag,
                     ls_cftConfFileTag[u32Index].cft_pstrDefault,
                     strValue, sizeof(strValue));
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                     ol_printf("%s=%s(%s)\n", ls_cftConfFileTag[u32Index].cft_pstrTag,
                         strValue, ls_cftConfFileTag[u32Index].cft_pstrDefault);
                 else
@@ -134,7 +134,7 @@ static u32 _testConfFile(const olchar_t * pstrFilename)
 /* --- public routine section ---------------------------------------------- */
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
     if (argc < 2)
@@ -145,14 +145,14 @@ olint_t main(olint_t argc, olchar_t ** argv)
     }
 
     u32Ret = _parseCmdLineParam(argc, argv);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _testConfFile(argv[argc - 1]);
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

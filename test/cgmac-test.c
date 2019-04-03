@@ -39,11 +39,11 @@ Usage: cgmac-test [-k] [-a] [-h] \n\
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
     while (((nOpt = getopt(argc, argv,
-        "kah?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "kah?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -58,10 +58,10 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
             ls_bHmacMd5 = TRUE;
             break;
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -71,7 +71,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 
 static u32 _testHmacSha1(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 u8Key[100];
     u8 u8Data[100];
     u8 u8Digest[JF_CGHASH_SHA1_DIGEST_LEN];
@@ -84,7 +84,7 @@ static u32 _testHmacSha1(void)
     u32Ret = jf_cgmac_doHmacSha1(
         (u8 *)"Jefe", 4,
         (u8 *)"what do ya want for nothing?", 28, u8Digest);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
@@ -105,7 +105,7 @@ static u32 _testHmacSha1(void)
         u8Key, 80,
         (u8 *)"Test Using Larger Than Block-Size Key - Hash Key First",
         54, u8Digest);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
@@ -125,7 +125,7 @@ static u32 _testHmacSha1(void)
 
     u32Ret = jf_cgmac_doHmacSha1(
         u8Key, 20, u8Data, 50, u8Digest);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
@@ -143,7 +143,7 @@ static u32 _testHmacSha1(void)
 
 static u32 _testHmacMd5(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u8 u8Key[100];
     u8 u8Data[100];
     u8 u8Digest[JF_CGHASH_MD5_DIGEST_LEN];
@@ -156,7 +156,7 @@ static u32 _testHmacMd5(void)
     u32Ret = jf_cgmac_doHmacMd5(
         (u8 *)"Jefe", 4,
         (u8 *) "what do ya want for nothing?", 28, u8Digest);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
 
@@ -177,7 +177,7 @@ static u32 _testHmacMd5(void)
         u8Key, 80,
         (u8 *)"Test Using Larger Than Block-Size Key - Hash Key First",
         54, u8Digest);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
 
@@ -197,7 +197,7 @@ static u32 _testHmacMd5(void)
 
     u32Ret = jf_cgmac_doHmacMd5(
         u8Key, 16, u8Data, 50, u8Digest);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
 
@@ -217,11 +217,11 @@ static u32 _testHmacMd5(void)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
     u32Ret = _parseCmdLineParam(argc, argv);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_bHmacSha1)
             u32Ret = _testHmacSha1();
@@ -234,9 +234,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
         }
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

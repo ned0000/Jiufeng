@@ -29,13 +29,13 @@
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     shm_id_t * psi;
     olchar_t * pstrShared;
 
     u32Ret = createSharedMemory(&psi, 4000);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("succeed to create shared memory\n");
         ol_printf("shm id: %s\n", psi);
@@ -43,14 +43,14 @@ olint_t main(olint_t argc, olchar_t ** argv)
         u32Ret = attachSharedMemory(psi, (void **)&pstrShared);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("succeed to attach shared memory\n");
         ol_strcpy(pstrShared, "have a good day");
         ol_printf("Write to shared memory\n");
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("Sleep ....\n");
         sleep(60);
@@ -58,7 +58,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         u32Ret = detachSharedMemory((void **)&pstrShared);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("succeed to detach the shared memory\n");
     }
@@ -66,13 +66,13 @@ olint_t main(olint_t argc, olchar_t ** argv)
     if (psi != NULL)
         u32Ret = destroySharedMemory(&psi);
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("succeed to destroy shared memory\n");
     }
     else
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

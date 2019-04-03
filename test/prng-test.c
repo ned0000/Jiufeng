@@ -36,11 +36,11 @@ Usage: prng-test \n");
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
     while (((nOpt = getopt(argc, argv,
-        "h?")) != -1) && (u32Ret == OLERR_NO_ERROR))
+        "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -49,10 +49,10 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
             _printUsage();
             break;
         case ':':
-            u32Ret = OLERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_PARAM;
             break;
         default:
-            u32Ret = OLERR_INVALID_OPTION;
+            u32Ret = JF_ERR_INVALID_OPTION;
             break;
         }
     }
@@ -62,7 +62,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 
 static u32 _testPrng(void)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index, u32Loop;
     boolean_t bDup = FALSE;
 #define PRNG_DATA_COUNT   (100)
@@ -72,18 +72,18 @@ static u32 _testPrng(void)
     ol_bzero(u8Random, sizeof(u8Random));
 
     u32Ret = jf_prng_init();
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (u32Index = 0;
-             (u32Index < PRNG_DATA_COUNT) && (u32Ret == OLERR_NO_ERROR);
+             (u32Index < PRNG_DATA_COUNT) && (u32Ret == JF_ERR_NO_ERROR);
              u32Index ++)
         {
             u32Ret = xmalloc((void **)&u8Random[u32Index], u32Size);
-            if (u32Ret == OLERR_NO_ERROR)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 ol_printf("Get prng data: \n");
                 u32Ret = jf_prng_getData(u8Random[u32Index], u32Size);
-                if (u32Ret == OLERR_NO_ERROR)
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     dumpDataInByteHex(u8Random[u32Index], u32Size);
                 }
@@ -105,7 +105,7 @@ static u32 _testPrng(void)
         jf_prng_fini();
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (bDup)
         {
@@ -132,18 +132,18 @@ static u32 _testPrng(void)
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
     u32Ret = _parseCmdLineParam(argc, argv);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _testPrng();
     }
 
-    if (u32Ret != OLERR_NO_ERROR)
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
-        getErrMsg(u32Ret, strErrMsg, 300);
+        jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 

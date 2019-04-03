@@ -38,16 +38,16 @@ typedef struct
 /* --- private routine section---------------------------------------------- */
 static u32 _flushArBuffer(internal_ar_file_t * piaf)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = jf_filestream_writen(
         piaf->iaf_pjfArchive, piaf->iaf_pu8Buffer, piaf->iaf_sOffset);
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_filestream_flush(piaf->iaf_pjfArchive);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         piaf->iaf_sOffset = 0;
     }
@@ -57,12 +57,12 @@ static u32 _flushArBuffer(internal_ar_file_t * piaf)
 
 static u32 _fillArBuffer(internal_ar_file_t * piaf)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
 
     piaf->iaf_sTotalLen = piaf->iaf_sBufLen;
     u32Ret = jf_filestream_readn(
         piaf->iaf_pjfArchive, piaf->iaf_pu8Buffer, &(piaf->iaf_sTotalLen));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         piaf->iaf_sOffset = 0;
     }
@@ -74,11 +74,11 @@ static u32 _fillArBuffer(internal_ar_file_t * piaf)
 u32 createArFile(
     olchar_t * pstrArchiveName, ar_file_param_t * pafp, ar_file_t ** ppaf)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ar_file_t * piaf;
 
     u32Ret = xmalloc((void **)&piaf, sizeof(internal_ar_file_t));
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(piaf, 0, sizeof(internal_ar_file_t));
 
@@ -91,18 +91,18 @@ u32 createArFile(
                 pstrArchiveName, "wb", &(piaf->iaf_pjfArchive));
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         piaf->iaf_sBufLen = IAF_BUF_LEN;
         u32Ret = xmalloc((void **)&(piaf->iaf_pu8Buffer), IAF_BUF_LEN);
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
 
     }
 
-    if (u32Ret == OLERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
         *ppaf = piaf;
     else
         destroyArFile((void **)&piaf);
@@ -112,7 +112,7 @@ u32 createArFile(
 
 u32 destroyArFile(ar_file_t ** ppaf)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ar_file_t * piaf = (internal_ar_file_t *) *ppaf;
 
     if (! piaf->iaf_bExtract)
@@ -134,7 +134,7 @@ u32 destroyArFile(ar_file_t ** ppaf)
 
 u32 readArFile(ar_file_t * paf, u8 * pu8Buffer, olsize_t * psBuf)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ar_file_t * piaf = (internal_ar_file_t *)paf;
     u8 * pu8Start;
     olsize_t sLen, sCopy;
@@ -143,7 +143,7 @@ u32 readArFile(ar_file_t * paf, u8 * pu8Buffer, olsize_t * psBuf)
 
     pu8Start = pu8Buffer;
     sLen = *psBuf;
-    while ((sLen > 0) && (u32Ret == OLERR_NO_ERROR))
+    while ((sLen > 0) && (u32Ret == JF_ERR_NO_ERROR))
     {
         sCopy = piaf->iaf_sTotalLen - piaf->iaf_sOffset;
         if (sCopy < sLen)
@@ -174,7 +174,7 @@ u32 readArFile(ar_file_t * paf, u8 * pu8Buffer, olsize_t * psBuf)
 
 u32 writeArFile(ar_file_t * paf, u8 * pu8Buffer, olsize_t sBuf)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ar_file_t * piaf = (internal_ar_file_t *)paf;
     olsize_t sAll, sCopy;
     u8 * pu8Start;
@@ -183,7 +183,7 @@ u32 writeArFile(ar_file_t * paf, u8 * pu8Buffer, olsize_t sBuf)
 
     pu8Start = pu8Buffer;
     sAll = sBuf;
-    while ((sAll > 0) && (u32Ret == OLERR_NO_ERROR))
+    while ((sAll > 0) && (u32Ret == JF_ERR_NO_ERROR))
     {
         sCopy = piaf->iaf_sBufLen - piaf->iaf_sOffset;
         if (sCopy < sAll)
@@ -212,14 +212,14 @@ u32 writeArFile(ar_file_t * paf, u8 * pu8Buffer, olsize_t sBuf)
 
 u32 seekArFile(ar_file_t * paf, long offset, olint_t whence)
 {
-    u32 u32Ret = OLERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ar_file_t * piaf = (internal_ar_file_t *)paf;
     u32 u32Offset, u32Ignore;
 
     assert((offset > 0) && (whence == SEEK_CUR));
 
     u32Offset = (u32)offset;
-    while ((u32Offset > 0) && (u32Ret == OLERR_NO_ERROR))
+    while ((u32Offset > 0) && (u32Ret == JF_ERR_NO_ERROR))
     {
         u32Ignore = piaf->iaf_sTotalLen - piaf->iaf_sOffset;
         if (u32Ignore < u32Offset)
