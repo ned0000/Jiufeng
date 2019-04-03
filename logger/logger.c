@@ -406,12 +406,14 @@ u32 jf_logger_init(jf_logger_init_param_t * pParam)
         logInfoMsg("Logger started");
     }
     else
-        finiLogger();
+    {
+        jf_logger_fini();
+    }
 
     return u32Ret;
 }
 
-u32 finiLogger(void)
+u32 jf_logger_fini(void)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     internal_logger_t * pil = &ls_ilLogger;

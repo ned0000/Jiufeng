@@ -41,7 +41,8 @@ Usage: bases-test [-l] [-t] \n\
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, logger_param_t * plp)
+static u32 _parseCmdLineParam(
+    olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t nOpt;
@@ -69,7 +70,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, logger_param_t * p
         case 'T':
             if (sscanf(optarg, "%d", &u32Value) == 1)
             {
-                plp->lp_u8TraceLevel = (u8)u32Value;
+                pjlip->jlip_u8TraceLevel = (u8)u32Value;
             }
             else
             {
@@ -77,13 +78,13 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, logger_param_t * p
             }
             break;
         case 'F':
-            plp->lp_bLogToFile = TRUE;
-            plp->lp_pstrLogFilePath = optarg;
+            pjlip->jlip_bLogToFile = TRUE;
+            pjlip->jlip_pstrLogFilePath = optarg;
             break;
         case 'S':
             if (sscanf(optarg, "%d", &u32Value) == 1)
             {
-                plp->lp_sLogFile = u32Value;
+                pjlip->jlip_sLogFile = u32Value;
             }
             else
             {
@@ -453,17 +454,17 @@ static u32 _testListArray(void)
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    logger_param_t lpParam;
+    jf_logger_init_param_t jlipParam;
 
-    memset(&lpParam, 0, sizeof(logger_param_t));
-    lpParam.lp_pstrCallerName = "BASES-TEST";
+    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    jlipParam.jlip_pstrCallerName = "BASES-TEST";
 
-    u32Ret = _parseCmdLineParam(argc, argv, &lpParam);
+    u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        lpParam.lp_bLogToStdout = TRUE;
-        lpParam.lp_u8TraceLevel = 0;
-        initLogger(&lpParam);
+        jlipParam.jlip_bLogToStdout = TRUE;
+        jlipParam.jlip_u8TraceLevel = 0;
+        jf_logger_init(&jlipParam);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -483,7 +484,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     logErrMsg(u32Ret, "Quit");
 
-    finiLogger();
+    jf_logger_fini();
 
     return u32Ret;
 }

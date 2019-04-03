@@ -48,7 +48,7 @@ logger options:\n\
 }
 
 static u32 _parseCmdLineParam(
-    olint_t argc, olchar_t ** argv, logger_param_t * plp)
+    olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t nOpt;
@@ -76,7 +76,7 @@ static u32 _parseCmdLineParam(
         case 'T':
             if (ol_sscanf(optarg, "%d", &u32Value) == 1)
             {
-                plp->lp_u8TraceLevel = (u8)u32Value;
+                pjlip->jlip_u8TraceLevel = (u8)u32Value;
             }
             else
             {
@@ -84,13 +84,13 @@ static u32 _parseCmdLineParam(
             }
             break;
         case 'F':
-            plp->lp_bLogToFile = TRUE;
-            plp->lp_pstrLogFilePath = optarg;
+            pjlip->jlip_bLogToFile = TRUE;
+            pjlip->jlip_pstrLogFilePath = optarg;
             break;
         case 'S':
             if (ol_sscanf(optarg, "%d", &u32Value) == 1)
             {
-                plp->lp_sLogFile = u32Value;
+                pjlip->jlip_sLogFile = u32Value;
             }
             else
             {
@@ -367,17 +367,17 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strErrMsg[300];
-    logger_param_t lpParam;
+    jf_logger_init_param_t jlipParam;
 
-    memset(&lpParam, 0, sizeof(logger_param_t));
-    lpParam.lp_pstrCallerName = "HTTPPARSER";
-//    lpParam.lp_bLogToStdout = TRUE;
-    lpParam.lp_u8TraceLevel = LOGGER_TRACE_DEBUG;
+    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    jlipParam.jlip_pstrCallerName = "HTTPPARSER";
+//    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
 
-    u32Ret = _parseCmdLineParam(argc, argv, &lpParam);
+    u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        initLogger(&lpParam);
+        jf_logger_init(&jlipParam);
 
         if (ls_bParseHttp)
             u32Ret = _testParseHttp();
@@ -386,7 +386,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         else if (ls_bGenerateHttpMsg)
             u32Ret = _testHttpMsg();
 
-        finiLogger();
+        jf_logger_fini();
     }
 
     if (u32Ret != OLERR_NO_ERROR)

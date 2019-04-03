@@ -56,7 +56,7 @@ logger options:\n\
     exit(0);
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, logger_param_t * plp)
+static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t nOpt;
@@ -96,20 +96,20 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, logger_param_t * p
             exit(0);
         case 'T':
             if (sscanf(optarg, "%d", &u32Value) == 1)
-                plp->lp_u8TraceLevel = (u8)u32Value;
+                pjlip->jlip_u8TraceLevel = (u8)u32Value;
             else
                 u32Ret = OLERR_INVALID_PARAM;
             break;
         case 'F':
-            plp->lp_bLogToFile = TRUE;
-            plp->lp_pstrLogFilePath = optarg;
+            pjlip->jlip_bLogToFile = TRUE;
+            pjlip->jlip_pstrLogFilePath = optarg;
             break;
         case 'O':
-            plp->lp_bLogToStdout = TRUE;
+            pjlip->jlip_bLogToStdout = TRUE;
             break;
         case 'S':
             if (sscanf(optarg, "%d", &u32Value) == 1)
-                plp->lp_sLogFile = u32Value;
+                pjlip->jlip_sLogFile = u32Value;
             else
                 u32Ret = OLERR_INVALID_PARAM;
             break;
@@ -209,19 +209,19 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strErrMsg[300];
-    logger_param_t lpParam;
+    jf_logger_init_param_t jlipParam;
     jf_servmgmt_init_param_t jsip;
 
-    memset(&lpParam, 0, sizeof(logger_param_t));
+    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
 
-    lpParam.lp_pstrCallerName = "SERVMGMT-TEST";
-//    lpParam.lp_bLogToStdout = TRUE;
-    lpParam.lp_u8TraceLevel = 0;
+    jlipParam.jlip_pstrCallerName = "SERVMGMT-TEST";
+//    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_u8TraceLevel = 0;
 
-    u32Ret = _parseCmdLineParam(argc, argv, &lpParam);
+    u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        initLogger(&lpParam);
+        jf_logger_init(&jlipParam);
 
         ol_memset(&jsip, 0, sizeof(jsip));
 
@@ -241,7 +241,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
             jf_servmgmt_fini();
         }
 
-        finiLogger();
+        jf_logger_fini();
     }
 
     if (u32Ret != OLERR_NO_ERROR)

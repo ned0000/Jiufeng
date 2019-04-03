@@ -129,7 +129,7 @@ static u32 _startDongyuan(void)
     if (ls_pgDongyuan != NULL)
         destroyDongyuan(&ls_pgDongyuan);
 
-    finiLogger();
+    jf_logger_fini();
 
     return u32Ret;
 }

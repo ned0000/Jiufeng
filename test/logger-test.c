@@ -105,7 +105,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 static void _testLogger(void)
 {
 //    u32 u32Ret = OLERR_NO_ERROR;
-    logger_param_t lpParam;
+    jf_logger_init_param_t jlipParam;
     u8 u8Data[94];
     test_struct_t * pts = &ls_tsStruct;
 //    file_t fd;
@@ -114,15 +114,15 @@ static void _testLogger(void)
     ol_printf("%d, %d, %d, %d\n", pts->ts_nData1, pts->ts_nData2, pts->ts_nData3,
            pts->ts_nData4);
 
-    memset(&lpParam, 0, sizeof(logger_param_t));
-    lpParam.lp_pstrCallerName = "LOGGER-TEST";
-    lpParam.lp_bLogToFile = TRUE;
-    lpParam.lp_bLogToStdout = TRUE;
-    lpParam.lp_u8TraceLevel = LOGGER_TRACE_INFO;
+    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    jlipParam.jlip_pstrCallerName = "LOGGER-TEST";
+    jlipParam.jlip_bLogToFile = TRUE;
+    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_INFO;
 
 //    checkErrCode();
 
-    initLogger(&lpParam);
+    jf_logger_init(&jlipParam);
 
 #define E_HELLO_WORLD (OLERR_VENDOR_SPEC_ERROR_START + 0x0)
 #define E_SUPER_MAN (OLERR_VENDOR_SPEC_ERROR_START + 0x1)
@@ -150,7 +150,7 @@ static void _testLogger(void)
 
 //    logErrMsg(u32Ret, "Quit");
 
-    finiLogger();
+    jf_logger_fini();
 }
 
 static void _printErrorCode(void)

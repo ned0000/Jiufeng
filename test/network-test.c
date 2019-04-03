@@ -47,7 +47,7 @@ Usage: network-test [-o] [-s server ip] [-p port]\n\
 }
 
 static u32 _parseCmdLineParam(
-    olint_t argc, olchar_t ** argv, logger_param_t * plp)
+    olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t nOpt;
@@ -78,7 +78,7 @@ static u32 _parseCmdLineParam(
         case 'T':
             if (ol_sscanf(optarg, "%d", &u32Value) == 1)
             {
-                plp->lp_u8TraceLevel = (u8)u32Value;
+                pjlip->jlip_u8TraceLevel = (u8)u32Value;
             }
             else
             {
@@ -86,13 +86,13 @@ static u32 _parseCmdLineParam(
             }
             break;
         case 'F':
-            plp->lp_bLogToFile = TRUE;
-            plp->lp_pstrLogFilePath = optarg;
+            pjlip->jlip_bLogToFile = TRUE;
+            pjlip->jlip_pstrLogFilePath = optarg;
             break;
         case 'S':
             if (ol_sscanf(optarg, "%d", &u32Value) == 1)
             {
-                plp->lp_sLogFile = u32Value;
+                pjlip->jlip_sLogFile = u32Value;
             }
             else
             {
@@ -232,17 +232,17 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strErrMsg[300];
-    logger_param_t lpParam;
+    jf_logger_init_param_t jlipParam;
 
-    memset(&lpParam, 0, sizeof(logger_param_t));
-    lpParam.lp_pstrCallerName = NETWORK_TEST;
-//    lpParam.lp_bLogToStdout = TRUE;
-    lpParam.lp_u8TraceLevel = 3;
+    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    jlipParam.jlip_pstrCallerName = NETWORK_TEST;
+//    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_u8TraceLevel = 3;
 
-    u32Ret = _parseCmdLineParam(argc, argv, &lpParam);
+    u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        initLogger(&lpParam);
+        jf_logger_init(&jlipParam);
 
         u32Ret = jf_network_initLib();
         if (u32Ret == OLERR_NO_ERROR)
@@ -260,7 +260,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
             jf_network_finiLib();
         }
 
-        finiLogger();
+        jf_logger_fini();
     }
 
     if (u32Ret != OLERR_NO_ERROR)

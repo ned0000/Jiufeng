@@ -45,13 +45,13 @@ olint_t main(olint_t argc, olchar_t ** argv)
     olchar_t strErrMsg[300];
     jf_network_asocket_t * pAsocket = NULL;
     jf_network_asocket_create_param_t jnacp;
-    logger_param_t lp;
+    jf_logger_init_param_t jlipParam;
 
-    memset(&lp, 0, sizeof(logger_param_t));
-    lp.lp_bLogToStdout = TRUE;
-    lp.lp_u8TraceLevel = 2;
+    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_u8TraceLevel = 2;
 
-    initLogger(&lp);
+    jf_logger_init(&jlipParam);
 
     u32Ret = jf_network_initLib();
     if (u32Ret == OLERR_NO_ERROR)
@@ -75,7 +75,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jf_network_finiLib();
     }
 
-    finiLogger();
+    jf_logger_fini();
 
     if (u32Ret != OLERR_NO_ERROR)
     {

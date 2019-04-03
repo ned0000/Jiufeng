@@ -162,7 +162,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     jf_clieng_fini();
 
-    finiLogger();
+    jf_logger_fini();
 
     if (ls_pocmMaster != NULL)
         xfree((void **)&ls_pocmMaster);

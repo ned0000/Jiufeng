@@ -209,7 +209,7 @@ static u32 _testJtSqlite(void)
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    logger_param_t lpParam;
+    jf_logger_init_param_t jlipParam;
 
     if (argc < 1)
     {
@@ -224,13 +224,13 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret == OLERR_NO_ERROR)
     {
-        memset(&lpParam, 0, sizeof(logger_param_t));
-        lpParam.lp_pstrCallerName = "JTSQLITE";
-        lpParam.lp_bLogToFile = FALSE;
-        lpParam.lp_bLogToStdout = TRUE;
-        lpParam.lp_u8TraceLevel = LOGGER_TRACE_DATA;
+        memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+        jlipParam.jlip_pstrCallerName = "JTSQLITE";
+        jlipParam.jlip_bLogToFile = FALSE;
+        jlipParam.jlip_bLogToStdout = TRUE;
+        jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
 
-        initLogger(&lpParam);
+        jf_logger_init(&jlipParam);
     }
 
     if (u32Ret == OLERR_NO_ERROR)
@@ -238,7 +238,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         u32Ret = _testJtSqlite();
     }
 
-    finiLogger();
+    jf_logger_fini();
 
     if (u32Ret != OLERR_NO_ERROR)
     {

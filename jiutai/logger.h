@@ -88,7 +88,7 @@ LOGGERAPI u32 LOGGERCALL jf_logger_init(jf_logger_init_param_t * pjlip);
  *  @return the error code
  *  @retval OLERR_NO_ERROR success
  */
-LOGGERAPI u32 LOGGERCALL finiLogger(void);
+LOGGERAPI u32 LOGGERCALL jf_logger_fini(void);
 
 /** Log an info type msg.
  *

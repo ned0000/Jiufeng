@@ -244,14 +244,14 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olchar_t strErrMsg[300];
-    logger_param_t lpParam;
+    jf_logger_init_param_t jlipParam;
 
-    memset(&lpParam, 0, sizeof(logger_param_t));
-    lpParam.lp_pstrCallerName = "HSM-TEST";
-    lpParam.lp_bLogToStdout = TRUE;
-    lpParam.lp_u8TraceLevel = LOGGER_TRACE_DATA;
+    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    jlipParam.jlip_pstrCallerName = "HSM-TEST";
+    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
 
-    initLogger(&lpParam);
+    jf_logger_init(&jlipParam);
 
     _testHsm();
 
@@ -261,7 +261,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         ol_printf("%s\n", strErrMsg);
     }
 
-    finiLogger();
+    jf_logger_fini();
 
     return u32Ret;
 }

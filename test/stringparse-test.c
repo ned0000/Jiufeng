@@ -46,7 +46,7 @@ logger options:\n\
 }
 
 static u32 _parseCmdLineParam(
-    olint_t argc, olchar_t ** argv, logger_param_t * plp)
+    olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = OLERR_NO_ERROR;
     olint_t nOpt;
@@ -222,25 +222,25 @@ static u32 _testScanString(void)
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = OLERR_NO_ERROR;
-    logger_param_t lpParam;
+    jf_logger_init_param_t jlipParam;
 	olchar_t strErrMsg[300];
 
-    memset(&lpParam, 0, sizeof(logger_param_t));
-    lpParam.lp_pstrCallerName = "XMLPARSER";
-//    lpParam.lp_bLogToStdout = TRUE;
-    lpParam.lp_u8TraceLevel = LOGGER_TRACE_DEBUG;
+    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    jlipParam.jlip_pstrCallerName = "XMLPARSER";
+//    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
 
-    u32Ret = _parseCmdLineParam(argc, argv, &lpParam);
+    u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == OLERR_NO_ERROR)
     {
-        initLogger(&lpParam);
+        jf_logger_init(&jlipParam);
 
         if (ls_bParseString)
             u32Ret = _testParseString();
         else if (ls_bScanString)
             u32Ret = _testScanString();
 
-        finiLogger();
+        jf_logger_fini();
     }
 
     if (u32Ret != OLERR_NO_ERROR)
