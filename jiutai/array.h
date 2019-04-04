@@ -23,51 +23,51 @@
 
 /* --- data structures ----------------------------------------------------- */
 
-typedef void basic_array_element_t;
-typedef void basic_array_t;;
+typedef void jf_array_element_t;
+typedef void jf_array_t;;
 
 /* --- functional routines ------------------------------------------------- */
 
-u32 createBasicArray(basic_array_t ** ppba);
+u32 jf_array_create(jf_array_t ** ppja);
 
-u32 destroyBasicArray(basic_array_t ** ppba);
+u32 jf_array_destroy(jf_array_t ** ppja);
 
-u32 getBasicArraySize(basic_array_t * pba);
+u32 jf_array_getSize(jf_array_t * pja);
 
-u32 getAtBasicArray(basic_array_t * pba, u32 u32Index,
-    basic_array_element_t ** ppbae);
+u32 jf_array_getElementAt(
+    jf_array_t * pja, u32 u32Index, jf_array_element_t ** ppjae);
 
-u32 removeAtBasicArray(basic_array_t * pba, u32 u32Index);
+u32 jf_array_removeElementAt(jf_array_t * pja, u32 u32Index);
 
-u32 removeBasicArrayElement(basic_array_t * pba, basic_array_element_t * pbae);
+u32 jf_array_removeElement(jf_array_t * pja, jf_array_element_t * pjae);
 
-u32 removeAllBasicArrayElements(basic_array_t * pba);
+u32 jf_array_removeAllElements(jf_array_t * pja);
 
-u32 insertAtBasicArray(
-    basic_array_t * pba, u32 u32Index, basic_array_element_t * pbae);
+u32 jf_array_insertElementAt(
+    jf_array_t * pja, u32 u32Index, jf_array_element_t * pjae);
 
-u32 appendToBasicArray(basic_array_t * pba, basic_array_element_t * pbae);
+u32 jf_array_appendElementTo(jf_array_t * pja, jf_array_element_t * pjae);
 
-typedef u32 (* fnDestroyBasicArrayElement_t)(basic_array_element_t ** ppbae);
+typedef u32 (* jf_array_fnDestroyElement_t)(jf_array_element_t ** ppjae);
 
-u32 destroyAllBasicArrayElements(
-    basic_array_t * pba, fnDestroyBasicArrayElement_t fnDestroyElement);
+u32 jf_array_destroyAllElements(
+    jf_array_t * pja, jf_array_fnDestroyElement_t fnDestroyElement);
 
-u32 destroyBasicArrayAndElements(
-    basic_array_t ** ppba, fnDestroyBasicArrayElement_t fnDestroyElement);
+u32 jf_array_destroyArrayAndElements(
+    jf_array_t ** ppja, jf_array_fnDestroyElement_t fnDestroyElement);
 
-typedef boolean_t (* fnFindBasicArrayElement_t)(
-    basic_array_element_t * pbae, void * pKey);
+typedef boolean_t (* jf_array_fnFindElement_t)(
+    jf_array_element_t * pjae, void * pKey);
 
-u32 findBasicArrayElement(basic_array_t * pba,
-    basic_array_element_t ** ppElement,
-    fnFindBasicArrayElement_t fnFindElement, void * pKey);
+u32 jf_array_findElement(
+    jf_array_t * pja, jf_array_element_t ** ppElement,
+    jf_array_fnFindElement_t fnFindElement, void * pKey);
 
-typedef u32 (* fnOpOnBasicArrayElement_t)(basic_array_element_t * pbae,
-    void * pData);
+typedef u32 (* jf_array_fnOpOnElement_t)(
+    jf_array_element_t * pjae, void * pData);
 
-u32 traverseBasicArray(basic_array_t * pba,
-    fnOpOnBasicArrayElement_t fnOpOnElement, void * pData);
+u32 jf_array_traverse(
+    jf_array_t * pja, jf_array_fnOpOnElement_t fnOpOnElement, void * pData);
 
 #endif /*JIUTAI_ARRAY_H*/
 

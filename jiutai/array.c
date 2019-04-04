@@ -21,112 +21,113 @@
 /* --- private data/data structure section --------------------------------- */
 
 /* a single list */
-typedef struct internal_basic_array_node_t
+typedef struct internal_jf_array_node_t
 {
-    basic_array_element_t * iban_pbaeElement;
-    struct internal_basic_array_node_t * iban_pibanNext;
-} internal_basic_array_node_t;
+    jf_array_element_t * ijan_pjaeElement;
+    struct internal_jf_array_node_t * ijan_pijanNext;
+} internal_jf_array_node_t;
 
 typedef struct
 {
-    u32 iba_u32ArraySize;
-    internal_basic_array_node_t * iba_pibanElements;
-} internal_basic_array_t;
+    u32 ija_u32ArraySize;
+    internal_jf_array_node_t * ija_pijanElements;
+} internal_jf_array_t;
 
 /* --- private routine section ------------------------------------------------ */
 
-static u32 _getElementAt(internal_basic_array_t * piba, u32 u32Index,
-	      basic_array_element_t ** ppbae)
+static u32 _getElementAt(
+    internal_jf_array_t * pija, u32 u32Index, jf_array_element_t ** ppjae)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_basic_array_node_t *piban;
+    internal_jf_array_node_t *pijan;
     u32 u32Pos;
 
     u32Pos = 0;
-    piban = piba->iba_pibanElements;
-    while ((u32Pos < u32Index) && (piban != NULL))
+    pijan = pija->ija_pijanElements;
+    while ((u32Pos < u32Index) && (pijan != NULL))
     {
-        piban = piban->iban_pibanNext;
+        pijan = pijan->ijan_pijanNext;
         u32Pos = u32Pos + 1;
     }
 
-    if ((u32Pos == u32Index) && (piban != NULL))
-        *ppbae = piban->iban_pbaeElement;
+    if ((u32Pos == u32Index) && (pijan != NULL))
+        *ppjae = pijan->ijan_pjaeElement;
     else
         u32Ret = JF_ERR_OUT_OF_RANGE;
 
     return u32Ret;
 }
 
-static u32 _removeElementAt(internal_basic_array_t * piba, u32 u32Index,
-    fnDestroyBasicArrayElement_t fnDestoryElement)
+static u32 _removeElementAt(
+    internal_jf_array_t * pija, u32 u32Index,
+    jf_array_fnDestroyElement_t fnDestoryElement)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_basic_array_node_t * pibanPrevious, * piban;
+    internal_jf_array_node_t * pijanPrevious, * pijan;
     u32 u32Pos;
 
     u32Pos = 0;
-    pibanPrevious = NULL;
-    piban = piba->iba_pibanElements;
-    while ((u32Pos < u32Index) && (piban != NULL))
+    pijanPrevious = NULL;
+    pijan = pija->ija_pijanElements;
+    while ((u32Pos < u32Index) && (pijan != NULL))
     {
-        pibanPrevious = piban;
-        piban = piban->iban_pibanNext;
+        pijanPrevious = pijan;
+        pijan = pijan->ijan_pijanNext;
         u32Pos = u32Pos + 1;
     }
 
-    if ((u32Pos != u32Index) || (piban == NULL))
+    if ((u32Pos != u32Index) || (pijan == NULL))
         u32Ret = JF_ERR_OUT_OF_RANGE;
     else
     {
         if (fnDestoryElement != NULL)
-            fnDestoryElement(&(piban->iban_pbaeElement));
+            fnDestoryElement(&(pijan->ijan_pjaeElement));
 
         /* adjust the list */
-        if (pibanPrevious != NULL)
-            pibanPrevious->iban_pibanNext = piban->iban_pibanNext;
+        if (pijanPrevious != NULL)
+            pijanPrevious->ijan_pijanNext = pijan->ijan_pijanNext;
         else
-            piba->iba_pibanElements = piban->iban_pibanNext;
+            pija->ija_pijanElements = pijan->ijan_pijanNext;
 
-        piba->iba_u32ArraySize = piba->iba_u32ArraySize - 1;
+        pija->ija_u32ArraySize = pija->ija_u32ArraySize - 1;
 
-        xfree((void **)&piban);
+        xfree((void **)&pijan);
     }
 
     return u32Ret;
 }
 
-static u32 _insertElementAt(internal_basic_array_t * piba, u32 u32Index,
-		 basic_array_element_t * pbae)
+static u32 _insertElementAt(
+    internal_jf_array_t * pija, u32 u32Index, jf_array_element_t * pjae)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_basic_array_node_t *pibanPrevious, *piban, *pibanNew;
+    internal_jf_array_node_t *pijanPrevious, *pijan, *pijanNew;
     u32 u32Pos;
 
     u32Pos = 0;
-    pibanPrevious = NULL;
-    piban = piba->iba_pibanElements;
-    while ((u32Pos < u32Index) && (piban != NULL))
+    pijanPrevious = NULL;
+    pijan = pija->ija_pijanElements;
+    while ((u32Pos < u32Index) && (pijan != NULL))
     {
-        pibanPrevious = piban;
-        piban = piban->iban_pibanNext;
+        pijanPrevious = pijan;
+        pijan = pijan->ijan_pijanNext;
         u32Pos = u32Pos + 1;
     }
 
-    u32Ret = xmalloc((void **)&pibanNew, sizeof(internal_basic_array_node_t));
+    u32Ret = xmalloc((void **)&pijanNew, sizeof(internal_jf_array_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        pibanNew->iban_pbaeElement = pbae;
+        pijanNew->ijan_pjaeElement = pjae;
 
         /* adjust the list */
-        if (pibanPrevious == NULL)
-            piba->iba_pibanElements = pibanNew;
+        if (pijanPrevious == NULL)
+            pija->ija_pijanElements = pijanNew;
         else
-            pibanPrevious->iban_pibanNext = pibanNew;
+            pijanPrevious->ijan_pijanNext = pijanNew;
 
-        pibanNew->iban_pibanNext = piban;
+        pijanNew->ijan_pijanNext = pijan;
 
-        piba->iba_u32ArraySize = piba->iba_u32ArraySize + 1;
+        pija->ija_u32ArraySize = pija->ija_u32ArraySize + 1;
     }
 
     return u32Ret;
@@ -134,112 +135,112 @@ static u32 _insertElementAt(internal_basic_array_t * piba, u32 u32Index,
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 createBasicArray(basic_array_t ** ppba)
+u32 jf_array_create(jf_array_t ** ppja)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_basic_array_t * piba;
+    internal_jf_array_t * pija;
 
-    u32Ret = xmalloc((void **)&piba, sizeof(internal_basic_array_t));
+    u32Ret = xmalloc((void **)&pija, sizeof(internal_jf_array_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        piba->iba_u32ArraySize = 0;
-        piba->iba_pibanElements = NULL;
+        pija->ija_u32ArraySize = 0;
+        pija->ija_pijanElements = NULL;
 
-        *ppba = (basic_array_t *) piba;
+        *ppja = (jf_array_t *) pija;
     }
 
     return u32Ret;
 }
 
-u32 destroyBasicArray(basic_array_t ** ppba)
+u32 jf_array_destroy(jf_array_t ** ppja)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_basic_array_t * piba;
+    internal_jf_array_t * pija;
 
-    assert((ppba != NULL) && (*ppba != NULL));
+    assert((ppja != NULL) && (*ppja != NULL));
 
-    piba = (internal_basic_array_t *) *ppba;
+    pija = (internal_jf_array_t *) *ppja;
 
-    u32Ret = removeAllBasicArrayElements(piba);
+    u32Ret = jf_array_removeAllElements(pija);
 
-    xfree(ppba);
+    xfree(ppja);
 
     return u32Ret;
 }
 
-u32 getBasicArraySize(basic_array_t * pba)
+u32 jf_array_getSize(jf_array_t * pja)
 {
-    internal_basic_array_t *piba;
+    internal_jf_array_t *pija;
 
-    assert(pba != NULL);
+    assert(pja != NULL);
 
-    piba = (internal_basic_array_t *) pba;
+    pija = (internal_jf_array_t *) pja;
 
-    return piba->iba_u32ArraySize;
+    return pija->ija_u32ArraySize;
 }
 
-u32 getAtBasicArray(basic_array_t * pba, u32 u32Index,
-		basic_array_element_t ** ppbae)
+u32 jf_array_getElementAt(
+    jf_array_t * pja, u32 u32Index, jf_array_element_t ** ppjae)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_basic_array_t *piba;
+    internal_jf_array_t *pija;
 
-    assert(pba != NULL);
+    assert(pja != NULL);
 
-    piba = (internal_basic_array_t *) pba;
-    if (u32Index >= piba->iba_u32ArraySize)
+    pija = (internal_jf_array_t *) pja;
+    if (u32Index >= pija->ija_u32ArraySize)
         u32Ret = JF_ERR_OUT_OF_RANGE;
     else
-        u32Ret = _getElementAt(piba, u32Index, ppbae);
+        u32Ret = _getElementAt(pija, u32Index, ppjae);
 
     return u32Ret;
 }
 
-u32 removeAtBasicArray(basic_array_t * pba, u32 u32Index)
+u32 jf_array_removeElementAt(jf_array_t * pja, u32 u32Index)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_basic_array_t *piba;
+    internal_jf_array_t *pija;
 
-    assert(pba != NULL);
+    assert(pja != NULL);
 
-    piba = (internal_basic_array_t *) pba;
-    if (u32Index >= piba->iba_u32ArraySize)
+    pija = (internal_jf_array_t *) pja;
+    if (u32Index >= pija->ija_u32ArraySize)
         u32Ret = JF_ERR_OUT_OF_RANGE;
     else
     {
-        u32Ret = _removeElementAt(piba, u32Index, NULL);
+        u32Ret = _removeElementAt(pija, u32Index, NULL);
     }
 
     return u32Ret;
 }
 
-u32 removeBasicArrayElement(basic_array_t * pba, basic_array_element_t * pbae)
+u32 jf_array_removeElement(jf_array_t * pja, jf_array_element_t * pjae)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_basic_array_t * piba;
-    internal_basic_array_node_t * piban, * pibanPrevious;
+    internal_jf_array_t * pija;
+    internal_jf_array_node_t * pijan, * pijanPrevious;
     u32 u32Index, u32Size;
     boolean_t bFound;
 
-    assert(pba != NULL);
+    assert(pja != NULL);
 
-    piba = (internal_basic_array_t *) pba;
+    pija = (internal_jf_array_t *) pja;
     u32Index = 0;
-    u32Size = piba->iba_u32ArraySize;
+    u32Size = pija->ija_u32ArraySize;
     bFound = FALSE;
-    piban = piba->iba_pibanElements;
-    pibanPrevious = NULL;
+    pijan = pija->ija_pijanElements;
+    pijanPrevious = NULL;
     while ((u32Index < u32Size) && (bFound == FALSE))
     {
-        if (piban->iban_pbaeElement == pbae)
+        if (pijan->ijan_pjaeElement == pjae)
         {
             bFound = TRUE;
         }
         else
         {
             u32Index = u32Index + 1;
-            pibanPrevious = piban;
-            piban = piban->iban_pibanNext;
+            pijanPrevious = pijan;
+            pijan = pijan->ijan_pijanNext;
         }
     }
 
@@ -247,31 +248,31 @@ u32 removeBasicArrayElement(basic_array_t * pba, basic_array_element_t * pbae)
         u32Ret = JF_ERR_NOT_FOUND;
     else
     {
-        if (pibanPrevious != NULL)
-            pibanPrevious->iban_pibanNext = piban->iban_pibanNext;
+        if (pijanPrevious != NULL)
+            pijanPrevious->ijan_pijanNext = pijan->ijan_pijanNext;
         else
-            piba->iba_pibanElements = piban->iban_pibanNext;
-        piba->iba_u32ArraySize = u32Size - 1;
-        xfree((void **)&piban);
+            pija->ija_pijanElements = pijan->ijan_pijanNext;
+        pija->ija_u32ArraySize = u32Size - 1;
+        xfree((void **)&pijan);
     }
 
     return u32Ret;
 }
 
-u32 removeAllBasicArrayElements(basic_array_t * pba)
+u32 jf_array_removeAllElements(jf_array_t * pja)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index, u32Size, u32Ret2;
-    internal_basic_array_t *piba;
+    internal_jf_array_t *pija;
 
-    assert(pba != NULL);
+    assert(pja != NULL);
 
-    piba = (internal_basic_array_t *) pba;
+    pija = (internal_jf_array_t *) pja;
     u32Index = 0;
-    u32Size = piba->iba_u32ArraySize;
+    u32Size = pija->ija_u32ArraySize;
     while (u32Index < u32Size)
     {
-        u32Ret2 = _removeElementAt(piba, 0, NULL);
+        u32Ret2 = _removeElementAt(pija, 0, NULL);
         if (u32Ret2 != JF_ERR_NO_ERROR)
             u32Ret = u32Ret2;
         u32Index = u32Index + 1;
@@ -280,48 +281,48 @@ u32 removeAllBasicArrayElements(basic_array_t * pba)
     return u32Ret;
 }
 
-u32 insertAtBasicArray(basic_array_t * pba, u32 u32Index,
-		   basic_array_element_t * pbae)
+u32 jf_array_insertElementAt(
+    jf_array_t * pja, u32 u32Index, jf_array_element_t * pjae)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_basic_array_t *piba;
+    internal_jf_array_t *pija;
 
-    assert(pba != NULL);
+    assert(pja != NULL);
 
-    piba = (internal_basic_array_t *) pba;
-    u32Ret = _insertElementAt(piba, u32Index, pbae);
+    pija = (internal_jf_array_t *) pja;
+    u32Ret = _insertElementAt(pija, u32Index, pjae);
 
     return u32Ret;
 }
 
-u32 appendToBasicArray(basic_array_t * pba, basic_array_element_t * pbae)
+u32 jf_array_appendElementTo(jf_array_t * pja, jf_array_element_t * pjae)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_basic_array_t *piba;
+    internal_jf_array_t *pija;
 
-    assert(pba != NULL);
+    assert(pja != NULL);
 
-    piba = (internal_basic_array_t *) pba;
-    u32Ret = _insertElementAt(piba, piba->iba_u32ArraySize, pbae);
+    pija = (internal_jf_array_t *) pja;
+    u32Ret = _insertElementAt(pija, pija->ija_u32ArraySize, pjae);
 
     return u32Ret;
 }
 
-u32 destroyAllBasicArrayElements(basic_array_t * pba,
-    fnDestroyBasicArrayElement_t fnDestroyElement)
+u32 jf_array_destroyAllElements(
+    jf_array_t * pja, jf_array_fnDestroyElement_t fnDestroyElement)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index, u32Size;
-    internal_basic_array_t * piba;
+    internal_jf_array_t * pija;
 
-    assert(pba != NULL);
+    assert(pja != NULL);
 
-    piba = (internal_basic_array_t *) pba;
+    pija = (internal_jf_array_t *) pja;
     u32Index = 0;
-    u32Size = piba->iba_u32ArraySize;
+    u32Size = pija->ija_u32ArraySize;
     while (u32Index < u32Size)
     {
-        _removeElementAt(piba, 0, fnDestroyElement);
+        _removeElementAt(pija, 0, fnDestroyElement);
 
         u32Index ++;
     }
@@ -329,47 +330,47 @@ u32 destroyAllBasicArrayElements(basic_array_t * pba,
     return u32Ret;
 }
 
-u32 destroyBasicArrayAndElements(basic_array_t ** ppba,
-    fnDestroyBasicArrayElement_t fnDestroyElement)
+u32 jf_array_destroyArrayAndElements(
+    jf_array_t ** ppja, jf_array_fnDestroyElement_t fnDestroyElement)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_basic_array_t * piba = (internal_basic_array_t *)*ppba;
+    internal_jf_array_t * pija = (internal_jf_array_t *)*ppja;
 
-    assert((ppba != NULL) && (*ppba != NULL));
+    assert((ppja != NULL) && (*ppja != NULL));
 
-    u32Ret = destroyAllBasicArrayElements(piba, fnDestroyElement);
+    u32Ret = jf_array_destroyAllElements(pija, fnDestroyElement);
 
-    xfree(ppba);
+    xfree(ppja);
 
     return u32Ret;
 }
 
-u32 findBasicArrayElement(basic_array_t * pba,
-    basic_array_element_t ** ppElement,
-    fnFindBasicArrayElement_t fnFindElement, void * pKey)
+u32 jf_array_findElement(
+    jf_array_t * pja, jf_array_element_t ** ppElement,
+    jf_array_fnFindElement_t fnFindElement, void * pKey)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
     u32 u32Index, u32Size;
-    internal_basic_array_t * piba;
-    internal_basic_array_node_t * piban;
+    internal_jf_array_t * pija;
+    internal_jf_array_node_t * pijan;
 
-    assert(pba != NULL);
+    assert(pja != NULL);
 
-    piba = (internal_basic_array_t *) pba;
-    piban = piba->iba_pibanElements;
+    pija = (internal_jf_array_t *) pja;
+    pijan = pija->ija_pijanElements;
     u32Index = 0;
-    u32Size = piba->iba_u32ArraySize;
+    u32Size = pija->ija_u32ArraySize;
 
     while (u32Index < u32Size)
     {
-        if (fnFindElement(piban->iban_pbaeElement, pKey))
+        if (fnFindElement(pijan->ijan_pjaeElement, pKey))
         {
-            *ppElement = piban->iban_pbaeElement;
+            *ppElement = pijan->ijan_pjaeElement;
             u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
-        piban = piban->iban_pibanNext;
+        pijan = pijan->ijan_pijanNext;
 
         u32Index ++;
     }
@@ -377,26 +378,26 @@ u32 findBasicArrayElement(basic_array_t * pba,
     return u32Ret;
 }
 
-u32 traverseBasicArray(basic_array_t * pba,
-    fnOpOnBasicArrayElement_t fnOpOnElement, void * pData)
+u32 jf_array_traverse(
+    jf_array_t * pja, jf_array_fnOpOnElement_t fnOpOnElement, void * pData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index, u32Size;
-    internal_basic_array_t * piba;
-    internal_basic_array_node_t * piban;
+    internal_jf_array_t * pija;
+    internal_jf_array_node_t * pijan;
 
-    assert(pba != NULL);
+    assert(pja != NULL);
 
-    piba = (internal_basic_array_t *) pba;
-    piban = piba->iba_pibanElements;
+    pija = (internal_jf_array_t *) pja;
+    pijan = pija->ija_pijanElements;
     u32Index = 0;
-    u32Size = piba->iba_u32ArraySize;
+    u32Size = pija->ija_u32ArraySize;
 
     while (u32Index < u32Size)
     {
-        fnOpOnElement(piban->iban_pbaeElement, pData);
+        fnOpOnElement(pijan->ijan_pjaeElement, pData);
 
-        piban = piban->iban_pibanNext;
+        pijan = pijan->ijan_pijanNext;
 
         u32Index ++;
     }
