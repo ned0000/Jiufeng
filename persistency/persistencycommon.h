@@ -38,7 +38,7 @@ typedef u32 (* fnRollbackPersistencyTransaction_t)(struct persistency_manager * 
 
 typedef struct sqlite_persistency
 {
-    jt_sqlite_t sp_jsSqlite;
+    jf_sqlite_t sp_jsSqlite;
     jf_persistency_config_sqlite_t sp_jpcsConfigSqlite;
 } sqlite_persistency_t;
 

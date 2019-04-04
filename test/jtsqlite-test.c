@@ -63,7 +63,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 }
 
 static u32 _setJtSqliteValue(
-    jt_sqlite_t * pjs, olchar_t * pKey, olchar_t * pValue)
+    jf_sqlite_t * pjs, olchar_t * pKey, olchar_t * pValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pstrSql = NULL;
@@ -78,7 +78,7 @@ static u32 _setJtSqliteValue(
             pstrSql, nsize,
             "REPLACE INTO env(key, value) VALUES ('%s', '%s');",
             pKey, pValue);
-        u32Ret = execJtSqliteSql(pjs, pstrSql, strRet, sizeof(strRet));
+        u32Ret = jf_sqlite_execSql(pjs, pstrSql, strRet, sizeof(strRet));
     }
     
     if (pstrSql != NULL)
@@ -88,19 +88,19 @@ static u32 _setJtSqliteValue(
 }
 
 static u32 _getJtSqliteValue(
-    jt_sqlite_t * pjs, olchar_t * pKey, olchar_t * pValue, olsize_t sValue)
+    jf_sqlite_t * pjs, olchar_t * pKey, olchar_t * pValue, olsize_t sValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strSql[512];
 
     ol_snprintf(
         strSql, sizeof(strSql), "SELECT value FROM env WHERE key='%s';", pKey);
-    u32Ret = execJtSqliteSql(pjs, strSql, pValue, sValue);
+    u32Ret = jf_sqlite_execSql(pjs, strSql, pValue, sValue);
 
     return u32Ret;
 }
 
-static u32 _testRwJtSqlite(jt_sqlite_t * pjs)
+static u32 _testRwJtSqlite(jf_sqlite_t * pjs)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * key = "today";
@@ -146,12 +146,12 @@ static u32 _testRwJtSqlite(jt_sqlite_t * pjs)
     return u32Ret;
 }
 
-static u32 _testJtSqliteTransaction(jt_sqlite_t * pjs)
+static u32 _testJtSqliteTransaction(jf_sqlite_t * pjs)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     ol_printf("Start jt sqlite transaction\n");
-    u32Ret = startJtSqliteTransaction(pjs);
+    u32Ret = jf_sqlite_startTransaction(pjs);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         _setJtSqliteValue(pjs, "color", "red");
@@ -159,13 +159,13 @@ static u32 _testJtSqliteTransaction(jt_sqlite_t * pjs)
         _setJtSqliteValue(pjs, "age", "32");
 
         ol_printf("Commit jt sqlite transaction\n");
-        commitJtSqliteTransaction(pjs);
+        jf_sqlite_commitTransaction(pjs);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("Start jt sqlite transaction\n");
-        u32Ret = startJtSqliteTransaction(pjs);
+        u32Ret = jf_sqlite_startTransaction(pjs);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             _setJtSqliteValue(pjs, "book1", "1");
@@ -173,7 +173,7 @@ static u32 _testJtSqliteTransaction(jt_sqlite_t * pjs)
             _setJtSqliteValue(pjs, "book3", "3");
 
             ol_printf("Rollback jt sqlite transaction\n");
-            rollbackJtSqliteTransaction(pjs);
+            jf_sqlite_rollbackTransaction(pjs);
         }
     }
 
@@ -183,13 +183,13 @@ static u32 _testJtSqliteTransaction(jt_sqlite_t * pjs)
 static u32 _testJtSqlite(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jt_sqlite_t js;
-    jt_sqlite_param_t config;
+    jf_sqlite_t js;
+    jf_sqlite_init_param_t config;
 
-    ol_memset(&config, 0, sizeof(jt_sqlite_param_t));
-    config.jsp_pstrDbName = "env.db";
+    ol_memset(&config, 0, sizeof(jf_sqlite_init_param_t));
+    config.jsip_pstrDbName = "env.db";
 
-    u32Ret = initJtSqlite(&js, &config);
+    u32Ret = jf_sqlite_init(&js, &config);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -198,7 +198,7 @@ static u32 _testJtSqlite(void)
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = _testJtSqliteTransaction(&js);
 
-        finiJtSqlite(&js);
+        jf_sqlite_fini(&js);
     }
 
     return u32Ret;

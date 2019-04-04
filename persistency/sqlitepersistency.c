@@ -34,7 +34,7 @@ static u32 _rollbackSqliteTransaction(persistency_manager_t * ppm)
     u32 u32Ret = JF_ERR_NO_ERROR;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
 
-    u32Ret = rollbackJtSqliteTransaction(&pSqlite->sp_jsSqlite);
+    u32Ret = jf_sqlite_rollbackTransaction(&pSqlite->sp_jsSqlite);
 
     return u32Ret;
 }
@@ -45,14 +45,14 @@ static u32 _initSqlite(persistency_manager_t * ppm)
     jf_persistency_config_sqlite_t * pjpcs =
         &ppm->pm_pdData.pd_spSqlite.sp_jpcsConfigSqlite;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
-    jt_sqlite_param_t jsp;
+    jf_sqlite_init_param_t jsip;
     olchar_t strRet[128];
     olchar_t strSql[256];
 
-    ol_bzero(&jsp, sizeof(jt_sqlite_param_t));
-    jsp.jsp_pstrDbName = pjpcs->jpcs_strDbName;
+    ol_bzero(&jsip, sizeof(jf_sqlite_init_param_t));
+    jsip.jsip_pstrDbName = pjpcs->jpcs_strDbName;
     
-    u32Ret = initJtSqlite(&pSqlite->sp_jsSqlite, &jsp);
+    u32Ret = jf_sqlite_init(&pSqlite->sp_jsSqlite, &jsip);
     if (u32Ret != JF_ERR_NO_ERROR)
     {
         ol_sprintf(
@@ -61,7 +61,7 @@ static u32 _initSqlite(persistency_manager_t * ppm)
             " %s(%s TEXT PRIMARY KEY, %s TEXT);",
             pjpcs->jpcs_strTableName, pjpcs->jpcs_strKeyColumnName,
             pjpcs->jpcs_strValueColumnName);
-        u32Ret = execJtSqliteSql(
+        u32Ret = jf_sqlite_execSql(
             &pSqlite->sp_jsSqlite, strSql, strRet, sizeof(strRet));
     }
 
@@ -73,7 +73,7 @@ static u32 _finiSqlite(persistency_manager_t * ppm)
     u32 u32Ret = JF_ERR_NO_ERROR;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
 
-    u32Ret = finiJtSqlite(&pSqlite->sp_jsSqlite);
+    u32Ret = jf_sqlite_fini(&pSqlite->sp_jsSqlite);
 
     return u32Ret;
 }
@@ -92,7 +92,7 @@ static u32 _getSqliteValue(
         strSql, sizeof(strSql), "SELECT %s FROM %s WHERE %s='%s';",
         pjpcs->jpcs_strValueColumnName,
         pjpcs->jpcs_strTableName, pjpcs->jpcs_strKeyColumnName, pKey);
-    u32Ret = execJtSqliteSql(&pSqlite->sp_jsSqlite, strSql, pValue, sValue);
+    u32Ret = jf_sqlite_execSql(&pSqlite->sp_jsSqlite, strSql, pValue, sValue);
 
     return u32Ret;
 }
@@ -118,7 +118,7 @@ static u32 _setSqliteValue(
             "REPLACE INTO %s(%s, %s) VALUES ('%s', '%s');",
             pjpcs->jpcs_strTableName, pjpcs->jpcs_strKeyColumnName,
             pjpcs->jpcs_strValueColumnName, pKey, pValue);
-        u32Ret = execJtSqliteSql(
+        u32Ret = jf_sqlite_execSql(
             &pSqlite->sp_jsSqlite, pstrSql, strRet, sizeof(strRet));
     }
     
@@ -133,7 +133,7 @@ static u32 _startSqliteTransaction(persistency_manager_t * ppm)
     u32 u32Ret = JF_ERR_NO_ERROR;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
 
-    u32Ret = startJtSqliteTransaction(&pSqlite->sp_jsSqlite);
+    u32Ret = jf_sqlite_startTransaction(&pSqlite->sp_jsSqlite);
 
     return u32Ret;
 }
@@ -143,7 +143,7 @@ static u32 _commitSqliteTransaction(persistency_manager_t * ppm)
     u32 u32Ret = JF_ERR_NO_ERROR;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
 
-    u32Ret = commitJtSqliteTransaction(&pSqlite->sp_jsSqlite);
+    u32Ret = jf_sqlite_commitTransaction(&pSqlite->sp_jsSqlite);
 
     return u32Ret;
 }
