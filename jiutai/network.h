@@ -170,7 +170,7 @@ typedef struct
     /*do not read data*/
     boolean_t jnacp_bNoRead;
     u8 jnacp_u8Reserved[15];
-    sync_mutex_t * jnacp_psmLock;
+    jf_mutex_t * jnacp_pjmLock;
 } jf_network_asocket_create_param_t;
 
 /** async server socket

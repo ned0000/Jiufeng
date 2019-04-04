@@ -37,7 +37,7 @@ typedef struct utimer
     jf_network_chain_object_header_t iu_jncohHeader;
     jf_network_chain_t * iu_pbcChain;
     utimer_item_t * iu_puiItems;
-    sync_mutex_t iu_smLock;
+    jf_mutex_t iu_jmLock;
 } internal_utimer_t;
 
 /* --- private routine section---------------------------------------------- */
@@ -64,7 +64,7 @@ static u32 _checkUtimer(
 
     assert(piu != NULL);
 
-    acquireSyncMutex(&(piu->iu_smLock));
+    jf_mutex_acquire(&(piu->iu_jmLock));
 
     if (piu->iu_puiItems != NULL)
     {
@@ -103,7 +103,7 @@ static u32 _checkUtimer(
             }
         }
 
-        releaseSyncMutex(&(piu->iu_smLock));
+        jf_mutex_release(&(piu->iu_jmLock));
 
         /*Iterate through all the triggers that we need to fire*/
         while (evt != NULL)
@@ -122,7 +122,7 @@ static u32 _checkUtimer(
             evt = temp;
         }
 
-        acquireSyncMutex(&(piu->iu_smLock));
+        jf_mutex_acquire(&(piu->iu_jmLock));
 
         /*If there are more triggers that need to be fired later, we need to 
           recalculate what the max block time for our select should be*/
@@ -136,7 +136,7 @@ static u32 _checkUtimer(
         }
     }
 
-    releaseSyncMutex(&(piu->iu_smLock));
+    jf_mutex_release(&(piu->iu_jmLock));
 
     return u32Ret;
 }
@@ -155,12 +155,12 @@ static u32 _flushUtimer(internal_utimer_t * piu)
     u32 u32Ret = JF_ERR_NO_ERROR;
     utimer_item_t *temp, *temp2;
 
-    acquireSyncMutex(&(piu->iu_smLock));
+    jf_mutex_acquire(&(piu->iu_jmLock));
 
     temp = piu->iu_puiItems;
     piu->iu_puiItems = NULL;
 
-    releaseSyncMutex(&(piu->iu_smLock));
+    jf_mutex_release(&(piu->iu_jmLock));
 
     while (temp != NULL)
     {
@@ -209,7 +209,7 @@ u32 jf_network_addUtimerItem(
         pui->ui_fnCallback = fnCallback;
         pui->ui_fnDestroy = fnDestroy;
 
-        acquireSyncMutex(&(piu->iu_smLock));
+        jf_mutex_acquire(&(piu->iu_jmLock));
         if (piu->iu_puiItems == NULL)
         {
             /*There are no current triggers, so this is the first, which also
@@ -261,7 +261,7 @@ u32 jf_network_addUtimerItem(
                 temp = temp->ui_puiNext;
             }
         }
-        releaseSyncMutex(&(piu->iu_smLock));
+        jf_mutex_release(&(piu->iu_jmLock));
 
         if (bUnblock)
         {
@@ -280,7 +280,7 @@ u32 jf_network_removeUtimerItem(jf_network_utimer_t * pUtimer, void * pData)
 
     evt = last = NULL;
 
-    acquireSyncMutex(&(piu->iu_smLock));
+    jf_mutex_acquire(&(piu->iu_jmLock));
 
     first = piu->iu_puiItems;
     while (first != NULL)
@@ -323,7 +323,7 @@ u32 jf_network_removeUtimerItem(jf_network_utimer_t * pUtimer, void * pData)
         first = first->ui_puiNext;
     }
 
-    releaseSyncMutex(&(piu->iu_smLock));
+    jf_mutex_release(&(piu->iu_jmLock));
 
     /*Iterate through each node that is to be removed*/
     if (evt == NULL)
@@ -354,7 +354,7 @@ u32 jf_network_destroyUtimer(jf_network_utimer_t ** ppUtimer)
 
     _flushUtimer(piu);
 
-    finiSyncMutex(&(piu->iu_smLock));
+    jf_mutex_fini(&(piu->iu_jmLock));
 
     xfree(ppUtimer);
     *ppUtimer = NULL;
@@ -376,7 +376,7 @@ u32 jf_network_createUtimer(
         piu->iu_jncohHeader.jncoh_fnPreSelect = _checkUtimer;
         piu->iu_pbcChain = pChain;
 
-        u32Ret = initSyncMutex(&(piu->iu_smLock));
+        u32Ret = jf_mutex_init(&(piu->iu_jmLock));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

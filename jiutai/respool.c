@@ -58,7 +58,7 @@ typedef struct
     /** release the parttime resource immediately after use */
     boolean_t irp_bImmediateRelease;
     /** synchronize the access to the resources */
-    sync_mutex_t irp_smLock;
+    jf_mutex_t irp_jmLock;
     /** basic array contains fulltime resources */
     basic_array_t * irp_pbaFulltimeResources;
     /** basic array contains parttime resources */    
@@ -112,7 +112,7 @@ static u32 _lockResourcePool(internal_resource_pool_t * pirp)
 
     jf_logger_logInfoMsg("lock resource pool");
 
-    u32Ret = acquireSyncMutex(&(pirp->irp_smLock));
+    u32Ret = jf_mutex_acquire(&(pirp->irp_jmLock));
 
     return u32Ret;
 }
@@ -130,7 +130,7 @@ static u32 _unlockResourcePool(internal_resource_pool_t * pirp)
 
     jf_logger_logInfoMsg("unlock resource pool");
         
-    u32Ret = releaseSyncMutex(&(pirp->irp_smLock));
+    u32Ret = jf_mutex_release(&(pirp->irp_jmLock));
 
     return u32Ret;
 }
@@ -401,7 +401,7 @@ static u32 _createResourcePool(
     {
         ol_memset(pirp, 0, sizeof(internal_resource_pool_t));
 
-        u32Ret = initSyncMutex(&(pirp->irp_smLock));
+        u32Ret = jf_mutex_init(&(pirp->irp_jmLock));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -663,7 +663,7 @@ u32 destroyResourcePool(resource_pool_t ** pprp)
     _destroyAllResources(pirp);
 
     /* destroy the mutex */
-    u32Ret = finiSyncMutex(&(pirp->irp_smLock));
+    u32Ret = jf_mutex_fini(&(pirp->irp_jmLock));
 
     /* free the resource pool */
     xfree((void **)&pirp);

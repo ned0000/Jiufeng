@@ -63,7 +63,7 @@ typedef struct
     u32 ijb_u32NumOfZone;
     buddy_zone_t * ijb_pbzZone[MAX_BUDDY_ZONES];
 
-    sync_mutex_t ijb_smLock;
+    jf_mutex_t ijb_jmLock;
 } internal_jiukun_buddy_t;
 
 static internal_jiukun_buddy_t ls_ijbBuddy;
@@ -376,7 +376,7 @@ static void _dumpBuddy(internal_jiukun_buddy_t * piab)
 {
     u32 u32Index;
 
-    acquireSyncMutex(&piab->ijb_smLock);
+    jf_mutex_acquire(&piab->ijb_jmLock);
     for (u32Index = 0; u32Index < piab->ijb_u32NumOfZone; u32Index ++)
     {
         assert(piab->ijb_pbzZone[u32Index] != NULL);
@@ -384,7 +384,7 @@ static void _dumpBuddy(internal_jiukun_buddy_t * piab)
         jf_logger_logInfoMsg("zone: %u", u32Index);
         _dumpBuddyZone(piab->ijb_pbzZone[u32Index]);
     }
-    releaseSyncMutex(&piab->ijb_smLock);
+    jf_mutex_release(&piab->ijb_jmLock);
     jf_logger_logInfoMsg("");
 }
 #endif
@@ -420,7 +420,7 @@ u32 initJiukunBuddy(buddy_param_t * pbp)
     {
         piab->ijb_u32NumOfZone ++;
 
-        u32Ret = initSyncMutex(&(piab->ijb_smLock));
+        u32Ret = jf_mutex_init(&(piab->ijb_jmLock));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -446,7 +446,7 @@ u32 finiJiukunBuddy(void)
     for (u32Index = 0; u32Index < piab->ijb_u32NumOfZone; u32Index ++)
         _destroyBuddyZone(&(piab->ijb_pbzZone[u32Index]));
 
-    finiSyncMutex(&(piab->ijb_smLock));
+    jf_mutex_fini(&(piab->ijb_jmLock));
 
     piab->ijb_bInitialized = FALSE;
 
@@ -500,9 +500,9 @@ u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, olflag_t flag)
 
     do
     {
-        acquireSyncMutex(&(piab->ijb_smLock));
+        jf_mutex_acquire(&(piab->ijb_jmLock));
         pap = _allocPages(piab, u32Order, flag);
-        releaseSyncMutex(&(piab->ijb_smLock));
+        jf_mutex_release(&(piab->ijb_jmLock));
 
         if (pap == NULL)
         {
@@ -547,11 +547,11 @@ void putJiukunPage(jiukun_page_t ** ppPage)
     jf_logger_logInfoMsg("put aehter page, paga addr: %p, order: %u", *ppPage, u32Order);
 #endif
 
-    acquireSyncMutex(&(piab->ijb_smLock));
+    jf_mutex_acquire(&(piab->ijb_jmLock));
 
     _freeOnePage(piab->ijb_pbzZone[u32ZoneId], *ppPage, u32Order);
 
-    releaseSyncMutex(&(piab->ijb_smLock));
+    jf_mutex_release(&(piab->ijb_jmLock));
 
     *ppPage = NULL;
 }

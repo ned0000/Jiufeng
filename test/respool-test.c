@@ -36,7 +36,7 @@ typedef struct
     jf_sem_t * rtwd_pjsSem;
 
     /*The SCSI command queue and the lock*/
-    sync_mutex_t * rtwd_psmLock;
+    jf_mutex_t * rtwd_pjmLock;
 //    list_head_t * rtwd_plhHermesCmd;
 
 } respool_test_worker_data_t;
@@ -46,7 +46,7 @@ typedef struct
 #define RESPOOL_TEST_MAX_RESOURCES     (5)
 
 static resource_pool_t * ls_prpRespoolTestWorkerPool;
-static sync_mutex_t ls_smRespoolTestLock;
+static jf_mutex_t ls_smRespoolTestLock;
 static jf_sem_t ls_jsRespoolTestSem;
 static thread_id_t ls_tiRespoolTestProducer;
 static boolean_t ls_bRespoolTestTerminateProducer;
@@ -69,9 +69,9 @@ THREAD_RETURN_VALUE _respoolTestWorkerThread(void * pArg)
         {
             jf_logger_logInfoMsg("respool test worker thread, got work");
 
-            acquireSyncMutex(prtwd->rtwd_psmLock);
+            jf_mutex_acquire(prtwd->rtwd_pjmLock);
             /*do the work*/
-            releaseSyncMutex(prtwd->rtwd_psmLock);
+            jf_mutex_release(prtwd->rtwd_pjmLock);
         }
     }
 
@@ -92,9 +92,9 @@ THREAD_RETURN_VALUE _respoolTestProducerThread(void * pArg)
     {
         jf_logger_logInfoMsg("respool test producer thread, produce work");
 
-        acquireSyncMutex(&ls_smRespoolTestLock);
+        jf_mutex_acquire(&ls_smRespoolTestLock);
         /*produce the work*/
-        releaseSyncMutex(&ls_smRespoolTestLock);
+        jf_mutex_release(&ls_smRespoolTestLock);
 
         jf_sem_up(&ls_jsRespoolTestSem);
 
@@ -119,7 +119,7 @@ static u32 _createRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
         ol_memset(prtwd, 0, sizeof(respool_test_worker_data_t));
 
         prtwd->rtwd_pjsSem = &ls_jsRespoolTestSem;
-        prtwd->rtwd_psmLock = &ls_smRespoolTestLock;
+        prtwd->rtwd_pjmLock = &ls_smRespoolTestLock;
         prtwd->rtwd_bToTerminate = FALSE;
 
         /* create a thread for the worker, using default thread attributes */
@@ -178,7 +178,7 @@ static u32 _testRespool(void)
 
     u32Ret = jf_sem_init(&ls_jsRespoolTestSem, 0, RESPOOL_TEST_MAX_RESOURCES);
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = initSyncMutex(&ls_smRespoolTestLock);
+        u32Ret = jf_mutex_init(&ls_smRespoolTestLock);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _createTestRespool(&ls_prpRespoolTestWorkerPool);

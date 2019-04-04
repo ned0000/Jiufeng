@@ -40,7 +40,7 @@ typedef struct
     boolean_t ip_bPoolStirred;
     u8 ip_u8Reserved[6];
 
-    sync_mutex_t ip_smLock;
+    jf_mutex_t ip_jmLock;
 
     u32 ip_u32PoolSize;
     u32 ip_u32PoolIndex;
@@ -189,7 +189,7 @@ u32 jf_prng_init(void)
     /** Get seed */
     u32Ret = getSeed();
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = initSyncMutex(&(pip->ip_smLock));
+        u32Ret = jf_mutex_init(&(pip->ip_jmLock));
 
     if (u32Ret == JF_ERR_NO_ERROR)
         pip->ip_bInitialized = TRUE;
@@ -204,7 +204,7 @@ u32 jf_prng_fini(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_prng_t * pip = &ls_ipPrng;
 
-    finiSyncMutex(&(pip->ip_smLock));
+    jf_mutex_fini(&(pip->ip_jmLock));
 
     pip->ip_bInitialized = FALSE;
 
@@ -218,11 +218,11 @@ u32 jf_prng_getData(u8 * pu8Data, u32 u32Len)
 
     assert((pu8Data != NULL) && (u32Len > 0));
 
-    acquireSyncMutex(&(pip->ip_smLock));
+    jf_mutex_acquire(&(pip->ip_jmLock));
 
     u32Ret = _getPrngData(pip, pu8Data, u32Len);
 
-    releaseSyncMutex(&(pip->ip_smLock));
+    jf_mutex_release(&(pip->ip_jmLock));
 
     return u32Ret;
 }

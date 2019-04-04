@@ -64,7 +64,7 @@ typedef struct persistency_manager
 
     persistency_data_t pm_pdData;
 
-    sync_mutex_t pm_smLock;
+    jf_mutex_t pm_jmLock;
 } persistency_manager_t;
 
 /* --- functional routines ------------------------------------------------- */

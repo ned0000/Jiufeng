@@ -105,7 +105,7 @@ typedef struct internal_webclient
     olsize_t iw_sBuffer;
 
     jf_network_chain_t *iw_pjncChain;
-    sync_mutex_t iw_smLock;
+    jf_mutex_t iw_jmLock;
 } internal_webclient_t;
 
 typedef struct internal_web_chunkdata
@@ -430,7 +430,7 @@ static u32 _preWebclientProcess(
 
     /*Try and satisfy as many things as we can. If we have resources
       grab a socket and go*/
-//    acquireSyncMutex(&(piw->iw_smLock));
+//    jf_mutex_acquire(&(piw->iw_jmLock));
     while ((! bOK) && (! isQueueEmpty(&piw->iw_bqBacklog)))
     {
         bOK = TRUE;
@@ -451,7 +451,7 @@ static u32 _preWebclientProcess(
             }
         }
     }
-//    releaseSyncMutex(&(piw->iw_smLock));
+//    jf_mutex_release(&(piw->iw_jmLock));
 
     return u32Ret;
 }
@@ -1315,7 +1315,7 @@ u32 jf_webclient_destroy(jf_webclient_t ** ppWebclient)
     finiQueue(&piw->iw_bqBacklog);
     finiHashtree(&piw->iw_hIdle);
     finiHashtree(&piw->iw_hData);
-    finiSyncMutex(&piw->iw_smLock);
+    jf_mutex_fini(&piw->iw_jmLock);
 
     if (piw->iw_ppjnaAsockets != NULL)
         xfree((void **)&(piw->iw_ppjnaAsockets));
@@ -1358,7 +1358,7 @@ u32 jf_webclient_create(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = initSyncMutex(&(piw->iw_smLock));
+        u32Ret = jf_mutex_init(&(piw->iw_jmLock));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -1512,7 +1512,7 @@ u32 jf_webclient_deleteWebRequests(
     addrlen = _getStringHashKey(addr, pjiRemote, u16Port);
 
     /* Are there any pending requests to this IP/Port combo */
-//    acquireSyncMutex(&(piw->iw_smLock));
+//    jf_mutex_acquire(&(piw->iw_jmLock));
     if (hasHashtreeEntry(&piw->iw_hData, addr, addrlen))
     {
         /* Yes, iterate through them */
@@ -1526,7 +1526,7 @@ u32 jf_webclient_deleteWebRequests(
             u32Ret = enqueue(&bqRemove, piwr);
         }
     }
-//    releaseSyncMutex(&(piw->iw_smLock));
+//    jf_mutex_release(&(piw->iw_jmLock));
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {

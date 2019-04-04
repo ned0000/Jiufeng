@@ -93,7 +93,7 @@ typedef struct slab_cache
     u32 sc_u32Num;
 
     /** lock for the full, partial and free list*/
-    sync_mutex_t sc_smCache;
+    jf_mutex_t sc_jmCache;
     /** list for fully used slab */
     struct list_head sc_lhFull;
     /** list for partial slab */
@@ -193,7 +193,7 @@ typedef struct internal_jiukun_slab
 
     u32 ijs_u32OffSlabLimit;
 
-    sync_mutex_t ijs_smLock;
+    jf_mutex_t ijs_smLock;
 
     u8 ijs_u8Reserved2[16];
 
@@ -548,17 +548,17 @@ static u32 _growSlabCache(
 static inline void _lockSlabCache(
     internal_jiukun_slab_t * pijs, slab_cache_t * pCache)
 {
-    acquireSyncMutex(&pijs->ijs_smLock);
+    jf_mutex_acquire(&pijs->ijs_smLock);
     SET_FLAG(pCache->sc_fCache, SC_FLAG_LOCKED);
-    releaseSyncMutex(&pijs->ijs_smLock);
+    jf_mutex_release(&pijs->ijs_smLock);
 }
 
 static inline void _unlockSlabCache(
     internal_jiukun_slab_t * pijs, slab_cache_t * pCache)
 {
-    acquireSyncMutex(&pijs->ijs_smLock);
+    jf_mutex_acquire(&pijs->ijs_smLock);
     CLEAR_FLAG(pCache->sc_fCache, SC_FLAG_LOCKED);
-    releaseSyncMutex(&pijs->ijs_smLock);
+    jf_mutex_release(&pijs->ijs_smLock);
 }
 
 static inline u32 _allocObj(
@@ -577,7 +577,7 @@ static inline u32 _allocObj(
     *ppObj = NULL;
     _lockSlabCache(pijs, pCache);
 
-    acquireSyncMutex(&pCache->sc_smCache);
+    jf_mutex_acquire(&pCache->sc_jmCache);
 
     while (*ppObj == NULL)
     {
@@ -604,7 +604,7 @@ static inline u32 _allocObj(
         *ppObj = _allocOneObjFromTail(pCache, slabp);
     }
 
-    releaseSyncMutex(&pCache->sc_smCache);
+    jf_mutex_release(&pCache->sc_jmCache);
 
     _unlockSlabCache(pijs, pCache);
 
@@ -726,9 +726,9 @@ static inline void _freeObj(
 
     _lockSlabCache(pijs, pCache);
 
-    acquireSyncMutex(&pCache->sc_smCache);
+    jf_mutex_acquire(&pCache->sc_jmCache);
     _freeOneObj(pijs, pCache, *pptr);
-    releaseSyncMutex(&pCache->sc_smCache);
+    jf_mutex_release(&pCache->sc_jmCache);
 
     _unlockSlabCache(pijs, pCache);
 
@@ -781,7 +781,7 @@ static u32 _destroySlabCache(
 
     jf_logger_logInfoMsg("destroy jiukun cache %s", psc->sc_strName);
 
-    acquireSyncMutex(&(psc->sc_smCache));
+    jf_mutex_acquire(&(psc->sc_jmCache));
 
     while (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -798,7 +798,7 @@ static u32 _destroySlabCache(
         _destroySlab(pijs, psc, slabp);
     }
 
-    releaseSyncMutex(&(psc->sc_smCache));
+    jf_mutex_release(&(psc->sc_jmCache));
 
     return u32Ret;
 }
@@ -939,7 +939,7 @@ static u32 _createSlabCache(
         pCache->sc_fCache = pjjccp->jjccp_fCache;
         pCache->sc_fPage = 0;
 
-        u32Ret = initSyncMutex(&(pCache->sc_smCache));
+        u32Ret = jf_mutex_init(&(pCache->sc_jmCache));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -955,7 +955,7 @@ static u32 _createSlabCache(
             pCache->sc_pscSlab = _findGeneralSlabCache(pijs, slab_size, 0);
         ol_strncpy(pCache->sc_strName, pjjccp->jjccp_pstrName, CACHE_NAME_LEN - 1);
 
-        acquireSyncMutex(&(pijs->ijs_smLock));
+        jf_mutex_acquire(&(pijs->ijs_smLock));
 #ifdef DEBUG_JIUKUN
         listForEach(&(pijs->ijs_scCacheCache.sc_lhNext), plh)
         {
@@ -964,7 +964,7 @@ static u32 _createSlabCache(
         }
 #endif
         listAdd(&(pijs->ijs_scCacheCache.sc_lhNext), &(pCache->sc_lhNext));
-        releaseSyncMutex(&(pijs->ijs_smLock));
+        jf_mutex_release(&(pijs->ijs_smLock));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -1036,7 +1036,7 @@ static u32 _initSlabCache(internal_jiukun_slab_t * pijs)
 
         sizes->gc_sSize = OLSIZE_MAX;
 
-        u32Ret = initSyncMutex(&(pkc->sc_smCache));
+        u32Ret = jf_mutex_init(&(pkc->sc_jmCache));
     }
 
     return u32Ret;
@@ -1081,7 +1081,7 @@ u32 initJiukunSlab(slab_param_t * psp)
     assert(! pijs->ijs_bInitialized);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = initSyncMutex(&(pijs->ijs_smLock));
+        u32Ret = jf_mutex_init(&(pijs->ijs_smLock));
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _initSlabCache(pijs);
@@ -1117,7 +1117,7 @@ u32 finiJiukunSlab(void)
     psc = &(pijs->ijs_scCacheCache);
     _destroySlabCache(pijs, psc);
 
-    finiSyncMutex(&(pijs->ijs_smLock));
+    jf_mutex_fini(&(pijs->ijs_smLock));
 
     pijs->ijs_bInitialized = FALSE;
 
@@ -1156,11 +1156,11 @@ u32 jf_jiukun_destroyCache(jf_jiukun_cache_t ** ppCache)
     *ppCache = NULL;
 
     /* Find the cache in the chain of caches. */
-    acquireSyncMutex(&(pijs->ijs_smLock));
+    jf_mutex_acquire(&(pijs->ijs_smLock));
     /* the chain is never empty, cache_cache is never destroyed */
     listDel(&(psc->sc_lhNext));
     SET_FLAG(psc->sc_fCache, SC_FLAG_DESTROY);
-    releaseSyncMutex(&(pijs->ijs_smLock));
+    jf_mutex_release(&(pijs->ijs_smLock));
 
     _destroySlabCache(pijs, psc);
     _freeObj(pijs, &pijs->ijs_scCacheCache, (void **)&psc);
@@ -1182,13 +1182,13 @@ u32 reapJiukunSlab(boolean_t bNoWait)
 
     if (bNoWait)
     {
-        u32Ret = tryAcquireSyncMutex(&(pijs->ijs_smLock));
+        u32Ret = jf_mutex_tryAcquire(&(pijs->ijs_smLock));
         if (u32Ret != JF_ERR_NO_ERROR)
             return u32Ret;
     }
     else
     {
-        acquireSyncMutex(&(pijs->ijs_smLock));
+        jf_mutex_acquire(&(pijs->ijs_smLock));
     }
     jf_logger_logInfoMsg("reap slab, start");
 
@@ -1214,7 +1214,7 @@ u32 reapJiukunSlab(boolean_t bNoWait)
             continue;
         }
 
-        acquireSyncMutex(&(searchp->sc_smCache));
+        jf_mutex_acquire(&(searchp->sc_jmCache));
 #if DEBUG_JIUKUN
         jf_logger_logInfoMsg(
             "cache %p, name %s, flag 0x%llx", searchp, searchp->sc_strName,
@@ -1224,7 +1224,7 @@ u32 reapJiukunSlab(boolean_t bNoWait)
 
         ret += _shrinkSlabCache(pijs, searchp);
 
-        releaseSyncMutex(&(searchp->sc_smCache));
+        jf_mutex_release(&(searchp->sc_jmCache));
     }
 
     if ((u32Ret == JF_ERR_NO_ERROR) && (ret == 0))

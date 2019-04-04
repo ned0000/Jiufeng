@@ -42,7 +42,7 @@ typedef struct internal_basic_chain
     jf_network_chain_object_t * ibc_pbcoObject;
     /** pipe, to wakeup or stop the chain*/
     jf_network_socket_t * ibc_pjnsWakeup[2];
-    sync_mutex_t ibc_smLock;
+    jf_mutex_t ibc_jmLock;
     /** Next chain */
     struct internal_basic_chain *ibc_pibcNext;
 } internal_basic_chain_t;
@@ -94,7 +94,7 @@ u32 jf_network_createChain(jf_network_chain_t ** ppChain)
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = initSyncMutex(&pibc->ibc_smLock);
+        u32Ret = jf_mutex_init(&pibc->ibc_jmLock);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -125,7 +125,7 @@ u32 jf_network_destroyChain(jf_network_chain_t ** ppChain)
     if (pibc->ibc_pjnsWakeup[0] != NULL)
         u32Ret = jf_network_destroySocketPair(pibc->ibc_pjnsWakeup);
 
-    finiSyncMutex(&(pibc->ibc_smLock));
+    jf_mutex_fini(&(pibc->ibc_jmLock));
 
     /* Clean up the chain by iterating through all the destroy. */
     while (pibc != NULL)

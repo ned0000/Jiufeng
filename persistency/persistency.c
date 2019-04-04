@@ -56,7 +56,7 @@ u32 jf_persistency_create(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = initSyncMutex(&ppm->pm_smLock);
+        u32Ret = jf_mutex_init(&ppm->pm_jmLock);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -79,7 +79,7 @@ u32 jf_persistency_destroy(jf_persistency_t ** ppPersist)
 
     u32Ret = ppm->pm_fnFini(ppm);
 
-    finiSyncMutex(&ppm->pm_smLock);
+    jf_mutex_fini(&ppm->pm_jmLock);
     
     xfree((void **)ppPersist);
 
@@ -93,11 +93,11 @@ u32 jf_persistency_getValue(
     u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
 
-    acquireSyncMutex(&ppm->pm_smLock);
+    jf_mutex_acquire(&ppm->pm_jmLock);
 
     u32Ret = ppm->pm_fnGetValue(ppm, key, value, valuelen);
 
-    releaseSyncMutex(&ppm->pm_smLock);
+    jf_mutex_release(&ppm->pm_jmLock);
 
     return u32Ret;
 }
@@ -108,11 +108,11 @@ u32 jf_persistency_setValue(
     u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
 
-    acquireSyncMutex(&ppm->pm_smLock);
+    jf_mutex_acquire(&ppm->pm_jmLock);
     
     u32Ret = ppm->pm_fnSetValue(ppm, key, value);
 
-    releaseSyncMutex(&ppm->pm_smLock);
+    jf_mutex_release(&ppm->pm_jmLock);
 
     return u32Ret;
 }
@@ -122,11 +122,11 @@ u32 jf_persistency_startTransaction(jf_persistency_t * pPersist)
     u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
 
-    acquireSyncMutex(&ppm->pm_smLock);
+    jf_mutex_acquire(&ppm->pm_jmLock);
 
     u32Ret = ppm->pm_fnStartTransaction(ppm);
 
-    releaseSyncMutex(&ppm->pm_smLock);
+    jf_mutex_release(&ppm->pm_jmLock);
 
     return u32Ret;
 }
@@ -136,11 +136,11 @@ u32 jf_persistency_commitTransaction(jf_persistency_t * pPersist)
     u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
 
-    acquireSyncMutex(&ppm->pm_smLock);
+    jf_mutex_acquire(&ppm->pm_jmLock);
     
     u32Ret = ppm->pm_fnCommitTransaction(ppm);
 
-    releaseSyncMutex(&ppm->pm_smLock);
+    jf_mutex_release(&ppm->pm_jmLock);
 
     return u32Ret;
 }
@@ -150,11 +150,11 @@ u32 jf_persistency_rollbackTransaction(jf_persistency_t * pPersist)
     u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
 
-    acquireSyncMutex(&ppm->pm_smLock);
+    jf_mutex_acquire(&ppm->pm_jmLock);
 
     u32Ret = ppm->pm_fnRollbackTransaction(ppm);
 
-    releaseSyncMutex(&ppm->pm_smLock);
+    jf_mutex_release(&ppm->pm_jmLock);
 
     return u32Ret;
 }

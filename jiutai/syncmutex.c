@@ -26,17 +26,17 @@
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 initSyncMutex(sync_mutex_t * pMutex)
+u32 jf_mutex_init(jf_mutex_t * pMutex)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert(pMutex != NULL);
     
 #if defined(WINDOWS)
-    memset(pMutex, 0, sizeof(sync_mutex_t));
+    memset(pMutex, 0, sizeof(jf_mutex_t));
 
-    pMutex->sm_hMutex = CreateMutex(NULL, FALSE, NULL);
-    if (pMutex->sm_hMutex == NULL)
+    pMutex->jm_hMutex = CreateMutex(NULL, FALSE, NULL);
+    if (pMutex->jm_hMutex == NULL)
     {
         u32Ret = JF_ERR_FAIL_CREATE_MUTEX;
     }
@@ -44,10 +44,10 @@ u32 initSyncMutex(sync_mutex_t * pMutex)
     olint_t nRet;
     pthread_mutexattr_t attr;
 
-    memset(pMutex, 0, sizeof(sync_mutex_t));
+    memset(pMutex, 0, sizeof(jf_mutex_t));
 
     pthread_mutexattr_init(&attr);
-    nRet = pthread_mutex_init(&(pMutex->sm_ptmMutex), &attr);
+    nRet = pthread_mutex_init(&(pMutex->jm_ptmMutex), &attr);
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_CREATE_MUTEX;
@@ -57,7 +57,7 @@ u32 initSyncMutex(sync_mutex_t * pMutex)
     return u32Ret;
 }
 
-u32 finiSyncMutex(sync_mutex_t * pMutex)
+u32 jf_mutex_fini(jf_mutex_t * pMutex)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -66,9 +66,9 @@ u32 finiSyncMutex(sync_mutex_t * pMutex)
 
     assert(pMutex != NULL);
 
-    if (pMutex->sm_hMutex != NULL)
+    if (pMutex->jm_hMutex != NULL)
     {
-        bRet = CloseHandle(pMutex->sm_hMutex);
+        bRet = CloseHandle(pMutex->jm_hMutex);
         if (! bRet)
         {
             u32Ret = JF_ERR_FAIL_DESTROY_MUTEX;
@@ -78,12 +78,12 @@ u32 finiSyncMutex(sync_mutex_t * pMutex)
 
     assert(pMutex != NULL);
 
-    pthread_mutex_destroy(&(pMutex->sm_ptmMutex));
+    pthread_mutex_destroy(&(pMutex->jm_ptmMutex));
 #endif
     return u32Ret;
 }
 
-u32 acquireSyncMutex(sync_mutex_t * pMutex)
+u32 jf_mutex_acquire(jf_mutex_t * pMutex)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -96,7 +96,7 @@ u32 acquireSyncMutex(sync_mutex_t * pMutex)
 
     assert(pMutex != NULL);
     
-    dwRet = WaitForSingleObject(pMutex->sm_hMutex, INFINITE);
+    dwRet = WaitForSingleObject(pMutex->jm_hMutex, INFINITE);
     if (dwRet == WAIT_FAILED)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_MUTEX;
@@ -110,7 +110,7 @@ u32 acquireSyncMutex(sync_mutex_t * pMutex)
 
     assert(pMutex != NULL);
 
-    nRet = pthread_mutex_lock(&(pMutex->sm_ptmMutex));
+    nRet = pthread_mutex_lock(&(pMutex->jm_ptmMutex));
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_MUTEX;
@@ -120,7 +120,7 @@ u32 acquireSyncMutex(sync_mutex_t * pMutex)
     return u32Ret;
 }
 
-u32 tryAcquireSyncMutex(sync_mutex_t * pMutex)
+u32 jf_mutex_tryAcquire(jf_mutex_t * pMutex)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     
@@ -129,7 +129,7 @@ u32 tryAcquireSyncMutex(sync_mutex_t * pMutex)
 
     assert(pMutex != NULL);
     
-    dwRet = WaitForSingleObject(pMutex->sm_hMutex, 0);
+    dwRet = WaitForSingleObject(pMutex->jm_hMutex, 0);
     if (dwRet == WAIT_FAILED)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_MUTEX;
@@ -143,7 +143,7 @@ u32 tryAcquireSyncMutex(sync_mutex_t * pMutex)
 
     assert(pMutex != NULL);
 
-    nRet = pthread_mutex_trylock(&(pMutex->sm_ptmMutex));
+    nRet = pthread_mutex_trylock(&(pMutex->jm_ptmMutex));
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_MUTEX;
@@ -153,7 +153,7 @@ u32 tryAcquireSyncMutex(sync_mutex_t * pMutex)
     return u32Ret;
 }
 
-u32 acquireSyncMutexWithTimeout(sync_mutex_t * pMutex, u32 u32Timeout)
+u32 jf_mutex_acquireWithTimeout(jf_mutex_t * pMutex, u32 u32Timeout)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     
@@ -162,7 +162,7 @@ u32 acquireSyncMutexWithTimeout(sync_mutex_t * pMutex, u32 u32Timeout)
     
     assert(pMutex != NULL);
 
-    dwRet = WaitForSingleObject(pMutex->sm_hMutex, u32Timeout);
+    dwRet = WaitForSingleObject(pMutex->jm_hMutex, u32Timeout);
     if (dwRet == WAIT_FAILED)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_MUTEX;
@@ -176,11 +176,11 @@ u32 acquireSyncMutexWithTimeout(sync_mutex_t * pMutex, u32 u32Timeout)
 
     assert(pMutex != NULL);
 
-    nRet = pthread_mutex_trylock(&(pMutex->sm_ptmMutex));
+    nRet = pthread_mutex_trylock(&(pMutex->jm_ptmMutex));
     if (nRet != 0)
     {
         usleep(u32Timeout * 1000);
-        nRet = pthread_mutex_trylock(&(pMutex->sm_ptmMutex));
+        nRet = pthread_mutex_trylock(&(pMutex->jm_ptmMutex));
         if (nRet != 0)
             u32Ret = JF_ERR_FAIL_ACQUIRE_MUTEX;
     }
@@ -189,7 +189,7 @@ u32 acquireSyncMutexWithTimeout(sync_mutex_t * pMutex, u32 u32Timeout)
     return u32Ret;
 }
 
-u32 releaseSyncMutex(sync_mutex_t * pMutex)
+u32 jf_mutex_release(jf_mutex_t * pMutex)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -202,7 +202,7 @@ u32 releaseSyncMutex(sync_mutex_t * pMutex)
 
     assert(pMutex != NULL);
     
-    bRet = ReleaseMutex(pMutex->sm_hMutex);
+    bRet = ReleaseMutex(pMutex->jm_hMutex);
     if (bRet == FALSE)
     {
         u32Ret = JF_ERR_FAIL_RELEASE_MUTEX;
@@ -212,7 +212,7 @@ u32 releaseSyncMutex(sync_mutex_t * pMutex)
 
     assert(pMutex != NULL);
 
-    nRet = pthread_mutex_unlock(&(pMutex->sm_ptmMutex));
+    nRet = pthread_mutex_unlock(&(pMutex->jm_ptmMutex));
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_RELEASE_MUTEX;

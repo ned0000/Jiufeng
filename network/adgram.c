@@ -73,7 +73,7 @@ typedef struct
     send_data_t * ia_psdHead;
     send_data_t * ia_psdTail;
 
-    sync_mutex_t ia_smLock;
+    jf_mutex_t ia_jmLock;
 } internal_adgram_t;
 
 /* --- private routine section---------------------------------------------- */
@@ -183,14 +183,14 @@ static u32 _preSelectAdgram(
             jf_network_setSocketToFdSet(pia->ia_pjnsSocket, errorset);
         }
 
-        acquireSyncMutex(&(pia->ia_smLock));
+        jf_mutex_acquire(&(pia->ia_jmLock));
         if (pia->ia_psdHead != NULL)
         {
             /* If there is pending data to be sent, then we need to check
                when the socket is writable */
             jf_network_setSocketToFdSet(pia->ia_pjnsSocket, writeset);
         }
-        releaseSyncMutex(&(pia->ia_smLock));
+        jf_mutex_release(&(pia->ia_jmLock));
     }
 
     return u32Ret;
@@ -221,7 +221,7 @@ static u32 _postSelectAdgram(
         jf_network_isSocketSetInFdSet(pia->ia_pjnsSocket, writeset) != 0)
     {
         /*The socket is writable, and data needs to be sent*/
-        acquireSyncMutex(&(pia->ia_smLock));
+        jf_mutex_acquire(&(pia->ia_jmLock));
         /*Keep trying to send data, until we are told we can't*/
         while (u32Ret == JF_ERR_NO_ERROR)
         {
@@ -268,7 +268,7 @@ static u32 _postSelectAdgram(
         {
             bTriggerSendOK = TRUE;
         }
-        releaseSyncMutex(&(pia->ia_smLock));
+        jf_mutex_release(&(pia->ia_jmLock));
         if (bTriggerSendOK)
         {
             pia->ia_fnOnSendOK(pia, pia->ia_pUser);
@@ -432,7 +432,7 @@ u32 jf_network_destroyAdgram(jf_network_adgram_t ** ppAdgram)
     if (pia->ia_pjnuUtimer != NULL)
         jf_network_destroyUtimer(&(pia->ia_pjnuUtimer));
 
-    finiSyncMutex(&(pia->ia_smLock));
+    jf_mutex_fini(&(pia->ia_jmLock));
 
     xfree(ppAdgram);
 
@@ -472,7 +472,7 @@ u32 jf_network_createAdgram(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = initSyncMutex(&(pia->ia_smLock));
+        u32Ret = jf_mutex_init(&(pia->ia_jmLock));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -532,7 +532,7 @@ u32 jf_network_sendAdgramData(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = acquireSyncMutex(&(pia->ia_smLock));
+        u32Ret = jf_mutex_acquire(&(pia->ia_jmLock));
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (pia->ia_pjnsSocket == NULL)
@@ -556,7 +556,7 @@ u32 jf_network_sendAdgramData(
                 }
             }
 
-            releaseSyncMutex(&(pia->ia_smLock));
+            jf_mutex_release(&(pia->ia_jmLock));
 
             if (bUnblock)
             {
@@ -652,9 +652,9 @@ u32 jf_network_freeSocketForAdgram(jf_network_adgram_t * pAdgram)
     pia->ia_bFree = TRUE;
     pia->ia_bPause = TRUE;
 
-    acquireSyncMutex(&(pia->ia_smLock));
+    jf_mutex_acquire(&(pia->ia_jmLock));
     jf_network_clearPendingSendOfAdgram(pia);
-    releaseSyncMutex(&(pia->ia_smLock));
+    jf_mutex_release(&(pia->ia_jmLock));
 
     pia->ia_sBeginPointer = 0;
     pia->ia_sEndPointer = 0;

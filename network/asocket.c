@@ -68,7 +68,7 @@ typedef struct
     send_data_t * ia_psdHead;
     send_data_t * ia_psdTail;
 
-    sync_mutex_t * ia_psmLock;
+    jf_mutex_t * ia_pjmLock;
 
     olsize_t ia_sBeginPointer;
     olsize_t ia_sEndPointer;
@@ -314,8 +314,8 @@ static u32 _preSelectAsocket(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
-    if (pia->ia_psmLock != NULL)
-        acquireSyncMutex(pia->ia_psmLock);
+    if (pia->ia_pjmLock != NULL)
+        jf_mutex_acquire(pia->ia_pjmLock);
     if (pia->ia_pjnsSocket != NULL)
     {
         if (! pia->ia_bFinConnect)
@@ -342,8 +342,8 @@ static u32 _preSelectAsocket(
             }
         }
     }
-    if (pia->ia_psmLock != NULL)
-        releaseSyncMutex(pia->ia_psmLock);
+    if (pia->ia_pjmLock != NULL)
+        jf_mutex_release(pia->ia_pjmLock);
 
     return u32Ret;
 }
@@ -418,8 +418,8 @@ static u32 _postSelectAsocket(
     olint_t nLen;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
-    if (pia->ia_psmLock != NULL)
-        acquireSyncMutex(pia->ia_psmLock);
+    if (pia->ia_pjmLock != NULL)
+        jf_mutex_acquire(pia->ia_pjmLock);
 
     /*Write Handling*/
     if ((pia->ia_pjnsSocket != NULL) && pia->ia_bFinConnect &&
@@ -478,8 +478,8 @@ static u32 _postSelectAsocket(
         }
     }
 
-    if (pia->ia_psmLock != NULL)
-        releaseSyncMutex(pia->ia_psmLock);
+    if (pia->ia_pjmLock != NULL)
+        jf_mutex_release(pia->ia_pjmLock);
 
     return u32Ret;
 }
@@ -665,7 +665,7 @@ u32 jf_network_createAsocket(
         pia->ia_bNoRead = pjnacp->jnacp_bNoRead;
         pia->ia_pjnsSocket = NULL;
         pia->ia_sMalloc = pjnacp->jnacp_sInitialBuf;
-        pia->ia_psmLock = pjnacp->jnacp_psmLock;
+        pia->ia_pjmLock = pjnacp->jnacp_pjmLock;
 
         pia->ia_fnOnData = pjnacp->jnacp_fnOnData;
         pia->ia_fnOnConnect = pjnacp->jnacp_fnOnConnect;

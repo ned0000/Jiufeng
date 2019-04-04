@@ -23,7 +23,7 @@
 #include "xtime.h"
 
 /* --- private data/data structure section --------------------------------- */
-static sync_mutex_t ls_ssLock;
+static jf_mutex_t ls_jmLock;
 static boolean_t ls_bToTerminate = FALSE;
 static olint_t nMutex = 0;
 
@@ -39,12 +39,12 @@ THREAD_RETURN_VALUE consumer(void * pArg)
 
     while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        acquireSyncMutex(&ls_ssLock);
+        jf_mutex_acquire(&ls_jmLock);
         sleep(5);
         nMutex --;
         ol_printf("consumer mutex %d\n", nMutex);
         sleep(5);
-        releaseSyncMutex(&ls_ssLock);
+        jf_mutex_release(&ls_jmLock);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -67,12 +67,12 @@ THREAD_RETURN_VALUE producer(void * pArg)
 
     while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        acquireSyncMutex(&ls_ssLock);
+        jf_mutex_acquire(&ls_jmLock);
 
         nMutex ++;
         ol_printf("producer mutex %d\n", nMutex);
 
-        releaseSyncMutex(&ls_ssLock);
+        jf_mutex_release(&ls_jmLock);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -93,7 +93,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
-    u32Ret = initSyncMutex(&ls_ssLock);
+    u32Ret = jf_mutex_init(&ls_jmLock);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = createThread(NULL, NULL, producer, (void *)1);
@@ -115,7 +115,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
         sleep(20);
 
-        finiSyncMutex(&ls_ssLock);
+        jf_mutex_fini(&ls_jmLock);
 
         ol_printf("main thread quits\n");
     }
