@@ -33,7 +33,7 @@ typedef struct
     boolean_t rtwd_bToTerminate;
     u8 swe_u8Reserved[7];
 
-    sync_sem_t * rtwd_pssSem;
+    jf_sem_t * rtwd_pjsSem;
 
     /*The SCSI command queue and the lock*/
     sync_mutex_t * rtwd_psmLock;
@@ -47,7 +47,7 @@ typedef struct
 
 static resource_pool_t * ls_prpRespoolTestWorkerPool;
 static sync_mutex_t ls_smRespoolTestLock;
-static sync_sem_t ls_ssRespoolTestSem;
+static jf_sem_t ls_jsRespoolTestSem;
 static thread_id_t ls_tiRespoolTestProducer;
 static boolean_t ls_bRespoolTestTerminateProducer;
 static resource_t * ls_prRespoolTestResource[RESPOOL_TEST_MAX_RESOURCES];
@@ -64,7 +64,7 @@ THREAD_RETURN_VALUE _respoolTestWorkerThread(void * pArg)
     
     while (! prtwd->rtwd_bToTerminate)
     {
-        u32Ret = downSyncSem(prtwd->rtwd_pssSem);
+        u32Ret = jf_sem_down(prtwd->rtwd_pjsSem);
         if ((u32Ret == JF_ERR_NO_ERROR) && (! prtwd->rtwd_bToTerminate))
         {
             jf_logger_logInfoMsg("respool test worker thread, got work");
@@ -96,7 +96,7 @@ THREAD_RETURN_VALUE _respoolTestProducerThread(void * pArg)
         /*produce the work*/
         releaseSyncMutex(&ls_smRespoolTestLock);
 
-        upSyncSem(&ls_ssRespoolTestSem);
+        jf_sem_up(&ls_jsRespoolTestSem);
 
         sleep(2);
     }
@@ -118,7 +118,7 @@ static u32 _createRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
     {
         ol_memset(prtwd, 0, sizeof(respool_test_worker_data_t));
 
-        prtwd->rtwd_pssSem = &ls_ssRespoolTestSem;
+        prtwd->rtwd_pjsSem = &ls_jsRespoolTestSem;
         prtwd->rtwd_psmLock = &ls_smRespoolTestLock;
         prtwd->rtwd_bToTerminate = FALSE;
 
@@ -143,7 +143,7 @@ static u32 _destroyRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
     jf_logger_logInfoMsg("destroy respool test worker");
 
     prtwd->rtwd_bToTerminate = TRUE;
-//    upSyncSem(prtwd->rtwd_pssSem);
+//    jf_sem_up(prtwd->rtwd_pjsSem);
 
     *pprd = NULL;
 
@@ -176,7 +176,7 @@ static u32 _testRespool(void)
 
     u32 u32Index;
 
-    u32Ret = initSyncSem(&ls_ssRespoolTestSem, 0, RESPOOL_TEST_MAX_RESOURCES);
+    u32Ret = jf_sem_init(&ls_jsRespoolTestSem, 0, RESPOOL_TEST_MAX_RESOURCES);
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = initSyncMutex(&ls_smRespoolTestLock);
 

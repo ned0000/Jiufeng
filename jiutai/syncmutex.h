@@ -23,11 +23,11 @@
 typedef struct
 {
 #if defined(LINUX)
-    pthread_mutex_t sm_ptmMutex;
+    pthread_mutex_t jm_ptmMutex;
 #elif defined(WINDOWS)
-    HANDLE sm_hMutex;
+    HANDLE jm_hMutex;
 #endif
-} sync_mutex_t;
+} jf_mutex_t;
 
 /* --- functional routines ------------------------------------------------- */
 
@@ -38,7 +38,7 @@ typedef struct
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 initSyncMutex(sync_mutex_t * pMutex);
+u32 initSyncMutex(jf_mutex_t * pMutex);
 
 /** Finalize a mutex
  *
@@ -47,7 +47,7 @@ u32 initSyncMutex(sync_mutex_t * pMutex);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 finiSyncMutex(sync_mutex_t * pMutex);
+u32 finiSyncMutex(jf_mutex_t * pMutex);
 
 /** Acquire a mutex
  *
@@ -59,7 +59,7 @@ u32 finiSyncMutex(sync_mutex_t * pMutex);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 acquireSyncMutex(sync_mutex_t * pMutex);
+u32 acquireSyncMutex(jf_mutex_t * pMutex);
 
 /** Try to acquire a mutex
  *
@@ -71,7 +71,7 @@ u32 acquireSyncMutex(sync_mutex_t * pMutex);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 tryAcquireSyncMutex(sync_mutex_t * pMutex);
+u32 tryAcquireSyncMutex(jf_mutex_t * pMutex);
 
 /** Acquire a mutex with time out
  *
@@ -82,7 +82,7 @@ u32 tryAcquireSyncMutex(sync_mutex_t * pMutex);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 acquireSyncMutexWithTimeout(sync_mutex_t * pMutex, u32 u32Timeout);
+u32 acquireSyncMutexWithTimeout(jf_mutex_t * pMutex, u32 u32Timeout);
 
 /** Release a mutex.
  *
@@ -91,7 +91,7 @@ u32 acquireSyncMutexWithTimeout(sync_mutex_t * pMutex, u32 u32Timeout);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 releaseSyncMutex(sync_mutex_t * pMutex);
+u32 releaseSyncMutex(jf_mutex_t * pMutex);
 
 #endif /*JIUTAI_SYNCMUTEX_H*/
 

@@ -23,11 +23,11 @@
 typedef struct
 {
 #if defined(LINUX)
-    olint_t is_nSem;
+    olint_t js_nSem;
 #elif defined(WINDOWS)
-    HANDLE is_hSem;
+    HANDLE js_hSem;
 #endif
-} sync_sem_t;
+} jf_sem_t;
 
 /* --- functional routines ------------------------------------------------- */
 
@@ -40,7 +40,7 @@ typedef struct
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 initSyncSem(sync_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount);
+u32 jf_sem_init(jf_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount);
 
 /** Finalize a semaphore
  *
@@ -49,7 +49,7 @@ u32 initSyncSem(sync_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 finiSyncSem(sync_sem_t * pSem);
+u32 jf_sem_fini(jf_sem_t * pSem);
 
 /** Down a semaphore
  *
@@ -61,7 +61,7 @@ u32 finiSyncSem(sync_sem_t * pSem);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 downSyncSem(sync_sem_t * pSem);
+u32 jf_sem_down(jf_sem_t * pSem);
 
 /** Try to down a semaphore
  *
@@ -72,7 +72,7 @@ u32 downSyncSem(sync_sem_t * pSem);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 tryDownSyncSem(sync_sem_t * pSem);
+u32 jf_sem_tryDown(jf_sem_t * pSem);
 
 /** Down a semaphore with time out
  *
@@ -83,7 +83,7 @@ u32 tryDownSyncSem(sync_sem_t * pSem);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 downSyncSemWithTimeout(sync_sem_t * pSem, u32 u32Timeout);
+u32 jf_sem_downWithTimeout(jf_sem_t * pSem, u32 u32Timeout);
 
 /** Up a semaphore.
  *
@@ -92,7 +92,7 @@ u32 downSyncSemWithTimeout(sync_sem_t * pSem, u32 u32Timeout);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 upSyncSem(sync_sem_t * pSem);
+u32 jf_sem_up(jf_sem_t * pSem);
 
 #endif /*JIUTAI_SYNCSEM_H*/
 

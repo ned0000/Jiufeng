@@ -44,7 +44,7 @@ union semun
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 initSyncSem(sync_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount)
+u32 jf_sem_init(jf_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -52,10 +52,10 @@ u32 initSyncSem(sync_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount)
     assert(pSem != NULL);
     assert(u32InitialCount <= u32MaxCount);
 
-    memset(pSem, 0, sizeof(sync_sem_t));
+    memset(pSem, 0, sizeof(jf_sem_t));
 
-    pSem->is_hSem = CreateSemaphore(NULL, u32InitialCount, u32MaxCount, NULL);
-    if (pSem->is_hSem == NULL)
+    pSem->js_hSem = CreateSemaphore(NULL, u32InitialCount, u32MaxCount, NULL);
+    if (pSem->js_hSem == NULL)
     {
         u32Ret = JF_ERR_FAIL_CREATE_SEM;
     }
@@ -66,11 +66,11 @@ u32 initSyncSem(sync_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount)
     assert(pSem != NULL);
     assert(u32InitialCount <= u32MaxCount);
 
-    memset(pSem, 0, sizeof(sync_sem_t));
+    memset(pSem, 0, sizeof(jf_sem_t));
 
     /* create 1 semaphore */
-    pSem->is_nSem = semget(IPC_PRIVATE, 1, SEM_FLAG);
-    if (pSem->is_nSem == -1)
+    pSem->js_nSem = semget(IPC_PRIVATE, 1, SEM_FLAG);
+    if (pSem->js_nSem == -1)
     {
         u32Ret = JF_ERR_FAIL_CREATE_SEM;
     }
@@ -78,7 +78,7 @@ u32 initSyncSem(sync_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         init.val = u32InitialCount;
-        nRet = semctl(pSem->is_nSem, 0, SETVAL, init);
+        nRet = semctl(pSem->js_nSem, 0, SETVAL, init);
         if (nRet == -1)
         {
             u32Ret = JF_ERR_FAIL_CREATE_SEM;
@@ -89,7 +89,7 @@ u32 initSyncSem(sync_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount)
     return u32Ret;
 }
 
-u32 finiSyncSem(sync_sem_t * pSem)
+u32 jf_sem_fini(jf_sem_t * pSem)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     
@@ -98,9 +98,9 @@ u32 finiSyncSem(sync_sem_t * pSem)
 
     assert(pSem != NULL);
 
-    if (pSem->is_hSem != NULL)
+    if (pSem->js_hSem != NULL)
     {
-        bRet = CloseHandle(pSem->is_hSem);
+        bRet = CloseHandle(pSem->js_hSem);
         if (! bRet)
         {
             u32Ret = JF_ERR_FAIL_DESTROY_SEM;
@@ -111,9 +111,9 @@ u32 finiSyncSem(sync_sem_t * pSem)
 
     assert(pSem != NULL);
 
-    if ((pSem->is_nSem != 0) && (pSem->is_nSem != -1))
+    if ((pSem->js_nSem != 0) && (pSem->js_nSem != -1))
     {
-        nRet = semctl(pSem->is_nSem, 0, IPC_RMID);
+        nRet = semctl(pSem->js_nSem, 0, IPC_RMID);
         if (nRet == -1)
         {
             u32Ret = JF_ERR_FAIL_DESTROY_SEM;
@@ -124,7 +124,7 @@ u32 finiSyncSem(sync_sem_t * pSem)
     return u32Ret;
 }
 
-u32 downSyncSem(sync_sem_t * pSem)
+u32 jf_sem_down(jf_sem_t * pSem)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     
@@ -133,7 +133,7 @@ u32 downSyncSem(sync_sem_t * pSem)
 
     assert(pSem != NULL);
 
-    dwRet = WaitForSingleObject(pSem->is_hSem, INFINITE);
+    dwRet = WaitForSingleObject(pSem->js_hSem, INFINITE);
     if (dwRet == WAIT_FAILED)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
@@ -151,7 +151,7 @@ u32 downSyncSem(sync_sem_t * pSem)
     semlock.sem_num = 0;
     semlock.sem_op = -1;
     semlock.sem_flg = SEM_UNDO;
-    nRet = semop(pSem->is_nSem, &semlock, 1);
+    nRet = semop(pSem->js_nSem, &semlock, 1);
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
@@ -161,7 +161,7 @@ u32 downSyncSem(sync_sem_t * pSem)
     return u32Ret;
 }
 
-u32 tryDownSyncSem(sync_sem_t * pSem)
+u32 jf_sem_tryDown(jf_sem_t * pSem)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     
@@ -170,7 +170,7 @@ u32 tryDownSyncSem(sync_sem_t * pSem)
 
     assert(pSem != NULL);
 
-    dwRet = WaitForSingleObject(pSem->is_hSem, 0);
+    dwRet = WaitForSingleObject(pSem->js_hSem, 0);
     if (dwRet == WAIT_FAILED)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
@@ -188,7 +188,7 @@ u32 tryDownSyncSem(sync_sem_t * pSem)
     semlock.sem_num = 0;
     semlock.sem_op = -1;
     semlock.sem_flg = SEM_UNDO | IPC_NOWAIT;
-    nRet = semop(pSem->is_nSem, &semlock, 1);
+    nRet = semop(pSem->js_nSem, &semlock, 1);
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
@@ -198,16 +198,16 @@ u32 tryDownSyncSem(sync_sem_t * pSem)
     return u32Ret;
 }
 
-u32 downSyncSemWithTimeout(sync_sem_t * pSem, u32 u32Timeout)
+u32 jf_sem_downWithTimeout(jf_sem_t * pSem, u32 u32Timeout)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    
+
 #if defined(WINDOWS)
     DWORD dwRet = 0;
 
     assert(pSem != NULL);
 
-    dwRet = WaitForSingleObject(pSem->is_hSem, u32Timeout);
+    dwRet = WaitForSingleObject(pSem->js_hSem, u32Timeout);
     if (dwRet == WAIT_FAILED)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
@@ -231,7 +231,7 @@ u32 downSyncSemWithTimeout(sync_sem_t * pSem, u32 u32Timeout)
     semlock.sem_num = 0;
     semlock.sem_op = -1;
     semlock.sem_flg = SEM_UNDO;
-    nRet = semtimedop(pSem->is_nSem, &semlock, 1, &timeout);
+    nRet = semtimedop(pSem->js_nSem, &semlock, 1, &timeout);
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
@@ -241,7 +241,7 @@ u32 downSyncSemWithTimeout(sync_sem_t * pSem, u32 u32Timeout)
     return u32Ret;
 }
 
-u32 upSyncSem(sync_sem_t * pSem)
+u32 jf_sem_up(jf_sem_t * pSem)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     
@@ -250,7 +250,7 @@ u32 upSyncSem(sync_sem_t * pSem)
 
     assert(pSem != NULL);
 
-    bRet = ReleaseSemaphore(pSem->is_hSem, 1, NULL);
+    bRet = ReleaseSemaphore(pSem->js_hSem, 1, NULL);
     if (! bRet)
     {
         u32Ret = JF_ERR_FAIL_RELEASE_SEM;
@@ -264,7 +264,7 @@ u32 upSyncSem(sync_sem_t * pSem)
     semunlock.sem_num = 0;
     semunlock.sem_op = 1;
     semunlock.sem_flg = SEM_UNDO;
-    nRet = semop(pSem->is_nSem, &semunlock, 1);
+    nRet = semop(pSem->js_nSem, &semunlock, 1);
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_RELEASE_SEM;

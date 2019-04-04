@@ -23,7 +23,7 @@
 #include "xtime.h"
 
 /* --- private data/data structure section --------------------------------- */
-static sync_sem_t ls_ssSem;
+static jf_sem_t ls_jsSem;
 static boolean_t ls_bToTerminate = FALSE;
 
 #define MAX_RESOURCE_COUNT  5
@@ -43,7 +43,7 @@ THREAD_RETURN_VALUE consumer(void * pArg)
     while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
         ol_printf("consumer %u waits for resource\n", u32Index);
-        u32Ret = downSyncSem(&ls_ssSem);
+        u32Ret = jf_sem_down(&ls_jsSem);
         if (u32Ret == JF_ERR_NO_ERROR)
             ol_printf("consumer %u consume 1 resource\n", u32Index);
     }
@@ -75,7 +75,7 @@ THREAD_RETURN_VALUE producer(void * pArg)
     while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
         ol_printf("producer %u produce 1 resource\n", u32Index);
-        u32Ret = upSyncSem(&ls_ssSem);
+        u32Ret = jf_sem_up(&ls_jsSem);
         sleep(10);
     }
 
@@ -98,7 +98,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     olchar_t strErrMsg[300];
     u32 u32Index;
 
-    u32Ret = initSyncSem(&ls_ssSem, 0, MAX_RESOURCE_COUNT);
+    u32Ret = jf_sem_init(&ls_jsSem, 0, MAX_RESOURCE_COUNT);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = createThread(NULL, NULL, producer, (void *)(ulong)1);
@@ -123,7 +123,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
         ls_bToTerminate = TRUE;
 
-        finiSyncSem(&ls_ssSem);
+        jf_sem_fini(&ls_jsSem);
 
         sleep(20);
 
