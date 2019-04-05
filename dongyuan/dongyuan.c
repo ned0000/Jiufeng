@@ -50,7 +50,7 @@ u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp)
 
     jf_logger_logInfoMsg("create dongyuan");
 
-    u32Ret = xcalloc((void **)&pig, sizeof(internal_dongyuan_t));
+    u32Ret = jf_mem_calloc((void **)&pig, sizeof(internal_dongyuan_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pig->ig_pstrSettingFile = pgp->gp_pstrSettingFile;
@@ -83,7 +83,7 @@ u32 destroyDongyuan(dongyuan_t ** ppDongyuan)
     assert((ppDongyuan != NULL) && (*ppDongyuan != NULL));
 
 
-    xfree(ppDongyuan);
+    jf_mem_free(ppDongyuan);
 
     return u32Ret;
 }

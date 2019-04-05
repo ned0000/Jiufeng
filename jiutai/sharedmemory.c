@@ -82,7 +82,7 @@ u32 createSharedMemory(shm_id_t ** ppShmId, u32 u32MemorySize)
 
     assert(ppShmId != NULL);
 
-    u32Ret = xmalloc((void **)&psi, SHM_ID_LEN);
+    u32Ret = jf_mem_alloc((void **)&psi, SHM_ID_LEN);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(psi, 0, SHM_ID_LEN);
@@ -108,7 +108,7 @@ u32 createSharedMemory(shm_id_t ** ppShmId, u32 u32MemorySize)
 
     assert(ppShmId != NULL);
 
-    u32Ret = xmalloc((void **)&psi, SHM_ID_LEN);
+    u32Ret = jf_mem_alloc((void **)&psi, SHM_ID_LEN);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(psi, 0, SHM_ID_LEN);

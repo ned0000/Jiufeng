@@ -127,7 +127,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     cli_param_t cliParam;
 //    aether_param_t ap;
 
-    u32Ret = xcalloc((void **)&ls_pocmMaster, sizeof(jiufeng_cli_master_t));
+    u32Ret = jf_mem_calloc((void **)&ls_pocmMaster, sizeof(jiufeng_cli_master_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
@@ -165,7 +165,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_logger_fini();
 
     if (ls_pocmMaster != NULL)
-        xfree((void **)&ls_pocmMaster);
+        jf_mem_free((void **)&ls_pocmMaster);
 
     return u32Ret;
 }

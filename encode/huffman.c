@@ -56,9 +56,9 @@ static u32 _destroyHuffmanNodePool(huffman_node_pool_t ** ppPool)
     huffman_node_pool_t * phnp = *ppPool;
 
     if (phnp->hnp_phnNodes != NULL)
-        xfree((void **)&(phnp->hnp_phnNodes));
+        jf_mem_free((void **)&(phnp->hnp_phnNodes));
 
-    xfree((void **)ppPool);
+    jf_mem_free((void **)ppPool);
 
     return u32Ret;
 }
@@ -69,12 +69,12 @@ static u32 _createHuffmanNodePool(
     u32 u32Ret = JF_ERR_NO_ERROR;
     huffman_node_pool_t * phnp = NULL;
 
-    u32Ret = xcalloc((void **)&phnp, sizeof(huffman_node_pool_t));
+    u32Ret = jf_mem_calloc((void **)&phnp, sizeof(huffman_node_pool_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         phnp->hnp_u32MaxNode = 2 * u16NumOfCode;
 
-        u32Ret = xcalloc(
+        u32Ret = jf_mem_calloc(
             (void **)&(phnp->hnp_phnNodes),
             sizeof(huffman_node_t) * phnp->hnp_u32MaxNode);
     }
@@ -487,7 +487,7 @@ u32 jf_encode_genHuffmanCode(jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
     huffman_node_t * pRoot = NULL;
     huffman_node_pool_t * pPool;
 
-    u32Ret = xcalloc(
+    u32Ret = jf_mem_calloc(
         (void **)&ppLeaf, sizeof(huffman_node_t *) * u16NumOfCode);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -510,7 +510,7 @@ u32 jf_encode_genHuffmanCode(jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
     }
 
     if (ppLeaf != NULL)
-        xfree((void **)ppLeaf);
+        jf_mem_free((void **)ppLeaf);
 
     if (pPool != NULL)
         _destroyHuffmanNodePool(&pPool);
@@ -526,7 +526,7 @@ u32 jf_encode_genCanonicalHuffmanCode(
     huffman_node_t * pRoot = NULL;
     huffman_node_pool_t * pPool;
 
-    u32Ret = xcalloc(
+    u32Ret = jf_mem_calloc(
         (void **)&ppLeaf, sizeof(huffman_node_t *) * u16NumOfCode);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -549,7 +549,7 @@ u32 jf_encode_genCanonicalHuffmanCode(
     }
 
     if (ppLeaf != NULL)
-        xfree((void **)&ppLeaf);
+        jf_mem_free((void **)&ppLeaf);
 
     if (pPool != NULL)
         _destroyHuffmanNodePool(&pPool);
@@ -564,7 +564,7 @@ u32 jf_encode_genCanonicalHuffmanCodeByCodeLen(
     jf_encode_huffman_code_t ** ppjehc = NULL;
     u16 u16Index;
 
-    u32Ret = xcalloc(
+    u32Ret = jf_mem_calloc(
         (void **)&ppjehc, sizeof(jf_encode_huffman_code_t *) * u16NumOfCode);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -580,7 +580,7 @@ u32 jf_encode_genCanonicalHuffmanCodeByCodeLen(
 
         u32Ret = _assignCanonicalCodes(ppjehc, u16NumOfCode);
 
-        xfree((void **)&ppjehc);
+        jf_mem_free((void **)&ppjehc);
     }
 
     return u32Ret;

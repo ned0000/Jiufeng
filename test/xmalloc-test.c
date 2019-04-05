@@ -31,7 +31,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     u8 * pu8Buffer;
 
-    u32Ret = xmalloc((void **)&pu8Buffer, 50);
+    u32Ret = jf_mem_alloc((void **)&pu8Buffer, 50);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("Succeed to allocate memory\n");
@@ -40,7 +40,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     if (pu8Buffer != NULL)
     {
         ol_printf("free the memory\n");
-        xfree((void **)pu8Buffer);
+        jf_mem_free((void **)pu8Buffer);
     }
 
     return u32Ret;

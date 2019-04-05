@@ -114,7 +114,7 @@ static u32 _initTestListhead(test_listhead_t * ptl)
     u32 u32Ret = JF_ERR_NO_ERROR;
     static u32 u32Counter = 1;
 
-    xcalloc((void **)ptl, sizeof(test_listhead_t));
+    jf_mem_calloc((void **)ptl, sizeof(test_listhead_t));
 
     ptl->tl_u32Flag1 = u32Counter ++;
 
@@ -394,7 +394,7 @@ static u32 _testListArray(void)
     size = jf_listarray_getSize(u32NumOfNode);
     ol_printf("size of list array %u\n", size);
 
-    u32Ret = xmalloc((void **)&pjl, size);
+    u32Ret = jf_mem_alloc((void **)&pjl, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_listarray_init(pjl, u32NumOfNode);
@@ -444,7 +444,7 @@ static u32 _testListArray(void)
     }
 
     if (pjl != NULL)
-        xfree((void **)&pjl);
+        jf_mem_free((void **)&pjl);
 
     return u32Ret;
 }

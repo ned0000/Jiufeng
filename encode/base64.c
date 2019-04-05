@@ -97,7 +97,7 @@ u32 jf_encode_encodeBase64(
 
     assert((pu8Input != NULL) && (sInput != 0));
 
-    u32Ret = xmalloc((void **)ppstrOutput, ((sInput * 4) / 3) + 6);
+    u32Ret = jf_mem_alloc((void **)ppstrOutput, ((sInput * 4) / 3) + 6);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         out = (u8 *)*ppstrOutput;
@@ -135,7 +135,7 @@ u32 jf_encode_decodeBase64(
 
     assert((pstrInput != NULL) && (sInput != 0));
 
-    u32Ret = xmalloc((void **)ppu8Output, ((sInput * 3) / 4) + 6);
+    u32Ret = jf_mem_alloc((void **)ppu8Output, ((sInput * 3) / 4) + 6);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         out = *ppu8Output;
@@ -191,7 +191,7 @@ u32 jf_encode_freeBase64Buffer(u8 ** ppu8Output)
 
     assert((ppu8Output != NULL) && (*ppu8Output != NULL));
 
-    xfree((void **)ppu8Output);
+    jf_mem_free((void **)ppu8Output);
 
     return u32Ret;
 }

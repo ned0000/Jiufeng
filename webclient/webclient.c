@@ -190,10 +190,10 @@ static u32 _destroyWebRequest(internal_web_request_t ** ppRequest)
     {
         /*If we own the memory, we need to free it*/
         if (! piwr->iwr_bUserFree[i])
-            xfree((void **)&piwr->iwr_pu8Buffer[i]);
+            jf_mem_free((void **)&piwr->iwr_pu8Buffer[i]);
     }
 
-    xfree((void **)ppRequest);
+    jf_mem_free((void **)ppRequest);
 
     return u32Ret;
 }
@@ -205,7 +205,7 @@ static u32 _newWebRequest(internal_web_request_t ** ppRequest, u32 u32Num)
 
     jf_logger_logInfoMsg("new web req");
 
-    u32Ret = xmalloc((void **)&piwr, sizeof(internal_web_request_t));
+    u32Ret = jf_mem_alloc((void **)&piwr, sizeof(internal_web_request_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(piwr, 0, sizeof(internal_web_request_t));
@@ -257,12 +257,12 @@ static u32 _destroyWebDataobject(jf_webclient_dataobject_t ** ppDataobject)
     {
         /*The resources associated with the Chunk Processing needs to be freed*/
         if (piwd->iwd_piwcChunk->iwc_pu8Buffer != NULL)
-            xfree((void **)&piwd->iwd_piwcChunk->iwc_pu8Buffer);
-        xfree((void **)&piwd->iwd_piwcChunk);
+            jf_mem_free((void **)&piwd->iwd_piwcChunk->iwc_pu8Buffer);
+        jf_mem_free((void **)&piwd->iwd_piwcChunk);
     }
 
     if (piwd->iwd_pu8BodyBuf != NULL)
-        xfree((void **)&piwd->iwd_pu8BodyBuf);
+        jf_mem_free((void **)&piwd->iwd_pu8BodyBuf);
 
     /*Iterate through all the pending requests*/
     wr = jf_queue_dequeue(&piwd->iwd_jqRequest);
@@ -279,7 +279,7 @@ static u32 _destroyWebDataobject(jf_webclient_dataobject_t ** ppDataobject)
     }
     jf_queue_fini(&piwd->iwd_jqRequest);
 
-    xfree((void **)ppDataobject);
+    jf_mem_free((void **)ppDataobject);
 
     return u32Ret;
 }
@@ -295,7 +295,7 @@ static u32 _createWebDataobject(
 
     jf_logger_logInfoMsg("create web data obj");
 
-    u32Ret = xcalloc((void **)&piwd, sizeof(internal_web_dataobject_t));
+    u32Ret = jf_mem_calloc((void **)&piwd, sizeof(internal_web_dataobject_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_queue_init(&piwd->iwd_jqRequest);
@@ -555,13 +555,13 @@ static u32 _webclientFinishedResponse(internal_web_dataobject_t * piwd)
     piwd->iwd_bWaitForClose = FALSE;
     piwd->iwd_bInitialRequestAnswered = TRUE;
     if (piwd->iwd_pu8BodyBuf != NULL)
-        xfree((void **)&piwd->iwd_pu8BodyBuf);
+        jf_mem_free((void **)&piwd->iwd_pu8BodyBuf);
     piwd->iwd_u32BodyOffset = 0;
     if (piwd->iwd_piwcChunk != NULL)
     {
         if (piwd->iwd_piwcChunk->iwc_pu8Buffer != NULL)
-            xfree((void **)&piwd->iwd_piwcChunk->iwc_pu8Buffer);
-        xfree((void **)&piwd->iwd_piwcChunk);
+            jf_mem_free((void **)&piwd->iwd_piwcChunk->iwc_pu8Buffer);
+        jf_mem_free((void **)&piwd->iwd_piwcChunk);
     }
     if (piwd->iwd_pjhphHeader != NULL)
         jf_httpparser_destroyPacketHeader(&piwd->iwd_pjhphHeader);
@@ -644,17 +644,17 @@ static u32 _processChunk(
     if (piwd->iwd_piwcChunk == NULL)
     {
         // Create a state object for the Chunk Processor
-        u32Ret = xcalloc(
+        u32Ret = jf_mem_calloc(
             (void **)&piwd->iwd_piwcChunk, sizeof(internal_web_chunkdata_t));
         if (u32Ret != JF_ERR_NO_ERROR)
             return u32Ret;
 
-        u32Ret = xmalloc(
+        u32Ret = jf_mem_alloc(
             (void **)&piwd->iwd_piwcChunk->iwc_pu8Buffer,
             piwd->iwd_piwParent->iw_sBuffer);
         if (u32Ret != JF_ERR_NO_ERROR)
         {
-            xfree((void **)&piwd->iwd_piwcChunk);
+            jf_mem_free((void **)&piwd->iwd_piwcChunk);
             return u32Ret;
         }
         piwd->iwd_piwcChunk->iwc_u32MallocSize = INITIAL_BUFFER_SIZE;
@@ -1069,7 +1069,7 @@ static u32 _parseHttpHeader(
                     {
                         /*asocket buffer is not enough to hold the HTTP body*/
                         jf_logger_logInfoMsg("parse http header, alloc memory for body");
-                        u32Ret = xmalloc(
+                        u32Ret = jf_mem_alloc(
                             (void **)&piwd->iwd_pu8BodyBuf, piwd->iwd_nBytesLeft);
                     }
                 }
@@ -1252,7 +1252,7 @@ static u32 _webRequestStaticMemory(internal_web_request_t * request)
     {
         if (request->iwr_jnmoMemOwner[i] == JF_NETWORK_MEM_OWNER_USER)
         {
-            u32Ret = dupMemory(
+            u32Ret = jf_mem_duplicate(
                 (void **)&pu8Buffer, request->iwr_pu8Buffer[i],
                 request->iwr_sBuffer[i]);
             if (u32Ret == JF_ERR_NO_ERROR)
@@ -1318,7 +1318,7 @@ u32 jf_webclient_destroy(jf_webclient_t ** ppWebclient)
     jf_mutex_fini(&piw->iw_jmLock);
 
     if (piw->iw_ppjnaAsockets != NULL)
-        xfree((void **)&(piw->iw_ppjnaAsockets));
+        jf_mem_free((void **)&(piw->iw_ppjnaAsockets));
 
     return u32Ret;
 }
@@ -1337,7 +1337,7 @@ u32 jf_webclient_create(
     assert((pjwcp != NULL) && (pjwcp->jwcp_nPoolSize > 0) &&
            (pjwcp->jwcp_nPoolSize < 100));
 
-    u32Ret = xcalloc((void **)&piw, sizeof(internal_webclient_t));
+    u32Ret = jf_mem_calloc((void **)&piw, sizeof(internal_webclient_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         piw->iw_jncohHeader.jncoh_fnPreSelect = _preWebclientProcess;
@@ -1351,7 +1351,7 @@ u32 jf_webclient_create(
         jf_hashtree_init(&piw->iw_jhData);
 
         piw->iw_u32NumOfAsockets = pjwcp->jwcp_nPoolSize;
-        u32Ret = xmalloc(
+        u32Ret = jf_mem_alloc(
             (void **)&(piw->iw_ppjnaAsockets),
             pjwcp->jwcp_nPoolSize * sizeof(void *));
     }

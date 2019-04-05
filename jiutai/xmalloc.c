@@ -25,7 +25,7 @@
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 xmalloc(void ** pptr, olsize_t size)
+u32 jf_mem_alloc(void ** pptr, olsize_t size)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -38,7 +38,7 @@ u32 xmalloc(void ** pptr, olsize_t size)
     return u32Ret;
 }
 
-u32 xcalloc(void ** pptr, olsize_t size)
+u32 jf_mem_calloc(void ** pptr, olsize_t size)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -53,7 +53,7 @@ u32 xcalloc(void ** pptr, olsize_t size)
     return u32Ret;
 }
 
-u32 xrealloc(void ** pptr, olsize_t size)
+u32 jf_mem_realloc(void ** pptr, olsize_t size)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     void * ptr;
@@ -66,7 +66,7 @@ u32 xrealloc(void ** pptr, olsize_t size)
     return u32Ret;
 }
 
-u32 xfree(void ** pptr)
+u32 jf_mem_free(void ** pptr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -78,13 +78,13 @@ u32 xfree(void ** pptr)
     return u32Ret;
 }
 
-u32 dupMemory(void ** pptr, const u8 * pu8Buffer, const olsize_t size)
+u32 jf_mem_duplicate(void ** pptr, const u8 * pu8Buffer, const olsize_t size)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert((pptr != NULL) && (pu8Buffer != NULL) && (size > 0));
 
-    u32Ret = xmalloc(pptr, size);
+    u32Ret = jf_mem_alloc(pptr, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memcpy(*pptr, pu8Buffer, size);

@@ -70,7 +70,7 @@ static u32 _setJtSqliteValue(
     olchar_t strRet[128];
     olsize_t nsize = ol_strlen(pValue) + ol_strlen(pKey) + 256;
 
-    u32Ret = xmalloc((void **)&pstrSql, nsize);
+    u32Ret = jf_mem_alloc((void **)&pstrSql, nsize);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*update or insert the value into the DB*/
@@ -82,7 +82,7 @@ static u32 _setJtSqliteValue(
     }
     
     if (pstrSql != NULL)
-        xfree((void **)&pstrSql);
+        jf_mem_free((void **)&pstrSql);
 
     return u32Ret;
 }

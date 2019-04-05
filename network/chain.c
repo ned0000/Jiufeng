@@ -84,7 +84,7 @@ u32 jf_network_createChain(jf_network_chain_t ** ppChain)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_chain_t * pibc;
 
-    u32Ret = xmalloc((void **)&pibc, sizeof(internal_basic_chain_t));
+    u32Ret = jf_mem_alloc((void **)&pibc, sizeof(internal_basic_chain_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pibc, 0, sizeof(internal_basic_chain_t));
@@ -132,7 +132,7 @@ u32 jf_network_destroyChain(jf_network_chain_t ** ppChain)
     {
         chain = pibc->ibc_pibcNext;
 
-        xfree((void **)&pibc);
+        jf_mem_free((void **)&pibc);
 
         pibc = chain;
     }
@@ -155,7 +155,7 @@ u32 jf_network_appendToChain(
 
     if (pibc->ibc_pbcoObject != NULL)
     {
-        u32Ret = xcalloc(
+        u32Ret = jf_mem_calloc(
             (void **)&pibc->ibc_pibcNext, sizeof(internal_basic_chain_t));
         if (u32Ret == JF_ERR_NO_ERROR)
         {

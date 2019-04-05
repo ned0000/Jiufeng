@@ -76,7 +76,7 @@ THREAD_RETURN_VALUE _respoolTestWorkerThread(void * pArg)
     }
 
     jf_logger_logDebugMsg("quit respool test worker thread");
-    xfree((void **)&prtwd);
+    jf_mem_free((void **)&prtwd);
     
     THREAD_RETURN(u32Ret);
 }
@@ -113,7 +113,7 @@ static u32 _createRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
 
     jf_logger_logInfoMsg("create respool test worker");
 
-    u32Ret = xmalloc((void **)&prtwd, sizeof(respool_test_worker_data_t));
+    u32Ret = jf_mem_alloc((void **)&prtwd, sizeof(respool_test_worker_data_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(prtwd, 0, sizeof(respool_test_worker_data_t));
@@ -130,7 +130,7 @@ static u32 _createRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
     if (u32Ret == JF_ERR_NO_ERROR)
         *pprd = prtwd;
     else if (prtwd != NULL)
-        xfree((void **)&prtwd);
+        jf_mem_free((void **)&prtwd);
 
     return u32Ret;
 }

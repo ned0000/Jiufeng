@@ -38,7 +38,7 @@ u32 jf_persistency_create(
 
     jf_logger_logInfoMsg("create persistency");
 
-    u32Ret = xmalloc((void **)&ppm, sizeof(persistency_manager_t));
+    u32Ret = jf_mem_alloc((void **)&ppm, sizeof(persistency_manager_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ppm->pm_jptType = type;
@@ -81,7 +81,7 @@ u32 jf_persistency_destroy(jf_persistency_t ** ppPersist)
 
     jf_mutex_fini(&ppm->pm_jmLock);
     
-    xfree((void **)ppPersist);
+    jf_mem_free((void **)ppPersist);
 
     return u32Ret;
 }

@@ -321,7 +321,7 @@ u32 createParser(clieng_parser_t ** pcp, clieng_parser_param_t * pcpp)
 
     jf_logger_logInfoMsg("create parser");
 
-    u32Ret = xcalloc((void **)&picp, sizeof(internal_clieng_parser_t));
+    u32Ret = jf_mem_calloc((void **)&picp, sizeof(internal_clieng_parser_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         picp->icp_sArgc = 0;
@@ -329,7 +329,7 @@ u32 createParser(clieng_parser_t ** pcp, clieng_parser_param_t * pcpp)
         picp->icp_u32MaxCmdSet = pcpp->cpp_u32MaxCmdSet;
         if (picp->icp_u32MaxCmdSet != 0)
         {
-            u32Ret = xcalloc(
+            u32Ret = jf_mem_calloc(
                 (void **)&picp->icp_piccsCmdSet,
                 sizeof(internal_clieng_cmd_set_t) * picp->icp_u32MaxCmdSet);
         }
@@ -376,7 +376,7 @@ u32 destroyParser(clieng_parser_t ** pcp)
     if (picp->icp_htCmd != NULL)
         destroyHashTable(&(picp->icp_htCmd));
 
-    xfree(pcp);
+    jf_mem_free(pcp);
 
     return u32Ret;
 }
@@ -441,7 +441,7 @@ u32 newCmd(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = xcalloc((void **)&picc, sizeof(internal_clieng_cmd_t));
+        u32Ret = jf_mem_calloc((void **)&picc, sizeof(internal_clieng_cmd_t));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

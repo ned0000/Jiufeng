@@ -47,7 +47,7 @@ u32 jf_archive_create(
     assert(
         (pMemberFile != NULL) && (pstrArchiveName != NULL) && (pParam != NULL));
 
-    u32Ret = xmalloc((void **)&pu8Buffer, MAX_ARCHIVE_BUFFER_LEN);
+    u32Ret = jf_mem_alloc((void **)&pu8Buffer, MAX_ARCHIVE_BUFFER_LEN);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(&afp, 0, sizeof(ar_file_param_t));
@@ -72,7 +72,7 @@ u32 jf_archive_create(
     }
 
     if (pu8Buffer != NULL)
-        xfree((void **)&pu8Buffer);
+        jf_mem_free((void **)&pu8Buffer);
 
     if (paf != NULL)
         destroyArFile(&paf);
@@ -90,7 +90,7 @@ u32 jf_archive_extract(
 
     assert((pstrArchiveName != NULL) && (pParam != NULL));
 
-    u32Ret = xmalloc((void **)&pu8Buffer, MAX_ARCHIVE_BUFFER_LEN);
+    u32Ret = jf_mem_alloc((void **)&pu8Buffer, MAX_ARCHIVE_BUFFER_LEN);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(&afp, 0, sizeof(ar_file_param_t));
@@ -105,7 +105,7 @@ u32 jf_archive_extract(
     }
 
     if (pu8Buffer != NULL)
-        xfree((void **)&pu8Buffer);
+        jf_mem_free((void **)&pu8Buffer);
 
     if (paf != NULL)
         destroyArFile(&paf);

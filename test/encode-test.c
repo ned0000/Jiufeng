@@ -203,7 +203,7 @@ static void _printCanonicalHuffmanCode(
     olchar_t strBit[100];
     jf_encode_huffman_code_t ** ppjehc = NULL;
 
-    u32Ret = xcalloc(
+    u32Ret = jf_mem_calloc(
         (void **)&ppjehc, sizeof(jf_encode_huffman_code_t *) * u16NumOfCode);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -233,7 +233,7 @@ static void _printCanonicalHuffmanCode(
     }
 
     if (ppjehc != NULL)
-        xfree((void **)&ppjehc);
+        jf_mem_free((void **)&ppjehc);
 }
 
 static void _printHuffmanCode(jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)

@@ -58,7 +58,7 @@ u32 newIsocket(internal_socket_t ** ppIsocket)
 
     assert(ppIsocket != NULL);
 
-    u32Ret = xcalloc((void **)&pis, sizeof(internal_socket_t));
+    u32Ret = jf_mem_calloc((void **)&pis, sizeof(internal_socket_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pis->is_isSocket = INVALID_ISOCKET;
@@ -79,7 +79,7 @@ u32 newIsocketWithSocket(internal_socket_t ** ppIsocket, isocket_t sock)
 
     assert(ppIsocket != NULL);
 
-    u32Ret = xcalloc((void **)&pis, sizeof(internal_socket_t));
+    u32Ret = jf_mem_calloc((void **)&pis, sizeof(internal_socket_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pis->is_isSocket = sock;
@@ -113,7 +113,7 @@ u32 freeIsocket(internal_socket_t ** ppIsocket)
         u32Ret = JF_ERR_FAIL_CLOSE_SOCKET;
 #endif
 
-    xfree((void **)ppIsocket);
+    jf_mem_free((void **)ppIsocket);
 
     return u32Ret;
 }
@@ -886,7 +886,7 @@ u32 isAccept(
 
     assert((pisListen != NULL) && (ppIsocket != NULL));
 
-    u32Ret = xmalloc((void **)&pisAccept, sizeof(internal_socket_t));
+    u32Ret = jf_mem_alloc((void **)&pisAccept, sizeof(internal_socket_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pisAccept, 0, sizeof(internal_socket_t));

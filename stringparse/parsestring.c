@@ -93,7 +93,7 @@ u32 jf_string_parseAdv(
     olint_t ignore = 0;
     olchar_t cDelimiter = 0;
 
-    u32Ret = xmalloc((void **)&ppr, sizeof(jf_string_parse_result_t));
+    u32Ret = jf_mem_alloc((void **)&ppr, sizeof(jf_string_parse_result_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(ppr, 0, sizeof(jf_string_parse_result_t));
@@ -136,7 +136,7 @@ u32 jf_string_parseAdv(
                 _isDelimiter(pstrBuf, i, sBuf, pstrDelimiter, sDelimiter))
             {
                 /* we found a delimiter in the string */
-                u32Ret = xmalloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
+                u32Ret = jf_mem_alloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     memset(pjsprf, 0, sizeof(jf_string_parse_result_field_t));
@@ -174,7 +174,7 @@ u32 jf_string_parseAdv(
     {
         /* create a result for the last token, since it won't be caught in 
            the above loop. because if there are no more delimiters */
-        u32Ret = xmalloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
+        u32Ret = jf_mem_alloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -220,7 +220,7 @@ u32 jf_string_parse(
     olsize_t tokenlength = 0;
     jf_string_parse_result_field_t *pjsprf;
 
-    u32Ret = xmalloc((void **)&ppr, sizeof(jf_string_parse_result_t));
+    u32Ret = jf_mem_alloc((void **)&ppr, sizeof(jf_string_parse_result_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(ppr, 0, sizeof(jf_string_parse_result_t));
@@ -234,7 +234,7 @@ u32 jf_string_parse(
             if (_isDelimiter(pstrBuf, i, sBuf, pstrDelimiter, sDelimiter))
             {
                 /*We found a delimiter in the string*/
-                u32Ret = xmalloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
+                u32Ret = jf_mem_alloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     memset(pjsprf, 0, sizeof(jf_string_parse_result_field_t));
@@ -274,7 +274,7 @@ u32 jf_string_parse(
         /* Create a result for the last token, since it won't be caught in the
            above loop because if there are no more delimiters. The last token
            is counted in even the length is 0 */
-        u32Ret = xmalloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
+        u32Ret = jf_mem_alloc((void **)&pjsprf, sizeof(jf_string_parse_result_field_t));
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             memset(pjsprf, 0, sizeof(jf_string_parse_result_field_t));
@@ -319,11 +319,11 @@ u32 jf_string_destroyParseResult(jf_string_parse_result_t ** ppResult)
     while (node != NULL)
     {
         temp = node->jsprf_pjsprfNext;
-        xfree((void **)&node);
+        jf_mem_free((void **)&node);
         node = temp;
     }
 
-    xfree((void **)ppResult);
+    jf_mem_free((void **)ppResult);
 
     return u32Ret;
 }
@@ -376,7 +376,7 @@ u32 jf_string_free(olchar_t ** ppstrStr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    xfree((void **)ppstrStr);
+    jf_mem_free((void **)ppstrStr);
 
     return u32Ret;
 }
@@ -390,7 +390,7 @@ u32 jf_string_duplicateWithLen(
     *ppstrDest = NULL;
     if (sSource > 0)
     {
-        u32Ret = xmalloc((void **)&pstr, sSource + 1);
+        u32Ret = jf_mem_alloc((void **)&pstr, sSource + 1);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             memcpy(pstr, pstrSource, sSource);
@@ -411,7 +411,7 @@ u32 jf_string_duplicate(olchar_t ** ppstrDest, const olchar_t * pstrSource)
     *ppstrDest = NULL;
     nLen = ol_strlen(pstrSource);
 
-    u32Ret = xmalloc((void **)&pStr, nLen + 1);
+    u32Ret = jf_mem_alloc((void **)&pStr, nLen + 1);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (nLen > 0)

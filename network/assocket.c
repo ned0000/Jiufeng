@@ -300,7 +300,7 @@ u32 jf_network_destroyAssocket(jf_network_assocket_t ** ppAssocket)
                 jf_network_destroyAsocket(&pia->ia_pjnaAsockets[u32Index]);
         }
 
-        xfree((void **)&pia->ia_pjnaAsockets);
+        jf_mem_free((void **)&pia->ia_pjnaAsockets);
     }
 
     if (pia->ia_pjmAsockets != NULL)
@@ -308,21 +308,21 @@ u32 jf_network_destroyAssocket(jf_network_assocket_t ** ppAssocket)
         for (u32Index = 0; u32Index < pia->ia_u32MaxConn; u32Index ++)
             jf_mutex_fini(&pia->ia_pjmAsockets[u32Index]);
 
-        xfree((void **)&pia->ia_pjmAsockets);
+        jf_mem_free((void **)&pia->ia_pjmAsockets);
     }
 
     if (pia->ia_pjlAsocket != NULL)
-        xfree((void **)&pia->ia_pjlAsocket);
+        jf_mem_free((void **)&pia->ia_pjlAsocket);
 
     if (pia->ia_padData != NULL)
-        xfree((void **)&pia->ia_padData);
+        jf_mem_free((void **)&pia->ia_padData);
 
     if (pia->ia_pjnsListenSocket != NULL)
         jf_network_destroySocket(&(pia->ia_pjnsListenSocket));
 
     jf_mutex_fini(&pia->ia_jmAsocket);
 
-    xfree(ppAssocket);
+    jf_mem_free(ppAssocket);
 
     return u32Ret;
 }
@@ -344,7 +344,7 @@ u32 jf_network_createAssocket(
     jf_logger_logInfoMsg("create assocket, max conn %u", pjnacp->jnacp_u32MaxConn);
 
     /*create a new assocket*/
-    u32Ret = xcalloc((void **)&pia, sizeof(internal_assocket_t));
+    u32Ret = jf_mem_calloc((void **)&pia, sizeof(internal_assocket_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pia->ia_jncohHeader.jncoh_fnPreSelect = _preSelectAssocket;
@@ -361,14 +361,14 @@ u32 jf_network_createAssocket(
         pia->ia_u16PortNumber = pjnacp->jnacp_u16PortNumber;
         memcpy(&(pia->ia_jiAddr), &(pjnacp->jnacp_jiAddr), sizeof(jf_ipaddr_t));
 
-        u32Ret = xcalloc(
+        u32Ret = jf_mem_calloc(
             (void **)&pia->ia_pjnaAsockets,
             pjnacp->jnacp_u32MaxConn * sizeof(jf_network_asocket_t *));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = xcalloc(
+        u32Ret = jf_mem_calloc(
             (void **)&pia->ia_pjlAsocket,
             jf_listarray_getSize(pjnacp->jnacp_u32MaxConn));
     }
@@ -377,7 +377,7 @@ u32 jf_network_createAssocket(
     {
         jf_listarray_init(pia->ia_pjlAsocket, pjnacp->jnacp_u32MaxConn);
 
-        u32Ret = xcalloc(
+        u32Ret = jf_mem_calloc(
             (void **)&pia->ia_padData,
             pjnacp->jnacp_u32MaxConn * sizeof(assocket_data_t));
     }
@@ -386,7 +386,7 @@ u32 jf_network_createAssocket(
         u32Ret = jf_mutex_init(&pia->ia_jmAsocket);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = xcalloc(
+        u32Ret = jf_mem_calloc(
             (void **)&pia->ia_pjmAsockets,
             pjnacp->jnacp_u32MaxConn * sizeof(jf_mutex_t));
 

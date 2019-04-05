@@ -81,10 +81,10 @@ static u32 _newHashtreeEntry(
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_hashtree_node_t * node = NULL;
 
-    u32Ret = xcalloc((void **)&node, sizeof(jf_hashtree_node_t));
+    u32Ret = jf_mem_calloc((void **)&node, sizeof(jf_hashtree_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = dupMemory((void **)&node->jhn_pstrKeyValue, pKey, sKey);
+        u32Ret = jf_mem_duplicate((void **)&node->jhn_pstrKeyValue, pKey, sKey);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             node->jhn_nKey = value;
@@ -98,7 +98,7 @@ static u32 _newHashtreeEntry(
             *ppNode = node;
         }
         else
-            xfree((void **)&node);
+            jf_mem_free((void **)&node);
     }
 
     return u32Ret;
@@ -171,7 +171,7 @@ void jf_queue_fini(jf_queue_t * pQueue)
     while (temp != NULL)
     {
         pjqn = temp->jqn_pjqnNext;
-        xfree((void **)&temp);
+        jf_mem_free((void **)&temp);
         temp = pjqn;
     }
 }
@@ -190,7 +190,7 @@ void jf_queue_finiQueueAndData(
 
         fnFreeData(&(temp->jqn_pData));
 
-        xfree((void **)&temp);
+        jf_mem_free((void **)&temp);
         temp = pjqn;
     }
 }
@@ -205,7 +205,7 @@ u32 jf_queue_enqueue(jf_queue_t * pQueue, void * data)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_queue_node_t * pjqn;
 
-    u32Ret = xcalloc((void **)&pjqn, sizeof(jf_queue_node_t));
+    u32Ret = jf_mem_calloc((void **)&pjqn, sizeof(jf_queue_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pjqn->jqn_pData = data;
@@ -245,7 +245,7 @@ void * jf_queue_dequeue(jf_queue_t * pQueue)
     {
         pQueue->jq_pjqnTail = NULL;
     }
-    xfree((void **)&temp);
+    jf_mem_free((void **)&temp);
 
     return retval;
 }
@@ -272,7 +272,7 @@ u32 jf_stack_push(jf_stack_t ** ppStack, void * data)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_stack_node_t * retval;
 
-    u32Ret = xmalloc((void **)&retval, sizeof(jf_stack_node_t));
+    u32Ret = jf_mem_alloc((void **)&retval, sizeof(jf_stack_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         retval->jsn_pData = data;
@@ -294,7 +294,7 @@ void * jf_stack_pop(jf_stack_t ** ppStack)
         retval = ((jf_stack_node_t *) *ppStack)->jsn_pData;
         temp = *ppStack;
         *ppStack = ((jf_stack_node_t *) *ppStack)->jsn_pjsnNext;
-        xfree((void **)&temp);
+        jf_mem_free((void **)&temp);
     }
 
     return retval;
@@ -346,7 +346,7 @@ void jf_linklist_fini(jf_linklist_t * pList)
     while (pjln != NULL)
     {
 		pNode = pjln->jln_pjlnNext;
-        xfree((void **)&pjln);
+        jf_mem_free((void **)&pjln);
         pjln = pNode;
     }
 
@@ -370,7 +370,7 @@ void jf_linklist_finiListAndData(
 
 		fnFreeData(&(pjln->jln_pData));
 
-        xfree((void **)&pjln);
+        jf_mem_free((void **)&pjln);
         pjln = pNode;
     }
 
@@ -387,7 +387,7 @@ u32 jf_linklist_appendTo(jf_linklist_t * pList, void * pData)
 
     assert(pList != NULL);
 
-    u32Ret = xcalloc((void **)&pNode, sizeof(jf_linklist_node_t));
+    u32Ret = jf_mem_calloc((void **)&pNode, sizeof(jf_linklist_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
 		pNode->jln_pData = pData;
@@ -419,7 +419,7 @@ u32 jf_linklist_insertTo(jf_linklist_t * pList, void * pData)
 
     assert((pList != NULL) && (pData != NULL));
 
-    u32Ret = xcalloc((void **)&pNode, sizeof(jf_linklist_node_t));
+    u32Ret = jf_mem_calloc((void **)&pNode, sizeof(jf_linklist_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
 		pNode->jln_pData = pData;
@@ -458,7 +458,7 @@ void jf_dlinklist_fini(jf_dlinklist_t * pList)
     while (pjdn != NULL)
     {
         pNode = pjdn->jdn_pjdnNext;
-        xfree((void **)&pjdn);
+        jf_mem_free((void **)&pjdn);
         pjdn = pNode;
     }
 
@@ -482,7 +482,7 @@ void jf_dlinklist_finiListAndData(
 
         fnFreeData(&(pjdn->jdn_pData));
 
-        xfree((void **)&pjdn);
+        jf_mem_free((void **)&pjdn);
         pjdn = pNode;
     }
 
@@ -506,7 +506,7 @@ void jf_dlinklist_removeAllNodes(
 
         fnFreeData(&(pjdn->jdn_pData));
 
-        xfree((void **)&pjdn);
+        jf_mem_free((void **)&pjdn);
         pjdn = pNode;
     }
 
@@ -705,7 +705,7 @@ u32 jf_dlinklist_appendTo(jf_dlinklist_t * pList, void * pData)
 
     assert(pList != NULL);
 
-    u32Ret = xcalloc((void **)&pNode, sizeof(jf_dlinklist_node_t));
+    u32Ret = jf_mem_calloc((void **)&pNode, sizeof(jf_dlinklist_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pNode->jdn_pData = pData;
@@ -744,9 +744,9 @@ void jf_hashtree_fini(jf_hashtree_t * pHashtree)
         pNode = pjhn->jhn_pjhnNext;
         if (pjhn->jhn_pstrKeyValue != NULL)
         {
-            xfree((void **)&(pjhn->jhn_pstrKeyValue));
+            jf_mem_free((void **)&(pjhn->jhn_pstrKeyValue));
         }
-        xfree((void **)&pjhn);
+        jf_mem_free((void **)&pjhn);
         pjhn = pNode;
     }
 }
@@ -770,9 +770,9 @@ void jf_hashtree_finiHashtreeAndData(
 
         if (pjhn->jhn_pstrKeyValue != NULL)
         {
-            xfree((void **)&pjhn->jhn_pstrKeyValue);
+            jf_mem_free((void **)&pjhn->jhn_pstrKeyValue);
         }
-        xfree((void **)&pjhn);
+        jf_mem_free((void **)&pjhn);
 
         pjhn = pNode;
     }
@@ -847,8 +847,8 @@ u32 jf_hashtree_deleteEntry(
             if (pjhn->jhn_pjhnNext != NULL)
                 pjhn->jhn_pjhnNext->jhn_pjhnPrev = pjhn->jhn_pjhnPrev;
         }
-        xfree((void **)&pjhn->jhn_pstrKeyValue);
-        xfree((void **)&pjhn);
+        jf_mem_free((void **)&pjhn->jhn_pstrKeyValue);
+        jf_mem_free((void **)&pjhn);
     }
 
     return u32Ret;

@@ -114,9 +114,9 @@ static void _destroySendData(send_data_t ** ppsd)
 
     if (psd->sd_jnmoOwner == JF_NETWORK_MEM_OWNER_LIB)
     {
-        xfree((void **)&psd->sd_pu8Buffer);
+        jf_mem_free((void **)&psd->sd_pu8Buffer);
     }
-    xfree((void **)ppsd);
+    jf_mem_free((void **)ppsd);
 }
 
 static u32 _clearAsocket(internal_asocket_t * pia)
@@ -521,12 +521,12 @@ static u32 _asAddPendingData(
     u32 u32Ret = JF_ERR_NO_ERROR;
     send_data_t * psd = NULL;
 
-    u32Ret = dupMemory((void **)&psd, (u8 *)pData, sizeof(*pData));
+    u32Ret = jf_mem_duplicate((void **)&psd, (u8 *)pData, sizeof(*pData));
     if ((u32Ret == JF_ERR_NO_ERROR) && (memowner == JF_NETWORK_MEM_OWNER_USER))
     {
         /*If we don't own this memory, we need to copy the buffer, because the
           user may free this memory before we have a chance to send it*/
-        u32Ret = dupMemory((void **)&psd->sd_pu8Buffer, pu8Buffer, sBuf);
+        u32Ret = jf_mem_duplicate((void **)&psd->sd_pu8Buffer, pu8Buffer, sBuf);
         if (u32Ret == JF_ERR_NO_ERROR)
             psd->sd_jnmoOwner = JF_NETWORK_MEM_OWNER_LIB;
         else
@@ -571,10 +571,10 @@ static u32 _asTrySendData(
               don't own the memory, because the user may free the memory, before
               we have a chance to complete sending it.*/
             jf_logger_logInfoMsg("as send data, partially send");
-            u32Ret = dupMemory((void **)&psd, (u8 *)pData, sizeof(*pData));
+            u32Ret = jf_mem_duplicate((void **)&psd, (u8 *)pData, sizeof(*pData));
             if ((u32Ret == JF_ERR_NO_ERROR) && (memowner == JF_NETWORK_MEM_OWNER_USER))
             {
-                u32Ret = dupMemory(
+                u32Ret = jf_mem_duplicate(
                     (void **)&psd->sd_pu8Buffer, pu8Buffer, sBuf);
                 if (u32Ret == JF_ERR_NO_ERROR)
                     psd->sd_jnmoOwner = JF_NETWORK_MEM_OWNER_LIB;
@@ -628,7 +628,7 @@ u32 jf_network_destroyAsocket(jf_network_asocket_t ** ppAsocket)
     /*Free the buffer if necessary*/
     if ((! pia->ia_bNoRead) && (pia->ia_pu8Buffer != NULL))
     {
-        xfree((void **)&pia->ia_pu8Buffer);
+        jf_mem_free((void **)&pia->ia_pu8Buffer);
         pia->ia_sMalloc = 0;
     }
 
@@ -638,7 +638,7 @@ u32 jf_network_destroyAsocket(jf_network_asocket_t ** ppAsocket)
     if (pia->ia_pjnuUtimer != NULL)
         jf_network_destroyUtimer(&pia->ia_pjnuUtimer);
 
-    xfree(ppAsocket);
+    jf_mem_free(ppAsocket);
 
     return u32Ret;
 }
@@ -655,7 +655,7 @@ u32 jf_network_createAsocket(
 
     jf_logger_logInfoMsg("create as");
 
-    u32Ret = xcalloc((void **)&pia, sizeof(internal_asocket_t));
+    u32Ret = jf_mem_calloc((void **)&pia, sizeof(internal_asocket_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pia->ia_jncohHeader.jncoh_fnPreSelect = _preSelectAsocket;
@@ -673,7 +673,7 @@ u32 jf_network_createAsocket(
         pia->ia_fnOnSendOK = pjnacp->jnacp_fnOnSendOK;
 
         if (! pia->ia_bNoRead)
-            u32Ret = xmalloc(
+            u32Ret = jf_mem_alloc(
                 (void **)&pia->ia_pu8Buffer, pjnacp->jnacp_sInitialBuf);
     }
 

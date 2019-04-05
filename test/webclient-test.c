@@ -133,7 +133,7 @@ static u32 _wcTestOnResponse(
     jf_httpparser_getRawPacket(header, &buf, &size);
     jf_logger_logDataMsgWithAscii(
         (u8 *)buf, size, "Wc test on response, body %d", header->jhph_sBody);
-    xfree((void **)&buf);
+    jf_mem_free((void **)&buf);
 
     if (header->jhph_sBody > 0)
     {

@@ -77,7 +77,7 @@ u32 createArFile(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ar_file_t * piaf;
 
-    u32Ret = xmalloc((void **)&piaf, sizeof(internal_ar_file_t));
+    u32Ret = jf_mem_alloc((void **)&piaf, sizeof(internal_ar_file_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(piaf, 0, sizeof(internal_ar_file_t));
@@ -94,7 +94,7 @@ u32 createArFile(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         piaf->iaf_sBufLen = IAF_BUF_LEN;
-        u32Ret = xmalloc((void **)&(piaf->iaf_pu8Buffer), IAF_BUF_LEN);
+        u32Ret = jf_mem_alloc((void **)&(piaf->iaf_pu8Buffer), IAF_BUF_LEN);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -125,9 +125,9 @@ u32 destroyArFile(ar_file_t ** ppaf)
         jf_filestream_close(&(piaf->iaf_pjfArchive));
 
     if (piaf->iaf_pu8Buffer != NULL)
-        xfree((void **)&(piaf->iaf_pu8Buffer));
+        jf_mem_free((void **)&(piaf->iaf_pu8Buffer));
 
-    xfree(ppaf);
+    jf_mem_free(ppaf);
 
     return u32Ret;
 }

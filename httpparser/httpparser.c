@@ -146,7 +146,7 @@ static u32 _parseHttpHeaderLine(
         }
 
         /* Instantiate a new header entry for each token */
-        u32Ret = xcalloc((void **)&node, sizeof(jf_httpparser_packet_header_field_t));
+        u32Ret = jf_mem_calloc((void **)&node, sizeof(jf_httpparser_packet_header_field_t));
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             for (i = 0; i < headerline->jsprf_sData; ++i)
@@ -162,7 +162,7 @@ static u32 _parseHttpHeaderLine(
             }
             if (node->jhphf_pstrName == NULL)
             {
-                xfree((void **)&node);
+                jf_mem_free((void **)&node);
                 break;
             }
 
@@ -235,10 +235,10 @@ u32 jf_httpparser_destroyPacketHeader(jf_httpparser_packet_header_t ** ppHeader)
             /* If the user allocated the string, then we need to free it.
                Otherwise these are just pointers into others strings, in which
                case we don't want to free them */
-            xfree((void **)&node->jhphf_pstrName);
-            xfree((void **)&node->jhphf_pstrData);
+            jf_mem_free((void **)&node->jhphf_pstrName);
+            jf_mem_free((void **)&node->jhphf_pstrData);
         }
-        xfree((void **)&node);
+        jf_mem_free((void **)&node);
         node = nextnode;
     }
 
@@ -246,24 +246,24 @@ u32 jf_httpparser_destroyPacketHeader(jf_httpparser_packet_header_t ** ppHeader)
        and set these fields manually, which means the string was copied.
        In which case, we need to free the strings */
     if (packet->jhph_bAllocStatus && packet->jhph_pstrStatusData != NULL)
-        xfree((void **)&packet->jhph_pstrStatusData);
+        jf_mem_free((void **)&packet->jhph_pstrStatusData);
 
     if (packet->jhph_bAllocDirective)
     {
         if (packet->jhph_pstrDirective != NULL)
-            xfree((void **)&packet->jhph_pstrDirective);
+            jf_mem_free((void **)&packet->jhph_pstrDirective);
 
         if (packet->jhph_pstrDirectiveObj != NULL)
-            xfree((void **)&packet->jhph_pstrDirectiveObj);
+            jf_mem_free((void **)&packet->jhph_pstrDirectiveObj);
     }
 
     if (packet->jhph_bAllocVersion && packet->jhph_pstrVersion != NULL)
-        xfree((void **)&packet->jhph_pstrVersion);
+        jf_mem_free((void **)&packet->jhph_pstrVersion);
 
     if (packet->jhph_bAllocBody && packet->jhph_pu8Body != NULL)
-        xfree((void **)&packet->jhph_pu8Body);
+        jf_mem_free((void **)&packet->jhph_pu8Body);
 
-    xfree((void **)ppHeader);
+    jf_mem_free((void **)ppHeader);
 
     return u32Ret;
 }
@@ -413,7 +413,7 @@ u32 jf_httpparser_parsePacketHeader(
     jf_string_parse_result_field_t * headerline;
     jf_string_parse_result_field_t * field;
 
-    u32Ret = xcalloc((void **)&retval, sizeof(jf_httpparser_packet_header_t));
+    u32Ret = jf_mem_calloc((void **)&retval, sizeof(jf_httpparser_packet_header_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* All the headers are delineated with a CRLF, so we parse on that */
@@ -488,7 +488,7 @@ u32 jf_httpparser_getRawPacket(
     sBuffer += (3 + pjhph->jhph_sBody);
 
     /* Allocate the buffer */
-    u32Ret = xmalloc((void **)ppstrBuf, sBuffer);
+    u32Ret = jf_mem_alloc((void **)ppstrBuf, sBuffer);
     if (u32Ret != JF_ERR_NO_ERROR)
         return u32Ret;
 
@@ -632,10 +632,10 @@ u32 jf_httpparser_parseUri(
     if (u32Ret != JF_ERR_NO_ERROR)
     {
         if (*ppstrIp != NULL)
-            xfree((void **)ppstrIp);
+            jf_mem_free((void **)ppstrIp);
 
         if (*ppstrPath != NULL)
-            xfree((void **)ppstrPath);
+            jf_mem_free((void **)ppstrPath);
     }
 
     if (result3 != NULL)
@@ -656,7 +656,7 @@ u32 jf_httpparser_createEmptyPacketHeader(
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_httpparser_packet_header_t * retval = NULL;
 
-    u32Ret = xcalloc((void **)&retval, sizeof(jf_httpparser_packet_header_t));
+    u32Ret = jf_mem_calloc((void **)&retval, sizeof(jf_httpparser_packet_header_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         retval->jhph_nStatusCode = -1;
@@ -792,7 +792,7 @@ u32 jf_httpparser_setBody(
 
     if (bAlloc)
     {
-        u32Ret = dupMemory((void **)&pjhph->jhph_pu8Body, pu8Body, sBody);
+        u32Ret = jf_mem_duplicate((void **)&pjhph->jhph_pu8Body, pu8Body, sBody);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             pjhph->jhph_bAllocBody = bAlloc;
@@ -817,7 +817,7 @@ u32 jf_httpparser_addHeaderLine(
     jf_httpparser_packet_header_field_t * node = NULL;
     
     /* Create the header node */
-    u32Ret = xcalloc((void **)&node, sizeof(jf_httpparser_packet_header_field_t));
+    u32Ret = jf_mem_calloc((void **)&node, sizeof(jf_httpparser_packet_header_field_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         node->jhphf_bAlloc = bAlloc;
@@ -850,7 +850,7 @@ u32 jf_httpparser_addHeaderLine(
                 if (node->jhphf_pstrData != NULL)
                     jf_string_free(&(node->jhphf_pstrData));
 
-                xfree((void **)&node);
+                jf_mem_free((void **)&node);
             }
         }
     }

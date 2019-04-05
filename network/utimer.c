@@ -117,7 +117,7 @@ static u32 _checkUtimer(
             {
                 evt->ui_fnDestroy(&(evt->ui_pData));
             }
-            xfree((void **)&evt);
+            jf_mem_free((void **)&evt);
 
             evt = temp;
         }
@@ -169,7 +169,7 @@ static u32 _flushUtimer(internal_utimer_t * piu)
         {
             temp->ui_fnDestroy(&(temp->ui_pData));
         }
-        xfree((void **)&temp);
+        jf_mem_free((void **)&temp);
         temp = temp2;
     }
 
@@ -192,7 +192,7 @@ u32 jf_network_addUtimerItem(
 #if defined(DEBUG_UTIMER)
     jf_logger_logInfoMsg("add utimer item");
 #endif
-    u32Ret = xmalloc((void **)&pui, sizeof(utimer_item_t));
+    u32Ret = jf_mem_alloc((void **)&pui, sizeof(utimer_item_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pui, 0, sizeof(utimer_item_t));
@@ -336,7 +336,7 @@ u32 jf_network_removeUtimerItem(jf_network_utimer_t * pUtimer, void * pData)
             {
                 evt->ui_fnDestroy(&(evt->ui_pData));
             }
-            xfree((void **)&evt);
+            jf_mem_free((void **)&evt);
             evt = first;
         }
 
@@ -356,7 +356,7 @@ u32 jf_network_destroyUtimer(jf_network_utimer_t ** ppUtimer)
 
     jf_mutex_fini(&(piu->iu_jmLock));
 
-    xfree(ppUtimer);
+    jf_mem_free(ppUtimer);
     *ppUtimer = NULL;
 
     return u32Ret;
@@ -368,7 +368,7 @@ u32 jf_network_createUtimer(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_utimer_t * piu;
 
-    u32Ret = xmalloc((void **)&piu, sizeof(internal_utimer_t));
+    u32Ret = jf_mem_alloc((void **)&piu, sizeof(internal_utimer_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(piu, 0, sizeof(internal_utimer_t));

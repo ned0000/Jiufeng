@@ -140,7 +140,7 @@ static u32 _newMenuEntry(internal_menu_t * pParent, const olchar_t * pstrName,
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_entry_t *pEntry;
 
-    u32Ret = xmalloc((void **)&pEntry, sizeof(internal_menu_entry_t));
+    u32Ret = jf_mem_alloc((void **)&pEntry, sizeof(internal_menu_entry_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pEntry, 0, sizeof(internal_menu_entry_t));
@@ -150,7 +150,7 @@ static u32 _newMenuEntry(internal_menu_t * pParent, const olchar_t * pstrName,
         u32Ret = jf_string_duplicate(&(pEntry->ime_pstrName), pstrName);
         if (u32Ret != JF_ERR_NO_ERROR)
         {
-            xfree((void **)&pEntry);
+            jf_mem_free((void **)&pEntry);
         }
         else
         {
@@ -159,8 +159,8 @@ static u32 _newMenuEntry(internal_menu_t * pParent, const olchar_t * pstrName,
                 u32Ret = jf_string_duplicate(&(pEntry->ime_pstrDesc), pstrDesc);
                 if (u32Ret != JF_ERR_NO_ERROR)
                 {
-                    xfree((void **)&(pEntry->ime_pstrName));
-                    xfree((void **)&pEntry);
+                    jf_mem_free((void **)&(pEntry->ime_pstrName));
+                    jf_mem_free((void **)&pEntry);
                 }
             }
         }
@@ -229,7 +229,7 @@ static u32 _newMenu(internal_menu_t * pParent, fnPreShow_t fnPreShow,
     internal_menu_t *pMenu;
     internal_menu_entry_t *pEntry;
 
-    u32Ret = xmalloc((void **)&pMenu, sizeof(internal_menu_t));
+    u32Ret = jf_mem_alloc((void **)&pMenu, sizeof(internal_menu_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pMenu, 0, sizeof(internal_menu_t));
@@ -253,14 +253,14 @@ static u32 _newMenu(internal_menu_t * pParent, fnPreShow_t fnPreShow,
                 }
                 else
                 {
-                    xfree((void **)&pMenu);
+                    jf_mem_free((void **)&pMenu);
                     _destroyEntry(&pEntry);
                 }
             }
         }
         else
         {
-            xfree((void **)&pMenu);
+            jf_mem_free((void **)&pMenu);
         }
     }
 

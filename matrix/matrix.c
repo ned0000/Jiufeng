@@ -91,7 +91,7 @@ static u32 _determinant(oldouble_t * p, olint_t n, oldouble_t * dbc)
     olint_t i;
     olint_t * list = NULL;
 
-    u32Ret = xcalloc((void **)&list, sizeof(olint_t) * n);
+    u32Ret = jf_mem_calloc((void **)&list, sizeof(olint_t) * n);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (i = 0; i < n; i++)
@@ -103,7 +103,7 @@ static u32 _determinant(oldouble_t * p, olint_t n, oldouble_t * dbc)
     }
 
     if (list != NULL)
-        xfree((void **)&list);
+        jf_mem_free((void **)&list);
 
     return u32Ret;
 }
@@ -118,7 +118,7 @@ static u32 _algebraicCofactor(
     olint_t i, count = 0;
     olint_t raw_len = k * k;
 
-    u32Ret = xcalloc((void **)&cofactor, sizeof(oldouble_t) * len);
+    u32Ret = jf_mem_calloc((void **)&cofactor, sizeof(oldouble_t) * len);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (i = 0; i < raw_len; i++)
@@ -136,7 +136,7 @@ static u32 _algebraicCofactor(
     }
 
     if (cofactor != NULL)
-        xfree((void **)&cofactor);
+        jf_mem_free((void **)&cofactor);
 
     return u32Ret;
 }
@@ -150,7 +150,7 @@ u32 jf_matrix_alloc(olint_t row, olint_t col, matrix_t ** ppm)
     olint_t size;
 
     size = sizeof(matrix_t) + sizeof(oldouble_t) * row * col;
-    u32Ret = xcalloc((void **)&pm, size);
+    u32Ret = jf_mem_calloc((void **)&pm, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pm->m_pdbData = (oldouble_t *)(pm + 1);
@@ -167,7 +167,7 @@ u32 jf_matrix_free(matrix_t ** ppm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = xfree((void **)ppm);
+    u32Ret = jf_mem_free((void **)ppm);
 
     return u32Ret;
 }

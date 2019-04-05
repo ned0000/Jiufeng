@@ -78,7 +78,7 @@ static u32 _testPrng(void)
              (u32Index < PRNG_DATA_COUNT) && (u32Ret == JF_ERR_NO_ERROR);
              u32Index ++)
         {
-            u32Ret = xmalloc((void **)&u8Random[u32Index], u32Size);
+            u32Ret = jf_mem_alloc((void **)&u8Random[u32Index], u32Size);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 ol_printf("Get prng data: \n");
@@ -122,7 +122,7 @@ static u32 _testPrng(void)
     for (u32Index = 0; u32Index < PRNG_DATA_COUNT; u32Index ++)
     {
         if (u8Random[u32Index] != NULL)
-            xfree((void **)&u8Random[u32Index]);
+            jf_mem_free((void **)&u8Random[u32Index]);
     }
     
     return u32Ret;

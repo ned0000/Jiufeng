@@ -124,7 +124,7 @@ static u32 _onNtsConnect(
 
     ol_printf("New connection\n");
 
-    u32Ret = xcalloc((void **)&psd, sizeof(server_data_t));
+    u32Ret = jf_mem_calloc((void **)&psd, sizeof(server_data_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_strcpy((olchar_t *)psd->sd_u8Id, "network-test-server");
@@ -144,7 +144,7 @@ static u32 _onNtsDisConnect(
 
     ol_printf("connection closed, id: %s\n", psd->sd_u8Id);
 
-    xfree((void **)&psd);
+    jf_mem_free((void **)&psd);
 
     return u32Ret;
 }

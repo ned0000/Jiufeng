@@ -52,7 +52,7 @@ u32 createCommandHistory(
         
     size = sizeof(internal_clieng_cmd_history_t) + 
         (pcchp->cchp_sCmdHistroyBuf * (pcchp->cchp_sMaxCmdLine + 1)) - 4;
-    u32Ret = xcalloc((void **)&picch, size);
+    u32Ret = jf_mem_calloc((void **)&picch, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         picch->icch_sMaxCmdLine = pcchp->cchp_sMaxCmdLine;
@@ -79,7 +79,7 @@ u32 destroyCommandHistory(clieng_cmd_history_t ** ppcch)
             
     jf_logger_logInfoMsg("destroy cmd history" );
             
-    xfree((void **)&picch);
+    jf_mem_free((void **)&picch);
     
     return u32Ret;
 }

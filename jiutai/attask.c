@@ -61,7 +61,7 @@ static u32 _flushAttask(internal_attask_t * piu)
         {
             temp->ai_fnDestroy(&(temp->ai_pData));
         }
-        xfree((void **)&temp);
+        jf_mem_free((void **)&temp);
         temp = temp2;
     }
 
@@ -129,7 +129,7 @@ u32 checkAttask(attask_t * pAttask, u32 * pu32Blocktime)
             {
                 evt->ai_fnDestroy(&(evt->ai_pData));
             }
-            xfree((void **)&evt);
+            jf_mem_free((void **)&evt);
 
             evt = temp;
         }
@@ -154,7 +154,7 @@ u32 addAttaskItem(
     attask_item_t * pai, * temp;
     internal_attask_t * pia = (internal_attask_t *) pAttask;
 
-    u32Ret = xcalloc((void **)&pai, sizeof(attask_item_t));
+    u32Ret = jf_mem_calloc((void **)&pai, sizeof(attask_item_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Get the current time for reference*/
@@ -281,7 +281,7 @@ u32 removeAttaskItem(attask_t * pAttask, void * pData)
             {
                 evt->ai_fnDestroy(&(evt->ai_pData));
             }
-            xfree((void **)&evt);
+            jf_mem_free((void **)&evt);
             evt = first;
         }
 
@@ -299,7 +299,7 @@ u32 destroyAttask(attask_t ** ppAttask)
 
     _flushAttask(pia);
 
-    xfree(ppAttask);
+    jf_mem_free(ppAttask);
     *ppAttask = NULL;
 
     return u32Ret;
@@ -310,7 +310,7 @@ u32 createAttask(attask_t ** ppAttask)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_attask_t * pia;
 
-    u32Ret = xcalloc((void **)&pia, sizeof(internal_attask_t));
+    u32Ret = jf_mem_calloc((void **)&pia, sizeof(internal_attask_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
 

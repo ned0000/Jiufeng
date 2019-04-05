@@ -94,7 +94,7 @@ u32 jf_encrypt_encryptFile(
     u32Ret = _setEncryptKey(pKey, &aeskey);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = xmalloc((void **)&pBuf, MAX_DATA_TRANSFER_SIZE);
+        u32Ret = jf_mem_alloc((void **)&pBuf, MAX_DATA_TRANSFER_SIZE);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -140,7 +140,7 @@ u32 jf_encrypt_encryptFile(
         u32Ret = JF_ERR_NO_ERROR;
 
     if (pBuf != NULL)
-        xfree((void **)&pBuf);
+        jf_mem_free((void **)&pBuf);
     if (fpSrc != NULL)
         jf_filestream_close(&fpSrc);
     if (fpDest != NULL)
@@ -164,7 +164,7 @@ u32 jf_encrypt_decryptFile(
     u32Ret = _setDecryptKey(pKey, &aeskey);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = xmalloc((void **)&pBuf, MAX_DATA_TRANSFER_SIZE);
+        u32Ret = jf_mem_alloc((void **)&pBuf, MAX_DATA_TRANSFER_SIZE);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -214,7 +214,7 @@ u32 jf_encrypt_decryptFile(
         u32Ret = JF_ERR_NO_ERROR;
 
     if (pBuf != NULL)
-        xfree((void **)&pBuf);
+        jf_mem_free((void **)&pBuf);
     if (fpSrc != NULL)
         jf_filestream_close(&fpSrc);
     if (fpDest != NULL)
@@ -237,12 +237,12 @@ u32 jf_encrypt_encryptString(
     u32Ret = _setEncryptKey(pKey, &aeskey);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = xmalloc((void **)&pstr, outlen);
+        u32Ret = jf_mem_alloc((void **)&pstr, outlen);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = xmalloc((void **)&pDestStr, 2 * outlen + 1);
+        u32Ret = jf_mem_alloc((void **)&pDestStr, 2 * outlen + 1);
     }
     
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -259,12 +259,12 @@ u32 jf_encrypt_encryptString(
     }
 
     if (pstr != NULL)
-        xfree((void **)&pstr);
+        jf_mem_free((void **)&pstr);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         *ppDestStr = pDestStr;
     else if (pDestStr != NULL)
-        xfree((void **)&pDestStr);
+        jf_mem_free((void **)&pDestStr);
 
     return u32Ret;   
 }
@@ -281,7 +281,7 @@ u32 jf_encrypt_decryptString(
     u32Ret = _setDecryptKey(pKey, &aeskey);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = xmalloc((void **)&pDestStr, outlen + 1);
+        u32Ret = jf_mem_alloc((void **)&pDestStr, outlen + 1);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -298,14 +298,14 @@ u32 jf_encrypt_decryptString(
     if (u32Ret == JF_ERR_NO_ERROR)
         *ppDestStr = pDestStr;
     else if (pDestStr != NULL)
-        xfree((void **)&pDestStr);
+        jf_mem_free((void **)&pDestStr);
     
     return u32Ret; 
 }
 
 void jf_encrypt_freeString(olchar_t ** ppStr)
 {
-    xfree((void **)ppStr);
+    jf_mem_free((void **)ppStr);
 }
 
 /*---------------------------------------------------------------------------*/

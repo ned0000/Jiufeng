@@ -112,7 +112,7 @@ static u32 _freeServMgmtAttask(void ** ppServAttask)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    xfree(ppServAttask);
+    jf_mem_free(ppServAttask);
 
     return u32Ret;
 }
@@ -124,7 +124,7 @@ static u32 _newServMgmtAttask(
     u32 u32Ret = JF_ERR_NO_ERROR;
     serv_mgmt_attask_t * psma = NULL;
 
-    u32Ret = xcalloc((void **)&psma, sizeof(serv_mgmt_attask_t));
+    u32Ret = jf_mem_calloc((void **)&psma, sizeof(serv_mgmt_attask_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         psma->sma_pismServMgmt = pism;

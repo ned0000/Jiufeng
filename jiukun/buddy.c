@@ -211,12 +211,12 @@ static u32 _destroyBuddyZone(buddy_zone_t ** ppZone)
     pbz = (buddy_zone_t *)*ppZone;
 
     if (pbz->bz_papPage != NULL)
-        xfree((void **)&(pbz->bz_papPage));
+        jf_mem_free((void **)&(pbz->bz_papPage));
 
     if (pbz->bz_pu8Pool != NULL)
-        xfree((void **)&(pbz->bz_pu8Pool));
+        jf_mem_free((void **)&(pbz->bz_pu8Pool));
 
-    xfree((void **)ppZone);
+    jf_mem_free((void **)ppZone);
 
     return u32Ret;
 }
@@ -244,14 +244,14 @@ static u32 _createBuddyZone(
     jf_logger_logInfoMsg(
         "create jiukun zone, order: %u, zoneid: %u", u32MaxOrder, u32ZoneId);
 
-    u32Ret = xcalloc((void **)&pbz, sizeof(buddy_zone_t));
+    u32Ret = jf_mem_calloc((void **)&pbz, sizeof(buddy_zone_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pbz->bz_u32MaxOrder = u32MaxOrder;
         pbz->bz_u32NumOfPage = 1UL << (pbz->bz_u32MaxOrder - 1);
         pbz->bz_u32FreePages = pbz->bz_u32NumOfPage;
 
-        u32Ret = xcalloc(
+        u32Ret = jf_mem_calloc(
             (void **)&(pbz->bz_papPage),
             pbz->bz_u32NumOfPage * sizeof(jiukun_page_t));
     }
@@ -270,7 +270,7 @@ static u32 _createBuddyZone(
             &(pbz->bz_faFreeArea[pbz->bz_u32MaxOrder - 1].fa_jlFree),
             &(pbz->bz_papPage[0].jp_jlLru));
 
-        u32Ret = xmalloc(
+        u32Ret = jf_mem_alloc(
             (void **)&(pbz->bz_pu8Pool),
             pbz->bz_u32NumOfPage * BUDDY_PAGE_SIZE);
     }

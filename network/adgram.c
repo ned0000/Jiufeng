@@ -100,9 +100,9 @@ static u32 _destroySendData(send_data_t ** ppsd)
 
     if (psd->sd_jnmoOwner == JF_NETWORK_MEM_OWNER_LIB)
     {
-        xfree((void **)&(psd->sd_pu8Buffer));
+        jf_mem_free((void **)&(psd->sd_pu8Buffer));
     }
-    xfree((void **)ppsd);
+    jf_mem_free((void **)ppsd);
 
     return u32Ret;
 }
@@ -313,7 +313,7 @@ static u32 _adAddPendingData(
     {
         /*If we don't own this memory, we need to copy the buffer, because the
           user may free this memory before we have a chance to send it*/
-        u32Ret = dupMemory(
+        u32Ret = jf_mem_duplicate(
             (void **)&pData->sd_pu8Buffer, pu8Buffer, pData->sd_sBuf);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
@@ -378,7 +378,7 @@ static u32 _adTrySendData(
               we have a chance to complete sending it*/
             if (memowner == JF_NETWORK_MEM_OWNER_USER)
             {
-                u32Ret = dupMemory(
+                u32Ret = jf_mem_duplicate(
                     (void **)&pData->sd_pu8Buffer, pu8Buffer, pData->sd_sBuf);
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
@@ -422,7 +422,7 @@ u32 jf_network_destroyAdgram(jf_network_adgram_t ** ppAdgram)
     /*Free the buffer if necessary*/
     if (pia->ia_pu8Buffer != NULL)
     {
-        xfree((void **)&(pia->ia_pu8Buffer));
+        jf_mem_free((void **)&(pia->ia_pu8Buffer));
         pia->ia_sMalloc = 0;
     }
 
@@ -434,7 +434,7 @@ u32 jf_network_destroyAdgram(jf_network_adgram_t ** ppAdgram)
 
     jf_mutex_fini(&(pia->ia_jmLock));
 
-    xfree(ppAdgram);
+    jf_mem_free(ppAdgram);
 
     return u32Ret;
 }
@@ -446,7 +446,7 @@ u32 jf_network_createAdgram(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_adgram_t * pia;
 
-    u32Ret = xcalloc((void **)&pia, sizeof(internal_adgram_t));
+    u32Ret = jf_mem_calloc((void **)&pia, sizeof(internal_adgram_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pia->ia_jncohHeader.jncoh_fnPreSelect = _preSelectAdgram;
@@ -461,7 +461,7 @@ u32 jf_network_createAdgram(
         pia->ia_fnOnData = pjnacp->jnacp_fnOnData;
         pia->ia_fnOnSendOK = pjnacp->jnacp_fnOnSendOK;
 
-        u32Ret = xmalloc(
+        u32Ret = jf_mem_alloc(
             (void **)&(pia->ia_pu8Buffer), pjnacp->jnacp_sInitialBuf);
     }
 
@@ -519,7 +519,7 @@ u32 jf_network_sendAdgramData(
     send_data_t * data;
     boolean_t bUnblock = FALSE;
 
-    u32Ret = xcalloc((void **)&data, sizeof(send_data_t));
+    u32Ret = jf_mem_calloc((void **)&data, sizeof(send_data_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         data->sd_pu8Buffer = pu8Buffer;

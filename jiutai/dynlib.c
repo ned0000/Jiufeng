@@ -45,7 +45,7 @@ u32 loadDynLib(const olchar_t * pstrLibFile, dyn_lib_t ** ppLib)
     internal_dyn_lib_t * pidl = NULL;
 
 #if defined(LINUX)
-    u32Ret = xmalloc((void **)&pidl, sizeof(internal_dyn_lib_t));
+    u32Ret = jf_mem_alloc((void **)&pidl, sizeof(internal_dyn_lib_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pidl, 0, sizeof(internal_dyn_lib_t));
@@ -56,7 +56,7 @@ u32 loadDynLib(const olchar_t * pstrLibFile, dyn_lib_t ** ppLib)
     }
 
 #elif defined(WINDOWS)
-    u32Ret = xmalloc((void **)&pidl, sizeof(internal_dyn_lib_t));
+    u32Ret = jf_mem_alloc((void **)&pidl, sizeof(internal_dyn_lib_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pidl, 0, sizeof(internal_dyn_lib_t));
@@ -95,7 +95,7 @@ u32 freeDynLib(dyn_lib_t ** ppLib)
             u32Ret = JF_ERR_FAIL_FREE_DYNLIB;
     }
 
-    xfree(ppLib);
+    jf_mem_free(ppLib);
 
 #elif defined(WINDOWS)
     boolean_t bRet;
@@ -111,7 +111,7 @@ u32 freeDynLib(dyn_lib_t ** ppLib)
             u32Ret = JF_ERR_FAIL_FREE_DYNLIB;
     }
 
-    xfree(ppLib);
+    jf_mem_free(ppLib);
 
 #endif
 

@@ -186,7 +186,7 @@ static u32 _testHttpMsg(void)
             ol_printf("HTTP message\n");
             dumpDataInByteHex((u8 *)pstr, size);
 
-            xfree((void **)&pstr);
+            jf_mem_free((void **)&pstr);
         }
     }
 
@@ -341,8 +341,8 @@ static u32 _testParseUri(void)
             ol_printf("Port: %d\n", u16Port);
             ol_printf("Path: %s\n", pPath);
 
-            xfree((void **)&pIp);
-            xfree((void **)&pPath);
+            jf_mem_free((void **)&pIp);
+            jf_mem_free((void **)&pPath);
         }
         else if (u32Ret != thp[u32Index].u32ErrCode)
         {

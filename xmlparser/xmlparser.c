@@ -44,7 +44,7 @@ static u32 _destroyXMLNodeList(jf_xmlparser_xml_node_t ** ppNode)
         /*If there was a namespace table, delete it*/
         jf_hashtree_fini(&node->jxxn_jhNameSpace);
 
-        xfree((void **)&node);
+        jf_mem_free((void **)&node);
         node = temp;
     }
 
@@ -63,7 +63,7 @@ static u32 _newXMLNode(
     jf_xmlparser_xml_node_t * jxxnNew = NULL;
     olchar_t * pu8Reserved;
 
-    u32Ret = xcalloc((void **)&jxxnNew, sizeof(jf_xmlparser_xml_node_t));
+    u32Ret = jf_mem_calloc((void **)&jxxnNew, sizeof(jf_xmlparser_xml_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jxxnNew->jxxn_pstrName = pstrTagName;
@@ -106,7 +106,7 @@ static u32 _newXMLNode(
                a bogus EndElement, 
                just so the tree is consistent. No point in 
                introducing unnecessary complexity */
-            u32Ret = xmalloc((void **)&jxxnNew, sizeof(jf_xmlparser_xml_node_t));
+            u32Ret = jf_mem_alloc((void **)&jxxnNew, sizeof(jf_xmlparser_xml_node_t));
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 memset(jxxnNew, 0, sizeof(jf_xmlparser_xml_node_t));
@@ -456,13 +456,13 @@ static u32 _getXmlAttribute(
         if (retval == NULL)
         {
             /* If we haven't already created an attribute node, create it now */
-            u32Ret = xcalloc((void **)&retval, sizeof(jf_xmlparser_xml_attribute_t));
+            u32Ret = jf_mem_calloc((void **)&retval, sizeof(jf_xmlparser_xml_attribute_t));
         }
         else
         {
             /* We already created an attribute node, so simply create a new one,
                and attach it on the beginning of the old one. */
-            u32Ret = xcalloc((void **)&current, sizeof(jf_xmlparser_xml_attribute_t));
+            u32Ret = jf_mem_calloc((void **)&current, sizeof(jf_xmlparser_xml_attribute_t));
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 current->jxxa_pjxxaNext = retval;
@@ -539,7 +539,7 @@ u32 jf_xmlparser_destroyXMLAttributeList(jf_xmlparser_xml_attribute_t ** ppAttri
     while (attribute != NULL)
     {
         temp = attribute->jxxa_pjxxaNext;
-        xfree((void **)&attribute);
+        jf_mem_free((void **)&attribute);
         attribute = temp;
     }
 
@@ -775,7 +775,7 @@ u32 jf_xmlparser_parseXMLFile(
 
     assert((pstrFilename != NULL) && (ppFile != NULL));
 
-    u32Ret = xmalloc((void **)&pjxxf, sizeof(*pjxxf));
+    u32Ret = jf_mem_alloc((void **)&pjxxf, sizeof(*pjxxf));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pjxxf, 0, sizeof(*pjxxf));
@@ -785,7 +785,7 @@ u32 jf_xmlparser_parseXMLFile(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Size = (olsize_t)filestat.jfs_u64Size;
-        u32Ret = xmalloc((void **)&(pjxxf->jxxf_pstrBuf), u32Size);
+        u32Ret = jf_mem_alloc((void **)&(pjxxf->jxxf_pstrBuf), u32Size);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -828,7 +828,7 @@ u32 jf_xmlparser_destroyXMLFile(jf_xmlparser_xml_file_t ** ppFile)
         _destroyXMLNodeList(&(pjxxf->jxxf_jxxdDoc.jxxd_pjxxnRoot));
 
     if (pjxxf->jxxf_pstrBuf != NULL)
-        xfree((void **)&(pjxxf->jxxf_pstrBuf));
+        jf_mem_free((void **)&(pjxxf->jxxf_pstrBuf));
 
     return u32Ret;
 }
