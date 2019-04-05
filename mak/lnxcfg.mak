@@ -22,7 +22,7 @@ CP = cp
 # C flags
 CFLAGS = -Wall -DLINUX -D_REENTRANT -fPIC
 # for 64bit version
-CFLAGS += -DJIUFENG_64BIT
+#CFLAGS += -DJIUFENG_64BIT
 # Debug flags
 ifeq ("$(DEBUG_JIUFENG)", "yes")
     CFLAGS += -g -DDEBUG

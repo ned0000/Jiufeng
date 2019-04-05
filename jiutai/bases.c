@@ -75,25 +75,25 @@ static olint_t _getHashValue(void * pKey, u32 u32KeyLen)
 }
 
 static u32 _newHashtreeEntry(
-    hashtree_t * pHashtree, void * pKey, olsize_t sKey, olint_t value,
-    hash_node_t ** ppNode)
+    jf_hashtree_t * pHashtree, void * pKey, olsize_t sKey, olint_t value,
+    jf_hashtree_node_t ** ppNode)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    hash_node_t * node = NULL;
+    jf_hashtree_node_t * node = NULL;
 
-    u32Ret = xcalloc((void **)&node, sizeof(hash_node_t));
+    u32Ret = xcalloc((void **)&node, sizeof(jf_hashtree_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = dupMemory((void **)&node->hn_pstrKeyValue, pKey, sKey);
+        u32Ret = dupMemory((void **)&node->jhn_pstrKeyValue, pKey, sKey);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            node->hn_nKey = value;
-            node->hn_sKey = sKey;
+            node->jhn_nKey = value;
+            node->jhn_sKey = sKey;
 
-            node->hn_phnNext = pHashtree->h_phnRoot;
-            pHashtree->h_phnRoot = node;
-            if (node->hn_phnNext != NULL)
-                node->hn_phnNext->hn_phnPrev = node;
+            node->jhn_pjhnNext = pHashtree->jh_pjhnRoot;
+            pHashtree->jh_pjhnRoot = node;
+            if (node->jhn_pjhnNext != NULL)
+                node->jhn_pjhnNext->jhn_pjhnPrev = node;
 
             *ppNode = node;
         }
@@ -116,11 +116,11 @@ static u32 _newHashtreeEntry(
  *  @return the error code
  */
 static u32 _findHashtreeEntry(
-    hashtree_t * pHashtree, void * pKey,
-    olsize_t sKey, boolean_t bCreate, hash_node_t ** ppNode)
+    jf_hashtree_t * pHashtree, void * pKey,
+    olsize_t sKey, boolean_t bCreate, jf_hashtree_node_t ** ppNode)
 {
     u32 u32Ret = JF_ERR_HASHTREE_ENTRY_NOT_FOUND;
-    hash_node_t * current = pHashtree->h_phnRoot;
+    jf_hashtree_node_t * current = pHashtree->jh_pjhnRoot;
     olint_t value = _getHashValue(pKey, sKey);
 
     if (sKey == 0)
@@ -131,18 +131,18 @@ static u32 _findHashtreeEntry(
     while (current != NULL)
     {
         /*Integer compares are very fast, this will weed out most non-matches*/
-        if (current->hn_nKey == value)
+        if (current->jhn_nKey == value)
         {
             /*Verify this is really a match*/
-            if (current->hn_sKey == sKey &&
-                memcmp(current->hn_pstrKeyValue, pKey, sKey) == 0)
+            if (current->jhn_sKey == sKey &&
+                memcmp(current->jhn_pstrKeyValue, pKey, sKey) == 0)
             {
                 *ppNode = current;
                 u32Ret = JF_ERR_NO_ERROR;
                 break;
             }
         }
-        current = current->hn_phnNext;
+        current = current->jhn_pjhnNext;
     }
 
     if (*ppNode == NULL)
@@ -156,126 +156,127 @@ static u32 _findHashtreeEntry(
 
 /* --- public routine section ---------------------------------------------- */
 
-void initQueue(basic_queue_t * pQueue)
+void jf_queue_init(jf_queue_t * pQueue)
 {
-    pQueue->bq_pqnHead = pQueue->bq_pqnTail = NULL;
+    pQueue->jq_pjqnHead = pQueue->jq_pjqnTail = NULL;
 }
 
-void finiQueue(basic_queue_t * pQueue)
+void jf_queue_fini(jf_queue_t * pQueue)
 {
-    queue_node_t * pqn, * temp;
+    jf_queue_node_t * pjqn, * temp;
 
 	assert(pQueue != NULL);
 
-	temp = pQueue->bq_pqnHead;
+	temp = pQueue->jq_pjqnHead;
     while (temp != NULL)
     {
-        pqn = temp->qn_pqnNext;
+        pjqn = temp->jqn_pjqnNext;
         xfree((void **)&temp);
-        temp = pqn;
+        temp = pjqn;
     }
 }
 
-void finiQueueAndData(basic_queue_t * pQueue, fnFreeQueueData_t fnFreeData)
+void jf_queue_finiQueueAndData(
+    jf_queue_t * pQueue, jf_queue_fnFreeData_t fnFreeData)
 {
-    queue_node_t * pqn, * temp;
+    jf_queue_node_t * pjqn, * temp;
 
 	assert(pQueue != NULL);
 
-	temp = pQueue->bq_pqnHead;
+	temp = pQueue->jq_pjqnHead;
     while (temp != NULL)
     {
-        pqn = temp->qn_pqnNext;
+        pjqn = temp->jqn_pjqnNext;
 
-        fnFreeData(&(temp->qn_pData));
+        fnFreeData(&(temp->jqn_pData));
 
         xfree((void **)&temp);
-        temp = pqn;
+        temp = pjqn;
     }
 }
 
-boolean_t isQueueEmpty(basic_queue_t * pbq)
+boolean_t jf_queue_isEmpty(jf_queue_t * pQueue)
 {
-    return (pbq->bq_pqnHead == NULL ? TRUE : FALSE);
+    return (pQueue->jq_pjqnHead == NULL ? TRUE : FALSE);
 }
 
-u32 enqueue(basic_queue_t * pbq, void * data)
+u32 jf_queue_enqueue(jf_queue_t * pQueue, void * data)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    queue_node_t * pqn;
+    jf_queue_node_t * pjqn;
 
-    u32Ret = xcalloc((void **)&pqn, sizeof(queue_node_t));
+    u32Ret = xcalloc((void **)&pjqn, sizeof(jf_queue_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        pqn->qn_pData = data;
+        pjqn->jqn_pData = data;
 
-        if (pbq->bq_pqnHead == NULL)
+        if (pQueue->jq_pjqnHead == NULL)
         {
             /*If there is no head, this new entry is the head*/
-            pbq->bq_pqnHead = pqn;
-            pbq->bq_pqnTail = pqn;
+            pQueue->jq_pjqnHead = pjqn;
+            pQueue->jq_pjqnTail = pjqn;
         }
         else
         {
             /*Since there is already a head, just attach this entry 
               to the tail, andcall this the new tail*/
-            pbq->bq_pqnTail->qn_pqnNext = pqn;
-            pbq->bq_pqnTail = pqn;
+            pQueue->jq_pjqnTail->jqn_pjqnNext = pjqn;
+            pQueue->jq_pjqnTail = pjqn;
         }
     }
 
     return u32Ret;
 }
 
-void * dequeue(basic_queue_t * pbq)
+void * jf_queue_dequeue(jf_queue_t * pQueue)
 {
-    queue_node_t * temp;
+    jf_queue_node_t * temp;
     void * retval = NULL;
 
-    assert(pbq != NULL);
+    assert(pQueue != NULL);
 
-    if (pbq->bq_pqnHead == NULL)
+    if (pQueue->jq_pjqnHead == NULL)
         return NULL;
 
-    temp = pbq->bq_pqnHead;
-    retval = temp->qn_pData;
-    pbq->bq_pqnHead = pbq->bq_pqnHead->qn_pqnNext;
-    if (pbq->bq_pqnHead == NULL)
+    temp = pQueue->jq_pjqnHead;
+    retval = temp->jqn_pData;
+    pQueue->jq_pjqnHead = pQueue->jq_pjqnHead->jqn_pjqnNext;
+    if (pQueue->jq_pjqnHead == NULL)
     {
-        pbq->bq_pqnTail = NULL;
+        pQueue->jq_pjqnTail = NULL;
     }
     xfree((void **)&temp);
 
     return retval;
 }
 
-void * peekQueue(basic_queue_t * pbq)
+void * jf_queue_peek(jf_queue_t * pQueue)
 {
-    if (pbq->bq_pqnHead == NULL)
+    if (pQueue->jq_pjqnHead == NULL)
         return NULL;
     else
-        return pbq->bq_pqnHead->qn_pData;
+        return pQueue->jq_pjqnHead->jqn_pData;
 }
 
 /*
  * Stack Methods
  */
 
-void initStack(basic_stack_t ** ppStack)
+void jf_stack_init(jf_stack_t ** ppStack)
 {
     *ppStack = NULL;
 }
 
-u32 pushStack(basic_stack_t ** ppStack, void * data)
+u32 jf_stack_push(jf_stack_t ** ppStack, void * data)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    stack_node_t * retval;
+    jf_stack_node_t * retval;
 
-    u32Ret = xmalloc((void **)&retval, sizeof(stack_node_t));
+    u32Ret = xmalloc((void **)&retval, sizeof(jf_stack_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        retval->sn_pData = data;
-        retval->sn_psnNext = * ppStack;
+        retval->jsn_pData = data;
+        retval->jsn_pjsnNext = * ppStack;
 
         *ppStack = retval;
     }
@@ -283,39 +284,39 @@ u32 pushStack(basic_stack_t ** ppStack, void * data)
     return u32Ret;
 }
 
-void * popStack(basic_stack_t ** ppStack)
+void * jf_stack_pop(jf_stack_t ** ppStack)
 {
     void * retval = NULL;
     void * temp;
 
     if (*ppStack != NULL)
     {
-        retval = ((stack_node_t *) *ppStack)->sn_pData;
+        retval = ((jf_stack_node_t *) *ppStack)->jsn_pData;
         temp = *ppStack;
-        *ppStack = ((stack_node_t *) *ppStack)->sn_psnNext;
+        *ppStack = ((jf_stack_node_t *) *ppStack)->jsn_pjsnNext;
         xfree((void **)&temp);
     }
 
     return retval;
 }
 
-void * peekStack(basic_stack_t ** ppStack)
+void * jf_stack_peek(jf_stack_t ** ppStack)
 {
     void * retval = NULL;
 
     if (*ppStack != NULL)
-        retval = ((stack_node_t *) *ppStack)->sn_pData;
+        retval = ((jf_stack_node_t *) *ppStack)->jsn_pData;
 
     return retval;
 }
 
-void clearStack(basic_stack_t ** ppStack)
+void jf_stack_clear(jf_stack_t ** ppStack)
 {
     void * temp = *ppStack;
 
     do
     {
-        popStack(&temp);
+        jf_stack_pop(&temp);
     }
     while (temp != NULL);
 
@@ -325,83 +326,83 @@ void clearStack(basic_stack_t ** ppStack)
 /*
  * linked list
  */
-void initLinkList(link_list_t * pList)
+void jf_linklist_init(jf_linklist_t * pList)
 {
     assert(pList != NULL);
 
-    pList->ll_pllnHead = NULL;
+    pList->jl_pjlnHead = NULL;
 }
 
 /** Finalize the linked list
  *
  */
-void finiLinkList(link_list_t * pList)
+void jf_linklist_fini(jf_linklist_t * pList)
 {
-    link_list_node_t * plln, * pNode;
+    jf_linklist_node_t * pjln, * pNode;
 
     assert(pList != NULL);
 
-	plln = pList->ll_pllnHead;
-    while (plln != NULL)
+	pjln = pList->jl_pjlnHead;
+    while (pjln != NULL)
     {
-		pNode = plln->lln_pllnNext;
-        xfree((void **)&plln);
-        plln = pNode;
+		pNode = pjln->jln_pjlnNext;
+        xfree((void **)&pjln);
+        pjln = pNode;
     }
 
-    initLinkList(pList);
+    jf_linklist_init(pList);
 }
 
 /** Finalize the linked list with the function to free the data
  * 
  */
-void finiLinkListAndData(link_list_t * pList,
-    fnFreeListNodeData_t fnFreeData)
+void jf_linklist_finiListAndData(
+    jf_linklist_t * pList, jf_linklist_fnFreeNodeData_t fnFreeData)
 {
-    link_list_node_t * plln, * pNode;
+    jf_linklist_node_t * pjln, * pNode;
 
     assert((pList != NULL) && (fnFreeData != NULL));
 
-	plln = pList->ll_pllnHead;
-    while (plln != NULL)
+	pjln = pList->jl_pjlnHead;
+    while (pjln != NULL)
     {
-		pNode = plln->lln_pllnNext;
+		pNode = pjln->jln_pjlnNext;
 
-		fnFreeData(&(plln->lln_pData));
+		fnFreeData(&(pjln->jln_pData));
 
-        xfree((void **)&plln);
-        plln = pNode;
+        xfree((void **)&pjln);
+        pjln = pNode;
     }
 
-    initLinkList(pList);
+    jf_linklist_init(pList);
 }
 
 /** Append the data to the linked list
  *
  */
-u32 appendToLinkList(link_list_t * pList, void * pData)
+u32 jf_linklist_appendTo(jf_linklist_t * pList, void * pData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    link_list_node_t * pNode, * plln;
+    jf_linklist_node_t * pNode, * pjln;
 
     assert(pList != NULL);
 
-    u32Ret = xcalloc((void **)&pNode, sizeof(link_list_node_t));
+    u32Ret = xcalloc((void **)&pNode, sizeof(jf_linklist_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-		pNode->lln_pData = pData;
+		pNode->jln_pData = pData;
 
-		if (pList->ll_pllnHead == NULL)
+		if (pList->jl_pjlnHead == NULL)
         {
-            pList->ll_pllnHead = pNode;
+            pList->jl_pjlnHead = pNode;
         }
         else
         {
-			plln = pList->ll_pllnHead;
-			while (plln->lln_pllnNext != NULL)
-				plln = plln->lln_pllnNext;
+			pjln = pList->jl_pjlnHead;
+			while (pjln->jln_pjlnNext != NULL)
+				pjln = pjln->jln_pjlnNext;
 
-			plln->lln_pllnNext = pNode;
+			pjln->jln_pjlnNext = pNode;
         }
     }
 
@@ -411,20 +412,20 @@ u32 appendToLinkList(link_list_t * pList, void * pData)
 /** Insert the data to the head of the linked list
  *
  */
-u32 insertToLinkList(link_list_t * pList, void * pData)
+u32 jf_linklist_insertTo(jf_linklist_t * pList, void * pData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    link_list_node_t * pNode;
+    jf_linklist_node_t * pNode;
 
     assert((pList != NULL) && (pData != NULL));
 
-    u32Ret = xcalloc((void **)&pNode, sizeof(link_list_node_t));
+    u32Ret = xcalloc((void **)&pNode, sizeof(jf_linklist_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-		pNode->lln_pData = pData;
+		pNode->jln_pData = pData;
 
-		pNode->lln_pllnNext = pList->ll_pllnHead;
-		pList->ll_pllnHead = pNode;
+		pNode->jln_pjlnNext = pList->jl_pjlnHead;
+		pList->jl_pjlnHead = pNode;
     }
 
     return u32Ret;
@@ -437,107 +438,107 @@ u32 insertToLinkList(link_list_t * pList, void * pData)
 /** Init the double linked list
  *
  */
-void initDlinkList(dlink_list_t * pList)
+void jf_dlinklist_init(jf_dlinklist_t * pList)
 {
     assert(pList != NULL);
 
-    pList->dl_pdlnHead = pList->dl_pdlnTail = NULL;
+    pList->jd_pjdnHead = pList->jd_pjdnTail = NULL;
 }
 
 /** Create the double linked list
  *
  */
-void finiDlinkList(dlink_list_t * pList)
+void jf_dlinklist_fini(jf_dlinklist_t * pList)
 {
-    dlink_list_node_t * pdln, * pNode;
+    jf_dlinklist_node_t * pjdn, * pNode;
 
     assert(pList != NULL);
 
-    pdln = pList->dl_pdlnHead;
-    while (pdln != NULL)
+    pjdn = pList->jd_pjdnHead;
+    while (pjdn != NULL)
     {
-        pNode = pdln->dln_pdlnNext;
-        xfree((void **)&pdln);
-        pdln = pNode;
+        pNode = pjdn->jdn_pjdnNext;
+        xfree((void **)&pjdn);
+        pjdn = pNode;
     }
 
-    initDlinkList(pList);
+    jf_dlinklist_init(pList);
 }
 
 /** Create the double linked list with the function to free the data
  * 
  */
-void finiDlinkListAndData(
-    dlink_list_t * pList, fnFreeListNodeData_t fnFreeData)
+void jf_dlinklist_finiListAndData(
+    jf_dlinklist_t * pList, jf_dlinklist_fnFreeNodeData_t fnFreeData)
 {
-    dlink_list_node_t * pdln, * pNode;
+    jf_dlinklist_node_t * pjdn, * pNode;
 
     assert(pList != NULL);
 
-    pdln = pList->dl_pdlnHead;
-    while (pdln != NULL)
+    pjdn = pList->jd_pjdnHead;
+    while (pjdn != NULL)
     {
-        pNode = pdln->dln_pdlnNext;
+        pNode = pjdn->jdn_pjdnNext;
 
-        fnFreeData(&(pdln->dln_pData));
+        fnFreeData(&(pjdn->jdn_pData));
 
-        xfree((void **)&pdln);
-        pdln = pNode;
+        xfree((void **)&pjdn);
+        pjdn = pNode;
     }
 
-    initDlinkList(pList);
+    jf_dlinklist_init(pList);
 }
 
 /** remove all notes from double linked list
  * 
  */
-void removeAllNodesFromDlinkList(dlink_list_t * pList,
-    fnFreeListNodeData_t fnFreeData)
+void jf_dlinklist_removeAllNodes(
+    jf_dlinklist_t * pList, jf_dlinklist_fnFreeNodeData_t fnFreeData)
 {
-    dlink_list_node_t * pdln, * pNode;
+    jf_dlinklist_node_t * pjdn, * pNode;
 
     assert(pList != NULL);
 
-    pdln = pList->dl_pdlnHead;
-    while (pdln != NULL)
+    pjdn = pList->jd_pjdnHead;
+    while (pjdn != NULL)
     {
-        pNode = pdln->dln_pdlnNext;
+        pNode = pjdn->jdn_pjdnNext;
 
-        fnFreeData(&(pdln->dln_pData));
+        fnFreeData(&(pjdn->jdn_pData));
 
-        xfree((void **)&pdln);
-        pdln = pNode;
+        xfree((void **)&pjdn);
+        pjdn = pNode;
     }
 
-    initDlinkList(pList);
+    jf_dlinklist_init(pList);
 }
 
 /** find the data
  * 
  */
-u32 findFirstDataFromDlinkList(
-    dlink_list_t * pList, void ** ppData,
-    fnFindListNodeData_t fnFindData, void * pKey)
+u32 jf_dlinklist_findFirstData(
+    jf_dlinklist_t * pList, void ** ppData,
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
-    dlink_list_node_t * pdln;
+    jf_dlinklist_node_t * pjdn;
 
     assert((pList != NULL) && (ppData != NULL) &&
            (fnFindData != NULL));
 
     *ppData = NULL;
 
-    pdln = pList->dl_pdlnHead;
-    while (pdln != NULL)
+    pjdn = pList->jd_pjdnHead;
+    while (pjdn != NULL)
     {
-        if (fnFindData(pdln->dln_pData, pKey))
+        if (fnFindData(pjdn->jdn_pData, pKey))
         {
-            *ppData = pdln->dln_pData;
+            *ppData = pjdn->jdn_pData;
             u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
-        pdln = pdln->dln_pdlnNext;
+        pjdn = pjdn->jdn_pjdnNext;
     }
 
     return u32Ret;
@@ -546,29 +547,29 @@ u32 findFirstDataFromDlinkList(
 /** find the node
  * 
  */
-u32 findFirstNodeFromDlinkList(
-    dlink_list_t * pList, dlink_list_node_t ** ppNode,
-    fnFindListNodeData_t fnFindData, void * pKey)
+u32 jf_dlinklist_findFirstNode(
+    jf_dlinklist_t * pList, jf_dlinklist_node_t ** ppNode,
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
-    dlink_list_node_t * pdln;
+    jf_dlinklist_node_t * pjdn;
 
     assert((pList != NULL) && (ppNode != NULL) &&
            (fnFindData != NULL));
 
     *ppNode = NULL;
 
-    pdln = pList->dl_pdlnHead;
-    while (pdln != NULL)
+    pjdn = pList->jd_pjdnHead;
+    while (pjdn != NULL)
     {
-        if (fnFindData(pdln->dln_pData, pKey))
+        if (fnFindData(pjdn->jdn_pData, pKey))
         {
-            *ppNode = pdln;
+            *ppNode = pjdn;
             u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
-        pdln = pdln->dln_pdlnNext;
+        pjdn = pjdn->jdn_pjdnNext;
     }
 
     return u32Ret;
@@ -577,29 +578,29 @@ u32 findFirstNodeFromDlinkList(
 /** Create the double linked list with the function to free the data
  * 
  */
-u32 findLastDataFromDlinkList(
-    dlink_list_t * pList, void ** ppData,
-    fnFindListNodeData_t fnFindData, void * pKey)
+u32 jf_dlinklist_findLastData(
+    jf_dlinklist_t * pList, void ** ppData,
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
-    dlink_list_node_t * pdln;
+    jf_dlinklist_node_t * pjdn;
 
     assert((pList != NULL) && (ppData != NULL) &&
            (fnFindData != NULL));
 
     *ppData = NULL;
 
-    pdln = pList->dl_pdlnTail;
-    while (pdln != NULL)
+    pjdn = pList->jd_pjdnTail;
+    while (pjdn != NULL)
     {
-        if (fnFindData(pdln->dln_pData, pKey))
+        if (fnFindData(pjdn->jdn_pData, pKey))
         {
-            *ppData = pdln->dln_pData;
+            *ppData = pjdn->jdn_pData;
             u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
-        pdln = pdln->dln_pdlnPrev;
+        pjdn = pjdn->jdn_pjdnPrev;
     }
 
     return u32Ret;
@@ -608,28 +609,29 @@ u32 findLastDataFromDlinkList(
 /** find last node
  * 
  */
-u32 findLastNodeFromDlinkList(dlink_list_t * pList, dlink_list_node_t ** ppNode,
-    fnFindListNodeData_t fnFindData, void * pKey)
+u32 jf_dlinklist_findLastNode(
+    jf_dlinklist_t * pList, jf_dlinklist_node_t ** ppNode,
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
-    dlink_list_node_t * pdln;
+    jf_dlinklist_node_t * pjdn;
 
     assert((pList != NULL) && (ppNode != NULL) &&
            (fnFindData != NULL));
 
     *ppNode = NULL;
 
-    pdln = pList->dl_pdlnTail;
-    while (pdln != NULL)
+    pjdn = pList->jd_pjdnTail;
+    while (pjdn != NULL)
     {
-        if (fnFindData(pdln->dln_pData, pKey))
+        if (fnFindData(pjdn->jdn_pData, pKey))
         {
-            *ppNode = pdln;
+            *ppNode = pjdn;
             u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
-        pdln = pdln->dln_pdlnPrev;
+        pjdn = pjdn->jdn_pjdnPrev;
     }
 
     return u32Ret;
@@ -638,9 +640,9 @@ u32 findLastNodeFromDlinkList(dlink_list_t * pList, dlink_list_node_t ** ppNode,
 /** find the next node
  * 
  */
-u32 findNextNodeFromDlinkList(
-    dlink_list_node_t * pNode, dlink_list_node_t ** ppNode,
-    fnFindListNodeData_t fnFindData, void * pKey)
+u32 jf_dlinklist_findNextNode(
+    jf_dlinklist_node_t * pNode, jf_dlinklist_node_t ** ppNode,
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
 
@@ -648,17 +650,17 @@ u32 findNextNodeFromDlinkList(
            (fnFindData != NULL));
 
     *ppNode = NULL;
-    pNode = pNode->dln_pdlnNext;
+    pNode = pNode->jdn_pjdnNext;
     while (pNode != NULL)
     {
-        if (fnFindData(pNode->dln_pData, pKey))
+        if (fnFindData(pNode->jdn_pData, pKey))
         {
             *ppNode = pNode;
             u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
-        pNode = pNode->dln_pdlnNext;
+        pNode = pNode->jdn_pjdnNext;
     }
 
     return u32Ret;
@@ -667,9 +669,9 @@ u32 findNextNodeFromDlinkList(
 /** find the previous node
  * 
  */
-u32 findPrevNodeFromDlinkList(
-    dlink_list_node_t * pNode, dlink_list_node_t ** ppNode,
-    fnFindListNodeData_t fnFindData, void * pKey)
+u32 jf_dlinklist_findPrevNode(
+    jf_dlinklist_node_t * pNode, jf_dlinklist_node_t ** ppNode,
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
 
@@ -677,17 +679,17 @@ u32 findPrevNodeFromDlinkList(
            (fnFindData != NULL));
 
     *ppNode = NULL;
-    pNode = pNode->dln_pdlnPrev;
+    pNode = pNode->jdn_pjdnPrev;
     while (pNode != NULL)
     {
-        if (fnFindData(pNode->dln_pData, pKey))
+        if (fnFindData(pNode->jdn_pData, pKey))
         {
             *ppNode = pNode;
             u32Ret = JF_ERR_NO_ERROR;
             break;
         }
 
-        pNode = pNode->dln_pdlnPrev;
+        pNode = pNode->jdn_pjdnPrev;
     }
 
     return u32Ret;
@@ -696,28 +698,28 @@ u32 findPrevNodeFromDlinkList(
 /** Append the data to the double linked list
  *
  */
-u32 appendToDlinkList(dlink_list_t * pList, void * pData)
+u32 jf_dlinklist_appendTo(jf_dlinklist_t * pList, void * pData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    dlink_list_node_t * pNode;
+    jf_dlinklist_node_t * pNode;
 
     assert(pList != NULL);
 
-    u32Ret = xcalloc((void **)&pNode, sizeof(dlink_list_node_t));
+    u32Ret = xcalloc((void **)&pNode, sizeof(jf_dlinklist_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        pNode->dln_pData = pData;
+        pNode->jdn_pData = pData;
 
-        if (pList->dl_pdlnHead == NULL)
+        if (pList->jd_pjdnHead == NULL)
         {
-            pList->dl_pdlnHead = pNode;
-            pList->dl_pdlnTail = pNode;
+            pList->jd_pjdnHead = pNode;
+            pList->jd_pjdnTail = pNode;
         }
         else
         {
-            pNode->dln_pdlnPrev = pList->dl_pdlnTail;
-            pList->dl_pdlnTail->dln_pdlnNext = pNode;
-            pList->dl_pdlnTail = pNode;
+            pNode->jdn_pjdnPrev = pList->jd_pjdnTail;
+            pList->jd_pjdnTail->jdn_pjdnNext = pNode;
+            pList->jd_pjdnTail = pNode;
         }
     }
 
@@ -728,123 +730,125 @@ u32 appendToDlinkList(dlink_list_t * pList, void * pData)
  * Hashtree Methods
  */
 
-void finiHashtree(hashtree_t * pHashtree)
+void jf_hashtree_fini(jf_hashtree_t * pHashtree)
 {
-    hash_node_t * phn;
-    hash_node_t * pNode;
+    jf_hashtree_node_t * pjhn;
+    jf_hashtree_node_t * pNode;
 
     assert(pHashtree != NULL);
 
-    phn = pHashtree->h_phnRoot;
-    while (phn != NULL)
+    pjhn = pHashtree->jh_pjhnRoot;
+    while (pjhn != NULL)
     {
         // Iterate through each node, and free all the resources
-        pNode = phn->hn_phnNext;
-        if (phn->hn_pstrKeyValue != NULL)
+        pNode = pjhn->jhn_pjhnNext;
+        if (pjhn->jhn_pstrKeyValue != NULL)
         {
-            xfree((void **)&(phn->hn_pstrKeyValue));
+            xfree((void **)&(pjhn->jhn_pstrKeyValue));
         }
-        xfree((void **)&phn);
-        phn = pNode;
+        xfree((void **)&pjhn);
+        pjhn = pNode;
     }
 }
 
-void finiHashtreeAndData(
-    hashtree_t * pHashtree, fnFreeHashtreeData_t fnFreeData)
+void jf_hashtree_finiHashtreeAndData(
+    jf_hashtree_t * pHashtree, jf_hashtree_fnFreeData_t fnFreeData)
 {
-    hash_node_t * phn;
-    hash_node_t * pNode;
+    jf_hashtree_node_t * pjhn;
+    jf_hashtree_node_t * pNode;
 
     assert((pHashtree != NULL) && (fnFreeData != NULL));
 
-    phn = pHashtree->h_phnRoot;
-    while (phn != NULL)
+    pjhn = pHashtree->jh_pjhnRoot;
+    while (pjhn != NULL)
     {
         // Iterate through each node, and free all the resources
-        pNode = phn->hn_phnNext;
+        pNode = pjhn->jhn_pjhnNext;
 
-        if (phn->hn_pData != NULL)
-            fnFreeData(&phn->hn_pData);
+        if (pjhn->jhn_pData != NULL)
+            fnFreeData(&pjhn->jhn_pData);
 
-        if (phn->hn_pstrKeyValue != NULL)
+        if (pjhn->jhn_pstrKeyValue != NULL)
         {
-            xfree((void **)&phn->hn_pstrKeyValue);
+            xfree((void **)&pjhn->jhn_pstrKeyValue);
         }
-        xfree((void **)&phn);
+        xfree((void **)&pjhn);
 
-        phn = pNode;
+        pjhn = pNode;
     }
 }
 
-boolean_t hasHashtreeEntry(hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey)
+boolean_t jf_hashtree_hasEntry(
+    jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey)
 {
     boolean_t bRet = FALSE;
-    hash_node_t * phn;
+    jf_hashtree_node_t * pjhn;
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     /*This can be duplicated by calling Find entry, 
       but setting the create flag to false*/
-    u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, FALSE, &phn);
+    u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, FALSE, &pjhn);
     if (u32Ret == JF_ERR_NO_ERROR)
         bRet = TRUE;
 
     return bRet;
 }
 
-u32 addHashtreeEntry(
-    hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void * value)
+u32 jf_hashtree_addEntry(
+    jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void * value)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     /*This can be duplicated by calling FindEntry, and setting create to true*/
-    hash_node_t * phn;
+    jf_hashtree_node_t * pjhn;
 
-    u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, TRUE, &phn);
+    u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, TRUE, &pjhn);
     if (u32Ret == JF_ERR_NO_ERROR)
-        phn->hn_pData = value;
+        pjhn->jhn_pData = value;
 
     return u32Ret;
 }
 
-u32 getHashtreeEntry(
-    hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void ** ppData)
+u32 jf_hashtree_getEntry(
+    jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void ** ppData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     /*This can be duplicated by calling FindEntry and setting create to false.
       If a match is found, just return the data*/
-    hash_node_t * phn;
+    jf_hashtree_node_t * pjhn;
 
-    u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, FALSE, &phn);
+    u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, FALSE, &pjhn);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        *ppData = phn->hn_pData;
+        *ppData = pjhn->jhn_pData;
     }
 
     return u32Ret;
 }
 
-u32 deleteHashtreeEntry(hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey)
+u32 jf_hashtree_deleteEntry(
+    jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    hash_node_t * phn;
+    jf_hashtree_node_t * pjhn;
 
-    u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, FALSE, &phn);
+    u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, FALSE, &pjhn);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Then remove it from the tree*/
-        if (phn == pHashtree->h_phnRoot)
+        if (pjhn == pHashtree->jh_pjhnRoot)
         {
-            pHashtree->h_phnRoot = phn->hn_phnNext;
-            if (phn->hn_phnNext != NULL)
-                phn->hn_phnNext->hn_phnPrev = NULL;
+            pHashtree->jh_pjhnRoot = pjhn->jhn_pjhnNext;
+            if (pjhn->jhn_pjhnNext != NULL)
+                pjhn->jhn_pjhnNext->jhn_pjhnPrev = NULL;
         }
         else
         {
-            phn->hn_phnPrev->hn_phnNext = phn->hn_phnNext;
-            if (phn->hn_phnNext != NULL)
-                phn->hn_phnNext->hn_phnPrev = phn->hn_phnPrev;
+            pjhn->jhn_pjhnPrev->jhn_pjhnNext = pjhn->jhn_pjhnNext;
+            if (pjhn->jhn_pjhnNext != NULL)
+                pjhn->jhn_pjhnNext->jhn_pjhnPrev = pjhn->jhn_pjhnPrev;
         }
-        xfree((void **)&phn->hn_pstrKeyValue);
-        xfree((void **)&phn);
+        xfree((void **)&pjhn->jhn_pstrKeyValue);
+        xfree((void **)&pjhn);
     }
 
     return u32Ret;

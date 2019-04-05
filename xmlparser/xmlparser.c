@@ -42,7 +42,7 @@ static u32 _destroyXMLNodeList(jf_xmlparser_xml_node_t ** ppNode)
         temp = node->jxxn_pjxxnNext;
 
         /*If there was a namespace table, delete it*/
-        finiHashtree(&node->jxxn_hNameSpace);
+        jf_hashtree_fini(&node->jxxn_jhNameSpace);
 
         xfree((void **)&node);
         node = temp;
@@ -367,7 +367,7 @@ static u32 _processXMLNodeList(jf_xmlparser_xml_doc_t * pjxxd)
     jf_xmlparser_xml_node_t * temp, * parent;
     void * TagStack = NULL;
 
-    initStack(&TagStack);
+    jf_stack_init(&TagStack);
     /* Iterate through the node list, and setup all the pointers
        such that all StartElements have pointers to EndElements,
        And all StartElements have pointers to siblings and parents. */
@@ -376,17 +376,17 @@ static u32 _processXMLNodeList(jf_xmlparser_xml_doc_t * pjxxd)
         if (current->jxxn_bStartTag)
         {
             /* Start Tag */
-            parent = peekStack(&TagStack);
+            parent = jf_stack_peek(&TagStack);
             current->jxxn_pjxxnParent = parent;
             if ((parent != NULL) && (parent->jxxn_pjxxnChildren == NULL))
                 parent->jxxn_pjxxnChildren = current;
-            pushStack(&TagStack, current);
+            jf_stack_push(&TagStack, current);
         }
         else
         {
             /* Close Tag */
             /* Check to see if there is supposed to be an EndElement */
-            temp = (jf_xmlparser_xml_node_t *)popStack(&TagStack);
+            temp = (jf_xmlparser_xml_node_t *)jf_stack_pop(&TagStack);
             if (temp != NULL)
             {
                 /* Checking to see if this end element is correct in scope */
@@ -434,7 +434,7 @@ static u32 _processXMLNodeList(jf_xmlparser_xml_doc_t * pjxxd)
         /* Incomplete XML */
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = JF_ERR_INCOMPLETE_XML;
-        clearStack(&TagStack);
+        jf_stack_clear(&TagStack);
     }
 
     return u32Ret;
@@ -575,12 +575,12 @@ u32 jf_xmlparser_lookupXMLNamespace(
       a match. Each step we go up, is a step wider in scope.*/
     do
     {
-        if (hasHashtreeEntry(&temp->jxxn_hNameSpace, prefix, sPrefix))
+        if (jf_hashtree_hasEntry(&temp->jxxn_jhNameSpace, prefix, sPrefix))
         {
             /*As soon as we find the namespace declaration, stop
               iterating the tree, as it would be a waste of time*/
-            getHashtreeEntry(
-                &temp->jxxn_hNameSpace, prefix, sPrefix, (void **)ppstr);
+            jf_hashtree_getEntry(
+                &temp->jxxn_jhNameSpace, prefix, sPrefix, (void **)ppstr);
             break;
         }
 
@@ -612,9 +612,9 @@ u32 jf_xmlparser_buildXMLNamespaceLookupTable(jf_xmlparser_xml_node_t * node)
             continue;
         }
 
-        /*jxxn_hNameSpace is the hash table containing the fully qualified
+        /*jxxn_jhNameSpace is the hash table containing the fully qualified
           namespace keyed by the namespace prefix*/
-        initHashtree(&current->jxxn_hNameSpace);
+        jf_hashtree_init(&current->jxxn_jhNameSpace);
 
         u32Ret = jf_xmlparser_getXMLAttributes(current, &attr);
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -629,8 +629,8 @@ u32 jf_xmlparser_buildXMLNamespaceLookupTable(jf_xmlparser_xml_node_t * node)
                 {
                     /*default namespace declaration*/
                     currentAttr->jxxa_pstrValue[currentAttr->jxxa_sValue] = 0;
-                    addHashtreeEntry(
-                        &current->jxxn_hNameSpace, "xmlns", 5,
+                    jf_hashtree_addEntry(
+                        &current->jxxn_jhNameSpace, "xmlns", 5,
                         currentAttr->jxxa_pstrValue);
                 }
                 else if (currentAttr->jxxa_sPrefix == 5 &&
@@ -638,8 +638,8 @@ u32 jf_xmlparser_buildXMLNamespaceLookupTable(jf_xmlparser_xml_node_t * node)
                 {
                     /*Other Namespace Declaration*/
                     currentAttr->jxxa_pstrValue[currentAttr->jxxa_sValue] = 0;
-                    addHashtreeEntry(
-                        &current->jxxn_hNameSpace, currentAttr->jxxa_pstrName,
+                    jf_hashtree_addEntry(
+                        &current->jxxn_jhNameSpace, currentAttr->jxxa_pstrName,
                         currentAttr->jxxa_sName, currentAttr->jxxa_pstrValue);
                 }
                 currentAttr = currentAttr->jxxa_pjxxaNext;
@@ -659,16 +659,16 @@ u32 jf_xmlparser_readInnerXML(
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_xmlparser_xml_node_t *x = node;
     olsize_t sBuf = 0;
-    basic_stack_t *tagStack;
+    jf_stack_t *tagStack;
 
     /*Starting with the current start element, we use this stack to find
       the matching end element, so we can figure out what we need to return*/
-    initStack(&tagStack);
+    jf_stack_init(&tagStack);
     do
     {
         if (x->jxxn_bStartTag)
         {
-            pushStack(&tagStack, x);
+            jf_stack_push(&tagStack, x);
         }
         x = x->jxxn_pjxxnNext;
 
@@ -677,9 +677,9 @@ u32 jf_xmlparser_readInnerXML(
         
         if (ol_memcmp(x->jxxn_pstrName, node->jxxn_pstrName, node->jxxn_sName) != 0)
             continue;
-    } while (! ((! x->jxxn_bStartTag) && (popStack(&tagStack) == node)));
+    } while (! ((! x->jxxn_bStartTag) && (jf_stack_pop(&tagStack) == node)));
 
-    clearStack(&tagStack);
+    jf_stack_clear(&tagStack);
 
     /*The jxxn_pReserved fields of the start element and end element are used as
       pointers representing the data segment of the XML*/

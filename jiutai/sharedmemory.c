@@ -193,7 +193,11 @@ u32 attachSharedMemory(shm_id_t * pShmId, void ** ppMapAddress)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pMap = shmat(nShmId, NULL, 0);
+#if defined(JIUFENG_64BIT)
         if ((s64)pMap == -1)
+#else
+        if ((s32)pMap == -1)
+#endif
         {
             u32Ret = JF_ERR_FAIL_ATTACH_SHAREDMEMORY;
         }

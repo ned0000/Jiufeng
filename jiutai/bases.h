@@ -28,87 +28,90 @@
 /* --- data structures ----------------------------------------------------- */
 
 /*basic stack*/
-typedef struct stack_node
+typedef struct jf_stack_node
 {
-    void * sn_pData;
-    struct stack_node * sn_psnNext;
-} stack_node_t;
+    void * jsn_pData;
+    struct jf_stack_node * jsn_pjsnNext;
+} jf_stack_node_t;
 
-typedef void  basic_stack_t;
+typedef void  jf_stack_t;
 
 /*basic queue*/
-typedef struct queue_node
+typedef struct jf_queue_node
 {
-    void * qn_pData;
-    struct queue_node * qn_pqnNext;
-} queue_node_t;
+    void * jqn_pData;
+    struct jf_queue_node * jqn_pjqnNext;
+} jf_queue_node_t;
 
-typedef struct basic_queue
+typedef struct jf_queue
 {
-    queue_node_t * bq_pqnHead;
-    queue_node_t * bq_pqnTail;
-} basic_queue_t;
+    jf_queue_node_t * jq_pjqnHead;
+    jf_queue_node_t * jq_pjqnTail;
+} jf_queue_t;
+
+typedef u32 (* jf_queue_fnFreeData_t)(void ** ppData);
 
 /*linked list*/
-typedef struct link_list_node
+typedef struct jf_linklist_node
 {
-    struct link_list_node * lln_pllnNext;
-    void * lln_pData;
-} link_list_node_t;
+    struct jf_linklist_node * jln_pjlnNext;
+    void * jln_pData;
+} jf_linklist_node_t;
 
-typedef struct link_list
+typedef struct jf_linklist
 {
-	link_list_node_t * ll_pllnHead;
-} link_list_t;
+	jf_linklist_node_t * jl_pjlnHead;
+} jf_linklist_t;
+
+typedef u32 (* jf_linklist_fnFreeNodeData_t)(void ** ppData);
 
 /*double linked list*/
-typedef struct dlink_list_node
+typedef struct jf_dlinklist_node
 {
-    struct dlink_list_node * dln_pdlnNext;
-    struct dlink_list_node * dln_pdlnPrev;
-    void * dln_pData;
-} dlink_list_node_t;
+    struct jf_dlinklist_node * jdn_pjdnNext;
+    struct jf_dlinklist_node * jdn_pjdnPrev;
+    void * jdn_pData;
+} jf_dlinklist_node_t;
 
-typedef struct dlink_list
+typedef struct jf_dlinklist
 {
-    dlink_list_node_t * dl_pdlnHead;
-    dlink_list_node_t * dl_pdlnTail;
-} dlink_list_t;
+    jf_dlinklist_node_t * jd_pjdnHead;
+    jf_dlinklist_node_t * jd_pjdnTail;
+} jf_dlinklist_t;
 
-typedef u32 (* fnFreeListNodeData_t)(void ** ppData);
+typedef u32 (* jf_dlinklist_fnFreeNodeData_t)(void ** ppData);
 
-typedef boolean_t (* fnFindListNodeData_t)(void * pData, void * pKey);
+typedef boolean_t (* jf_dlinklist_fnFindNodeData_t)(void * pData, void * pKey);
 
 /*hash tree*/
-typedef struct hash_node
+typedef struct jf_hashtree_node
 {
-    struct hash_node * hn_phnNext;
-    struct hash_node * hn_phnPrev;
-    olint_t hn_nKey;
-    olchar_t * hn_pstrKeyValue;
-    olsize_t hn_sKey;
-    void * hn_pData;
-} hash_node_t;
+    struct jf_hashtree_node * jhn_pjhnNext;
+    struct jf_hashtree_node * jhn_pjhnPrev;
+    olint_t jhn_nKey;
+    olchar_t * jhn_pstrKeyValue;
+    olsize_t jhn_sKey;
+    void * jhn_pData;
+} jf_hashtree_node_t;
 
-typedef struct hashtree_enumerator
+typedef struct jf_hashtree_enumerator
 {
-    hash_node_t * he_phnNode;
-} hashtree_enumerator_t;
+    jf_hashtree_node_t * jhe_pjhnNode;
+} jf_hashtree_enumerator_t;
 
-typedef struct hashtree
+typedef struct jf_hashtree
 {
-    hash_node_t * h_phnRoot;
-} hashtree_t;
+    jf_hashtree_node_t * jh_pjhnRoot;
+} jf_hashtree_t;
+
+typedef u32 (* jf_hashtree_fnFreeData_t)(void ** ppData);
 
 /*list head*/
-typedef u32 (* fnFreeHashtreeData_t)(void ** ppData);
-
-typedef u32 (* fnFreeQueueData_t)(void ** ppData);
-
-typedef struct list_head
+typedef struct jf_listhead
 {
-    struct list_head * lh_plhNext, * lh_plhPrev;
-} list_head_t;
+    struct jf_listhead * jl_pjlNext;
+    struct jf_listhead * jl_pjlPrev;
+} jf_listhead_t;
 
 /**
  *  Double linked lists with a single pointer list head.
@@ -116,29 +119,30 @@ typedef struct list_head
  *  wasteful.
  *  You lose the ability to access the tail in O(1).
  */
-typedef struct hlist_node
+typedef struct jf_hlisthead_node
 {
-    struct hlist_node * hn_phnNext, ** hn_pphnPrev;
-} hlist_node_t;
+    struct jf_hlisthead_node * jhn_pjhnNext;
+    struct jf_hlisthead_node ** jhn_ppjhnPrev;
+} jf_hlisthead_node_t;
 
-typedef struct hlist_head
+typedef struct jf_hlisthead
 {
-    hlist_node_t * hh_phnFirst;
-} hlist_head_t;
+    jf_hlisthead_node_t * jh_pjhnFirst;
+} jf_hlisthead_t;
 
 /**
  *  Linked list using arrays of node
  */
-typedef struct list_array
+typedef struct jf_listarray
 {
-    u32 la_u32NumOfNode;
-    u32 la_u32Head;
-} list_array_t;
+    u32 jl_u32NumOfNode;
+    u32 jl_u32Head;
+} jf_listarray_t;
 
-#define LIST_ARRAY_NODE(pla) \
-    ((u32 *)(((list_array_t *)pla) + 1))
+#define JF_LISTARRAY_NODE(pla) \
+    ((u32 *)(((jf_listarray_t *)pla) + 1))
 
-#define LIST_ARRAY_END   U32_MAX
+#define JF_LISTARRAY_END   U32_MAX
 
 /* --- functional routines ------------------------------------------------- */
 
@@ -156,7 +160,7 @@ typedef struct list_array
  *   void *stack = NULL;
  *   initStack(&stack);
  */
-void initStack(basic_stack_t ** ppStack);
+void jf_stack_init(jf_stack_t ** ppStack);
 
 /** Pushe an item onto the stack
  *
@@ -165,7 +169,7 @@ void initStack(basic_stack_t ** ppStack);
  *
  *  @return the error code
  */
-u32 pushStack(basic_stack_t ** ppStack, void * pData);
+u32 jf_stack_push(jf_stack_t ** ppStack, void * pData);
 
 /** Pop an item from the stack
  *
@@ -175,7 +179,7 @@ u32 pushStack(basic_stack_t ** ppStack, void * pData);
  *
  *  @note after peek, the item is removed from stack
  */
-void * popStack(basic_stack_t ** ppStack);
+void * jf_stack_pop(jf_stack_t ** ppStack);
 
 /** Peeks at the item on the top of the stack
  *
@@ -185,7 +189,7 @@ void * popStack(basic_stack_t ** ppStack);
  *
  *  @note after peek, the item is still in stack
  */
-void * peekStack(basic_stack_t ** ppStack);
+void * jf_stack_peek(jf_stack_t ** ppStack);
 
 /** Clears all the items from the stack
  *
@@ -193,7 +197,7 @@ void * peekStack(basic_stack_t ** ppStack);
  *
  *  @return void
  */
-void clearStack(basic_stack_t ** ppStack);
+void jf_stack_clear(jf_stack_t ** ppStack);
 
 /**
  *  Basic Queue
@@ -205,7 +209,7 @@ void clearStack(basic_stack_t ** ppStack);
  *
  *  @return void
  */
-void initQueue(basic_queue_t * pQueue);
+void jf_queue_init(jf_queue_t * pQueue);
 
 /** Free the resources associated with a queue
  *
@@ -213,12 +217,13 @@ void initQueue(basic_queue_t * pQueue);
  *  
  *  @return void
  */
-void finiQueue(basic_queue_t * pQueue);
+void jf_queue_fini(jf_queue_t * pQueue);
 
 /** Fini the queue and data
  * 
  */
-void finiQueueAndData(basic_queue_t * pQueue, fnFreeQueueData_t fnFreeData);
+void jf_queue_finiQueueAndData(
+    jf_queue_t * pQueue, jf_queue_fnFreeData_t fnFreeData);
 
 /** Check to see if a queue is empty
  *
@@ -228,7 +233,7 @@ void finiQueueAndData(basic_queue_t * pQueue, fnFreeQueueData_t fnFreeData);
  *  @retval TRUE the queue is empty
  *  @retval FALSE the queue is not empty
  */
-boolean_t isQueueEmpty(basic_queue_t * pQueue);
+boolean_t jf_queue_isEmpty(jf_queue_t * pQueue);
 
 /** Add an item to the queue
  *
@@ -237,7 +242,7 @@ boolean_t isQueueEmpty(basic_queue_t * pQueue);
  *
  *  @return the error code
  */
-u32 enqueue(basic_queue_t * pQueue, void * data);
+u32 jf_queue_enqueue(jf_queue_t * pQueue, void * data);
 
 /** Remove an item from the queue
  *
@@ -245,7 +250,7 @@ u32 enqueue(basic_queue_t * pQueue, void * data);
  *
  *  @return the queue entry
  */
-void * dequeue(basic_queue_t * pQueue);
+void * jf_queue_dequeue(jf_queue_t * pQueue);
 
 /** Peek an item from the queue
  *
@@ -253,31 +258,31 @@ void * dequeue(basic_queue_t * pQueue);
  *
  *  @return the queue entry
  */
-void * peekQueue(basic_queue_t * pQueue);
+void * jf_queue_peek(jf_queue_t * pQueue);
 
 /**
  *  linked list
  */
-void initLinkList(link_list_t * pList);
+void jf_linklist_init(jf_linklist_t * pList);
 
-void finiLinkList(link_list_t * pList);
+void jf_linklist_fini(jf_linklist_t * pList);
 
-void finiLinkListAndData(link_list_t * pList,
-    fnFreeListNodeData_t fnFreeData);
+void jf_linklist_finiListAndData(
+    jf_linklist_t * pList, jf_linklist_fnFreeNodeData_t fnFreeData);
 
 /**
  *  Append to the tail of the linked list
  */
-u32 appendToLinkList(link_list_t * pList, void * pData);
+u32 jf_linklist_appendTo(jf_linklist_t * pList, void * pData);
 
 /**
  *  Intert to the head of the linked list
  */
-u32 insertToLinkList(link_list_t * pList, void * pData);
+u32 jf_linklist_insertTo(jf_linklist_t * pList, void * pData);
 
-static inline boolean_t isLinkListEmpty(link_list_t * pList)
+static inline boolean_t jf_linklist_isEmpty(jf_linklist_t * pList)
 {
-    if (pList->ll_pllnHead == NULL)
+    if (pList->jl_pjlnHead == NULL)
         return TRUE;
     return FALSE;
 }
@@ -285,104 +290,111 @@ static inline boolean_t isLinkListEmpty(link_list_t * pList)
 /**
  *  Get the first node of linked list
  */
-static inline link_list_node_t * getFirstNodeOfLinkList(link_list_t * pList)
+static inline jf_linklist_node_t * jf_linklist_getFirstNode(
+    jf_linklist_t * pList)
 {
-	return pList->ll_pllnHead;
+	return pList->jl_pjlnHead;
 }
 
 /**
  *  Get the next node of the specified node
  */
-static inline link_list_node_t * getNextNodeOfLinkList(link_list_node_t * pNode)
+static inline jf_linklist_node_t * jf_linklist_getNextNode(
+    jf_linklist_node_t * pNode)
 {
-	return pNode->lln_pllnNext;
+	return pNode->jln_pjlnNext;
 }
 
 /**
  *  Get data from the linked node
  */
-static inline void * getDataFromLinkListNode(link_list_node_t * pNode)
+static inline void * jf_linklist_getDataFromNode(jf_linklist_node_t * pNode)
 {
-	return pNode->lln_pData;
+	return pNode->jln_pData;
 }
 
 /**
  *  double linked list
  */
-void initDlinkList(dlink_list_t * pList);
+void jf_dlinklist_init(jf_dlinklist_t * pList);
 
-void finiDlinkList(dlink_list_t * pList);
+void jf_dlinklist_fini(jf_dlinklist_t * pList);
 
-void finiDlinkListAndData(dlink_list_t * pList,
-    fnFreeListNodeData_t fnFreeData);
+void jf_dlinklist_finiListAndData(
+    jf_dlinklist_t * pList, jf_dlinklist_fnFreeNodeData_t fnFreeData);
 
-void removeAllNodesFromDlinkList(dlink_list_t * pList,
-    fnFreeListNodeData_t fnFreeData);
+void jf_dlinklist_removeAllNodes(
+    jf_dlinklist_t * pList, jf_dlinklist_fnFreeNodeData_t fnFreeData);
 
-u32 findFirstDataFromDlinkList(dlink_list_t * pList, void ** ppData,
-    fnFindListNodeData_t fnFindData, void * pKey);
+u32 jf_dlinklist_findFirstData(
+    jf_dlinklist_t * pList, void ** ppData,
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey);
 
-u32 findLastDataFromDlinkList(dlink_list_t * pList, void ** ppData,
-    fnFindListNodeData_t fnFindData, void * pKey);
+u32 jf_dlinklist_findLastData(
+    jf_dlinklist_t * pList, void ** ppData,
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey);
 
-u32 findFirstNodeFromDlinkList(dlink_list_t * pList,
-    dlink_list_node_t ** ppNode,
-    fnFindListNodeData_t fnFindData, void * pKey);
+u32 jf_dlinklist_findFirstNode(jf_dlinklist_t * pList,
+    jf_dlinklist_node_t ** ppNode,
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey);
 
-u32 findLastNodeFromDlinkList(dlink_list_t * pList, dlink_list_node_t ** ppNode,
-    fnFindListNodeData_t fnFindData, void * pKey);
+u32 jf_dlinklist_findLastNode(
+    jf_dlinklist_t * pList, jf_dlinklist_node_t ** ppNode,
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey);
 
-u32 findNextNodeFromDlinkList(dlink_list_node_t * pNode,
-    dlink_list_node_t ** ppNode,
-    fnFindListNodeData_t fnFindData, void * pKey);
+u32 jf_dlinklist_findNextNode(
+    jf_dlinklist_node_t * pNode, jf_dlinklist_node_t ** ppNode,
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey);
 
-u32 findPrevNodeFromDlinkList(dlink_list_node_t * pNode,
-    dlink_list_node_t ** ppNode,
-    fnFindListNodeData_t fnFindData, void * pKey);
+u32 jf_dlinklist_findPrevNode(
+    jf_dlinklist_node_t * pNode, jf_dlinklist_node_t ** ppNode,
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey);
 
-u32 appendToDlinkList(dlink_list_t * pList, void * pData);
+u32 jf_dlinklist_appendTo(jf_dlinklist_t * pList, void * pData);
 
 
 /**
  *  Get data from the linked node
  */
-static inline void * getDataFromDlinkListNode(dlink_list_node_t * pNode)
+static inline void * jf_dlinklist_getDataFromNode(jf_dlinklist_node_t * pNode)
 {
-    return pNode->dln_pData;
+    return pNode->jdn_pData;
 }
 
 /**
  *  Get the first node of double linked list
  */
-static inline dlink_list_node_t * getFirstNodeOfDlinkList(dlink_list_t * pList)
+static inline jf_dlinklist_node_t * jf_dlinklist_getFirstNode(
+    jf_dlinklist_t * pList)
 {
-    return pList->dl_pdlnHead;
+    return pList->jd_pjdnHead;
 }
 
 /**
  *  Get the last node of the double linked list
  */
-static inline dlink_list_node_t * getLastNodeOfDlinkList(dlink_list_t * pList)
+static inline jf_dlinklist_node_t * jf_dlinklist_getLastNode(
+    jf_dlinklist_t * pList)
 {
-    return pList->dl_pdlnTail;
+    return pList->jd_pjdnTail;
 }
 
 /**
  *  Get the next node of the specified node
  */
-static inline dlink_list_node_t * getNextNodeOfDlinkList(
-    dlink_list_node_t * pNode)
+static inline jf_dlinklist_node_t * jf_dlinklist_getNextNode(
+    jf_dlinklist_node_t * pNode)
 {
-    return pNode->dln_pdlnNext;
+    return pNode->jdn_pjdnNext;
 }
 
 /**
  *  Get the previous node of the specified node
  */
-static inline dlink_list_node_t * getPrevNodeOfDlinkList(
-    dlink_list_node_t * pNode)
+static inline jf_dlinklist_node_t * jf_dlinklist_getPrevNode(
+    jf_dlinklist_node_t * pNode)
 {
-    return pNode->dln_pdlnPrev;
+    return pNode->jdn_pjdnPrev;
 }
 
 /**
@@ -395,9 +407,9 @@ static inline dlink_list_node_t * getPrevNodeOfDlinkList(
  *
  *  @return void
  */
-static inline void initHashtree(hashtree_t * pHashtree)
+static inline void jf_hashtree_init(jf_hashtree_t * pHashtree)
 {
-    pHashtree->h_phnRoot = NULL;
+    pHashtree->jh_pjhnRoot = NULL;
 }
 
 /** Free resources associated with a hashtree
@@ -406,7 +418,7 @@ static inline void initHashtree(hashtree_t * pHashtree)
  *
  *  @return void
  */
-void finiHashtree(hashtree_t * pHashtree);
+void jf_hashtree_fini(jf_hashtree_t * pHashtree);
 
 /** Free resources associated with a hashtree
  *
@@ -415,8 +427,8 @@ void finiHashtree(hashtree_t * pHashtree);
  *
  *  @return void
  */
-void finiHashtreeAndData(
-    hashtree_t * pHashtree, fnFreeHashtreeData_t fnFreeData);
+void jf_hashtree_finiHashtreeAndData(
+    jf_hashtree_t * pHashtree, jf_hashtree_fnFreeData_t fnFreeData);
 
 /** Determine if the hash tree is empty
  *
@@ -426,9 +438,9 @@ void finiHashtreeAndData(
  *  @retval TRUE the hashtree is empty
  *  @retval FALSE the hash tree is not empty
  */
-static inline boolean_t isHashtreeEmpty(hashtree_t * pHashtree)
+static inline boolean_t jf_hashtree_isEmpty(jf_hashtree_t * pHashtree)
 {
-    return ((pHashtree->h_phnRoot == NULL) ? TRUE : FALSE);
+    return ((pHashtree->jh_pjhnRoot == NULL) ? TRUE : FALSE);
 }
 
 /** Determines if a key entry exists in a hashtree
@@ -441,8 +453,8 @@ static inline boolean_t isHashtreeEmpty(hashtree_t * pHashtree)
  *  @retval TRUE the entry is existing
  *  @retval FALSE the entry is not existing
  */
-boolean_t hasHashtreeEntry(
-    hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey);
+boolean_t jf_hashtree_hasEntry(
+    jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey);
 
 /** Adds an item to the hashtree
  * 
@@ -456,8 +468,8 @@ boolean_t hasHashtreeEntry(
  *  @retval JF_ERR_OUT_OF_MEMORY out of memory
  *
  */
-u32 addHashtreeEntry(
-    hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void * pValue);
+u32 jf_hashtree_addEntry(
+    jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void * pValue);
 
 /** Gets an item from a hashtree
  *
@@ -470,8 +482,8 @@ u32 addHashtreeEntry(
  *  @retval JF_ERR_NO_ERROR success
  *  @retval JF_ERR_HASHTREE_ENTRY_NOT_FOUND entry not found
  */
-u32 getHashtreeEntry(
-    hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void ** ppData);
+u32 jf_hashtree_getEntry(
+    jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void ** ppData);
 
 /** Deletes a keyed item from the hashtree
  *
@@ -481,8 +493,8 @@ u32 getHashtreeEntry(
  *
  *  @return the error code
  */
-u32 deleteHashtreeEntry(
-    hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey);
+u32 jf_hashtree_deleteEntry(
+    jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey);
 
 /** Return an Enumerator for a hash tree
  *
@@ -491,12 +503,12 @@ u32 deleteHashtreeEntry(
  *
  *  @return void
  */
-static inline void initHashtreeEnumerator(
-    hashtree_t * pHashtree, hashtree_enumerator_t * pEnumerator)
+static inline void jf_hashtree_initEnumerator(
+    jf_hashtree_t * pHashtree, jf_hashtree_enumerator_t * pEnumerator)
 {
     /*the enumerator is basically a state machine that keeps track of 
       which node we are at in the tree. So initialize it to the root.*/
-    pEnumerator->he_phnNode = pHashtree->h_phnRoot;
+    pEnumerator->jhe_pjhnNode = pHashtree->jh_pjhnRoot;
 }
 
 /** Free resources associated with an Enumerator created by 
@@ -506,15 +518,16 @@ static inline void initHashtreeEnumerator(
  *
  *  @return void
  */
-static inline void finiHashtreeEnumerator(hashtree_enumerator_t * pEnumerator)
+static inline void jf_hashtree_finiEnumerator(
+    jf_hashtree_enumerator_t * pEnumerator)
 {
-    memset(pEnumerator, 0, sizeof(hashtree_enumerator_t));
+    ol_memset(pEnumerator, 0, sizeof(jf_hashtree_enumerator_t));
 }
 
-static inline boolean_t isHashtreeEnumeratorEmptyNode(
-    hashtree_enumerator_t * pEnumerator)
+static inline boolean_t jf_hashtree_isEnumeratorEmptyNode(
+    jf_hashtree_enumerator_t * pEnumerator)
 {
-    return ((pEnumerator->he_phnNode == NULL) ? TRUE : FALSE);
+    return ((pEnumerator->jhe_pjhnNode == NULL) ? TRUE : FALSE);
 }
 
 /** Advance an enumerator to the next item
@@ -526,15 +539,16 @@ static inline boolean_t isHashtreeEnumeratorEmptyNode(
  *  @retval JF_ERR_END_OF_HASHTREE end of hashtree
  *
  */
-static inline u32 moveHashtreeNext(hashtree_enumerator_t * pEnumerator)
+static inline u32 jf_hashtree_moveEnumeratorNext(
+    jf_hashtree_enumerator_t * pEnumerator)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    if (pEnumerator->he_phnNode != NULL)
+    if (pEnumerator->jhe_pjhnNode != NULL)
     {
         /*Advance the enumerator to point to the next node. If there is a node
           return 0, else return 1*/
-        pEnumerator->he_phnNode = pEnumerator->he_phnNode->hn_phnNext;
+        pEnumerator->jhe_pjhnNode = pEnumerator->jhe_pjhnNode->jhn_pjhnNext;
     }
     else
     {
@@ -554,50 +568,50 @@ static inline u32 moveHashtreeNext(hashtree_enumerator_t * pEnumerator)
  *
  *  @return void
  */
-static inline void getHashtreeValue(
-    hashtree_enumerator_t * pEnumerator,
+static inline void jf_hashtree_getEnumeratorValue(
+    jf_hashtree_enumerator_t * pEnumerator,
     olchar_t ** ppstrKey, olsize_t * psKey, void ** ppData)
 {
     /*All we do, is just assign the pointers.*/
     if (ppstrKey != NULL)
     {
-        *ppstrKey = pEnumerator->he_phnNode->hn_pstrKeyValue;
+        *ppstrKey = pEnumerator->jhe_pjhnNode->jhn_pstrKeyValue;
     }
     if (psKey != NULL)
     {
-        *psKey = pEnumerator->he_phnNode->hn_sKey;
+        *psKey = pEnumerator->jhe_pjhnNode->jhn_sKey;
     }
     if (ppData != NULL)
     {
-        *ppData = pEnumerator->he_phnNode->hn_pData;
+        *ppData = pEnumerator->jhe_pjhnNode->jhn_pData;
     }
 }
 
 /**
  *  list head
  */
-#define LIST_HEAD_INIT(name) { &(name), &(name) }
+#define JF_LISTHEAD_INIT(name) { &(name), &(name) }
 
-#define LIST_HEAD(name) \
-    list_head_t name = LIST_HEAD_INIT(name)
+#define JF_LISTHEAD(name) \
+    jf_listhead_t name = JF_LISTHEAD_INIT(name)
 
-static inline void listInit(list_head_t * list)
+static inline void jf_listhead_init(jf_listhead_t * list)
 {
-    list->lh_plhNext = list;
-    list->lh_plhPrev = list;
+    list->jl_pjlNext = list;
+    list->jl_pjlPrev = list;
 }
 
 /** Insert a new entry between two known consecutive entries.
  *  This is only for internal list manipulation where we know
  *  the prev/next entries already!
  */
-static inline void _listAdd(list_head_t * new, list_head_t * prev,
-    list_head_t * next)
+static inline void _listAdd(
+    jf_listhead_t * new, jf_listhead_t * prev, jf_listhead_t * next)
 {
-    next->lh_plhPrev = new;
-    new->lh_plhNext = next;
-    new->lh_plhPrev = prev;
-    prev->lh_plhNext = new;
+    next->jl_pjlPrev = new;
+    new->jl_pjlNext = next;
+    new->jl_pjlPrev = prev;
+    prev->jl_pjlNext = new;
 }
 
 /** Add a new entry, insert a new entry after the specified head.
@@ -606,9 +620,9 @@ static inline void _listAdd(list_head_t * new, list_head_t * prev,
  *  @param new [in] new entry to be added
  *
  */
-static inline void listAdd(list_head_t * head, list_head_t * new)
+static inline void jf_listhead_add(jf_listhead_t * head, jf_listhead_t * new)
 {
-    _listAdd(new, head, head->lh_plhNext);
+    _listAdd(new, head, head->jl_pjlNext);
 }
 
 /** Add a new entry, insert a new entry before the specified head.
@@ -617,9 +631,9 @@ static inline void listAdd(list_head_t * head, list_head_t * new)
  *  @param new [in] new entry to be added
  * 
  */
-static inline void listAddTail(list_head_t * head, list_head_t * new)
+static inline void jf_listhead_addTail(jf_listhead_t * head, jf_listhead_t * new)
 {
-    _listAdd(new, head->lh_plhPrev, head);
+    _listAdd(new, head->jl_pjlPrev, head);
 }
 
 /** Delete a list entry by making the prev/next entries point to each other.
@@ -630,21 +644,21 @@ static inline void listAddTail(list_head_t * head, list_head_t * new)
  *  @note This is only for internal list manipulation where we know the
  *   prev/next entries already!
  */
-static inline void _listDel(list_head_t * prev, list_head_t * next)
+static inline void _listDel(jf_listhead_t * prev, jf_listhead_t * next)
 {
-    next->lh_plhPrev = prev;
-    prev->lh_plhNext = next;
+    next->jl_pjlPrev = prev;
+    prev->jl_pjlNext = next;
 }
 
 /** Deletes entry from list.
  *
  *  @param entry [in] the element to delete from the list.
  */
-static inline void listDel(list_head_t * entry)
+static inline void jf_listhead_del(jf_listhead_t * entry)
 {
-    _listDel(entry->lh_plhPrev, entry->lh_plhNext);
-    entry->lh_plhNext = NULL;
-    entry->lh_plhPrev = NULL;
+    _listDel(entry->jl_pjlPrev, entry->jl_pjlNext);
+    entry->jl_pjlNext = NULL;
+    entry->jl_pjlPrev = NULL;
 }
 
 /** Replace old entry by new one. if 'old' is empty, it will be overwritten.
@@ -653,28 +667,28 @@ static inline void listDel(list_head_t * entry)
  *  @param new [in] the new element to insert
  *
  */
-static inline void listReplace(list_head_t * old, list_head_t * new)
+static inline void jf_listhead_replace(jf_listhead_t * old, jf_listhead_t * new)
 {
-    new->lh_plhNext = old->lh_plhNext;
-    new->lh_plhNext->lh_plhPrev = new;
-    new->lh_plhPrev = old->lh_plhPrev;
-    new->lh_plhPrev->lh_plhNext = new;
+    new->jl_pjlNext = old->jl_pjlNext;
+    new->jl_pjlNext->jl_pjlPrev = new;
+    new->jl_pjlPrev = old->jl_pjlPrev;
+    new->jl_pjlPrev->jl_pjlNext = new;
 }
 
-static inline void listReplaceInit(list_head_t * old, list_head_t * new)
+static inline void jf_listhead_replaceInit(jf_listhead_t * old, jf_listhead_t * new)
 {
-    listReplace(old, new);
-    listInit(old);
+    jf_listhead_replace(old, new);
+    jf_listhead_init(old);
 }
 
 /** Deletes entry from list and reinitialize it.
  *
  *  @param entry [in] the element to delete from the list.
  */
-static inline void listDelInit(list_head_t * entry)
+static inline void jf_listhead_delInit(jf_listhead_t * entry)
 {
-    _listDel(entry->lh_plhPrev, entry->lh_plhNext);
-    listInit(entry);
+    _listDel(entry->jl_pjlPrev, entry->jl_pjlNext);
+    jf_listhead_init(entry);
 }
 
 /** Delete from one list and add as another's head
@@ -682,10 +696,10 @@ static inline void listDelInit(list_head_t * entry)
  *  @param head [in] the entry to move
  *  @param list [in] the head that will precede our entry
  */
-static inline void listMove(list_head_t * head, list_head_t * list)
+static inline void jf_listhead_move(jf_listhead_t * head, jf_listhead_t * list)
 {
-    _listDel(list->lh_plhPrev, list->lh_plhNext);
-    listAdd(head, list);
+    _listDel(list->jl_pjlPrev, list->jl_pjlNext);
+    jf_listhead_add(head, list);
 }
 
 /** Delete from one list and add as another's tail
@@ -693,10 +707,10 @@ static inline void listMove(list_head_t * head, list_head_t * list)
  *  @param head [in] the head that will follow our entry
  *  @param list [in] the entry to move
  */
-static inline void listMoveTail(list_head_t * head, list_head_t * list)
+static inline void jf_listhead_moveTail(jf_listhead_t * head, jf_listhead_t * list)
 {
-    _listDel(list->lh_plhPrev, list->lh_plhNext);
-    listAddTail(head, list);
+    _listDel(list->jl_pjlPrev, list->jl_pjlNext);
+    jf_listhead_addTail(head, list);
 }
 
 /** Tests whether 'list' is the last entry in list 'head'
@@ -704,10 +718,10 @@ static inline void listMoveTail(list_head_t * head, list_head_t * list)
  *  @param head [in] the head of the list
  *  @param list [in] the entry to test
  */
-static inline boolean_t listIsLast(
-    const list_head_t * head, const list_head_t * list)
+static inline boolean_t jf_listhead_isLast(
+    const jf_listhead_t * head, const jf_listhead_t * list)
 {
-    return list->lh_plhNext == head;
+    return list->jl_pjlNext == head;
 }
 
 /** Tests whether 'list' is the first entry in list 'head'
@@ -715,32 +729,32 @@ static inline boolean_t listIsLast(
  *  @param head [in] the head of the list
  *  @param list [in] the entry to test
  */
-static inline boolean_t listIsFirst(
-    const list_head_t * head, const list_head_t * list)
+static inline boolean_t jf_listhead_isFirst(
+    const jf_listhead_t * head, const jf_listhead_t * list)
 {
-    return list->lh_plhPrev == head;
+    return list->jl_pjlPrev == head;
 }
 
 /** Test whether a list is empty
  * 
  *  @param head [in] the list to test.
  */
-static inline boolean_t listIsEmpty(const list_head_t * head)
+static inline boolean_t jf_listhead_isEmpty(const jf_listhead_t * head)
 {
-    return head->lh_plhNext == head;
+    return head->jl_pjlNext == head;
 }
 
-static inline void _listSplice(list_head_t * head, list_head_t * list)
+static inline void _listSplice(jf_listhead_t * head, jf_listhead_t * list)
 {
-    list_head_t * first = list->lh_plhNext;
-    list_head_t * last = list->lh_plhPrev;
-    list_head_t * at = head->lh_plhNext;
+    jf_listhead_t * first = list->jl_pjlNext;
+    jf_listhead_t * last = list->jl_pjlPrev;
+    jf_listhead_t * at = head->jl_pjlNext;
 
-    first->lh_plhPrev = head;
-    head->lh_plhNext = first;
+    first->jl_pjlPrev = head;
+    head->jl_pjlNext = first;
 
-    last->lh_plhNext = at;
-    at->lh_plhPrev = last;
+    last->jl_pjlNext = at;
+    at->jl_pjlPrev = last;
 }
 
 /** Join two lists
@@ -748,9 +762,10 @@ static inline void _listSplice(list_head_t * head, list_head_t * list)
  *  @param head the place to add it in the first list.
  *  @param list the new list to add.
  */
-static inline void listSplice(list_head_t * head, list_head_t * list)
+static inline void jf_listhead_splice(
+    jf_listhead_t * head, jf_listhead_t * list)
 {
-    if (! listIsEmpty(list))
+    if (! jf_listhead_isEmpty(list))
         _listSplice(head, list);
 }
 
@@ -761,32 +776,33 @@ static inline void listSplice(list_head_t * head, list_head_t * list)
  *
  *  @note the list at 'list' is reinitialised
  */
-static inline void listSpliceInit(list_head_t * head, list_head_t * list)
+static inline void jf_listhead_spliceInit(
+    jf_listhead_t * head, jf_listhead_t * list)
 {
-    if (! listIsEmpty(list))
+    if (! jf_listhead_isEmpty(list))
     {
         _listSplice(head, list);
-        listInit(list);
+        jf_listhead_init(list);
     }
 }
 
 /** Split the 'head' at the position 'list' and add the removed part
  *  (exclude 'list') to 'newhead'
  */
-static inline void listSplit(list_head_t * head, list_head_t * list,
-    list_head_t * newhead)
+static inline void jf_listhead_split(
+    jf_listhead_t * head, jf_listhead_t * list, jf_listhead_t * newhead)
 {
-    list_head_t * first = head->lh_plhNext;
-    list_head_t * last = list->lh_plhPrev;
+    jf_listhead_t * first = head->jl_pjlNext;
+    jf_listhead_t * last = list->jl_pjlPrev;
 
-    head->lh_plhNext = list;
-    list->lh_plhPrev = head;
+    head->jl_pjlNext = list;
+    list->jl_pjlPrev = head;
 
-    newhead->lh_plhNext = first;
-    first->lh_plhPrev = newhead;
+    newhead->jl_pjlNext = first;
+    first->jl_pjlPrev = newhead;
 
-    newhead->lh_plhPrev = last;
-    last->lh_plhNext = newhead;
+    newhead->jl_pjlPrev = last;
+    last->jl_pjlNext = newhead;
 }
 
 #if defined(LINUX)
@@ -823,163 +839,162 @@ static inline void listSplit(list_head_t * head, list_head_t * list,
 
 /** Get the struct for this entry
  *
- *  @param ptr the list_head_t pointer.
+ *  @param ptr the jf_listhead_t pointer.
  *  @param type the type of the struct this is embedded in.
  *  @param member the name of the list_struct within the struct.
  */
-#define listEntry(ptr, type, member) \
+#define jf_listhead_getEntry(ptr, type, member) \
     container_of(ptr, type, member)
 
 /** Iterate over a list
  * 
  *  @param head the head for your list.
- *  @param pos the &list_head_t to use as a loop cursor.
+ *  @param pos the &jf_listhead_t to use as a loop cursor.
  *
  */
-#define listForEach(head, pos) \
-    for (pos = (head)->lh_plhNext; pos != (head); pos = pos->lh_plhNext)
+#define jf_listhead_forEach(head, pos) \
+    for (pos = (head)->jl_pjlNext; pos != (head); pos = pos->jl_pjlNext)
 
 /** Iterate over a list safe against removal of list entry
  * 
  *  @param head the head for your list.
- *  @param pos the list_head_t to use as a loop cursor.
- *  @param n another list_head_t to use as temporary storage
+ *  @param pos the jf_listhead_t to use as a loop cursor.
+ *  @param n another jf_listhead_t to use as temporary storage
  */
-#define listForEachSafe(head, pos, n) \
-    for (pos = (head)->lh_plhNext, n = pos->lh_plhNext; pos != (head); \
-         pos = n, n = pos->lh_plhNext)
+#define jf_listhead_forEachSafe(head, pos, n) \
+    for (pos = (head)->jl_pjlNext, n = pos->jl_pjlNext; pos != (head); \
+         pos = n, n = pos->jl_pjlNext)
 
 /** Iterate over a list backwards
  * 
  *  @param head the head for your list.
- *  @param pos the &list_head_t to use as a loop cursor.
+ *  @param pos the &jf_listhead_t to use as a loop cursor.
  */
-#define listForEachPrev(head, pos) \
-    for (pos = (head)->lh_plhPrev; pos != (head); pos = pos->lh_plhPrev)
+#define jf_listhead_forEachPrev(head, pos) \
+    for (pos = (head)->jl_pjlPrev; pos != (head); pos = pos->jl_pjlPrev)
 
 /** Iterate over a list backwards safe against removal of list entry
  *
  *  @param head the head for your list.
- *  @param pos the &list_head_t to use as a loop cursor.
+ *  @param pos the &jf_listhead_t to use as a loop cursor.
  *  @param n another &struct list_head to use as temporary storage
  */
-#define listForEachPrevSafe(head, pos, n)                         \
-    for (pos = (head)->lh_plhPrev, n = pos->lh_plhPrev; pos != (head); \
-         pos = n, n = pos->lh_plhPrev)
+#define jf_listhead_forEachPrevSafe(head, pos, n)                      \
+    for (pos = (head)->jl_pjlPrev, n = pos->jl_pjlPrev; pos != (head); \
+         pos = n, n = pos->jl_pjlPrev)
 
 /**
  *  hlist
  */
-#define HLIST_HEAD_INIT { .hh_phnFirst = NULL }
-#define HLIST_HEAD(name) hlist_head_t name = {  .hh_phnFirst = NULL }
-#define INIT_HLIST_HEAD(ptr) ((ptr)->hh_phnFirst = NULL)
-#define INIT_HLIST_NODE(ptr) \
-    ((ptr)->hn_phnNext = NULL, (ptr)->hn_pphnPrev = NULL)
+#define JF_HLISTHEAD(name) jf_hlisthead_t name = {  .jh_pjhnFirst = NULL }
+#define JF_HLISTHEAD_INIT(ptr) ((ptr)->jh_pjhnFirst = NULL)
+#define JF_HLISTHEAD_INIT_NODE(ptr) \
+    ((ptr)->jhn_pjhnNext = NULL, (ptr)->jhn_ppjhnPrev = NULL)
 
-#define hlistEntry(ptr, type, member) container_of(ptr, type, member)
+#define jf_hlisthead_getEntry(ptr, type, member) container_of(ptr, type, member)
 
-#define hlistForEach(head, pos) \
-    for (pos = (head)->hh_phnFirst; pos; pos = pos->hn_phnNext)
+#define jf_hlisthead_forEach(head, pos) \
+    for (pos = (head)->jh_pjhnFirst; pos; pos = pos->jhn_pjhnNext)
 
 /** Iterate over list of given type
  *
- *  @param tpos the type * to use as a loop counter.
- *  @param pos the hlist_node_t to use as a loop counter.
- *  @param head the head for your list.
- *  @param member the name of the hlist_node_t within the struct.
+ *  @param tpos [in] the type * to use as a loop counter.
+ *  @param pos [in] the jf_hlisthead_node_t to use as a loop counter.
+ *  @param head [in] the head for your list.
+ *  @param member [in] the name of the jf_hlisthead_node_t within the struct.
  */
-#define hlistForEachEntry(tpos, pos, head, member)            \
-    for (pos = (head)->hh_phnFirst;                    \
+#define jf_hlisthead_forEachEntry(tpos, pos, head, member)            \
+    for (pos = (head)->jh_pjhnFirst;                    \
          pos &&          \
          tpos = hlistEntry(pos, typeof(*tpos), member); \
-         pos = pos->hn_phnNext)
+         pos = pos->jhn_pjhnNext)
 
-static inline void _hlistDel(hlist_node_t * n)
+static inline void _hlistDel(jf_hlisthead_node_t * n)
 {
-    struct hlist_node *next = n->hn_phnNext;
-    struct hlist_node **pprev = n->hn_pphnPrev;
+    struct jf_hlisthead_node *next = n->jhn_pjhnNext;
+    struct jf_hlisthead_node **pprev = n->jhn_ppjhnPrev;
 
     *pprev = next;
     if (next)
-        next->hn_pphnPrev = pprev;
+        next->jhn_ppjhnPrev = pprev;
 }
 
-static inline void hlistDel(hlist_node_t * n)
+static inline void jf_hlisthead_del(jf_hlisthead_node_t * n)
 {
     _hlistDel(n);
-    n->hn_phnNext = NULL;
-    n->hn_pphnPrev = NULL;
+    n->jhn_pjhnNext = NULL;
+    n->jhn_ppjhnPrev = NULL;
 }
 
-static inline void hlistDelInit(hlist_node_t * n)
+static inline void jf_hlisthead_delInit(jf_hlisthead_node_t * n)
 {
-    if (n->hn_pphnPrev)
+    if (n->jhn_ppjhnPrev)
     {
         _hlistDel(n);
-        INIT_HLIST_NODE(n);
+        JF_HLISTHEAD_INIT_NODE(n);
     }
 }
 
-static inline void hlistAddHead(hlist_head_t * h, hlist_node_t * n)
+static inline void jf_hlisthead_addHead(jf_hlisthead_t * h, jf_hlisthead_node_t * n)
 {
-    hlist_node_t * first = h->hh_phnFirst;
-    n->hn_phnNext = first;
+    jf_hlisthead_node_t * first = h->jh_pjhnFirst;
+    n->jhn_pjhnNext = first;
     if (first)
-        first->hn_pphnPrev = &n->hn_phnNext;
-    h->hh_phnFirst = n;
-    n->hn_pphnPrev = &h->hh_phnFirst;
+        first->jhn_ppjhnPrev = &n->jhn_pjhnNext;
+    h->jh_pjhnFirst = n;
+    n->jhn_ppjhnPrev = &h->jh_pjhnFirst;
 }
 
 /**
  *  list array
  */
-static inline olsize_t sizeOfListArray(u32 u32NumOfNode)
+static inline olsize_t jf_listarray_getSize(u32 u32NumOfNode)
 {
     assert(u32NumOfNode > 0);
 
-    return u32NumOfNode * BYTES_PER_U32 + sizeof(list_array_t);
+    return u32NumOfNode * BYTES_PER_U32 + sizeof(jf_listarray_t);
 }
 
-static inline void initListArray(list_array_t * pla, u32 u32NumOfNode)
+static inline void jf_listarray_init(jf_listarray_t * pla, u32 u32NumOfNode)
 {
     u32 u32Index;
 
-    memset(pla, 0, sizeOfListArray(u32NumOfNode));
+    ol_memset(pla, 0, jf_listarray_getSize(u32NumOfNode));
 
-    pla->la_u32NumOfNode = u32NumOfNode;
-    pla->la_u32Head = 0;
+    pla->jl_u32NumOfNode = u32NumOfNode;
+    pla->jl_u32Head = 0;
 
     for (u32Index = 0; u32Index < u32NumOfNode; u32Index ++)
     {
-        LIST_ARRAY_NODE(pla)[u32Index] = u32Index + 1;
+        JF_LISTARRAY_NODE(pla)[u32Index] = u32Index + 1;
     }
-    LIST_ARRAY_NODE(pla)[u32Index - 1] = LIST_ARRAY_END;
+    JF_LISTARRAY_NODE(pla)[u32Index - 1] = JF_LISTARRAY_END;
 }
 
-static inline u32 getListArrayNode(list_array_t * pla)
+static inline u32 jf_listarray_getNode(jf_listarray_t * pla)
 {
-    u32 u32Node = pla->la_u32Head;
+    u32 u32Node = pla->jl_u32Head;
 
-    if (u32Node == LIST_ARRAY_END)
+    if (u32Node == JF_LISTARRAY_END)
         return u32Node;
 
-    pla->la_u32Head = LIST_ARRAY_NODE(pla)[pla->la_u32Head];
+    pla->jl_u32Head = JF_LISTARRAY_NODE(pla)[pla->jl_u32Head];
 
     return u32Node;
 }
 
-static inline void putListArrayNode(list_array_t * pla, u32 u32Node)
+static inline void jf_listarray_putNode(jf_listarray_t * pla, u32 u32Node)
 {
-    assert(u32Node != LIST_ARRAY_END);
+    assert(u32Node != JF_LISTARRAY_END);
 
-    LIST_ARRAY_NODE(pla)[u32Node] = pla->la_u32Head;
+    JF_LISTARRAY_NODE(pla)[u32Node] = pla->jl_u32Head;
 
-    pla->la_u32Head = u32Node;
+    pla->jl_u32Head = u32Node;
 }
 
-static inline boolean_t isEndOfListArray(list_array_t * pla)
+static inline boolean_t jf_listarray_isEnd(jf_listarray_t * pla)
 {
-    return (pla->la_u32Head == LIST_ARRAY_END);
+    return (pla->jl_u32Head == JF_LISTARRAY_END);
 }
 
 #endif /*JIUTAI_BASES_H*/

@@ -34,7 +34,7 @@
 
 /* --- public routine section ---------------------------------------------- */
 u32 jf_archive_create(
-    link_list_t * pMemberFile, olchar_t * pstrArchiveName,
+    jf_linklist_t * pMemberFile, olchar_t * pstrArchiveName,
     jf_archive_create_param_t * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -42,7 +42,7 @@ u32 jf_archive_create(
     u8 * pu8Buffer;
     ar_file_param_t afp;
     ar_file_t * paf = NULL;
-	link_list_node_t * pNode;
+	jf_linklist_node_t * pNode;
 
     assert(
         (pMemberFile != NULL) && (pstrArchiveName != NULL) && (pParam != NULL));
@@ -56,10 +56,10 @@ u32 jf_archive_create(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-		pNode = getFirstNodeOfLinkList(pMemberFile);
+		pNode = jf_linklist_getFirstNode(pMemberFile);
 		while ((pNode != NULL) && (u32Ret == JF_ERR_NO_ERROR))
 		{
-            pu8Fullpath = (u8 *)getDataFromLinkListNode(pNode);
+            pu8Fullpath = (u8 *)jf_linklist_getDataFromNode(pNode);
             if (pu8Fullpath != NULL)
             {
                 u32Ret = writeToArchive(
@@ -67,7 +67,7 @@ u32 jf_archive_create(
                     pParam);
             }
 
-			pNode = getNextNodeOfLinkList(pNode);
+			pNode = jf_linklist_getNextNode(pNode);
         }
     }
 

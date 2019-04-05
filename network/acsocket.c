@@ -48,7 +48,7 @@ typedef struct internal_acsocket
     jf_network_fnAcsocketOnSendOK_t ia_fnOnSendOK;
 
     jf_mutex_t ia_jmAsocket;
-    list_array_t * ia_plaAsocket;
+    jf_listarray_t * ia_pjlAsocket;
 
     jf_mutex_t * ia_pjmAsockets;
     jf_network_asocket_t ** ia_pjnaAsockets;
@@ -190,7 +190,7 @@ static u32 _acsOnDisconnect(
 
     jf_logger_logInfoMsg("acs on disconnect, put %u", u32Index);
     jf_mutex_acquire(&pia->ia_jmAsocket);
-    putListArrayNode(pia->ia_plaAsocket, u32Index);
+    jf_listarray_putNode(pia->ia_pjlAsocket, u32Index);
     jf_mutex_release(&pia->ia_jmAsocket);
 
     /*Pass this Disconnect event up*/
@@ -258,8 +258,8 @@ u32 jf_network_destroyAcsocket(jf_network_acsocket_t ** ppAcsocket)
         xfree((void **)&pia->ia_pjmAsockets);
     }
 
-    if (pia->ia_plaAsocket != NULL)
-        xfree((void **)&pia->ia_plaAsocket);
+    if (pia->ia_pjlAsocket != NULL)
+        xfree((void **)&pia->ia_pjlAsocket);
 
     if (pia->ia_padData != NULL)
         xfree((void **)&pia->ia_padData);
@@ -310,12 +310,13 @@ u32 jf_network_createAcsocket(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = xcalloc(
-            (void **)&pia->ia_plaAsocket, sizeOfListArray(pjnacp->jnacp_u32MaxConn));
+            (void **)&pia->ia_pjlAsocket,
+            jf_listarray_getSize(pjnacp->jnacp_u32MaxConn));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        initListArray(pia->ia_plaAsocket, pjnacp->jnacp_u32MaxConn);
+        jf_listarray_init(pia->ia_pjlAsocket, pjnacp->jnacp_u32MaxConn);
 
         u32Ret = xcalloc(
             (void **)&(pia->ia_padData),
@@ -405,7 +406,7 @@ u32 jf_network_disconnectAcsocket(
     jf_mutex_release(&pia->ia_pjmAsockets[u32Index]);
 
     jf_mutex_acquire(&pia->ia_jmAsocket);
-    putListArrayNode(pia->ia_plaAsocket, u32Index);
+    jf_listarray_putNode(pia->ia_pjlAsocket, u32Index);
     jf_mutex_release(&pia->ia_jmAsocket);
 
     return u32Ret;
@@ -538,7 +539,7 @@ u32 jf_network_connectAcsocketTo(
     /*Check to see if we have available resources to handle this connection
       request*/
     jf_mutex_acquire(&pia->ia_jmAsocket);
-    u32Index = getListArrayNode(pia->ia_plaAsocket);
+    u32Index = jf_listarray_getNode(pia->ia_pjlAsocket);
     jf_mutex_release(&pia->ia_jmAsocket);
 
     jf_logger_logInfoMsg("acs connect, index %u", u32Index);

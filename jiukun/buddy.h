@@ -42,7 +42,7 @@ typedef enum jiukun_page_flag
 typedef struct jiukun_page
 {
     olflag_t jp_fPage;
-    list_head_t jp_lhLru;
+    jf_listhead_t jp_jlLru;
     /** private data, the content is determined by flags */
     ulong jp_ulPrivate;
     u32 jp_u32Reserved[2];

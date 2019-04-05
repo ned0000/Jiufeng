@@ -54,7 +54,7 @@ typedef struct jf_xmlparser_xml_node
     u8 jxxn_u8Reserved[6];
 
     void * jxxn_pReserved;
-    hashtree_t jxxn_hNameSpace;
+    jf_hashtree_t jxxn_jhNameSpace;
 
     struct jf_xmlparser_xml_node * jxxn_pjxxnNext;
     struct jf_xmlparser_xml_node * jxxn_pjxxnParent;

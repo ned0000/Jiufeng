@@ -30,7 +30,7 @@
 typedef struct free_area
 {
     /** free list */
-    list_head_t fa_lhFree;
+    jf_listhead_t fa_jlFree;
     /** number of item in free list */
     u32 fa_u32Free;
 } free_area_t;
@@ -99,7 +99,7 @@ static jiukun_page_t * _expand(
         high--;
         size >>= 1;
         /** Add the last half part of the page to the free list */
-        listAdd(&(area->fa_lhFree), &(page[size].jp_lhLru));
+        jf_listhead_add(&(area->fa_jlFree), &(page[size].jp_jlLru));
         area->fa_u32Free++;
         _setPageOrder(&page[size], high);
     }
@@ -121,11 +121,11 @@ static jiukun_page_t * _rmqueue(buddy_zone_t * zone, u32 order)
          ++current_order)
     {
         area = zone->bz_faFreeArea + current_order;
-        if (listIsEmpty(&area->fa_lhFree))
+        if (jf_listhead_isEmpty(&area->fa_jlFree))
             continue;
 
-        page = listEntry(area->fa_lhFree.lh_plhNext, jiukun_page_t, jp_lhLru);
-        listDel(&page->jp_lhLru);
+        page = jf_listhead_getEntry(area->fa_jlFree.jl_pjlNext, jiukun_page_t, jp_jlLru);
+        jf_listhead_del(&page->jp_jlLru);
         _clearPageOrder(page);
         area->fa_u32Free--;
         zone->bz_u32FreePages -= 1UL << order;
@@ -188,7 +188,7 @@ static inline void _freeOnePage(
 
         if (! _isBuddyPage(buddy, order))
             break;      /* Move the buddy up one level. */
-        listDel(&buddy->jp_lhLru);
+        jf_listhead_del(&buddy->jp_jlLru);
         area = zone->bz_faFreeArea + order;
         area->fa_u32Free--;
         _clearPageOrder(buddy);
@@ -197,7 +197,7 @@ static inline void _freeOnePage(
         order++;
     }
     _setPageOrder(page, order);
-    listAdd(&(zone->bz_faFreeArea[order].fa_lhFree), &(page->jp_lhLru));
+    jf_listhead_add(&(zone->bz_faFreeArea[order].fa_jlFree), &(page->jp_jlLru));
     zone->bz_faFreeArea[order].fa_u32Free++;
 }
 
@@ -261,14 +261,14 @@ static u32 _createBuddyZone(
         _initBuddyPage(pbz->bz_papPage, pbz->bz_u32NumOfPage, u32ZoneId);
 
         for (u32Index = 0; u32Index < JF_JIUKUN_MAX_PAGE_ORDER + 1; u32Index ++)
-            listInit(&(pbz->bz_faFreeArea[u32Index].fa_lhFree));
+            jf_listhead_init(&(pbz->bz_faFreeArea[u32Index].fa_jlFree));
 
         pbz->bz_faFreeArea[pbz->bz_u32MaxOrder - 1].fa_u32Free = 1;
         _setPageOrder(pbz->bz_papPage, pbz->bz_u32MaxOrder - 1);
 
-        listAdd(
-            &(pbz->bz_faFreeArea[pbz->bz_u32MaxOrder - 1].fa_lhFree),
-            &(pbz->bz_papPage[0].jp_lhLru));
+        jf_listhead_add(
+            &(pbz->bz_faFreeArea[pbz->bz_u32MaxOrder - 1].fa_jlFree),
+            &(pbz->bz_papPage[0].jp_jlLru));
 
         u32Ret = xmalloc(
             (void **)&(pbz->bz_pu8Pool),
@@ -346,7 +346,7 @@ static void _dumpBuddyZone(buddy_zone_t * pbz)
 {
     u32 u32Index;
     free_area_t * pfa;
-    list_head_t * plh;
+    jf_listhead_t * pjl;
     jiukun_page_t * pap;
 
     jf_logger_logInfoMsg("  max page: %u, %p", pbz->bz_u32NumOfPage, pbz->bz_papPage);
@@ -362,11 +362,11 @@ static void _dumpBuddyZone(buddy_zone_t * pbz)
             jf_logger_logInfoMsg("      free page in area: %u", pfa->fa_u32Free);
 
             jf_logger_logInfoMsg("      free page:");
-            listForEach(&(pfa->fa_lhFree), plh)
+            jf_listhead_forEach(&(pfa->fa_jlFree), pjl)
             {
-                pap = listEntry(plh, jiukun_page_t, jp_lhLru);
-                jf_logger_logInfoMsg("        %u, %p",
-                           pageToIndex(pap, pbz->bz_papPage), pap);
+                pap = jf_listhead_getEntry(pjl, jiukun_page_t, jp_jlLru);
+                jf_logger_logInfoMsg(
+                    "        %u, %p", pageToIndex(pap, pbz->bz_papPage), pap);
             }
         }
     }

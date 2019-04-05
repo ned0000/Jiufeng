@@ -60,7 +60,7 @@ typedef struct
 } jf_archive_extract_param_t;
 
 ARCHIVEAPI u32 ARCHIVECALL jf_archive_create(
-    link_list_t * pMemberFile,
+    jf_linklist_t * pMemberFile,
     olchar_t * pstrArchiveName, jf_archive_create_param_t * pParam);
 
 ARCHIVEAPI u32 ARCHIVECALL jf_archive_extract(

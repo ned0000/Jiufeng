@@ -104,7 +104,7 @@ typedef struct
 {
     u32 tl_u32Flag1;
     u32 tl_u32Flag2;
-    list_head_t tl_lhList;
+    jf_listhead_t tl_jlList;
     u32 tl_u32Flag3;
     u32 tl_u32Flag4;
 } test_listhead_t;
@@ -118,21 +118,21 @@ static u32 _initTestListhead(test_listhead_t * ptl)
 
     ptl->tl_u32Flag1 = u32Counter ++;
 
-    listInit(&(ptl->tl_lhList));
+    jf_listhead_init(&(ptl->tl_jlList));
 
     return u32Ret;
 }
 
-static void _listHeadEntry(list_head_t * head)
+static void _listHeadEntry(jf_listhead_t * head)
 {
-    list_head_t * plh;
+    jf_listhead_t * pjl;
     test_listhead_t * ptl;
 
     ol_printf("list entry\n");
 
-    listForEach(head, plh)
+    jf_listhead_forEach(head, pjl)
     {
-        ptl = listEntry(plh, test_listhead_t, tl_lhList);
+        ptl = jf_listhead_getEntry(pjl, test_listhead_t, tl_jlList);
 
         ol_printf("entry: %u\n", ptl->tl_u32Flag1);
     }
@@ -144,8 +144,8 @@ static u32 _testListHead(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     test_listhead_t tl1, tl2, tl3, tl4, tl5;
-    LIST_HEAD(head1);
-    LIST_HEAD(head2);
+    JF_LISTHEAD(head1);
+    JF_LISTHEAD(head2);
 
     ol_printf("init entry\n");
 
@@ -155,83 +155,83 @@ static u32 _testListHead(void)
     _initTestListhead(&tl4);
     _initTestListhead(&tl5);
 
-    listAddTail(&head1, &(tl1.tl_lhList));
-    listAddTail(&head1, &(tl2.tl_lhList));
-    listAddTail(&head1, &(tl3.tl_lhList));
-    listAddTail(&head1, &(tl4.tl_lhList));
+    jf_listhead_addTail(&head1, &(tl1.tl_jlList));
+    jf_listhead_addTail(&head1, &(tl2.tl_jlList));
+    jf_listhead_addTail(&head1, &(tl3.tl_jlList));
+    jf_listhead_addTail(&head1, &(tl4.tl_jlList));
 
     _listHeadEntry(&head1);
 
     ol_printf("delete entry 2 from head 1\n");
-    listDel(&(tl2.tl_lhList));
+    jf_listhead_del(&(tl2.tl_jlList));
     _listHeadEntry(&head1);
 
     ol_printf("delete entry 4 from head 1\n");
-    listDel(&(tl4.tl_lhList));
+    jf_listhead_del(&(tl4.tl_jlList));
     _listHeadEntry(&head1);
 
     ol_printf("insert entry 2 to head 1\n");
-    listAdd(&(tl1.tl_lhList), &(tl2.tl_lhList));
+    jf_listhead_add(&(tl1.tl_jlList), &(tl2.tl_jlList));
     _listHeadEntry(&head1);
 
     ol_printf("insert entry 4 to head 1\n");
-    listAdd(&(tl3.tl_lhList), &(tl4.tl_lhList));
+    jf_listhead_add(&(tl3.tl_jlList), &(tl4.tl_jlList));
     _listHeadEntry(&head1);
 
     ol_printf("replace entry 2 with 5 of head 1\n");
-    listReplace(&(tl2.tl_lhList), &(tl5.tl_lhList));
+    jf_listhead_replace(&(tl2.tl_jlList), &(tl5.tl_jlList));
     _listHeadEntry(&head1);
 
     ol_printf("replace entry 5 with 2 of head 1\n");
-    listReplace(&(tl5.tl_lhList), &(tl2.tl_lhList));
+    jf_listhead_replace(&(tl5.tl_jlList), &(tl2.tl_jlList));
     _listHeadEntry(&head1);
 
     ol_printf("add entry 5 to head 2\n");
-    listAdd(&head2, &(tl5.tl_lhList));
+    jf_listhead_add(&head2, &(tl5.tl_jlList));
     _listHeadEntry(&head2);
 
     ol_printf("move entry 5 from head 2 to head 1\n");
-    listMove(&head1, &(tl5.tl_lhList));
+    jf_listhead_move(&head1, &(tl5.tl_jlList));
     _listHeadEntry(&head1);
 
     ol_printf("delete entry 5 from head 1\n");
-    listDel(&(tl5.tl_lhList));
+    jf_listhead_del(&(tl5.tl_jlList));
     _listHeadEntry(&head1);
 
     ol_printf("add entry 5 to head 2\n");
-    listAdd(&head2, &(tl5.tl_lhList));
+    jf_listhead_add(&head2, &(tl5.tl_jlList));
     _listHeadEntry(&head2);
 
     ol_printf("splice head 2 to head\n");
-    listSplice(&head1, &head2);
+    jf_listhead_splice(&head1, &head2);
     _listHeadEntry(&head1);
 
     return u32Ret;
 }
 
-static void _printHashTree(hashtree_t * pHashtree)
+static void _printHashTree(jf_hashtree_t * pHashtree)
 {
-    hashtree_enumerator_t en;
+    jf_hashtree_enumerator_t en;
     olchar_t * pstrKey;
     olsize_t sKey;
     olchar_t * data;
 
     /*Iterate through all the WebDataobjects*/
-    initHashtreeEnumerator(pHashtree, &en);
-    while (! isHashtreeEnumeratorEmptyNode(&en))
+    jf_hashtree_initEnumerator(pHashtree, &en);
+    while (! jf_hashtree_isEnumeratorEmptyNode(&en))
     {
         /*Free the WebDataobject*/
-        getHashtreeValue(&en, &pstrKey, &sKey, (void **)&data);
+        jf_hashtree_getEnumeratorValue(&en, &pstrKey, &sKey, (void **)&data);
         ol_printf("Entry %s, key %s\n", data, pstrKey);
-        moveHashtreeNext(&en);
+        jf_hashtree_moveEnumeratorNext(&en);
     }
-    finiHashtreeEnumerator(&en);
+    jf_hashtree_finiEnumerator(&en);
 }
 
 static u32 _testHashTree(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    hashtree_t hashtree;
+    jf_hashtree_t hashtree;
 
     olchar_t * pstrEntry = "one";
     olchar_t strKey[64];
@@ -247,9 +247,9 @@ static u32 _testHashTree(void)
     olchar_t strKey4[64];
     olsize_t sKey4;
 
-    initHashtree(&hashtree);
+    jf_hashtree_init(&hashtree);
 
-    bRet = isHashtreeEmpty(&hashtree);
+    bRet = jf_hashtree_isEmpty(&hashtree);
     ol_printf("Hashtree is %s\n", bRet ? "empty" : "not empty");
 
     sKey = ol_sprintf(strKey, "%s:%u", "111.111.111.11", 111);
@@ -257,26 +257,26 @@ static u32 _testHashTree(void)
     sKey3 = ol_sprintf(strKey3, "%s:%u", "33.333.3.33", 333);
     sKey4 = ol_sprintf(strKey4, "%s:%u", "44.4.4.44", 444);
 
-    bRet = hasHashtreeEntry(&hashtree, strKey, sKey);
+    bRet = jf_hashtree_hasEntry(&hashtree, strKey, sKey);
     ol_printf("Entry with key %s is %s\n", strKey, bRet ? "found" : "not found");
 
-    u32Ret = addHashtreeEntry(
+    u32Ret = jf_hashtree_addEntry(
         &hashtree, strKey, sKey, pstrEntry);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("Add entry %s with key %s\n", pstrEntry, strKey);
-        bRet = hasHashtreeEntry(&hashtree, strKey, sKey);
+        bRet = jf_hashtree_hasEntry(&hashtree, strKey, sKey);
         ol_printf("Entry with key %s is %s\n", strKey, bRet ? "found" : "not found");
 
-        u32Ret = addHashtreeEntry(
+        u32Ret = jf_hashtree_addEntry(
             &hashtree, strKey2, sKey2, pstrEntry2);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("Add entry %s with key %s\n", pstrEntry2, strKey2);
-        if (getHashtreeEntry(&hashtree, strKey3, sKey3, (void **)&data) ==
+        if (jf_hashtree_getEntry(&hashtree, strKey3, sKey3, (void **)&data) ==
             JF_ERR_NO_ERROR)
             ol_printf("Get entry %s with key %s\n", data, strKey3);
         else
@@ -288,7 +288,7 @@ static u32 _testHashTree(void)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = addHashtreeEntry(
+        u32Ret = jf_hashtree_addEntry(
             &hashtree, strKey3, sKey3, pstrEntry3);
         if (u32Ret == JF_ERR_NO_ERROR)
             ol_printf("Add entry %s with key %s\n", pstrEntry3, strKey3);
@@ -298,7 +298,7 @@ static u32 _testHashTree(void)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = deleteHashtreeEntry(&hashtree, strKey3, sKey3);
+        u32Ret = jf_hashtree_deleteEntry(&hashtree, strKey3, sKey3);
         if (u32Ret == JF_ERR_NO_ERROR)
             ol_printf("Delete entry with key %s\n", strKey3);
     }
@@ -307,7 +307,7 @@ static u32 _testHashTree(void)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = addHashtreeEntry(
+        u32Ret = jf_hashtree_addEntry(
             &hashtree, strKey3, sKey3, pstrEntry3);
         if (u32Ret == JF_ERR_NO_ERROR)
             ol_printf("Add entry %s with key %s\n", pstrEntry3, strKey3);
@@ -317,7 +317,7 @@ static u32 _testHashTree(void)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = deleteHashtreeEntry(&hashtree, strKey2, sKey2);
+        u32Ret = jf_hashtree_deleteEntry(&hashtree, strKey2, sKey2);
         if (u32Ret == JF_ERR_NO_ERROR)
             ol_printf("Delete entry with key %s\n", strKey2);
     }
@@ -326,7 +326,7 @@ static u32 _testHashTree(void)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = deleteHashtreeEntry(&hashtree, strKey, sKey);
+        u32Ret = jf_hashtree_deleteEntry(&hashtree, strKey, sKey);
         if (u32Ret == JF_ERR_NO_ERROR)
             ol_printf("Delete entry with key %s\n", strKey);
     }
@@ -335,7 +335,7 @@ static u32 _testHashTree(void)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (deleteHashtreeEntry(&hashtree, strKey4, sKey4) != JF_ERR_NO_ERROR)
+        if (jf_hashtree_deleteEntry(&hashtree, strKey4, sKey4) != JF_ERR_NO_ERROR)
             ol_printf("Failed to delete entry with key %s\n", strKey4);
     }
     _printHashTree(&hashtree);
@@ -343,33 +343,33 @@ static u32 _testHashTree(void)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = deleteHashtreeEntry(&hashtree, strKey3, sKey3);
+        u32Ret = jf_hashtree_deleteEntry(&hashtree, strKey3, sKey3);
         if (u32Ret == JF_ERR_NO_ERROR)
             ol_printf("Delete entry with key %s\n", strKey3);
     }
     _printHashTree(&hashtree);
     ol_printf("\n");
 
-    bRet = isHashtreeEmpty(&hashtree);
+    bRet = jf_hashtree_isEmpty(&hashtree);
     ol_printf("Hashtree is %s\n", bRet ? "empty" : "not empty");
 
-    finiHashtree(&hashtree);
+    jf_hashtree_fini(&hashtree);
 
     return u32Ret;
 }
 
-static void _dumpListArray(list_array_t * pla)
+static void _dumpListArray(jf_listarray_t * pjl)
 {
-    u32 u32Head = pla->la_u32Head;
+    u32 u32Head = pjl->jl_u32Head;
 
     ol_printf("dump list array\n");
-    ol_printf("number of node: %u\n", pla->la_u32NumOfNode);
-    ol_printf("head of array: %u\n", pla->la_u32Head);
+    ol_printf("number of node: %u\n", pjl->jl_u32NumOfNode);
+    ol_printf("head of array: %u\n", pjl->jl_u32Head);
 
-    while (u32Head != LIST_ARRAY_END)
+    while (u32Head != JF_LISTARRAY_END)
     {
-        ol_printf("array[%u]=%u\n", u32Head, LIST_ARRAY_NODE(pla)[u32Head]);
-        u32Head = LIST_ARRAY_NODE(pla)[u32Head];
+        ol_printf("array[%u]=%u\n", u32Head, JF_LISTARRAY_NODE(pjl)[u32Head]);
+        u32Head = JF_LISTARRAY_NODE(pjl)[u32Head];
     }
 }
 
@@ -378,7 +378,7 @@ static void _dumpListArray(list_array_t * pla)
 static u32 _testListArray(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    list_array_t * pla = NULL;
+    jf_listarray_t * pjl = NULL;
     u32 u32NumOfNode = DEBUG_NODE_COUNT;
     olsize_t size;
     olint_t nRand;
@@ -391,18 +391,18 @@ static u32 _testListArray(void)
 
     nRand = rand();
 
-    size = sizeOfListArray(u32NumOfNode);
+    size = jf_listarray_getSize(u32NumOfNode);
     ol_printf("size of list array %u\n", size);
 
-    u32Ret = xmalloc((void **)&pla, size);
+    u32Ret = xmalloc((void **)&pjl, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        initListArray(pla, u32NumOfNode);
-        _dumpListArray(pla);
+        jf_listarray_init(pjl, u32NumOfNode);
+        _dumpListArray(pjl);
 
         for (u32Loop = 0; u32Loop < DEBUG_NODE_COUNT; u32Loop ++)
         {
-            u32Save[u32Loop] = LIST_ARRAY_END;
+            u32Save[u32Loop] = JF_LISTARRAY_END;
         }
 
         for (u32Loop = 0; u32Loop < DEBUG_LOOP_COUNT; u32Loop ++)
@@ -413,8 +413,8 @@ static u32 _testListArray(void)
             if ((nRand % 2) != 0)
             {
                 ol_printf("get list array node: ");
-                u32Node = getListArrayNode(pla);
-                if (u32Node == LIST_ARRAY_END)
+                u32Node = jf_listarray_getNode(pjl);
+                if (u32Node == JF_LISTARRAY_END)
                     ol_printf("end\n");
                 else
                 {
@@ -426,7 +426,7 @@ static u32 _testListArray(void)
             {
                 ol_printf("put list array node: ");
                 for (u32Index = 0; u32Index < DEBUG_NODE_COUNT; u32Index ++)
-                    if (u32Save[u32Index] != LIST_ARRAY_END)
+                    if (u32Save[u32Index] != JF_LISTARRAY_END)
                         break;
 
                 if (u32Index == DEBUG_NODE_COUNT)
@@ -434,17 +434,17 @@ static u32 _testListArray(void)
                 else
                 {
                     ol_printf("%u\n", u32Save[u32Index]);
-                    putListArrayNode(pla, u32Save[u32Index]);
-                    u32Save[u32Index] = LIST_ARRAY_END;
+                    jf_listarray_putNode(pjl, u32Save[u32Index]);
+                    u32Save[u32Index] = JF_LISTARRAY_END;
                 }
             }
 
-            _dumpListArray(pla);
+            _dumpListArray(pjl);
         }
     }
 
-    if (pla != NULL)
-        xfree((void **)&pla);
+    if (pjl != NULL)
+        xfree((void **)&pjl);
 
     return u32Ret;
 }

@@ -52,7 +52,7 @@ typedef u32 slab_bufctl_t;
  */
 typedef struct
 {
-    struct list_head s_lhList;
+    jf_listhead_t s_jlList;
     /** pointer to objects */
     void * s_pMem;
     /** num of objs active in slab */
@@ -95,11 +95,11 @@ typedef struct slab_cache
     /** lock for the full, partial and free list*/
     jf_mutex_t sc_jmCache;
     /** list for fully used slab */
-    struct list_head sc_lhFull;
+    jf_listhead_t sc_jlFull;
     /** list for partial slab */
-    struct list_head sc_lhPartial;
+    jf_listhead_t sc_jlPartial;
     /** list for fully free slab */
-    struct list_head sc_lhFree;
+    jf_listhead_t sc_jlFree;
 
     /** order of pages per slab (2^n) */
     u32 sc_u32Order;
@@ -113,7 +113,7 @@ typedef struct slab_cache
     /** cache name */
     olchar_t sc_strName[CACHE_NAME_LEN];
     /** linked in cache_cache */
-    struct list_head sc_lhNext;
+    jf_listhead_t sc_jlNext;
 
 #if DEBUG_JIUKUN_STAT
     ulong sc_ulNumActive;
@@ -188,7 +188,7 @@ typedef struct internal_jiukun_slab
 {
     boolean_t ijs_bInitialized;
     u8 ijs_u8Reserved[7];
-    /** New caches are linked to ijs_scCacheCache.sc_lhNext*/
+    /** New caches are linked to ijs_scCacheCache.sc_jlNext*/
     slab_cache_t ijs_scCacheCache;
 
     u32 ijs_u32OffSlabLimit;
@@ -209,11 +209,11 @@ typedef struct internal_jiukun_slab
  * These are used to find the cache and slab an obj belongs to.
  */
 #define SET_PAGE_CACHE(pg, x) \
-    ((pg)->jp_lhLru.lh_plhNext = (struct list_head *)(x))
-#define GET_PAGE_CACHE(pg)    ((slab_cache_t *)(pg)->jp_lhLru.lh_plhNext)
+    ((pg)->jp_jlLru.jl_pjlNext = (jf_listhead_t *)(x))
+#define GET_PAGE_CACHE(pg)    ((slab_cache_t *)(pg)->jp_jlLru.jl_pjlNext)
 #define SET_PAGE_SLAB(pg, x)  \
-    ((pg)->jp_lhLru.lh_plhPrev = (struct list_head *)(x))
-#define GET_PAGE_SLAB(pg)     ((slab_t *)(pg)->jp_lhLru.lh_plhPrev)
+    ((pg)->jp_jlLru.jl_pjlPrev = (jf_listhead_t *)(x))
+#define GET_PAGE_SLAB(pg)     ((slab_t *)(pg)->jp_jlLru.jl_pjlPrev)
 
 static internal_jiukun_slab_t ls_iasSlab;
 
@@ -221,7 +221,7 @@ static internal_jiukun_slab_t ls_iasSlab;
 #if defined(DEBUG_JIUKUN)
 void _dumpSlabCache(slab_cache_t * pCache)
 {
-    struct list_head * q;
+    jf_listhead_t * q;
     slab_t * slabp;
     u32 full_objs = 0, partial_objs = 0, free_objs = 0;
     u32 full_slabs = 0, partial_slabs = 0, free_slabs = 0;
@@ -231,25 +231,25 @@ void _dumpSlabCache(slab_cache_t * pCache)
         "cachep name %s, order %u, num %u",
         pCache->sc_strName, pCache->sc_u32Order, pCache->sc_u32Num);
 
-    listForEach(&pCache->sc_lhFull, q)
+    jf_listhead_forEach(&pCache->sc_jlFull, q)
     {
-        slabp = listEntry(q, slab_t, s_lhList);
+        slabp = jf_listhead_getEntry(q, slab_t, s_jlList);
         assert(slabp->s_u32InUse == pCache->sc_u32Num);
         full_objs += pCache->sc_u32Num;
         full_use_objs += slabp->s_u32InUse;
         full_slabs ++;
     }
-    listForEach(&pCache->sc_lhPartial, q)
+    jf_listhead_forEach(&pCache->sc_jlPartial, q)
     {
-        slabp = listEntry(q, slab_t, s_lhList);
+        slabp = jf_listhead_getEntry(q, slab_t, s_jlList);
         assert((slabp->s_u32InUse != pCache->sc_u32Num) && (slabp->s_u32InUse != 0));
         partial_objs += pCache->sc_u32Num;
         partial_use_objs += slabp->s_u32InUse;
         partial_slabs ++;
     }
-    listForEach(&pCache->sc_lhFree, q)
+    jf_listhead_forEach(&pCache->sc_jlFree, q)
     {
-        slabp = listEntry(q, slab_t, s_lhList);
+        slabp = jf_listhead_getEntry(q, slab_t, s_jlList);
         assert(slabp->s_u32InUse == 0);
         free_objs += pCache->sc_u32Num;
         free_use_objs += slabp->s_u32InUse;
@@ -379,8 +379,8 @@ static inline void * _allocOneObjFromTail(
 
     if (slabp->s_sbFree == BUFCTL_END)
     {
-        listDel(&(slabp->s_lhList));
-        listAdd(&(pCache->sc_lhFull), &(slabp->s_lhList));
+        jf_listhead_del(&(slabp->s_jlList));
+        jf_listhead_add(&(pCache->sc_jlFull), &(slabp->s_jlList));
     }
 
 #if DEBUG_JIUKUN
@@ -532,7 +532,7 @@ static u32 _growSlabCache(
         _initSlabCacheObjs(pCache, slabp);
 
         /* Make slab active. */
-        listAddTail(&(pCache->sc_lhFree), &(slabp->s_lhList));
+        jf_listhead_addTail(&(pCache->sc_jlFree), &(slabp->s_jlList));
         STATS_INC_GROWN(pCache);
 
 #if DEBUG_JIUKUN
@@ -566,7 +566,7 @@ static inline u32 _allocObj(
     slab_cache_t * pCache, void ** ppObj, olflag_t flag)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    struct list_head * entry;
+    jf_listhead_t * entry;
     slab_t * slabp;
     olflag_t jpflag = 0;
 
@@ -581,11 +581,11 @@ static inline u32 _allocObj(
 
     while (*ppObj == NULL)
     {
-        entry = pCache->sc_lhPartial.lh_plhNext;
-        if (listIsEmpty(&pCache->sc_lhPartial))
+        entry = pCache->sc_jlPartial.jl_pjlNext;
+        if (jf_listhead_isEmpty(&pCache->sc_jlPartial))
         {
-            entry = pCache->sc_lhFree.lh_plhNext;
-            if (listIsEmpty(&pCache->sc_lhFree))
+            entry = pCache->sc_jlFree.jl_pjlNext;
+            if (jf_listhead_isEmpty(&pCache->sc_jlFree))
             {
                 if (GET_FLAG(flag, JF_JIUKUN_MEM_ALLOC_FLAG_NOWAIT))
                     SET_FLAG(jpflag, JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT);
@@ -594,13 +594,13 @@ static inline u32 _allocObj(
                 if (u32Ret != JF_ERR_NO_ERROR)
                     break;
 
-                entry = pCache->sc_lhFree.lh_plhNext;
+                entry = pCache->sc_jlFree.jl_pjlNext;
             }
-            listDel(entry);
-            listAdd(&pCache->sc_lhPartial, entry);
+            jf_listhead_del(entry);
+            jf_listhead_add(&pCache->sc_jlPartial, entry);
         }
 
-        slabp = listEntry(entry, slab_t, s_lhList);
+        slabp = jf_listhead_getEntry(entry, slab_t, s_jlList);
         *ppObj = _allocOneObjFromTail(pCache, slabp);
     }
 
@@ -707,14 +707,14 @@ static inline void _freeOneObj(
         if (slabp->s_u32InUse == 0)
         {
             /* Was partial or full, now empty. */
-            listDel(&(slabp->s_lhList));
-            listAdd(&(pCache->sc_lhFree), &(slabp->s_lhList));
+            jf_listhead_del(&(slabp->s_jlList));
+            jf_listhead_add(&(pCache->sc_jlFree), &(slabp->s_jlList));
         }
         else if (inuse == pCache->sc_u32Num)
         {
             /* Was full. */
-            listDel(&(slabp->s_lhList));
-            listAdd(&(pCache->sc_lhPartial), &(slabp->s_lhList));
+            jf_listhead_del(&(slabp->s_jlList));
+            jf_listhead_add(&(pCache->sc_jlPartial), &(slabp->s_jlList));
         }
     }
 }
@@ -777,7 +777,7 @@ static u32 _destroySlabCache(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     slab_t * slabp;
-    struct list_head * p;
+    jf_listhead_t * p;
 
     jf_logger_logInfoMsg("destroy jiukun cache %s", psc->sc_strName);
 
@@ -785,15 +785,15 @@ static u32 _destroySlabCache(
 
     while (u32Ret == JF_ERR_NO_ERROR)
     {
-        p = psc->sc_lhFree.lh_plhPrev;
-        if (p == &(psc->sc_lhFree))
+        p = psc->sc_jlFree.jl_pjlPrev;
+        if (p == &(psc->sc_jlFree))
             break;
 
-        slabp = listEntry(psc->sc_lhFree.lh_plhPrev, slab_t, s_lhList);
+        slabp = jf_listhead_getEntry(psc->sc_jlFree.jl_pjlPrev, slab_t, s_jlList);
 #if DEBUG_JIUKUN
         assert(slabp->s_u32InUse == 0);
 #endif
-        listDel(&(slabp->s_lhList));
+        jf_listhead_del(&(slabp->s_jlList));
 
         _destroySlab(pijs, psc, slabp);
     }
@@ -830,7 +830,7 @@ static u32 _createSlabCache(
     slab_cache_t * pCache = NULL;
     u32 realobjsize = pjjccp->jjccp_sObj;
 #ifdef DEBUG_JIUKUN
-    struct list_head * plh;
+    jf_listhead_t * pjl;
 #endif
 
     jf_logger_logInfoMsg(
@@ -947,9 +947,9 @@ static u32 _createSlabCache(
         pCache->sc_u32ObjSize = pjjccp->jjccp_sObj;
         pCache->sc_u32RealObjSize = realobjsize;
 
-        listInit(&(pCache->sc_lhFull));
-        listInit(&(pCache->sc_lhPartial));
-        listInit(&(pCache->sc_lhFree));
+        jf_listhead_init(&(pCache->sc_jlFull));
+        jf_listhead_init(&(pCache->sc_jlPartial));
+        jf_listhead_init(&(pCache->sc_jlFree));
 
         if (GET_FLAG(pjjccp->jjccp_fCache, SC_FLAG_OFF_SLAB))
             pCache->sc_pscSlab = _findGeneralSlabCache(pijs, slab_size, 0);
@@ -957,13 +957,13 @@ static u32 _createSlabCache(
 
         jf_mutex_acquire(&(pijs->ijs_smLock));
 #ifdef DEBUG_JIUKUN
-        listForEach(&(pijs->ijs_scCacheCache.sc_lhNext), plh)
+        jf_listhead_forEach(&(pijs->ijs_scCacheCache.sc_jlNext), pjl)
         {
-            slab_cache_t * pc = listEntry(plh, slab_cache_t, sc_lhNext);
+            slab_cache_t * pc = jf_listhead_getEntry(pjl, slab_cache_t, sc_jlNext);
             assert(strcmp(pc->sc_strName, pjjccp->jjccp_pstrName) != 0);
         }
 #endif
-        listAdd(&(pijs->ijs_scCacheCache.sc_lhNext), &(pCache->sc_lhNext));
+        jf_listhead_add(&(pijs->ijs_scCacheCache.sc_jlNext), &(pCache->sc_jlNext));
         jf_mutex_release(&(pijs->ijs_smLock));
     }
 
@@ -987,11 +987,11 @@ static u32 _initSlabCache(internal_jiukun_slab_t * pijs)
     jf_jiukun_cache_create_param_t jjccp;
     u16 u16NumOfSize = 0;
 
-    listInit(&(pkc->sc_lhNext));
+    jf_listhead_init(&(pkc->sc_jlNext));
 
-    listInit(&(pkc->sc_lhFull));
-    listInit(&(pkc->sc_lhPartial));
-    listInit(&(pkc->sc_lhFree));
+    jf_listhead_init(&(pkc->sc_jlFull));
+    jf_listhead_init(&(pkc->sc_jlPartial));
+    jf_listhead_init(&(pkc->sc_jlFree));
 
     pkc->sc_u32ObjSize = sizeof(slab_cache_t);
     SET_FLAG(pkc->sc_fCache, JF_JIUKUN_CACHE_CREATE_FLAG_NOREAP);
@@ -1050,19 +1050,19 @@ static olint_t _shrinkSlabCache(
 {
     slab_t * slabp;
     olint_t ret = 0;
-    struct list_head * p;
+    jf_listhead_t * p;
 
     while (1)
     {
-        p = pCache->sc_lhFree.lh_plhPrev;
-        if (p == &(pCache->sc_lhFree))
+        p = pCache->sc_jlFree.jl_pjlPrev;
+        if (p == &(pCache->sc_jlFree))
             break;
 
-        slabp = listEntry(pCache->sc_lhFree.lh_plhPrev, slab_t, s_lhList);
+        slabp = jf_listhead_getEntry(pCache->sc_jlFree.jl_pjlPrev, slab_t, s_jlList);
 #if DEBUG_JIUKUN
         assert(slabp->s_u32InUse == 0);
 #endif
-        listDel(&(slabp->s_lhList));
+        jf_listhead_del(&(slabp->s_jlList));
 
         _destroySlab(pijs, pCache, slabp);
         ret++;
@@ -1158,7 +1158,7 @@ u32 jf_jiukun_destroyCache(jf_jiukun_cache_t ** ppCache)
     /* Find the cache in the chain of caches. */
     jf_mutex_acquire(&(pijs->ijs_smLock));
     /* the chain is never empty, cache_cache is never destroyed */
-    listDel(&(psc->sc_lhNext));
+    jf_listhead_del(&(psc->sc_jlNext));
     SET_FLAG(psc->sc_fCache, SC_FLAG_DESTROY);
     jf_mutex_release(&(pijs->ijs_smLock));
 
@@ -1174,7 +1174,7 @@ u32 reapJiukunSlab(boolean_t bNoWait)
     internal_jiukun_slab_t * pijs = &ls_iasSlab;
     slab_cache_t * searchp;
     olint_t ret = 0;
-    struct list_head * plh;
+    jf_listhead_t * pjl;
 
     assert(pijs->ijs_bInitialized);
 
@@ -1192,9 +1192,9 @@ u32 reapJiukunSlab(boolean_t bNoWait)
     }
     jf_logger_logInfoMsg("reap slab, start");
 
-    listForEach(&(pijs->ijs_scCacheCache.sc_lhNext), plh)
+    jf_listhead_forEach(&(pijs->ijs_scCacheCache.sc_jlNext), pjl)
     {
-        searchp = listEntry(plh, slab_cache_t, sc_lhNext);
+        searchp = jf_listhead_getEntry(pjl, slab_cache_t, sc_jlNext);
 
         if (GET_FLAG(searchp->sc_fCache, JF_JIUKUN_CACHE_CREATE_FLAG_NOREAP))
         {

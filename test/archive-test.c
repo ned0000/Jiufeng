@@ -23,7 +23,7 @@
 
 /* --- private data/data structure section --------------------------------- */
 static olchar_t * ls_pstrArchiveName = NULL;
-static link_list_t ls_llMemberFile;
+static jf_linklist_t ls_jlMemberFile;
 static boolean_t ls_bCreateArchive;
 static boolean_t ls_bExtractArchive;
 static boolean_t ls_bListArchive;
@@ -73,7 +73,7 @@ static u32 _parseCmdLineParam(
             ls_bCreateArchive = TRUE;
             break;
         case 'm':
-            u32Ret = appendToLinkList(&ls_llMemberFile, optarg);
+            u32Ret = jf_linklist_appendTo(&ls_jlMemberFile, optarg);
             break;
         case 't':
             ls_bExtractArchive = TRUE;
@@ -138,12 +138,12 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
     jf_logger_init(&jlipParam);
 
-    initLinkList(&ls_llMemberFile);
+    jf_linklist_init(&ls_jlMemberFile);
 
     u32Ret = _parseCmdLineParam(argc, argv, &jacp, &jlipParam);
     if ((u32Ret == JF_ERR_NO_ERROR) && (ls_bCreateArchive))
     {
-        if (isLinkListEmpty(&ls_llMemberFile))
+        if (jf_linklist_isEmpty(&ls_jlMemberFile))
         {
             ol_printf("Member files are not specified!!!\n");
             _printUsage();
@@ -167,7 +167,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         {
             jacp.jacp_bVerbose = ls_bVerbose;
             u32Ret = jf_archive_create(
-                &ls_llMemberFile, ls_pstrArchiveName, &jacp);
+                &ls_jlMemberFile, ls_pstrArchiveName, &jacp);
         }
         else if (ls_bExtractArchive)
         {
@@ -185,7 +185,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     jf_logger_fini();
 
-    finiLinkList(&ls_llMemberFile);
+    jf_linklist_fini(&ls_jlMemberFile);
     
     return u32Ret;
 }
