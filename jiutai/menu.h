@@ -27,13 +27,13 @@
 
 /* --- data structures ----------------------------------------------------- */
 
-typedef void  menu_t;
+typedef void  jf_menu_t;
 
-typedef u32 (* fnPreShow_t)(void * pArg);
+typedef u32 (* jf_menu_fnPreShow_t)(void * pArg);
 
-typedef u32 (* fnPostShow_t)(void * pArg);
+typedef u32 (* jf_menu_fnPostShow_t)(void * pArg);
 
-typedef u32 (* fnHandler_t)(void * pArg);
+typedef u32 (* jf_menu_fnHandler_t)(void * pArg);
 
 /* --- functional routines ------------------------------------------------- */
 
@@ -46,9 +46,9 @@ typedef u32 (* fnHandler_t)(void * pArg);
  *
  *  @return
  */
-u32 createTopMenu(
-    fnPreShow_t fnPreShow, fnPostShow_t fnPostShow, void * pArg,
-    menu_t ** ppMenu);
+u32 jf_menu_createTopMenu(
+    jf_menu_fnPreShow_t fnPreShow, jf_menu_fnPostShow_t fnPostShow, void * pArg,
+    jf_menu_t ** ppMenu);
 
 /** Add a sub menu 
  *
@@ -66,11 +66,11 @@ u32 createTopMenu(
  *  @retval JF_ERR_OUT_OF_MEMORY out of memory
  *
  */
-u32 addSubMenu(
-    menu_t * pParent, const olchar_t * pstrName,
+u32 jf_menu_addSubMenu(
+    jf_menu_t * pParent, const olchar_t * pstrName,
     const olchar_t * pstrDesc, const u32 attr,
-    fnPreShow_t fnPreShow, fnPostShow_t fnPostShow,
-    void * pArg, menu_t ** ppMenu);
+    jf_menu_fnPreShow_t fnPreShow, jf_menu_fnPostShow_t fnPostShow,
+    void * pArg, jf_menu_t ** ppMenu);
 
 /** Add an entry to the menu 
  *
@@ -86,10 +86,10 @@ u32 addSubMenu(
  *  @retval JF_ERR_OUT_OF_MEMORY out of memory
  *
  */
-u32 addMenuEntry(
-    menu_t * pParent, const olchar_t * pstrName,
+u32 jf_menu_addEntry(
+    jf_menu_t * pParent, const olchar_t * pstrName,
     const olchar_t * pstrDesc, const u32 attr,
-    fnHandler_t fnHandler, void * pArg);
+    jf_menu_fnHandler_t fnHandler, void * pArg);
 
 /** Start menu
  * 
@@ -98,7 +98,7 @@ u32 addMenuEntry(
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 startMenu(menu_t * pTop);
+u32 jf_menu_start(jf_menu_t * pTop);
 
 #endif  // JIUTAI_MENU_H
 

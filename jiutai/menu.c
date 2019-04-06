@@ -54,7 +54,7 @@ typedef struct internal_menu_entry
         /** A routine for the "command" entry */
         struct
         {
-            u32 (*is_fnHandler) (void * pArg);
+            jf_menu_fnHandler_t is_fnHandler;
             void * is_pArg;
         } iu_stCommand;
         /** The entry is a menu */
@@ -68,31 +68,34 @@ typedef struct internal_menu_entry
     struct internal_menu_entry *ime_imeNext;
 } internal_menu_entry_t;
 
-/** @name Attribute of entry
+/** name Attribute of entry, up-one-level entry
  */
-//@{
-/// up-one-level entry
-#define  MENU_ENTRY_ATTR_UP_ONE_LEVEL                0x1
-/// quit entry
-#define  MENU_ENTRY_ATTR_QUIT                        0x2
-//@}
+#define  MENU_ENTRY_ATTR_UP_ONE_LEVEL        (0x1)
 
-/** @name macro manipulating the attribute of menu
+/** name Attribute of entry, quit entry
  */
-//@{
-/// The entry is an up-one-level entry
+#define  MENU_ENTRY_ATTR_QUIT                (0x2)
+
+
+/** The entry is an up-one-level entry
+ */
 #define  set_uponelevel_menu_entry(entry)   \
-                          (entry->ime_u32Attribute |= MENU_ENTRY_ATTR_UP_ONE_LEVEL)
-/// The entry is a quit entry
-#define  set_quit_menu_entry(entry)   \
-                          (entry->ime_u32Attribute |= MENU_ENTRY_ATTR_QUIT)
+    (entry->ime_u32Attribute |= MENU_ENTRY_ATTR_UP_ONE_LEVEL)
 
-/// Verify up-one-level entry
+/** The entry is a quit entry
+ */
+#define  set_quit_menu_entry(entry)   \
+    (entry->ime_u32Attribute |= MENU_ENTRY_ATTR_QUIT)
+
+/** Verify up-one-level entry
+ */
 #define  is_uponelevel_menu_entry(entry)    \
-                          (entry->ime_u32Attribute & MENU_ENTRY_ATTR_UP_ONE_LEVEL)
-/// Verify quit entry
-#define  is_quit_menu_entry(entry) (entry->ime_u32Attribute & MENU_ENTRY_ATTR_QUIT)
-//@}
+    (entry->ime_u32Attribute & MENU_ENTRY_ATTR_UP_ONE_LEVEL)
+
+/** Verify quit entry
+ */
+#define  is_quit_menu_entry(entry) \
+    (entry->ime_u32Attribute & MENU_ENTRY_ATTR_QUIT)
 
 /** The menu definition
  */
@@ -107,14 +110,15 @@ typedef struct internal_menu
     struct internal_menu *im_imParent;
 
     /** Before showing the menu, the handler is invoked */
-    u32 (*im_fnPreShow) (void * pArg);
+    jf_menu_fnPreShow_t im_fnPreShow;
     /** After showing the menu, the handler is invoked */
-    u32 (*im_fnPostShow) (void * pArg);
+    jf_menu_fnPostShow_t im_fnPostShow;
     /** Argument of the functions above */
     void * im_pArg;
 } internal_menu_t;
 
 /* --- private routine section---------------------------------------------- */
+
 static internal_menu_t * _getTopMenu(internal_menu_t * pMenu)
 {
     while (pMenu->im_imParent != NULL)
@@ -134,7 +138,8 @@ static olint_t _quitMenu(internal_menu_t * pMenu)
     return 0;
 }
 
-static u32 _newMenuEntry(internal_menu_t * pParent, const olchar_t * pstrName, 
+static u32 _newMenuEntry(
+    internal_menu_t * pParent, const olchar_t * pstrName, 
     const olchar_t * pstrDesc, const u32 attr, internal_menu_entry_t ** ppEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -182,7 +187,8 @@ static u32 _destroyEntry(internal_menu_entry_t ** ppEntry)
     return u32Ret;
 }
 
-static u32 _newQuitEntry(internal_menu_t * pParent, internal_menu_entry_t ** ppEntry)
+static u32 _newQuitEntry(
+    internal_menu_t * pParent, internal_menu_entry_t ** ppEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_entry_t * pEntry;
@@ -197,7 +203,8 @@ static u32 _newQuitEntry(internal_menu_t * pParent, internal_menu_entry_t ** ppE
     return u32Ret;
 }
 
-static u32 _newUponelevelEntry(internal_menu_t * pParent, internal_menu_entry_t ** ppEntry)
+static u32 _newUponelevelEntry(
+    internal_menu_t * pParent, internal_menu_entry_t ** ppEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_entry_t * pEntry;
@@ -222,8 +229,9 @@ static u32 _addEntry(internal_menu_t * pParent, internal_menu_entry_t *pEntry)
     return u32Ret;
 }
 
-static u32 _newMenu(internal_menu_t * pParent, fnPreShow_t fnPreShow,
-    fnPostShow_t fnPostShow, void * pArg, internal_menu_t ** ppMenu)
+static u32 _newMenu(
+    internal_menu_t * pParent, jf_menu_fnPreShow_t fnPreShow,
+    jf_menu_fnPostShow_t fnPostShow, void * pArg, internal_menu_t ** ppMenu)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_t *pMenu;
@@ -340,7 +348,8 @@ static internal_menu_t * _showMenu(internal_menu_t * pMenu)
     switch (pEntry->ime_etType)
     {
     case ENTRY_TYPE_COMMAND:
-        pEntry->ime_uContent.iu_stCommand.is_fnHandler(pEntry->ime_uContent.iu_stCommand.is_pArg);
+        pEntry->ime_uContent.iu_stCommand.is_fnHandler(
+            pEntry->ime_uContent.iu_stCommand.is_pArg);
         break;
     case ENTRY_TYPE_MENU:
         ret = pEntry->ime_uContent.iu_imMenu;
@@ -395,20 +404,21 @@ static olint_t _destroyMenu(internal_menu_t * pTop)
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 createTopMenu(fnPreShow_t fnPreShow, fnPostShow_t fnPostShow, void * pArg,
-    menu_t ** ppMenu)
+u32 jf_menu_createTopMenu(
+    jf_menu_fnPreShow_t fnPreShow, jf_menu_fnPostShow_t fnPostShow, void * pArg,
+    jf_menu_t ** ppMenu)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = _newMenu(NULL, fnPreShow, fnPostShow, pArg,
-        (internal_menu_t **)ppMenu);
+    u32Ret = _newMenu(
+        NULL, fnPreShow, fnPostShow, pArg, (internal_menu_t **)ppMenu);
 
     return u32Ret;
 }
 
-u32 addMenuEntry(menu_t * pParent, const olchar_t * pstrName,
-    const olchar_t * pstrDesc, const u32 attr,
-    fnHandler_t fnHandler, void * pArg)
+u32 jf_menu_addEntry(
+    jf_menu_t * pParent, const olchar_t * pstrName, const olchar_t * pstrDesc,
+    const u32 attr, jf_menu_fnHandler_t fnHandler, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_entry_t * pEntry;
@@ -430,10 +440,11 @@ u32 addMenuEntry(menu_t * pParent, const olchar_t * pstrName,
     return u32Ret;
 }
 
-u32 addSubMenu(menu_t * pParent, const olchar_t * pstrName,
+u32 jf_menu_addSubMenu(
+    jf_menu_t * pParent, const olchar_t * pstrName,
     const olchar_t * pstrDesc, const u32 attr,
-    fnPreShow_t fnPreShow, fnPostShow_t fnPostShow,
-    void * pArg, menu_t ** ppMenu)
+    jf_menu_fnPreShow_t fnPreShow, jf_menu_fnPostShow_t fnPostShow,
+    void * pArg, jf_menu_t ** ppMenu)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_entry_t * pEntry;
@@ -462,7 +473,7 @@ u32 addSubMenu(menu_t * pParent, const olchar_t * pstrName,
     return u32Ret;
 }
 
-u32 startMenu(menu_t * pTop)
+u32 jf_menu_start(jf_menu_t * pTop)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_t * p, * pMenu = (internal_menu_t *)pTop;

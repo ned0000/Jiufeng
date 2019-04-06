@@ -43,29 +43,32 @@ static u32 _startInstall(void * pArg)
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    menu_t *topMenu = NULL;
-    menu_t * pInstall, * pQuery;
+    jf_menu_t *topMenu = NULL;
+    jf_menu_t * pInstall, * pQuery;
     olint_t install = 1;
 
-    u32Ret = createTopMenu(NULL, NULL, NULL, &topMenu);
+    u32Ret = jf_menu_createTopMenu(NULL, NULL, NULL, &topMenu);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = addSubMenu(topMenu, "Install", NULL, 0, NULL, NULL, NULL, &pInstall);
+        u32Ret = jf_menu_addSubMenu(
+            topMenu, "Install", NULL, 0, NULL, NULL, NULL, &pInstall);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = addSubMenu(pInstall, "query", NULL, 0, NULL, NULL, NULL, &pQuery);
+        u32Ret = jf_menu_addSubMenu(
+            pInstall, "query", NULL, 0, NULL, NULL, NULL, &pQuery);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = addMenuEntry(pInstall, "Start", NULL, 0, _startInstall, (void *)&install);
+        u32Ret = jf_menu_addEntry(
+            pInstall, "Start", NULL, 0, _startInstall, (void *)&install);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        startMenu(topMenu);
+        jf_menu_start(topMenu);
     }
 
     exit(0);
