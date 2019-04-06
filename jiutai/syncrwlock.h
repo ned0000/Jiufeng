@@ -23,21 +23,21 @@
 typedef struct
 {
 #if defined(LINUX)
-    pthread_rwlock_t sr_ptrRwlock;
+    pthread_rwlock_t jr_ptrRwlock;
 #elif defined(WINDOWS)
-    boolean_t sr_bWritePriority;        /*true, if writer priority*/
+    boolean_t jr_bWritePriority;        /*true, if writer priority*/
    
-    u32 sr_u32ReadCount;                /*number of active readers*/
-    u32 sr_u32ReadWaiting;              /*number of waiting readers*/
+    u32 jr_u32ReadCount;                /*number of active readers*/
+    u32 jr_u32ReadWaiting;              /*number of waiting readers*/
       
-    u32 sr_u32WriteCount;               /*number of active writers*/
-    u32 sr_u32WriteWaiting;             /*number of waiting writers*/
+    u32 jr_u32WriteCount;               /*number of active writers*/
+    u32 jr_u32WriteWaiting;             /*number of waiting writers*/
       
-    HANDLE sr_hReadGreen;               /*reader events*/
-    HANDLE sr_hWriteGreen;              /*writer event*/
-    CRITICAL_SECTION sr_csLock;         /*R/W lock critical section*/
+    HANDLE jr_hReadGreen;               /*reader events*/
+    HANDLE jr_hWriteGreen;              /*writer event*/
+    CRITICAL_SECTION jr_csLock;         /*R/W lock critical section*/
 #endif
-} sync_rwlock_t;
+} jf_rwlock_t;
 
 /* --- functional routines ------------------------------------------------- */
 
@@ -48,7 +48,7 @@ typedef struct
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 initSyncRwlock(sync_rwlock_t * pRwlock);
+u32 jf_rwlock_init(jf_rwlock_t * pRwlock);
 
 /** Finalize a rwlock
  *
@@ -57,7 +57,7 @@ u32 initSyncRwlock(sync_rwlock_t * pRwlock);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 finiSyncRwlock(sync_rwlock_t * pRwlock);
+u32 jf_rwlock_fini(jf_rwlock_t * pRwlock);
 
 /** Acquire a read rwlock
  *
@@ -69,7 +69,7 @@ u32 finiSyncRwlock(sync_rwlock_t * pRwlock);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 acquireSyncReadlock(sync_rwlock_t * pRwlock);
+u32 jf_rwlock_acquireReadlock(jf_rwlock_t * pRwlock);
 
 /** Try to acquire a read rwlock
  *
@@ -81,7 +81,7 @@ u32 acquireSyncReadlock(sync_rwlock_t * pRwlock);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 tryAcquireSyncReadlock(sync_rwlock_t * pRwlock);
+u32 jf_rwlock_tryAcquireReadlock(jf_rwlock_t * pRwlock);
 
 /** Acquire a rwlock with time out
  *
@@ -92,7 +92,7 @@ u32 tryAcquireSyncReadlock(sync_rwlock_t * pRwlock);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 acquireSyncReadlockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout);
+u32 jf_rwlock_acquireReadlockWithTimeout(jf_rwlock_t * pRwlock, u32 u32Timeout);
 
 /** Release a rwlock.
  *
@@ -101,7 +101,7 @@ u32 acquireSyncReadlockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 releaseSyncReadlock(sync_rwlock_t * pRwlock);
+u32 jf_rwlock_releaseReadlock(jf_rwlock_t * pRwlock);
 
 /** Acquire a write rwlock
  *
@@ -113,7 +113,7 @@ u32 releaseSyncReadlock(sync_rwlock_t * pRwlock);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 acquireSyncWritelock(sync_rwlock_t * pRwlock);
+u32 jf_rwlock_acquireWritelock(jf_rwlock_t * pRwlock);
 
 /** Try to acquire a write rwlock
  *
@@ -125,7 +125,7 @@ u32 acquireSyncWritelock(sync_rwlock_t * pRwlock);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 tryAcquireSyncWritelock(sync_rwlock_t * pRwlock);
+u32 jf_rwlock_tryAcquireWritelock(jf_rwlock_t * pRwlock);
 
 /** Acquire a write rwlock with time out
  *
@@ -136,7 +136,7 @@ u32 tryAcquireSyncWritelock(sync_rwlock_t * pRwlock);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 acquireSyncWritelockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout);
+u32 jf_rwlock_acquireWritelockWithTimeout(jf_rwlock_t * pRwlock, u32 u32Timeout);
 
 /** Release a write rwlock.
  *
@@ -145,7 +145,7 @@ u32 acquireSyncWritelockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 releaseSyncWritelock(sync_rwlock_t * pRwlock);
+u32 jf_rwlock_releaseWritelock(jf_rwlock_t * pRwlock);
 
 #endif /*JIUTAI_SYNCRWLOCK_H*/
 

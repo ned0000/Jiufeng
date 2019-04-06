@@ -22,7 +22,7 @@
 
 /* --- private routine section---------------------------------------------- */
 #if defined(WINDOWS)
-static u32 _acquireSyncReadlock(sync_rwlock_t * pRwlock, u32 u32Timeout)
+static u32 _acquireSyncReadlock(jf_rwlock_t * pRwlock, u32 u32Timeout)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     DWORD dwRet = 0;
@@ -30,45 +30,45 @@ static u32 _acquireSyncReadlock(sync_rwlock_t * pRwlock, u32 u32Timeout)
    
     do
 	{
-        EnterCriticalSection(&(pRwlock->sr_csLock));
+        EnterCriticalSection(&(pRwlock->jr_csLock));
 
         /* acquire lock if 
            - there are no active writers and 
            - readers have priority or
            - writers have priority and there are no waiting writers */
-        if (! pRwlock->sr_u32WriteCount &&
-			(! pRwlock->sr_bWritePriority || ! pRwlock->sr_u32WriteWaiting))
+        if (! pRwlock->jr_u32WriteCount &&
+			(! pRwlock->jr_bWritePriority || ! pRwlock->jr_u32WriteWaiting))
 		{
             if (wait)
 			{
-                pRwlock->sr_u32ReadWaiting --;
+                pRwlock->jr_u32ReadWaiting --;
                 wait = FALSE;
             }
-            pRwlock->sr_u32ReadCount ++;
+            pRwlock->jr_u32ReadCount ++;
         }
         else
 		{
             if (! wait)
 			{
-                pRwlock->sr_u32ReadWaiting ++;
+                pRwlock->jr_u32ReadWaiting ++;
                 wait = TRUE;
             }
             /*always reset the event to avoid 100% CPU usage*/
-            ResetEvent(pRwlock->sr_hReadGreen);
+            ResetEvent(pRwlock->jr_hReadGreen);
         }
 
-        LeaveCriticalSection(&(pRwlock->sr_csLock));
+        LeaveCriticalSection(&(pRwlock->jr_csLock));
       
         if (wait)
 		{
-			dwRet = WaitForSingleObject(pRwlock->sr_hReadGreen, u32Timeout);
+			dwRet = WaitForSingleObject(pRwlock->jr_hReadGreen, u32Timeout);
             if (dwRet != WAIT_OBJECT_0)
 			{
-                EnterCriticalSection(&(pRwlock->sr_csLock));
-                pRwlock->sr_u32ReadWaiting --;
-                SetEvent(pRwlock->sr_hReadGreen);
-				SetEvent(pRwlock->sr_hWriteGreen);
-                LeaveCriticalSection(&(pRwlock->sr_csLock));
+                EnterCriticalSection(&(pRwlock->jr_csLock));
+                pRwlock->jr_u32ReadWaiting --;
+                SetEvent(pRwlock->jr_hReadGreen);
+				SetEvent(pRwlock->jr_hWriteGreen);
+                LeaveCriticalSection(&(pRwlock->jr_csLock));
 
                 if (dwRet == WAIT_TIMEOUT)
                     u32Ret = JF_ERR_TIMEOUT;
@@ -83,7 +83,7 @@ static u32 _acquireSyncReadlock(sync_rwlock_t * pRwlock, u32 u32Timeout)
 	return u32Ret;
 }
 
-static u32 _acquireSyncWritelock(sync_rwlock_t * pRwlock, u32 u32Timeout)
+static u32 _acquireSyncWritelock(jf_rwlock_t * pRwlock, u32 u32Timeout)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     DWORD dwRet = 0;
@@ -91,45 +91,45 @@ static u32 _acquireSyncWritelock(sync_rwlock_t * pRwlock, u32 u32Timeout)
    
     do
 	{
-        EnterCriticalSection(&(pRwlock->sr_csLock));
+        EnterCriticalSection(&(pRwlock->jr_csLock));
 
         /* acquire lock if 
             - there are no active readers nor writers and 
             - writers have priority or
             - readers have priority and there are no waiting readers */
-        if (! pRwlock->sr_u32ReadCount && ! pRwlock->sr_u32WriteCount &&
-			(pRwlock->sr_bWritePriority || ! pRwlock->sr_u32ReadWaiting))
+        if (! pRwlock->jr_u32ReadCount && ! pRwlock->jr_u32WriteCount &&
+			(pRwlock->jr_bWritePriority || ! pRwlock->jr_u32ReadWaiting))
 		{
             if (wait)
 			{
-                pRwlock->sr_u32WriteWaiting --;
+                pRwlock->jr_u32WriteWaiting --;
                 wait = FALSE;
             }
-            pRwlock->sr_u32WriteCount ++;
+            pRwlock->jr_u32WriteCount ++;
         }
         else
 		{
             if (! wait)
 			{
-                pRwlock->sr_u32WriteWaiting ++;
+                pRwlock->jr_u32WriteWaiting ++;
                 wait = TRUE;
             }
             /*always reset the event to avoid 100% CPU usage*/
-            ResetEvent(pRwlock->sr_hWriteGreen);
+            ResetEvent(pRwlock->jr_hWriteGreen);
         }
 
-        LeaveCriticalSection(&(pRwlock->sr_csLock));
+        LeaveCriticalSection(&(pRwlock->jr_csLock));
 
         if (wait)
 		{
-			dwRet = WaitForSingleObject(pRwlock->sr_hWriteGreen, u32Timeout);
+			dwRet = WaitForSingleObject(pRwlock->jr_hWriteGreen, u32Timeout);
             if (dwRet != WAIT_OBJECT_0)
 			{
-                EnterCriticalSection(&(pRwlock->sr_csLock));
-                pRwlock->sr_u32WriteWaiting --;
-                SetEvent(pRwlock->sr_hReadGreen);
-				SetEvent(pRwlock->sr_hWriteGreen);
-                LeaveCriticalSection(&(pRwlock->sr_csLock));
+                EnterCriticalSection(&(pRwlock->jr_csLock));
+                pRwlock->jr_u32WriteWaiting --;
+                SetEvent(pRwlock->jr_hReadGreen);
+				SetEvent(pRwlock->jr_hWriteGreen);
+                LeaveCriticalSection(&(pRwlock->jr_csLock));
 
 				if (dwRet == WAIT_TIMEOUT)
                     u32Ret = JF_ERR_TIMEOUT;
@@ -149,29 +149,29 @@ static u32 _acquireSyncWritelock(sync_rwlock_t * pRwlock, u32 u32Timeout)
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 initSyncRwlock(sync_rwlock_t * pRwlock)
+u32 jf_rwlock_init(jf_rwlock_t * pRwlock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     assert(pRwlock != NULL);
     
 #if defined(WINDOWS)
-    memset(pRwlock, 0, sizeof(sync_rwlock_t));
+    memset(pRwlock, 0, sizeof(jf_rwlock_t));
 
-	pRwlock->sr_bWritePriority = TRUE;
-	InitializeCriticalSection(&(pRwlock->sr_csLock));
+	pRwlock->jr_bWritePriority = TRUE;
+	InitializeCriticalSection(&(pRwlock->jr_csLock));
 
-    pRwlock->sr_hReadGreen = CreateEvent(NULL, FALSE, TRUE, NULL);
-    pRwlock->sr_hWriteGreen = CreateEvent(NULL, FALSE, TRUE, NULL);
+    pRwlock->jr_hReadGreen = CreateEvent(NULL, FALSE, TRUE, NULL);
+    pRwlock->jr_hWriteGreen = CreateEvent(NULL, FALSE, TRUE, NULL);
 
 #elif defined(LINUX)
     olint_t nRet;
     pthread_rwlockattr_t attr;
 
-    memset(pRwlock, 0, sizeof(sync_rwlock_t));
+    memset(pRwlock, 0, sizeof(jf_rwlock_t));
 
     pthread_rwlockattr_init(&attr);
-    nRet = pthread_rwlock_init(&(pRwlock->sr_ptrRwlock), &attr);
+    nRet = pthread_rwlock_init(&(pRwlock->jr_ptrRwlock), &attr);
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_CREATE_RWLOCK;
@@ -181,7 +181,7 @@ u32 initSyncRwlock(sync_rwlock_t * pRwlock)
     return u32Ret;
 }
 
-u32 finiSyncRwlock(sync_rwlock_t * pRwlock)
+u32 jf_rwlock_fini(jf_rwlock_t * pRwlock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -190,21 +190,21 @@ u32 finiSyncRwlock(sync_rwlock_t * pRwlock)
 
     assert(pRwlock != NULL);
 
-    CloseHandle(pRwlock->sr_hReadGreen);
-    CloseHandle(pRwlock->sr_hWriteGreen);
+    CloseHandle(pRwlock->jr_hReadGreen);
+    CloseHandle(pRwlock->jr_hWriteGreen);
    
-    DeleteCriticalSection(&(pRwlock->sr_csLock));
+    DeleteCriticalSection(&(pRwlock->jr_csLock));
 
 #elif defined(LINUX)
 
     assert(pRwlock != NULL);
 
-    pthread_rwlock_destroy(&(pRwlock->sr_ptrRwlock));
+    pthread_rwlock_destroy(&(pRwlock->jr_ptrRwlock));
 #endif
     return u32Ret;
 }
 
-u32 acquireSyncReadlock(sync_rwlock_t * pRwlock)
+u32 jf_rwlock_acquireReadlock(jf_rwlock_t * pRwlock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -219,7 +219,7 @@ u32 acquireSyncReadlock(sync_rwlock_t * pRwlock)
 
     assert(pRwlock != NULL);
 
-    nRet = pthread_rwlock_rdlock(&(pRwlock->sr_ptrRwlock));
+    nRet = pthread_rwlock_rdlock(&(pRwlock->jr_ptrRwlock));
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_RWLOCK;
@@ -229,7 +229,7 @@ u32 acquireSyncReadlock(sync_rwlock_t * pRwlock)
     return u32Ret;
 }
 
-u32 tryAcquireSyncReadlock(sync_rwlock_t * pRwlock)
+u32 jf_rwlock_tryAcquireReadlock(jf_rwlock_t * pRwlock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     
@@ -244,7 +244,7 @@ u32 tryAcquireSyncReadlock(sync_rwlock_t * pRwlock)
 
     assert(pRwlock != NULL);
 
-    nRet = pthread_rwlock_tryrdlock(&(pRwlock->sr_ptrRwlock));
+    nRet = pthread_rwlock_tryrdlock(&(pRwlock->jr_ptrRwlock));
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_RWLOCK;
@@ -254,7 +254,7 @@ u32 tryAcquireSyncReadlock(sync_rwlock_t * pRwlock)
     return u32Ret;
 }
 
-u32 acquireSyncReadlockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
+u32 jf_rwlock_acquireReadlockWithTimeout(jf_rwlock_t * pRwlock, u32 u32Timeout)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     
@@ -275,7 +275,7 @@ u32 acquireSyncReadlockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
     ts.tv_sec = u32Timeout / 1000;
     ts.tv_nsec = (u32Timeout % 1000) * 1000000;
 
-    nRet = pthread_rwlock_timedrdlock(&(pRwlock->sr_ptrRwlock), &ts);
+    nRet = pthread_rwlock_timedrdlock(&(pRwlock->jr_ptrRwlock), &ts);
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_RWLOCK;
@@ -285,7 +285,7 @@ u32 acquireSyncReadlockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
     return u32Ret;
 }
 
-u32 releaseSyncReadlock(sync_rwlock_t * pRwlock)
+u32 jf_rwlock_releaseReadlock(jf_rwlock_t * pRwlock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     
@@ -294,34 +294,34 @@ u32 releaseSyncReadlock(sync_rwlock_t * pRwlock)
 
     assert(pRwlock != NULL);
     
-    EnterCriticalSection(&(pRwlock->sr_csLock));
+    EnterCriticalSection(&(pRwlock->jr_csLock));
 
-    pRwlock->sr_u32ReadCount--;
+    pRwlock->jr_u32ReadCount--;
 
     /*always release waiting threads (do not check for rdcount == 0)*/
-    if (pRwlock->sr_bWritePriority)
+    if (pRwlock->jr_bWritePriority)
 	{
-        if (pRwlock->sr_u32WriteWaiting)
-            SetEvent(pRwlock->sr_hWriteGreen);
-        else if (pRwlock->sr_u32ReadWaiting)
-            SetEvent(pRwlock->sr_hReadGreen);
+        if (pRwlock->jr_u32WriteWaiting)
+            SetEvent(pRwlock->jr_hWriteGreen);
+        else if (pRwlock->jr_u32ReadWaiting)
+            SetEvent(pRwlock->jr_hReadGreen);
     }
     else
 	{
-        if (pRwlock->sr_u32ReadWaiting)
-            SetEvent(pRwlock->sr_hReadGreen);
-        else if (pRwlock->sr_u32WriteWaiting)
-            SetEvent(pRwlock->sr_hWriteGreen);
+        if (pRwlock->jr_u32ReadWaiting)
+            SetEvent(pRwlock->jr_hReadGreen);
+        else if (pRwlock->jr_u32WriteWaiting)
+            SetEvent(pRwlock->jr_hWriteGreen);
     }
 
-    LeaveCriticalSection(&(pRwlock->sr_csLock));
+    LeaveCriticalSection(&(pRwlock->jr_csLock));
 
 #elif defined(LINUX)
     olint_t nRet = 0;
 
     assert(pRwlock != NULL);
 
-    nRet = pthread_rwlock_unlock(&(pRwlock->sr_ptrRwlock));
+    nRet = pthread_rwlock_unlock(&(pRwlock->jr_ptrRwlock));
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_RELEASE_RWLOCK;
@@ -331,7 +331,7 @@ u32 releaseSyncReadlock(sync_rwlock_t * pRwlock)
     return u32Ret;
 }
 
-u32 acquireSyncWritelock(sync_rwlock_t * pRwlock)
+u32 jf_rwlock_acquireWritelock(jf_rwlock_t * pRwlock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -347,7 +347,7 @@ u32 acquireSyncWritelock(sync_rwlock_t * pRwlock)
 
     assert(pRwlock != NULL);
 
-    nRet = pthread_rwlock_wrlock(&(pRwlock->sr_ptrRwlock));
+    nRet = pthread_rwlock_wrlock(&(pRwlock->jr_ptrRwlock));
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_RWLOCK;
@@ -357,7 +357,7 @@ u32 acquireSyncWritelock(sync_rwlock_t * pRwlock)
     return u32Ret;
 }
 
-u32 tryAcquireSyncWritelock(sync_rwlock_t * pRwlock)
+u32 jf_rwlock_tryAcquireWritelock(jf_rwlock_t * pRwlock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     
@@ -373,7 +373,7 @@ u32 tryAcquireSyncWritelock(sync_rwlock_t * pRwlock)
 
     assert(pRwlock != NULL);
 
-    nRet = pthread_rwlock_trywrlock(&(pRwlock->sr_ptrRwlock));
+    nRet = pthread_rwlock_trywrlock(&(pRwlock->jr_ptrRwlock));
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_RWLOCK;
@@ -383,7 +383,7 @@ u32 tryAcquireSyncWritelock(sync_rwlock_t * pRwlock)
     return u32Ret;
 }
 
-u32 acquireSyncWritelockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
+u32 jf_rwlock_acquireWritelockWithTimeout(jf_rwlock_t * pRwlock, u32 u32Timeout)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     
@@ -405,7 +405,7 @@ u32 acquireSyncWritelockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
     ts.tv_sec = u32Timeout / 1000;
     ts.tv_nsec = (u32Timeout % 1000) * 1000000;
 
-    nRet = pthread_rwlock_timedwrlock(&(pRwlock->sr_ptrRwlock), &ts);
+    nRet = pthread_rwlock_timedwrlock(&(pRwlock->jr_ptrRwlock), &ts);
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_RWLOCK;
@@ -415,7 +415,7 @@ u32 acquireSyncWritelockWithTimeout(sync_rwlock_t * pRwlock, u32 u32Timeout)
     return u32Ret;
 }
 
-u32 releaseSyncWritelock(sync_rwlock_t * pRwlock)
+u32 jf_rwlock_releaseWritelock(jf_rwlock_t * pRwlock)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     
@@ -424,33 +424,33 @@ u32 releaseSyncWritelock(sync_rwlock_t * pRwlock)
 
     assert(pRwlock != NULL);
     
-    EnterCriticalSection(&(pRwlock->sr_csLock));
+    EnterCriticalSection(&(pRwlock->jr_csLock));
 
-    pRwlock->sr_u32WriteCount --;
+    pRwlock->jr_u32WriteCount --;
 
-    if (pRwlock->sr_bWritePriority)
+    if (pRwlock->jr_bWritePriority)
 	{
-        if (pRwlock->sr_u32WriteWaiting)
-            SetEvent(pRwlock->sr_hWriteGreen);
-        else if(pRwlock->sr_u32ReadWaiting)
-            SetEvent(pRwlock->sr_hReadGreen);
+        if (pRwlock->jr_u32WriteWaiting)
+            SetEvent(pRwlock->jr_hWriteGreen);
+        else if(pRwlock->jr_u32ReadWaiting)
+            SetEvent(pRwlock->jr_hReadGreen);
     }
     else
 	{
-        if (pRwlock->sr_u32ReadWaiting)
-            SetEvent(pRwlock->sr_hReadGreen);
-        else if(pRwlock->sr_u32WriteWaiting)
-            SetEvent(pRwlock->sr_hWriteGreen);
+        if (pRwlock->jr_u32ReadWaiting)
+            SetEvent(pRwlock->jr_hReadGreen);
+        else if(pRwlock->jr_u32WriteWaiting)
+            SetEvent(pRwlock->jr_hWriteGreen);
     }
       
-    LeaveCriticalSection(&(pRwlock->sr_csLock));
+    LeaveCriticalSection(&(pRwlock->jr_csLock));
 
 #elif defined(LINUX)
     olint_t nRet = 0;
 
     assert(pRwlock != NULL);
 
-    nRet = pthread_rwlock_unlock(&(pRwlock->sr_ptrRwlock));
+    nRet = pthread_rwlock_unlock(&(pRwlock->jr_ptrRwlock));
     if (nRet != 0)
     {
         u32Ret = JF_ERR_FAIL_RELEASE_RWLOCK;

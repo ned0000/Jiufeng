@@ -23,7 +23,7 @@
 #include "xtime.h"
 
 /* --- private data/data structure section --------------------------------- */
-static sync_rwlock_t ls_ssLock;
+static jf_rwlock_t ls_jrLock;
 static boolean_t ls_bToTerminate = FALSE;
 static olint_t nRwlock = 0;
 
@@ -39,9 +39,9 @@ THREAD_RETURN_VALUE consumer1(void * pArg)
 
     while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        acquireSyncReadlock(&ls_ssLock);
+        jf_rwlock_acquireReadlock(&ls_jrLock);
         ol_printf("consumer 1 readlock %d\n", nRwlock);
-        releaseSyncReadlock(&ls_ssLock);
+        jf_rwlock_releaseReadlock(&ls_jrLock);
         sleep(4);
     }
 
@@ -65,9 +65,9 @@ THREAD_RETURN_VALUE consumer2(void * pArg)
 
     while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        acquireSyncReadlock(&ls_ssLock);
+        jf_rwlock_acquireReadlock(&ls_jrLock);
         ol_printf("consumer 2 readlock %d\n", nRwlock);
-        releaseSyncReadlock(&ls_ssLock);
+        jf_rwlock_releaseReadlock(&ls_jrLock);
         sleep(1);
     }
 
@@ -91,12 +91,12 @@ THREAD_RETURN_VALUE producer(void * pArg)
 
     while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        acquireSyncWritelock(&ls_ssLock);
+        jf_rwlock_acquireWritelock(&ls_jrLock);
 
         nRwlock += 5;
         ol_printf("producer writelock %d\n", nRwlock);
 
-        releaseSyncWritelock(&ls_ssLock);
+        jf_rwlock_releaseWritelock(&ls_jrLock);
         sleep(1);
     }
 
@@ -118,7 +118,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
-    u32Ret = initSyncRwlock(&ls_ssLock);
+    u32Ret = jf_rwlock_init(&ls_jrLock);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = createThread(NULL, NULL, producer, (void *)1);
@@ -141,7 +141,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
         sleep(20);
 
-        finiSyncRwlock(&ls_ssLock);
+        jf_rwlock_fini(&ls_jrLock);
 
         ol_printf("main thread quits\n");
     }
