@@ -37,7 +37,6 @@
 
 /* --- constant definitions ------------------------------------------------ */
 
-#define JF_STRING_UNKNOWN  "Unknown"
 
 /* --- data structures ----------------------------------------------------- */
 /** Parse result field
@@ -265,6 +264,12 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_getStringU64Integer(
  */
 STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringTrue(
     const boolean_t bTrue);
+
+/** Get the string of unknown
+ *
+ *  @return the string "unknown"
+ */
+STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringUnknown(void);
 
 /** Get the string of not applicable "N/A".
  *

@@ -132,7 +132,7 @@ void jf_crc_crc32cVec(
     {
         jf_crc_crc32c(
             pjccv[index].jccv_pu8Buffer, pjccv[index].jccv_u32Len, u32Flags,
-            &u32Crc);;
+            &u32Crc);
     }
 
     *pu32Result = u32Crc;

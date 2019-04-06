@@ -47,7 +47,7 @@
 
 /* --- private funciton routines ------------------------------------------- */
 
-static u32 _getHostVersion(host_info_t * phi)
+static u32 _getHostVersion(jf_host_info_t * pjhi)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
@@ -57,13 +57,15 @@ static u32 _getHostVersion(host_info_t * phi)
     nRet = uname(&name);
     if (nRet == 0)
     {
-        ol_sprintf(phi->hi_strHostName, "%s", name.nodename);
-        ol_sprintf(phi->hi_strOSName, "%s %s %s", name.sysname, name.release, name.machine);
+        ol_sprintf(pjhi->jhi_strHostName, "%s", name.nodename);
+        ol_sprintf(
+            pjhi->jhi_strOSName, "%s %s %s",
+            name.sysname, name.release, name.machine);
     }
     else
     {
-        ol_strcpy(phi->hi_strHostName, JF_STRING_UNKNOWN);
-        ol_strcpy(phi->hi_strOSName, JF_STRING_UNKNOWN);
+        ol_strcpy(pjhi->jhi_strHostName, jf_string_getStringUnknown());
+        ol_strcpy(pjhi->jhi_strOSName, jf_string_getStringUnknown());
     }
 #elif defined(WINDOWS)
     OSVERSIONINFOEX osvi;
@@ -78,11 +80,12 @@ static u32 _getHostVersion(host_info_t * phi)
     u32HostNameLen = MAX_COMPUTERNAME_LENGTH + 1;
     if (GetComputerName(u8HostName, &u32HostNameLen))
     {
-        ol_strncpy(phi->hi_strHostName, u8HostName, MAX_HOST_NAME_LEN - 1);
+        ol_strncpy(
+            pjhi->jhi_strHostName, u8HostName, JF_HOST_MAX_HOST_NAME_LEN - 1);
     }
     else
     {
-        ol_strcpy(phi->hi_strHostName, JF_STRING_UNKNOWN);
+        ol_strcpy(pjhi->jhi_strHostName, jf_string_getStringUnknown());
     }
 
     /*get OS name*/
@@ -116,35 +119,38 @@ static u32 _getHostVersion(host_info_t * phi)
         if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 0)
         {
             if (osvi.wProductType == VER_NT_WORKSTATION)
-                ol_strcat(phi->hi_strOSName, "Microsoft Windows Vista ");
+                ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows Vista ");
             else if (osvi.wProductType == VER_NT_SERVER)
-                ol_strcat(phi->hi_strOSName, "Windows Server 2008 ");
+                ol_strcat(pjhi->jhi_strOSName, "Windows Server 2008 ");
             else
-                ol_strcat(phi->hi_strOSName, "Windows Server \"Longhorn\" ");
+                ol_strcat(pjhi->jhi_strOSName, "Windows Server \"Longhorn\" ");
         }
     
         if ((osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2) ||
             (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 0))
         {
             if (GetSystemMetrics(SM_SERVERR2))
-                ol_strcat(phi->hi_strOSName, "Microsoft Windows Server 2003 \"R2\" ");
+                ol_strcat(
+                    pjhi->jhi_strOSName, "Microsoft Windows Server 2003 \"R2\" ");
             else if (osvi.wProductType == VER_NT_WORKSTATION &&
                      si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
             {
-                ol_strcat(phi->hi_strOSName, "Microsoft Windows XP Professional x64 Edition ");
+                ol_strcat(
+                    pjhi->jhi_strOSName,
+                    "Microsoft Windows XP Professional x64 Edition ");
             }
             else
-                ol_strcat(phi->hi_strOSName, "Microsoft Windows Server 2003, ");
+                ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows Server 2003, ");
         }
     
         if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1)
-            ol_strcat(phi->hi_strOSName, "Microsoft Windows XP ");
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows XP ");
     
         if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0)
-            ol_strcat(phi->hi_strOSName, "Microsoft Windows 2000 ");
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows 2000 ");
     
         if (osvi.dwMajorVersion <= 4)
-            ol_strcat(phi->hi_strOSName, "Microsoft Windows NT ");
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows NT ");
     
         // Test for specific product on Windows NT 4.0 SP6 and later.
         if (bOsVersionInfoEx)
@@ -154,10 +160,10 @@ static u32 _getHostVersion(host_info_t * phi)
                 si.wProcessorArchitecture != PROCESSOR_ARCHITECTURE_AMD64)
             {
                 if (osvi.dwMajorVersion == 4)
-                    ol_strcat(phi->hi_strOSName,  "Workstation 4.0 ");
+                    ol_strcat(pjhi->jhi_strOSName,  "Workstation 4.0 ");
                 else if (osvi.wSuiteMask & VER_SUITE_PERSONAL)
-                    ol_strcat(phi->hi_strOSName,  "Home Edition ");
-                else ol_strcat(phi->hi_strOSName,  "Professional ");
+                    ol_strcat(pjhi->jhi_strOSName,  "Home Edition ");
+                else ol_strcat(pjhi->jhi_strOSName,  "Professional ");
             }
               
             // Test for the server type.
@@ -169,47 +175,51 @@ static u32 _getHostVersion(host_info_t * phi)
                     if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_IA64)
                     {
                         if (osvi.wSuiteMask & VER_SUITE_DATACENTER)
-                            ol_strcat(phi->hi_strOSName,  "Datacenter Edition for Itanium-based Systems ");
+                            ol_strcat(
+                                pjhi->jhi_strOSName,
+                                "Datacenter Edition for Itanium-based Systems ");
                         else if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
-                            ol_strcat(phi->hi_strOSName,  "Enterprise Edition for Itanium-based Systems ");
+                            ol_strcat(
+                                pjhi->jhi_strOSName,
+                                "Enterprise Edition for Itanium-based Systems ");
                     }
     
                     else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
                     {
                         if (osvi.wSuiteMask & VER_SUITE_DATACENTER )
-                            ol_strcat(phi->hi_strOSName,  "Datacenter x64 Edition ");
+                            ol_strcat(pjhi->jhi_strOSName,  "Datacenter x64 Edition ");
                         else if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE )
-                            ol_strcat(phi->hi_strOSName,  "Enterprise x64 Edition ");
+                            ol_strcat(pjhi->jhi_strOSName,  "Enterprise x64 Edition ");
                         else 
-                            ol_strcat(phi->hi_strOSName,  "Standard x64 Edition ");
+                            ol_strcat(pjhi->jhi_strOSName,  "Standard x64 Edition ");
                     }
                     else
                     {
                         if (osvi.wSuiteMask & VER_SUITE_DATACENTER)
-                            ol_strcat(phi->hi_strOSName, "Datacenter Edition ");
+                            ol_strcat(pjhi->jhi_strOSName, "Datacenter Edition ");
                         else if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
-                            ol_strcat(phi->hi_strOSName, "Enterprise Edition ");
+                            ol_strcat(pjhi->jhi_strOSName, "Enterprise Edition ");
                         else if (osvi.wSuiteMask == VER_SUITE_BLADE)
-                            ol_strcat(phi->hi_strOSName, "Web Edition ");
+                            ol_strcat(pjhi->jhi_strOSName, "Web Edition ");
                         else 
-                            ol_strcat(phi->hi_strOSName, "Standard Edition ");
+                            ol_strcat(pjhi->jhi_strOSName, "Standard Edition ");
                     }
                 }
                 else if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0)
                 {
                     if (osvi.wSuiteMask & VER_SUITE_DATACENTER)
-                        ol_strcat(phi->hi_strOSName, "Datacenter Server ");
+                        ol_strcat(pjhi->jhi_strOSName, "Datacenter Server ");
                     else if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
-                        ol_strcat(phi->hi_strOSName, "Advanced Server ");
+                        ol_strcat(pjhi->jhi_strOSName, "Advanced Server ");
                     else
-                        ol_strcat(phi->hi_strOSName, "Server ");
+                        ol_strcat(pjhi->jhi_strOSName, "Server ");
                 }
                 else  // Windows NT 4.0 
                 {
                     if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
-                        ol_strcat(phi->hi_strOSName, "Server 4.0, Enterprise Edition ");
+                        ol_strcat(pjhi->jhi_strOSName, "Server 4.0, Enterprise Edition ");
                     else
-                        ol_strcat(phi->hi_strOSName, "Server 4.0 ");
+                        ol_strcat(pjhi->jhi_strOSName, "Server 4.0 ");
                 }
             }
         }
@@ -235,12 +245,14 @@ static u32 _getHostVersion(host_info_t * phi)
                 return FALSE;
     
             if (lstrcmpi(TEXT("WINNT"), szProductType) == 0)
-                ol_strcat(phi->hi_strOSName, "Workstation ");
+                ol_strcat(pjhi->jhi_strOSName, "Workstation ");
             if (lstrcmpi(TEXT("LANMANNT"), szProductType) == 0)
-                ol_strcat(phi->hi_strOSName, "Server ");
+                ol_strcat(pjhi->jhi_strOSName, "Server ");
             if (lstrcmpi(TEXT("SERVERNT"), szProductType) == 0)
-                ol_strcat(phi->hi_strOSName, "Advanced Server ");
-            ol_sprintf(phi->hi_strOSName,  "%s%d.%d ", phi->hi_strOSName, osvi.dwMajorVersion, osvi.dwMinorVersion );
+                ol_strcat(pjhi->jhi_strOSName, "Advanced Server ");
+            ol_sprintf(
+                pjhi->jhi_strOSName,  "%s%d.%d ", pjhi->jhi_strOSName,
+                osvi.dwMajorVersion, osvi.dwMinorVersion );
         }
     
         // Display service pack (if any) and build number.
@@ -255,12 +267,13 @@ static u32 _getHostVersion(host_info_t * phi)
                 TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009"),
                 0, KEY_QUERY_VALUE, &hKey );
             if (lRet == ERROR_SUCCESS)
-                ol_sprintf(phi->hi_strOSName, "%s Service Pack 6a (Build %d)", phi->hi_strOSName,  
-                        osvi.dwBuildNumber & 0xFFFF);
+                ol_sprintf(
+                    pjhi->jhi_strOSName, "%s Service Pack 6a (Build %d)",
+                    pjhi->jhi_strOSName, osvi.dwBuildNumber & 0xFFFF);
             else // Windows NT 4.0 prior to SP6a
             {
-                ol_sprintf(phi->hi_strOSName, "%s%s (Build %d)",
-                        phi->hi_strOSName,
+                ol_sprintf(pjhi->jhi_strOSName, "%s%s (Build %d)",
+                        pjhi->jhi_strOSName,
                         osvi.szCSDVersion,
                         osvi.dwBuildNumber & 0xFFFF);
             }
@@ -269,8 +282,8 @@ static u32 _getHostVersion(host_info_t * phi)
         }
         else // not Windows NT 4.0 
         {
-            ol_sprintf(phi->hi_strOSName, "%s%s (Build %d)",
-                    phi->hi_strOSName,
+            ol_sprintf(pjhi->jhi_strOSName, "%s%s (Build %d)",
+                    pjhi->jhi_strOSName,
                     osvi.szCSDVersion,
                     osvi.dwBuildNumber & 0xFFFF);
         }
@@ -279,112 +292,57 @@ static u32 _getHostVersion(host_info_t * phi)
         // Test for the Windows Me/98/95.
         if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0)
         {
-            ol_strcat(phi->hi_strOSName, "Microsoft Windows 95 ");
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows 95 ");
             if (osvi.szCSDVersion[1]=='C' || osvi.szCSDVersion[1]=='B')
-                ol_strcat(phi->hi_strOSName,  "OSR2 " );
+                ol_strcat(pjhi->jhi_strOSName,  "OSR2 " );
         } 
     
         if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 10)
         {
-            ol_strcat(phi->hi_strOSName, "Microsoft Windows 98 ");
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows 98 ");
             if (osvi.szCSDVersion[1]=='A' || osvi.szCSDVersion[1]=='B')
-                ol_strcat(phi->hi_strOSName,  "SE " );
+                ol_strcat(pjhi->jhi_strOSName,  "SE " );
         } 
     
         if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 90)
         {
-            ol_strcat(phi->hi_strOSName, "Microsoft Windows Millennium Edition ");
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows Millennium Edition ");
         } 
         break;
     case VER_PLATFORM_WIN32s:
-        ol_strcat(phi->hi_strOSName, "Microsoft Win32s");
+        ol_strcat(pjhi->jhi_strOSName, "Microsoft Win32s");
         break;
     }
 
-    if (phi->hi_strOSName[0] == '\0')
-        ol_strcpy(phi->hi_strOSName, JF_STRING_UNKNOWN);
+    if (pjhi->jhi_strOSName[0] == '\0')
+        ol_strcpy(pjhi->jhi_strOSName, jf_string_getStringUnknown());
 #endif
     return u32Ret;
 }
 
-static u32 _getHostNetworkInfo(host_info_t * phi)
+static u32 _getHostNetworkInfo(jf_host_info_t * pjhi)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    olchar_t strBuffer[16 * sizeof(struct ifreq)];
-    struct ifconf ifConf;
-    struct ifreq ifReq;
-    olint_t sock = -1;
-    olint_t ret;
-    struct sockaddr_in localaddr;
-    u16 u16Count = 0;
-    olint_t i;
-    jf_ipaddr_t ipaddr;
+    jf_ifmgmt_if_t allIf[JF_HOST_MAX_NET_INTERFACES];
+    u32 u32Count = JF_HOST_MAX_NET_INTERFACES;
+    u32 u32Index;
 
-    /* Create an unbound datagram socket to do the SIOCGIFADDR ioctl on. */
-    sock = socket(AF_INET, SOCK_DGRAM, IPPROTO_UDP);
-    if (sock == -1)
-        u32Ret = JF_ERR_FAIL_CREATE_SOCKET;
-
+    u32Ret = jf_ifmgmt_getAllIf(allIf, &u32Count);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /* Get the interface configuration information... */
-        ifConf.ifc_len = sizeof strBuffer;
-        ifConf.ifc_ifcu.ifcu_buf = (caddr_t)strBuffer;
-        ret = ioctl(sock, SIOCGIFCONF, &ifConf);
-        if (ret == -1)
-            u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
-    }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        /* Cycle through the list of interfaces looking for IP addresses. */
-        for (i = 0; (i < ifConf.ifc_len); )
+        pjhi->jhi_u16NetCount = (u16)u32Count;
+        for (u32Index = 0; u32Index < u32Count; u32Index ++)
         {
-            struct ifreq * pifReq = (struct ifreq *)((caddr_t)ifConf.ifc_req + i);
-
-            i += sizeof(*pifReq);
-            /* See if this is the sort of interface we want to deal with. */
-            ol_strcpy(ifReq.ifr_name, pifReq->ifr_name);
-            ret = ioctl(sock, SIOCGIFFLAGS, &ifReq);
-            if (ret == -1)
-            {
-                u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
-                break;
-            }
-
-            /* Skip loopback, point-to-point and down interfaces, */
-            /* except don't skip down interfaces */
-            /* if we're trying to get a list of configurable interfaces. */
-            if ((ifReq.ifr_flags & IFF_LOOPBACK) || (! (ifReq.ifr_flags & IFF_UP)))
-            {
-                continue;
-            }   
-            if (pifReq->ifr_addr.sa_family == AF_INET)
-            {
-                /* Get a pointer to the address... */
-                memcpy(&localaddr, &pifReq->ifr_addr, sizeof(pifReq->ifr_addr));
-                if (localaddr.sin_addr.s_addr != htonl(INADDR_LOOPBACK))
-                {
-                    ipaddr.ji_u8AddrType = JF_IPADDR_TYPE_V4;
-                    ipaddr.ji_uAddr.ju_nAddr = localaddr.sin_addr.s_addr;
-                    jf_ipaddr_getStringIpAddr(phi->hi_niNet[u16Count].ni_strIpAddr, &ipaddr);
-
-                    ol_strcpy(phi->hi_niNet[u16Count].ni_strName, ifReq.ifr_name);
-
-                    ++u16Count;
-                }
-            }
+            ol_strncpy(
+                pjhi->jhi_jhniNet[u32Index].jhni_strName,
+                allIf[u32Index].jii_strName, JF_HOST_MAX_NET_NAME_LEN);
+            jf_ipaddr_getStringIpAddr(
+                pjhi->jhi_jhniNet[u32Index].jhni_strIpAddr,
+                &allIf[u32Index].jii_jiAddr);
         }
     }
 
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        phi->hi_u16NetCount = u16Count;
-    }
-
-    if (sock != -1)
-        close(sock);
 #elif defined(WINDOWS)
     PIP_ADAPTER_INFO pAdapterInfo = NULL;
     PIP_ADAPTER_INFO pOriginalPtr;
@@ -410,21 +368,23 @@ static u32 _getHostNetworkInfo(host_info_t * phi)
                 {
                     IP_ADDR_STRING * pAddressList = &(pAdapterInfo->IpAddressList);
 
-                    ol_strncpy(phi->hi_niNet[u16Count].ni_strName,
-                        pAdapterInfo->Description, MAX_NET_NAME_LEN - 1);
+                    ol_strncpy(
+                        pjhi->jhi_jhniNet[u16Count].jhni_strName,
+                        pAdapterInfo->Description, JF_HOST_MAX_NET_NAME_LEN - 1);
 
                     /*This is an address list, we only get the first one
                       To get the next address, iterate pAddressList by
                       pAddressList = pAddressList->Next*/
-                    ol_strncpy(phi->hi_niNet[u16Count].ni_strIpAddr,
-                        pAddressList->IpAddress.String, MAX_IP_ADDR_LEN - 1);
+                    ol_strncpy(
+                        pjhi->jhi_jhniNet[u16Count].jhni_strIpAddr,
+                        pAddressList->IpAddress.String, JF_HOST_MAX_IP_ADDR_LEN - 1);
 
                     /*And so on with other members of the Adapter info structure*/
                     pAdapterInfo = pAdapterInfo->Next;
                     u16Count ++;
                 }
                 
-                phi->hi_u16NetCount = u16Count;        
+                pjhi->jhi_u16NetCount = u16Count;        
             }
 
             free(pAdapterInfo);
@@ -436,7 +396,7 @@ static u32 _getHostNetworkInfo(host_info_t * phi)
 }
 
 /* --- public routine section ---------------------------------------------- */
-void getHostName(olchar_t * pstrName, u32 u32Len)
+void jf_host_getName(olchar_t * pstrName, u32 u32Len)
 {
 #if defined(LINUX)
     gethostname(pstrName, u32Len);
@@ -445,16 +405,16 @@ void getHostName(olchar_t * pstrName, u32 u32Len)
 #endif
 }
 
-u32 getHostInfo(host_info_t * phi)
+u32 jf_host_getInfo(jf_host_info_t * pjhi)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     
-    memset(phi, 0, sizeof(host_info_t));
+    ol_memset(pjhi, 0, sizeof(jf_host_info_t));
 
-    u32Ret = _getHostVersion(phi);
+    u32Ret = _getHostVersion(pjhi);
     if(u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _getHostNetworkInfo(phi);
+        u32Ret = _getHostNetworkInfo(pjhi);
     }
 
     return u32Ret;

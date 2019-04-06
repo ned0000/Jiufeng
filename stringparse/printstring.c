@@ -483,6 +483,11 @@ const olchar_t * jf_string_getStringEnable(const boolean_t bEnable)
     }
 }
 
+const olchar_t * jf_string_getStringUnknown(void)
+{
+    return "Unknown";
+}
+
 const olchar_t * jf_string_getStringPositive(const boolean_t bPositive)
 {
     if (bPositive)
