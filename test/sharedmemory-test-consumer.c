@@ -30,7 +30,7 @@
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    shm_id_t * psi;
+    jf_sharedmemory_id_t * pjsi;
     olchar_t * pstrShared;
     olchar_t strErrMsg[300];
 
@@ -41,14 +41,14 @@ olint_t main(olint_t argc, olchar_t ** argv)
         exit(0);
     }
     sleep(20);
-    psi = argv[1];
-    u32Ret = attachSharedMemory(psi, (void **)&pstrShared);
+    pjsi = argv[1];
+    u32Ret = jf_sharedmemory_attach(pjsi, (void **)&pstrShared);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("succeed to attach shared memroy\n");
         ol_printf("%s\n", pstrShared);
 
-        u32Ret = detachSharedMemory((void **)&pstrShared);
+        u32Ret = jf_sharedmemory_detach((void **)&pstrShared);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

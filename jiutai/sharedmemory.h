@@ -23,17 +23,19 @@
 
 
 /* --- data structures ----------------------------------------------------- */
+
 /*the shared memory identifier is a string with NULL-terminated*/
-typedef olchar_t  shm_id_t;
+typedef olchar_t  jf_sharedmemory_id_t;
 
 /* --- functional routines ------------------------------------------------- */
-u32 createSharedMemory(shm_id_t ** ppShmId, u32 u32MemorySize);
 
-u32 attachSharedMemory(shm_id_t * pShmId, void ** ppMapAddress);
+u32 jf_sharedmemory_create(jf_sharedmemory_id_t ** ppShmId, u32 u32MemorySize);
 
-u32 detachSharedMemory(void ** ppMapAddress);
+u32 jf_sharedmemory_attach(jf_sharedmemory_id_t * pShmId, void ** ppMapAddress);
 
-u32 destroySharedMemory(shm_id_t ** ppShmId);
+u32 jf_sharedmemory_detach(void ** ppMapAddress);
+
+u32 jf_sharedmemory_destroy(jf_sharedmemory_id_t ** ppShmId);
 
 #endif /*JIUTAI_SHAREDMEMORY_H*/
 

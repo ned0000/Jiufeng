@@ -366,7 +366,7 @@ static u32 _monitorServices(
 }
 
 static u32 _saveServiceStatus(
-    internal_serv_mgmt_t * pism, shm_id_t * psiServiceStatus)
+    internal_serv_mgmt_t * pism, jf_sharedmemory_id_t * pjsiServiceStatus)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     FILE * fp = NULL;
@@ -376,7 +376,8 @@ static u32 _saveServiceStatus(
     u32Ret = jf_filestream_open(SERV_MGMT_STATUS_FILE, "w", &fp);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_filestream_writen(fp, psiServiceStatus, ol_strlen(psiServiceStatus));
+        u32Ret = jf_filestream_writen(
+            fp, pjsiServiceStatus, ol_strlen(pjsiServiceStatus));
     }
 
     if (fp != NULL)
@@ -385,7 +386,8 @@ static u32 _saveServiceStatus(
     return u32Ret;
 }
 
-static u32 _enterMonitorServices(internal_serv_mgmt_t * pism,
+static u32 _enterMonitorServices(
+    internal_serv_mgmt_t * pism,
     internal_serv_mgmt_setting_t * pisms, attask_t * pAttask)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -455,7 +457,7 @@ u32 jf_servmgmt_start(jf_servmgmt_start_param_t * pjssp)
     internal_serv_mgmt_t * pism = &ls_ismServMgmt;
     internal_serv_mgmt_setting_t * pisms = NULL;
     /*the shared memory contains the status of all services*/
-    shm_id_t * psiServSetting = NULL;
+    jf_sharedmemory_id_t * pjsiServSetting = NULL;
     attask_t * pAttask = NULL;
 
     jf_logger_logInfoMsg("start serv mgmt");
@@ -465,13 +467,13 @@ u32 jf_servmgmt_start(jf_servmgmt_start_param_t * pjssp)
     u32Ret = createAttask((attask_t **)&pAttask);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = createSharedMemory(
-            &psiServSetting, sizeof(internal_serv_mgmt_setting_t));
+        u32Ret = jf_sharedmemory_create(
+            &pjsiServSetting, sizeof(internal_serv_mgmt_setting_t));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = attachSharedMemory(psiServSetting, (void **)&pisms);
+        u32Ret = jf_sharedmemory_attach(pjsiServSetting, (void **)&pisms);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -497,7 +499,7 @@ u32 jf_servmgmt_start(jf_servmgmt_start_param_t * pjssp)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        _saveServiceStatus(pism, psiServSetting);
+        _saveServiceStatus(pism, pjsiServSetting);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -512,11 +514,11 @@ u32 jf_servmgmt_start(jf_servmgmt_start_param_t * pjssp)
 //        if (u32Ret == JF_ERR_NO_ERROR)
 //            _writeServMgmtSetting(pism, pisms);
 
-        detachSharedMemory((void **)&pisms);
+        jf_sharedmemory_detach((void **)&pisms);
     }
 
-    if (psiServSetting != NULL)
-        destroySharedMemory(&psiServSetting);
+    if (pjsiServSetting != NULL)
+        jf_sharedmemory_destroy(&pjsiServSetting);
 
     if (pAttask != NULL)
         destroyAttask(&pAttask);
@@ -546,7 +548,7 @@ u32 jf_servmgmt_getInfo(jf_servmgmt_info_t * pjsi)
     internal_serv_mgmt_setting_t * pisms = NULL;
     olchar_t strServ[60];
     olsize_t size = 60;
-    shm_id_t * psiServSetting = NULL;
+    jf_sharedmemory_id_t * pjsiServSetting = NULL;
     internal_service_info_t * pisi;
     jf_servmgmt_serv_info_t * pjssi;
 
@@ -559,9 +561,9 @@ u32 jf_servmgmt_getInfo(jf_servmgmt_info_t * pjsi)
     u32Ret = jf_file_readn(fd, strServ, &size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        psiServSetting = strServ;
+        pjsiServSetting = strServ;
 
-        u32Ret = attachSharedMemory(psiServSetting, (void **)&pisms);
+        u32Ret = jf_sharedmemory_attach(pjsiServSetting, (void **)&pisms);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -586,8 +588,8 @@ u32 jf_servmgmt_getInfo(jf_servmgmt_info_t * pjsi)
 
     _unlockStatusFile(&fd);
 
-    if (psiServSetting != NULL)
-        detachSharedMemory((void **)&pisms);
+    if (pjsiServSetting != NULL)
+        jf_sharedmemory_detach((void **)&pisms);
 
     return u32Ret;
 }
@@ -600,7 +602,7 @@ u32 jf_servmgmt_stopServ(olchar_t * pstrName)
     internal_serv_mgmt_setting_t * pisms = NULL;
     olchar_t strServ[60];
     olsize_t size = 60;
-    shm_id_t * psiServSetting = NULL;
+    jf_sharedmemory_id_t * pjsiServSetting = NULL;
     internal_service_info_t * pisi;
 
     u32Ret = _lockStatusFile(SERV_MGMT_STATUS_FILE, &fd);
@@ -610,9 +612,9 @@ u32 jf_servmgmt_stopServ(olchar_t * pstrName)
     u32Ret = jf_file_readn(fd, strServ, &size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        psiServSetting = strServ;
+        pjsiServSetting = strServ;
 
-        u32Ret = attachSharedMemory(psiServSetting, (void **)&pisms);
+        u32Ret = jf_sharedmemory_attach(pjsiServSetting, (void **)&pisms);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -638,8 +640,8 @@ u32 jf_servmgmt_stopServ(olchar_t * pstrName)
 
     _unlockStatusFile(&fd);
 
-    if (psiServSetting != NULL)
-        detachSharedMemory((void **)&pisms);
+    if (pjsiServSetting != NULL)
+        jf_sharedmemory_detach((void **)&pisms);
 
     return u32Ret;
 }
@@ -652,7 +654,7 @@ u32 jf_servmgmt_startServ(olchar_t * pstrName)
     internal_serv_mgmt_setting_t * pisms = NULL;
     olchar_t strServ[60];
     olsize_t size = 60;
-    shm_id_t * psiServSetting = NULL;
+    jf_sharedmemory_id_t * pjsiServSetting = NULL;
     internal_service_info_t * pisi, * pisiServ = NULL, * pisiWakeup = NULL;
 
     u32Ret = _lockStatusFile(SERV_MGMT_STATUS_FILE, &fd);
@@ -662,9 +664,9 @@ u32 jf_servmgmt_startServ(olchar_t * pstrName)
     u32Ret = jf_file_readn(fd, strServ, &size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        psiServSetting = strServ;
+        pjsiServSetting = strServ;
 
-        u32Ret = attachSharedMemory(psiServSetting, (void **)&pisms);
+        u32Ret = jf_sharedmemory_attach(pjsiServSetting, (void **)&pisms);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -709,8 +711,8 @@ u32 jf_servmgmt_startServ(olchar_t * pstrName)
 
     _unlockStatusFile(&fd);
 
-    if (psiServSetting != NULL)
-        detachSharedMemory((void **)&pisms);
+    if (pjsiServSetting != NULL)
+        jf_sharedmemory_detach((void **)&pisms);
 
     return u32Ret;
 }
@@ -774,7 +776,7 @@ u32 jf_servmgmt_setServStartupType(olchar_t * pstrName, u8 u8StartupType)
     internal_serv_mgmt_setting_t * pisms = NULL;
     olchar_t strServ[60];
     olsize_t size = 60;
-    shm_id_t * psiServSetting = NULL;
+    jf_sharedmemory_id_t * pjsiServSetting = NULL;
     internal_service_info_t * pisi, * pisiServ = NULL;
 
     assert(u8StartupType == JF_SERVMGMT_SERV_STARTUPTYPE_AUTOMATIC ||
@@ -791,9 +793,9 @@ u32 jf_servmgmt_setServStartupType(olchar_t * pstrName, u8 u8StartupType)
     u32Ret = jf_file_readn(fd, strServ, &size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        psiServSetting = strServ;
+        pjsiServSetting = strServ;
 
-        u32Ret = attachSharedMemory(psiServSetting, (void **)&pisms);
+        u32Ret = jf_sharedmemory_attach(pjsiServSetting, (void **)&pisms);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -821,8 +823,8 @@ u32 jf_servmgmt_setServStartupType(olchar_t * pstrName, u8 u8StartupType)
 
     _unlockStatusFile(&fd);
 
-    if (psiServSetting != NULL)
-        detachSharedMemory((void **)&pisms);
+    if (pjsiServSetting != NULL)
+        jf_sharedmemory_detach((void **)&pisms);
 
     return u32Ret;
 }
