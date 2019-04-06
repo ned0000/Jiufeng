@@ -86,22 +86,25 @@ static u32 ls_u32NumOfConfFileTag = sizeof(ls_cftConfFileTag) / \
 static u32 _testConfFile(const olchar_t * pstrFilename)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    conf_file_t cfConfFile;
-    conf_file_t * pcf = &cfConfFile;
+    jf_conffile_t * pjc = NULL;
     u32 u32Index;
-    olchar_t strValue[MAX_CONFFILE_LINE_LEN];
+    olchar_t strValue[JF_CONFFILE_MAX_LINE_LEN];
     olint_t nValue;
+    jf_conffile_open_param_t jcop;
 
     ol_printf("conffile: %s\n", pstrFilename);
 
-    u32Ret = openConfFile(pcf, pstrFilename);
+    ol_memset(&jcop, 0, sizeof(jcop));
+    jcop.jcop_pstrFile = (olchar_t *)pstrFilename;
+
+    u32Ret = jf_conffile_open(&jcop, &pjc);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (u32Index = 0; u32Index < ls_u32NumOfConfFileTag; u32Index ++)
         {
             if (ls_cftConfFileTag[u32Index].cft_pstrDefault == NULL)
             {
-                u32Ret = getConfFileInt(pcf,
+                u32Ret = jf_conffile_getInt(pjc,
                     ls_cftConfFileTag[u32Index].cft_pstrTag,
                     ls_cftConfFileTag[u32Index].cft_nDefault,
                     &nValue);
@@ -113,7 +116,7 @@ static u32 _testConfFile(const olchar_t * pstrFilename)
             }
             else
             {
-                u32Ret = getConfFileString(pcf,
+                u32Ret = jf_conffile_getString(pjc,
                     ls_cftConfFileTag[u32Index].cft_pstrTag,
                     ls_cftConfFileTag[u32Index].cft_pstrDefault,
                     strValue, sizeof(strValue));
@@ -125,7 +128,7 @@ static u32 _testConfFile(const olchar_t * pstrFilename)
             }
         }
 
-        closeConfFile(pcf);
+        jf_conffile_close(pjc);
     }
 
     return u32Ret;

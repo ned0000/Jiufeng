@@ -5,14 +5,14 @@
  *
  *  @author Min Zhang
  *
- *  @note the implementation is very simple, reads the options in a
+ *  @note The implementation is very simple, reads the options in a
  *   configuration file.
- *  @note an example of the configuration file is as below:
- *  @note # this is an exmaple of the configuration file
- *  @note optiontagname1=value1 # this is an example of option
- *  @note optiontagname2=value2
- *  @note # the end of the configuration file
- *
+ *  @note An example of the configuration file is as below:    \n
+ *   # this is an exmaple of the configuration file            \n
+ *   optiontagname1=value1 # this is an example of option      \n
+ *   optiontagname2=value2                                     \n
+ *   # the end of the configuration file
+ *  @note Link with olfiles library
  */
 
 #ifndef JIUTAI_CONFFILE_H
@@ -22,46 +22,50 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "olbasic.h"
+#include "files.h"
 
 /* --- constant definitions ------------------------------------------------ */
 
-#define MAX_CONFFILE_LINE_LEN  256
+#define JF_CONFFILE_MAX_LINE_LEN    (256)
 
 /* --- data structures ----------------------------------------------------- */
 
+typedef void  jf_conffile_t;
+
 typedef struct
 {
-    FILE * cf_pfConfFile;
-    u8 cf_u8Reserved[8];
-} conf_file_t;
+    olchar_t * jcop_pstrFile;
+    u32 jcop_u32Reserved[8];
+} jf_conffile_open_param_t;
 
 /* --- functional routines ------------------------------------------------- */
 
 /** Open a configuration file according to the file path.
  *
- *  @param pcf [in] the configuration file object to be created and returned.
- *  @param pstrFile [in] the path to the configuraiton file
+ *  @param pParam [in] the parameter for opening conf file
+ *  @param ppConffile [out] the configuration file object to be created and returned.
  *
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 openConfFile(conf_file_t * pcf, const olchar_t * pstrFile);
+FILESAPI u32 FILESCALL jf_conffile_open(
+    jf_conffile_open_param_t * pParam, jf_conffile_t ** ppConffile);
 
 /** Close the configuration file object.
  *
- *  @param pcf [in] the configuration file object to be destroyed. After 
- *   destruction, it will be set to NULL.
+ *  @param ppConffile [in/out] the configuration file object to be destroyed.
+ *   After destruction, it will be set to NULL.
  *
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 closeConfFile(conf_file_t * pcf);
+FILESAPI u32 FILESCALL jf_conffile_close(jf_conffile_t ** ppConffile);
 
 /** Get an integer type option from the configuration file.
- *  If the pcf is set to NULL, or the option is not found, the default
+ *  If the pjc is set to NULL, or the option is not found, the default
  *  value will be returned.
  *
- *  @param pcf [in] the configuration file object.
+ *  @param pConffile [in] the configuration file object.
  *  @param pstrTag [in] the option tag name.
  *  @param nDefault [in] the default value of the option.
  *  @param pnValue [in/out] the option value will be return to it.
@@ -69,15 +73,15 @@ u32 closeConfFile(conf_file_t * pcf);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 getConfFileInt(
-    conf_file_t * pcf, const olchar_t * pstrTag, olint_t nDefault,
+FILESAPI u32 FILESCALL jf_conffile_getInt(
+    jf_conffile_t * pConffile, const olchar_t * pstrTag, olint_t nDefault,
     olint_t * pnValue);
 
 /** Get an string type option from the configuration file.
- *  If the pcf is set to NULL, or the option is not found, the default
+ *  If the pjc is set to NULL, or the option is not found, the default
  *  value will be returned.
  *
- *  @param pcf [in] the configuration file object.
+ *  @param pConffile [in] the configuration file object.
  *  @param pstrTag [in] the option tag name.
  *  @param pstrDefault [in] the default value of the option.
  *  @param pstrValueBuf [in/out] the option value will be return to it.
@@ -86,9 +90,9 @@ u32 getConfFileInt(
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-u32 getConfFileString(
-    conf_file_t * pcf, const olchar_t * pstrTag, const olchar_t * pstrDefault, 
-    olchar_t * pstrValueBuf, olsize_t sBuf);
+FILESAPI u32 FILESCALL jf_conffile_getString(
+    jf_conffile_t * pConffile, const olchar_t * pstrTag,
+    const olchar_t * pstrDefault, olchar_t * pstrValueBuf, olsize_t sBuf);
 
 #endif /*JIUTAI_CONFFILE_H*/
 

@@ -20,10 +20,17 @@
 #include "conffile.h"
 #include "array.h"
 #include "stringparse.h"
+#include "xmalloc.h"
 
 /* --- private data/data structure section --------------------------------- */
 
 #define COMMENT_INDICATOR '#'
+
+typedef struct
+{
+    jf_filestream_t * ijc_pjfConfFile;
+    u8 ijc_u8Reserved[8];
+} internal_jf_conffile_t;
 
 /* --- private routine section ------------------------------------------------ */
 
@@ -39,7 +46,8 @@
  *  Notes
  *   - fp MUST NOT be NULL and it MUST be opend before this function is called
  */
-static olint_t _readLineFromFile(FILE * fp, olchar_t strLine[MAX_CONFFILE_LINE_LEN])
+static olint_t _readLineFromFile(
+    jf_filestream_t * fp, olchar_t strLine[JF_CONFFILE_MAX_LINE_LEN])
 {
     olint_t nChar;
     olint_t nLength = 0;
@@ -47,7 +55,7 @@ static olint_t _readLineFromFile(FILE * fp, olchar_t strLine[MAX_CONFFILE_LINE_L
 
     do
     {
-        nChar = fgetc(fp);
+        nChar = jf_filestream_getChar(fp);
 
         /* check comment */
         if ((nComment == 0) && (nChar == '#'))
@@ -75,7 +83,7 @@ static olint_t _readLineFromFile(FILE * fp, olchar_t strLine[MAX_CONFFILE_LINE_L
             nLength++;
         }
     } while ((nChar != EOF) && (nChar != '\n') &&
-             (nLength < MAX_CONFFILE_LINE_LEN - 1));
+             (nLength < JF_CONFFILE_MAX_LINE_LEN - 1));
 
     strLine[nLength] = 0;
 
@@ -115,7 +123,7 @@ static void _skipBlank(olchar_t * pstrBufOut, const olchar_t * pstrBufIn)
 
 /** Get the value string of a option of the specified tag name.
  *
- *  @param pcf [in] the configuration file object.
+ *  @param pijc [in] the configuration file object.
  *  @param pstrTag [in] the tag name of the option.
  *  @param strBuf [out] the value string of the option. 
  *
@@ -123,11 +131,11 @@ static void _skipBlank(olchar_t * pstrBufOut, const olchar_t * pstrBufIn)
  *  @retval JF_ERR_NO_ERROR success
  */
 static u32 _getValueStringByTag(
-    conf_file_t * pcf, 
-    const olchar_t * pstrTag, olchar_t strBuf[MAX_CONFFILE_LINE_LEN])
+    internal_jf_conffile_t * pijc, 
+    const olchar_t * pstrTag, olchar_t strBuf[JF_CONFFILE_MAX_LINE_LEN])
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
-    olchar_t strLine[MAX_CONFFILE_LINE_LEN];
+    olchar_t strLine[JF_CONFFILE_MAX_LINE_LEN];
     olchar_t * pcEqual, * pstrLine;
     olint_t nChar;
     olint_t nLength, nLengthTag;
@@ -136,9 +144,9 @@ static u32 _getValueStringByTag(
 
     do
     {
-        memset(strLine, 0, MAX_CONFFILE_LINE_LEN);
+        ol_memset(strLine, 0, JF_CONFFILE_MAX_LINE_LEN);
         pstrLine = strLine;
-        nChar = _readLineFromFile(pcf->cf_pfConfFile, strLine);
+        nChar = _readLineFromFile(pijc->ijc_pjfConfFile, strLine);
 
         while (*pstrLine == ' ')
             pstrLine ++;
@@ -164,50 +172,61 @@ static u32 _getValueStringByTag(
 }
 
 /* --- public routine section ---------------------------------------------- */
-u32 openConfFile(conf_file_t * pcf, const olchar_t * pstrPath)
+
+u32 jf_conffile_open(
+    jf_conffile_open_param_t * pParam, jf_conffile_t ** ppConffile)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_jf_conffile_t * pijc = NULL;
 
-    assert(pcf != NULL);
+    assert(ppConffile != NULL);
 
-    memset(pcf, 0, sizeof(conf_file_t));
-
-    pcf->cf_pfConfFile = fopen(pstrPath, "r");
-    if (pcf->cf_pfConfFile == NULL)
+    u32Ret = jf_mem_calloc((void **)&pijc, sizeof(*pijc));
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = JF_ERR_FILE_NOT_FOUND;
+        u32Ret = jf_filestream_open(
+            pParam->jcop_pstrFile, "r", &pijc->ijc_pjfConfFile);
     }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        *ppConffile = pijc;
+    else if (pijc != NULL)
+        jf_conffile_close((jf_conffile_t **)&pijc);
 
     return u32Ret;
 }
 
-u32 closeConfFile(conf_file_t * pcf)
+u32 jf_conffile_close(jf_conffile_t ** ppConffile)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    
-    assert(pcf != NULL);
-        
-    if (pcf->cf_pfConfFile != NULL)
+    internal_jf_conffile_t * pijc = *ppConffile;
+
+    assert(ppConffile != NULL);
+
+    if (pijc->ijc_pjfConfFile != NULL)
     {
-        fclose(pcf->cf_pfConfFile);
+        jf_filestream_close(&pijc->ijc_pjfConfFile);
     }
-            
-    memset(pcf, 0, sizeof(conf_file_t));
+
+    jf_mem_free(ppConffile);
 
     return u32Ret;
 }
 
-u32 getConfFileInt(conf_file_t * pcf, 
-    const olchar_t * pstrTag, olint_t nDefault, olint_t * pnValue)
+u32 jf_conffile_getInt(
+    jf_conffile_t * pConffile, const olchar_t * pstrTag, olint_t nDefault,
+    olint_t * pnValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    char strLine[MAX_CONFFILE_LINE_LEN];
+    internal_jf_conffile_t * pijc = (internal_jf_conffile_t *)pConffile;
+    char strLine[JF_CONFFILE_MAX_LINE_LEN];
     olint_t nRet = 0;
-    
-    assert((pcf != NULL) && (pstrTag != NULL) && (pnValue != NULL));
 
-    rewind(pcf->cf_pfConfFile); 
-    u32Ret = _getValueStringByTag(pcf, pstrTag, strLine);
+    assert((pConffile != NULL) && (pstrTag != NULL) && (pnValue != NULL));
+
+    jf_filestream_seek(pijc->ijc_pjfConfFile, 0L, SEEK_SET);
+
+    u32Ret = _getValueStringByTag(pijc, pstrTag, strLine);
     while (u32Ret == JF_ERR_NO_ERROR)
     {
         nRet = sscanf(strLine, "%d", pnValue);
@@ -218,7 +237,7 @@ u32 getConfFileInt(conf_file_t * pcf,
         }
         else
         {
-            u32Ret = _getValueStringByTag(pcf, pstrTag, strLine);
+            u32Ret = _getValueStringByTag(pijc, pstrTag, strLine);
         }
     }
         
@@ -232,18 +251,20 @@ u32 getConfFileInt(conf_file_t * pcf,
     return u32Ret;
 }
 
-u32 getConfFileString(conf_file_t * pcf,
-    const olchar_t * pstrTag, const olchar_t * pstrDefault, 
-    olchar_t * pstrValueBuf, olsize_t sBuf)
+u32 jf_conffile_getString(
+    jf_conffile_t * pConffile, const olchar_t * pstrTag,
+    const olchar_t * pstrDefault, olchar_t * pstrValueBuf, olsize_t sBuf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strLine[MAX_CONFFILE_LINE_LEN];
+    internal_jf_conffile_t * pijc = (internal_jf_conffile_t *)pConffile;
+    olchar_t strLine[JF_CONFFILE_MAX_LINE_LEN];
     olsize_t size = 0;
     
-    assert(pcf != NULL && pstrTag != NULL && pstrValueBuf != NULL);
+    assert((pConffile != NULL) && (pstrTag != NULL) && (pstrValueBuf != NULL));
 
-    rewind(pcf->cf_pfConfFile); 
-    u32Ret = _getValueStringByTag(pcf, pstrTag, strLine);
+    jf_filestream_seek(pijc->ijc_pjfConfFile, 0L, SEEK_SET);
+
+    u32Ret = _getValueStringByTag(pijc, pstrTag, strLine);
     while (u32Ret == JF_ERR_NO_ERROR)
     {
         size = ol_strlen(strLine);
@@ -261,7 +282,7 @@ u32 getConfFileString(conf_file_t * pcf,
         }
         else
         {
-            u32Ret = _getValueStringByTag(pcf, pstrTag, strLine);
+            u32Ret = _getValueStringByTag(pijc, pstrTag, strLine);
         }
     }
         

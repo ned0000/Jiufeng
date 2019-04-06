@@ -215,7 +215,7 @@ FILESAPI u32 FILESCALL jf_file_readLine(
 
 /*stream operation*/
 FILESAPI u32 FILESCALL jf_filestream_open(
-    const olchar_t * pstrFilename, const olchar_t * mode, jf_filestream_t ** pjf);
+    const olchar_t * pstrFilename, const olchar_t * mode, jf_filestream_t ** ppjf);
 
 FILESAPI u32 FILESCALL jf_filestream_close(jf_filestream_t ** pjf);
 
@@ -254,6 +254,11 @@ FILESAPI u32 FILESCALL jf_filestream_copyFile(
 FILESAPI u32 FILESCALL jf_filestream_flush(jf_filestream_t * pjf);
 
 FILESAPI boolean_t FILESCALL jf_filestream_isEndOfFile(jf_filestream_t * pjf);
+
+FILESAPI olint_t FILESCALL jf_filestream_getChar(jf_filestream_t * pjf);
+
+/** Directory function
+ */
 
 /*'mode' is for Linux only, it specifies the permission to use*/
 FILESAPI u32 FILESCALL jf_dir_create(

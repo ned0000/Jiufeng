@@ -660,14 +660,14 @@ u32 jf_file_readLine(jf_file_t fd, void * pBuffer, olsize_t * psRead)
 }
 
 u32 jf_filestream_open(
-    const olchar_t * pstrFilename, const olchar_t * mode, jf_filestream_t ** pjf)
+    const olchar_t * pstrFilename, const olchar_t * mode, jf_filestream_t ** ppjf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    assert((pstrFilename != NULL) && (mode != NULL) && (pjf != NULL));
+    assert((pstrFilename != NULL) && (mode != NULL) && (ppjf != NULL));
 
-    *pjf = fopen(pstrFilename, mode);
-    if (*pjf == NULL)
+    *ppjf = fopen(pstrFilename, mode);
+    if (*ppjf == NULL)
         u32Ret = JF_ERR_FAIL_OPEN_FILE;
 
     return u32Ret;
@@ -881,6 +881,11 @@ u32 jf_filestream_copyFile(
     }
 
     return u32Ret;
+}
+
+olint_t jf_filestream_getChar(jf_filestream_t * pjf)
+{
+    return fgetc(pjf);
 }
 
 boolean_t jf_file_isDirFile(u32 u32Mode)

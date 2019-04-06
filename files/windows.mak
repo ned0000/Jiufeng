@@ -14,7 +14,7 @@
 DLLNAME = olfiles
 RESOURCE = files
 
-SOURCES = files.c directory.c
+SOURCES = files.c directory.c conffile.c
 
 JIUTAISRCS = $(JIUTAI_DIR)\xmalloc.c $(JIUTAI_DIR)\xtime.c
 

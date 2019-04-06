@@ -13,7 +13,7 @@
 
 SONAME = olfiles
 
-SOURCES = files.c directory.c
+SOURCES = files.c directory.c conffile.c
 
 EXTRA_LIBS =
 
