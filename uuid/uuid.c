@@ -110,7 +110,7 @@ static u32 _makeUuidV1(uuid_gen_t * pug)
     for ( ; u32Ret == JF_ERR_NO_ERROR; )
     {
         /* determine current system time */
-        u32Ret = getTimeOfDay(&time_now);
+        u32Ret = jf_time_getTimeOfDay(&time_now);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             /* check whether system time changed since last retrieve */
@@ -131,7 +131,7 @@ static u32 _makeUuidV1(uuid_gen_t * pug)
             }
             /* stall the UUID generation until the system clock catches up.
                getTimeOfDay has resolution of 1us. Sleep for 500ns (1/2us) */
-            nsleep(500);
+            jf_time_nsleep(500);
         }
     }
 

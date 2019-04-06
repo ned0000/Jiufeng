@@ -33,7 +33,7 @@
 
 static boolean_t _isDayInRange(olint_t year, olint_t month, olint_t day)
 {
-    olint_t dm = getDaysOfMonth(year, month);
+    olint_t dm = jf_date_getDaysOfMonth(year, month);
 
     if (day <= 0 || day > dm)
         return FALSE;

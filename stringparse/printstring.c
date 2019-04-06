@@ -96,7 +96,7 @@ void jf_string_getStringDate2ForDaysFrom1970(
 {
     olint_t year, mon, day;
 
-    convertDaysFrom1970ToDate(nDays, &year, &mon, &day);
+    jf_date_convertDaysFrom1970ToDate(nDays, &year, &mon, &day);
     ol_sprintf(pstrDate, "%4d-%02d-%02d", year, mon, day);
 }
 

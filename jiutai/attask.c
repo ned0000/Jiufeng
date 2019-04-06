@@ -83,7 +83,7 @@ u32 checkAttask(attask_t * pAttask, u32 * pu32Blocktime)
     if (pia->ia_paiItems != NULL)
     {
         /*Get the current tick count for reference*/
-        getTimeOfDay(&tv);
+        jf_time_getTimeOfDay(&tv);
         /*Current tick in Millisecond*/
         current = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
         temp = pia->ia_paiItems;
@@ -158,7 +158,7 @@ u32 addAttaskItem(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Get the current time for reference*/
-        getTimeOfDay(&tv);
+        jf_time_getTimeOfDay(&tv);
 
         /*Set the trigger time*/
         pai->ai_pData = pData;

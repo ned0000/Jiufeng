@@ -153,7 +153,7 @@ static u32 _getSeedFromTime(void)
 #if defined(LINUX)
     struct timeval tv;
 
-    u32Ret = getTimeOfDay(&tv);
+    u32Ret = jf_time_getTimeOfDay(&tv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_prng_seed((u8 *)&tv.tv_sec, sizeof(tv.tv_sec), 0.0);

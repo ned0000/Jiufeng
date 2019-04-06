@@ -69,7 +69,7 @@ static u32 _checkUtimer(
     if (piu->iu_puiItems != NULL)
     {
         /*Get the current tick count for reference*/
-        getTimeOfDay(&tv);
+        jf_time_getTimeOfDay(&tv);
         /*Current tick in Millisecond*/
         current = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
         temp = piu->iu_puiItems;
@@ -198,7 +198,7 @@ u32 jf_network_addUtimerItem(
         memset(pui, 0, sizeof(utimer_item_t));
 
         /*Get the current time for reference*/
-        getTimeOfDay(&tv);
+        jf_time_getTimeOfDay(&tv);
 
         /*Set the trigger time*/
         pui->ui_pData = pData;

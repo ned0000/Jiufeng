@@ -28,7 +28,7 @@
 
 /* --- functional routines ------------------------------------------------- */
 #if defined(WINDOWS)
-u32 fileTimeToSecondsSince1970(FILETIME * pTime);
+u32 jf_time_fileTimeToSecondsSince1970(FILETIME * pTime);
 #endif
 
 /** Get time
@@ -37,7 +37,7 @@ u32 fileTimeToSecondsSince1970(FILETIME * pTime);
  *
  *  @return the error code
  */
-u32 getTimeOfDay(struct timeval * tv);
+u32 jf_time_getTimeOfDay(struct timeval * tv);
 
 /** Sleep some time in milliseconds
  *  
@@ -45,7 +45,7 @@ u32 getTimeOfDay(struct timeval * tv);
  *
  *  @return the error code
  */
-u32 msleep(u32 u32Milliseconds);
+u32 jf_time_msleep(u32 u32Milliseconds);
 
 /** Sleep some time in nanoseconds
  *  
@@ -53,7 +53,17 @@ u32 msleep(u32 u32Milliseconds);
  *
  *  @return the error code
  */
-u32 nsleep(u32 u32Nanoseconds);
+u32 jf_time_nsleep(u32 u32Nanoseconds);
+
+/** Convert time in hour:min:sec to seconds
+ *
+ *  @param hour [in] the hour of the time
+ *  @param min [in] the minute of the time
+ *  @param sec [in] the second of the time
+ *
+ *  @return the second
+ */
+olint_t jf_time_convertTimeToSeconds(olint_t hour, olint_t min, olint_t sec);
 
 /** Check if the year is leap year
  *  
@@ -63,7 +73,7 @@ u32 nsleep(u32 u32Nanoseconds);
  *  @retval TRUE it's a leap year
  *  @retval FALSE it's not a leap year
  */
-boolean_t isLeapYear(olint_t year);
+boolean_t jf_date_isLeapYear(olint_t year);
 
 /** Get the number of days in the year
  *  
@@ -73,7 +83,7 @@ boolean_t isLeapYear(olint_t year);
  *  @retval 366 for leap year
  *  @retval 365 for not leap year
  */
-olint_t getDaysOfYear(olint_t year);
+olint_t jf_date_getDaysOfYear(olint_t year);
 
 /** Get the number of days in month of the year
  *  
@@ -86,7 +96,7 @@ olint_t getDaysOfYear(olint_t year);
  *  @retval 30 for the 4th, 6th, 9th, 11th month
  *  @retval 31 for the 1th, 3th, 5th, 7th, 8th, 10th, 12th month
  */
-olint_t getDaysOfMonth(olint_t year, olint_t mon);
+olint_t jf_date_getDaysOfMonth(olint_t year, olint_t mon);
 
 /** Get number of days from 1970 for date specified in parameters
  *  
@@ -96,13 +106,13 @@ olint_t getDaysOfMonth(olint_t year, olint_t mon);
  *
  *  @return number of days from 1970 
  */
-olint_t convertDateToDaysFrom1970(olint_t year, olint_t mon, olint_t day);
+olint_t jf_date_convertDateToDaysFrom1970(olint_t year, olint_t mon, olint_t day);
 
 /** Get number of days from 1970 for today
  *  
  *  @return number of days from 1970 
  */
-olint_t convertTodayToDaysFrom1970(void);
+olint_t jf_date_convertTodayToDaysFrom1970(void);
 
 /** Convert the days from 1970 to year, month and day
  *
@@ -113,7 +123,7 @@ olint_t convertTodayToDaysFrom1970(void);
  *
  *  @return void
  */
-void convertDaysFrom1970ToDate(
+void jf_date_convertDaysFrom1970ToDate(
     const olint_t days, olint_t * year, olint_t * mon, olint_t * day);
 
 /** Get day of week from date
@@ -131,7 +141,7 @@ void convertDaysFrom1970ToDate(
  *  @retval 5 friday
  *  @retval 6 saturday
  */
-olint_t getDayOfWeekFromDate(olint_t year, olint_t mon, olint_t day);
+olint_t jf_date_getDayOfWeekFromDate(olint_t year, olint_t mon, olint_t day);
 
 /** Get day of week for today
  *  
@@ -144,7 +154,7 @@ olint_t getDayOfWeekFromDate(olint_t year, olint_t mon, olint_t day);
  *  @retval 5 friday
  *  @retval 6 saturday
  */
-olint_t getDayOfWeekForToday(void);
+olint_t jf_date_getDayOfWeekForToday(void);
 
 /** Check if it's weekend from date
  *  
@@ -156,7 +166,7 @@ olint_t getDayOfWeekForToday(void);
  *  @retval TRUE it's weekend
  *  @retval FALSE it's not weekend
  */
-boolean_t isWeekendForDate(olint_t year, olint_t mon, olint_t day);
+boolean_t jf_date_isWeekendForDate(olint_t year, olint_t mon, olint_t day);
 
 /** Get date for today
  *
@@ -166,17 +176,7 @@ boolean_t isWeekendForDate(olint_t year, olint_t mon, olint_t day);
  *
  *  @return void
  */
-void getDateToday(olint_t * year, olint_t * mon, olint_t * day);
-
-/** Convert time in hour:min:sec to seconds
- *
- *  @param hour [in] the hour of the time
- *  @param min [in] the minute of the time
- *  @param sec [in] the second of the time
- *
- *  @return the second
- */
-olint_t convertTimeToSeconds(olint_t hour, olint_t min, olint_t sec);
+void jf_date_getDateToday(olint_t * year, olint_t * mon, olint_t * day);
 
 #endif /*JIUTAI_XTIME_H*/
 

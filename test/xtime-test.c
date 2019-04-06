@@ -32,7 +32,7 @@ static void test1(void)
 
     for (i = 0; i < 10; i ++)
     {
-        if (isLeapYear(year[i]))
+        if (jf_date_isLeapYear(year[i]))
             ol_printf("year %d is leap year\n", year[i]);
         else
             ol_printf("year %d is not leap year\n", year[i]);
@@ -53,7 +53,7 @@ static void test2(void)
     {
         ol_printf("%d-%d-%d is %d days from 1970\n",
                data[i][0], data[i][1], data[i][2],
-               convertDateToDaysFrom1970(data[i][0], data[i][1], data[i][2]));
+               jf_date_convertDateToDaysFrom1970(data[i][0], data[i][1], data[i][2]));
     }
 
     ol_printf("\n");
@@ -69,7 +69,7 @@ static void test3(void)
 
     for (i = 0; i < numofdays; i ++)
     {
-        convertDaysFrom1970ToDate(days[i], &year, &mon, &day);
+        jf_date_convertDaysFrom1970ToDate(days[i], &year, &mon, &day);
         ol_printf("%d days from 1700 is %d-%d-%d\n",
                days[i], year, mon, day);
 
@@ -93,7 +93,7 @@ static void test4(void)
     {
         ol_printf("%d-%d-%d is %d of week\n",
                data[i][0], data[i][1], data[i][2],
-               getDayOfWeekFromDate(data[i][0], data[i][1], data[i][2]));
+               jf_date_getDayOfWeekFromDate(data[i][0], data[i][1], data[i][2]));
     }
 
     ol_printf("\n");
@@ -114,7 +114,7 @@ static void test5(void)
     for (i = 0; i < NUM_OF_TEST5_ENTRY; i ++)
     {
         jf_string_getTimeFromString(data[i], &hour, &min, &sec);
-        seconds = convertTimeToSeconds(hour, min, sec);
+        seconds = jf_time_convertTimeToSeconds(hour, min, sec);
         ol_printf("%s, %d secondes\n", data[i], seconds);
     }
 
@@ -128,21 +128,21 @@ u32 getNextTradingDate(const olchar_t * pstrCurr, olchar_t * pstrNext)
     olint_t days, dw;
 
     jf_string_getDate2FromString(pstrCurr, &year, &month, &day);
-    days = convertDateToDaysFrom1970(year, month, day);
-    dw = getDayOfWeekFromDate(year, month, day);
+    days = jf_date_convertDateToDaysFrom1970(year, month, day);
+    dw = jf_date_getDayOfWeekFromDate(year, month, day);
     if (dw == 5)
     {
-        convertDaysFrom1970ToDate(days + 3, &year, &month, &day);
+        jf_date_convertDaysFrom1970ToDate(days + 3, &year, &month, &day);
         jf_string_getStringDate2(pstrNext, year, month, day);
     }
     else if (dw == 6)
     {
-        convertDaysFrom1970ToDate(days + 2, &year, &month, &day);
+        jf_date_convertDaysFrom1970ToDate(days + 2, &year, &month, &day);
         jf_string_getStringDate2(pstrNext, year, month, day);
     }
     else
     {
-        convertDaysFrom1970ToDate(days + 1, &year, &month, &day);
+        jf_date_convertDaysFrom1970ToDate(days + 1, &year, &month, &day);
         jf_string_getStringDate2(pstrNext, year, month, day);
     }
 
@@ -159,7 +159,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     char curdate[16];
     char strdate[16];
 
-    getDateToday(&year, &mon, &day);
+    jf_date_getDateToday(&year, &mon, &day);
     ol_printf("Today is %4d-%02d-%02d\n", year, mon, day);
 
     test1();

@@ -30,7 +30,7 @@
 
 /* --- public routine section ---------------------------------------------- */
 #if defined(WINDOWS)
-u32 fileTimeToSecondsSince1970(FILETIME * pTime)
+u32 jf_time_fileTimeToSecondsSince1970(FILETIME * pTime)
 {
 	u64 u64Time;
 
@@ -45,7 +45,7 @@ u32 fileTimeToSecondsSince1970(FILETIME * pTime)
 }
 #endif
 
-u32 getTimeOfDay(struct timeval * tv)
+u32 jf_time_getTimeOfDay(struct timeval * tv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
@@ -75,7 +75,7 @@ u32 getTimeOfDay(struct timeval * tv)
     return u32Ret;
 }
 
-u32 msleep(u32 u32Milliseconds)
+u32 jf_time_msleep(u32 u32Milliseconds)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -88,7 +88,7 @@ u32 msleep(u32 u32Milliseconds)
     return u32Ret;
 }
 
-u32 nsleep(u32 u32Nanoseconds)
+u32 jf_time_nsleep(u32 u32Nanoseconds)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
@@ -104,7 +104,12 @@ u32 nsleep(u32 u32Nanoseconds)
     return u32Ret;
 }
 
-boolean_t isLeapYear(olint_t year)
+olint_t jf_time_convertTimeToSeconds(olint_t hour, olint_t min, olint_t sec)
+{
+    return hour * 3600 + min * 60 + sec;
+}
+
+boolean_t jf_date_isLeapYear(olint_t year)
 {
     if (((year % 4 == 0) && (year % 100 != 0)) ||
         (year % 400 == 0))
@@ -113,7 +118,7 @@ boolean_t isLeapYear(olint_t year)
     return FALSE;
 }
 
-olint_t getDaysOfMonth(olint_t year, olint_t mon)
+olint_t jf_date_getDaysOfMonth(olint_t year, olint_t mon)
 {
     olint_t md;
 
@@ -129,7 +134,7 @@ olint_t getDaysOfMonth(olint_t year, olint_t mon)
         md = 31;
         break; 
     case 2:
-        if (isLeapYear(year))
+        if (jf_date_isLeapYear(year))
             md = 29;
         else
             md = 28;
@@ -142,43 +147,44 @@ olint_t getDaysOfMonth(olint_t year, olint_t mon)
     return md;
 }
 
-olint_t getDaysOfYear(olint_t year)
+olint_t jf_date_getDaysOfYear(olint_t year)
 {
-    if (isLeapYear(year))
+    if (jf_date_isLeapYear(year))
         return 366;
 
     return 365;
 }
 
 /*from 1970*/
-olint_t convertDateToDaysFrom1970(olint_t year, olint_t mon, olint_t day)
+olint_t jf_date_convertDateToDaysFrom1970(olint_t year, olint_t mon, olint_t day)
 {
     olint_t ret = day;
     olint_t i, a[12] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30};
     olint_t start_year = 1970;
 
-    if (isLeapYear(year)) a[2] = 29;
+    if (jf_date_isLeapYear(year)) a[2] = 29;
     for (i = 0; i <= mon - 1; i ++) 
         ret += a[i];
 
     while (start_year < year)
     {
-        ret += getDaysOfYear(start_year);
+        ret += jf_date_getDaysOfYear(start_year);
         start_year ++;
     }
 
     return ret;
 }
 
-olint_t convertTodayToDaysFrom1970(void)
+olint_t jf_date_convertTodayToDaysFrom1970(void)
 {
     olint_t year, mon, day;
 
-    getDateToday(&year, &mon, &day);
-    return convertDateToDaysFrom1970(year, mon, day);
+    jf_date_getDateToday(&year, &mon, &day);
+    return jf_date_convertDateToDaysFrom1970(year, mon, day);
 }
 
-void convertDaysFrom1970ToDate(const olint_t days, olint_t * year, olint_t * mon, olint_t * day)
+void jf_date_convertDaysFrom1970ToDate(
+    const olint_t days, olint_t * year, olint_t * mon, olint_t * day)
 {
     olint_t ret = days;
     olint_t i, s = 0, a[13] = {0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
@@ -186,15 +192,15 @@ void convertDaysFrom1970ToDate(const olint_t days, olint_t * year, olint_t * mon
 
     while (ret > 0)
     {
-        ret -= getDaysOfYear(start_year);
+        ret -= jf_date_getDaysOfYear(start_year);
         if (ret > 0)
             start_year ++;
     }
 
     *year = start_year;
-    ret += getDaysOfYear(start_year);
+    ret += jf_date_getDaysOfYear(start_year);
 
-    if (isLeapYear(start_year))
+    if (jf_date_isLeapYear(start_year))
         a[2] = 29;
     for (i = 0; i < 12; i ++) 
     {
@@ -209,7 +215,7 @@ void convertDaysFrom1970ToDate(const olint_t days, olint_t * year, olint_t * mon
 
 }
 
-olint_t getDayOfWeekFromDate(olint_t year, olint_t mon, olint_t day)
+olint_t jf_date_getDayOfWeekFromDate(olint_t year, olint_t mon, olint_t day)
 {
     olint_t m = mon, d = day;
     olint_t c, y, w;
@@ -232,20 +238,20 @@ olint_t getDayOfWeekFromDate(olint_t year, olint_t mon, olint_t day)
     return w;
 }
 
-olint_t getDayOfWeekForToday(void)
+olint_t jf_date_getDayOfWeekForToday(void)
 {
     olint_t year, mon, day;
 
-    getDateToday(&year, &mon, &day);
-    return getDayOfWeekFromDate(year, mon, day);
+    jf_date_getDateToday(&year, &mon, &day);
+    return jf_date_getDayOfWeekFromDate(year, mon, day);
 }
 
-boolean_t isWeekendForDate(olint_t year, olint_t mon, olint_t day)
+boolean_t jf_date_isWeekendForDate(olint_t year, olint_t mon, olint_t day)
 {
     boolean_t bRet = FALSE;
     olint_t dw;
 
-    dw = getDayOfWeekFromDate(year, mon, day);
+    dw = jf_date_getDayOfWeekFromDate(year, mon, day);
     if ((dw == 6) || /*Saturday*/
         (dw == 0)) /*Sunday*/
         bRet = TRUE;
@@ -253,7 +259,7 @@ boolean_t isWeekendForDate(olint_t year, olint_t mon, olint_t day)
     return bRet;
 }
 
-void getDateToday(olint_t * year, olint_t * mon, olint_t * day)
+void jf_date_getDateToday(olint_t * year, olint_t * mon, olint_t * day)
 {
     time_t curtime = time(NULL);
     struct tm * tmdate;
@@ -262,11 +268,6 @@ void getDateToday(olint_t * year, olint_t * mon, olint_t * day)
     *year = 1900 + tmdate->tm_year;
     *mon = 1 + tmdate->tm_mon;
     *day = tmdate->tm_mday;
-}
-
-olint_t convertTimeToSeconds(olint_t hour, olint_t min, olint_t sec)
-{
-    return hour * 3600 + min * 60 + sec;
 }
 
 /*---------------------------------------------------------------------------*/
