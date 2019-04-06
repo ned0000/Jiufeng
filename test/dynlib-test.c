@@ -30,14 +30,14 @@
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    dyn_lib_t * pdl = NULL;
+    jf_dynlib_t * pjd = NULL;
     oldouble_t (*pow)(oldouble_t x, oldouble_t y);
     olchar_t strErrMsg[300];
 
-    u32Ret = loadDynLib ("libm.so", &pdl);
+    u32Ret = jf_dynlib_load ("libm.so", &pjd);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = getSymbolAddress(pdl, "powss", (void **)&pow);
+        u32Ret = jf_dynlib_getSymbolAddress(pjd, "powss", (void **)&pow);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -45,8 +45,8 @@ olint_t main(olint_t argc, olchar_t ** argv)
         printf ("%f\n", (*pow)(3, 10));
     }
 
-    if (pdl != NULL)
-        freeDynLib(&pdl);
+    if (pjd != NULL)
+        jf_dynlib_unload(&pjd);
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {

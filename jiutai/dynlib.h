@@ -21,17 +21,18 @@
 #include "errcode.h"
 
 /* --- constant definitions ------------------------------------------------ */
-typedef void  dyn_lib_t;
+typedef void  jf_dynlib_t;
 
 /* --- data structures ----------------------------------------------------- */
 
 /* --- functional routines ------------------------------------------------- */
-u32 loadDynLib(const olchar_t * pstrLibFile, dyn_lib_t ** ppLib);
 
-u32 freeDynLib(dyn_lib_t ** ppLib);
+u32 jf_dynlib_load(const olchar_t * pstrLibFile, jf_dynlib_t ** ppLib);
 
-u32 getSymbolAddress(
-    dyn_lib_t * pLib, const olchar_t * pstrSymbol, void ** ppAddress);
+u32 jf_dynlib_unload(jf_dynlib_t ** ppLib);
+
+u32 jf_dynlib_getSymbolAddress(
+    jf_dynlib_t * pLib, const olchar_t * pstrSymbol, void ** ppAddress);
 
 #endif /*JIUTAI_DYNLIB_H*/
 

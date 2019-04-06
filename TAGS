@@ -115,30 +115,30 @@ u32 jf_string_processSettingString(621,15323
 
 stringparse/scanstring.c,1022
 static boolean_t _isDayInRange(34,677
-static u32 _getDateFromString(47,963
-u32 jf_string_getS32FromString(122,2773
-u32 jf_string_getS32FromHexString(151,3492
-u32 jf_string_getU32FromString(180,4198
-u32 jf_string_getU16FromString(209,4917
-u32 jf_string_getU8FromString(241,5762
-u32 jf_string_getLongFromString(273,6600
-u32 jf_string_getUlongFromString(306,7461
-u32 jf_string_getU64FromString(344,8394
-u32 jf_string_getS64FromString(379,9239
-u32 jf_string_getBinaryFromString(414,10082
-    #define ONE_TEGABYTE 450,10968
-    #define ONE_TEGABYTE 452,11019
-#define ONE_GIGABYTE 454,11070
-#define ONE_MEGABYTE 455,11105
-#define ONE_KILOBYTE 456,11138
-u32 jf_string_getSizeFromString(458,11169
-u32 jf_string_getTimeFromString(577,14388
-u32 jf_string_getDateFromString(659,16176
-u32 jf_string_getDate2FromString(672,16531
-u32 jf_string_getMACAddressFromString(683,16806
-olsize_t jf_string_getHexFromString(758,18732
-u32 jf_string_getFloatFromString(786,19322
-u32 jf_string_getDoubleFromString(815,20040
+static u32 _getDateFromString(47,971
+u32 jf_string_getS32FromString(122,2781
+u32 jf_string_getS32FromHexString(151,3500
+u32 jf_string_getU32FromString(180,4206
+u32 jf_string_getU16FromString(209,4925
+u32 jf_string_getU8FromString(241,5770
+u32 jf_string_getLongFromString(273,6608
+u32 jf_string_getUlongFromString(306,7469
+u32 jf_string_getU64FromString(344,8402
+u32 jf_string_getS64FromString(379,9247
+u32 jf_string_getBinaryFromString(414,10090
+    #define ONE_TEGABYTE 450,10976
+    #define ONE_TEGABYTE 452,11027
+#define ONE_GIGABYTE 454,11078
+#define ONE_MEGABYTE 455,11113
+#define ONE_KILOBYTE 456,11146
+u32 jf_string_getSizeFromString(458,11177
+u32 jf_string_getTimeFromString(577,14396
+u32 jf_string_getDateFromString(659,16184
+u32 jf_string_getDate2FromString(672,16539
+u32 jf_string_getMACAddressFromString(683,16814
+olsize_t jf_string_getHexFromString(758,18740
+u32 jf_string_getFloatFromString(786,19330
+u32 jf_string_getDoubleFromString(815,20048
 
 stringparse/printstring.c,1368
 const static olchar_t * ls_pstrMonth[ls_pstrMonth25,525
@@ -150,28 +150,28 @@ void jf_string_getStringMACAddress(66,1544
 void jf_string_getStringDate(73,1772
 void jf_string_getStringDate2(85,2197
 void jf_string_getStringDate2ForDaysFrom1970(94,2487
-u32 jf_string_getStringUTCTime(103,2729
-u32 jf_string_getStringLocalTime(128,3379
-void jf_string_getStringTimePeriod(153,4034
-    #define ONE_TEGABYTE 199,5082
-    #define ONE_TEGABYTE 201,5133
-#define ONE_GIGABYTE 203,5184
-#define ONE_MEGABYTE 204,5219
-#define ONE_KILOBYTE 205,5252
-void jf_string_getStringSize(207,5283
-void jf_string_getStringSizeMax(292,8231
-#define ONE_TEGABYTE_1000_BASED 373,10981
-#define ONE_TEGABYTE_1000_BASED 375,11035
-#define ONE_GIGABYTE_1000_BASED 377,11089
-#define ONE_MEGABYTE_1000_BASED 378,11132
-#define ONE_KILOBYTE_1000_BASED 379,11172
-void jf_string_getStringSize1000Based(381,11211
-void jf_string_getStringVersion(466,14402
-const olchar_t * jf_string_getStringEnable(474,14650
-const olchar_t * jf_string_getStringUnknown(486,14826
-const olchar_t * jf_string_getStringPositive(491,14903
-const olchar_t * jf_string_getStringTrue(503,15075
-olsize_t jf_string_getStringHex(515,15239
+u32 jf_string_getStringUTCTime(103,2737
+u32 jf_string_getStringLocalTime(128,3387
+void jf_string_getStringTimePeriod(153,4042
+    #define ONE_TEGABYTE 199,5090
+    #define ONE_TEGABYTE 201,5141
+#define ONE_GIGABYTE 203,5192
+#define ONE_MEGABYTE 204,5227
+#define ONE_KILOBYTE 205,5260
+void jf_string_getStringSize(207,5291
+void jf_string_getStringSizeMax(292,8239
+#define ONE_TEGABYTE_1000_BASED 373,10989
+#define ONE_TEGABYTE_1000_BASED 375,11043
+#define ONE_GIGABYTE_1000_BASED 377,11097
+#define ONE_MEGABYTE_1000_BASED 378,11140
+#define ONE_KILOBYTE_1000_BASED 379,11180
+void jf_string_getStringSize1000Based(381,11219
+void jf_string_getStringVersion(466,14410
+const olchar_t * jf_string_getStringEnable(474,14658
+const olchar_t * jf_string_getStringUnknown(486,14834
+const olchar_t * jf_string_getStringPositive(491,14911
+const olchar_t * jf_string_getStringTrue(503,15083
+olsize_t jf_string_getStringHex(515,15247
 
 stringparse/parsestring.c,713
 static boolean_t _isDelimiter(42,1114
@@ -314,7 +314,7 @@ crypto/prng/seed.c,172
 static u32 _getSeedFromSystem(56,1290
 static u32 _getSeedFromProcess(132,3351
 static u32 _getSeedFromTime(150,3648
-u32 getSeed(176,4161
+u32 getSeed(176,4169
 
 crypto/prng/prngcommon.h,67
 #define CRYPTO_PRNG_COMMON_H14,204
@@ -975,14 +975,14 @@ jiutai/jtsqlite.c,497
 #define TRANSACTION_RETRY_MIN_TIME 36,804
 #define TRANSACTION_RETRY_MAX_TIME 39,906
 static u32 _jtSqliteEvalSqlStmt(43,1032
-static u32 _jtSqliteExecSql(98,2670
-static u32 _jtSqliteExecSqlTransaction(131,3520
-u32 jf_sqlite_init(159,4364
-u32 jf_sqlite_fini(213,5770
-u32 jf_sqlite_rollbackTransaction(228,6023
-u32 jf_sqlite_startTransaction(249,6496
-u32 jf_sqlite_commitTransaction(267,6906
-u32 jf_sqlite_execSql(288,7373
+static u32 _jtSqliteExecSql(98,2678
+static u32 _jtSqliteExecSqlTransaction(131,3528
+u32 jf_sqlite_init(159,4380
+u32 jf_sqlite_fini(213,5786
+u32 jf_sqlite_rollbackTransaction(228,6039
+u32 jf_sqlite_startTransaction(249,6512
+u32 jf_sqlite_commitTransaction(267,6922
+u32 jf_sqlite_execSql(288,7389
 
 jiutai/olbasic.h,4416
 #define JIUTAI_OLBASIC_H12,132
@@ -1569,10 +1569,10 @@ typedef struct attask34,745
 } internal_attask_t;37,802
 static u32 _flushAttask(49,1093
 u32 checkAttask(73,1616
-u32 addAttaskItem(148,4127
-u32 removeAttaskItem(224,6865
-u32 destroyAttask(291,8753
-u32 createAttask(308,9055
+u32 addAttaskItem(148,4135
+u32 removeAttaskItem(224,6881
+u32 destroyAttask(291,8769
+u32 createAttask(308,9071
 
 jiutai/dynlib.h,63
 #define JIUTAI_DYNLIB_H15,274
@@ -1842,54 +1842,55 @@ jiutai/servmgmt.h,1580
     u32 jssp_u32Reserved[jssp_u32Reserved90,2327
 } jf_servmgmt_start_param_t;91,2356
 
-jiutai/xtime.c,513
-u32 fileTimeToSecondsSince1970(33,745
-u32 getTimeOfDay(48,1119
-u32 msleep(78,1825
-u32 nsleep(91,2030
-boolean_t isLeapYear(107,2276
-olint_t getDaysOfMonth(116,2433
-olint_t getDaysOfYear(145,2827
-olint_t convertDateToDaysFrom1970(154,2945
-olint_t convertTodayToDaysFrom1970(173,3371
-void convertDaysFrom1970ToDate(181,3537
-olint_t getDayOfWeekFromDate(212,4220
-olint_t getDayOfWeekForToday(235,4606
-boolean_t isWeekendForDate(243,4761
-void getDateToday(256,5028
-olint_t convertTimeToSeconds(267,5284
+jiutai/xtime.c,633
+u32 jf_time_fileTimeToSecondsSince1970(33,745
+u32 jf_time_getTimeOfDay(48,1127
+u32 jf_time_msleep(78,1841
+u32 jf_time_nsleep(91,2054
+olint_t jf_time_convertTimeToSeconds(107,2308
+boolean_t jf_date_isLeapYear(112,2431
+olint_t jf_date_getDaysOfMonth(121,2596
+olint_t jf_date_getDaysOfYear(150,3006
+olint_t jf_date_convertDateToDaysFrom1970(159,3140
+olint_t jf_date_convertTodayToDaysFrom1970(178,3590
+void jf_date_convertDaysFrom1970ToDate(186,3780
+olint_t jf_date_getDayOfWeekFromDate(218,4500
+olint_t jf_date_getDayOfWeekForToday(241,4894
+boolean_t jf_date_isWeekendForDate(249,5073
+void jf_date_getDateToday(262,5356
 
-jiutai/hash.h,1155
+jiutai/hash.h,1446
 #define JIUTAI_HASH_H16,412
-typedef void  hash_table_t;25,719
-typedef olint_t (* fnHtCmpKeys_t)27,748
-typedef olint_t (* fnHtHashKey_t)28,812
-typedef void * (* fnHtGetKeyFromEntry_t)29,861
-typedef u32 (* fnHtFreeEntry_t)30,919
-typedef void (* fnHtError_t)31,970
-    u32 htp_u32MinSize;36,1115
-    u32 htp_u32Reserved;37,1181
-    fnHtCmpKeys_t htp_fnHtCmpKeys;38,1206
-    fnHtHashKey_t htp_fnHtHashKey;39,1241
-    fnHtGetKeyFromEntry_t htp_fnHtGetKeyFromEntry;40,1276
-    fnHtFreeEntry_t htp_fnHtFreeEntry;41,1327
-    fnHtError_t htp_fnHtError;42,1366
-    u32 htp_u32Reserved2[htp_u32Reserved243,1397
-} hash_table_param_t;44,1426
-    hash_table_t * hti_htTable;96,3292
-    olint_t hti_nPos;97,3324
-    void * hti_pCursor;98,3346
-} hash_table_iterator_t;99,3370
-#define BITS_PER_LONG 123,4165
-#define GOLDEN_RATIO_PRIME_32 127,4249
-#define GOLDEN_RATIO_PRIME_64 129,4343
-    #define GOLDEN_RATIO_PRIME 132,4419
-    #define hashLong(133,4472
-    #define hashLong(135,4549
-    #define GOLDEN_RATIO_PRIME 136,4600
-static inline u64 hashU64(142,4701
-static inline u32 hashU32(165,5116
-static inline unsigned long hashPtr(174,5365
+typedef void  jf_hashtable_t;25,719
+typedef olint_t (* jf_hashtable_fnCmpKeys_t)27,750
+typedef olint_t (* jf_hashtable_fnHashKey_t)28,825
+typedef void * (* jf_hashtable_fnGetKeyFromEntry_t)29,885
+typedef u32 (* jf_hashtable_fnFreeEntry_t)30,954
+typedef void (* jf_hashtable_fnError_t)31,1016
+    u32 jhcp_u32MinSize;36,1172
+    u32 jhcp_u32Reserved;37,1239
+    jf_hashtable_fnCmpKeys_t jhcp_fnCmpKeys;38,1265
+    jf_hashtable_fnHashKey_t jhcp_fnHashKey;39,1310
+    jf_hashtable_fnGetKeyFromEntry_t jhcp_fnGetKeyFromEntry;40,1355
+    jf_hashtable_fnFreeEntry_t jhcp_fnFreeEntry;41,1416
+    jf_hashtable_fnError_t jhcp_fnError;42,1465
+    u32 jhcp_u32Reserved2[jhcp_u32Reserved243,1506
+} jf_hashtable_create_param_t;44,1536
+    jf_hashtable_t * jhi_htTable;97,3496
+    olint_t jhi_nPos;98,3530
+    void * jhi_pCursor;99,3552
+} jf_hashtable_iterator_t;100,3576
+        #define BITS_PER_LONG 125,4446
+        #define BITS_PER_LONG 127,4490
+#define JF_HASHTABLE_GOLDEN_RATIO_PRIME_32 132,4593
+#define JF_HASHTABLE_GOLDEN_RATIO_PRIME_64 134,4700
+    #define JF_HASHTABLE_GOLDEN_RATIO_PRIME 137,4789
+    #define jf_hashtable_hashLong(138,4869
+    #define jf_hashtable_hashLong(140,4972
+    #define JF_HASHTABLE_GOLDEN_RATIO_PRIME 141,5049
+static inline u64 jf_hashtable_hashU64(147,5177
+static inline u32 jf_hashtable_hashU32(170,5605
+static inline unsigned long jf_hashtable_hashPtr(179,5880
 
 jiutai/olflag.h,258
 #define JIUTAI_OLFLAG_H14,211
@@ -1902,7 +1903,7 @@ jiutai/olflag.h,258
 #define GET_FLAG_VALUE(51,1327
 typedef u64    olflag_t;55,1481
 
-jiutai/hash.c,1748
+jiutai/hash.c,1876
 typedef struct hash_table_bucket25,532
     void * htb_pEntry;27,567
     struct hash_table_bucket *htb_htbNext;htb_htbNext28,590
@@ -1915,38 +1916,38 @@ typedef struct _hash_table31,657
     u32 iht_u32PrimesIndex;37,779
     u32 iht_u32Reserved[iht_u32Reserved38,807
     hash_table_bucket_t **iht_htbBucket;iht_htbBucket40,836
-    fnHtCmpKeys_t iht_fnHtCmpKeys;42,878
-    fnHtHashKey_t iht_fnHtHashKey;43,913
-    fnHtGetKeyFromEntry_t iht_fnHtGetKeyFromEntry;44,948
-    fnHtFreeEntry_t iht_fnHtFreeEntry;45,999
-    fnHtError_t iht_fnHtError;46,1038
-} internal_hash_table_t;47,1069
-static olint_t primes[primes66,1593
-static olint_t _default_fnHtCmpKeys(78,2035
-static olint_t _default_fnHtHashKey(88,2220
-static void * _default_fnHtGetKeyFromEntry(97,2364
-static u32 _default_fnHtFreeEntry(102,2446
-static void _default_fnHtError(109,2556
-static hash_table_bucket_t ** getPositionOfKey(116,2693
-static u32 _resizeHashTable(142,3314
-static u32 _insertAtPosition(187,4767
-static u32 _overwriteAtPosition(216,5557
-u32 createHashTable(233,5980
-u32 destroyHashTable(285,7761
-u32 insertHashTableEntry(319,8578
-u32 removeHashTableEntry(332,8960
-u32 overwriteHashTableEntry(352,9506
-u32 getHashTableEntry(371,9981
-boolean_t isKeyInHashTable(385,10368
-boolean_t isEntryInHashTable(397,10660
-u32 getHashTableSize(410,11000
-void showHashTableStatistics(417,11190
-void setupHashTableIterator(453,12059
-void incrementHashTableIterator(464,12402
-boolean_t isDoneHashTableIterator(500,13298
-void * getEntryFromHashTableIterator(510,13480
-#define HASHPJWSHIFT 526,13895
-olint_t hashPJW(528,13942
+    jf_hashtable_fnCmpKeys_t iht_fnCmpKeys;42,878
+    jf_hashtable_fnHashKey_t iht_fnHashKey;43,922
+    jf_hashtable_fnGetKeyFromEntry_t iht_fnGetKeyFromEntry;44,966
+    jf_hashtable_fnFreeEntry_t iht_fnFreeEntry;45,1026
+    jf_hashtable_fnError_t iht_fnError;46,1074
+} internal_hash_table_t;47,1114
+static olint_t primes[primes66,1638
+static olint_t _default_fnHtCmpKeys(78,2080
+static olint_t _default_fnHtHashKey(88,2265
+static void * _default_fnHtGetKeyFromEntry(97,2409
+static u32 _default_fnHtFreeEntry(102,2491
+static void _default_fnHtError(109,2601
+static hash_table_bucket_t ** _getPositionOfKey(116,2738
+static u32 _resizeHashTable(142,3369
+static u32 _insertAtPosition(188,4855
+static u32 _overwriteAtPosition(218,5649
+u32 jf_hashtable_create(236,6071
+u32 jf_hashtable_destroy(289,7872
+u32 jf_hashtable_insertEntry(323,8698
+u32 jf_hashtable_removeEntry(336,9085
+u32 jf_hashtable_overwriteEntry(356,9634
+u32 jf_hashtable_getEntry(375,10114
+boolean_t jf_hashtable_isKeyInTable(389,10508
+boolean_t jf_hashtable_isEntryInTable(401,10812
+u32 jf_hashtable_getSize(414,11162
+void jf_hashtable_showStatistics(421,11358
+void jf_hashtable_setupIterator(457,12233
+void jf_hashtable_incrementIterator(468,12589
+boolean_t jf_hashtable_isEndOfIterator(504,13491
+void * jf_hashtable_getEntryFromIterator(514,13680
+#define HASHPJWSHIFT 530,14101
+olint_t jf_hashtable_hashPJW(532,14148
 
 jiutai/sharedmemory.c,394
     #define SV_W 33,677
@@ -2933,7 +2934,7 @@ u32 appendCommand(105,2798
 u32 getPreviousCommand(152,4282
 u32 getNextCommand(195,5512
 
-clieng/cmdparser.c,1403
+clieng/cmdparser.c,1405
 #define MAX_ARGC 41,790
 #define MAX_CMD 43,856
 #define MAX_CMD_NAME_LEN 45,889
@@ -2955,22 +2956,22 @@ clieng/cmdparser.c,1403
     u32 icp_u32NumOfCmdSet;71,1514
     internal_clieng_cmd_set_t * icp_piccsCmdSet;72,1542
     u32 icp_u32MaxCmd;73,1591
-    hash_table_t * icp_htCmd;74,1614
-} internal_clieng_parser_t;75,1644
-static u32 _printError(79,1754
-static u32 _trimCmdLine(101,2367
-static u32 _formCmdLineArguments(160,3660
-static u32 _preProcessCmdLine(189,4566
-static boolean_t _findMore(221,5371
-static u32 _parseAndProcess(250,6076
-static olint_t _cmpKeys(283,6963
-static u32 _freeCmd(288,7089
-static olint_t _hashKey(300,7263
-static void * _getKeyFromCmd(305,7331
-u32 createParser(314,7531
-u32 destroyParser(362,8930
-u32 parseCmd(384,9385
-u32 newCmd(421,10214
+    jf_hashtable_t * icp_jhCmd;74,1614
+} internal_clieng_parser_t;75,1646
+static u32 _printError(79,1756
+static u32 _trimCmdLine(101,2369
+static u32 _formCmdLineArguments(160,3662
+static u32 _preProcessCmdLine(189,4568
+static boolean_t _findMore(221,5373
+static u32 _parseAndProcess(250,6078
+static olint_t _cmpKeys(283,6969
+static u32 _freeCmd(288,7095
+static olint_t _hashKey(300,7269
+static void * _getKeyFromCmd(305,7350
+u32 createParser(314,7550
+u32 destroyParser(362,8953
+u32 parseCmd(384,9412
+u32 newCmd(421,10241
 
 test/sharedmemory-test-worker.c,21
 olint_t main(30,727
@@ -3343,18 +3344,18 @@ static void _printUsage(31,718
 static u32 _parseCmdLineParam(43,908
 static void _terminate(75,1579
 static u32 _hashU32(82,1679
-typedef struct test_hash_entry107,2144
-    olint_t the_nKey;109,2177
-    olint_t the_nId;110,2199
-    olchar_t * the_pstrKey;111,2220
-    olchar_t * the_pstrName;112,2248
-    olint_t the_nField;113,2277
-} test_hash_entry_t;114,2301
-static olint_t _testHtCmpKeys(116,2323
-static olint_t _testHtHashKey(121,2400
-static void * _testHtGetKeyFromEntry(127,2482
-static u32 _testHashTable(134,2644
-olint_t main(173,3544
+typedef struct test_hash_entry109,2190
+    olint_t the_nKey;111,2223
+    olint_t the_nId;112,2245
+    olchar_t * the_pstrKey;113,2266
+    olchar_t * the_pstrName;114,2294
+    olint_t the_nField;115,2323
+} test_hash_entry_t;116,2347
+static olint_t _testHtCmpKeys(118,2369
+static olint_t _testHtHashKey(123,2446
+static void * _testHtGetKeyFromEntry(129,2528
+static u32 _testHashTable(136,2690
+olint_t main(175,3631
 
 test/ifmgmt-test.c,545
 static boolean_t ls_bShowIpInfo 28,588
@@ -3402,15 +3403,15 @@ olint_t main(230,6198
 
 test/xtime-test.c,298
 static void test1(28,624
-#define NUM_OF_TEST_ENTRY 43,982
-static void test2(45,1012
-static void test3(62,1493
-#define NUM_OF_TEST4_ENTRY 81,1952
-static void test4(83,1984
-#define NUM_OF_TEST5_ENTRY 102,2627
-static void test5(104,2659
-u32 getNextTradingDate(124,3320
-olint_t main(155,4223
+#define NUM_OF_TEST_ENTRY 43,990
+static void test2(45,1020
+static void test3(62,1509
+#define NUM_OF_TEST4_ENTRY 81,1976
+static void test4(83,2008
+#define NUM_OF_TEST5_ENTRY 102,2659
+static void test5(104,2691
+u32 getNextTradingDate(124,3360
+olint_t main(155,4303
 
 test/dynlib-test.c,21
 olint_t main(30,691
@@ -3520,18 +3521,18 @@ static const u64 ls_u64UuidTimeOffset 43,1040
 static uuid_gen_t ls_ugUuidGen;88,2265
 static void _brandUuid(93,2421
 static u32 _makeUuidV1(102,2706
-static u32 _makeUuidV3(227,6800
-static u32 _makeUuidV4(250,7461
-static u32 _makeUuidV5(264,7780
-static u32 _initUuidGenV1(298,8753
-static u32 _initUuidGenV3(313,9078
-static u32 _initUuidGenV4(319,9180
-static u32 _initUuidGenV5(326,9283
-static void _copyUuidParam(333,9386
-static u32 _initUuidGen(340,9607
-static u32 _checkParam(371,10267
-static u32 _genUuid(419,11463
-u32 jf_uuid_get(464,12560
+static u32 _makeUuidV3(227,6816
+static u32 _makeUuidV4(250,7477
+static u32 _makeUuidV5(264,7796
+static u32 _initUuidGenV1(298,8769
+static u32 _initUuidGenV3(313,9094
+static u32 _initUuidGenV4(319,9196
+static u32 _initUuidGenV5(326,9299
+static void _copyUuidParam(333,9402
+static u32 _initUuidGen(340,9623
+static u32 _checkParam(371,10283
+static u32 _genUuid(419,11479
+u32 jf_uuid_get(464,12576
 
 uuid/common.h,528
 #define UUID_COMMON_H14,204
@@ -3733,20 +3734,20 @@ static u32 _stopService(250,6187
 static void _dumpServMgmtInfo(264,6562
 static u32 _waitForChildProcess(273,6888
 static u32 _monitorServices(325,8609
-static u32 _saveServiceStatus(368,9740
-static u32 _enterMonitorServices(389,10251
-static u32 _wakeupServMgmt(408,10723
-u32 jf_servmgmt_init(428,11373
-u32 jf_servmgmt_fini(445,11741
-u32 jf_servmgmt_start(454,11872
-u32 jf_servmgmt_stop(531,13833
-u32 jf_servmgmt_getInfo(543,14051
-u32 jf_servmgmt_stopServ(597,15564
-u32 jf_servmgmt_startServ(649,16996
-const olchar_t * jf_servmgmt_getStringServStatus(720,18925
-const olchar_t * jf_servmgmt_getStringServStartupType(742,19579
-u32 jf_servmgmt_getServStartupTypeFromString(756,19923
-u32 jf_servmgmt_setServStartupType(771,20348
+static u32 _saveServiceStatus(368,9748
+static u32 _enterMonitorServices(389,10259
+static u32 _wakeupServMgmt(408,10731
+u32 jf_servmgmt_init(428,11381
+u32 jf_servmgmt_fini(445,11749
+u32 jf_servmgmt_start(454,11880
+u32 jf_servmgmt_stop(531,13841
+u32 jf_servmgmt_getInfo(543,14059
+u32 jf_servmgmt_stopServ(597,15572
+u32 jf_servmgmt_startServ(649,17004
+const olchar_t * jf_servmgmt_getStringServStatus(720,18933
+const olchar_t * jf_servmgmt_getStringServStartupType(742,19587
+u32 jf_servmgmt_getServStartupTypeFromString(756,19931
+u32 jf_servmgmt_setServStartupType(771,20356
 
 servmgmt/servmgmtsetting.c,282
 static void _parseServiceSettingValue(33,688
@@ -4047,11 +4048,11 @@ typedef struct utimer35,783
     jf_mutex_t iu_jmLock;40,931
 } internal_utimer_t;41,957
 static u32 _checkUtimer(55,1378
-static u32 _flushUtimer(153,4484
-u32 jf_network_addUtimerItem(181,5091
-u32 jf_network_removeUtimerItem(275,8396
-u32 jf_network_destroyUtimer(346,10390
-u32 jf_network_createUtimer(365,10753
+static u32 _flushUtimer(153,4492
+u32 jf_network_addUtimerItem(181,5099
+u32 jf_network_removeUtimerItem(275,8412
+u32 jf_network_destroyUtimer(346,10406
+u32 jf_network_createUtimer(365,10769
 
 network/chain.c,678
 #define BASIC_CHAIN_MAX_WAIT 32,614

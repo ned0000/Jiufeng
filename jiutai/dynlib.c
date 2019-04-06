@@ -39,7 +39,8 @@ typedef struct
 
 
 /* --- public routine section ---------------------------------------------- */
-u32 loadDynLib(const olchar_t * pstrLibFile, dyn_lib_t ** ppLib)
+
+u32 jf_dynlib_load(const olchar_t * pstrLibFile, jf_dynlib_t ** ppLib)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dyn_lib_t * pidl = NULL;
@@ -71,12 +72,12 @@ u32 loadDynLib(const olchar_t * pstrLibFile, dyn_lib_t ** ppLib)
     if (u32Ret == JF_ERR_NO_ERROR)
         *ppLib = pidl;
     else if (pidl != NULL)
-        freeDynLib((dyn_lib_t **)&pidl);
+        jf_dynlib_unload((jf_dynlib_t **)&pidl);
 
     return u32Ret;
 }
 
-u32 freeDynLib(dyn_lib_t ** ppLib)
+u32 jf_dynlib_unload(jf_dynlib_t ** ppLib)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dyn_lib_t * pidl = NULL;
@@ -118,8 +119,8 @@ u32 freeDynLib(dyn_lib_t ** ppLib)
     return u32Ret;
 }
 
-u32 getSymbolAddress(dyn_lib_t * pLib, const olchar_t * pstrSymbol,
-    void ** ppAddress)
+u32 jf_dynlib_getSymbolAddress(
+    jf_dynlib_t * pLib, const olchar_t * pstrSymbol, void ** ppAddress)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dyn_lib_t * pidl = (internal_dyn_lib_t *)pLib;
