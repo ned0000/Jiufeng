@@ -155,18 +155,18 @@ static u32 _initDongyuan(olint_t argc, olchar_t ** argv)
 
         jf_file_getFileName(strExecutable, 100, argv[0]);
 
-        if (bAlreadyRunning(strExecutable))
+        if (jf_process_isAlreadyRunning(strExecutable))
         {
             fprintf(stderr, "another %s is ruuning\n", strExecutable);
             exit(-1);
         }
 
         if (! ls_bForeground)
-            u32Ret = switchToDaemon(strExecutable);
+            u32Ret = jf_process_switchToDaemon(strExecutable);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = registerSignalHandlers(_terminate);
+        u32Ret = jf_process_registerSignalHandlers(_terminate);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = createDongyuan(&ls_pgDongyuan, &gp);

@@ -27,7 +27,7 @@ static boolean_t ls_bToTerminate = FALSE;
 #define MAX_THREAD_COUNT  5
 
 /* --- private routine section---------------------------------------------- */
-THREAD_RETURN_VALUE _testThread(void * pArg)
+JF_THREAD_RETURN_VALUE _testThread(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index = (u32)(ulong)pArg;
@@ -43,7 +43,7 @@ THREAD_RETURN_VALUE _testThread(void * pArg)
     if (u32Ret == JF_ERR_NO_ERROR)
         ol_printf("_testThread %u quits\n", u32Index);
 
-    THREAD_RETURN(u32Ret);
+    JF_THREAD_RETURN(u32Ret);
 }
 
 /* --- public routine section ---------------------------------------------- */
@@ -59,7 +59,8 @@ olint_t main(olint_t argc, olchar_t ** argv)
          u32Index ++)
     {
         ol_printf("main tread, create thread %u\n", u32Index);
-        u32Ret = createThread(NULL, NULL, _testThread, (void *)(ulong)(u32Index + 1));
+        u32Ret = jf_thread_create(
+            NULL, NULL, _testThread, (void *)(ulong)(u32Index + 1));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

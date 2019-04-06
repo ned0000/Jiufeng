@@ -38,12 +38,12 @@
 
 /* --- private routine section---------------------------------------------- */
 #if defined(LINUX)
-static u32 _setThreadAttr(thread_attr_t * pta, pthread_attr_t * ppa)
+static u32 _setThreadAttr(jf_thread_attr_t * pjta, pthread_attr_t * ppa)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     pthread_attr_init(ppa);
-    if (pta->ta_bDetached)
+    if (pjta->jta_bDetached)
         pthread_attr_setdetachstate(ppa, PTHREAD_CREATE_DETACHED);
     else
         pthread_attr_setdetachstate(ppa, PTHREAD_CREATE_JOINABLE);
@@ -58,7 +58,7 @@ static u32 _runCommandLine(olchar_t * pstrCommandLine)
     olchar_t * argv[80];
     olint_t ret;
 
-    u32Ret = formCmdLineArguments(pstrCommandLine, &argc, argv);
+    u32Ret = jf_process_formCmdLineArguments(pstrCommandLine, &argc, argv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ret = execv(argv[0], (olchar_t **)argv);
@@ -74,35 +74,37 @@ static void setProcessTerminationReason(olint_t nStatus, u32 * pu32Reason)
     olint_t nSignal;
 
     if (WIFEXITED(nStatus))
-        *pu32Reason = PROCESS_TERMINATION_REASON_EXITED;
+        *pu32Reason = JF_PROCESS_TERMINATION_REASON_EXITED;
     else if (WIFSIGNALED(nStatus))
     {
         nSignal = WTERMSIG(nStatus);
         if (nSignal == SIGKILL)
-            *pu32Reason = PROCESS_TERMINATION_REASON_KILLED;
+            *pu32Reason = JF_PROCESS_TERMINATION_REASON_KILLED;
         else if (nSignal == SIGTERM)
-            *pu32Reason = PROCESS_TERMINATION_REASON_TERMINATED;
+            *pu32Reason = JF_PROCESS_TERMINATION_REASON_TERMINATED;
         else if (nSignal == SIGSEGV)
-            *pu32Reason = PROCESS_TERMINATION_REASON_ACCESS_VIOLATION;
+            *pu32Reason = JF_PROCESS_TERMINATION_REASON_ACCESS_VIOLATION;
         else
-            *pu32Reason = PROCESS_TERMINATION_REASON_SIGNALED;
+            *pu32Reason = JF_PROCESS_TERMINATION_REASON_SIGNALED;
     }
     else
-        *pu32Reason = PROCESS_TERMINATION_REASON_UNKNOWN;
+        *pu32Reason = JF_PROCESS_TERMINATION_REASON_UNKNOWN;
 }
 #endif
 
 /* --- public routine section ---------------------------------------------- */
 
 #if defined(LINUX)
-void getPidFilename(olchar_t * pstrPidFilename, olsize_t sFile, olchar_t * pstrDaemonName)
+void jf_process_getPidFilename(
+    olchar_t * pstrPidFilename, olsize_t sFile, olchar_t * pstrDaemonName)
 {
     ol_snprintf(pstrPidFilename, sFile - 1, "/var/run/%s.pid", pstrDaemonName);
     pstrPidFilename[sFile - 1] = '\0';
 }
 #endif
 
-u32 formCmdLineArguments(olchar_t * pstrCmd, olsize_t * psArgc, olchar_t * argv[])
+u32 jf_process_formCmdLineArguments(
+    olchar_t * pstrCmd, olsize_t * psArgc, olchar_t * argv[])
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t cDelimiter = ' ';
@@ -169,7 +171,7 @@ u32 formCmdLineArguments(olchar_t * pstrCmd, olsize_t * psArgc, olchar_t * argv[
     return u32Ret;
 }
 
-u32 switchToDaemon(olchar_t * pstrDaemonName)
+u32 jf_process_switchToDaemon(olchar_t * pstrDaemonName)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     pid_t pid;
@@ -187,7 +189,7 @@ u32 switchToDaemon(olchar_t * pstrDaemonName)
     else if (pid != 0)
     {
         /*parent process*/
-        getPidFilename(strPidFile, MAX_PATH_LEN, pstrDaemonName); 
+        jf_process_getPidFilename(strPidFile, MAX_PATH_LEN, pstrDaemonName); 
         fp = fopen(strPidFile, "w");
         if (fp == NULL)
         {
@@ -216,7 +218,7 @@ u32 switchToDaemon(olchar_t * pstrDaemonName)
     return u32Ret;
 }
 
-boolean_t bAlreadyRunning(olchar_t * pstrDaemonName)
+boolean_t jf_process_isAlreadyRunning(olchar_t * pstrDaemonName)
 {
     boolean_t bRunning = FALSE;
 #if defined(LINUX)
@@ -228,7 +230,7 @@ boolean_t bAlreadyRunning(olchar_t * pstrDaemonName)
     olchar_t strBuf2[128];
     olint_t fdCmdLine = 0;
 
-    getPidFilename(strPidFile, MAX_PATH_LEN, pstrDaemonName);
+    jf_process_getPidFilename(strPidFile, MAX_PATH_LEN, pstrDaemonName);
     fd = open(strPidFile, O_RDONLY);
     if (fd > 0)
     {
@@ -325,27 +327,28 @@ boolean_t bAlreadyRunning(olchar_t * pstrDaemonName)
     return bRunning;
 }
 
-void initProcessId(process_id_t * pProcessId)
+void jf_process_initId(jf_process_id_t * pProcessId)
 {
-    memset(pProcessId, 0, sizeof(process_id_t));
+    ol_memset(pProcessId, 0, sizeof(jf_process_id_t));
 }
 
-boolean_t isValidProcessId(process_id_t * pProcessId)
+boolean_t jf_process_isValidId(jf_process_id_t * pProcessId)
 {
     boolean_t bRet = FALSE;
 
 #if defined(LINUX)
-    if (pProcessId->pi_pId > 0)
+    if (pProcessId->jpi_pId > 0)
         bRet = TRUE;
 #elif defined(WINDOWS)
-    if (pProcessId->pi_hProcess != NULL)
+    if (pProcessId->jpi_hProcess != NULL)
         bRet = TRUE;
 #endif
 
     return bRet;
 }
 
-u32 createProcess(process_id_t * pProcessId, process_attr_t * pAttr,
+u32 jf_process_create(
+    jf_process_id_t * pProcessId, jf_process_attr_t * pAttr,
     olchar_t * pstrCommandLine)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -358,7 +361,7 @@ u32 createProcess(process_id_t * pProcessId, process_attr_t * pAttr,
     else if (pid > 0)
     {
         /* parent process */
-        pProcessId->pi_pId = pid;
+        pProcessId->jpi_pId = pid;
     }
     else
     {
@@ -381,36 +384,36 @@ u32 createProcess(process_id_t * pProcessId, process_attr_t * pAttr,
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        pProcessId->pi_hProcess = pi.hProcess;
+        pProcessId->jpi_hProcess = pi.hProcess;
     }
 #endif
 
     return u32Ret;
 }
 
-u32 terminateProcess(process_id_t * pProcessId)
+u32 jf_process_terminate(jf_process_id_t * pProcessId)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olint_t nRet;
 
-    nRet = kill(pProcessId->pi_pId, SIGTERM);
+    nRet = kill(pProcessId->jpi_pId, SIGTERM);
     if (nRet != 0)
         u32Ret = JF_ERR_FAIL_TERMINATE_PROCESS;
     else
-        initProcessId(pProcessId);
+        jf_process_initId(pProcessId);
 #elif defined(WINDOWS)
     boolean_t bRet;
     u32 u32ExitCode = 0;
 
-    bRet = TerminateProcess(pProcessId->pi_hProcess, u32ExitCode);
+    bRet = TerminateProcess(pProcessId->jpi_hProcess, u32ExitCode);
     if (! bRet)
         u32Ret = JF_ERR_FAIL_TERMINATE_PROCESS;
     else
     {
-        CloseHandle(pProcessId->pi_hProcess);
+        CloseHandle(pProcessId->jpi_hProcess);
 
-        initProcessId(pProcessId);
+        jf_process_initId(pProcessId);
     }
 #endif
 
@@ -419,7 +422,8 @@ u32 terminateProcess(process_id_t * pProcessId)
 
 /*it returns if a child process terminates*/
 /*u32BlockTime is in millisecond*/
-u32 waitForChildProcessTermination(process_id_t pidChild[], u32 u32Count,
+u32 jf_process_waitForChildProcessTermination(
+    jf_process_id_t pidChild[], u32 u32Count,
     u32 u32BlockTime, u32 * pu32Index, u32 * pu32Reason)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -431,7 +435,7 @@ u32 waitForChildProcessTermination(process_id_t pidChild[], u32 u32Count,
     assert((u32Count > 0) && (pu32Index != NULL));
 
     *pu32Index = 0;
-    u32Reason = PROCESS_TERMINATION_REASON_UNKNOWN;
+    u32Reason = JF_PROCESS_TERMINATION_REASON_UNKNOWN;
 
     if (u32BlockTime == INFINITE)
     {
@@ -460,7 +464,7 @@ u32 waitForChildProcessTermination(process_id_t pidChild[], u32 u32Count,
     {
         for (u32Index = 0; u32Index < u32Count; u32Index ++)
         {
-            if (pidChild[u32Index].pi_pId == pid)
+            if (pidChild[u32Index].jpi_pId == pid)
             {
                 *pu32Index = u32Index;
                 break;
@@ -487,14 +491,14 @@ u32 waitForChildProcessTermination(process_id_t pidChild[], u32 u32Count,
     assert((u32Count > 0) && (pu32Index != NULL));
 
     *pu32Index = 0;
-    u32Reason = PROCESS_TERMINATION_REASON_UNKNOWN;
+    u32Reason = JF_PROCESS_TERMINATION_REASON_UNKNOWN;
 
     if (u32HandleCount > u32Count)
         u32HandleCount = u32Count;
 
     for (u32Index = 0; u32Index < u32HandleCount; u32Index ++)
     {
-        hHandle[u32Index] = pidChild[u32Index].pi_hProcess;
+        hHandle[u32Index] = pidChild[u32Index].jpi_hProcess;
     }
 
     u32Wait = WaitForMultipleObjects(u32HandleCount, hHandle,
@@ -508,31 +512,32 @@ u32 waitForChildProcessTermination(process_id_t pidChild[], u32 u32Count,
     return u32Ret;
 }
 
-void initThreadId(thread_id_t * pThreadId)
+void jf_thread_initId(jf_thread_id_t * pThreadId)
 {
-    memset(pThreadId, 0, sizeof(thread_id_t));
+    ol_memset(pThreadId, 0, sizeof(jf_thread_id_t));
 }
 
-boolean_t isValidThreadId(thread_id_t * pThreadId)
+boolean_t jf_thread_isValidId(jf_thread_id_t * pThreadId)
 {
     boolean_t bRet = TRUE;
 
 #if defined(LINUX)
-    if (pThreadId->ti_ptThreadId == 0)
+    if (pThreadId->jti_ptThreadId == 0)
         bRet = FALSE;
 #elif defined(WINDOWS)
-    if (pThreadId->ti_hThread == NULL)
+    if (pThreadId->jti_hThread == NULL)
         bRet = FALSE;
 #endif
 
     return bRet;
 }
 
-u32 createThread(thread_id_t * pThreadId, thread_attr_t * pAttr,
-    fnThreadRoutine_t fnThreadRoutine, void * pArg)
+u32 jf_thread_create(
+    jf_thread_id_t * pThreadId, jf_thread_attr_t * pAttr,
+    jf_thread_fnRoutine_t fnRoutine, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    thread_id_t ti;
+    jf_thread_id_t jti;
 #if defined(LINUX)
     pthread_attr_t attr;
     olint_t ret;
@@ -543,7 +548,7 @@ u32 createThread(thread_id_t * pThreadId, thread_attr_t * pAttr,
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ret = pthread_create(&(ti.ti_ptThreadId), &attr, fnThreadRoutine, pArg);
+        ret = pthread_create(&(jti.jti_ptThreadId), &attr, fnRoutine, pArg);
         if (ret != 0)
             u32Ret = JF_ERR_FAIL_CREATE_THREAD;
     }
@@ -551,61 +556,61 @@ u32 createThread(thread_id_t * pThreadId, thread_attr_t * pAttr,
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pThreadId != NULL)
-            memcpy(pThreadId, &ti, sizeof(thread_id_t));
+            memcpy(pThreadId, &jti, sizeof(jf_thread_id_t));
     }
 #elif defined(WINDOWS)
-    ti.ti_hThread = CreateThread(NULL, 0, fnThreadRoutine, pArg, 0, NULL);
-    if (ti.ti_hThread == NULL) 
+    jti.jti_hThread = CreateThread(NULL, 0, fnRoutine, pArg, 0, NULL);
+    if (jti.jti_hThread == NULL) 
         u32Ret = JF_ERR_FAIL_CREATE_THREAD;
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pThreadId != NULL)
-            memcpy(pThreadId, &ti, sizeof(thread_id_t));
+            memcpy(pThreadId, &jti, sizeof(jf_thread_id_t));
     }
 #endif
 
     return u32Ret;
 }
 
-u32 terminateThread(thread_id_t * pThreadId)
+u32 jf_thread_terminate(jf_thread_id_t * pThreadId)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olint_t nRet;
 
-    nRet = pthread_cancel(pThreadId->ti_ptThreadId);
+    nRet = pthread_cancel(pThreadId->jti_ptThreadId);
     if (nRet != 0)
         u32Ret = JF_ERR_FAIL_TERMINATE_THREAD;
     else
-        initThreadId(pThreadId);
+        jf_thread_initId(pThreadId);
 #elif defined(WINDOWS)
     boolean_t bRet;
     u32 u32ExitCode = 0;
 
-    bRet = TerminateThread(pThreadId->ti_hThread, u32ExitCode);
+    bRet = TerminateThread(pThreadId->jti_hThread, u32ExitCode);
     if (! bRet)
         u32Ret = JF_ERR_FAIL_TERMINATE_THREAD;
     else
-        initThreadId(pThreadId);
+        jf_thread_initId(pThreadId);
 #endif
 
     return u32Ret;
 }
 
-u32 waitForThreadTermination(thread_id_t threadId, u32 * pu32RetCode)
+u32 jf_thread_waitForThreadTermination(jf_thread_id_t threadId, u32 * pu32RetCode)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olint_t ret;
 
-    ret = pthread_join(threadId.ti_ptThreadId, NULL);
+    ret = pthread_join(threadId.jti_ptThreadId, NULL);
     if (ret != 0)
         u32Ret = JF_ERR_FAIL_WAIT_THREAD_TERMINATION;
 #elif defined(WINDOWS)
     u32 u32Wait;
 
-    u32Wait = WaitForSingleObject(threadId.ti_hThread, INFINITE);
+    u32Wait = WaitForSingleObject(threadId.jti_hThread, INFINITE);
     if (u32Wait != WAIT_OBJECT_0)
         u32Ret = JF_ERR_FAIL_WAIT_THREAD_TERMINATION;
 #endif
@@ -613,7 +618,7 @@ u32 waitForThreadTermination(thread_id_t threadId, u32 * pu32RetCode)
     return u32Ret;
 }
 
-u32 registerSignalHandlers(fnSignalHandler_t fnSignalHandler)
+u32 jf_process_registerSignalHandlers(jf_process_fnSignalHandler_t fnSignalHandler)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nIndex;
@@ -679,7 +684,7 @@ u32 registerSignalHandlers(fnSignalHandler_t fnSignalHandler)
     return u32Ret;
 }
 
-u32 getCurrentWorkingDirectory(olchar_t * pstrDir, olsize_t sDir)
+u32 jf_process_getCurrentWorkingDirectory(olchar_t * pstrDir, olsize_t sDir)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
@@ -703,7 +708,7 @@ u32 getCurrentWorkingDirectory(olchar_t * pstrDir, olsize_t sDir)
     return u32Ret;
 }
 
-u32 setCurrentWorkingDirectory(const olchar_t * pstrDir)
+u32 jf_process_setCurrentWorkingDirectory(const olchar_t * pstrDir)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)

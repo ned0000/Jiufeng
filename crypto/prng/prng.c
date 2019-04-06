@@ -65,7 +65,7 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
     u32 u32Count, u32PoolSize;
     boolean_t bEntropy = FALSE;
     u8 local_md[JF_CGHASH_MD5_DIGEST_LEN];
-    pid_t curr_pid = getCurrentProcessId();
+    pid_t curr_pid = jf_process_getCurrentId();
     jf_cghash_md5_t md5;
 
     assert((pu8Data != NULL) && (u32Len != 0));

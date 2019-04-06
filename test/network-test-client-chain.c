@@ -56,7 +56,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32Ret = jf_network_initLib();
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = registerSignalHandlers(_terminate);
+        u32Ret = jf_process_registerSignalHandlers(_terminate);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = jf_network_createChain(&ls_pjncChain);

@@ -355,7 +355,7 @@ static u32 _stressJiukun(void)
     return u32Ret;
 }
 
-THREAD_RETURN_VALUE _allocFree(void * pArg)
+JF_THREAD_RETURN_VALUE _allocFree(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
@@ -379,7 +379,7 @@ THREAD_RETURN_VALUE _allocFree(void * pArg)
         jf_logger_logInfoMsg("alloc-free thread %u quits, %s", u32Index, strErrMsg);
     }
 
-    THREAD_RETURN(u32Ret);
+    JF_THREAD_RETURN(u32Ret);
 }
 
 static u32 _testJiukunInThread(void)
@@ -402,7 +402,8 @@ static u32 _testJiukunInThread(void)
              ((u32Index < MAX_THREAD_COUNT) && (u32Ret == JF_ERR_NO_ERROR));
              u32Index ++)
         {
-            u32Ret = createThread(NULL, NULL, _allocFree, (void *)(ulong)(u32Index + 1));
+            u32Ret = jf_thread_create(
+                NULL, NULL, _allocFree, (void *)(ulong)(u32Index + 1));
         }
     }
 

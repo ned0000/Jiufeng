@@ -184,8 +184,9 @@ static u32 _logMsg(internal_logger_t * pil, olint_t nLevel, olchar_t * pstrMsg)
     _getLogTimeStamp(strHeader);
     nOffset = (int)strlen(strHeader);
 
-    ol_sprintf(strHeader + nOffset, " [%s:%d:%lu] ", pil->il_strCallerName, 
-        getCurrentProcessId(), getCurrentThreadId());
+    ol_sprintf(
+        strHeader + nOffset, " [%s:%d:%lu] ", pil->il_strCallerName, 
+        jf_process_getCurrentId(), jf_thread_getCurrentId());
     nOffset = (int)strlen(strHeader);
 
     _log(pil, nLevel, strHeader, pstrMsg);

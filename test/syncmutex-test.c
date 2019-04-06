@@ -30,12 +30,12 @@ static olint_t nMutex = 0;
 #define MAX_RESOURCE_COUNT  1
 
 /* --- private routine section---------------------------------------------- */
-THREAD_RETURN_VALUE consumer(void * pArg)
+JF_THREAD_RETURN_VALUE consumer(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
-    ol_printf("consumer %lu starts\n", getCurrentThreadId());
+    ol_printf("consumer %lu starts\n", jf_thread_getCurrentId());
 
     while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
@@ -55,15 +55,15 @@ THREAD_RETURN_VALUE consumer(void * pArg)
         ol_printf("consumer quits, %s\n", strErrMsg);
     }
 
-    THREAD_RETURN(u32Ret);
+    JF_THREAD_RETURN(u32Ret);
 }
 
-THREAD_RETURN_VALUE producer(void * pArg)
+JF_THREAD_RETURN_VALUE producer(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
-    ol_printf("producer %lu starts\n", getCurrentThreadId());
+    ol_printf("producer %lu starts\n", jf_thread_getCurrentId());
 
     while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
@@ -83,7 +83,7 @@ THREAD_RETURN_VALUE producer(void * pArg)
         ol_printf("producer quits, %s\n", strErrMsg);
     }
 
-    THREAD_RETURN(u32Ret);
+    JF_THREAD_RETURN(u32Ret);
 }
 
 /* --- public routine section ---------------------------------------------- */
@@ -96,10 +96,10 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32Ret = jf_mutex_init(&ls_jmLock);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = createThread(NULL, NULL, producer, (void *)1);
+        u32Ret = jf_thread_create(NULL, NULL, producer, (void *)1);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = createThread(NULL, NULL, consumer, (void *)1);
+            u32Ret = jf_thread_create(NULL, NULL, consumer, (void *)1);
         }
 
         if (u32Ret == JF_ERR_NO_ERROR)

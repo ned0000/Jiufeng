@@ -29,7 +29,7 @@
 
 typedef struct
 {
-    thread_id_t rtwd_tiThreadId;
+    jf_thread_id_t rtwd_jtiThreadId;
     boolean_t rtwd_bToTerminate;
     u8 swe_u8Reserved[7];
 
@@ -48,14 +48,14 @@ typedef struct
 static resource_pool_t * ls_prpRespoolTestWorkerPool;
 static jf_mutex_t ls_smRespoolTestLock;
 static jf_sem_t ls_jsRespoolTestSem;
-static thread_id_t ls_tiRespoolTestProducer;
+static jf_thread_id_t ls_jtiRespoolTestProducer;
 static boolean_t ls_bRespoolTestTerminateProducer;
 static resource_t * ls_prRespoolTestResource[RESPOOL_TEST_MAX_RESOURCES];
 
 
 /* --- private routine section---------------------------------------------- */
 
-THREAD_RETURN_VALUE _respoolTestWorkerThread(void * pArg)
+JF_THREAD_RETURN_VALUE _respoolTestWorkerThread(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     respool_test_worker_data_t * prtwd = (respool_test_worker_data_t *)pArg;
@@ -78,10 +78,10 @@ THREAD_RETURN_VALUE _respoolTestWorkerThread(void * pArg)
     jf_logger_logDebugMsg("quit respool test worker thread");
     jf_mem_free((void **)&prtwd);
     
-    THREAD_RETURN(u32Ret);
+    JF_THREAD_RETURN(u32Ret);
 }
 
-THREAD_RETURN_VALUE _respoolTestProducerThread(void * pArg)
+JF_THREAD_RETURN_VALUE _respoolTestProducerThread(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -103,7 +103,7 @@ THREAD_RETURN_VALUE _respoolTestProducerThread(void * pArg)
 
     jf_logger_logDebugMsg("quit respool test producer thread");
 
-    THREAD_RETURN(u32Ret);
+    JF_THREAD_RETURN(u32Ret);
 }
 
 static u32 _createRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
@@ -123,8 +123,8 @@ static u32 _createRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
         prtwd->rtwd_bToTerminate = FALSE;
 
         /* create a thread for the worker, using default thread attributes */
-        u32Ret = createThread(
-            &(prtwd->rtwd_tiThreadId), NULL, _respoolTestWorkerThread, prtwd);
+        u32Ret = jf_thread_create(
+            &(prtwd->rtwd_jtiThreadId), NULL, _respoolTestWorkerThread, prtwd);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -195,8 +195,8 @@ static u32 _testRespool(void)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* create a thread for the worker, using default thread attributes */
-        u32Ret = createThread(
-            &ls_tiRespoolTestProducer, NULL, _respoolTestProducerThread, NULL);
+        u32Ret = jf_thread_create(
+            &ls_jtiRespoolTestProducer, NULL, _respoolTestProducerThread, NULL);
     }
 
     return u32Ret;
@@ -241,7 +241,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     jf_logger_init(&jlipParam);
 
-    u32Ret = registerSignalHandlers(_terminate);
+    u32Ret = jf_process_registerSignalHandlers(_terminate);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _testRespool();

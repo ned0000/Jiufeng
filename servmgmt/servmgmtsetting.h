@@ -43,7 +43,7 @@ typedef struct
     u8 isi_u8RestartCount;
     u8 isi_u8Reserved2[30];
 
-    process_id_t isi_piProcessId;
+    jf_process_id_t isi_jpiProcessId;
 } internal_service_info_t;
 
 typedef struct

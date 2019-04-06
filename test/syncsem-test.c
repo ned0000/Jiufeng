@@ -29,7 +29,7 @@ static boolean_t ls_bToTerminate = FALSE;
 #define MAX_RESOURCE_COUNT  5
 
 /* --- private routine section---------------------------------------------- */
-THREAD_RETURN_VALUE consumer(void * pArg)
+JF_THREAD_RETURN_VALUE consumer(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
@@ -38,7 +38,7 @@ THREAD_RETURN_VALUE consumer(void * pArg)
 #else
     u32 u32Index = (u32)pArg;
 #endif
-    ol_printf("consumer %lu, %u starts\n", getCurrentThreadId(), u32Index);
+    ol_printf("consumer %lu, %u starts\n", jf_thread_getCurrentId(), u32Index);
 
     while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
@@ -57,10 +57,10 @@ THREAD_RETURN_VALUE consumer(void * pArg)
         ol_printf("consumer %u quits, %s\n", u32Index, strErrMsg);
     }
 
-    THREAD_RETURN(u32Ret);
+    JF_THREAD_RETURN(u32Ret);
 }
 
-THREAD_RETURN_VALUE producer(void * pArg)
+JF_THREAD_RETURN_VALUE producer(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
@@ -70,7 +70,7 @@ THREAD_RETURN_VALUE producer(void * pArg)
     u32 u32Index = (u32)pArg;
 #endif
 
-    ol_printf("producer %lu, %u starts\n", getCurrentThreadId(), u32Index);
+    ol_printf("producer %lu, %u starts\n", jf_thread_getCurrentId(), u32Index);
 
     while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
@@ -87,7 +87,7 @@ THREAD_RETURN_VALUE producer(void * pArg)
         ol_printf("producer %u quits, %s\n", u32Index, strErrMsg);
     }
 
-    THREAD_RETURN(u32Ret);
+    JF_THREAD_RETURN(u32Ret);
 }
 
 /* --- public routine section ---------------------------------------------- */
@@ -101,14 +101,15 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32Ret = jf_sem_init(&ls_jsSem, 0, MAX_RESOURCE_COUNT);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = createThread(NULL, NULL, producer, (void *)(ulong)1);
+        u32Ret = jf_thread_create(NULL, NULL, producer, (void *)(ulong)1);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             for (u32Index = 0;
                  ((u32Index < MAX_RESOURCE_COUNT) && (u32Ret == JF_ERR_NO_ERROR));
                  u32Index ++)
             {
-                u32Ret = createThread(NULL, NULL, consumer, (void *)(ulong)(u32Index + 1));
+                u32Ret = jf_thread_create(
+                    NULL, NULL, consumer, (void *)(ulong)(u32Index + 1));
             }
         }
 

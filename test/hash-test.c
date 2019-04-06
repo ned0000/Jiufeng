@@ -85,7 +85,7 @@ static u32 _hashU32(void)
     u32 rand;
     olint_t bits = 8;
 
-    u32Ret = registerSignalHandlers(_terminate);
+    u32Ret = jf_process_registerSignalHandlers(_terminate);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         srandom(time(NULL));

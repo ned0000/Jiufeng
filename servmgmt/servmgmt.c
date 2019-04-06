@@ -96,7 +96,7 @@ static u32 _startService(
         strCmdLine, sizeof(strCmdLine) - 1, "%s %s",
         pisi->isi_strCmdPath, pisi->isi_strCmdParam);
 
-    u32Ret = createProcess(&(pisi->isi_piProcessId), NULL, strCmdLine);
+    u32Ret = jf_process_create(&(pisi->isi_jpiProcessId), NULL, strCmdLine);
     if (u32Ret == JF_ERR_NO_ERROR)
         pisi->isi_u8Status = JF_SERVMGMT_SERV_STATUS_RUNNING;
     else
@@ -254,7 +254,7 @@ static u32 _stopService(
 
     jf_logger_logInfoMsg("stop serv %s", pisi->isi_strName);
 
-    u32Ret = terminateProcess(&(pisi->isi_piProcessId));
+    u32Ret = jf_process_terminate(&(pisi->isi_jpiProcessId));
     if (u32Ret == JF_ERR_NO_ERROR)
         pisi->isi_u8Status = JF_SERVMGMT_SERV_STATUS_STOPPED;
 
@@ -272,7 +272,7 @@ static void _dumpServMgmtInfo(internal_service_info_t * pisi)
 
 static u32 _waitForChildProcess(
     internal_serv_mgmt_t * pism, internal_serv_mgmt_setting_t * pisms,
-    attask_t * pAttask, u32 u32BlockTime, process_id_t pid[], u32 u32Count)
+    attask_t * pAttask, u32 u32BlockTime, jf_process_id_t pid[], u32 u32Count)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32ServIndex, u32Index, u32Reason;
@@ -281,7 +281,7 @@ static u32 _waitForChildProcess(
 
     jf_logger_logInfoMsg("wait for child");
 
-    u32Ret = waitForChildProcessTermination(
+    u32Ret = jf_process_waitForChildProcessTermination(
         pid, u32Count, u32BlockTime, &u32Index, &u32Reason);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -306,9 +306,9 @@ static u32 _waitForChildProcess(
                 _tryStartService(pAttask, pism, pisms, pisi);
                 continue;
             }
-            else if (isValidProcessId(&pisi->isi_piProcessId) &&
-                     ol_memcmp(&(pid[u32Index]), &pisi->isi_piProcessId,
-                               sizeof(process_id_t)) == 0 &&
+            else if (jf_process_isValidId(&pisi->isi_jpiProcessId) &&
+                     ol_memcmp(&(pid[u32Index]), &pisi->isi_jpiProcessId,
+                               sizeof(jf_process_id_t)) == 0 &&
                      (pisi->isi_u8Status == JF_SERVMGMT_SERV_STATUS_RUNNING))
             {
                 _tryStartService(pAttask, pism, pisms, pisi);
@@ -327,7 +327,7 @@ static u32 _monitorServices(
     attask_t * pAttask, u32 u32BlockTime)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    process_id_t pid[JF_SERVMGMT_MAX_NUM_OF_SERVICE];
+    jf_process_id_t pid[JF_SERVMGMT_MAX_NUM_OF_SERVICE];
     u32 u32ServIndex, u32Count;
     internal_service_info_t * pisi;
     jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
@@ -342,10 +342,10 @@ static u32 _monitorServices(
         pisi = &(pisms->isms_isiService[u32ServIndex]);
 
         if ((pisi->isi_u8Status == JF_SERVMGMT_SERV_STATUS_RUNNING) &&
-            isValidProcessId(&pisi->isi_piProcessId))
+            jf_process_isValidId(&pisi->isi_jpiProcessId))
         {
-            memcpy(
-                &pid[u32Count], &pisi->isi_piProcessId, sizeof(process_id_t));
+            ol_memcpy(
+                &pid[u32Count], &pisi->isi_jpiProcessId, sizeof(jf_process_id_t));
             u32Count ++;
         }
     }
@@ -412,10 +412,10 @@ static u32 _wakeupServMgmt(internal_service_info_t * pisiWakeup)
     jf_logger_logInfoMsg("wakeup servmgmt");
 
     if ((pisiWakeup->isi_u8Status == JF_SERVMGMT_SERV_STATUS_RUNNING) &&
-        isValidProcessId(&pisiWakeup->isi_piProcessId))
+        jf_process_isValidId(&pisiWakeup->isi_jpiProcessId))
     {
         jf_logger_logInfoMsg("wakeup servmgmt, %s", pisiWakeup->isi_strName);
-        u32Ret = terminateProcess(&pisiWakeup->isi_piProcessId);
+        u32Ret = jf_process_terminate(&pisiWakeup->isi_jpiProcessId);
         if (u32Ret == JF_ERR_NO_ERROR)
             pisiWakeup->isi_u8Status = JF_SERVMGMT_SERV_STATUS_TERMINATED;
     }

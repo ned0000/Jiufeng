@@ -128,7 +128,7 @@ static u32 _testFpWrite(olchar_t * file)
 
 static olchar_t * ls_pstrLockFile = "lockfile";
 
-THREAD_RETURN_VALUE _testLockFileThread(void * pArg)
+JF_THREAD_RETURN_VALUE _testLockFileThread(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t id = (olint_t)(ulong)pArg;
@@ -152,7 +152,7 @@ THREAD_RETURN_VALUE _testLockFileThread(void * pArg)
         jf_file_close(&fd);
     }
 
-    THREAD_RETURN(u32Ret);
+    JF_THREAD_RETURN(u32Ret);
 }
 
 static u32 _testLockFile(void)
@@ -166,11 +166,11 @@ static u32 _testLockFile(void)
         jf_file_writen(fd, "12345678", 8);
         jf_file_close(&fd);
 
-        u32Ret = createThread(NULL, NULL, _testLockFileThread, (void *)1);
+        u32Ret = jf_thread_create(NULL, NULL, _testLockFileThread, (void *)1);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = createThread(NULL, NULL, _testLockFileThread, (void *)2);
+        u32Ret = jf_thread_create(NULL, NULL, _testLockFileThread, (void *)2);
 
     sleep(30);
     jf_file_remove(ls_pstrLockFile);

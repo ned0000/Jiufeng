@@ -108,7 +108,7 @@ static u32 _parseCmdLineParam(
     return u32Ret;
 }
 
-THREAD_RETURN_VALUE _socketPairRead(void * pArg)
+JF_THREAD_RETURN_VALUE _socketPairRead(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_network_socket_t * psRead = (jf_network_socket_t *)pArg;
@@ -129,10 +129,10 @@ THREAD_RETURN_VALUE _socketPairRead(void * pArg)
             ol_printf("error getting message, 0x%X\n", u32Ret);
     }
 
-    THREAD_RETURN(u32Ret);
+    JF_THREAD_RETURN(u32Ret);
 }
 
-THREAD_RETURN_VALUE _socketPairWrite(void * pArg)
+JF_THREAD_RETURN_VALUE _socketPairWrite(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_network_socket_t * psWrite = (jf_network_socket_t *)pArg;
@@ -152,38 +152,38 @@ THREAD_RETURN_VALUE _socketPairWrite(void * pArg)
             ol_printf("error sending message, 0x%X\n", u32Ret);
     }
 
-    THREAD_RETURN(u32Ret);
+    JF_THREAD_RETURN(u32Ret);
 }
 
 static u32 _testSocketPair(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_network_socket_t * psPair[2];
-    thread_id_t tiread, tiwrite;
+    jf_thread_id_t tiread, tiwrite;
 
     u32Ret = jf_network_createSocketPair(AF_INET, SOCK_STREAM, psPair);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("successfully create socket pair\n");
 
-        initThreadId(&tiread);
-        initThreadId(&tiwrite);
+        jf_thread_initId(&tiread);
+        jf_thread_initId(&tiwrite);
 
-        u32Ret = createThread(
+        u32Ret = jf_thread_create(
             &tiread, NULL, _socketPairRead, (void *)psPair[0]);
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = createThread(
+            u32Ret = jf_thread_create(
                 &tiwrite, NULL, _socketPairWrite, (void *)psPair[1]);
 
         sleep(100);
 
         ls_bToTerminate = TRUE;
 
-        if (isValidThreadId(&tiread))
-            terminateThread(&tiread);
+        if (jf_thread_isValidId(&tiread))
+            jf_thread_terminate(&tiread);
 
-        if (isValidThreadId(&tiwrite))
-            terminateThread(&tiwrite);
+        if (jf_thread_isValidId(&tiwrite))
+            jf_thread_terminate(&tiwrite);
 
         sleep(1);
 
@@ -204,7 +204,7 @@ static u32 _testConnectServer(void)
     jf_network_socket_t * client = NULL;
     jf_ipaddr_t ipaddr;
 
-    registerSignalHandlers(_terminate);
+    jf_process_registerSignalHandlers(_terminate);
 
     u32Ret = jf_network_createSocket(AF_INET, SOCK_STREAM, 0, &client);
     if (u32Ret == JF_ERR_NO_ERROR)

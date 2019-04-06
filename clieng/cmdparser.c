@@ -169,7 +169,7 @@ static u32 _formCmdLineArguments(
         jf_logger_logInfoMsg("clieng form arg, pstrCmd %s", pstrCmd);
 
         picp->icp_sArgc = MAX_ARGC;
-        u32Ret = formCmdLineArguments(
+        u32Ret = jf_process_formCmdLineArguments(
             pstrCmd, &picp->icp_sArgc, picp->icp_pstrArgv);
 
         jf_logger_logInfoMsg("clieng form arg, argc %d", picp->icp_sArgc);
