@@ -77,7 +77,7 @@ static void _testCrc32c()
 {
     u8 u8Data[100];
     u32 u32Result, u32Desire = 0x8218DDC7;
-    crc32c_vec_t cv[4];
+    jf_crc_crc32c_vec_t jccv[4];
 
     _fillData(u8Data, 100);
 
@@ -86,7 +86,7 @@ static void _testCrc32c()
     ol_printf("--------------------------------------------------------\n");
     ol_printf("testing crc32c\n");
 
-    crc32c(u8Data, 48, CRC32C_FLAG_INIT_RESULT, &u32Result);
+    jf_crc_crc32c(u8Data, 48, JF_CRC_CRC32C_FLAG_INIT_RESULT, &u32Result);
 
     if (u32Result == u32Desire)
         ol_printf("pass, CRC: 0x%X\n", u32Result);
@@ -96,12 +96,12 @@ static void _testCrc32c()
     ol_printf("--------------------------------------------------------\n");
     ol_printf("testing crc32c vec with 1 entry\n");
 
-    memset(cv, 0, sizeof(cv));
+    ol_memset(jccv, 0, sizeof(jccv));
 
-    cv[0].cv_pu8Buffer = u8Data;
-    cv[0].cv_u32Len = 48;
+    jccv[0].jccv_pu8Buffer = u8Data;
+    jccv[0].jccv_u32Len = 48;
 
-    crc32cVec(cv, 1, CRC32C_FLAG_INIT_RESULT, &u32Result);
+    jf_crc_crc32cVec(jccv, 1, JF_CRC_CRC32C_FLAG_INIT_RESULT, &u32Result);
 
     if (u32Result == u32Desire)
         ol_printf("pass, CRC: 0x%X\n", u32Result);
@@ -111,14 +111,14 @@ static void _testCrc32c()
     ol_printf("--------------------------------------------------------\n");
     ol_printf("testing crc32c vec with 2 entry\n");
 
-    memset(cv, 0, sizeof(cv));
+    ol_memset(jccv, 0, sizeof(jccv));
 
-    cv[0].cv_pu8Buffer = u8Data;
-    cv[0].cv_u32Len = 20;
-    cv[1].cv_pu8Buffer = u8Data + 20;
-    cv[1].cv_u32Len = 28;
+    jccv[0].jccv_pu8Buffer = u8Data;
+    jccv[0].jccv_u32Len = 20;
+    jccv[1].jccv_pu8Buffer = u8Data + 20;
+    jccv[1].jccv_u32Len = 28;
 
-    crc32cVec(cv, 2, CRC32C_FLAG_INIT_RESULT, &u32Result);
+    jf_crc_crc32cVec(jccv, 2, JF_CRC_CRC32C_FLAG_INIT_RESULT, &u32Result);
 
     if (u32Result == u32Desire)
         ol_printf("pass, CRC: 0x%X\n", u32Result);
@@ -128,16 +128,16 @@ static void _testCrc32c()
     ol_printf("--------------------------------------------------------\n");
     ol_printf("testing crc32c vec with 3 entry\n");
 
-    memset(cv, 0, sizeof(cv));
+    ol_memset(jccv, 0, sizeof(jccv));
 
-    cv[0].cv_pu8Buffer = u8Data;
-    cv[0].cv_u32Len = 12;
-    cv[1].cv_pu8Buffer = u8Data + 12;
-    cv[1].cv_u32Len = 24;
-    cv[2].cv_pu8Buffer = u8Data + 36;
-    cv[2].cv_u32Len = 12;
+    jccv[0].jccv_pu8Buffer = u8Data;
+    jccv[0].jccv_u32Len = 12;
+    jccv[1].jccv_pu8Buffer = u8Data + 12;
+    jccv[1].jccv_u32Len = 24;
+    jccv[2].jccv_pu8Buffer = u8Data + 36;
+    jccv[2].jccv_u32Len = 12;
 
-    crc32cVec(cv, 3, CRC32C_FLAG_INIT_RESULT, &u32Result);
+    jf_crc_crc32cVec(jccv, 3, JF_CRC_CRC32C_FLAG_INIT_RESULT, &u32Result);
 
     if (u32Result == u32Desire)
         ol_printf("pass, CRC: 0x%X\n", u32Result);

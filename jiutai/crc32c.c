@@ -98,11 +98,11 @@ static u32 ls_u32CrcTable[256] =
 /*if restart has CRC32C_FLAG_INIT_RESULT set, initialize the accumulator */
 /*if restart has CRC32C_FLAG_NETWORK_BYTE_ORDER set,
   save result in network byte order */
-void crc32c(u8 *pu8Data, u32 u32Len, u32 u32Flags, u32 * pu32Result)
+void jf_crc_crc32c(u8 *pu8Data, u32 u32Len, u32 u32Flags, u32 * pu32Result)
 {
     u32 u32Crc;
 
-    if (u32Flags & CRC32C_FLAG_INIT_RESULT)
+    if (u32Flags & JF_CRC_CRC32C_FLAG_INIT_RESULT)
         u32Crc = TB_INIT_REFLECTED;
     else
         u32Crc = ol_htonl(*pu32Result) ^ TB_XOROT;
@@ -110,26 +110,29 @@ void crc32c(u8 *pu8Data, u32 u32Len, u32 u32Flags, u32 * pu32Result)
     while (u32Len-- > 0)
         u32Crc = ls_u32CrcTable[(u32Crc ^ *pu8Data++) & 0xFFL] ^ (u32Crc >> 8);
 
-    if (u32Flags & CRC32C_FLAG_NETWORK_BYTE_ORDER)
+    if (u32Flags & JF_CRC_CRC32C_FLAG_NETWORK_BYTE_ORDER)
         *pu32Result = (u32Crc ^ TB_XOROT);
     else
         *pu32Result = ol_ntohl(u32Crc ^ TB_XOROT);
 }
 
-void crc32cVec(crc32c_vec_t * pcv, u32 u32Count, u32 u32Flags, u32 * pu32Result)
+void jf_crc_crc32cVec(
+    jf_crc_crc32c_vec_t * pjccv, u32 u32Count, u32 u32Flags, u32 * pu32Result)
 {
     u32 u32Crc;
     u32 index;
 
-    assert(pcv != NULL && u32Count > 0);
+    assert(pjccv != NULL && u32Count > 0);
 
-    crc32c(pcv[0].cv_pu8Buffer, pcv[0].cv_u32Len, u32Flags, &u32Crc);
-    u32Flags &= ~CRC32C_FLAG_INIT_RESULT;
+    jf_crc_crc32c(
+        pjccv[0].jccv_pu8Buffer, pjccv[0].jccv_u32Len, u32Flags, &u32Crc);
+    u32Flags &= ~JF_CRC_CRC32C_FLAG_INIT_RESULT;
 
     for (index = 1; index < u32Count; index ++)
     {
-        crc32c(pcv[index].cv_pu8Buffer, pcv[index].cv_u32Len,
-               u32Flags, &u32Crc);;
+        jf_crc_crc32c(
+            pjccv[index].jccv_pu8Buffer, pjccv[index].jccv_u32Len, u32Flags,
+            &u32Crc);;
     }
 
     *pu32Result = u32Crc;
