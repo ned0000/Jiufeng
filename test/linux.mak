@@ -97,9 +97,9 @@ $(BIN_DIR)/bitarray-test: bitarray-test.o $(JIUTAI_DIR)/xmalloc.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lollogger -lolstringparse
 
-$(BIN_DIR)/conffile-test: conffile-test.o $(JIUTAI_DIR)/conffile.o
+$(BIN_DIR)/conffile-test: conffile-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lollogger
+       -o $@ $(SYSLIBS) -lollogger -lolfiles
 
 $(BIN_DIR)/menu-test: menu-test.o $(JIUTAI_DIR)/xmalloc.o $(JIUTAI_DIR)/menu.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
