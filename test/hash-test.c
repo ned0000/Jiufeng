@@ -95,7 +95,9 @@ static u32 _hashU32(void)
         while (! terminate_flag)
         {
             rand = random();
-            ol_printf("hash random number %u to %d\n", rand, hashU32(rand, bits));
+            ol_printf(
+                "hash random number %u to %d\n",
+                rand, jf_hashtable_hashU32(rand, bits));
 
             sleep(1);
         }
@@ -134,18 +136,18 @@ static void * _testHtGetKeyFromEntry(void * pEntry)
 static u32 _testHashTable(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    hash_table_t * pht;
-    hash_table_param_t htp;
+    jf_hashtable_t * pjh;
+    jf_hashtable_create_param_t jhcp;
     test_hash_entry_t entry1, entry2;
 
-    memset(&htp, 0, sizeof(hash_table_param_t));
+    memset(&jhcp, 0, sizeof(jf_hashtable_create_param_t));
 
-    htp.htp_u32MinSize = 48;
-    htp.htp_fnHtCmpKeys = _testHtCmpKeys;
-    htp.htp_fnHtHashKey = _testHtHashKey;
-    htp.htp_fnHtGetKeyFromEntry = _testHtGetKeyFromEntry;
+    jhcp.jhcp_u32MinSize = 48;
+    jhcp.jhcp_fnCmpKeys = _testHtCmpKeys;
+    jhcp.jhcp_fnHashKey = _testHtHashKey;
+    jhcp.jhcp_fnGetKeyFromEntry = _testHtGetKeyFromEntry;
 
-    u32Ret = createHashTable(&pht, &htp);
+    u32Ret = jf_hashtable_create(&pjh, &jhcp);
     if (u32Ret != JF_ERR_NO_ERROR)
         return u32Ret;
 
@@ -158,12 +160,12 @@ static u32 _testHashTable(void)
     entry1.the_nId = 1;
     entry2.the_nId = 1;
 
-    insertHashTableEntry(pht, &entry1);
-    insertHashTableEntry(pht, &entry2);
+    jf_hashtable_insertEntry(pjh, &entry1);
+    jf_hashtable_insertEntry(pjh, &entry2);
 
 
 
-    destroyHashTable(&pht);
+    jf_hashtable_destroy(&pjh);
 
     return u32Ret;
 }

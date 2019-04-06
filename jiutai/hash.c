@@ -39,11 +39,11 @@ typedef struct _hash_table
 
     hash_table_bucket_t **iht_htbBucket;
 
-    fnHtCmpKeys_t iht_fnHtCmpKeys;
-    fnHtHashKey_t iht_fnHtHashKey;
-    fnHtGetKeyFromEntry_t iht_fnHtGetKeyFromEntry;
-    fnHtFreeEntry_t iht_fnHtFreeEntry;
-    fnHtError_t iht_fnHtError;
+    jf_hashtable_fnCmpKeys_t iht_fnCmpKeys;
+    jf_hashtable_fnHashKey_t iht_fnHashKey;
+    jf_hashtable_fnGetKeyFromEntry_t iht_fnGetKeyFromEntry;
+    jf_hashtable_fnFreeEntry_t iht_fnFreeEntry;
+    jf_hashtable_fnError_t iht_fnError;
 } internal_hash_table_t;
 
 /* let s be the current size and s' the desired next size
@@ -113,13 +113,13 @@ static void _default_fnHtError(u8 * errmsg)
 //    kill(0, SIGSEGV);
 }
 
-static hash_table_bucket_t ** getPositionOfKey(internal_hash_table_t * piht,
-    void * pKey)
+static hash_table_bucket_t ** _getPositionOfKey(
+    internal_hash_table_t * piht, void * pKey)
 {
-    olint_t h = piht->iht_fnHtHashKey(pKey);
+    olint_t h = piht->iht_fnHashKey(pKey);
     hash_table_bucket_t **p;
-    fnHtCmpKeys_t fnHtCmpKeys = piht->iht_fnHtCmpKeys;
-    fnHtGetKeyFromEntry_t fnHtGetKeyFromEntry = piht->iht_fnHtGetKeyFromEntry;
+    jf_hashtable_fnCmpKeys_t fnCmpKeys = piht->iht_fnCmpKeys;
+    jf_hashtable_fnGetKeyFromEntry_t fnGetKeyFromEntry = piht->iht_fnGetKeyFromEntry;
 
     if (h < 0)
         h = -h;
@@ -128,7 +128,7 @@ static hash_table_bucket_t ** getPositionOfKey(internal_hash_table_t * piht,
 
     while (*p != NULL)
     {
-        if (fnHtCmpKeys(pKey, fnHtGetKeyFromEntry((*p)->htb_pEntry)) == 0)
+        if (fnCmpKeys(pKey, fnGetKeyFromEntry((*p)->htb_pEntry)) == 0)
         {
             return p;
         }
@@ -145,19 +145,20 @@ static u32 _resizeHashTable(internal_hash_table_t ** ppiht)
     internal_hash_table_t *newIht;
     olint_t i;
     internal_hash_table_t * piht = *ppiht;
-    fnHtGetKeyFromEntry_t fnHtGetKeyFromEntry = piht->iht_fnHtGetKeyFromEntry;
-    hash_table_param_t htp;
+    jf_hashtable_fnGetKeyFromEntry_t fnGetKeyFromEntry =
+        piht->iht_fnGetKeyFromEntry;
+    jf_hashtable_create_param_t jhcp;
 
-    memset(&htp, 0, sizeof(hash_table_param_t));
+    memset(&jhcp, 0, sizeof(jf_hashtable_create_param_t));
 
-    htp.htp_u32MinSize = primes[piht->iht_u32PrimesIndex + 1];
-    htp.htp_fnHtCmpKeys = piht->iht_fnHtCmpKeys;
-    htp.htp_fnHtHashKey = piht->iht_fnHtHashKey;
-    htp.htp_fnHtGetKeyFromEntry = piht->iht_fnHtGetKeyFromEntry;
-    htp.htp_fnHtFreeEntry = piht->iht_fnHtFreeEntry;
-    htp.htp_fnHtError = piht->iht_fnHtError;
+    jhcp.jhcp_u32MinSize = primes[piht->iht_u32PrimesIndex + 1];
+    jhcp.jhcp_fnCmpKeys = piht->iht_fnCmpKeys;
+    jhcp.jhcp_fnHashKey = piht->iht_fnHashKey;
+    jhcp.jhcp_fnGetKeyFromEntry = piht->iht_fnGetKeyFromEntry;
+    jhcp.jhcp_fnFreeEntry = piht->iht_fnFreeEntry;
+    jhcp.jhcp_fnError = piht->iht_fnError;
 
-    u32Ret = createHashTable((hash_table_t **)&newIht, &htp);
+    u32Ret = jf_hashtable_create((jf_hashtable_t **)&newIht, &jhcp);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (i = 0; i < piht->iht_u32Size; i++)
@@ -167,7 +168,7 @@ static u32 _resizeHashTable(internal_hash_table_t ** ppiht)
             for (p = piht->iht_htbBucket[i]; p; p = tmp)
             {
                 hash_table_bucket_t **position = (hash_table_bucket_t **)
-                    getPositionOfKey(newIht, fnHtGetKeyFromEntry(p->htb_pEntry));
+                    _getPositionOfKey(newIht, fnGetKeyFromEntry(p->htb_pEntry));
                 tmp = p->htb_htbNext;
                 p->htb_htbNext = *position;
                 *position = p;
@@ -184,7 +185,8 @@ static u32 _resizeHashTable(internal_hash_table_t ** ppiht)
     return u32Ret;
 }
 
-static u32 _insertAtPosition(internal_hash_table_t * piht,
+static u32 _insertAtPosition(
+    internal_hash_table_t * piht,
     hash_table_bucket_t ** ppPosition, void * pEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -196,7 +198,7 @@ static u32 _insertAtPosition(internal_hash_table_t * piht,
     {
         _resizeHashTable(&piht);
         position = (hash_table_bucket_t **)
-            getPositionOfKey(piht, (piht->iht_fnHtGetKeyFromEntry) (pEntry));
+            _getPositionOfKey(piht, (piht->iht_fnGetKeyFromEntry) (pEntry));
     }
 
     u32Ret = jf_mem_alloc((void **)&phtb, sizeof(hash_table_bucket_t));
@@ -223,42 +225,44 @@ static u32 _overwriteAtPosition(internal_hash_table_t * piht,
 
     tmp = *ppPosition;
 
-    (piht->iht_fnHtFreeEntry) (tmp->htb_pEntry);
+    (piht->iht_fnFreeEntry) (tmp->htb_pEntry);
     tmp->htb_pEntry = pEntry;
 
     return u32Ret;
 }
 
 /* --- public routine section ---------------------------------------------- */
-u32 createHashTable(hash_table_t ** ppht, hash_table_param_t * phtp)
+
+u32 jf_hashtable_create(
+    jf_hashtable_t ** ppht, jf_hashtable_create_param_t * pjhcp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_hash_table_t *piht;
     olint_t u32PrimesIndex = 0;
 
-    assert((ppht != NULL) && (phtp != NULL));
+    assert((ppht != NULL) && (pjhcp != NULL));
 
     u32Ret = jf_mem_alloc((void **)&piht, sizeof(internal_hash_table_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(piht, 0, sizeof(internal_hash_table_t));
 
-        while (phtp->htp_u32MinSize > primes[u32PrimesIndex])
+        while (pjhcp->jhcp_u32MinSize > primes[u32PrimesIndex])
             u32PrimesIndex++;
 
         piht->iht_u32PrimesIndex = u32PrimesIndex;
         piht->iht_u32Size = primes[u32PrimesIndex];
         piht->iht_u32Count = 0;
 
-        piht->iht_fnHtCmpKeys = phtp->htp_fnHtCmpKeys ? phtp->htp_fnHtCmpKeys :
+        piht->iht_fnCmpKeys = pjhcp->jhcp_fnCmpKeys ? pjhcp->jhcp_fnCmpKeys :
             _default_fnHtCmpKeys;
-        piht->iht_fnHtHashKey = phtp->htp_fnHtHashKey ? phtp->htp_fnHtHashKey :
+        piht->iht_fnHashKey = pjhcp->jhcp_fnHashKey ? pjhcp->jhcp_fnHashKey :
             _default_fnHtHashKey;
-        piht->iht_fnHtGetKeyFromEntry = phtp->htp_fnHtGetKeyFromEntry ?
-            phtp->htp_fnHtGetKeyFromEntry : _default_fnHtGetKeyFromEntry;
-        piht->iht_fnHtFreeEntry = phtp->htp_fnHtFreeEntry ?
-            phtp->htp_fnHtFreeEntry : _default_fnHtFreeEntry;
-        piht->iht_fnHtError = phtp->htp_fnHtError ? phtp->htp_fnHtError :
+        piht->iht_fnGetKeyFromEntry = pjhcp->jhcp_fnGetKeyFromEntry ?
+            pjhcp->jhcp_fnGetKeyFromEntry : _default_fnHtGetKeyFromEntry;
+        piht->iht_fnFreeEntry = pjhcp->jhcp_fnFreeEntry ?
+            pjhcp->jhcp_fnFreeEntry : _default_fnHtFreeEntry;
+        piht->iht_fnError = pjhcp->jhcp_fnError ? pjhcp->jhcp_fnError :
             _default_fnHtError;
 
         /* ceil(0.8 * piht -> iht_u32Size) */
@@ -277,22 +281,22 @@ u32 createHashTable(hash_table_t ** ppht, hash_table_param_t * phtp)
         *ppht = piht;
     }
     else if (piht != NULL)
-        destroyHashTable((hash_table_t **)&piht);
+        jf_hashtable_destroy((jf_hashtable_t **)&piht);
 
     return u32Ret;
 }
 
-u32 destroyHashTable(hash_table_t ** ppht)
+u32 jf_hashtable_destroy(jf_hashtable_t ** ppht)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_hash_table_t * piht;
     olint_t i;
-    fnHtFreeEntry_t fnHtFreeEntry;
+    jf_hashtable_fnFreeEntry_t fnFreeEntry;
 
     assert((ppht != NULL) && (*ppht != NULL));
 
     piht = (internal_hash_table_t *)*ppht;
-    fnHtFreeEntry = piht->iht_fnHtFreeEntry;
+    fnFreeEntry = piht->iht_fnFreeEntry;
 
     if (piht->iht_htbBucket != NULL)
     {
@@ -303,7 +307,7 @@ u32 destroyHashTable(hash_table_t ** ppht)
             for (phtb = piht->iht_htbBucket[i]; phtb != NULL; phtb = tmp)
             {
                 tmp = phtb->htb_htbNext;
-                fnHtFreeEntry(&(phtb->htb_pEntry));
+                fnFreeEntry(&(phtb->htb_pEntry));
                 jf_mem_free((void **)&phtb);
             }
         }
@@ -316,12 +320,12 @@ u32 destroyHashTable(hash_table_t ** ppht)
     return u32Ret;
 }
 
-u32 insertHashTableEntry(hash_table_t * pht, void * pEntry)
+u32 jf_hashtable_insertEntry(jf_hashtable_t * pht, void * pEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_hash_table_t * piht = (internal_hash_table_t *)pht;
     hash_table_bucket_t **position =
-        getPositionOfKey(piht, (piht->iht_fnHtGetKeyFromEntry) (pEntry));
+        _getPositionOfKey(piht, (piht->iht_fnGetKeyFromEntry) (pEntry));
 
     if (*position == NULL)
         u32Ret = _insertAtPosition(pht, position, pEntry);
@@ -329,18 +333,18 @@ u32 insertHashTableEntry(hash_table_t * pht, void * pEntry)
     return u32Ret;
 }
 
-u32 removeHashTableEntry(hash_table_t * pht, void * pEntry)
+u32 jf_hashtable_removeEntry(jf_hashtable_t * pht, void * pEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_hash_table_t * piht = (internal_hash_table_t *)pht;
     hash_table_bucket_t * tmp;
     hash_table_bucket_t ** position =
-        getPositionOfKey(piht, (piht->iht_fnHtGetKeyFromEntry) (pEntry));
+        _getPositionOfKey(piht, (piht->iht_fnGetKeyFromEntry) (pEntry));
 
     if ((tmp = *position))
     {
         *position = tmp->htb_htbNext;
-        piht->iht_fnHtFreeEntry(tmp->htb_pEntry);
+        piht->iht_fnFreeEntry(tmp->htb_pEntry);
         jf_mem_free((void **)&tmp);
     }
     else
@@ -349,12 +353,12 @@ u32 removeHashTableEntry(hash_table_t * pht, void * pEntry)
     return u32Ret;
 }
 
-u32 overwriteHashTableEntry(hash_table_t * pht, void * pEntry)
+u32 jf_hashtable_overwriteEntry(jf_hashtable_t * pht, void * pEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_hash_table_t * piht = (internal_hash_table_t *)pht;
     hash_table_bucket_t ** position =
-        getPositionOfKey(piht, (piht->iht_fnHtGetKeyFromEntry) (pEntry));
+        _getPositionOfKey(piht, (piht->iht_fnGetKeyFromEntry) (pEntry));
 
     if (*position)
     {
@@ -368,11 +372,11 @@ u32 overwriteHashTableEntry(hash_table_t * pht, void * pEntry)
     return u32Ret;
 }
 
-u32 getHashTableEntry(hash_table_t * pht, void * pKey, void ** ppEntry)
+u32 jf_hashtable_getEntry(jf_hashtable_t * pht, void * pKey, void ** ppEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_hash_table_t * piht = (internal_hash_table_t *)pht;
-    hash_table_bucket_t ** bucket = getPositionOfKey(piht, pKey);
+    hash_table_bucket_t ** bucket = _getPositionOfKey(piht, pKey);
 
     if ((*bucket) == NULL)
         u32Ret = JF_ERR_HASH_ENTRY_NOT_FOUND;
@@ -382,11 +386,11 @@ u32 getHashTableEntry(hash_table_t * pht, void * pKey, void ** ppEntry)
     return u32Ret;
 }
 
-boolean_t isKeyInHashTable(hash_table_t * pht, void * pKey)
+boolean_t jf_hashtable_isKeyInTable(jf_hashtable_t * pht, void * pKey)
 {
     boolean_t bRet = FALSE;
     internal_hash_table_t * piht = (internal_hash_table_t *)pht;
-    hash_table_bucket_t **position = getPositionOfKey(piht, pKey);
+    hash_table_bucket_t **position = _getPositionOfKey(piht, pKey);
 
     if (*position != NULL)
         bRet = TRUE;
@@ -394,12 +398,12 @@ boolean_t isKeyInHashTable(hash_table_t * pht, void * pKey)
     return bRet;
 }
 
-boolean_t isEntryInHashTable(hash_table_t * pht, void * pEntry)
+boolean_t jf_hashtable_isEntryInTable(jf_hashtable_t * pht, void * pEntry)
 {
     boolean_t bRet = FALSE;
     internal_hash_table_t * piht = (internal_hash_table_t *)pht;
     hash_table_bucket_t **position =
-        getPositionOfKey(piht, (piht->iht_fnHtGetKeyFromEntry) (pEntry));
+        _getPositionOfKey(piht, (piht->iht_fnGetKeyFromEntry) (pEntry));
 
     if (*position != NULL)
         bRet = TRUE;
@@ -407,14 +411,14 @@ boolean_t isEntryInHashTable(hash_table_t * pht, void * pEntry)
     return bRet;
 }
 
-u32 getHashTableSize(hash_table_t * pht)
+u32 jf_hashtable_getSize(jf_hashtable_t * pht)
 {
     internal_hash_table_t * piht = (internal_hash_table_t *)pht;
 
     return piht->iht_u32Count;  /* do not mess up with piht->iht_u32Size ! */
 }
 
-void showHashTableStatistics(hash_table_t * pht)
+void jf_hashtable_showStatistics(jf_hashtable_t * pht)
 {
     internal_hash_table_t * piht = (internal_hash_table_t *)pht;
     olchar_t statistics[200];
@@ -450,67 +454,67 @@ void showHashTableStatistics(hash_table_t * pht)
  *  iterator routines
  */
 
-void setupHashTableIterator(hash_table_t * pht,
-    hash_table_iterator_t * pIterator)
+void jf_hashtable_setupIterator(
+    jf_hashtable_t * pht, jf_hashtable_iterator_t * pIterator)
 {
     internal_hash_table_t * piht = (internal_hash_table_t *)pht;
 
-    pIterator->hti_htTable = piht;
-    pIterator->hti_nPos = -1;   /* have a look at ht_increment_iterator */
-    pIterator->hti_pCursor = 0;
-    incrementHashTableIterator(pIterator);
+    pIterator->jhi_htTable = piht;
+    pIterator->jhi_nPos = -1;   /* have a look at ht_increment_iterator */
+    pIterator->jhi_pCursor = 0;
+    jf_hashtable_incrementIterator(pIterator);
 }
 
-void incrementHashTableIterator(hash_table_iterator_t * pIterator)
+void jf_hashtable_incrementIterator(jf_hashtable_iterator_t * pIterator)
 {
     hash_table_bucket_t * current =
-        (hash_table_bucket_t *)pIterator->hti_pCursor;
+        (hash_table_bucket_t *)pIterator->jhi_pCursor;
 
     if (current && current->htb_htbNext)
     {
-        pIterator->hti_pCursor = current->htb_htbNext;
+        pIterator->jhi_pCursor = current->htb_htbNext;
     }
     else
     {
-        olint_t i = pIterator->hti_nPos + 1;
+        olint_t i = pIterator->jhi_nPos + 1;
         u32 sz =
-            ((internal_hash_table_t *)(pIterator->hti_htTable))->iht_u32Size;
+            ((internal_hash_table_t *)(pIterator->jhi_htTable))->iht_u32Size;
         hash_table_bucket_t ** table =
-            ((internal_hash_table_t *)(pIterator->hti_htTable))->iht_htbBucket;
+            ((internal_hash_table_t *)(pIterator->jhi_htTable))->iht_htbBucket;
 
         while (i < sz)
         {
             if (table[i] != NULL)
             {
-                pIterator->hti_nPos = i;
-                pIterator->hti_pCursor = table[i];
+                pIterator->jhi_nPos = i;
+                pIterator->jhi_pCursor = table[i];
                 return;
             }
             else
                 i++;
         }
 
-        pIterator->hti_pCursor = 0;
-        pIterator->hti_nPos = sz;
+        pIterator->jhi_pCursor = 0;
+        pIterator->jhi_nPos = sz;
     }
 
     return;
 }
 
-boolean_t isDoneHashTableIterator(hash_table_iterator_t * pIterator)
+boolean_t jf_hashtable_isEndOfIterator(jf_hashtable_iterator_t * pIterator)
 {
     boolean_t bRet = FALSE;
 
-    if (pIterator->hti_pCursor == NULL)
+    if (pIterator->jhi_pCursor == NULL)
         bRet = TRUE;
 
     return bRet;
 }
 
-void * getEntryFromHashTableIterator(hash_table_iterator_t * pIterator)
+void * jf_hashtable_getEntryFromIterator(jf_hashtable_iterator_t * pIterator)
 {
     hash_table_bucket_t * bucket =
-        (hash_table_bucket_t *)pIterator->hti_pCursor;
+        (hash_table_bucket_t *)pIterator->jhi_pCursor;
 
     if (bucket == NULL)
         return NULL;
@@ -525,7 +529,7 @@ void * getEntryFromHashTableIterator(hash_table_iterator_t * pIterator)
 
 #define HASHPJWSHIFT  ((sizeof(int)) * 8 - 4)
 
-olint_t hashPJW(void * pKey)
+olint_t jf_hashtable_hashPJW(void * pKey)
 {
     const olchar_t *s = (olchar_t *) pKey, *p;
     olint_t h = 0, g;

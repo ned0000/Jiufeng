@@ -71,7 +71,7 @@ typedef struct
     u32 icp_u32NumOfCmdSet;
     internal_clieng_cmd_set_t * icp_piccsCmdSet;
     u32 icp_u32MaxCmd;
-    hash_table_t * icp_htCmd;
+    jf_hashtable_t * icp_jhCmd;
 } internal_clieng_parser_t;
 
 /* --- private funciton routines ------------------------------------------- */
@@ -252,8 +252,8 @@ static u32 _parseAndProcess(internal_clieng_parser_t * picp)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_cmd_t * picc;
 
-    u32Ret = getHashTableEntry(
-        picp->icp_htCmd, (void *)picp->icp_pstrArgv[0], (void **)&picc);
+    u32Ret = jf_hashtable_getEntry(
+        picp->icp_jhCmd, (void *)picp->icp_pstrArgv[0], (void **)&picc);
     if (u32Ret != JF_ERR_NO_ERROR)
         u32Ret = JF_ERR_INVALID_COMMAND;
     else
@@ -299,7 +299,7 @@ static u32 _freeCmd(void ** ppCmd)
 
 static olint_t _hashKey(void * pKey)
 {
-    return hashPJW(pKey);
+    return jf_hashtable_hashPJW(pKey);
 }
 
 static void * _getKeyFromCmd(void * pCmd)
@@ -315,7 +315,7 @@ u32 createParser(clieng_parser_t ** pcp, clieng_parser_param_t * pcpp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_parser_t * picp = NULL;
-    hash_table_param_t htp;
+    jf_hashtable_create_param_t jhcp;
 
     assert((pcp != NULL) && (pcpp != NULL));
 
@@ -340,15 +340,15 @@ u32 createParser(clieng_parser_t ** pcp, clieng_parser_param_t * pcpp)
         picp->icp_u32MaxCmd = (pcpp->cpp_u32MaxCmd > 0) ?
             pcpp->cpp_u32MaxCmd : MAX_CMD;
 
-        memset(&htp, 0, sizeof(hash_table_param_t));
+        memset(&jhcp, 0, sizeof(jhcp));
 
-        htp.htp_u32MinSize = picp->icp_u32MaxCmd;
-        htp.htp_fnHtCmpKeys = _cmpKeys;
-        htp.htp_fnHtHashKey = _hashKey;
-        htp.htp_fnHtGetKeyFromEntry = _getKeyFromCmd;
-        htp.htp_fnHtFreeEntry = _freeCmd;
+        jhcp.jhcp_u32MinSize = picp->icp_u32MaxCmd;
+        jhcp.jhcp_fnCmpKeys = _cmpKeys;
+        jhcp.jhcp_fnHashKey = _hashKey;
+        jhcp.jhcp_fnGetKeyFromEntry = _getKeyFromCmd;
+        jhcp.jhcp_fnFreeEntry = _freeCmd;
 
-        u32Ret = createHashTable(&(picp->icp_htCmd), &htp);
+        u32Ret = jf_hashtable_create(&(picp->icp_jhCmd), &jhcp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -373,8 +373,8 @@ u32 destroyParser(clieng_parser_t ** pcp)
     if (picp->icp_piccsCmdSet != NULL)
         free(picp->icp_piccsCmdSet);
 
-    if (picp->icp_htCmd != NULL)
-        destroyHashTable(&(picp->icp_htCmd));
+    if (picp->icp_jhCmd != NULL)
+        jf_hashtable_destroy(&(picp->icp_jhCmd));
 
     jf_mem_free(pcp);
 
@@ -435,7 +435,7 @@ u32 newCmd(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (isKeyInHashTable(picp->icp_htCmd, (void *)pstrName))
+        if (jf_hashtable_isKeyInTable(picp->icp_jhCmd, (void *)pstrName))
             u32Ret = JF_ERR_CMD_ALREADY_EXIST;
     }
 
@@ -452,7 +452,7 @@ u32 newCmd(
         picc->icc_fnProcessCmd = fnProcessCmd;
         picc->icc_pParam = pParam;
 
-        u32Ret = insertHashTableEntry(picp->icp_htCmd, (void *)picc);
+        u32Ret = jf_hashtable_insertEntry(picp->icp_jhCmd, (void *)picc);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
