@@ -16,7 +16,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "cghash.h"
 #include "cgmac.h"
 #include "md5.h"

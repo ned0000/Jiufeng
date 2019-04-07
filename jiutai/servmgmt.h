@@ -19,7 +19,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "errcode.h"
+#include "jf_err.h"
 
 #undef SERVMGMTAPI
 #undef SERVMGMTCALL

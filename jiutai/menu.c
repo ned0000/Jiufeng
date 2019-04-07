@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "xmalloc.h"
 #include "menu.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "stringparse.h"
 
 /* --- private data/data structure section --------------------------------- */

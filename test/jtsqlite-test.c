@@ -20,7 +20,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "bases.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "jtsqlite.h"
 #include "xmalloc.h"
 

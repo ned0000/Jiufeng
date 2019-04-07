@@ -35,7 +35,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "prng.h"
 #include "prngcommon.h"
 #include "clrmem.h"

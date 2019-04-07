@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "encode.h"
 #include "huffman.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "xmalloc.h"
 #include "bitarray.h"
 

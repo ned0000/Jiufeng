@@ -32,7 +32,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "network.h"
 #include "xmalloc.h"
 #include "internalsocket.h"

@@ -27,8 +27,8 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h" 
-#include "errcode.h"
-#include "logger.h"
+#include "jf_err.h"
+#include "jf_logger.h"
 #include "hexstr.h"
 #include "jf_limit.h"
 #include "process.h"

@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "stringparse.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "xtime.h"
 
 /* --- private data/data structure section --------------------------------- */

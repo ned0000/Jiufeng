@@ -16,7 +16,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "syncmutex.h"
-#include "errcode.h"
+#include "jf_err.h"
 
 /* --- private data/data structure section --------------------------------- */
 

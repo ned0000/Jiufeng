@@ -24,8 +24,8 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "errcode.h"
-#include "logger.h"
+#include "jf_err.h"
+#include "jf_logger.h"
 #include "cmdparser.h"
 #include "hash.h"
 #include "stringparse.h"

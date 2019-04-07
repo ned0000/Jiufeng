@@ -31,7 +31,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "process.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "xtime.h"
 
 /* --- private data/data structure section --------------------------------- */

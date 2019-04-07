@@ -27,7 +27,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "files.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "common.h"
 #include "xmalloc.h"
 

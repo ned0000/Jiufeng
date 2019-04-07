@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "ifmgmt.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "stringparse.h"
 #include "process.h"
 #include "xtime.h"

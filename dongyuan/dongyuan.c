@@ -21,8 +21,8 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "errcode.h"
-#include "logger.h"
+#include "jf_err.h"
+#include "jf_logger.h"
 #include "process.h"
 #include "dongyuan.h"
 #include "files.h"

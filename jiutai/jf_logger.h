@@ -1,5 +1,5 @@
 /**
- *  @file logger.h
+ *  @file jf_logger.h
  *
  *  @brief Logger header file. It provides the external definition of the
  *   logger and the related routines and data structures.

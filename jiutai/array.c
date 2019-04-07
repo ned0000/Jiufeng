@@ -14,7 +14,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "array.h"
 #include "xmalloc.h"
 

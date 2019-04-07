@@ -16,7 +16,7 @@
 #include <errno.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "errcode.h"
+#include "jf_err.h"
 #include "common.h"
 
 /* --- private data/data structure section --------------------------------- */

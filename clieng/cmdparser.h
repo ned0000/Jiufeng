@@ -16,7 +16,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "logger.h"
+#include "jf_logger.h"
 #include "engio.h"
 #include "clieng.h"
 

@@ -15,8 +15,8 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "respool.h"
-#include "logger.h"
-#include "errcode.h"
+#include "jf_logger.h"
+#include "jf_err.h"
 #include "array.h"
 #include "syncmutex.h"
 #include "xmalloc.h"

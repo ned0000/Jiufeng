@@ -17,7 +17,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "syncmutex.h"
 #include "network.h"
 #include "httpparser.h"

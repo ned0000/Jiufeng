@@ -1,5 +1,5 @@
 /**
- *  @file
+ *  @file jf_err.h
  *
  *  @brief Error code header file. It provides the definitions of error codes
  *   and the related external routines.
@@ -15,14 +15,14 @@
  *  
  */
 
-#ifndef JIUFENG_ERRCODE_H
-#define JIUFENG_ERRCODE_H
+#ifndef JIUFENG_ERR_H
+#define JIUFENG_ERR_H
 
 /* --- standard C lib header files ----------------------------------------- */
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "logger.h"
+#include "jf_logger.h"
 
 /* --- constant definitions ------------------------------------------------ */
 
@@ -585,7 +585,7 @@ LOGGERAPI u32 LOGGERCALL jf_err_addCode(u32 u32Err, olchar_t * pstrDesc);
 
 
 
-#endif /*JIUFENG_ERRCODE_H*/
+#endif /*JIUFENG_ERR_H*/
 
 /*---------------------------------------------------------------------------*/
 

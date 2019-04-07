@@ -17,10 +17,10 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "randnum.h"
 #include "stringparse.h"
-#include "logger.h"
+#include "jf_logger.h"
 
 /* --- private data/data structure section --------------------------------- */
 

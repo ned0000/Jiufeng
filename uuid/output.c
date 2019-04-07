@@ -16,7 +16,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "uuid.h"
 #include "common.h"
 //#include "bignum.h"

@@ -21,7 +21,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "prng.h"
 #include "cghash.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "xmalloc.h"
 #include "process.h"
 #include "xtime.h"

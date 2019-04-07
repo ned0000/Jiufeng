@@ -20,7 +20,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "syncsem.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "xmalloc.h"
 
 /* --- private data/data structure section --------------------------------- */

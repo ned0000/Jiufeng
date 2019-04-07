@@ -25,7 +25,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "xmalloc.h"
-#include "errcode.h"
+#include "jf_err.h"
 #include "bases.h"
 
 /* --- private data/data structure section --------------------------------- */

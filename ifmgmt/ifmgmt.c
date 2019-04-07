@@ -16,7 +16,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "logger.h"
+#include "jf_logger.h"
 #include "ifmgmt.h"
 #include "xmalloc.h"
 #include "files.h"
