@@ -52,7 +52,7 @@ typedef struct huffman_code
     /** freqwency of the symbol */
     u32 jehc_u32Freq;
     /** the code generated */
-    bit_array_t jehc_baCode[JF_ENCODE_MAX_HUFFMAN_CODE_LEN];
+    jf_bitarray_t jehc_jbCode[JF_ENCODE_MAX_HUFFMAN_CODE_LEN];
 } jf_encode_huffman_code_t;
 
 /* --- functional routines ------------------------------------------------- */

@@ -68,74 +68,74 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 static u32 _testBitArrayLogical(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    bit_array_t pba1[8], pba2[8], pba3[8], pba4[8];
+    jf_bitarray_t jb1[8], jb2[8], jb3[8], jb4[8];
 
-    INIT_BIT_ARRAY(pba1);
-    INIT_BIT_ARRAY(pba2);
-    INIT_BIT_ARRAY(pba3);
+    JF_BITARRAY_INIT(jb1);
+    JF_BITARRAY_INIT(jb2);
+    JF_BITARRAY_INIT(jb3);
 
-    setBitArrayBit(pba1, 2);
-    setBitArrayBit(pba1, 3);
-    setBitArrayBit(pba1, 5);
-    setBitArrayBit(pba1, 23);
-    setBitArrayBit(pba1, 31);
-    setBitArrayBit(pba1, 44);
-    setBitArrayBit(pba1, 53);
-    setBitArrayBit(pba1, 55);
-    setBitArrayBit(pba1, 58);
-    setBitArrayBit(pba1, 60);
+    jf_bitarray_setBit(jb1, 2);
+    jf_bitarray_setBit(jb1, 3);
+    jf_bitarray_setBit(jb1, 5);
+    jf_bitarray_setBit(jb1, 23);
+    jf_bitarray_setBit(jb1, 31);
+    jf_bitarray_setBit(jb1, 44);
+    jf_bitarray_setBit(jb1, 53);
+    jf_bitarray_setBit(jb1, 55);
+    jf_bitarray_setBit(jb1, 58);
+    jf_bitarray_setBit(jb1, 60);
 
-    ol_printf("pba1:        ");
-    DUMP_BIT_ARRAY(pba1);
+    ol_printf("jb1:        ");
+    JF_BITARRAY_DUMP(jb1);
 
-    setBitArrayBit(pba2, 0);
-    setBitArrayBit(pba2, 1);
-    setBitArrayBit(pba2, 5);
-    setBitArrayBit(pba2, 8);
-    setBitArrayBit(pba2, 13);
-    setBitArrayBit(pba2, 15);
-    setBitArrayBit(pba2, 20);
-    setBitArrayBit(pba2, 30);
-    setBitArrayBit(pba2, 40);
-    setBitArrayBit(pba2, 50);
-    setBitArrayBit(pba2, 55);
+    jf_bitarray_setBit(jb2, 0);
+    jf_bitarray_setBit(jb2, 1);
+    jf_bitarray_setBit(jb2, 5);
+    jf_bitarray_setBit(jb2, 8);
+    jf_bitarray_setBit(jb2, 13);
+    jf_bitarray_setBit(jb2, 15);
+    jf_bitarray_setBit(jb2, 20);
+    jf_bitarray_setBit(jb2, 30);
+    jf_bitarray_setBit(jb2, 40);
+    jf_bitarray_setBit(jb2, 50);
+    jf_bitarray_setBit(jb2, 55);
 
-    ol_printf("pba2:        ");
-    DUMP_BIT_ARRAY(pba2);
+    ol_printf("jb2:        ");
+    JF_BITARRAY_DUMP(jb2);
 
-    setBitArrayBit(pba3, 2);
-    setBitArrayBit(pba3, 4);
-    setBitArrayBit(pba3, 8);
-    setBitArrayBit(pba3, 16);
-    setBitArrayBit(pba3, 17);
-    setBitArrayBit(pba3, 18);
-    setBitArrayBit(pba3, 25);
-    setBitArrayBit(pba3, 34);
-    setBitArrayBit(pba3, 45);
-    setBitArrayBit(pba3, 50);
+    jf_bitarray_setBit(jb3, 2);
+    jf_bitarray_setBit(jb3, 4);
+    jf_bitarray_setBit(jb3, 8);
+    jf_bitarray_setBit(jb3, 16);
+    jf_bitarray_setBit(jb3, 17);
+    jf_bitarray_setBit(jb3, 18);
+    jf_bitarray_setBit(jb3, 25);
+    jf_bitarray_setBit(jb3, 34);
+    jf_bitarray_setBit(jb3, 45);
+    jf_bitarray_setBit(jb3, 50);
 
-    ol_printf("pba3:        ");
-    DUMP_BIT_ARRAY(pba3);
+    ol_printf("jb3:        ");
+    JF_BITARRAY_DUMP(jb3);
 
-    ol_printf("pba1 & pba2: ");
-    AND_BIT_ARRAY(pba3, pba1, pba2);
-    DUMP_BIT_ARRAY(pba3);
+    ol_printf("jb1 & jb2: ");
+    JF_BITARRAY_AND(jb3, jb1, jb2);
+    JF_BITARRAY_DUMP(jb3);
 
-    ol_printf("pba1 | pba2: ");
-    OR_BIT_ARRAY(pba3, pba1, pba2);
-    DUMP_BIT_ARRAY(pba3);
+    ol_printf("jb1 | jb2: ");
+    JF_BITARRAY_OR(jb3, jb1, jb2);
+    JF_BITARRAY_DUMP(jb3);
 
-    ol_printf("pba1 ^ pba2: ");
-    XOR_BIT_ARRAY(pba3, pba1, pba2);
-    DUMP_BIT_ARRAY(pba3);
+    ol_printf("jb1 ^ jb2: ");
+    JF_BITARRAY_XOR(jb3, jb1, jb2);
+    JF_BITARRAY_DUMP(jb3);
 
-    ol_printf("not pba1:    ");
-    NOT_BIT_ARRAY(pba3, pba1);
-    DUMP_BIT_ARRAY(pba3);
+    ol_printf("not jb1:    ");
+    JF_BITARRAY_NOT(jb3, jb1);
+    JF_BITARRAY_DUMP(jb3);
 
-    ol_printf("copy pba1:   ");
-    COPY_BIT_ARRAY(pba4, pba1);
-    DUMP_BIT_ARRAY(pba4);
+    ol_printf("copy jb1:   ");
+    JF_BITARRAY_COPY(jb4, jb1);
+    JF_BITARRAY_DUMP(jb4);
 
     return u32Ret;
 }
@@ -143,7 +143,7 @@ static u32 _testBitArrayLogical(void)
 static u32 _testBitArray(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    bit_array_t pba[8];
+    jf_bitarray_t jb[8];
     u32 u32SetPos[] = {2, 3, 6, 8, 10, 13, 16, 18, 20, 23, 24, 27, 31, 32,
                        35, 37, 39, 40, 42, 43, 44, 47, 48, 50, 55, 57, 60, 64, 65, 66, 70};
     u32 u32NumOfSetPos = sizeof(u32SetPos) / sizeof(u32);
@@ -159,30 +159,30 @@ static u32 _testBitArray(void)
     boolean_t bRet;
 
     ol_printf("init bit array\n");
-    INIT_BIT_ARRAY(pba);
-    DUMP_BIT_ARRAY(pba);
+    JF_BITARRAY_INIT(jb);
+    JF_BITARRAY_DUMP(jb);
 
     ol_printf("set bit array\n");
-    SET_BIT_ARRAY(pba);
+    JF_BITARRAY_SET(jb);
 
-    DUMP_BIT_ARRAY(pba);
+    JF_BITARRAY_DUMP(jb);
 
     ol_printf("clear bit array\n");
-    INIT_BIT_ARRAY(pba);
+    JF_BITARRAY_INIT(jb);
 
-    DUMP_BIT_ARRAY(pba);
+    JF_BITARRAY_DUMP(jb);
 
     for (u32Index = 0; u32Index < u32NumOfSetPos; u32Index ++)
     {
         ol_printf("set position %u\n", u32SetPos[u32Index]);
-        setBitArrayBit(pba, u32SetPos[u32Index]);
+        jf_bitarray_setBit(jb, u32SetPos[u32Index]);
 
-        DUMP_BIT_ARRAY(pba);
+        JF_BITARRAY_DUMP(jb);
     }
 
     for (u32Index = 0; u32Index < u32NumOfTestPos; u32Index ++)
     {
-        bRet = testBitArrayBit(pba, u32TestPos[u32Index]);
+        bRet = jf_bitarray_testBit(jb, u32TestPos[u32Index]);
         ol_printf(
             "test position %u, %s\n", u32TestPos[u32Index],
             jf_string_getStringTrue(bRet));
@@ -191,56 +191,56 @@ static u32 _testBitArray(void)
     for (u32Index = 0; u32Index < u32NumOfClearPos; u32Index ++)
     {
         ol_printf("clear position %u\n", u32ClearPos[u32Index]);
-        clearBitArrayBit(pba, u32ClearPos[u32Index]);
+        jf_bitarray_clearBit(jb, u32ClearPos[u32Index]);
 
-        DUMP_BIT_ARRAY(pba);
+        JF_BITARRAY_DUMP(jb);
     }
 
     for (u32Index = 0; u32Index < u32NumOfLShift; u32Index ++)
     {
         ol_printf("set position %u\n", 14);
-        setBitArrayBit(pba, 14);
+        jf_bitarray_setBit(jb, 14);
 
-        DUMP_BIT_ARRAY(pba);
+        JF_BITARRAY_DUMP(jb);
 
         ol_printf("left shift %u\n", u32LShift[u32Index]);
-        LSHIFT_BIT_ARRAY(pba, u32LShift[u32Index]);
+        JF_BITARRAY_LSHIFT(jb, u32LShift[u32Index]);
             
-        DUMP_BIT_ARRAY(pba);
+        JF_BITARRAY_DUMP(jb);
     }
 
     for (u32Index = 0; u32Index < u32NumOfRShift; u32Index ++)
     {
         ol_printf("set position %u\n", 4);
-        setBitArrayBit(pba, 4);
+        jf_bitarray_setBit(jb, 4);
 
-        DUMP_BIT_ARRAY(pba);
+        JF_BITARRAY_DUMP(jb);
 
         ol_printf("right shift %u\n", u32RShift[u32Index]);
-        RSHIFT_BIT_ARRAY(pba, u32RShift[u32Index]);
+        JF_BITARRAY_RSHIFT(jb, u32RShift[u32Index]);
             
-        DUMP_BIT_ARRAY(pba);
+        JF_BITARRAY_DUMP(jb);
     }
 
     ol_printf("set position %u\n", 7);
-    setBitArrayBit(pba, 7);
+    jf_bitarray_setBit(jb, 7);
 
-    DUMP_BIT_ARRAY(pba);
+    JF_BITARRAY_DUMP(jb);
 
     for (u32Index = 0; u32Index < 19; u32Index ++)
     {
         ol_printf("increment bit array\n");
-        INCREMENT_BIT_ARRAY(pba);
+        JF_BITARRAY_INCREMENT(jb);
 
-        DUMP_BIT_ARRAY(pba);
+        JF_BITARRAY_DUMP(jb);
     }
 
     for (u32Index = 0; u32Index < 20; u32Index ++)
     {
         ol_printf("decrement bit array\n");
-        DECREMENT_BIT_ARRAY(pba);
+        JF_BITARRAY_DECREMENT(jb);
 
-        DUMP_BIT_ARRAY(pba);
+        JF_BITARRAY_DUMP(jb);
     }
 
     return u32Ret;
@@ -248,8 +248,8 @@ static u32 _testBitArray(void)
 
 static void _testSizeof(void)
 {
-    bit_array_t a[20];
-    bit_array_t b[6][40];
+    jf_bitarray_t a[20];
+    jf_bitarray_t b[6][40];
 
     ol_printf("a[20]\n");
     ol_printf("sizeof(a) = %d\n", (s32)sizeof(a));

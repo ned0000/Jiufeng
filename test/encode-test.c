@@ -223,7 +223,7 @@ static void _printCanonicalHuffmanCode(
             if (ppjehc[u16Index]->jehc_u16CodeLen > 0)
             {
                 _bit2String(
-                    ppjehc[u16Index]->jehc_baCode, ppjehc[u16Index]->jehc_u16CodeLen, strBit);
+                    ppjehc[u16Index]->jehc_jbCode, ppjehc[u16Index]->jehc_u16CodeLen, strBit);
                 ol_printf(
                     "0x%02X   %-8d  %-8d  %s\n",
                     ppjehc[u16Index]->jehc_u16Symbol, ppjehc[u16Index]->jehc_u32Freq,
@@ -248,7 +248,7 @@ static void _printHuffmanCode(jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode
         if (pjehc[u16Index].jehc_u16CodeLen > 0)
         {
             _bit2String(
-                pjehc[u16Index].jehc_baCode, pjehc[u16Index].jehc_u16CodeLen, strBit);
+                pjehc[u16Index].jehc_jbCode, pjehc[u16Index].jehc_u16CodeLen, strBit);
             ol_printf(
                 "0x%02X   %-8d  %-8d  %s\n",
                 pjehc[u16Index].jehc_u16Symbol, pjehc[u16Index].jehc_u32Freq,
