@@ -23,7 +23,8 @@ PROGRAMS = xmalloc-test bases-test logger-test process-test   \
     randnum-test persistency-test archive-test                \
     httpparser-test network-test network-test-server          \
     network-test-client network-test-client-chain             \
-    matrix-test webclient-test olservmgmt jtsqlite-test
+    matrix-test webclient-test olservmgmt jtsqlite-test       \
+    hexstr-test
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     hash-test.c syncmutex-test.c syncrwlock-test.c syncsem-test.c    \
@@ -36,7 +37,8 @@ SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     randnum-test.c persistency-test.c archive-test.c                 \
     httpparser-test.c network-test.c network-test-server.c           \
     network-test-client.c network-test-client-chain.c                \
-    matrix-test.c webclient-test.c servmgmt-test.c jtsqlite-test.c
+    matrix-test.c webclient-test.c servmgmt-test.c jtsqlite-test.c   \
+    hexstr-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -92,6 +94,10 @@ $(BIN_DIR)/hash-test: hash-test.o $(JIUTAI_DIR)/hash.o $(JIUTAI_DIR)/xmalloc.o \
 $(BIN_DIR)/stringparse-test: stringparse-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolstringparse -lollogger
+
+$(BIN_DIR)/hexstr-test: hexstr-test.o $(JIUTAI_DIR)/hexstr.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lollogger
 
 $(BIN_DIR)/bitarray-test: bitarray-test.o $(JIUTAI_DIR)/xmalloc.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

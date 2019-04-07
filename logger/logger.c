@@ -531,8 +531,8 @@ u32 jf_logger_logDataMsg(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...
         u32Logged = 1;
         while((u32Index < u32DataLen) && (u32Logged != 0))
         {
-            u32Logged = getByteHexString(pu8Data, u32DataLen, u32Index,
-                 buf, JF_LOGGER_MAX_MSG_SIZE - 1);
+            u32Logged = jf_hexstr_convertByteData(
+                pu8Data, u32DataLen, u32Index, buf, JF_LOGGER_MAX_MSG_SIZE - 1);
             if (u32Logged != 0)
             {
                 _log(pil, LOG_INFO, "", buf);
@@ -573,8 +573,8 @@ u32 jf_logger_logDataMsgWithAscii(
         u32Logged = 1;
         while((u32Index < u32DataLen) && (u32Logged != 0))
         {
-            u32Logged = getByteHexStringWithAscii(pu8Data, u32DataLen, u32Index,
-                 buf, JF_LOGGER_MAX_MSG_SIZE - 1);
+            u32Logged = jf_hexstr_convertByteDataWithAscii(
+                pu8Data, u32DataLen, u32Index, buf, JF_LOGGER_MAX_MSG_SIZE - 1);
             if (u32Logged != 0)
             {
                 _log(pil, LOG_INFO, "", buf);

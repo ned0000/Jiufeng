@@ -24,8 +24,10 @@
 
 /* --- functional routines ------------------------------------------------- */
 
-/** Converte the data buffer into byte hex string, starting from the
- *  giving index.
+/** Convert the byte data into byte hex string, starting from the giving index.
+ *
+ *  @note The output string is "xxxxxxxxh: xx xx xx xx ..."
+ *  @note Maximum 16 bytes are converted to string
  *
  *  @param pu8Data [in] the data buffer
  *  @param sData [in] the length of the data buffer in bytes
@@ -35,12 +37,14 @@
  *
  *  @return the number of bytes converted to hex string
  */
-olsize_t getByteHexString(
-    u8 * pu8Data, olsize_t sData, olsize_t sOffset,
+olsize_t jf_hexstr_convertByteData(
+    const u8 * pu8Data, const olsize_t sData, const olsize_t sOffset,
     olchar_t * pstrHex, olsize_t sStr);
 
-/** Converte the data buffer into word hex string, starting from the giving
- *  index.
+/** Convert the word data into word hex string, starting from the giving index.
+ *
+ *  @note The output string is "xxxxxxxxh: xxxx xxxx xxxx xxxx ..."
+ *  @note Maximum 12 words are converted to string
  *
  *  @param pu16Data [in] the data buffer
  *  @param sData [in] the length of the data buffer in words
@@ -50,12 +54,15 @@ olsize_t getByteHexString(
  *
  *  @return the number of words converted to hex string
  */
-olsize_t getWordHexString(
-    u16 * pu16Data, olsize_t sData, olsize_t sOffset,
+olsize_t jf_hexstr_convertWordData(
+    const u16 * pu16Data, const olsize_t sData, const olsize_t sOffset,
     olchar_t * pstrHex, olsize_t sStr);
 
-/** Converte the data buffer into byte hex string, starting from the giving
- *  index with ASCSII appended to each line
+/** Convert the byte data into byte hex string, starting from the giving index
+ *  with ASCSII appended to each line
+ *
+ *  @note The output string is "xxxxxxxxh: xx xx xx xx                   ; abcd"
+ *  @note Maximum 16 bytes are converted to string
  *
  *  @param pu8Data [in] the data buffer
  *  @param sData [in] the length of the data buffer
@@ -65,18 +72,20 @@ olsize_t getWordHexString(
  *
  *  @return the number of words converted to hex string and ASCII
  */
-olsize_t getByteHexStringWithAscii(
-    u8 * pu8Data, olsize_t sData, olsize_t sOffset,
+olsize_t jf_hexstr_convertByteDataWithAscii(
+    const u8 * pu8Data, const olsize_t sData, const olsize_t sOffset,
     olchar_t * pstrHex, olsize_t sStr);
 
-/** Dump data in byte hex format
+/** Dump byte data buffer, the output is byte hex string with ascii
+ *
+ *  @note All data are dumped
  *
  *  @param pu8Data [in] the data buffer
  *  @param sLen [in] the length of the data buffer
  *
  *  @return void
- **/
-void dumpDataInByteHex(u8 * pu8Data, olsize_t sLen);
+ */
+void jf_hexstr_dumpByteDataBuffer(const u8 * pu8Data, const olsize_t sLen);
 
 #endif /*JIUTAI_HEXSTR_H*/
 

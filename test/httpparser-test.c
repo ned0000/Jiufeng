@@ -184,7 +184,7 @@ static u32 _testHttpMsg(void)
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_printf("HTTP message\n");
-            dumpDataInByteHex((u8 *)pstr, size);
+            jf_hexstr_dumpByteDataBuffer((u8 *)pstr, size);
 
             jf_mem_free((void **)&pstr);
         }
