@@ -16,7 +16,7 @@
 /* --- standard C lib header files ----------------------------------------- */
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "errcode.h"
 #include "process.h"
 
@@ -34,7 +34,7 @@ typedef struct
 #define SERVICE_ROLE_EXTERNAL   2
     u8 isi_u8Role;
     u8 isi_u8Reserved[5];
-    olchar_t isi_strCmdPath[MAX_PATH_LEN];
+    olchar_t isi_strCmdPath[JF_LIMIT_MAX_PATH_LEN];
     olchar_t isi_strCmdParam[MAX_SERVICE_CMD_PARAM_LEN];
     /**the delay to start a service when the termination of the service is
        detected, in second*/
@@ -48,7 +48,7 @@ typedef struct
 
 typedef struct
 {
-    olchar_t isms_strSettingFile[MAX_PATH_LEN];
+    olchar_t isms_strSettingFile[JF_LIMIT_MAX_PATH_LEN];
     olchar_t isms_strVersion[8];
     u32 isms_u32Reserved;
     u32 isms_u32NumOfService;

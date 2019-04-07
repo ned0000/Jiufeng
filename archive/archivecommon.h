@@ -15,7 +15,7 @@
 /* --- standard C lib header files ----------------------------------------- */
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "arfile.h"
 
 /* --- constant definitions ------------------------------------------------ */
@@ -104,7 +104,7 @@ typedef union archive_block
 typedef struct
 {
     ar_file_t * fh_pafArchive;
-    olchar_t fh_strFullpath[MAX_PATH_LEN];
+    olchar_t fh_strFullpath[JF_LIMIT_MAX_PATH_LEN];
     u8 * fh_pu8Buffer;
     olsize_t fh_sBuf;
     boolean_t fh_bListArchive;

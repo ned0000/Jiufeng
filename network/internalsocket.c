@@ -33,8 +33,8 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "errcode.h"
 #include "internalsocket.h"
 #include "xmalloc.h"

@@ -29,8 +29,8 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "errcode.h"
 
 #undef IFMGMTAPI
@@ -99,7 +99,7 @@ typedef struct jf_ifmgmt_if
     jf_ipaddr_t jii_jiNetmask;
     jf_ipaddr_t jii_jiBroadcast;
 
-    u8 jii_u8Mac[MAC_LEN];
+    u8 jii_u8Mac[JF_LIMIT_MAC_LEN];
     /*mac address is 6 byte long, to align the mac address*/
     u8 jii_u8Reserved2[2];
 } jf_ifmgmt_if_t;
@@ -122,7 +122,7 @@ IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_downIf(const olchar_t * pstrIfName);
 IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_getStringIfFlags(
     olchar_t * pstrFlags, jf_ifmgmt_if_t * pjii);
 
-IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[MAC_LEN]);
+IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[JF_LIMIT_MAC_LEN]);
 
 /* ip addr */
 /*get local ip addr list, not include the loop back*/

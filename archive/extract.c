@@ -14,8 +14,8 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "errcode.h"
 #include "files.h"
 #include "stringparse.h"
@@ -47,12 +47,12 @@ static u32 _getMemberFilename(archive_header_t * pah, file_handler_t * pfh)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u8 u8DirDepth;
-    olchar_t strFullpath[MAX_PATH_LEN];
+    olchar_t strFullpath[JF_LIMIT_MAX_PATH_LEN];
     olchar_t strFilename[ARCHIVE_BLOCK_SIZE];
 
     if (pah->ah_u8DirDepth == AH_DIR_DEPTH_NULL)
     {
-        memset(pfh->fh_strFullpath, 0, MAX_PATH_LEN);
+        memset(pfh->fh_strFullpath, 0, JF_LIMIT_MAX_PATH_LEN);
     }
 
     if (pfh->fh_strFullpath[0] == '\0')
@@ -63,7 +63,8 @@ static u32 _getMemberFilename(archive_header_t * pah, file_handler_t * pfh)
                 pfh->fh_pafArchive, (u8 *)strFilename, ARCHIVE_BLOCK_SIZE);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                ol_strncpy(pfh->fh_strFullpath, strFilename, MAX_PATH_LEN - 1);
+                ol_strncpy(
+                    pfh->fh_strFullpath, strFilename, JF_LIMIT_MAX_PATH_LEN - 1);
             }
         }
         else
@@ -77,7 +78,8 @@ static u32 _getMemberFilename(archive_header_t * pah, file_handler_t * pfh)
         u8DirDepth = pah->ah_u8DirDepth;
         while (u8DirDepth > 0)
         {
-            jf_file_getDirectoryName(strFullpath, MAX_PATH_LEN, pfh->fh_strFullpath);
+            jf_file_getDirectoryName(
+                strFullpath, JF_LIMIT_MAX_PATH_LEN, pfh->fh_strFullpath);
 			strcpy(pfh->fh_strFullpath, strFullpath);
             u8DirDepth --;
         }
@@ -88,13 +90,15 @@ static u32 _getMemberFilename(archive_header_t * pah, file_handler_t * pfh)
                 pfh->fh_pafArchive, (u8 *)strFilename, ARCHIVE_BLOCK_SIZE);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                ol_snprintf(pfh->fh_strFullpath, MAX_PATH_LEN - 1, "%s%c%s",
+                ol_snprintf(
+                    pfh->fh_strFullpath, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
                     strFullpath, PATH_SEPARATOR, strFilename);
             }
         }
         else
         {
-            ol_snprintf(pfh->fh_strFullpath, MAX_PATH_LEN - 1, "%s%c%s",
+            ol_snprintf(
+                pfh->fh_strFullpath, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c%s",
                 strFullpath, PATH_SEPARATOR, pah->ah_u8Name);
         }
     }

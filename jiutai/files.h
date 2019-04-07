@@ -28,8 +28,8 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "datavec.h"
 
 #undef FILESAPI
@@ -160,7 +160,7 @@ typedef FILE     jf_filestream_t;
 
 typedef struct
 {
-    olchar_t jde_strName[MAX_PATH_LEN];
+    olchar_t jde_strName[JF_LIMIT_MAX_PATH_LEN];
     olsize_t jde_sName;
     u8 jde_u8Reserved[60];
 } jf_dir_entry_t;

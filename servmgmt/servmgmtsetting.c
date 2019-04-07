@@ -19,7 +19,7 @@
 #include <libxml/tree.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "errcode.h"
 #include "files.h"
 #include "servmgmt.h"
@@ -63,7 +63,7 @@ static void _parseServiceSettingValue(
     }
     else if (ol_strcmp(pstrTag, "cmdPath") == 0)
     {
-        ol_strncpy(pisi->isi_strCmdPath, pstrValue, MAX_PATH_LEN - 1);
+        ol_strncpy(pisi->isi_strCmdPath, pstrValue, JF_LIMIT_MAX_PATH_LEN - 1);
     }
     else if (ol_strcmp(pstrTag, "cmdParam") == 0)
     {
@@ -196,7 +196,7 @@ u32 modifyServiceStartupType(
     u8 u8StartupType)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strSettingFilename[MAX_PATH_LEN];
+    olchar_t strSettingFilename[JF_LIMIT_MAX_PATH_LEN];
     xmlDocPtr doc = NULL;
     xmlNodePtr root = NULL, servicesetting = NULL;
     xmlNodePtr overall = NULL, repository = NULL;

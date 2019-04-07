@@ -17,7 +17,7 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "errcode.h"
 #include "uuid.h"
 #include "prng.h"
@@ -63,7 +63,7 @@ typedef struct
 
     /** for V1 */
     /** pre-determined MAC address */
-    uuid_uint8_t ug_u8Mac[MAC_LEN];
+    uuid_uint8_t ug_u8Mac[JF_LIMIT_MAC_LEN];
     /** use multi-cast MAC address */
     boolean_t ug_bMulticastMac;
     u8 ug_u8Reserved2;
@@ -302,7 +302,7 @@ static u32 _initUuidGenV1(uuid_gen_t * pug)
     u32Ret = jf_ifmgmt_getMacOfFirstIf(pug->ug_u8Mac);
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        ol_bzero(pug->ug_u8Mac, MAC_LEN);
+        ol_bzero(pug->ug_u8Mac, JF_LIMIT_MAC_LEN);
         pug->ug_u8Mac[0] = IEEE_MAC_MCBIT;
         u32Ret = JF_ERR_NO_ERROR;
     }

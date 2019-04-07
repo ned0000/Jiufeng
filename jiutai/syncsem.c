@@ -18,7 +18,7 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "syncsem.h"
 #include "errcode.h"
 #include "xmalloc.h"

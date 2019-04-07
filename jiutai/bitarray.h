@@ -27,7 +27,7 @@
 /* --- standard C lib header files ----------------------------------------- */
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 
 /* --- constant definitions ------------------------------------------------ */
 typedef u8  jf_bitarray_t;

@@ -16,7 +16,7 @@
 /* --- standard C lib header files ----------------------------------------- */
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 
 /* --- constant definitions ------------------------------------------------ */
 /** generate a bitmask consisting of 1 bits from (and including)

@@ -14,8 +14,8 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "servmgmt.h"
 #include "servmgmtsetting.h"
 #include "xmalloc.h"
@@ -86,7 +86,7 @@ static u32 _startService(
     internal_serv_mgmt_t * pism, internal_service_info_t * pisi)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strCmdLine[2 * MAX_PATH_LEN + 128];
+    olchar_t strCmdLine[2 * JF_LIMIT_MAX_PATH_LEN + 128];
 
     jf_logger_logInfoMsg("start serv, %s", pisi->isi_strCmdPath);
 
@@ -483,11 +483,11 @@ u32 jf_servmgmt_start(jf_servmgmt_start_param_t * pjssp)
         if (pjssp->jssp_pstrSettingFile != NULL)
             ol_strncpy(
                 pisms->isms_strSettingFile,
-                pjssp->jssp_pstrSettingFile, MAX_PATH_LEN - 1);
+                pjssp->jssp_pstrSettingFile, JF_LIMIT_MAX_PATH_LEN - 1);
         else
             ol_strncpy(
                 pisms->isms_strSettingFile,
-                SERV_MGMT_SETTING_FILE, MAX_PATH_LEN - 1);
+                SERV_MGMT_SETTING_FILE, JF_LIMIT_MAX_PATH_LEN - 1);
 
         u32Ret = _readServMgmtSetting(pisms);
     }

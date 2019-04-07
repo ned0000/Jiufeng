@@ -28,8 +28,8 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "process.h"
 #include "errcode.h"
 #include "xtime.h"
@@ -175,7 +175,7 @@ u32 jf_process_switchToDaemon(olchar_t * pstrDaemonName)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     pid_t pid;
-    olchar_t strPidFile[MAX_PATH_LEN];
+    olchar_t strPidFile[JF_LIMIT_MAX_PATH_LEN];
     FILE * fp;
 
     assert(pstrDaemonName != NULL);
@@ -189,7 +189,8 @@ u32 jf_process_switchToDaemon(olchar_t * pstrDaemonName)
     else if (pid != 0)
     {
         /*parent process*/
-        jf_process_getPidFilename(strPidFile, MAX_PATH_LEN, pstrDaemonName); 
+        jf_process_getPidFilename(
+            strPidFile, JF_LIMIT_MAX_PATH_LEN, pstrDaemonName); 
         fp = fopen(strPidFile, "w");
         if (fp == NULL)
         {
@@ -225,12 +226,12 @@ boolean_t jf_process_isAlreadyRunning(olchar_t * pstrDaemonName)
     olint_t nRet = 0;
     olint_t fd = 0;
     pid_t pid = 0;
-    olchar_t strPidFile[MAX_PATH_LEN];
+    olchar_t strPidFile[JF_LIMIT_MAX_PATH_LEN];
     olchar_t strBuf[128];
     olchar_t strBuf2[128];
     olint_t fdCmdLine = 0;
 
-    jf_process_getPidFilename(strPidFile, MAX_PATH_LEN, pstrDaemonName);
+    jf_process_getPidFilename(strPidFile, JF_LIMIT_MAX_PATH_LEN, pstrDaemonName);
     fd = open(strPidFile, O_RDONLY);
     if (fd > 0)
     {

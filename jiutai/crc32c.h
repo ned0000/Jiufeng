@@ -18,7 +18,7 @@
 /* --- standard C lib header files ----------------------------------------- */
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 
 /* --- constant definitions ------------------------------------------------ */
 /*init the result before doing crc*/

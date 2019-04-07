@@ -16,8 +16,8 @@
 #include <stdlib.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "slab.h"
 #include "xmalloc.h"
 #include "syncmutex.h"
@@ -203,7 +203,7 @@ typedef struct internal_jiukun_slab
 
 /** Byte aligned size
  */
-#define SLAB_ALIGN_SIZE  BYTES_PER_WORD
+#define SLAB_ALIGN_SIZE   (BYTES_PER_POINTER)
 
 /* Macros for storing/retrieving the cache and slab from the page structure.
  * These are used to find the cache and slab an obj belongs to.

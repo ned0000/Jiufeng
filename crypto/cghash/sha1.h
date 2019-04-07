@@ -16,7 +16,7 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 
 /* --- constant definitions ------------------------------------------------ */
 #define SHA1_BLOCK_SIZE   64

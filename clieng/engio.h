@@ -16,7 +16,7 @@
 #include <stdarg.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "clieng.h"
 #include "stringparse.h"
 

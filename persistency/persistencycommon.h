@@ -15,7 +15,7 @@
 /* --- standard C lib header files ----------------------------------------- */
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "persistency.h"
 #include "jtsqlite.h"
 #include "syncmutex.h"

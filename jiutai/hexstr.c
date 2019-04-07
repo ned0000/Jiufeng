@@ -16,7 +16,7 @@
 #include <ctype.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "hexstr.h"
 #include "errcode.h"
 

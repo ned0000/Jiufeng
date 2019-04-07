@@ -32,7 +32,7 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "errcode.h"
 #include "hostinfo.h"
 #include "stringparse.h"

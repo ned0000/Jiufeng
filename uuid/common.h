@@ -16,7 +16,7 @@
 /* --- standard C lib header files ----------------------------------------- */
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "ifmgmt.h"
 
 /* --- constant definitions ------------------------------------------------ */
@@ -46,7 +46,7 @@ typedef struct
     /** bits 0-7: clock sequence field */
     uuid_uint8_t uo_u8ClockSeqLow;
     /** bits 0-47: node MAC address */
-    uuid_uint8_t uo_u8Node[MAC_LEN];
+    uuid_uint8_t uo_u8Node[JF_LIMIT_MAC_LEN];
 } uuid_obj_t;
 
 /* --- functional routines ------------------------------------------------- */

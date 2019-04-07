@@ -19,8 +19,8 @@
 #include <fcntl.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "errcode.h"
 #include "logger.h"
 #include "process.h"
@@ -46,7 +46,7 @@ u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dongyuan_t * pig;
     jf_servmgmt_init_param_t jsip;
-    olchar_t strExecutablePath[MAX_PATH_LEN];
+    olchar_t strExecutablePath[JF_LIMIT_MAX_PATH_LEN];
 
     jf_logger_logInfoMsg("create dongyuan");
 
@@ -57,7 +57,7 @@ u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp)
 
         /*change the working directory*/
         jf_file_getDirectoryName(
-            strExecutablePath, MAX_PATH_LEN, pgp->gp_pstrCmdLine);
+            strExecutablePath, JF_LIMIT_MAX_PATH_LEN, pgp->gp_pstrCmdLine);
         if (strlen(strExecutablePath) > 0)
             u32Ret = jf_process_setCurrentWorkingDirectory(strExecutablePath);
     }

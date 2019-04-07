@@ -1,5 +1,5 @@
 /**
- *  @file olbasic.h
+ *  @file jf_basic.h
  *
  *  @brief basic types header file
  *
@@ -8,8 +8,8 @@
  *  @note
  */
 
-#ifndef JIUTAI_OLBASIC_H
-#define JIUTAI_OLBASIC_H
+#ifndef JIUTAI_JF_BASIC_H
+#define JIUTAI_JF_BASIC_H
 
 /* --- standard C lib header files ------------------------------------------ */
 #include <assert.h>
@@ -131,6 +131,8 @@ typedef u8                           boolean_t;
     #define FALSE                    (0x0)
 #endif
 
+#define BYTES_PER_POINTER            (sizeof(void *))
+
 typedef s32                          olindex_t;
 typedef s32                          olid_t;
 typedef time_t                       oltime_t;
@@ -220,7 +222,7 @@ typedef time_t                       oltime_t;
 /* --- functional routines ------------------------------------------------- */
 
 
-#endif /*JIUTAI_OLBASIC_H*/
+#endif /*JIUTAI_JF_BASIC_H*/
 
 /*---------------------------------------------------------------------------*/
 

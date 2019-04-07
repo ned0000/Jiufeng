@@ -15,8 +15,8 @@
 #include <stdlib.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "errcode.h"
 #include "encrypt.h"
 #include "hexstr.h"
@@ -74,8 +74,8 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
 static u32 _testEncryptFile(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strEncryptFile[MAX_PATH_LEN];
-    olchar_t strDecryptFile[MAX_PATH_LEN];
+    olchar_t strEncryptFile[JF_LIMIT_MAX_PATH_LEN];
+    olchar_t strDecryptFile[JF_LIMIT_MAX_PATH_LEN];
     olchar_t * pKey = "abcdefghijklmnop";
 
     ol_sprintf(strEncryptFile, "%s.encrypt", ls_pstrSrcFile);

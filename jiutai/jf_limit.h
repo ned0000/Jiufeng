@@ -1,28 +1,33 @@
 /**
- *  @file
+ *  @file jf_limit.h
  *
- *  @brief The template C file
+ *  @brief Head file for limitation
  *
  *  @author Min Zhang
- *
+ *  
  *  @note
  */
 
+#ifndef JIUTAI_JF_LIMIT_H
+#define JIUTAI_JF_LIMIT_H
+
 /* --- standard C lib header files ----------------------------------------- */
-#include <stdio.h>
-#include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "jf_basic.h"
-#include "jf_limit.h"
 
 /* --- private data/data structure section --------------------------------- */
 
-/* --- private routine section---------------------------------------------- */
+#define JF_LIMIT_MAX_PROGRAM_NAME_LEN     (64)
 
-/* --- public routine section ---------------------------------------------- */
+#define JF_LIMIT_MAX_DATA_TRANSFER_SIZE	  (65536)
 
+#define JF_LIMIT_MAX_PATH_LEN             (512)
 
+#define JF_LIMIT_MAC_LEN                  (6)
+
+#endif /*JIUTAI_JF_LIMIT_H*/
 
 /*---------------------------------------------------------------------------*/
+
+
 

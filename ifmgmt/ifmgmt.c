@@ -14,8 +14,8 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "logger.h"
 #include "ifmgmt.h"
 #include "xmalloc.h"
@@ -107,7 +107,7 @@ static u32 _getIfmgmtIfHwAddr(olint_t sock, jf_ifmgmt_if_t * pIf)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memcpy(pIf->jii_u8Mac, ifr.ifr_hwaddr.sa_data, MAC_LEN);
+        memcpy(pIf->jii_u8Mac, ifr.ifr_hwaddr.sa_data, JF_LIMIT_MAC_LEN);
     }
 
     return u32Ret;
@@ -165,12 +165,12 @@ static u32 _getIfmgmtIf(const olchar_t * pstrIfName, jf_ifmgmt_if_t * pif)
     return u32Ret;
 }
 
-static boolean_t _isValidMacAddress(u8 u8Mac[MAC_LEN])
+static boolean_t _isValidMacAddress(u8 u8Mac[JF_LIMIT_MAC_LEN])
 {
     boolean_t bRet = FALSE;
     u8 u8Index;
 
-    for (u8Index = 0; u8Index < MAC_LEN; u8Index ++)
+    for (u8Index = 0; u8Index < JF_LIMIT_MAC_LEN; u8Index ++)
     {
         if (u8Mac[u8Index] != 0)
         {
@@ -400,7 +400,7 @@ u32 jf_ifmgmt_getStringIfFlags(olchar_t * pstrFlags, jf_ifmgmt_if_t * pIf)
 /* Return the Media Access Control (MAC) address of the first network interface
  * card (NIC)
  */
-u32 jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[MAC_LEN])
+u32 jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[JF_LIMIT_MAC_LEN])
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
@@ -418,7 +418,7 @@ u32 jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[MAC_LEN])
 
             if (_isValidMacAddress(ifmgmts[u32Index].jii_u8Mac))
             {
-                ol_memcpy(u8Mac, ifmgmts[u32Index].jii_u8Mac, MAC_LEN);
+                ol_memcpy(u8Mac, ifmgmts[u32Index].jii_u8Mac, JF_LIMIT_MAC_LEN);
                 break;
             }
         }
@@ -451,7 +451,7 @@ u32 jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[MAC_LEN])
         if (pAdapter == NULL)
             u32Ret = JF_ERR_ETHERNET_ADAPTER_NOT_FOUND;
         else
-            memcpy(u8Mac, pAdapter->Address, MAC_LEN);
+            memcpy(u8Mac, pAdapter->Address, JF_LIMIT_MAC_LEN);
     }
 
 #endif

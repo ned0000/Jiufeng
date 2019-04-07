@@ -26,11 +26,11 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h" 
+#include "jf_basic.h" 
 #include "errcode.h"
 #include "logger.h"
 #include "hexstr.h"
-#include "ollimit.h"
+#include "jf_limit.h"
 #include "process.h"
 #include "common.h"
 
@@ -62,7 +62,7 @@ typedef struct
     /* the name of the calling module. The name should
         not exceed MAX_CALLER_NAME characters */
     olchar_t il_strCallerName[MAX_CALLER_NAME];
-    olchar_t il_strLogFilename[MAX_PATH_LEN];
+    olchar_t il_strLogFilename[JF_LIMIT_MAX_PATH_LEN];
     /* the maximum lines of the log file. Zero (0) means no limit. */
     u32 il_u32LogFileLines;
     /* the next line to print log to */
@@ -347,10 +347,10 @@ u32 jf_logger_init(jf_logger_init_param_t * pParam)
         if (pjlip->jlip_pstrLogFilePath != NULL)
             ol_strncpy(
                 pil->il_strLogFilename, pjlip->jlip_pstrLogFilePath,
-                MAX_PATH_LEN - 1);
+                JF_LIMIT_MAX_PATH_LEN - 1);
         else
             ol_snprintf(
-                pil->il_strLogFilename, MAX_PATH_LEN - 1,
+                pil->il_strLogFilename, JF_LIMIT_MAX_PATH_LEN - 1,
                 "%s.log", pil->il_strCallerName);
 
         fd = fopen(pil->il_strLogFilename, "w");

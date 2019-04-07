@@ -16,9 +16,9 @@
 /* --- standard C lib header files ----------------------------------------- */
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "errcode.h"
-#include "ollimit.h"
+#include "jf_limit.h"
 
 /* --- constant definitions ------------------------------------------------ */
 #define JF_HOST_MAX_NET_NAME_LEN     (24)

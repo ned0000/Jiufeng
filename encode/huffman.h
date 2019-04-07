@@ -16,7 +16,7 @@
 #include <limits.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 
 /* --- constant definitions ------------------------------------------------ */
 

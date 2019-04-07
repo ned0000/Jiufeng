@@ -14,8 +14,8 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "archive.h"
 #include "errcode.h"
 #include "archivecommon.h"
@@ -45,10 +45,10 @@ static u32 _setName(archive_header_t * pah, const olchar_t * pstrFullpath,
     jf_file_stat_t * pFilestat)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strFilename[MAX_PATH_LEN];
+    olchar_t strFilename[JF_LIMIT_MAX_PATH_LEN];
     archive_block_t * pab;
 
-    jf_file_getFileName(strFilename, MAX_PATH_LEN, pstrFullpath);
+    jf_file_getFileName(strFilename, JF_LIMIT_MAX_PATH_LEN, pstrFullpath);
     if (strlen(strFilename) < AH_NAME_LEN)
     {
         ol_snprintf((olchar_t *)pah->ah_u8Name, AH_NAME_LEN - 1, "%s", strFilename);
@@ -64,14 +64,14 @@ static u32 _setName(archive_header_t * pah, const olchar_t * pstrFullpath,
     return u32Ret;
 }
 
-static u32 _countDirDepth(const olchar_t * pstrNewPath, olchar_t * pstrSavedPath,
-    u8 * pu8Depth)
+static u32 _countDirDepth(
+    const olchar_t * pstrNewPath, olchar_t * pstrSavedPath, u8 * pu8Depth)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strNewPath[MAX_PATH_LEN], strSavedPath[MAX_PATH_LEN];
+    olchar_t strNewPath[JF_LIMIT_MAX_PATH_LEN], strSavedPath[JF_LIMIT_MAX_PATH_LEN];
     u32 u32Depth;
 
-    jf_file_getDirectoryName(strNewPath, MAX_PATH_LEN, pstrNewPath);
+    jf_file_getDirectoryName(strNewPath, JF_LIMIT_MAX_PATH_LEN, pstrNewPath);
     u32Depth = 0;
 
     while (pstrSavedPath[0] != '\0')
@@ -83,7 +83,8 @@ static u32 _countDirDepth(const olchar_t * pstrNewPath, olchar_t * pstrSavedPath
         else
         {
             u32Depth ++;
-            jf_file_getDirectoryName(strSavedPath, MAX_PATH_LEN - 1, pstrSavedPath);
+            jf_file_getDirectoryName(
+                strSavedPath, JF_LIMIT_MAX_PATH_LEN - 1, pstrSavedPath);
             if (strSavedPath[0] == '\0')
                 break;
             else
@@ -430,13 +431,13 @@ u32 writeToArchive(
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_file_stat_t filestat;
     file_handler_t fh;
-    olchar_t strName[MAX_PATH_LEN];
+    olchar_t strName[JF_LIMIT_MAX_PATH_LEN];
 
     u32Ret = jf_file_getStat(pstrFullpath, &filestat);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_strncpy(strName, pstrFullpath, MAX_PATH_LEN - 1);
-        strName[MAX_PATH_LEN - 1] = '\0';
+        ol_strncpy(strName, pstrFullpath, JF_LIMIT_MAX_PATH_LEN - 1);
+        strName[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
         jf_file_removeTrailingPathSeparator(strName);
 
         memset(&fh, 0, sizeof(file_handler_t));

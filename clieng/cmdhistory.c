@@ -15,7 +15,7 @@
 #include <stdio.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "errcode.h"
 #include "cmdhistory.h"
 #include "xmalloc.h"

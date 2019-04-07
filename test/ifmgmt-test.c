@@ -15,8 +15,8 @@
 #include <stdlib.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "ifmgmt.h"
 #include "errcode.h"
 #include "stringparse.h"
@@ -153,7 +153,7 @@ static u32 _showIpInfo()
     jf_ipaddr_t ipaddr[16];
     u16 u16Count = 16, u16Index;
     olchar_t strIp[20];
-    u8 u8Mac[MAC_LEN];
+    u8 u8Mac[JF_LIMIT_MAC_LEN];
 
     u32Ret = jf_ipaddr_getLocalIpAddrList(JF_IPADDR_TYPE_V4, &ipaddr[0], &u16Count);
     if (u32Ret == JF_ERR_NO_ERROR)

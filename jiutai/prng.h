@@ -17,7 +17,7 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 
 #undef PRNGAPI
 #undef PRNGCALL

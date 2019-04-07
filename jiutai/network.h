@@ -28,7 +28,7 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "errcode.h"
 #include "ifmgmt.h"
 #include "syncmutex.h"

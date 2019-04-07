@@ -14,7 +14,7 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "syncrwlock.h"
 #include "errcode.h"
 

@@ -14,7 +14,7 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "errcode.h"
 #include "cghash.h"
 #include "cghashcommon.h"

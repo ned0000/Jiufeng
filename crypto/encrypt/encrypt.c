@@ -18,12 +18,12 @@
 #include <openssl/aes.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
+#include "jf_basic.h"
 #include "errcode.h"
 #include "encrypt.h"
 #include "xmalloc.h"
 #include "stringparse.h"
-#include "ollimit.h"
+#include "jf_limit.h"
 #include "files.h"
 
 /* --- constant definitions ------------------------------------------------ */
@@ -94,7 +94,7 @@ u32 jf_encrypt_encryptFile(
     u32Ret = _setEncryptKey(pKey, &aeskey);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_mem_alloc((void **)&pBuf, MAX_DATA_TRANSFER_SIZE);
+        u32Ret = jf_mem_alloc((void **)&pBuf, JF_LIMIT_MAX_DATA_TRANSFER_SIZE);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -122,7 +122,7 @@ u32 jf_encrypt_encryptFile(
         _setEncryptIv(iv);
         do
         {
-            sread = MAX_DATA_TRANSFER_SIZE;
+            sread = JF_LIMIT_MAX_DATA_TRANSFER_SIZE;
             u32Ret = jf_filestream_readn(fpSrc, pBuf, &sread);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
@@ -164,7 +164,7 @@ u32 jf_encrypt_decryptFile(
     u32Ret = _setDecryptKey(pKey, &aeskey);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_mem_alloc((void **)&pBuf, MAX_DATA_TRANSFER_SIZE);
+        u32Ret = jf_mem_alloc((void **)&pBuf, JF_LIMIT_MAX_DATA_TRANSFER_SIZE);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -189,7 +189,7 @@ u32 jf_encrypt_decryptFile(
         sleft = (olsize_t)u64Size;
         do
         {
-            sread = MAX_DATA_TRANSFER_SIZE;
+            sread = JF_LIMIT_MAX_DATA_TRANSFER_SIZE;
             u32Ret = jf_filestream_readn(fpSrc, pBuf, &sread);
             if (u32Ret == JF_ERR_NO_ERROR)
             {

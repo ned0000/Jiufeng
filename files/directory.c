@@ -24,8 +24,8 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "olbasic.h"
-#include "ollimit.h"
+#include "jf_basic.h"
+#include "jf_limit.h"
 #include "files.h"
 #include "errcode.h"
 #include "common.h"
@@ -40,7 +40,7 @@ typedef struct
 {
     HANDLE id_hDir;
     HANDLE id_hFind;
-    olchar_t id_strDirName[MAX_PATH_LEN];
+    olchar_t id_strDirName[JF_LIMIT_MAX_PATH_LEN];
 } internal_dir_t;
 #endif
 
@@ -58,16 +58,18 @@ static u32 _getFirstDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
     {
         memset(pEntry, 0, sizeof(jf_dir_entry_t));
         pEntry->jde_sName = (olsize_t)pdirent->d_reclen;
-        ol_strncpy(pEntry->jde_strName, pdirent->d_name, MAX_PATH_LEN - 1);
+        ol_strncpy(
+            pEntry->jde_strName, pdirent->d_name, JF_LIMIT_MAX_PATH_LEN - 1);
     }
 #elif defined(WINDOWS)
     internal_dir_t * pid = (internal_dir_t *)pDir;
     WIN32_FIND_DATA FindFileData;
     boolean_t bRet;
-    olchar_t strDirName[MAX_PATH_LEN];
+    olchar_t strDirName[JF_LIMIT_MAX_PATH_LEN];
 
-    memset(strDirName, 0, MAX_PATH_LEN);
-    ol_snprintf(strDirName, MAX_PATH_LEN - 1, "%s%c*", pid->id_strDirName,
+    memset(strDirName, 0, JF_LIMIT_MAX_PATH_LEN);
+    ol_snprintf(
+        strDirName, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c*", pid->id_strDirName,
         PATH_SEPARATOR);
     pid->id_hFind = FindFirstFile(strDirName, &FindFileData);
     if (pid->id_hFind == INVALID_HANDLE_VALUE) 
@@ -77,7 +79,8 @@ static u32 _getFirstDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
     {
         memset(pEntry, 0, sizeof(jf_dir_entry_t));
         pEntry->jde_sName = ol_strlen(FindFileData.cFileName);
-        ol_strncpy(pEntry->jde_strName, FindFileData.cFileName, MAX_PATH_LEN - 1);
+        ol_strncpy(
+            pEntry->jde_strName, FindFileData.cFileName, JF_LIMIT_MAX_PATH_LEN - 1);
     }
 #endif
 
@@ -97,7 +100,8 @@ static u32 _getNextDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
     {
         memset(pEntry, 0, sizeof(jf_dir_entry_t));
         pEntry->jde_sName = (olsize_t)pdirent->d_reclen;
-        ol_strncpy(pEntry->jde_strName, pdirent->d_name, MAX_PATH_LEN - 1);
+        ol_strncpy(
+            pEntry->jde_strName, pdirent->d_name, JF_LIMIT_MAX_PATH_LEN - 1);
     }
 #elif defined(WINDOWS)
     internal_dir_t * pid = (internal_dir_t *)pDir;
@@ -109,7 +113,8 @@ static u32 _getNextDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
     {
         memset(pEntry, 0, sizeof(jf_dir_entry_t));
         pEntry->jde_sName = ol_strlen(FindFileData.cFileName);
-        ol_strncpy(pEntry->jde_strName, FindFileData.cFileName, MAX_PATH_LEN - 1);
+        ol_strncpy(
+            pEntry->jde_strName, FindFileData.cFileName, JF_LIMIT_MAX_PATH_LEN - 1);
     }
     else
     {
@@ -141,7 +146,7 @@ static u32 _traversalDirectory(
     jf_file_stat_t filestat;
     jf_dir_t * pDir = NULL;
     jf_dir_entry_t direntry;
-    olchar_t strFullname[MAX_PATH_LEN * 2];
+    olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN * 2];
 
     u32Ret = jf_dir_open(pstrDirName, &pDir);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -205,8 +210,9 @@ u32 jf_dir_open(const olchar_t * pstrDirName, jf_dir_t ** ppDir)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pDir, 0, sizeof(internal_dir_t));
-        pDir->id_hDir = CreateFile(pstrDirName, GENERIC_READ, FILE_SHARE_READ, NULL,
-             OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+        pDir->id_hDir = CreateFile(
+            pstrDirName, GENERIC_READ, FILE_SHARE_READ, NULL,
+            OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
         if (pDir->id_hDir == INVALID_HANDLE_VALUE)
         {
             u32Ret = JF_ERR_FAIL_OPEN_DIR;
@@ -215,7 +221,8 @@ u32 jf_dir_open(const olchar_t * pstrDirName, jf_dir_t ** ppDir)
         else
         {
             pDir->id_hFind = INVALID_HANDLE_VALUE;
-            ol_strncpy(pDir->id_strDirName, pstrDirName, MAX_PATH_LEN - 1);
+            ol_strncpy(
+                pDir->id_strDirName, pstrDirName, JF_LIMIT_MAX_PATH_LEN - 1);
             *ppDir = (jf_dir_t *)pDir;
         }
     }
@@ -306,10 +313,10 @@ u32 jf_dir_traversal(
     const olchar_t * pstrDirName, jf_dir_fnHandleFile_t fnHandleFile, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strName[MAX_PATH_LEN];
+    olchar_t strName[JF_LIMIT_MAX_PATH_LEN];
 
-    ol_strncpy(strName, pstrDirName, MAX_PATH_LEN - 1);
-    strName[MAX_PATH_LEN - 1] = '\0';
+    ol_strncpy(strName, pstrDirName, JF_LIMIT_MAX_PATH_LEN - 1);
+    strName[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
 
     u32Ret = _traversalDirectory(strName, fnHandleFile, pArg);
 
@@ -320,14 +327,14 @@ u32 jf_dir_parse(
     const olchar_t * pstrDirName, jf_dir_fnHandleFile_t fnHandleFile, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strName[MAX_PATH_LEN];
+    olchar_t strName[JF_LIMIT_MAX_PATH_LEN];
     jf_file_stat_t filestat;
     jf_dir_t * pDir = NULL;
     jf_dir_entry_t direntry;
-    olchar_t strFullname[MAX_PATH_LEN * 2];
+    olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN * 2];
 
-    ol_strncpy(strName, pstrDirName, MAX_PATH_LEN - 1);
-    strName[MAX_PATH_LEN - 1] = '\0';
+    ol_strncpy(strName, pstrDirName, JF_LIMIT_MAX_PATH_LEN - 1);
+    strName[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
 
     u32Ret = jf_dir_open(strName, &pDir);
     if (u32Ret == JF_ERR_NO_ERROR)
