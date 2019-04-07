@@ -21,52 +21,54 @@
 
 /* --- data structures ----------------------------------------------------- */
 
-typedef u32  hsm_state_id_t;
-typedef u32  hsm_event_id_t;
+typedef u32  jf_hsm_state_id_t;
+typedef u32  jf_hsm_event_id_t;
 
-struct hsm_state;
+struct jf_hsm_state;
 
-typedef struct hsm_event
+typedef struct jf_hsm_event
 {
-    hsm_event_id_t he_hsiEventId;
-    void * he_pData;
-} hsm_event_t;
+    jf_hsm_event_id_t jhe_jheiEventId;
+    void * jhe_pData;
+} jf_hsm_event_t;
 
-typedef boolean_t (* fnHsmEventGuard_t)(hsm_event_t * pEvent);
-typedef u32 (* fnHsmEventAction_t)(hsm_event_t * pEvent);
+typedef boolean_t (* jf_hsm_fnEventGuard_t)(jf_hsm_event_t * pEvent);
+typedef u32 (* jf_hsm_fnEventAction_t)(jf_hsm_event_t * pEvent);
 
-typedef struct hsm_transition
+typedef struct jf_hsm_transition
 {
 #define HSM_LAST_EVENT_ID     (U32_MAX)
-    hsm_event_id_t ht_heiEventId;
-    fnHsmEventGuard_t ht_fnGuard;
-    fnHsmEventAction_t ht_fnAction;
-    struct hsm_state * ht_phsNext;
-} hsm_transition_t;
+    jf_hsm_event_id_t jht_jheiEventId;
+    jf_hsm_fnEventGuard_t jht_fnGuard;
+    jf_hsm_fnEventAction_t jht_fnAction;
+    struct jf_hsm_state * jht_pjhtNext;
+} jf_hsm_transition_t;
 
-typedef struct hsm_state
+typedef struct jf_hsm_state
 {
-    hsm_state_id_t hs_hsiStateId;
+    jf_hsm_state_id_t jhs_jhsiStateId;
 #define MAX_HSM_STATE_NAME_LEN    (32)
-    olchar_t hs_strName[MAX_HSM_STATE_NAME_LEN];
-    hsm_transition_t hs_hrTransition[];
-} hsm_state_t;
+    olchar_t jhs_strName[MAX_HSM_STATE_NAME_LEN];
+    jf_hsm_transition_t jhs_jhtTransition[];
+} jf_hsm_state_t;
 
 typedef struct
 {
-    hsm_state_t * hs_phsInitial;
-    hsm_state_t * hs_phsCurrent;
-} hsm_statemachine_t;
+    jf_hsm_state_t * jh_pjhsInitial;
+    jf_hsm_state_t * jh_pjhsCurrent;
+} jf_hsm_t;
 
 /* --- functional routines ------------------------------------------------- */
 
-u32 initHsmStateMachine(hsm_statemachine_t * phs, hsm_state_t * pInitial);
+u32 jf_hsm_init(jf_hsm_t * pjh, jf_hsm_state_t * pInitial);
 
-hsm_state_id_t getHsmCurrentStateId(hsm_statemachine_t * phs);
+u32 jf_hsm_fini(jf_hsm_t * pjh);
 
-hsm_state_t * getHsmCurrentState(hsm_statemachine_t * phs);
+jf_hsm_state_id_t jf_hsm_getCurrentStateId(jf_hsm_t * pjh);
 
-u32 handleHsmEvent(hsm_statemachine_t * phs, hsm_event_t * pEvent);
+jf_hsm_state_t * jf_hsm_getCurrentState(jf_hsm_t * pjh);
+
+u32 jf_hsm_handleEvent(jf_hsm_t * pjh, jf_hsm_event_t * pEvent);
 
 #endif /*JIUTAI_HSM_H*/
 

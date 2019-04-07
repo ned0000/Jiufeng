@@ -36,25 +36,25 @@ enum rice_cooker_event_id
     RICE_COOKER_EVENT_PLUG_OUT,
 };
 
-static boolean_t _guardPowerOffForPlugIn(hsm_event_t * pEvent);
-static u32 _actionPowerOn(hsm_event_t * pEvent);
+static boolean_t _guardPowerOffForPlugIn(jf_hsm_event_t * pEvent);
+static u32 _actionPowerOn(jf_hsm_event_t * pEvent);
 
-static boolean_t _guardKeepWarmForPressButton(hsm_event_t * pEvent);
-static boolean_t _guardKeepWarmForPlugOut(hsm_event_t * pEvent);
-static u32 _actionCook(hsm_event_t * pEvent);
-static u32 _actionPlugOut(hsm_event_t * pEvent);
+static boolean_t _guardKeepWarmForPressButton(jf_hsm_event_t * pEvent);
+static boolean_t _guardKeepWarmForPlugOut(jf_hsm_event_t * pEvent);
+static u32 _actionCook(jf_hsm_event_t * pEvent);
+static u32 _actionPlugOut(jf_hsm_event_t * pEvent);
 
-static boolean_t _guardCookForPressButton(hsm_event_t * pEvent);
-static boolean_t _guardCookForPlugOut(hsm_event_t * pEvent);
-static u32 _actionKeepWarm(hsm_event_t * pEvent);
+static boolean_t _guardCookForPressButton(jf_hsm_event_t * pEvent);
+static boolean_t _guardCookForPlugOut(jf_hsm_event_t * pEvent);
+static u32 _actionKeepWarm(jf_hsm_event_t * pEvent);
 
 
 
-static hsm_state_t ls_hsRiceCookerStatePowerOff;
-static hsm_state_t ls_hsRiceCookerStateKeepWarm;
-static hsm_state_t ls_hsRiceCookerStateCook;
+static jf_hsm_state_t ls_hsRiceCookerStatePowerOff;
+static jf_hsm_state_t ls_hsRiceCookerStateKeepWarm;
+static jf_hsm_state_t ls_hsRiceCookerStateCook;
 
-static hsm_state_t ls_hsRiceCookerStatePowerOff =
+static jf_hsm_state_t ls_hsRiceCookerStatePowerOff =
 {
     RICE_COOKER_STATE_POWER_OFF,
     "power off",
@@ -64,7 +64,7 @@ static hsm_state_t ls_hsRiceCookerStatePowerOff =
     },
 };
 
-static hsm_state_t ls_hsRiceCookerStateKeepWarm =
+static jf_hsm_state_t ls_hsRiceCookerStateKeepWarm =
 {
     RICE_COOKER_STATE_KEEP_WARM,
     "keep warm",
@@ -75,7 +75,7 @@ static hsm_state_t ls_hsRiceCookerStateKeepWarm =
     },
 };
 
-static hsm_state_t ls_hsRiceCookerStateCook =
+static jf_hsm_state_t ls_hsRiceCookerStateCook =
 {
     RICE_COOKER_STATE_COOK,
     "cook",
@@ -86,21 +86,21 @@ static hsm_state_t ls_hsRiceCookerStateCook =
     },
 };
 
-static hsm_statemachine_t ls_hsRiceCookerStateMachine;
+static jf_hsm_t ls_hsRiceCookerStateMachine;
 
 /* --- private routine section---------------------------------------------- */
 
-static boolean_t _guardPowerOffForPlugIn(hsm_event_t * pEvent)
+static boolean_t _guardPowerOffForPlugIn(jf_hsm_event_t * pEvent)
 {
     boolean_t bRet = FALSE;
 
-    if (pEvent->he_hsiEventId == RICE_COOKER_EVENT_PLUG_IN)
+    if (pEvent->jhe_jheiEventId == RICE_COOKER_EVENT_PLUG_IN)
         bRet = TRUE;
 
     return bRet;
 }
 
-static u32 _actionPowerOn(hsm_event_t * pEvent)
+static u32 _actionPowerOn(jf_hsm_event_t * pEvent)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -108,27 +108,27 @@ static u32 _actionPowerOn(hsm_event_t * pEvent)
     return u32Ret;
 }
 
-static boolean_t _guardKeepWarmForPressButton(hsm_event_t * pEvent)
+static boolean_t _guardKeepWarmForPressButton(jf_hsm_event_t * pEvent)
 {
     boolean_t bRet = FALSE;
 
-    if (pEvent->he_hsiEventId == RICE_COOKER_EVENT_PRESS_BUTTON)
+    if (pEvent->jhe_jheiEventId == RICE_COOKER_EVENT_PRESS_BUTTON)
         bRet = TRUE;
 
     return bRet;
 }
 
-static boolean_t _guardKeepWarmForPlugOut(hsm_event_t * pEvent)
+static boolean_t _guardKeepWarmForPlugOut(jf_hsm_event_t * pEvent)
 {
     boolean_t bRet = FALSE;
 
-    if (pEvent->he_hsiEventId == RICE_COOKER_EVENT_PLUG_OUT)
+    if (pEvent->jhe_jheiEventId == RICE_COOKER_EVENT_PLUG_OUT)
         bRet = TRUE;
 
     return bRet;
 }
 
-static u32 _actionCook(hsm_event_t * pEvent)
+static u32 _actionCook(jf_hsm_event_t * pEvent)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -136,7 +136,7 @@ static u32 _actionCook(hsm_event_t * pEvent)
     return u32Ret;
 }
 
-static u32 _actionPlugOut(hsm_event_t * pEvent)
+static u32 _actionPlugOut(jf_hsm_event_t * pEvent)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -144,27 +144,27 @@ static u32 _actionPlugOut(hsm_event_t * pEvent)
     return u32Ret;
 }
 
-static boolean_t _guardCookForPressButton(hsm_event_t * pEvent)
+static boolean_t _guardCookForPressButton(jf_hsm_event_t * pEvent)
 {
     boolean_t bRet = FALSE;
 
-    if (pEvent->he_hsiEventId == RICE_COOKER_EVENT_PRESS_BUTTON)
+    if (pEvent->jhe_jheiEventId == RICE_COOKER_EVENT_PRESS_BUTTON)
         bRet = TRUE;
 
     return bRet;
 }
 
-static boolean_t _guardCookForPlugOut(hsm_event_t * pEvent)
+static boolean_t _guardCookForPlugOut(jf_hsm_event_t * pEvent)
 {
     boolean_t bRet = FALSE;
 
-    if (pEvent->he_hsiEventId == RICE_COOKER_EVENT_PLUG_OUT)
+    if (pEvent->jhe_jheiEventId == RICE_COOKER_EVENT_PLUG_OUT)
         bRet = TRUE;
 
     return bRet;
 }
 
-static u32 _actionKeepWarm(hsm_event_t * pEvent)
+static u32 _actionKeepWarm(jf_hsm_event_t * pEvent)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -172,17 +172,17 @@ static u32 _actionKeepWarm(hsm_event_t * pEvent)
     return u32Ret;
 }
 
-static void _printCurrentState(hsm_statemachine_t * phs)
+static void _printCurrentState(jf_hsm_t * pjh)
 {
-    hsm_state_t * current;
+    jf_hsm_state_t * current;
 
-    current = getHsmCurrentState(phs);
-    ol_printf("Current state: %s\n\n", current->hs_strName);
+    current = jf_hsm_getCurrentState(pjh);
+    ol_printf("Current state: %s\n\n", current->jhs_strName);
 }
 
-static void _printEvent(hsm_event_t * pEvent)
+static void _printEvent(jf_hsm_event_t * pEvent)
 {
-    switch (pEvent->he_hsiEventId)
+    switch (pEvent->jhe_jheiEventId)
     {
     case RICE_COOKER_EVENT_PLUG_IN:
         ol_printf("Event: Plug_In\n");
@@ -201,41 +201,41 @@ static void _printEvent(hsm_event_t * pEvent)
 
 static void _testHsm(void)
 {
-    hsm_statemachine_t * phs = &ls_hsRiceCookerStateMachine;
-    hsm_event_t eventPlugIn = {RICE_COOKER_EVENT_PLUG_IN, NULL};
-    hsm_event_t eventPressButton = {RICE_COOKER_EVENT_PRESS_BUTTON, NULL};
-    hsm_event_t eventPlugOut = {RICE_COOKER_EVENT_PLUG_OUT, NULL};
-    hsm_event_t * pEvent;
+    jf_hsm_t * phs = &ls_hsRiceCookerStateMachine;
+    jf_hsm_event_t eventPlugIn = {RICE_COOKER_EVENT_PLUG_IN, NULL};
+    jf_hsm_event_t eventPressButton = {RICE_COOKER_EVENT_PRESS_BUTTON, NULL};
+    jf_hsm_event_t eventPlugOut = {RICE_COOKER_EVENT_PLUG_OUT, NULL};
+    jf_hsm_event_t * pEvent;
 
-    initHsmStateMachine(phs, &ls_hsRiceCookerStatePowerOff);
+    jf_hsm_init(phs, &ls_hsRiceCookerStatePowerOff);
     _printCurrentState(phs);
 
     pEvent = &eventPlugOut;
     _printEvent(pEvent);
-    handleHsmEvent(phs, pEvent);
+    jf_hsm_handleEvent(phs, pEvent);
     _printCurrentState(phs);
 
     pEvent = &eventPlugIn;
     _printEvent(pEvent);
-    handleHsmEvent(phs, pEvent);
+    jf_hsm_handleEvent(phs, pEvent);
     _printCurrentState(phs);
 
     pEvent = &eventPressButton;
     _printEvent(pEvent);
-    handleHsmEvent(phs, pEvent);
+    jf_hsm_handleEvent(phs, pEvent);
     _printCurrentState(phs);
 
     pEvent = &eventPressButton;
     _printEvent(pEvent);
-    handleHsmEvent(phs, pEvent);
+    jf_hsm_handleEvent(phs, pEvent);
     _printCurrentState(phs);
 
     pEvent = &eventPlugOut;
     _printEvent(pEvent);
-    handleHsmEvent(phs, pEvent);
+    jf_hsm_handleEvent(phs, pEvent);
     _printCurrentState(phs);
 
-
+    jf_hsm_fini(phs);
 }
 
 /* --- public routine section ---------------------------------------------- */

@@ -24,47 +24,57 @@
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 initHsmStateMachine(hsm_statemachine_t * phs, hsm_state_t * pInitial)
+u32 jf_hsm_init(jf_hsm_t * pjh, jf_hsm_state_t * pInitial)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    phs->hs_phsInitial = pInitial;
-    phs->hs_phsCurrent = phs->hs_phsInitial;
+    pjh->jh_pjhsInitial = pInitial;
+    pjh->jh_pjhsCurrent = pjh->jh_pjhsInitial;
 
     return u32Ret;
 }
 
-hsm_state_id_t getHsmCurrentStateId(hsm_statemachine_t * phs)
-{
-    return phs->hs_phsCurrent->hs_hsiStateId;
-}
-
-hsm_state_t * getHsmCurrentState(hsm_statemachine_t * phs)
-{
-    return phs->hs_phsCurrent;
-}
-
-u32 handleHsmEvent(hsm_statemachine_t * phs, hsm_event_t * pEvent)
+u32 jf_hsm_fini(jf_hsm_t * pjh)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    hsm_transition_t * pht;
+
+    pjh->jh_pjhsInitial = NULL;
+    pjh->jh_pjhsCurrent = NULL;
+
+    return u32Ret;
+}
+
+jf_hsm_state_id_t jf_hsm_getCurrentStateId(jf_hsm_t * pjh)
+{
+    return pjh->jh_pjhsCurrent->jhs_jhsiStateId;
+}
+
+jf_hsm_state_t * jf_hsm_getCurrentState(jf_hsm_t * pjh)
+{
+    return pjh->jh_pjhsCurrent;
+}
+
+u32 jf_hsm_handleEvent(jf_hsm_t * pjh, jf_hsm_event_t * pEvent)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_hsm_transition_t * pjht;
     boolean_t bRet;
 
-    pht = phs->hs_phsCurrent->hs_hrTransition;
-    while (pht->ht_heiEventId != HSM_LAST_EVENT_ID)
+    pjht = pjh->jh_pjhsCurrent->jhs_jhtTransition;
+    while (pjht->jht_jheiEventId != HSM_LAST_EVENT_ID)
     {
-        if (pht->ht_heiEventId == pEvent->he_hsiEventId)
+        if (pjht->jht_jheiEventId == pEvent->jhe_jheiEventId)
         {
-            bRet = pht->ht_fnGuard(pEvent);
+            bRet = pjht->jht_fnGuard(pEvent);
             if (bRet == TRUE)
             {
-                u32Ret = pht->ht_fnAction(pEvent);
-                phs->hs_phsCurrent = pht->ht_phsNext;
+                u32Ret = pjht->jht_fnAction(pEvent);
+                pjh->jh_pjhsCurrent = pjht->jht_pjhtNext;
                 break;
             }
         }
 
-        pht ++;
+        pjht ++;
     }
 
     return u32Ret;
