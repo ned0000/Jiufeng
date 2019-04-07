@@ -59,8 +59,8 @@ static u32 _getSeedFromSystem(void)
 #if defined(LINUX)
     u8 tmpbuf[ENTROPY_NEEDED];
     olchar_t * randomfiles[] = { RANDOM_DEV };
-    u32 u32NumOfRandomFile = ARRAY_SIZE(randomfiles);
-    jf_file_stat_t filestats[ARRAY_SIZE(randomfiles)];
+    u32 u32NumOfRandomFile = JF_BASIC_ARRAY_SIZE(randomfiles);
+    jf_file_stat_t filestats[JF_BASIC_ARRAY_SIZE(randomfiles)];
     jf_file_t fd;
     u32 i, j;
     olint_t usec = 10 * 1000; /* spend 10ms on each file */

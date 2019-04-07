@@ -42,44 +42,44 @@
 #define IN
 #define OUT
 
-typedef char                        olchar_t;
-#define BITS_PER_OLCHAR             (8)
-#define BYTES_PER_OLCHAR            (1)
+typedef char                         olchar_t;
+#define BITS_PER_OLCHAR              (8)
+#define BYTES_PER_OLCHAR             (1)
 
-typedef unsigned char               u8;
-#define U8_MAX                      (0xFF)
-#define BITS_PER_U8                 (8)
-#define BYTES_PER_U8                (1)
+typedef unsigned char                u8;
+#define U8_MAX                       (0xFF)
+#define BITS_PER_U8                  (8)
+#define BYTES_PER_U8                 (1)
 
-typedef signed char                 s8;
-#define S8_MAX                      (0x7F)
-#define BITS_PER_S8                 (8)
-#define BYTES_PER_S8                (1)
+typedef signed char                  s8;
+#define S8_MAX                       (0x7F)
+#define BITS_PER_S8                  (8)
+#define BYTES_PER_S8                 (1)
 
-typedef unsigned short              u16;
-#define U16_MAX                     (0xFFFF)
-#define BITS_PER_U16                (16)
-#define BYTES_PER_U16               (2)
+typedef unsigned short               u16;
+#define U16_MAX                      (0xFFFF)
+#define BITS_PER_U16                 (16)
+#define BYTES_PER_U16                (2)
 
-typedef signed short                s16;
-#define S16_MAX                     (0x7FFF)
-#define BITS_PER_S16                (16)
-#define BYTES_PER_S16               (2)
+typedef signed short                 s16;
+#define S16_MAX                      (0x7FFF)
+#define BITS_PER_S16                 (16)
+#define BYTES_PER_S16                (2)
 
-typedef short                       olshort_t;
-#define OLSHORT_MAX                 S16_MAX
-#define BITS_PER_OLSHORT            BITS_PER_S16
-#define BYTES_PER_OLSHORT           BYTES_PER_S16
+typedef short                        olshort_t;
+#define OLSHORT_MAX                  S16_MAX
+#define BITS_PER_OLSHORT             BITS_PER_S16
+#define BYTES_PER_OLSHORT            BYTES_PER_S16
 
-typedef unsigned int                u32;
-#define U32_MAX                     (0xFFFFFFFF)
-#define BITS_PER_U32                (32)
-#define BYTES_PER_U32               (4)
+typedef unsigned int                 u32;
+#define U32_MAX                      (0xFFFFFFFF)
+#define BITS_PER_U32                 (32)
+#define BYTES_PER_U32                (4)
 
-typedef signed int                  s32;
-#define S32_MAX                     (0x7FFFFFFF)
-#define BITS_PER_S32                (32)
-#define BYTES_PER_S32               (4)
+typedef signed int                   s32;
+#define S32_MAX                      (0x7FFFFFFF)
+#define BITS_PER_S32                 (32)
+#define BYTES_PER_S32                (4)
 
 typedef int                          olint_t;
 #define OLINT_MAX                    S32_MAX
@@ -196,7 +196,7 @@ typedef time_t                       oltime_t;
 #endif
 
 #if defined(WINDOWS)
-    #define inline      __inline
+    #define inline                   __inline
 #endif
 
 #ifndef MAX
@@ -215,20 +215,10 @@ typedef time_t                       oltime_t;
     #define ABS(a)      ((a) >= 0 ? (a) : (-(a)))
 #endif
 
-#define ARRAY_SIZE(x)   (sizeof(x) / sizeof((x)[0]))
+#define JF_BASIC_ARRAY_SIZE(x)   (sizeof(x) / sizeof((x)[0]))
 
 /* --- functional routines ------------------------------------------------- */
-static inline int before(u32 seq1, u32 seq2)
-{
-    return (s32)(seq1-seq2) < 0;
-}
-#define after(seq2, seq1)   before(seq1, seq2)
 
-/* is s2<=s1<=s3 ? */
-static inline int between(u32 seq1, u32 seq2, u32 seq3)
-{
-    return seq3 - seq2 >= seq1 - seq2;
-}
 
 #endif /*JIUTAI_OLBASIC_H*/
 
