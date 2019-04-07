@@ -45,12 +45,12 @@ typedef struct
 #define RESPOOL_TEST_MIN_RESOURCES     (2)
 #define RESPOOL_TEST_MAX_RESOURCES     (5)
 
-static resource_pool_t * ls_prpRespoolTestWorkerPool;
+static jf_respool_t * ls_pjrRespoolTestWorkerPool;
 static jf_mutex_t ls_smRespoolTestLock;
 static jf_sem_t ls_jsRespoolTestSem;
 static jf_thread_id_t ls_jtiRespoolTestProducer;
 static boolean_t ls_bRespoolTestTerminateProducer;
-static resource_t * ls_prRespoolTestResource[RESPOOL_TEST_MAX_RESOURCES];
+static jf_respool_resource_t * ls_pjrrRespoolTestResource[RESPOOL_TEST_MAX_RESOURCES];
 
 
 /* --- private routine section---------------------------------------------- */
@@ -106,7 +106,8 @@ JF_THREAD_RETURN_VALUE _respoolTestProducerThread(void * pArg)
     JF_THREAD_RETURN(u32Ret);
 }
 
-static u32 _createRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
+static u32 _createRespoolTestWorker(
+    jf_respool_resource_t * pr, jf_respool_resource_data_t ** pprd)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     respool_test_worker_data_t * prtwd = NULL;
@@ -135,7 +136,8 @@ static u32 _createRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
     return u32Ret;
 }
 
-static u32 _destroyRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
+static u32 _destroyRespoolTestWorker(
+    jf_respool_resource_t * pr, jf_respool_resource_data_t ** pprd)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     respool_test_worker_data_t * prtwd = (respool_test_worker_data_t *) *pprd;
@@ -150,22 +152,22 @@ static u32 _destroyRespoolTestWorker(resource_t * pr, resource_data_t ** pprd)
     return u32Ret;
 }
 
-static u32 _createTestRespool(resource_pool_t ** pprp)
+static u32 _createTestRespool(jf_respool_t ** ppjr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    resource_pool_param_t rpp, * prpp = &rpp;
+    jf_respool_create_param_t jrcp, * pjrcp = &jrcp;
 
-    ol_memset(prpp, 0, sizeof(resource_pool_param_t));
+    ol_memset(pjrcp, 0, sizeof(jf_respool_create_param_t));
 
-    prpp->rpp_bImmediateRelease = FALSE;
-    prpp->rpp_pstrName = RESPOOL_TEST_RESOURCE_POOL_NAME;
-    prpp->rpp_u32MinResources = RESPOOL_TEST_MIN_RESOURCES;
-    prpp->rpp_u32MaxResources = RESPOOL_TEST_MAX_RESOURCES;
+    pjrcp->jrcp_bImmediateRelease = FALSE;
+    pjrcp->jrcp_pstrName = RESPOOL_TEST_RESOURCE_POOL_NAME;
+    pjrcp->jrcp_u32MinResources = RESPOOL_TEST_MIN_RESOURCES;
+    pjrcp->jrcp_u32MaxResources = RESPOOL_TEST_MAX_RESOURCES;
 
-    prpp->rpp_fnCreateResource = _createRespoolTestWorker;
-    prpp->rpp_fnDestroyResource = _destroyRespoolTestWorker;
+    pjrcp->jrcp_fnCreateResource = _createRespoolTestWorker;
+    pjrcp->jrcp_fnDestroyResource = _destroyRespoolTestWorker;
 
-    u32Ret = createResourcePool(pprp, &rpp);
+    u32Ret = jf_respool_create(ppjr, &jrcp);
     
     return u32Ret;
 }
@@ -181,14 +183,14 @@ static u32 _testRespool(void)
         u32Ret = jf_mutex_init(&ls_smRespoolTestLock);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = _createTestRespool(&ls_prpRespoolTestWorkerPool);
+        u32Ret = _createTestRespool(&ls_pjrRespoolTestWorkerPool);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (u32Index = 0; u32Index < RESPOOL_TEST_MAX_RESOURCES; u32Index ++)
         {
-            u32Ret = getResourceFromPool(
-                ls_prpRespoolTestWorkerPool, &ls_prRespoolTestResource[u32Index]);
+            u32Ret = jf_respool_getResource(
+                ls_pjrRespoolTestWorkerPool, &ls_pjrrRespoolTestResource[u32Index]);
         }
     }
 
@@ -216,11 +218,11 @@ static u32 _releaseRespoolTestResource(void)
 
     for (u32Index = 0; u32Index < RESPOOL_TEST_MAX_RESOURCES; u32Index ++)
     {
-        u32Ret = putResourceInPool(
-            ls_prpRespoolTestWorkerPool, &ls_prRespoolTestResource[u32Index]);
+        u32Ret = jf_respool_putResource(
+            ls_pjrRespoolTestWorkerPool, &ls_pjrrRespoolTestResource[u32Index]);
     }
 
-    u32Ret = destroyResourcePool(&ls_prpRespoolTestWorkerPool);
+    u32Ret = jf_respool_destroy(&ls_pjrRespoolTestWorkerPool);
     
     return u32Ret;
 }

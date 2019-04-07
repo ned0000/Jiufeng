@@ -44,7 +44,7 @@ typedef struct
     /** the resource state */
     internal_resource_state_t ir_irsResourceState;
     /** the data of the resource */
-    resource_data_t * ir_prdData;
+    jf_respool_resource_data_t * ir_pjrrdData;
 } internal_resource_t;
 
 typedef struct
@@ -65,9 +65,9 @@ typedef struct
     jf_array_t * irp_pjaParttimeResources;
 
     /** the callback function to create resource*/
-    fnCreateResource_t irp_fnCreateResource;
+    jf_respool_fnCreateResource_t irp_fnCreateResource;
     /** the callback function to destroy resource*/
-    fnDestroyResource_t irp_fnDestroyResource;
+    jf_respool_fnDestroyResource_t irp_fnDestroyResource;
 
 } internal_resource_pool_t;
 
@@ -75,22 +75,22 @@ typedef struct
 
 /** Validate resource pool parameter
  *
- *  @param prpp [in] the pointer to the parameter
+ *  @param pjrcp [in] the pointer to the parameter
  *
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  *  @retval JF_ERR_INVALID_PARAM invalid parameter
  */
-static u32 _validateParam(resource_pool_param_t * prpp)
+static u32 _validateParam(jf_respool_create_param_t * pjrcp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    if (prpp->rpp_u32MinResources > prpp->rpp_u32MaxResources)
+    if (pjrcp->jrcp_u32MinResources > pjrcp->jrcp_u32MaxResources)
         u32Ret = JF_ERR_INVALID_PARAM;
     else
     {
-        if ((prpp->rpp_fnCreateResource == NULL) ||
-            (prpp->rpp_fnDestroyResource == NULL))
+        if ((pjrcp->jrcp_fnCreateResource == NULL) ||
+            (pjrcp->jrcp_fnDestroyResource == NULL))
         {
             u32Ret = JF_ERR_INVALID_PARAM;
         }
@@ -156,7 +156,7 @@ static u32 _destroyResourceInPool(
 
     *ppir = NULL;
 
-    u32Ret = pirp->irp_fnDestroyResource((resource_t *)pir, &pir->ir_prdData);
+    u32Ret = pirp->irp_fnDestroyResource((jf_respool_resource_t *)pir, &pir->ir_pjrrdData);
     
     jf_mem_free((void **)&pir);
 
@@ -223,14 +223,14 @@ static u32 _setPoolResourceState(
  *  @param pirp [in] the pointer to the resource pool
  *  @param bFulltime [in] specify if the resource is fulltime or parttime
  *  @param state [in] the resource state
- *  @param ppr [in/out] the pointer to the resource to be created and returned.
+ *  @param ppjrr [in/out] the pointer to the resource to be created and returned.
  *
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
 static u32 _createResourceInPoolArray(
     internal_resource_pool_t * pirp, boolean_t bFulltime,
-    internal_resource_state_t state, resource_t ** ppr)
+    internal_resource_state_t state, jf_respool_resource_t ** ppjrr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_resource_t * pir = NULL;
@@ -261,7 +261,7 @@ static u32 _createResourceInPoolArray(
             pir->ir_bFulltime = bFulltime;
             _setPoolResourceState(pir, state);
 
-            u32Ret = pirp->irp_fnCreateResource(pir, &pir->ir_prdData);
+            u32Ret = pirp->irp_fnCreateResource(pir, &pir->ir_pjrrdData);
         }
     
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -274,7 +274,7 @@ static u32 _createResourceInPoolArray(
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        *ppr = (resource_t *)pir;
+        *ppjrr = (jf_respool_resource_t *)pir;
     else if (pir != NULL)
         _destroyResourceInPool(pirp, &pir);
 
@@ -284,7 +284,7 @@ static u32 _createResourceInPoolArray(
 /** Create resource
  *
  *  @param pirp [in] the pointer to the resource pool
- *  @param ppr [in/out] the pointer to the resource to be created
+ *  @param ppjrr [in/out] the pointer to the resource to be created
  *
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
@@ -292,14 +292,14 @@ static u32 _createResourceInPoolArray(
  *  @retval JF_ERR_INVALID_PARAM invalid parameter
  */
 static u32 _createResourceInPool(
-    internal_resource_pool_t * pirp, resource_t ** ppr)
+    internal_resource_pool_t * pirp, jf_respool_resource_t ** ppjrr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = _createResourceInPoolArray(pirp, TRUE, IRS_BUSY, ppr);
+    u32Ret = _createResourceInPoolArray(pirp, TRUE, IRS_BUSY, ppjrr);
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        u32Ret = _createResourceInPoolArray(pirp, FALSE, IRS_BUSY, ppr);
+        u32Ret = _createResourceInPoolArray(pirp, FALSE, IRS_BUSY, ppjrr);
     }
 
     return u32Ret;    
@@ -382,7 +382,7 @@ static u32 _destroyAllResources(internal_resource_pool_t * pirp)
 /** Create a resource pool according to the parameters.
  *
  *  @param ppirp [in/out] the pointer to the resource pool to be created and returned.
- *  @param prpp [in] the parameters for creating the resource pool.
+ *  @param pjrcp [in] the parameters for creating the resource pool.
  *
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
@@ -391,7 +391,7 @@ static u32 _destroyAllResources(internal_resource_pool_t * pirp)
  *
  */
 static u32 _createResourcePool(
-    internal_resource_pool_t ** ppirp, resource_pool_param_t * prpp)
+    internal_resource_pool_t ** ppirp, jf_respool_create_param_t * pjrcp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_resource_pool_t * pirp;
@@ -416,21 +416,21 @@ static u32 _createResourcePool(
     
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        pirp->irp_fnCreateResource = prpp->rpp_fnCreateResource;
-        pirp->irp_fnDestroyResource = prpp->rpp_fnDestroyResource;
+        pirp->irp_fnCreateResource = pjrcp->jrcp_fnCreateResource;
+        pirp->irp_fnDestroyResource = pjrcp->jrcp_fnDestroyResource;
 
-        pirp->irp_u32MaxResources = prpp->rpp_u32MaxResources;
-        pirp->irp_u32MinResources = prpp->rpp_u32MinResources;
+        pirp->irp_u32MaxResources = pjrcp->jrcp_u32MaxResources;
+        pirp->irp_u32MinResources = pjrcp->jrcp_u32MinResources;
 
-        pirp->irp_bImmediateRelease = prpp->rpp_bImmediateRelease;
+        pirp->irp_bImmediateRelease = pjrcp->jrcp_bImmediateRelease;
         
-        ol_strcpy(pirp->irp_strName, prpp->rpp_pstrName);
+        ol_strcpy(pirp->irp_strName, pjrcp->jrcp_pstrName);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
         *ppirp = pirp;
     else
-        destroyResourcePool((resource_pool_t **)&pirp);
+        jf_respool_destroy((jf_respool_t **)&pirp);
 
     return u32Ret;
 }
@@ -463,7 +463,8 @@ static boolean_t _isPoolResourceFree(internal_resource_t * pir)
  *  @retval JF_ERR_NO_ERROR success
  */
 static u32 _getResourceFromPoolArray(
-    internal_resource_pool_t * pirp, jf_array_t * pja, resource_t ** ppRes)
+    internal_resource_pool_t * pirp, jf_array_t * pja,
+    jf_respool_resource_t ** ppRes)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_resource_t * pir;
@@ -516,7 +517,7 @@ static u32 _getResourceFromPoolArray(
  *  @retval JF_ERR_NO_ERROR success
  */
 static u32 _getResourceFromPool(
-    internal_resource_pool_t * pirp, resource_t ** ppRes)
+    internal_resource_pool_t * pirp, jf_respool_resource_t ** ppRes)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -542,17 +543,17 @@ static u32 _getResourceFromPool(
 /** Put resource in resource pool.
  *
  *  @param pirp [in] the pointer to internal resource pool
- *  @param ppr [in/out] the pointer to the resource. 
+ *  @param ppjrr [in/out] the pointer to the resource. 
  *
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  *
  */
 static u32 _putResourceInPool(
-    internal_resource_pool_t * pirp, resource_t ** ppr)
+    internal_resource_pool_t * pirp, jf_respool_resource_t ** ppjrr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_resource_t * pir = (internal_resource_t *)*ppr;
+    internal_resource_t * pir = (internal_resource_t *)*ppjrr;
 
     u32Ret = _lockResourcePool(pirp);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -571,7 +572,7 @@ static u32 _putResourceInPool(
         _unlockResourcePool(pirp);
     }
 
-    *ppr = NULL;
+    *ppjrr = NULL;
 
     return u32Ret;
 }
@@ -607,7 +608,7 @@ static u32 _reapResourceInPool(internal_resource_pool_t * pirp)
                 bFree = _isPoolResourceFree(pir);
                 if (bFree)
                 {
-                    pirp->irp_fnDestroyResource(pir, &pir->ir_prdData);
+                    pirp->irp_fnDestroyResource(pir, &pir->ir_pjrrdData);
                     jf_array_removeElementAt(pja, u32Index);
                     u32Size --;
                 }
@@ -626,36 +627,37 @@ static u32 _reapResourceInPool(internal_resource_pool_t * pirp)
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 createResourcePool(resource_pool_t ** pprp, resource_pool_param_t * prpp)
+u32 jf_respool_create(
+    jf_respool_t ** ppjr, jf_respool_create_param_t * pjrcp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_resource_pool_t * pirp = NULL;
 
-    assert((pprp != NULL) && (prpp != NULL));
+    assert((ppjr != NULL) && (pjrcp != NULL));
 
     jf_logger_logInfoMsg("create resource pool");
 
-    u32Ret = _validateParam(prpp);
+    u32Ret = _validateParam(pjrcp);
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = _createResourcePool(&pirp, prpp);
+        u32Ret = _createResourcePool(&pirp, pjrcp);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        *pprp = pirp;
+        *ppjr = pirp;
     else if (pirp != NULL)
-        destroyResourcePool((resource_pool_t **)&pirp);
+        jf_respool_destroy((jf_respool_t **)&pirp);
 
     return u32Ret;
 }
 
-u32 destroyResourcePool(resource_pool_t ** pprp)
+u32 jf_respool_destroy(jf_respool_t ** ppjr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_resource_pool_t * pirp = NULL;
     
-    assert(pprp != NULL);
+    assert(ppjr != NULL);
 
-    pirp = (internal_resource_pool_t *)*pprp;
-    *pprp = NULL;
+    pirp = (internal_resource_pool_t *)*ppjr;
+    *ppjr = NULL;
 
     jf_logger_logInfoMsg("destroy resource pool");
 
@@ -671,12 +673,12 @@ u32 destroyResourcePool(resource_pool_t ** pprp)
     return u32Ret;
 }
 
-u32 getResourceFromPool(resource_pool_t * prp, resource_t ** ppRes)
+u32 jf_respool_getResource(jf_respool_t * pjr, jf_respool_resource_t ** ppRes)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_resource_pool_t * pirp = (internal_resource_pool_t *)prp;
+    internal_resource_pool_t * pirp = (internal_resource_pool_t *)pjr;
 
-    assert((prp != NULL) && (ppRes != NULL));
+    assert((pjr != NULL) && (ppRes != NULL));
 
     jf_logger_logDebugMsg("get resource from pool");
     
@@ -690,12 +692,12 @@ u32 getResourceFromPool(resource_pool_t * prp, resource_t ** ppRes)
     return u32Ret;
 }
 
-u32 putResourceInPool(resource_pool_t * prp, resource_t ** ppRes)
+u32 jf_respool_putResource(jf_respool_t * pjr, jf_respool_resource_t ** ppRes)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_resource_pool_t * pirp = (internal_resource_pool_t *)prp;;
+    internal_resource_pool_t * pirp = (internal_resource_pool_t *)pjr;;
 
-    assert((prp != NULL) && (ppRes != NULL));
+    assert((pjr != NULL) && (ppRes != NULL));
 
     jf_logger_logDebugMsg("put resource in pool");
     
@@ -704,14 +706,14 @@ u32 putResourceInPool(resource_pool_t * prp, resource_t ** ppRes)
     return u32Ret;
 }
 
-u32 reapResourceInPool(resource_pool_t * prp)
+u32 jf_respool_reapResource(jf_respool_t * pjr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_resource_pool_t * pirp;
     
-    assert(prp != NULL);
+    assert(pjr != NULL);
 
-    pirp = (internal_resource_pool_t *)prp;
+    pirp = (internal_resource_pool_t *)pjr;
     u32Ret = _reapResourceInPool(pirp);
 
     return u32Ret;
