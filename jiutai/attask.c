@@ -25,8 +25,8 @@ typedef struct attask_item
 {
     u32 ai_u32Expire;
     void * ai_pData;
-    fnCallbackOfAttaskItem_t ai_fnCallback;
-    fnDestroyAttaskItem_t ai_fnDestroy;
+    jf_attask_fnCallbackOfItem_t ai_fnCallback;
+    jf_attask_fnDestroyItem_t ai_fnDestroy;
     struct attask_item * ai_paiPrev;
     struct attask_item * ai_paiNext;
 } attask_item_t;
@@ -70,7 +70,7 @@ static u32 _flushAttask(internal_attask_t * piu)
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 checkAttask(attask_t * pAttask, u32 * pu32Blocktime)
+u32 jf_attask_check(jf_attask_t * pAttask, u32 * pu32Blocktime)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     struct timeval tv;
@@ -145,9 +145,9 @@ u32 checkAttask(attask_t * pAttask, u32 * pu32Blocktime)
     return u32Ret;
 }
 
-u32 addAttaskItem(
-    attask_t * pAttask, void * pData, u32 u32Milliseconds,
-    fnCallbackOfAttaskItem_t fnCallback, fnDestroyAttaskItem_t fnDestroy)
+u32 jf_attask_addItem(
+    jf_attask_t * pAttask, void * pData, u32 u32Milliseconds,
+    jf_attask_fnCallbackOfItem_t fnCallback, jf_attask_fnDestroyItem_t fnDestroy)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     struct timeval tv;
@@ -221,7 +221,7 @@ u32 addAttaskItem(
     return u32Ret;
 }
 
-u32 removeAttaskItem(attask_t * pAttask, void * pData)
+u32 jf_attask_removeItem(jf_attask_t * pAttask, void * pData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_attask_t * pia = (internal_attask_t *) pAttask;
@@ -288,7 +288,7 @@ u32 removeAttaskItem(attask_t * pAttask, void * pData)
     return u32Ret;
 }
 
-u32 destroyAttask(attask_t ** ppAttask)
+u32 jf_attask_destroy(jf_attask_t ** ppAttask)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_attask_t * pia;
@@ -305,7 +305,7 @@ u32 destroyAttask(attask_t ** ppAttask)
     return u32Ret;
 }
 
-u32 createAttask(attask_t ** ppAttask)
+u32 jf_attask_create(jf_attask_t ** ppAttask)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_attask_t * pia;
@@ -319,7 +319,7 @@ u32 createAttask(attask_t ** ppAttask)
     if (u32Ret == JF_ERR_NO_ERROR)
         *ppAttask = pia;
     else if (pia != NULL)
-        destroyAttask((void **)&pia);
+        jf_attask_destroy((void **)&pia);
 
     return u32Ret;
 }

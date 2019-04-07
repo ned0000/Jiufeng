@@ -18,6 +18,13 @@
 
 /* --- constant definitions ------------------------------------------------ */
 
+/** Last event ID
+ */
+#define JF_HSM_LAST_EVENT_ID     (U32_MAX)
+
+/** Maximum state name length
+ */
+#define JF_HSM_MAX_STATE_NAME_LEN    (32)
 
 /* --- data structures ----------------------------------------------------- */
 
@@ -37,7 +44,6 @@ typedef u32 (* jf_hsm_fnEventAction_t)(jf_hsm_event_t * pEvent);
 
 typedef struct jf_hsm_transition
 {
-#define HSM_LAST_EVENT_ID     (U32_MAX)
     jf_hsm_event_id_t jht_jheiEventId;
     jf_hsm_fnEventGuard_t jht_fnGuard;
     jf_hsm_fnEventAction_t jht_fnAction;
@@ -47,8 +53,7 @@ typedef struct jf_hsm_transition
 typedef struct jf_hsm_state
 {
     jf_hsm_state_id_t jhs_jhsiStateId;
-#define MAX_HSM_STATE_NAME_LEN    (32)
-    olchar_t jhs_strName[MAX_HSM_STATE_NAME_LEN];
+    olchar_t jhs_strName[JF_HSM_MAX_STATE_NAME_LEN];
     jf_hsm_transition_t jhs_jhtTransition[];
 } jf_hsm_state_t;
 

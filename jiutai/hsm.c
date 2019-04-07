@@ -61,7 +61,7 @@ u32 jf_hsm_handleEvent(jf_hsm_t * pjh, jf_hsm_event_t * pEvent)
     boolean_t bRet;
 
     pjht = pjh->jh_pjhsCurrent->jhs_jhtTransition;
-    while (pjht->jht_jheiEventId != HSM_LAST_EVENT_ID)
+    while (pjht->jht_jheiEventId != JF_HSM_LAST_EVENT_ID)
     {
         if (pjht->jht_jheiEventId == pEvent->jhe_jheiEventId)
         {

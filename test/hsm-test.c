@@ -60,7 +60,7 @@ static jf_hsm_state_t ls_hsRiceCookerStatePowerOff =
     "power off",
     {
         {RICE_COOKER_EVENT_PLUG_IN, _guardPowerOffForPlugIn, _actionPowerOn, &ls_hsRiceCookerStateKeepWarm},
-        {HSM_LAST_EVENT_ID, NULL, NULL, NULL},
+        {JF_HSM_LAST_EVENT_ID, NULL, NULL, NULL},
     },
 };
 
@@ -71,7 +71,7 @@ static jf_hsm_state_t ls_hsRiceCookerStateKeepWarm =
     {
         {RICE_COOKER_EVENT_PRESS_BUTTON, _guardKeepWarmForPressButton, _actionCook,    &ls_hsRiceCookerStateCook},
         {RICE_COOKER_EVENT_PLUG_OUT,     _guardKeepWarmForPlugOut,     _actionPlugOut, &ls_hsRiceCookerStatePowerOff},
-        {HSM_LAST_EVENT_ID, NULL, NULL, NULL},
+        {JF_HSM_LAST_EVENT_ID, NULL, NULL, NULL},
     },
 };
 
@@ -82,7 +82,7 @@ static jf_hsm_state_t ls_hsRiceCookerStateCook =
     {
         {RICE_COOKER_EVENT_PRESS_BUTTON, _guardCookForPressButton, _actionKeepWarm, &ls_hsRiceCookerStateKeepWarm},
         {RICE_COOKER_EVENT_PLUG_OUT,     _guardCookForPlugOut,     _actionPlugOut,  &ls_hsRiceCookerStatePowerOff},
-        {HSM_LAST_EVENT_ID, NULL, NULL, NULL},
+        {JF_HSM_LAST_EVENT_ID, NULL, NULL, NULL},
     },
 };
 

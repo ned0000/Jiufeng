@@ -23,10 +23,10 @@
 /* --- constant definitions ------------------------------------------------ */
 
 /* --- data structures ----------------------------------------------------- */
-typedef void  attask_t;
+typedef void  jf_attask_t;
 
-typedef u32 (* fnCallbackOfAttaskItem_t)(void * pData);
-typedef u32 (* fnDestroyAttaskItem_t)(void ** ppData);
+typedef u32 (* jf_attask_fnCallbackOfItem_t)(void * pData);
+typedef u32 (* jf_attask_fnDestroyItem_t)(void ** ppData);
 
 /* --- functional routines ------------------------------------------------- */
 
@@ -36,7 +36,7 @@ typedef u32 (* fnDestroyAttaskItem_t)(void ** ppData);
  *
  *  @return the error code
  */
-u32 createAttask(attask_t ** ppAttask);
+u32 jf_attask_create(jf_attask_t ** ppAttask);
 
 /** Destroy a attask
  *
@@ -44,7 +44,7 @@ u32 createAttask(attask_t ** ppAttask);
  *
  *  @return the error code
  */
-u32 destroyAttask(attask_t ** ppAttask);
+u32 jf_attask_destroy(jf_attask_t ** ppAttask);
 
 /** Add a timed callback with millisecond granularity
  *
@@ -57,9 +57,9 @@ u32 destroyAttask(attask_t ** ppAttask);
  *
  *  @return the error code
  */
-u32 addAttaskItem(
-    attask_t * pAttask, void * pData, u32 u32Milliseconds,
-    fnCallbackOfAttaskItem_t fnCallback, fnDestroyAttaskItem_t fnDestroy);
+u32 jf_attask_addItem(
+    jf_attask_t * pAttask, void * pData, u32 u32Milliseconds,
+    jf_attask_fnCallbackOfItem_t fnCallback, jf_attask_fnDestroyItem_t fnDestroy);
 
 /** Removes item specified by pData from an attask
  *
@@ -72,7 +72,7 @@ u32 addAttaskItem(
  *
  *  @return the error code
  */
-u32 removeAttaskItem(attask_t * pAttask, void * pData);
+u32 jf_attask_removeItem(jf_attask_t * pAttask, void * pData);
 
 /** Checks the attask item and get the block time.
  *
@@ -81,7 +81,7 @@ u32 removeAttaskItem(attask_t * pAttask, void * pData);
  *
  *  @return the error code
  */
-u32 checkAttask(attask_t * pAttask, u32 * pu32Blocktime);
+u32 jf_attask_check(jf_attask_t * pAttask, u32 * pu32Blocktime);
 
 #endif  /*JIUTAI_ATTASK_H*/
 
