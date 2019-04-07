@@ -120,18 +120,18 @@ static u32 _testBitOp(void)
 
     for (u32Index = 0; u32Index < u32NumOfBitopMask; u32Index += 2)
     {
-        ol_printf("BITOP_MASK(64, %2u, %2u): %s\n", u32BitopMask[u32Index],
+        ol_printf("JF_BITOP_MASK(64, %2u, %2u): %s\n", u32BitopMask[u32Index],
             u32BitopMask[u32Index + 1],
-            _printInBinary64(BITOP_MASK(word, u32BitopMask[u32Index],
+            _printInBinary64(JF_BITOP_MASK(word, u32BitopMask[u32Index],
                                       u32BitopMask[u32Index + 1])));
     }
 
     ol_printf("\n");
     for (u32Index = 0; u32Index < u32NumOfBitopMask64; u32Index += 2)
     {
-        ol_printf("BITOP_MASK(64, %2u, %2u): %s\n", u32BitopMask64[u32Index],
+        ol_printf("JF_BITOP_MASK(64, %2u, %2u): %s\n", u32BitopMask64[u32Index],
             u32BitopMask64[u32Index + 1],
-            _printInBinary64(BITOP_MASK(u64Word, u32BitopMask64[u32Index],
+            _printInBinary64(JF_BITOP_MASK(u64Word, u32BitopMask64[u32Index],
                                         u32BitopMask64[u32Index + 1])));
     }
 
@@ -139,10 +139,10 @@ static u32 _testBitOp(void)
     for (u32Index = 0; u32Index < u32BitopSet; u32Index ++)
     {
         temp = word;
-        BITOP_SET(temp, u32BitopSetLeft[u32Index],
+        JF_BITOP_SET(temp, u32BitopSetLeft[u32Index],
                   u32BitopSetRight[u32Index], u32BitopSetValue[u32Index]);
 
-        ol_printf("BITOP_SET(%12llu, %2u, %2u, %8u): %s\n", word,
+        ol_printf("JF_BITOP_SET(%12llu, %2u, %2u, %8u): %s\n", word,
             u32BitopSetLeft[u32Index], u32BitopSetRight[u32Index],
             u32BitopSetValue[u32Index], _printInBinary64(temp));
     }
@@ -150,9 +150,9 @@ static u32 _testBitOp(void)
     ol_printf("\nword: %91s\n", _printInBinary64(word));
     for (u32Index = 0; u32Index < u32BitopGet; u32Index ++)
     {
-        ol_printf("BITOP_GET(%12llu, %2u, %2u): %42s\n", word,
+        ol_printf("JF_BITOP_GET(%12llu, %2u, %2u): %42s\n", word,
             u32BitopGetLeft[u32Index], u32BitopGetRight[u32Index],
-            _printInBinary64(BITOP_GET(word, u32BitopGetLeft[u32Index],
+            _printInBinary64(JF_BITOP_GET(word, u32BitopGetLeft[u32Index],
                                u32BitopGetRight[u32Index])));
     }
 
@@ -160,27 +160,27 @@ static u32 _testBitOp(void)
     for (u32Index = 0; u32Index < u32BitopSetBit; u32Index ++)
     {
         temp = word;
-        BITOP_SET_BIT(temp, u32BitopSetBitPos[u32Index]);
+        JF_BITOP_SET_BIT(temp, u32BitopSetBitPos[u32Index]);
 
-        ol_printf("BITOP_SET_BIT(%12llu, %2u): %42s\n", word,
+        ol_printf("JF_BITOP_SET_BIT(%12llu, %2u): %42s\n", word,
             u32BitopSetBitPos[u32Index], _printInBinary64(temp));
     }
 
     for (u32Index = 0; u32Index < u32BitopGetBit; u32Index ++)
     {
-        ol_printf("BITOP_GET_BIT(%12llu, %2u): %u\n", word,
+        ol_printf("JF_BITOP_GET_BIT(%12llu, %2u): %u\n", word,
             u32BitopGetBitPos[u32Index],
-            (u32)BITOP_GET_BIT(word, u32BitopGetBitPos[u32Index]));
+            (u32)JF_BITOP_GET_BIT(word, u32BitopGetBitPos[u32Index]));
     }
 
     ol_printf("\nword: %93s\n", _printInBinary64(word));
     for (u32Index = 0; u32Index < u32BitopClear; u32Index ++)
     {
         temp = word;
-        BITOP_CLEAR(temp, u32BitopClearLeft[u32Index],
+        JF_BITOP_CLEAR(temp, u32BitopClearLeft[u32Index],
                     u32BitopClearRight[u32Index]);
 
-        ol_printf("BITOP_CLEAR(%12llu, %2u, %2u): %40s\n", word,
+        ol_printf("JF_BITOP_CLEAR(%12llu, %2u, %2u): %40s\n", word,
             u32BitopClearLeft[u32Index], u32BitopClearRight[u32Index],
             _printInBinary64(temp));
     }
@@ -189,9 +189,9 @@ static u32 _testBitOp(void)
     for (u32Index = 0; u32Index < u32BitopClearBit; u32Index ++)
     {
         temp = word;
-        BITOP_CLEAR_BIT(temp, u32BitopClearBitPos[u32Index]);
+        JF_BITOP_CLEAR_BIT(temp, u32BitopClearBitPos[u32Index]);
 
-        ol_printf("BITOP_CLEAR_BIT(%12llu, %2u): %40s\n", word,
+        ol_printf("JF_BITOP_CLEAR_BIT(%12llu, %2u): %40s\n", word,
             u32BitopClearBitPos[u32Index], _printInBinary64(temp));
     }
 

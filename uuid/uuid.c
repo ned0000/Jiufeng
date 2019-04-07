@@ -46,10 +46,10 @@ static const u64 ls_u64UuidTimeOffset = 122192928000000000LL;
  */
 /** 0: individual address(unicast), 1: global address(mulcast)
  */
-#define IEEE_MAC_MCBIT   BITOP_OCTET(0,0,0,0,0,0,0,1)
+#define IEEE_MAC_MCBIT   JF_BITOP_OCTET(0,0,0,0,0,0,0,1)
 /** 0: universally administered address, 1: locally administered address
  */
-#define IEEE_MAC_LOBIT   BITOP_OCTET(0,0,0,0,0,0,1,0)
+#define IEEE_MAC_LOBIT   JF_BITOP_OCTET(0,0,0,0,0,0,1,0)
 
 /** uuid generation data structure
  */
@@ -93,10 +93,10 @@ static uuid_gen_t ls_ugUuidGen;
 static void _brandUuid(uuid_gen_t * pug, jf_uuid_ver_t version)
 {
     /* set version (as given) */
-    BITOP_SET(pug->ug_uoObj.uo_u16TimeHiAndVersion, 15, 12, version);
+    JF_BITOP_SET(pug->ug_uoObj.uo_u16TimeHiAndVersion, 15, 12, version);
 
     /* set variant (always DCE 1.1 only) */
-    BITOP_SET(pug->ug_uoObj.uo_u8ClockSeqHiAndReserved, 7, 6, 0x2);
+    JF_BITOP_SET(pug->ug_uoObj.uo_u8ClockSeqHiAndReserved, 7, 6, 0x2);
 }
 
 static u32 _makeUuidV1(uuid_gen_t * pug)
@@ -152,18 +152,18 @@ static u32 _makeUuidV1(uuid_gen_t * pug)
         if (pug->ug_u32TimeSeq > 0)
             t += (u64)pug->ug_u32TimeSeq;
 
-        pug->ug_uoObj.uo_u16TimeHiAndVersion = BITOP_GET(t, 59, 48);
-        pug->ug_uoObj.uo_u16TimeMid = BITOP_GET(t, 47, 32);
-        pug->ug_uoObj.uo_u32TimeLow = BITOP_GET(t, 31, 0);
+        pug->ug_uoObj.uo_u16TimeHiAndVersion = JF_BITOP_GET(t, 59, 48);
+        pug->ug_uoObj.uo_u16TimeMid = JF_BITOP_GET(t, 47, 32);
+        pug->ug_uoObj.uo_u32TimeLow = JF_BITOP_GET(t, 31, 0);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /* retrieve current clock sequence */
-        BITOP_SET(
+        JF_BITOP_SET(
             clck, 13, 8,
-            BITOP_GET((u64)pug->ug_uoObj.uo_u8ClockSeqHiAndReserved, 5, 0));
-        BITOP_SET(clck, 7, 0, pug->ug_uoObj.uo_u8ClockSeqLow);
+            JF_BITOP_GET((u64)pug->ug_uoObj.uo_u8ClockSeqHiAndReserved, 5, 0));
+        JF_BITOP_SET(clck, 7, 0, pug->ug_uoObj.uo_u8ClockSeqLow);
 
         /* generate new random clock sequence (initially or if the time has
            stepped backwards) or else just increase it */
@@ -178,13 +178,13 @@ static u32 _makeUuidV1(uuid_gen_t * pug)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        clck %= BITOP_POW2(14);
+        clck %= JF_BITOP_POW2(14);
 
         /* store back new clock sequence */
-        BITOP_SET(
+        JF_BITOP_SET(
             pug->ug_uoObj.uo_u8ClockSeqHiAndReserved, 5, 0,
-            BITOP_GET(clck, 13, 8));
-        pug->ug_uoObj.uo_u8ClockSeqLow = BITOP_GET(clck, 7, 0);
+            JF_BITOP_GET(clck, 13, 8));
+        pug->ug_uoObj.uo_u8ClockSeqLow = JF_BITOP_GET(clck, 7, 0);
     }
 
     /*  Use a random multi-cast MAC address instead of the real MAC address
