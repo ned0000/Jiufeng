@@ -131,7 +131,7 @@ $(BIN_DIR)/sharedmemory-test-consumer: sharedmemory-test-consumer.o \
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lollogger
 
-$(BIN_DIR)/ifmgmt-test: ifmgmt-test.o
+$(BIN_DIR)/ifmgmt-test: ifmgmt-test.o $(JIUTAI_DIR)/process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolifmgmt -lolstringparse -lollogger
 
@@ -215,7 +215,7 @@ $(BIN_DIR)/network-test-server: network-test-server.o \
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolnetwork -lollogger -lolstringparse -lolifmgmt
 
-$(BIN_DIR)/network-test-client: network-test-client.o
+$(BIN_DIR)/network-test-client: network-test-client.o $(JIUTAI_DIR)/process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolnetwork -lollogger -lolifmgmt
 

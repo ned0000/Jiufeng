@@ -125,6 +125,10 @@ u32 jf_process_setCurrentWorkingDirectory(const olchar_t * pstrDir);
 u32 jf_process_registerSignalHandlers(
     jf_process_fnSignalHandler_t fnSignalHandler);
 
+u32 jf_process_initSocket(void);
+
+u32 jf_process_finiSocket(void);
+
 void jf_thread_initId(jf_thread_id_t * pThreadId);
 
 boolean_t jf_thread_isValidId(jf_thread_id_t * pThreadId);

@@ -733,6 +733,60 @@ u32 jf_process_setCurrentWorkingDirectory(const olchar_t * pstrDir)
     return u32Ret;
 }
 
+u32 jf_process_initSocket(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+#if defined(LINUX)
+
+#elif defined(WINDOWS)
+    WORD wVersionRequested;
+    WSADATA wsaData;
+    olint_t err;
+
+    srand(time(NULL));
+
+    wVersionRequested = MAKEWORD(2, 0);
+
+    err = WSAStartup(wVersionRequested, &wsaData);
+    if (err != 0)
+    {
+        u32Ret = JF_ERR_FAIL_INIT_NET_LIB;
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        /* Confirm that the WinSock DLL supports 2.0.*/
+        /* Note that if the DLL supports versions greater    */
+        /* than 2.0 in addition to 2.0, it will still return */
+        /* 2.0 in wVersion since that is the version we      */
+        /* requested.                                        */
+        if (LOBYTE(wsaData.wVersion ) != 2 ||
+            HIBYTE(wsaData.wVersion ) != 0)
+        {
+            /* Tell the user that we could not find a usable WinSock DLL.*/
+            WSACleanup();
+            u32Ret = JF_ERR_FAIL_INIT_NET_LIB;
+        }
+    }
+
+#endif
+
+    return u32Ret;
+}
+
+u32 jf_process_finiSocket(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+#if defined(LINUX)
+
+#elif defined(WINDOWS)
+    WSACleanup();
+#endif
+
+    return u32Ret;
+}
+
 /*---------------------------------------------------------------------------*/
 
 

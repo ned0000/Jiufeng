@@ -17,7 +17,6 @@
 /* --- internal header files ----------------------------------------------- */
 #include "olbasic.h"
 #include "ollimit.h"
-#include "comminit.h"
 #include "errcode.h"
 #include "network.h"
 #include "stringparse.h"
@@ -244,7 +243,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     {
         jf_logger_init(&jlipParam);
 
-        u32Ret = jf_network_initLib();
+        u32Ret = jf_process_initSocket();
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (ls_bSocketPair)
@@ -257,7 +256,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
                 _printUsage();
             }
 
-            jf_network_finiLib();
+            jf_process_finiSocket();
         }
 
         jf_logger_fini();

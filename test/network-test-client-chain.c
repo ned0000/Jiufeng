@@ -21,7 +21,6 @@
 #include "network.h"
 #include "stringparse.h"
 #include "process.h"
-#include "comminit.h"
 
 /* --- private data/data structure section --------------------------------- */
 static jf_network_chain_t * ls_pjncChain;
@@ -53,7 +52,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     jf_logger_init(&jlipParam);
 
-    u32Ret = jf_network_initLib();
+    u32Ret = jf_process_initSocket();
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_process_registerSignalHandlers(_terminate);
@@ -72,7 +71,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
         }
 
-        jf_network_finiLib();
+        jf_process_finiSocket();
     }
 
     jf_logger_fini();

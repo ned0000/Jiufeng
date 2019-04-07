@@ -17,7 +17,6 @@
 /* --- internal header files ----------------------------------------------- */
 #include "olbasic.h"
 #include "ollimit.h"
-#include "comminit.h"
 #include "ifmgmt.h"
 #include "errcode.h"
 #include "stringparse.h"
@@ -216,7 +215,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32Ret = _parseCmdLineParam(argc, argv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_network_initLib();
+        u32Ret = jf_process_initSocket();
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (ls_bShowIpInfo)
@@ -236,7 +235,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
             }
         }
 
-        jf_network_finiLib();
+        jf_process_finiSocket();
     }
 
     if (u32Ret != JF_ERR_NO_ERROR)
