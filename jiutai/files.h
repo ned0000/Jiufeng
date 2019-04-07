@@ -229,17 +229,17 @@ FILESAPI u32 FILESCALL jf_filestream_writen(
     jf_filestream_t * pjf, const void * pBuffer, olsize_t sWrite);
 
 FILESAPI u32 FILESCALL jf_filestream_readVec(
-    jf_filestream_t * pjf, data_vec_t * pdvData, olsize_t * psRead);
+    jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t * psRead);
 
 FILESAPI u32 FILESCALL jf_filestream_writeVec(
-    jf_filestream_t * pjf, data_vec_t * pdvData, olsize_t sWrite);
+    jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t sWrite);
 
 FILESAPI u32 FILESCALL jf_filestream_readVecOffset(
-    jf_filestream_t * pjf, data_vec_t * pdvData, olsize_t sVecOffset,
+    jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t sVecOffset,
     olsize_t * psRead);
 
 FILESAPI u32 FILESCALL jf_filestream_writeVecOffset(
-    jf_filestream_t * pjf, data_vec_t * pdvData, olsize_t sVecOffset,
+    jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t sVecOffset,
     olsize_t sWrite);
 
 FILESAPI u32 FILESCALL jf_filestream_readLine(

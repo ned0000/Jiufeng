@@ -25,73 +25,74 @@
  */
 typedef struct
 {
-    u8 * dve_pu8Buf;   /**< buffer */
-    olsize_t dve_sBuf; /**< the size of the buffer*/
-    olsize_t dve_sOffset; /**< the size of the data in this buffer*/
-} data_vec_entry_t;
+    u8 * jde_pu8Buf;   /**< buffer */
+    olsize_t jde_sBuf; /**< the size of the buffer*/
+    olsize_t jde_sOffset; /**< the size of the data in this buffer*/
+} jf_datavec_entry_t;
 
 /** The data vector structure
  */
 typedef struct
 {
-    u16 dv_u16MaxEntry; /**< max number of entries allocated*/
-    u16 dv_u16CurEntry; /**< tatal number of entryies containing data*/
-    u32 dv_u32Reserved8[3];
-    data_vec_entry_t * dv_pdveEntry;
-} data_vec_t;
+    u16 jd_u16MaxEntry; /**< max number of entries allocated*/
+    u16 jd_u16CurEntry; /**< tatal number of entryies containing data*/
+    u32 jd_u32Reserved8[3];
+    jf_datavec_entry_t * jd_pjdeEntry;
+} jf_datavec_t;
 
 /* --- functional routines ------------------------------------------------- */
-static inline void initDataVec(data_vec_t * vec)
+
+static inline void jf_datavec_init(jf_datavec_t * vec)
 {
     olint_t i;
-    data_vec_entry_t * entry;
+    jf_datavec_entry_t * entry;
 
-    vec->dv_u16CurEntry = 0;
+    vec->jd_u16CurEntry = 0;
 
-    for (i = 0; i < vec->dv_u16MaxEntry; i ++)
+    for (i = 0; i < vec->jd_u16MaxEntry; i ++)
     {
-        entry = &vec->dv_pdveEntry[i];
-        entry->dve_sOffset = 0;
+        entry = &vec->jd_pjdeEntry[i];
+        entry->jde_sOffset = 0;
     }
 }
 
-static inline void setDataVec(data_vec_t * vec, olsize_t offset)
+static inline void jf_datavec_set(jf_datavec_t * vec, olsize_t offset)
 {
     olint_t i;
-    data_vec_entry_t * entry;
+    jf_datavec_entry_t * entry;
 
-    vec->dv_u16CurEntry = 0;
+    vec->jd_u16CurEntry = 0;
 
-    for (i = 0; i < vec->dv_u16MaxEntry; i ++)
+    for (i = 0; i < vec->jd_u16MaxEntry; i ++)
     {
-        entry = &vec->dv_pdveEntry[i];
-        if (offset >= entry->dve_sBuf)
+        entry = &vec->jd_pjdeEntry[i];
+        if (offset >= entry->jde_sBuf)
         {
-            entry->dve_sOffset = entry->dve_sBuf;
-            offset -= entry->dve_sBuf;
+            entry->jde_sOffset = entry->jde_sBuf;
+            offset -= entry->jde_sBuf;
         }
         else
         {
-            entry->dve_sOffset = offset;
+            entry->jde_sOffset = offset;
             break;
         }
     }
 
-    vec->dv_u16CurEntry = i;
+    vec->jd_u16CurEntry = i;
 }
 
-static inline data_vec_entry_t * locateDataVec(
-    data_vec_t * vec, olsize_t offset, olsize_t * entryoffset)
+static inline jf_datavec_entry_t * jf_datavec_locate(
+    jf_datavec_t * vec, olsize_t offset, olsize_t * entryoffset)
 {
     olint_t i;
-    data_vec_entry_t * entry = NULL;
+    jf_datavec_entry_t * entry = NULL;
 
-    for (i = 0; i < vec->dv_u16CurEntry; i ++)
+    for (i = 0; i < vec->jd_u16CurEntry; i ++)
     {
-        entry = &vec->dv_pdveEntry[i];
-        if (offset >= entry->dve_sOffset)
+        entry = &vec->jd_pjdeEntry[i];
+        if (offset >= entry->jde_sOffset)
         {
-            offset -= entry->dve_sBuf;
+            offset -= entry->jde_sBuf;
             continue;
         }
         else
@@ -101,36 +102,37 @@ static inline data_vec_entry_t * locateDataVec(
         }
     }
 
-    if (i == vec->dv_u16CurEntry)
+    if (i == vec->jd_u16CurEntry)
         entry = NULL;
  
     return entry;
 }
 
-static inline olsize_t copyDataToVec(data_vec_t * vec, u8 * data, olsize_t size)
+static inline olsize_t jf_datavec_copyData(
+    jf_datavec_t * vec, u8 * data, olsize_t size)
 {
-    data_vec_entry_t * entry;
+    jf_datavec_entry_t * entry;
     olsize_t copy, offset = 0;
 
-    if (vec->dv_u16CurEntry == vec->dv_u16MaxEntry)
+    if (vec->jd_u16CurEntry == vec->jd_u16MaxEntry)
         return 0;
 
     while (size > 0)
     {
-        entry = &vec->dv_pdveEntry[vec->dv_u16CurEntry];
+        entry = &vec->jd_pjdeEntry[vec->jd_u16CurEntry];
 
         copy = size;
-        if (entry->dve_sOffset + copy > entry->dve_sBuf)
-            copy = entry->dve_sBuf - entry->dve_sOffset;
+        if (entry->jde_sOffset + copy > entry->jde_sBuf)
+            copy = entry->jde_sBuf - entry->jde_sOffset;
 
-        memcpy(entry->dve_pu8Buf + entry->dve_sOffset, data + offset, copy);
+        memcpy(entry->jde_pu8Buf + entry->jde_sOffset, data + offset, copy);
         offset += copy;
-        entry->dve_sOffset += copy;
+        entry->jde_sOffset += copy;
         size -= copy;
-        if (entry->dve_sOffset == entry->dve_sBuf)
-            vec->dv_u16CurEntry ++;
+        if (entry->jde_sOffset == entry->jde_sBuf)
+            vec->jd_u16CurEntry ++;
 
-        if (vec->dv_u16CurEntry == vec->dv_u16MaxEntry)
+        if (vec->jd_u16CurEntry == vec->jd_u16MaxEntry)
             break;
     }
 
@@ -138,61 +140,61 @@ static inline olsize_t copyDataToVec(data_vec_t * vec, u8 * data, olsize_t size)
 }
 
 /*return true is this is the last entry containing data in vector*/
-static inline boolean_t isLastVecEntry(data_vec_t * vec,
-    data_vec_entry_t * entry)
+static inline boolean_t jf_datavec_isLastEntry(
+    jf_datavec_t * vec, jf_datavec_entry_t * entry)
 {
-    if ((entry->dve_sOffset != entry->dve_sBuf) ||
-        (entry - vec->dv_pdveEntry == vec->dv_u16MaxEntry - 1))
-        return 1;
+    if ((entry->jde_sOffset != entry->jde_sBuf) ||
+        (entry - vec->jd_pjdeEntry == vec->jd_u16MaxEntry - 1))
+        return TRUE;
 
-    return 0;
+    return FALSE;
 }
 
-/*base on the new buffer size, return the new number of entry*/
-static inline u16 newDataVecMaxEntry(data_vec_t * vec, olsize_t sBuf)
+/*base on the new buffer size, return the number of entry*/
+static inline u16 jf_datavec_getMaxEntry(jf_datavec_t * vec, olsize_t sBuf)
 {
     u16 index;
-    data_vec_entry_t * entry;
+    jf_datavec_entry_t * entry;
     u16 u16Entry = 0;
 
-    for (index = 0; index < vec->dv_u16CurEntry; index ++)
+    for (index = 0; index < vec->jd_u16CurEntry; index ++)
     {
-        entry = &vec->dv_pdveEntry[index];
+        entry = &vec->jd_pjdeEntry[index];
 
-        u16Entry += (entry->dve_sOffset + sBuf - 1) / sBuf;
+        u16Entry += (entry->jde_sOffset + sBuf - 1) / sBuf;
     }
 
     return u16Entry;
 }
 
-static inline void convertDataVec(
-    data_vec_t * vec, olsize_t sBuf, data_vec_t * newvec)
+static inline void jf_datavec_convert(
+    jf_datavec_t * vec, olsize_t sBuf, jf_datavec_t * newvec)
 {
     u16 index, index2;
-    data_vec_entry_t * entry, *entry2;
+    jf_datavec_entry_t * entry, *entry2;
     olsize_t start, size;
 
-    for (index = 0, index2 = 0; index < vec->dv_u16CurEntry; index ++)
+    for (index = 0, index2 = 0; index < vec->jd_u16CurEntry; index ++)
     {
-        entry = &vec->dv_pdveEntry[index];
+        entry = &vec->jd_pjdeEntry[index];
         start = 0;
-        while (start < entry->dve_sOffset)
+        while (start < entry->jde_sOffset)
         {
-            size = entry->dve_sOffset - start;
+            size = entry->jde_sOffset - start;
             if (size > sBuf)
                 size = sBuf;
 
-            entry2 = &newvec->dv_pdveEntry[index2];
-            entry2->dve_pu8Buf = entry->dve_pu8Buf + start;
-            entry2->dve_sBuf = size;
-            entry2->dve_sOffset = size;
+            entry2 = &newvec->jd_pjdeEntry[index2];
+            entry2->jde_pu8Buf = entry->jde_pu8Buf + start;
+            entry2->jde_sBuf = size;
+            entry2->jde_sOffset = size;
 
             start += size;
             index2 ++;
         }
     }
 
-    newvec->dv_u16CurEntry = index2;
+    newvec->jd_u16CurEntry = index2;
 }
 
 #endif /*JIUTAI_DATAVEC_H*/
