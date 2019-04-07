@@ -143,7 +143,7 @@ static u32 _jtSqliteExecSqlTransaction(jf_sqlite_t * pjs, olchar_t * pSql)
             break;
 
 		/* Get random number for sleep time in millisecond */
-        u32Value = getRandomU32InRange(
+        u32Value = jf_rand_getU32InRange(
             TRANSACTION_RETRY_MIN_TIME, TRANSACTION_RETRY_MAX_TIME);
         jf_logger_logDebugMsg(
             "retry jt sqlite trans, attemp: %d, sleep: %u", nAttempt, u32Value);

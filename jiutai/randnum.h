@@ -31,7 +31,7 @@
  *
  *  @return the random u32 number
  */
-u32 getRandomU32InRange(u32 u32Lower, u32 u32Upper);
+u32 jf_rand_getU32InRange(u32 u32Lower, u32 u32Upper);
 
 
 #endif /*JIUTAI_RANDNUM_H*/

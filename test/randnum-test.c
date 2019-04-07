@@ -71,7 +71,7 @@ static u32 testRandomNumberInRange(void)
 
     for (i = 0; i < 10; i ++)
     {
-        u32Value = getRandomU32InRange(u32Lower, u32Upper);
+        u32Value = jf_rand_getU32InRange(u32Lower, u32Upper);
         ol_printf("%u\n", u32Value);
         if ((u32Value < u32Lower) && (u32Value > u32Upper))
         {

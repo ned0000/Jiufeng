@@ -31,7 +31,7 @@
 
 /* --- public routine section ---------------------------------------------- */
 
-u32 getRandomU32InRange(u32 u32Lower, u32 u32Upper)
+u32 jf_rand_getU32InRange(u32 u32Lower, u32 u32Upper)
 {
     u32 u32Ret = u32Lower;
     static boolean_t bRandomNumSeeded = FALSE;
