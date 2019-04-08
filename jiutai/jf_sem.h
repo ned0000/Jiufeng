@@ -1,16 +1,16 @@
 /**
- *  @file syncsem.h
+ *  @file jf_sem.h
  *
  *  @brief synchronization semaphore object header file
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_sem object
  *
  */
 
-#ifndef JIUTAI_SYNCSEM_H
-#define JIUTAI_SYNCSEM_H
+#ifndef JIUTAI_SEM_H
+#define JIUTAI_SEM_H
 
 /* --- standard C lib header files ----------------------------------------- */
 
@@ -94,7 +94,7 @@ u32 jf_sem_downWithTimeout(jf_sem_t * pSem, u32 u32Timeout);
  */
 u32 jf_sem_up(jf_sem_t * pSem);
 
-#endif /*JIUTAI_SYNCSEM_H*/
+#endif /*JIUTAI_SEM_H*/
 
 /*---------------------------------------------------------------------------*/
 

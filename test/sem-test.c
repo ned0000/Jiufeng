@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "syncsem.h"
+#include "jf_sem.h"
 #include "process.h"
 #include "xtime.h"
 

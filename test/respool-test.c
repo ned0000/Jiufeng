@@ -22,7 +22,7 @@
 #include "respool.h"
 #include "process.h"
 #include "jf_mutex.h"
-#include "syncsem.h"
+#include "jf_sem.h"
 #include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */

@@ -1,5 +1,5 @@
 /**
- *  @file syncsem.c
+ *  @file jf_sem.c
  *
  *  @brief synchronization semaphore object implementation file
  *
@@ -19,7 +19,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "syncsem.h"
+#include "jf_sem.h"
 #include "jf_err.h"
 #include "jf_mem.h"
 

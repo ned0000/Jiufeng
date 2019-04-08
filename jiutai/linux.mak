@@ -11,7 +11,7 @@
 #-----------------------------------------------------------------------------
 
 SOURCES = hexstr.c process.c xtime.c bases.c jf_mem.c jf_mutex.c  \
-    syncrwlock.c syncsem.c jf_array.c hash.c jf_menu.c crc32c.c  \
+    syncrwlock.c jf_sem.c jf_array.c hash.c jf_menu.c crc32c.c  \
     sharedmemory.c jf_dynlib.c jf_hsm.c jf_host.c respool.c randnum.c  \
     attask.c jf_sqlite.c
 
