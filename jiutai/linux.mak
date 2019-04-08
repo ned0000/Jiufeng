@@ -12,7 +12,7 @@
 
 SOURCES = hexstr.c process.c xtime.c bases.c jf_mem.c syncmutex.c  \
     syncrwlock.c syncsem.c array.c hash.c jf_menu.c crc32c.c  \
-    sharedmemory.c dynlib.c jf_hsm.c jf_host.c respool.c randnum.c  \
+    sharedmemory.c jf_dynlib.c jf_hsm.c jf_host.c respool.c randnum.c  \
     attask.c jtsqlite.c
 
 EXTRA_CFLAGS = -D_GNU_SOURCE

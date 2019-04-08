@@ -1,12 +1,13 @@
 /**
- *  @file dynlib.h
+ *  @file jf_dynlib.h
  *
  *  @brief Dynamic library header file. Provide some functional routine for
  *   dynamic library
  *
  *  @author Min Zhang
  *
- *  @note Link with xmalloc object file
+ *  @note Routines declared in this file are included in jf_dynlib object
+ *  @note Link with jf_mem object file
  *  @note Link with dl library on Linux platform
  *  
  */

@@ -1,5 +1,5 @@
 /**
- *  @file dynlib.c
+ *  @file jf_dynlib.c
  *
  *  @brief The common object file to process dynamic library
  *
@@ -22,7 +22,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "dynlib.h"
+#include "jf_dynlib.h"
 #include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
