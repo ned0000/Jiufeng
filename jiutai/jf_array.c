@@ -1,5 +1,5 @@
 /**
- *  @file array.c
+ *  @file jf_array.c
  *
  *  @brief basic array implementation
  *
@@ -15,7 +15,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "array.h"
+#include "jf_array.h"
 #include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */

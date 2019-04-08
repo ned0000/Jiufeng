@@ -17,7 +17,7 @@
 #include "respool.h"
 #include "jf_logger.h"
 #include "jf_err.h"
-#include "array.h"
+#include "jf_array.h"
 #include "syncmutex.h"
 #include "jf_mem.h"
 

@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "conffile.h"
-#include "array.h"
+#include "jf_array.h"
 #include "stringparse.h"
 #include "jf_mem.h"
 
