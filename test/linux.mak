@@ -107,7 +107,7 @@ $(BIN_DIR)/conffile-test: conffile-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -lolfiles
 
-$(BIN_DIR)/menu-test: menu-test.o $(JIUTAI_DIR)/xmalloc.o $(JIUTAI_DIR)/menu.o
+$(BIN_DIR)/menu-test: menu-test.o $(JIUTAI_DIR)/xmalloc.o $(JIUTAI_DIR)/jf_menu.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolstringparse
 

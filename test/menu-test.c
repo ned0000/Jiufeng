@@ -23,7 +23,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "menu.h"
+#include "jf_menu.h"
 
 /* --- private data/data structure section --------------------------------- */
 
