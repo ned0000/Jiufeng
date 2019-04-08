@@ -1,5 +1,5 @@
 /**
- *  @file attask.c
+ *  @file jf_attask.c
  *
  *  @brief task container and scheduler
  *
@@ -16,7 +16,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "attask.h"
+#include "jf_attask.h"
 #include "xtime.h"
 #include "jf_mem.h"
 

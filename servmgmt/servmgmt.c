@@ -16,14 +16,15 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "servmgmt.h"
-#include "servmgmtsetting.h"
 #include "jf_mem.h"
 #include "sharedmemory.h"
 #include "files.h"
 #include "process.h"
-#include "attask.h"
+#include "jf_attask.h"
 #include "xtime.h"
+#include "servmgmt.h"
+
+#include "servmgmtsetting.h"
 
 /* --- private data/data structure section --------------------------------- */
 
