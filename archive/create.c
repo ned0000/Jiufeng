@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "archivecommon.h"
 #include "files.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
 

@@ -21,7 +21,7 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "encrypt.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 #include "stringparse.h"
 #include "jf_limit.h"
 #include "files.h"

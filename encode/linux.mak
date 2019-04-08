@@ -15,7 +15,7 @@ SONAME = olencode
 
 SOURCES = base64.c huffman.c
 
-JIUTAI_SRCS = xmalloc.c
+JIUTAI_SRCS = jf_mem.c
 
 include $(TOPDIR)/mak/lnxlib.mak
 

@@ -29,7 +29,7 @@
 #include "files.h"
 #include "jf_err.h"
 #include "common.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
 

@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "syncsem.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 #include "servmgmt.h"
 
 /* --- private data/data structure section --------------------------------- */

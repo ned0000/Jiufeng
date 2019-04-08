@@ -20,7 +20,7 @@
 #include "bases.h"
 #include "jf_err.h"
 #include "buddy.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 #include "syncmutex.h"
 #include "common.h"
 #include "process.h"

@@ -16,7 +16,7 @@ RESOURCE = ifmgmt
 
 SOURCES = ifmgmt.c ipaddr.c
 
-JIUTAI_SRCS = $(JIUTAI_DIR)\xmalloc.c
+JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c
 
 EXTRA_DEFS = -DJIUFENG_IFMGMT_DLL
 

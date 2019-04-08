@@ -13,7 +13,7 @@
 
 SOURCES = encrypt.c
 
-JIUTAI_SRCS = xmalloc.c
+JIUTAI_SRCS = jf_mem.c
 
 EXTRA_LIBS = -lssl -lcrypt -lolstringparse -lolfiles
 

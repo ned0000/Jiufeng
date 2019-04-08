@@ -17,7 +17,7 @@ SOURCES = internalsocket.c socket.c socketpair.c \
     chain.c utimer.c asocket.c assocket.c acsocket.c \
     adgram.c resolve.c network.c
 
-JIUTAI_SRCS = xmalloc.c syncmutex.c xtime.c
+JIUTAI_SRCS = jf_mem.c syncmutex.c xtime.c
 
 EXTRA_LIBS = -ljf_logger
 

@@ -15,7 +15,7 @@ EXE = olcli.exe
 SOURCES = main.c clicmd.c
 
 JIUTAI_SRCS = $(JIUTAI_DIR)\bases.c $(JIUTAI_DIR)\getopt.c \
-             $(JIUTAI_DIR)\xmalloc.c
+             $(JIUTAI_DIR)\jf_mem.c
 
 EXTRA_LIBS = $(LIB_DIR)\olclieng.lib $(LIB_DIR)\ollogger.lib \
     $(LIB_DIR)\olstringparse.lib

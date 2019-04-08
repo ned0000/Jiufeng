@@ -23,7 +23,7 @@
 #include "httpparser.h"
 #include "webclient.h"
 #include "bases.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 #include "stringparse.h"
 #include "hexstr.h"
 

@@ -14,7 +14,7 @@ SONAME = olifmgmt
 
 SOURCES = ifmgmt.c ipaddr.c
 
-JIUTAI_SRCS = xmalloc.c
+JIUTAI_SRCS = jf_mem.c
 
 EXTRA_LIBS = -lolfiles -lolstringparse
 

@@ -21,7 +21,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "stringparse.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
 

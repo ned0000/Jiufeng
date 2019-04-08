@@ -21,7 +21,7 @@
 #include "jf_basic.h"
 #include "syncsem.h"
 #include "jf_err.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
 #if defined(LINUX)

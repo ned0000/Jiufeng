@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "cmdhistory.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data structures --------------------------------------------- */
 #define INVALID_CMD_INDEX    (0xffffffff)

@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "network.h"
 #include "syncmutex.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
 typedef struct send_data

@@ -18,7 +18,7 @@
 #include "jf_limit.h"
 #include "jf_logger.h"
 #include "ifmgmt.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 #include "files.h"
 #include "stringparse.h"
 

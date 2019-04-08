@@ -15,7 +15,7 @@ SONAME = olservmgmt
 
 SOURCES = servmgmt.c servmgmtsetting.c
 
-JIUTAI_SRCS = xmalloc.c sharedmemory.c process.c attask.c xtime.c
+JIUTAI_SRCS = jf_mem.c sharedmemory.c process.c attask.c xtime.c
 
 EXTRA_LIBS = -ljf_logger -lolfiles -lxml2
 

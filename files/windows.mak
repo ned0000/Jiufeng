@@ -16,7 +16,7 @@ RESOURCE = files
 
 SOURCES = files.c directory.c conffile.c
 
-JIUTAI_SRCS = $(JIUTAI_DIR)\xmalloc.c $(JIUTAI_DIR)\xtime.c
+JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\xtime.c
 
 EXTRA_INC_DIR =
 

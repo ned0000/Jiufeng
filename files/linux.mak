@@ -17,7 +17,7 @@ SOURCES = files.c directory.c conffile.c
 
 EXTRA_LIBS =
 
-JIUTAI_SRCS = xmalloc.c
+JIUTAI_SRCS = jf_mem.c
 
 EXTRA_INC_DIR =
 

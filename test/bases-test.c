@@ -20,7 +20,7 @@
 #include "bases.h"
 #include "jf_err.h"
 //#include "files.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
 static boolean_t ls_bListHead = FALSE;

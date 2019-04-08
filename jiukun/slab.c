@@ -19,7 +19,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "slab.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 #include "syncmutex.h"
 #include "common.h"
 #include "syncmutex.h"

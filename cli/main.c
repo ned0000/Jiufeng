@@ -30,7 +30,7 @@
 #include "clieng.h"
 #include "clicmd.h"
 #include "main.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
 jiufeng_cli_master_t * ls_pocmMaster = NULL;

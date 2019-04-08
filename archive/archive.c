@@ -22,7 +22,7 @@
 #include "bases.h"
 #include "jf_logger.h"
 #include "files.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 #include "archivecommon.h"
 #include "arfile.h"
 #include "create.h"

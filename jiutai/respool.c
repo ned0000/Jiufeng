@@ -19,7 +19,7 @@
 #include "jf_err.h"
 #include "array.h"
 #include "syncmutex.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
 

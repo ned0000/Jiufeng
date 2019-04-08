@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-SOURCES = hexstr.c process.c xtime.c bases.c xmalloc.c syncmutex.c  \
+SOURCES = hexstr.c process.c xtime.c bases.c jf_mem.c syncmutex.c  \
     syncrwlock.c syncsem.c array.c hash.c jf_menu.c crc32c.c  \
     sharedmemory.c dynlib.c jf_hsm.c hostinfo.c respool.c randnum.c  \
     attask.c jtsqlite.c

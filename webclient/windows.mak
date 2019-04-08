@@ -14,7 +14,7 @@ DLLNAME = olwebclient
 RESOURCE = webclient
 
 SOURCES = webclient.c
-JIUTAI_SRCS = $(JIUTAI_DIR)\bases.c $(JIUTAI_DIR)\xmalloc.c \
+JIUTAI_SRCS = $(JIUTAI_DIR)\bases.c $(JIUTAI_DIR)\jf_mem.c \
              $(JIUTAI_DIR)\syncmutex.c $(JIUTAI_DIR)\xtime.c
 
 EXTRA_LIBS = ws2_32.lib $(LIB_DIR)\ollogger.lib $(LIB_DIR)\olifmgmt.lib \

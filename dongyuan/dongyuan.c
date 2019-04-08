@@ -27,7 +27,7 @@
 #include "dongyuan.h"
 #include "files.h"
 #include "servmgmt.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data structures --------------------------------------------- */
 

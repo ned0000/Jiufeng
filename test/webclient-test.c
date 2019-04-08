@@ -22,7 +22,7 @@
 #include "stringparse.h"
 #include "process.h"
 #include "webclient.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 #include "files.h"
 
 /* --- private data/data structure section --------------------------------- */

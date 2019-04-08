@@ -19,7 +19,7 @@
 #include "persistency.h"
 #include "persistencycommon.h"
 #include "sqlitepersistency.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
 

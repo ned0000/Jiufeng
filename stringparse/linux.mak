@@ -13,7 +13,7 @@
 
 SONAME = olstringparse
 
-JIUTAI_SRCS = xmalloc.c xtime.c
+JIUTAI_SRCS = jf_mem.c xtime.c
 
 SOURCES = parsestring.c scanstring.c printstring.c validatestring.c \
     settingparse.c

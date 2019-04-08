@@ -18,7 +18,7 @@
 #include "jf_limit.h"
 #include "servmgmt.h"
 #include "servmgmtsetting.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 #include "sharedmemory.h"
 #include "files.h"
 #include "process.h"

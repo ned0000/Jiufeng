@@ -21,7 +21,7 @@
 #include "network.h"
 #include "stringparse.h"
 #include "process.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
 #define NETWORK_TEST_SERVER  "NT-SERVER"

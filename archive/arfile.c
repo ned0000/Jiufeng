@@ -17,7 +17,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 #include "arfile.h"
 #include "files.h"
 

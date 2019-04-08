@@ -30,7 +30,7 @@
 #include "hash.h"
 #include "stringparse.h"
 #include "process.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 #if defined(WINDOWS)
     #include "getopt.h"

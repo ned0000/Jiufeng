@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "network.h"
 #include "syncmutex.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 #include "bases.h"
 
 /* --- private data/data structure section --------------------------------- */

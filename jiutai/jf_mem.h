@@ -1,12 +1,12 @@
 /**
- *  @file xmalloc.h
+ *  @file jf_mem.h
  *
  *  @brief Memory allocation header file. Provide some functional routine to
  *   allocate memeory
  *
  *  @author Min Zhang
  *  
- *  @note
+ *  @note Routines declared in this file are included in jf_mem object
  *
  */
 

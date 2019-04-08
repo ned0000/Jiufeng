@@ -15,7 +15,7 @@ SONAME = olmatrix
 
 SOURCES = matrix.c
 
-JIUTAI_SRCS = xmalloc.c
+JIUTAI_SRCS = jf_mem.c
 
 EXTRA_LIBS = -ljf_logger
 

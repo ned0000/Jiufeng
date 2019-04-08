@@ -55,7 +55,7 @@ $(BIN_DIR)/xtime-test: xtime-test.o $(JIUTAI_DIR)/xtime.o
        -o $@ $(SYSLIBS) -lolstringparse
 
 $(BIN_DIR)/bases-test: bases-test.o $(JIUTAI_DIR)/bases.o \
-       $(JIUTAI_DIR)/xmalloc.o
+       $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
@@ -67,7 +67,7 @@ $(BIN_DIR)/process-test: process-test.o $(JIUTAI_DIR)/process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
-$(BIN_DIR)/xmalloc-test: xmalloc-test.o $(JIUTAI_DIR)/xmalloc.o
+$(BIN_DIR)/xmalloc-test: xmalloc-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS)
 
@@ -86,7 +86,7 @@ $(BIN_DIR)/syncrwlock-test: syncrwlock-test.o $(JIUTAI_DIR)/syncrwlock.o \
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
-$(BIN_DIR)/hash-test: hash-test.o $(JIUTAI_DIR)/hash.o $(JIUTAI_DIR)/xmalloc.o \
+$(BIN_DIR)/hash-test: hash-test.o $(JIUTAI_DIR)/hash.o $(JIUTAI_DIR)/jf_mem.o \
        $(JIUTAI_DIR)/process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
@@ -99,7 +99,7 @@ $(BIN_DIR)/hexstr-test: hexstr-test.o $(JIUTAI_DIR)/hexstr.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
-$(BIN_DIR)/bitarray-test: bitarray-test.o $(JIUTAI_DIR)/xmalloc.o
+$(BIN_DIR)/bitarray-test: bitarray-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -lolstringparse
 
@@ -107,7 +107,7 @@ $(BIN_DIR)/conffile-test: conffile-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -lolfiles
 
-$(BIN_DIR)/menu-test: menu-test.o $(JIUTAI_DIR)/xmalloc.o $(JIUTAI_DIR)/jf_menu.o
+$(BIN_DIR)/menu-test: menu-test.o $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_menu.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolstringparse
 
@@ -117,17 +117,17 @@ $(BIN_DIR)/crc32c-test: crc32c-test.o $(JIUTAI_DIR)/crc32c.o \
        -o $@ $(SYSLIBS) -ljf_logger
 
 $(BIN_DIR)/dynlib-test: dynlib-test.o $(JIUTAI_DIR)/dynlib.o \
-       $(JIUTAI_DIR)/xmalloc.o
+       $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ldl -ljf_logger
 
 $(BIN_DIR)/sharedmemory-test-worker: sharedmemory-test-worker.o \
-       $(JIUTAI_DIR)/sharedmemory.o $(JIUTAI_DIR)/xmalloc.o
+       $(JIUTAI_DIR)/sharedmemory.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
 $(BIN_DIR)/sharedmemory-test-consumer: sharedmemory-test-consumer.o \
-       $(JIUTAI_DIR)/sharedmemory.o $(JIUTAI_DIR)/xmalloc.o
+       $(JIUTAI_DIR)/sharedmemory.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
@@ -148,7 +148,7 @@ $(BIN_DIR)/hostinfo-test: hostinfo-test.o $(JIUTAI_DIR)/hostinfo.o
        -o $@ $(SYSLIBS) -lolifmgmt -lolstringparse -ljf_logger
 
 $(BIN_DIR)/respool-test: respool-test.o $(JIUTAI_DIR)/respool.o \
-       $(JIUTAI_DIR)/syncmutex.o $(JIUTAI_DIR)/xmalloc.o $(JIUTAI_DIR)/array.o \
+       $(JIUTAI_DIR)/syncmutex.o $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/array.o \
        $(JIUTAI_DIR)/process.o $(JIUTAI_DIR)/syncsem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
@@ -158,7 +158,7 @@ $(BIN_DIR)/bitop-test: bitop-test.o
        -o $@ $(SYSLIBS) 
 
 $(BIN_DIR)/jiukun-test: jiukun-test.o $(JIUTAI_DIR)/process.o \
-       $(JIUTAI_DIR)/syncmutex.o $(JIUTAI_DIR)/xmalloc.o
+       $(JIUTAI_DIR)/syncmutex.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -loljiukun
 
@@ -178,7 +178,7 @@ $(BIN_DIR)/prng-test: prng-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolprng -ljf_logger -lolcghash
 
-$(BIN_DIR)/encode-test: encode-test.o $(JIUTAI_DIR)/xmalloc.o
+$(BIN_DIR)/encode-test: encode-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolencode -ljf_logger -lolfiles
 
@@ -190,11 +190,11 @@ $(BIN_DIR)/randnum-test: randnum-test.o $(JIUTAI_DIR)/randnum.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
-$(BIN_DIR)/persistency-test: persistency-test.o $(JIUTAI_DIR)/xmalloc.o
+$(BIN_DIR)/persistency-test: persistency-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -lolpersistency -lsqlite3
 
-$(BIN_DIR)/archive-test: archive-test.o $(JIUTAI_DIR)/xmalloc.o
+$(BIN_DIR)/archive-test: archive-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -lolarchive
 
@@ -211,7 +211,7 @@ $(BIN_DIR)/network-test: network-test.o $(JIUTAI_DIR)/process.o
        -o $@ $(SYSLIBS) -lolnetwork -lolstringparse -ljf_logger -lolifmgmt
 
 $(BIN_DIR)/network-test-server: network-test-server.o \
-       $(JIUTAI_DIR)/process.o $(JIUTAI_DIR)/xmalloc.o
+       $(JIUTAI_DIR)/process.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolnetwork -ljf_logger -lolstringparse -lolifmgmt
 
@@ -224,7 +224,7 @@ $(BIN_DIR)/network-test-client-chain: network-test-client-chain.o \
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolnetwork -ljf_logger -lolifmgmt
 
-$(BIN_DIR)/webclient-test: webclient-test.o $(JIUTAI_DIR)/xmalloc.o \
+$(BIN_DIR)/webclient-test: webclient-test.o $(JIUTAI_DIR)/jf_mem.o \
        $(JIUTAI_DIR)/process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolhttpparser -lolnetwork -lolwebclient -ljf_logger \
@@ -234,11 +234,11 @@ $(BIN_DIR)/olservmgmt: servmgmt-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -lolservmgmt
 
-$(BIN_DIR)/matrix-test: matrix-test.o $(JIUTAI_DIR)/xmalloc.o
+$(BIN_DIR)/matrix-test: matrix-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolmatrix -ljf_logger
 
-$(BIN_DIR)/jtsqlite-test: jtsqlite-test.o $(JIUTAI_DIR)/xmalloc.o \
+$(BIN_DIR)/jtsqlite-test: jtsqlite-test.o $(JIUTAI_DIR)/jf_mem.o \
        $(JIUTAI_DIR)/jtsqlite.o $(JIUTAI_DIR)/randnum.o $(JIUTAI_DIR)/xtime.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -lsqlite3

@@ -23,7 +23,7 @@
 #include "stringparse.h"
 #include "encode.h"
 #include "files.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
 static boolean_t ls_bBase64 = FALSE;

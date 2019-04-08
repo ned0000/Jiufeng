@@ -20,7 +20,7 @@
 #include "encode.h"
 #include "huffman.h"
 #include "jf_err.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 #include "bitarray.h"
 
 /* --- private data/data structure section --------------------------------- */

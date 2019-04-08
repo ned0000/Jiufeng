@@ -17,7 +17,7 @@ RESOURCE = stringparse
 SOURCES = parsestring.c scanstring.c printstring.c validatestring.c \
      settingparse.c
 
-JIUTAI_SRCS = $(JIUTAI_DIR)\xmalloc.c $(JIUTAI_DIR)\xtime.c
+JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\xtime.c
 
 EXTRA_LIBS = ws2_32.lib
 

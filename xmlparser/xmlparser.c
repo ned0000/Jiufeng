@@ -20,7 +20,7 @@
 #include "stringparse.h"
 #include "xmlparser.h"
 #include "bases.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 #include "files.h"
 
 /* --- private data/data structure section --------------------------------- */

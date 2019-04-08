@@ -21,7 +21,7 @@
 #include "hexstr.h"
 #include "stringparse.h"
 #include "prng.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
 boolean_t ls_bMd5 = FALSE;

@@ -14,7 +14,7 @@
 SOURCES = hmac.c
 SONAME = olcgmac
 
-JIUTAI_SRCS = xmalloc.c
+JIUTAI_SRCS = jf_mem.c
 
 EXTRA_LIBS = -lolcghash
 

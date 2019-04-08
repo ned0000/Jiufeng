@@ -14,7 +14,7 @@ DLLNAME = olhttpparser
 RESOURCE = httpparser
 
 SOURCES = httpparser.c
-JIUTAI_SRCS = $(JIUTAI_DIR)\xmalloc.c $(JIUTAI_DIR)\bases.c
+JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\bases.c
 
 EXTRA_LIBS = $(LIB_DIR)\olstringparse.lib
 

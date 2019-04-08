@@ -22,7 +22,7 @@
 #include "sqlitepersistency.h"
 #include "xtime.h"
 #include "randnum.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
 

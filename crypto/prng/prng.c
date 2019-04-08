@@ -22,7 +22,7 @@
 #include "prng.h"
 #include "cghash.h"
 #include "jf_err.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 #include "process.h"
 #include "xtime.h"
 #include "process.h"

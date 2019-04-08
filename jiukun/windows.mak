@@ -16,7 +16,7 @@ RESOURCE = jiukun
 
 SOURCES = buddy.c slab.c mempool.c jiukun.c
 
-JIUTAISRCS = $(JIUTAI_DIR)\xmalloc.c $(JIUTAI_DIR)\syncmutex.c \
+JIUTAISRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\syncmutex.c \
              $(JIUTAI_DIR)\waitqueue.c $(JIUTAI_DIR)\syncsem.c
 
 EXTRA_DEFS = -DJIUFENG_JIUKUN_DLL

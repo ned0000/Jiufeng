@@ -18,7 +18,7 @@
 #include "jf_limit.h"
 #include "attask.h"
 #include "xtime.h"
-#include "xmalloc.h"
+#include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
 typedef struct attask_item
