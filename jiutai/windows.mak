@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-SOURCES = hexstr.c process.c xtime.c
+SOURCES = jf_hex.c jf_process.c jf_time.c
 
 !if "$(DEBUG_JIUFENG)" == "yes"
 EXTRA_CFLAGS = -DDEBUG_RADIXTREE -DDEBUG_PRIOTREE -DDEBUG_WAITQUEUE \

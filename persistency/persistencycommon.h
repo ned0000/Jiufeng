@@ -17,7 +17,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "persistency.h"
-#include "jtsqlite.h"
+#include "jf_sqlite.h"
 #include "syncmutex.h"
 
 /* --- constant definitions ------------------------------------------------ */

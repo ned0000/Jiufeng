@@ -1,5 +1,5 @@
 /**
- *  @file jtsqlite.h
+ *  @file jf_sqlite.h
  *
  *  @brief sqlite common object header file
  *
@@ -10,14 +10,15 @@
  *
  */
 
-#ifndef JIUTAI_JTSQLITE_H
-#define JIUTAI_JTSQLITE_H
+#ifndef JIUTAI_SQLITE_H
+#define JIUTAI_SQLITE_H
 
 /* --- standard C lib header files ----------------------------------------- */
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
+
 #include "sqlite3.h"
 
 /* --- constant definitions ------------------------------------------------ */
@@ -56,7 +57,7 @@ u32 jf_sqlite_execSql(
     jf_sqlite_t * pjs, olchar_t * pstrSql, olchar_t * pstrResult,
     olsize_t sResult);
 
-#endif /*JIUTAI_JTSQLITE_H*/
+#endif /*JIUTAI_SQLITE_H*/
 
 /*---------------------------------------------------------------------------*/
 

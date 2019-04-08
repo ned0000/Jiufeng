@@ -23,7 +23,7 @@ PROGRAMS = xmalloc-test bases-test logger-test process-test   \
     randnum-test persistency-test archive-test                \
     httpparser-test network-test network-test-server          \
     network-test-client network-test-client-chain             \
-    matrix-test webclient-test olservmgmt jtsqlite-test       \
+    matrix-test webclient-test olservmgmt sqlite-test       \
     hexstr-test
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
@@ -37,7 +37,7 @@ SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     randnum-test.c persistency-test.c archive-test.c                 \
     httpparser-test.c network-test.c network-test-server.c           \
     network-test-client.c network-test-client-chain.c                \
-    matrix-test.c webclient-test.c servmgmt-test.c jtsqlite-test.c   \
+    matrix-test.c webclient-test.c servmgmt-test.c sqlite-test.c   \
     hexstr-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
@@ -238,8 +238,8 @@ $(BIN_DIR)/matrix-test: matrix-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolmatrix -ljf_logger
 
-$(BIN_DIR)/jtsqlite-test: jtsqlite-test.o $(JIUTAI_DIR)/jf_mem.o \
-       $(JIUTAI_DIR)/jtsqlite.o $(JIUTAI_DIR)/randnum.o $(JIUTAI_DIR)/xtime.o
+$(BIN_DIR)/sqlite-test: sqlite-test.o $(JIUTAI_DIR)/jf_mem.o \
+       $(JIUTAI_DIR)/jf_sqlite.o $(JIUTAI_DIR)/randnum.o $(JIUTAI_DIR)/xtime.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -lsqlite3
 

@@ -1,11 +1,11 @@
 /**
- *  @file jtsqlite.c
+ *  @file jf_sqlite.c
  *
  *  @brief Sqlite common object implementation file
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_sqlite object
  *  
  */
 
@@ -17,7 +17,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "jtsqlite.h"
+#include "jf_sqlite.h"
 #include "xtime.h"
 #include "randnum.h"
 #include "jf_mem.h"

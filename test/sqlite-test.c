@@ -1,7 +1,7 @@
 /**
- *  @file jtsqlite.c
+ *  @file sqlite-test.c
  *
- *  @brief The test file for jt sqlite common object
+ *  @brief The test file for jf_sqlite common object
  *
  *  @author Min Zhang
  *
@@ -21,7 +21,7 @@
 #include "jf_limit.h"
 #include "bases.h"
 #include "jf_err.h"
-#include "jtsqlite.h"
+#include "jf_sqlite.h"
 #include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
@@ -32,7 +32,7 @@
 static void _printUsage(void)
 {
     ol_printf("\
-Usage: jtsqlite-test [-h] \n\
+Usage: sqlite-test [-h] \n\
     -h show this usage. \n\
     ");
 
