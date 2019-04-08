@@ -21,7 +21,7 @@
 #include "network.h"
 #include "jf_mutex.h"
 #include "jf_mem.h"
-#include "bases.h"
+#include "jf_listarray.h"
 
 /* --- private data/data structure section --------------------------------- */
 struct internal_acsocket;

@@ -19,7 +19,7 @@
 #include "jf_err.h"
 #include "stringparse.h"
 #include "xmlparser.h"
-#include "bases.h"
+#include "jf_stack.h"
 #include "jf_mem.h"
 #include "files.h"
 

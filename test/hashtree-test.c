@@ -1,7 +1,7 @@
 /**
- *  @file bases-test.c
+ *  @file hashtree-test.c
  *
- *  @brief The test file for bases common object
+ *  @brief The test file for hashtree common object
  *
  *  @author Min Zhang
  *
@@ -17,26 +17,22 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "bases.h"
+#include "jf_hashtree.h"
 #include "jf_err.h"
-//#include "files.h"
 #include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
-static boolean_t ls_bListHead = FALSE;
+
 static boolean_t ls_bHashTree = FALSE;
-static boolean_t ls_bListArray = FALSE;
 
 /* --- private routine section---------------------------------------------- */
 
 static void _printUsage(void)
 {
     ol_printf("\
-Usage: bases-test [-l] [-t] \n\
+Usage: bases-test [-t] \n\
          [-T <trace level>] [-F <trace log file>] [-S <trace file size>]\n\
-     -l test list head \n\
-     -t test hash tree\n\
-     -a test list array\n");
+     -t test hash tree\n");
 
     ol_printf("\n");
 }
@@ -49,7 +45,7 @@ static u32 _parseCmdLineParam(
     u32 u32Value;
 
     while (((nOpt = getopt(argc, argv,
-        "ltaT:F:S:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+        "tT:F:S:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -58,14 +54,8 @@ static u32 _parseCmdLineParam(
             _printUsage();
             exit(0);
             break;
-        case 'l':
-            ls_bListHead = TRUE;
-            break;
         case 't':
             ls_bHashTree = TRUE;
-            break;
-        case 'a':
-            ls_bListArray = TRUE;
             break;
         case 'T':
             if (sscanf(optarg, "%d", &u32Value) == 1)
@@ -96,115 +86,6 @@ static u32 _parseCmdLineParam(
             break;
         }
     }
-
-    return u32Ret;
-}
-
-typedef struct
-{
-    u32 tl_u32Flag1;
-    u32 tl_u32Flag2;
-    jf_listhead_t tl_jlList;
-    u32 tl_u32Flag3;
-    u32 tl_u32Flag4;
-} test_listhead_t;
-
-static u32 _initTestListhead(test_listhead_t * ptl)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    static u32 u32Counter = 1;
-
-    jf_mem_calloc((void **)ptl, sizeof(test_listhead_t));
-
-    ptl->tl_u32Flag1 = u32Counter ++;
-
-    jf_listhead_init(&(ptl->tl_jlList));
-
-    return u32Ret;
-}
-
-static void _listHeadEntry(jf_listhead_t * head)
-{
-    jf_listhead_t * pjl;
-    test_listhead_t * ptl;
-
-    ol_printf("list entry\n");
-
-    jf_listhead_forEach(head, pjl)
-    {
-        ptl = jf_listhead_getEntry(pjl, test_listhead_t, tl_jlList);
-
-        ol_printf("entry: %u\n", ptl->tl_u32Flag1);
-    }
-
-    ol_printf("\n");
-}
-
-static u32 _testListHead(void)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    test_listhead_t tl1, tl2, tl3, tl4, tl5;
-    JF_LISTHEAD(head1);
-    JF_LISTHEAD(head2);
-
-    ol_printf("init entry\n");
-
-    _initTestListhead(&tl1);
-    _initTestListhead(&tl2);
-    _initTestListhead(&tl3);
-    _initTestListhead(&tl4);
-    _initTestListhead(&tl5);
-
-    jf_listhead_addTail(&head1, &(tl1.tl_jlList));
-    jf_listhead_addTail(&head1, &(tl2.tl_jlList));
-    jf_listhead_addTail(&head1, &(tl3.tl_jlList));
-    jf_listhead_addTail(&head1, &(tl4.tl_jlList));
-
-    _listHeadEntry(&head1);
-
-    ol_printf("delete entry 2 from head 1\n");
-    jf_listhead_del(&(tl2.tl_jlList));
-    _listHeadEntry(&head1);
-
-    ol_printf("delete entry 4 from head 1\n");
-    jf_listhead_del(&(tl4.tl_jlList));
-    _listHeadEntry(&head1);
-
-    ol_printf("insert entry 2 to head 1\n");
-    jf_listhead_add(&(tl1.tl_jlList), &(tl2.tl_jlList));
-    _listHeadEntry(&head1);
-
-    ol_printf("insert entry 4 to head 1\n");
-    jf_listhead_add(&(tl3.tl_jlList), &(tl4.tl_jlList));
-    _listHeadEntry(&head1);
-
-    ol_printf("replace entry 2 with 5 of head 1\n");
-    jf_listhead_replace(&(tl2.tl_jlList), &(tl5.tl_jlList));
-    _listHeadEntry(&head1);
-
-    ol_printf("replace entry 5 with 2 of head 1\n");
-    jf_listhead_replace(&(tl5.tl_jlList), &(tl2.tl_jlList));
-    _listHeadEntry(&head1);
-
-    ol_printf("add entry 5 to head 2\n");
-    jf_listhead_add(&head2, &(tl5.tl_jlList));
-    _listHeadEntry(&head2);
-
-    ol_printf("move entry 5 from head 2 to head 1\n");
-    jf_listhead_move(&head1, &(tl5.tl_jlList));
-    _listHeadEntry(&head1);
-
-    ol_printf("delete entry 5 from head 1\n");
-    jf_listhead_del(&(tl5.tl_jlList));
-    _listHeadEntry(&head1);
-
-    ol_printf("add entry 5 to head 2\n");
-    jf_listhead_add(&head2, &(tl5.tl_jlList));
-    _listHeadEntry(&head2);
-
-    ol_printf("splice head 2 to head\n");
-    jf_listhead_splice(&head1, &head2);
-    _listHeadEntry(&head1);
 
     return u32Ret;
 }
@@ -358,97 +239,6 @@ static u32 _testHashTree(void)
     return u32Ret;
 }
 
-static void _dumpListArray(jf_listarray_t * pjl)
-{
-    u32 u32Head = pjl->jl_u32Head;
-
-    ol_printf("dump list array\n");
-    ol_printf("number of node: %u\n", pjl->jl_u32NumOfNode);
-    ol_printf("head of array: %u\n", pjl->jl_u32Head);
-
-    while (u32Head != JF_LISTARRAY_END)
-    {
-        ol_printf("array[%u]=%u\n", u32Head, JF_LISTARRAY_NODE(pjl)[u32Head]);
-        u32Head = JF_LISTARRAY_NODE(pjl)[u32Head];
-    }
-}
-
-#define DEBUG_LOOP_COUNT  50
-#define DEBUG_NODE_COUNT  10
-static u32 _testListArray(void)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_listarray_t * pjl = NULL;
-    u32 u32NumOfNode = DEBUG_NODE_COUNT;
-    olsize_t size;
-    olint_t nRand;
-    u32 u32Loop, u32Index;
-    u32 u32Save[DEBUG_NODE_COUNT], u32Node;
-
-    ol_printf("testing list array\n");
-
-    srand(time(NULL));
-
-    nRand = rand();
-
-    size = jf_listarray_getSize(u32NumOfNode);
-    ol_printf("size of list array %u\n", size);
-
-    u32Ret = jf_mem_alloc((void **)&pjl, size);
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        jf_listarray_init(pjl, u32NumOfNode);
-        _dumpListArray(pjl);
-
-        for (u32Loop = 0; u32Loop < DEBUG_NODE_COUNT; u32Loop ++)
-        {
-            u32Save[u32Loop] = JF_LISTARRAY_END;
-        }
-
-        for (u32Loop = 0; u32Loop < DEBUG_LOOP_COUNT; u32Loop ++)
-        {
-            ol_printf("\n");
-            nRand = rand();
-
-            if ((nRand % 2) != 0)
-            {
-                ol_printf("get list array node: ");
-                u32Node = jf_listarray_getNode(pjl);
-                if (u32Node == JF_LISTARRAY_END)
-                    ol_printf("end\n");
-                else
-                {
-                    u32Save[u32Node] = u32Node;
-                    ol_printf("%u\n", u32Node);
-                }
-            }
-            else
-            {
-                ol_printf("put list array node: ");
-                for (u32Index = 0; u32Index < DEBUG_NODE_COUNT; u32Index ++)
-                    if (u32Save[u32Index] != JF_LISTARRAY_END)
-                        break;
-
-                if (u32Index == DEBUG_NODE_COUNT)
-                    ol_printf("none\n");
-                else
-                {
-                    ol_printf("%u\n", u32Save[u32Index]);
-                    jf_listarray_putNode(pjl, u32Save[u32Index]);
-                    u32Save[u32Index] = JF_LISTARRAY_END;
-                }
-            }
-
-            _dumpListArray(pjl);
-        }
-    }
-
-    if (pjl != NULL)
-        jf_mem_free((void **)&pjl);
-
-    return u32Ret;
-}
-
 /* --- public routine section ---------------------------------------------- */
 
 olint_t main(olint_t argc, olchar_t ** argv)
@@ -469,12 +259,8 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (ls_bListHead)
-            u32Ret = _testListHead();
-        else if (ls_bHashTree)
+        if (ls_bHashTree)
             u32Ret = _testHashTree();
-        else if (ls_bListArray)
-            u32Ret = _testListArray(); 
         else
         {
             ol_printf("No operation is specified !!!!\n\n");

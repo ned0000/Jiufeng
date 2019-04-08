@@ -22,10 +22,11 @@
 #include "network.h"
 #include "httpparser.h"
 #include "webclient.h"
-#include "bases.h"
 #include "jf_mem.h"
 #include "stringparse.h"
 #include "hexstr.h"
+#include "jf_hashtree.h"
+#include "jf_queue.h"
 
 /* --- private data/data structure section --------------------------------- */
 /** Keep a table of all the connections. This is the maximum number allowed

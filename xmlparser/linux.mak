@@ -17,7 +17,7 @@ SOURCES = xmlparser.c
 
 EXTRA_LIBS = -lolstringparse -lolfiles
 
-JIUTAI_SRCS = jf_mem.c bases.c
+JIUTAI_SRCS = jf_mem.c jf_stack.c jf_hashtree.c
 
 EXTRA_INC_DIR = -I../kinc
 

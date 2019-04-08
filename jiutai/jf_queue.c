@@ -1,0 +1,144 @@
+/**
+ *  @file jf_queue.c
+ *
+ *  @brief Provide basic queue data structure
+ *
+ *  @author Min Zhang
+ *  
+ *  @note
+ *
+ */
+
+/* --- standard C lib header files ----------------------------------------- */
+#include <errno.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <string.h>
+#if defined(WINDOWS)
+
+#elif defined(LINUX)
+    #include <unistd.h>
+#endif
+
+/* --- internal header files ----------------------------------------------- */
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_mem.h"
+#include "jf_err.h"
+#include "jf_queue.h"
+
+/* --- private data/data structure section --------------------------------- */
+
+
+
+/* --- private routine section---------------------------------------------- */
+
+
+
+/* --- public routine section ---------------------------------------------- */
+
+void jf_queue_init(jf_queue_t * pQueue)
+{
+    pQueue->jq_pjqnHead = pQueue->jq_pjqnTail = NULL;
+}
+
+void jf_queue_fini(jf_queue_t * pQueue)
+{
+    jf_queue_node_t * pjqn, * temp;
+
+	assert(pQueue != NULL);
+
+	temp = pQueue->jq_pjqnHead;
+    while (temp != NULL)
+    {
+        pjqn = temp->jqn_pjqnNext;
+        jf_mem_free((void **)&temp);
+        temp = pjqn;
+    }
+}
+
+void jf_queue_finiQueueAndData(
+    jf_queue_t * pQueue, jf_queue_fnFreeData_t fnFreeData)
+{
+    jf_queue_node_t * pjqn, * temp;
+
+	assert(pQueue != NULL);
+
+	temp = pQueue->jq_pjqnHead;
+    while (temp != NULL)
+    {
+        pjqn = temp->jqn_pjqnNext;
+
+        fnFreeData(&(temp->jqn_pData));
+
+        jf_mem_free((void **)&temp);
+        temp = pjqn;
+    }
+}
+
+boolean_t jf_queue_isEmpty(jf_queue_t * pQueue)
+{
+    return (pQueue->jq_pjqnHead == NULL ? TRUE : FALSE);
+}
+
+u32 jf_queue_enqueue(jf_queue_t * pQueue, void * data)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_queue_node_t * pjqn;
+
+    u32Ret = jf_mem_calloc((void **)&pjqn, sizeof(jf_queue_node_t));
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        pjqn->jqn_pData = data;
+
+        if (pQueue->jq_pjqnHead == NULL)
+        {
+            /*If there is no head, this new entry is the head*/
+            pQueue->jq_pjqnHead = pjqn;
+            pQueue->jq_pjqnTail = pjqn;
+        }
+        else
+        {
+            /*Since there is already a head, just attach this entry 
+              to the tail, andcall this the new tail*/
+            pQueue->jq_pjqnTail->jqn_pjqnNext = pjqn;
+            pQueue->jq_pjqnTail = pjqn;
+        }
+    }
+
+    return u32Ret;
+}
+
+void * jf_queue_dequeue(jf_queue_t * pQueue)
+{
+    jf_queue_node_t * temp;
+    void * retval = NULL;
+
+    assert(pQueue != NULL);
+
+    if (pQueue->jq_pjqnHead == NULL)
+        return NULL;
+
+    temp = pQueue->jq_pjqnHead;
+    retval = temp->jqn_pData;
+    pQueue->jq_pjqnHead = pQueue->jq_pjqnHead->jqn_pjqnNext;
+    if (pQueue->jq_pjqnHead == NULL)
+    {
+        pQueue->jq_pjqnTail = NULL;
+    }
+    jf_mem_free((void **)&temp);
+
+    return retval;
+}
+
+void * jf_queue_peek(jf_queue_t * pQueue)
+{
+    if (pQueue->jq_pjqnHead == NULL)
+        return NULL;
+    else
+        return pQueue->jq_pjqnHead->jqn_pData;
+}
+
+/*---------------------------------------------------------------------------*/
+

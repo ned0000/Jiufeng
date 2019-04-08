@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "jf_archive.h"
 #include "jf_err.h"
-#include "bases.h"
+#include "jf_linklist.h"
 #include "jf_logger.h"
 #include "files.h"
 #include "jf_mem.h"

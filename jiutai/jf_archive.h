@@ -17,7 +17,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "bases.h"
+#include "jf_linklist.h"
 
 #undef ARCHIVEAPI
 #undef ARCHIVECALL

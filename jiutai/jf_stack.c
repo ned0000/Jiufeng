@@ -1,0 +1,103 @@
+/**
+ *  @file jf_stack.c
+ *
+ *  @brief Provide basic stack data structure
+ *
+ *  @author Min Zhang
+ *  
+ *  @note
+ *
+ */
+
+/* --- standard C lib header files ----------------------------------------- */
+#include <errno.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+#include <string.h>
+#if defined(WINDOWS)
+
+#elif defined(LINUX)
+    #include <unistd.h>
+#endif
+
+/* --- internal header files ----------------------------------------------- */
+#include "jf_basic.h"
+#include "jf_limit.h"
+#include "jf_mem.h"
+#include "jf_err.h"
+#include "jf_stack.h"
+
+/* --- private data/data structure section --------------------------------- */
+
+
+
+/* --- private routine section---------------------------------------------- */
+
+
+
+/* --- public routine section ---------------------------------------------- */
+
+void jf_stack_init(jf_stack_t ** ppStack)
+{
+    *ppStack = NULL;
+}
+
+u32 jf_stack_push(jf_stack_t ** ppStack, void * data)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_stack_node_t * retval;
+
+    u32Ret = jf_mem_alloc((void **)&retval, sizeof(jf_stack_node_t));
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        retval->jsn_pData = data;
+        retval->jsn_pjsnNext = * ppStack;
+
+        *ppStack = retval;
+    }
+
+    return u32Ret;
+}
+
+void * jf_stack_pop(jf_stack_t ** ppStack)
+{
+    void * retval = NULL;
+    void * temp;
+
+    if (*ppStack != NULL)
+    {
+        retval = ((jf_stack_node_t *) *ppStack)->jsn_pData;
+        temp = *ppStack;
+        *ppStack = ((jf_stack_node_t *) *ppStack)->jsn_pjsnNext;
+        jf_mem_free((void **)&temp);
+    }
+
+    return retval;
+}
+
+void * jf_stack_peek(jf_stack_t ** ppStack)
+{
+    void * retval = NULL;
+
+    if (*ppStack != NULL)
+        retval = ((jf_stack_node_t *) *ppStack)->jsn_pData;
+
+    return retval;
+}
+
+void jf_stack_clear(jf_stack_t ** ppStack)
+{
+    void * temp = *ppStack;
+
+    do
+    {
+        jf_stack_pop(&temp);
+    }
+    while (temp != NULL);
+
+    *ppStack = NULL;
+}
+
+/*---------------------------------------------------------------------------*/
+

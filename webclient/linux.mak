@@ -14,7 +14,7 @@ SONAME = olwebclient
 
 SOURCES = webclient.c
 
-JIUTAI_SRCS = bases.c jf_mem.c jf_mutex.c hexstr.c
+JIUTAI_SRCS = jf_hashtree.c jf_queue.c jf_mem.c jf_mutex.c hexstr.c
 
 EXTRA_LIBS = -lolhttpparser -lolnetwork -lolstringparse
 

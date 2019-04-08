@@ -16,7 +16,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "bases.h"
+#include "jf_hashtree.h"
 
 #undef XMLPARSERAPI
 #undef XMLPARSERCALL

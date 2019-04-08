@@ -16,7 +16,7 @@ SOURCES = httpparser.c
 
 EXTRA_LIBS = -lolstringparse
 
-JIUTAI_SRCS = jf_mem.c bases.c
+JIUTAI_SRCS = jf_mem.c 
 
 include $(TOPDIR)/mak/lnxlib.mak
 

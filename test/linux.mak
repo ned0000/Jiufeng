@@ -12,8 +12,9 @@
 
 include $(TOPDIR)/mak/lnxcfg.mak
 
-PROGRAMS = xmalloc-test bases-test logger-test process-test   \
-    hash-test mutex-test rwlock-test sem-test     \
+PROGRAMS = xmalloc-test hashtree-test listhead-test           \
+    listarray-test logger-test process-test         \
+    hash-test mutex-test rwlock-test sem-test                 \
     xtime-test stringparse-test bitarray-test conffile-test   \
     menu-test crc32c-test dynlib-test ifmgmt-test             \
     sharedmemory-test-consumer sharedmemory-test-worker       \
@@ -26,7 +27,8 @@ PROGRAMS = xmalloc-test bases-test logger-test process-test   \
     matrix-test webclient-test olservmgmt sqlite-test       \
     hexstr-test
 
-SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
+SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c             \
+    listarray-test.c logger-test.c process-test.c   \
     hash-test.c mutex-test.c rwlock-test.c sem-test.c    \
     xtime-test.c stringparse-test.c bitarray-test.c conffile-test.c  \
     menu-test.c crc32c-test.c dynlib-test.c ifmgmt-test.c            \
@@ -54,8 +56,16 @@ $(BIN_DIR)/xtime-test: xtime-test.o $(JIUTAI_DIR)/xtime.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolstringparse
 
-$(BIN_DIR)/bases-test: bases-test.o $(JIUTAI_DIR)/bases.o \
+$(BIN_DIR)/hashtree-test: hashtree-test.o $(JIUTAI_DIR)/jf_hashtree.o \
        $(JIUTAI_DIR)/jf_mem.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -ljf_logger
+
+$(BIN_DIR)/listhead-test: listhead-test.o $(JIUTAI_DIR)/jf_mem.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -ljf_logger
+
+$(BIN_DIR)/listarray-test: listarray-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 

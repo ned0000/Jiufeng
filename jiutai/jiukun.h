@@ -18,7 +18,6 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "bases.h"
 #include "bitarray.h"
 #include "olflag.h"
 
