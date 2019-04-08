@@ -16,7 +16,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "hsm.h"
+#include "jf_hsm.h"
 
 /* --- private data/data structure section --------------------------------- */
 

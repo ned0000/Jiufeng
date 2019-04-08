@@ -139,7 +139,7 @@ $(BIN_DIR)/files-test: files-test.o $(JIUTAI_DIR)/process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -lolfiles -lolstringparse
 
-$(BIN_DIR)/hsm-test: hsm-test.o $(JIUTAI_DIR)/hsm.o
+$(BIN_DIR)/hsm-test: hsm-test.o $(JIUTAI_DIR)/jf_hsm.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 

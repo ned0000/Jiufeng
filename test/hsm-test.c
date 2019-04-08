@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "jf_logger.h"
 #include "jf_err.h"
-#include "hsm.h"
+#include "jf_hsm.h"
 
 /* --- private data/data structure section --------------------------------- */
 enum rice_cooker_state_id
