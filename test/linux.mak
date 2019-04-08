@@ -196,7 +196,7 @@ $(BIN_DIR)/persistency-test: persistency-test.o $(JIUTAI_DIR)/jf_mem.o
 
 $(BIN_DIR)/archive-test: archive-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_logger -lolarchive
+       -o $@ $(SYSLIBS) -ljf_logger -ljf_archive
 
 $(BIN_DIR)/xmlparser-test: xmlparser-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

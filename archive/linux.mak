@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = olarchive
+SONAME = jf_archive
 
 SOURCES = archive.c arfile.c create.c extract.c
 

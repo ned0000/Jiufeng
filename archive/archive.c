@@ -17,12 +17,13 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "archive.h"
+#include "jf_archive.h"
 #include "jf_err.h"
 #include "bases.h"
 #include "jf_logger.h"
 #include "files.h"
 #include "jf_mem.h"
+
 #include "archivecommon.h"
 #include "arfile.h"
 #include "create.h"

@@ -16,7 +16,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "archive.h"
+#include "jf_archive.h"
 
 /* --- constant definitions ------------------------------------------------ */
 

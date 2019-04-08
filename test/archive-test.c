@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "bases.h"
 #include "jf_err.h"
-#include "archive.h"
+#include "jf_archive.h"
 
 /* --- private data/data structure section --------------------------------- */
 static olchar_t * ls_pstrArchiveName = NULL;

@@ -18,8 +18,9 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_mem.h"
-#include "arfile.h"
 #include "files.h"
+
+#include "arfile.h"
 
 /* --- private data/data structure section --------------------------------- */
 #define IAF_BUF_LEN  65536

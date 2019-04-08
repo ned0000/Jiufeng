@@ -1,11 +1,11 @@
 /**
- *  @file archive.h
+ *  @file jf_archive.h
  *
  *  @brief archive library header file
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_archive library
  *  
  */
 

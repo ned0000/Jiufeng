@@ -19,7 +19,8 @@
 #include "jf_err.h"
 #include "files.h"
 #include "stringparse.h"
-#include "archive.h"
+#include "jf_archive.h"
+
 #include "archivecommon.h"
 
 /* --- private data/data structure section --------------------------------- */
