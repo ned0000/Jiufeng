@@ -13,7 +13,7 @@
 include $(TOPDIR)/mak/lnxcfg.mak
 
 PROGRAMS = xmalloc-test bases-test logger-test process-test   \
-    hash-test mutex-test syncrwlock-test sem-test     \
+    hash-test mutex-test rwlock-test sem-test     \
     xtime-test stringparse-test bitarray-test conffile-test   \
     menu-test crc32c-test dynlib-test ifmgmt-test             \
     sharedmemory-test-consumer sharedmemory-test-worker       \
@@ -27,7 +27,7 @@ PROGRAMS = xmalloc-test bases-test logger-test process-test   \
     hexstr-test
 
 SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
-    hash-test.c mutex-test.c syncrwlock-test.c sem-test.c    \
+    hash-test.c mutex-test.c rwlock-test.c sem-test.c    \
     xtime-test.c stringparse-test.c bitarray-test.c conffile-test.c  \
     menu-test.c crc32c-test.c dynlib-test.c ifmgmt-test.c            \
     sharedmemory-test-consumer.c sharedmemory-test-worker.c          \
@@ -81,7 +81,7 @@ $(BIN_DIR)/mutex-test: mutex-test.o $(JIUTAI_DIR)/jf_mutex.o \
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
-$(BIN_DIR)/syncrwlock-test: syncrwlock-test.o $(JIUTAI_DIR)/syncrwlock.o \
+$(BIN_DIR)/rwlock-test: rwlock-test.o $(JIUTAI_DIR)/jf_rwlock.o \
        $(JIUTAI_DIR)/process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger

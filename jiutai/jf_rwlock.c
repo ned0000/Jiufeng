@@ -1,5 +1,5 @@
 /**
- *  @file syncrwlock.c
+ *  @file jf_rwlock.c
  *
  *  @brief The synchronization rwlock common object
  *
@@ -15,7 +15,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "syncrwlock.h"
+#include "jf_rwlock.h"
 #include "jf_err.h"
 
 /* --- private data/data structure section --------------------------------- */

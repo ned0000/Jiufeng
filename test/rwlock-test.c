@@ -1,5 +1,5 @@
 /**
- *  @file syncrwlock-test.c
+ *  @file rwlock-test.c
  *
  *  @brief test file for syncrwlock common object
  *
@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "syncrwlock.h"
+#include "jf_rwlock.h"
 #include "process.h"
 #include "xtime.h"
 

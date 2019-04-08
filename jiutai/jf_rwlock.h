@@ -1,16 +1,16 @@
 /**
- *  @file syncrwlock.h
+ *  @file jf_rwlock.h
  *
  *  @brief synchronizaiton rwlock header file
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_rwlock object
  *
  */
 
-#ifndef JIUTAI_SYNCRWLOCK_H
-#define JIUTAI_SYNCRWLOCK_H
+#ifndef JIUTAI_RWLOCK_H
+#define JIUTAI_RWLOCK_H
 
 /* --- standard C lib header files ----------------------------------------- */
 
@@ -147,7 +147,7 @@ u32 jf_rwlock_acquireWritelockWithTimeout(jf_rwlock_t * pRwlock, u32 u32Timeout)
  */
 u32 jf_rwlock_releaseWritelock(jf_rwlock_t * pRwlock);
 
-#endif /*JIUTAI_SYNCRWLOCK_H*/
+#endif /*JIUTAI_RWLOCK_H*/
 
 /*---------------------------------------------------------------------------*/
 
