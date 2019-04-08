@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "persistency.h"
 #include "jf_sqlite.h"
-#include "syncmutex.h"
+#include "jf_mutex.h"
 
 /* --- constant definitions ------------------------------------------------ */
 

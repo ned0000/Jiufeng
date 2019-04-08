@@ -16,7 +16,7 @@ RESOURCE = prng
 
 SOURCES = ..\common\clrmem.c prng.c seed.c
 
-JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\syncmutex.c
+JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\jf_mutex.c
 
 EXTRA_LIBS = ollogger.lib olcghash.lib Netapi32.lib
 

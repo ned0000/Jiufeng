@@ -21,7 +21,7 @@
 #include "jf_err.h"
 #include "respool.h"
 #include "process.h"
-#include "syncmutex.h"
+#include "jf_mutex.h"
 #include "syncsem.h"
 #include "jf_mem.h"
 

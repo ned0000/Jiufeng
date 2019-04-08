@@ -20,9 +20,8 @@
 #include "jf_limit.h"
 #include "slab.h"
 #include "jf_mem.h"
-#include "syncmutex.h"
+#include "jf_mutex.h"
 #include "common.h"
-#include "syncmutex.h"
 
 /* --- private data/data structure section --------------------------------- */
 

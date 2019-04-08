@@ -15,7 +15,7 @@ SONAME = olclieng
 
 SOURCES = clieng.c engio.c cmdparser.c cmdhistory.c 
 
-JIUTAI_SRCS = jf_mem.c hash.c bases.c syncmutex.c process.c hexstr.c
+JIUTAI_SRCS = jf_mem.c hash.c bases.c jf_mutex.c process.c hexstr.c
 
 EXTRA_LIBS = -ljf_logger -lolstringparse
 

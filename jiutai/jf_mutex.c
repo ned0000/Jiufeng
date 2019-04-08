@@ -1,5 +1,5 @@
 /**
- *  @file syncmutex.c
+ *  @file jf_mutex.c
  *
  *  @brief synchronization object implementation file
  *
@@ -15,7 +15,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "syncmutex.h"
+#include "jf_mutex.h"
 #include "jf_err.h"
 
 /* --- private data/data structure section --------------------------------- */

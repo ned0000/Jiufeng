@@ -14,7 +14,7 @@ SONAME = oljiukun
 
 SOURCES = buddy.c slab.c jiukun.c
 
-JIUTAISRCS = jf_mem.c syncmutex.c
+JIUTAISRCS = jf_mem.c jf_mutex.c
 
 EXTRA_LIBS = -ljf_logger
 

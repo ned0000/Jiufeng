@@ -18,7 +18,7 @@
 #include "jf_limit.h"
 #include "xtime.h"
 #include "network.h"
-#include "syncmutex.h"
+#include "jf_mutex.h"
 #include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */

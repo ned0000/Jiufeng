@@ -1,16 +1,16 @@
 /**
- *  @file syncmutex.h
+ *  @file jf_mutex.h
  *
  *  @brief synchronization mutex object header file
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_mutex object
  *
  */
 
-#ifndef JIUTAI_SYNCMUTEX_H
-#define JIUTAI_SYNCMUTEX_H
+#ifndef JIUTAI_MUTEX_H
+#define JIUTAI_MUTEX_H
 
 /* --- standard C lib header files ----------------------------------------- */
 
@@ -93,7 +93,7 @@ u32 jf_mutex_acquireWithTimeout(jf_mutex_t * pMutex, u32 u32Timeout);
  */
 u32 jf_mutex_release(jf_mutex_t * pMutex);
 
-#endif /*JIUTAI_SYNCMUTEX_H*/
+#endif /*JIUTAI_MUTEX_H*/
 
 /*---------------------------------------------------------------------------*/
 

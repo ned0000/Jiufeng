@@ -18,7 +18,7 @@
 #include "jf_logger.h"
 #include "jf_err.h"
 #include "jf_array.h"
-#include "syncmutex.h"
+#include "jf_mutex.h"
 #include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */

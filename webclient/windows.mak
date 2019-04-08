@@ -15,7 +15,7 @@ RESOURCE = webclient
 
 SOURCES = webclient.c
 JIUTAI_SRCS = $(JIUTAI_DIR)\bases.c $(JIUTAI_DIR)\jf_mem.c \
-             $(JIUTAI_DIR)\syncmutex.c $(JIUTAI_DIR)\xtime.c
+             $(JIUTAI_DIR)\jf_mutex.c $(JIUTAI_DIR)\xtime.c
 
 EXTRA_LIBS = ws2_32.lib $(LIB_DIR)\ollogger.lib $(LIB_DIR)\olifmgmt.lib \
              $(LIB_DIR)\olhttpparser.lib $(LIB_DIR)\olnetwork.lib \

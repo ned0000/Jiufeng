@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "network.h"
-#include "syncmutex.h"
+#include "jf_mutex.h"
 #include "jf_mem.h"
 #include "stringparse.h"
 

@@ -31,7 +31,7 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "ifmgmt.h"
-#include "syncmutex.h"
+#include "jf_mutex.h"
 
 #undef NETWORKAPI
 #undef NETWORKCALL

@@ -28,7 +28,7 @@
 #include "process.h"
 #include "prngcommon.h"
 #include "seed.h"
-#include "syncmutex.h"
+#include "jf_mutex.h"
 
 /* --- private data/data structure section --------------------------------- */
 

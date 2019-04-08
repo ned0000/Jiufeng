@@ -15,7 +15,7 @@ SONAME = olprng
 
 SOURCES = ../common/clrmem.c prng.c seed.c
 
-JIUTAI_SRCS = jf_mem.c syncmutex.c xtime.c
+JIUTAI_SRCS = jf_mem.c jf_mutex.c xtime.c
 
 EXTRA_INC_DIR = -I../common
 
