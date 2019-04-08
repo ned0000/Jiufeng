@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = ollogger
+SONAME = jf_logger
 
 SOURCES = common.c logger.c errcode.c
 

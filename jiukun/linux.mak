@@ -16,7 +16,7 @@ SOURCES = buddy.c slab.c jiukun.c
 
 JIUTAISRCS = xmalloc.c syncmutex.c
 
-EXTRA_LIBS = -lollogger
+EXTRA_LIBS = -ljf_logger
 
 ifeq ("$(DEBUG_JIUFENG)", "yes")
 EXTRA_CFLAGS += -DDEBUG_JIUKUN

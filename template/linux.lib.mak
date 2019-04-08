@@ -27,7 +27,7 @@ EXTRA_CFLAGS = -DENT
 EXTRA_LDFLAGS = 
 EXTRA_OBJECTS =
 EXTRA_LIB_DIR = 
-EXTRA_LIBS = -lollogger
+EXTRA_LIBS = -ljf_logger
 
 include $(TOPDIR)/mak/lnxlib.mak
 

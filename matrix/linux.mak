@@ -17,7 +17,7 @@ SOURCES = matrix.c
 
 JIUTAI_SRCS = xmalloc.c
 
-EXTRA_LIBS = -lollogger
+EXTRA_LIBS = -ljf_logger
 
 ifeq ("$(DEBUG_JIUFENG)", "yes")
 EXTRA_CFLAGS = -DDEBUG_MATRIX

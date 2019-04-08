@@ -6,6 +6,7 @@
  *
  *  @author Min Zhang
  *
+ *  @note Routines declared in this file are included in jf_logger library
  *  @note The logger can be used to print logs to the stdout, syslog, a log file
  *   and a specified TTY.
  *  @note Log to stdout is NOT thread safe

@@ -19,7 +19,7 @@ SOURCES = internalsocket.c socket.c socketpair.c \
 
 JIUTAI_SRCS = xmalloc.c syncmutex.c xtime.c
 
-EXTRA_LIBS = -lollogger
+EXTRA_LIBS = -ljf_logger
 
 ifeq ("$(DEBUG_JIUFENG)", "yes")
     EXTRA_CFLAGS = # -DDEBUG_CHAIN -DDEBUG_UTIMER

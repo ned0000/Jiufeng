@@ -6,6 +6,7 @@
  *
  *  @author Min Zhang
  *
+ *  @note Routines declared in this file are included in jf_logger library
  *  @note the error code is in following format
  *  @note     3                   2                   1                 
  *  @note   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0

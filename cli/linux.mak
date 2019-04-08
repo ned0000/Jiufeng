@@ -19,7 +19,7 @@ JIUTAI_SRCS =
 
 EXTRA_INC_DIR = 
 
-EXTRA_LIBS = -lollogger -lolclieng -lolstringparse
+EXTRA_LIBS = -ljf_logger -lolclieng -lolstringparse
 
 include $(TOPDIR)/mak/lnxexe.mak
 
