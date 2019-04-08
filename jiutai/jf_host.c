@@ -1,5 +1,5 @@
 /**
- *  @file hostinfo.c
+ *  @file jf_host.c
  *
  *  @brief get host information implementation file
  *
@@ -34,7 +34,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "hostinfo.h"
+#include "jf_host.h"
 #include "stringparse.h"
 #include "ifmgmt.h"
 

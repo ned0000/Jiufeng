@@ -1,5 +1,5 @@
 /**
- *  @file hsm.c
+ *  @file jf_hsm.c
  *
  *  @brief The hierarchical statemachine implementation file
  *

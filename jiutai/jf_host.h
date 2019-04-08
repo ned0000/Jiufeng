@@ -1,17 +1,18 @@
 /**
- *  @file hostinfo.h
+ *  @file jf_host.h
  *
  *  @brief get host information head file
  *
  *  @author Min Zhang
  *
+ *  @note Routines declared in this file are included in jf_host object
  *  @note Link with ifmgmt, stringparse library
  *  @note For windows, link with Iphlpapi.lib
  *  
  */
 
-#ifndef JIUTAI_HOSTINFO_H
-#define JIUTAI_HOSTINFO_H
+#ifndef JIUTAI_HOST_H
+#define JIUTAI_HOST_H
 
 /* --- standard C lib header files ----------------------------------------- */
 
@@ -68,7 +69,7 @@ u32 jf_host_getInfo(jf_host_info_t * pjhi);
  */
 void jf_host_getName(olchar_t * pstrName, u32 u32Len);
 
-#endif /*JIUTAI_HOSTINFO_H*/
+#endif /*JIUTAI_HOST_H*/
 
 /*---------------------------------------------------------------------------*/
 

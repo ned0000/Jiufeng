@@ -1,5 +1,5 @@
 /**
- *  @file menu.h
+ *  @file jf_menu.h
  *
  *  @brief header file of menu common object
  *

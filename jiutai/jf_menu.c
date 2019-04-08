@@ -1,5 +1,5 @@
 /**
- *  @file menu.c
+ *  @file jf_menu.c
  *
  *  @brief implementation of menu
  *

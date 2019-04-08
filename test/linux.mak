@@ -17,7 +17,7 @@ PROGRAMS = xmalloc-test bases-test logger-test process-test   \
     xtime-test stringparse-test bitarray-test conffile-test   \
     menu-test crc32c-test dynlib-test ifmgmt-test             \
     sharedmemory-test-consumer sharedmemory-test-worker       \
-    files-test hsm-test hostinfo-test respool-test            \
+    files-test hsm-test host-test respool-test            \
     bitop-test jiukun-test cghash-test cgmac-test genuuid     \
     encrypt-test prng-test encode-test xmlparser-test         \
     randnum-test persistency-test archive-test                \
@@ -31,7 +31,7 @@ SOURCES = xmalloc-test.c bases-test.c logger-test.c process-test.c   \
     xtime-test.c stringparse-test.c bitarray-test.c conffile-test.c  \
     menu-test.c crc32c-test.c dynlib-test.c ifmgmt-test.c            \
     sharedmemory-test-consumer.c sharedmemory-test-worker.c          \
-    files-test.c hsm-test.c hostinfo-test.c respool-test.c           \
+    files-test.c hsm-test.c host-test.c respool-test.c           \
     bitop-test.c jiukun-test.c cghash-test.c cgmac-test.c genuuid.c  \
     encrypt-test.c prng-test.c encode-test.c xmlparser-test.c        \
     randnum-test.c persistency-test.c archive-test.c                 \
@@ -143,7 +143,7 @@ $(BIN_DIR)/hsm-test: hsm-test.o $(JIUTAI_DIR)/jf_hsm.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
-$(BIN_DIR)/hostinfo-test: hostinfo-test.o $(JIUTAI_DIR)/hostinfo.o
+$(BIN_DIR)/host-test: host-test.o $(JIUTAI_DIR)/jf_host.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolifmgmt -lolstringparse -ljf_logger
 

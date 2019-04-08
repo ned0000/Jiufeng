@@ -1,7 +1,7 @@
 /**
- *  @file hostinfo-test.c
+ *  @file host-test.c
  *
- *  @brief test file for hostinfo common object file
+ *  @brief test file for host common object
  *
  *  @author Min Zhang
  *
@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "hostinfo.h"
+#include "jf_host.h"
 
 /* --- private data/data structure section --------------------------------- */
 

@@ -1,5 +1,5 @@
 /**
- *  @file hsm.h
+ *  @file jf_hsm.h
  *
  *  @brief HSM header file. Interfaces for hierarchical state machine
  *
