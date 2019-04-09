@@ -20,7 +20,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "persistency.h"
+#include "jf_persistency.h"
 
 /* --- private data/data structure section --------------------------------- */
 

@@ -1,10 +1,11 @@
 /**
- *  @file persistency.h
+ *  @file jf_persistency.h
  *
  *  @brief persistency library header file
  *
  *  @author Min Zhang
  *
+ *  @note Routines declared in this file are included in jf_persistency library
  *  @note If fails to set persistency value, user should rollback transaction if
  *   transaction started.
  *  @note Link with sqlite3 library

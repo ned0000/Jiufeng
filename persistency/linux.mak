@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = olpersistency
+SONAME = jf_persistency
 
 SOURCES = persistency.c sqlitepersistency.c
 

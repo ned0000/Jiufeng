@@ -208,7 +208,7 @@ $(BIN_DIR)/randnum-test: randnum-test.o $(JIUTAI_DIR)/randnum.o
 
 $(BIN_DIR)/persistency-test: persistency-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_logger -lolpersistency -lsqlite3
+       -o $@ $(SYSLIBS) -ljf_logger -ljf_persistency -lsqlite3
 
 $(BIN_DIR)/archive-test: archive-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

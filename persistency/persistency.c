@@ -16,7 +16,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "persistency.h"
+#include "jf_persistency.h"
 #include "persistencycommon.h"
 #include "sqlitepersistency.h"
 #include "jf_mem.h"
