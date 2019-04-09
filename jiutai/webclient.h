@@ -16,7 +16,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "httpparser.h"
+#include "jf_httpparser.h"
 
 #undef WEBCLIENTAPI
 #undef WEBCLIENTCALL

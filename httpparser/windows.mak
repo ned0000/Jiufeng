@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = olhttpparser
+DLLNAME = jf_httpparser
 RESOURCE = httpparser
 
 SOURCES = httpparser.c

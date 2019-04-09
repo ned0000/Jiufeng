@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "jf_mutex.h"
 #include "jf_network.h"
-#include "httpparser.h"
+#include "jf_httpparser.h"
 #include "webclient.h"
 #include "jf_mem.h"
 #include "jf_string.h"

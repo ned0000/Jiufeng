@@ -220,7 +220,7 @@ $(BIN_DIR)/xmlparser-test: xmlparser-test.o
 
 $(BIN_DIR)/httpparser-test: httpparser-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lm -lolhttpparser -ljf_logger
+       -o $@ $(SYSLIBS) -lm -ljf_httpparser -ljf_logger
 
 $(BIN_DIR)/network-test: network-test.o $(JIUTAI_DIR)/jf_process.o \
        $(JIUTAI_DIR)/jf_thread.o
@@ -244,7 +244,7 @@ $(BIN_DIR)/network-test-client-chain: network-test-client-chain.o \
 $(BIN_DIR)/webclient-test: webclient-test.o $(JIUTAI_DIR)/jf_mem.o \
        $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolhttpparser -ljf_network -lolwebclient -ljf_logger \
+       -o $@ $(SYSLIBS) -ljf_httpparser -ljf_network -lolwebclient -ljf_logger \
        -ljf_files -lolifmgmt
 
 $(BIN_DIR)/servmgmt-test: servmgmt-test.o

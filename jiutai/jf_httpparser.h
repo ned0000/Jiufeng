@@ -1,12 +1,12 @@
 /**
- *  @file httpparser.h
+ *  @file jf_httpparser.h
  *
  *  @brief http parser header file, provide some functional routine to parse
  *   http packet
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_httpparser library
  *
  */
 

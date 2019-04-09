@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = olhttpparser
+SONAME = jf_httpparser
 
 SOURCES = httpparser.c
 
