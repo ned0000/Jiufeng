@@ -244,7 +244,7 @@ $(BIN_DIR)/network-test-client-chain: network-test-client-chain.o \
 $(BIN_DIR)/webclient-test: webclient-test.o $(JIUTAI_DIR)/jf_mem.o \
        $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_httpparser -ljf_network -lolwebclient -ljf_logger \
+       -o $@ $(SYSLIBS) -ljf_httpparser -ljf_network -ljf_webclient -ljf_logger \
        -ljf_files -ljf_ifmgmt
 
 $(BIN_DIR)/servmgmt-test: servmgmt-test.o

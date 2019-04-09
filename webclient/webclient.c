@@ -21,7 +21,7 @@
 #include "jf_mutex.h"
 #include "jf_network.h"
 #include "jf_httpparser.h"
-#include "webclient.h"
+#include "jf_webclient.h"
 #include "jf_mem.h"
 #include "jf_string.h"
 #include "hexstr.h"

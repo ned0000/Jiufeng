@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = olwebclient
+SONAME = jf_webclient
 
 SOURCES = webclient.c
 

@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = olwebclient
+DLLNAME = jf_webclient
 RESOURCE = webclient
 
 SOURCES = webclient.c

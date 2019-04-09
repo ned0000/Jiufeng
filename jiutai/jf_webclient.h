@@ -1,11 +1,11 @@
 /**
- *  @file webclient.h
+ *  @file jf_webclient.h
  *
  *  @brief web client header file
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_webclient library
  *
  */
 
