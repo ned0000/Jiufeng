@@ -17,7 +17,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_logger.h"
-#include "ifmgmt.h"
+#include "jf_ifmgmt.h"
 #include "jf_mem.h"
 #include "jf_filestream.h"
 #include "jf_string.h"

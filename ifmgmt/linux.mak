@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = olifmgmt
+SONAME = jf_ifmgmt
 
 SOURCES = ifmgmt.c ipaddr.c
 

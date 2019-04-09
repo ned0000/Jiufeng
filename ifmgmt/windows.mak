@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = olifmgmt
+DLLNAME = jf_ifmgmt
 RESOURCE = ifmgmt
 
 SOURCES = ifmgmt.c ipaddr.c

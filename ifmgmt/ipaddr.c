@@ -32,7 +32,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "ifmgmt.h"
+#include "jf_ifmgmt.h"
 
 /* --- private data/data structure section --------------------------------- */
 

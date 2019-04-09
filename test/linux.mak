@@ -148,7 +148,7 @@ $(BIN_DIR)/sharedmemory-test-consumer: sharedmemory-test-consumer.o \
 
 $(BIN_DIR)/ifmgmt-test: ifmgmt-test.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolifmgmt -ljf_string -ljf_logger
+       -o $@ $(SYSLIBS) -ljf_ifmgmt -ljf_string -ljf_logger
 
 $(BIN_DIR)/files-test: files-test.o $(JIUTAI_DIR)/jf_process.o \
        $(JIUTAI_DIR)/jf_thread.o
@@ -161,7 +161,7 @@ $(BIN_DIR)/hsm-test: hsm-test.o $(JIUTAI_DIR)/jf_hsm.o
 
 $(BIN_DIR)/host-test: host-test.o $(JIUTAI_DIR)/jf_host.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolifmgmt -ljf_string -ljf_logger
+       -o $@ $(SYSLIBS) -ljf_ifmgmt -ljf_string -ljf_logger
 
 $(BIN_DIR)/respool-test: respool-test.o $(JIUTAI_DIR)/respool.o \
        $(JIUTAI_DIR)/jf_mutex.o $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_array.o \
@@ -225,27 +225,27 @@ $(BIN_DIR)/httpparser-test: httpparser-test.o
 $(BIN_DIR)/network-test: network-test.o $(JIUTAI_DIR)/jf_process.o \
        $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_network -ljf_string -ljf_logger -lolifmgmt
+       -o $@ $(SYSLIBS) -ljf_network -ljf_string -ljf_logger -ljf_ifmgmt
 
 $(BIN_DIR)/network-test-server: network-test-server.o \
        $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_network -ljf_logger -ljf_string -lolifmgmt
+       -o $@ $(SYSLIBS) -ljf_network -ljf_logger -ljf_string -ljf_ifmgmt
 
 $(BIN_DIR)/network-test-client: network-test-client.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_network -ljf_logger -lolifmgmt
+       -o $@ $(SYSLIBS) -ljf_network -ljf_logger -ljf_ifmgmt
 
 $(BIN_DIR)/network-test-client-chain: network-test-client-chain.o \
        $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_network -ljf_logger -lolifmgmt
+       -o $@ $(SYSLIBS) -ljf_network -ljf_logger -ljf_ifmgmt
 
 $(BIN_DIR)/webclient-test: webclient-test.o $(JIUTAI_DIR)/jf_mem.o \
        $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_httpparser -ljf_network -lolwebclient -ljf_logger \
-       -ljf_files -lolifmgmt
+       -ljf_files -ljf_ifmgmt
 
 $(BIN_DIR)/servmgmt-test: servmgmt-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

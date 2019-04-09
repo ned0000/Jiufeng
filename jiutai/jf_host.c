@@ -36,7 +36,7 @@
 #include "jf_err.h"
 #include "jf_host.h"
 #include "jf_string.h"
-#include "ifmgmt.h"
+#include "jf_ifmgmt.h"
 
 /* --- private data/data structure section --------------------------------- */
 #if defined(WINDOWS)

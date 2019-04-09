@@ -17,7 +17,7 @@ SOURCES = webclient.c
 JIUTAI_SRCS = $(JIUTAI_DIR)\bases.c $(JIUTAI_DIR)\jf_mem.c \
              $(JIUTAI_DIR)\jf_mutex.c $(JIUTAI_DIR)\xtime.c
 
-EXTRA_LIBS = ws2_32.lib $(LIB_DIR)\jf_logger.lib $(LIB_DIR)\olifmgmt.lib \
+EXTRA_LIBS = ws2_32.lib $(LIB_DIR)\jf_logger.lib $(LIB_DIR)\jf_ifmgmt.lib \
              $(LIB_DIR)\jf_httpparser.lib $(LIB_DIR)\jf_network.lib \
              $(LIB_DIR)\jf_string.lib
 

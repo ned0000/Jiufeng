@@ -17,7 +17,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "ifmgmt.h"
+#include "jf_ifmgmt.h"
 
 /* --- constant definitions ------------------------------------------------ */
 

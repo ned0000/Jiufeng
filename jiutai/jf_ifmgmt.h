@@ -1,11 +1,12 @@
 /**
- *  @file ifmgmt.h
+ *  @file jf_ifmgmt.h
  *
  *  @brief Header file of network interface management library. Including
  *   physical port.
  *
  *  @author Min Zhang
  *
+ *  @note Routines declared in this file are included in jf_ifmgmt library
  *  @note Link with olfiles and olstringparse library
  *
  */
