@@ -1,11 +1,11 @@
 /**
- *  @file encode.h
+ *  @file jf_encode.h
  *
  *  @brief  API for the encode-decode library
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_encode library
  *
  */
 
@@ -43,7 +43,7 @@
 
 #define JF_ENCODE_MAX_HUFFMAN_CODE_LEN    (8)
 
-typedef struct huffman_code
+typedef struct jf_encode_huffman_code
 {
     /** symbol, max 65536 symbols */
     u16 jehc_u16Symbol;

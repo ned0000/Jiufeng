@@ -21,7 +21,7 @@
 #include "encrypt.h"
 #include "hexstr.h"
 #include "jf_string.h"
-#include "encode.h"
+#include "jf_encode.h"
 #include "jf_filestream.h"
 #include "jf_mem.h"
 

@@ -196,7 +196,7 @@ $(BIN_DIR)/prng-test: prng-test.o
 
 $(BIN_DIR)/encode-test: encode-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolencode -ljf_logger -ljf_files
+       -o $@ $(SYSLIBS) -ljf_encode -ljf_logger -ljf_files
 
 $(BIN_DIR)/genuuid: genuuid.o $(JIUTAI_DIR)/jf_time.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

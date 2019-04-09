@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = olencode
+SONAME = jf_encode
 
 SOURCES = base64.c huffman.c
 

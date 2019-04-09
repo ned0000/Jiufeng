@@ -17,7 +17,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "encode.h"
+#include "jf_encode.h"
 #include "huffman.h"
 #include "jf_err.h"
 #include "jf_mem.h"

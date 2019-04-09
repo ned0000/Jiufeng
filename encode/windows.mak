@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = olencode
+DLLNAME = jf_encode
 RESOURCE = encode
 
 SOURCES = base64.c huffman.c
