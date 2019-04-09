@@ -21,7 +21,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "servmgmt.h"
+#include "jf_servmgmt.h"
 
 #include "servmgmtsetting.h"
 

@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = olservmgmt
+DLLNAME = jf_servmgmt
 
 RESOURCE = servmgmt
 

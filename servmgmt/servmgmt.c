@@ -22,7 +22,7 @@
 #include "jf_process.h"
 #include "jf_attask.h"
 #include "jf_time.h"
-#include "servmgmt.h"
+#include "jf_servmgmt.h"
 
 #include "servmgmtsetting.h"
 

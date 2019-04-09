@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "jf_sem.h"
 #include "jf_mem.h"
-#include "servmgmt.h"
+#include "jf_servmgmt.h"
 
 /* --- private data/data structure section --------------------------------- */
 static boolean_t ls_bList = FALSE;

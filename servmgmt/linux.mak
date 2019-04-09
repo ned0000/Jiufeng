@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = olservmgmt
+SONAME = jf_servmgmt
 
 SOURCES = servmgmt.c servmgmtsetting.c
 

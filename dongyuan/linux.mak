@@ -18,7 +18,7 @@ JIUTAI_SRCS = jf_mem.c jf_process.c
 
 EXTRA_INC_DIR = 
 
-EXTRA_LIBS = -lolservmgmt -ljf_string -ljf_files -ljf_logger
+EXTRA_LIBS = -ljf_servmgmt -ljf_string -ljf_files -ljf_logger
 
 include $(TOPDIR)/mak/lnxexe.mak
 

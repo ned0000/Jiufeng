@@ -21,7 +21,7 @@ JIUTAI_SRCS = $(JIUTAI_DIR)\getopt.c $(JIUTAI_DIR)\jf_mem.c \
 EXTRA_INC_DIR =
 
 EXTRA_LIBS = psapi.lib $(LIB_DIR)\jf_logger.lib $(LIB_DIR)\jf_string.lib \
-    $(LIB_DIR)\olfiles.lib $(LIB_DIR)\olservmgmt.lib
+    $(LIB_DIR)\olfiles.lib $(LIB_DIR)\jf_servmgmt.lib
 
 !include "$(TOPDIR)\mak\winexe.mak"
 

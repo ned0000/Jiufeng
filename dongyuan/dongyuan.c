@@ -24,10 +24,11 @@
 #include "jf_err.h"
 #include "jf_logger.h"
 #include "jf_process.h"
-#include "dongyuan.h"
 #include "jf_file.h"
-#include "servmgmt.h"
+#include "jf_servmgmt.h"
 #include "jf_mem.h"
+
+#include "dongyuan.h"
 
 /* --- private data structures --------------------------------------------- */
 
