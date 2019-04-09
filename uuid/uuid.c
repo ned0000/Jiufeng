@@ -23,11 +23,11 @@
 #include "prng.h"
 #include "ifmgmt.h"
 #include "cghash.h"
-#include "common.h"
-#include "bitop.h"
-#include "output.h"
+#include "jf_bitop.h"
 #include "jf_time.h"
-#include "cghash.h"
+
+#include "output.h"
+#include "common.h"
 
 /* --- private data/data structure section --------------------------------- */
 

@@ -1,5 +1,5 @@
 /**
- *  @file bitop.h
+ *  @file jf_bitop.h
  *
  *  @brief Bitop header file. Provide some routines for bit operation
  *

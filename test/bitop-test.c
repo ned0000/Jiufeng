@@ -18,7 +18,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "hexstr.h"
-#include "bitop.h"
+#include "jf_bitop.h"
 #include "stringparse.h"
 
 /* --- private data/data structure section --------------------------------- */

@@ -16,7 +16,7 @@
 /* --- standard C lib header files ----------------------------------------- */
 
 /* --- internal header files ----------------------------------------------- */
-#include "bitop.h"
+#include "jf_bitop.h"
 
 /* --- constant definitions ------------------------------------------------ */
 

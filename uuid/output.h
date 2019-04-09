@@ -17,6 +17,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "uuid.h"
+#include "common.h"
 
 /* --- constant definitions ------------------------------------------------ */
 
