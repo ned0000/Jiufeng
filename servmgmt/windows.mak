@@ -23,7 +23,7 @@ JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\sharedmemory.c \
 EXTRA_DEFS = -DJIUFENG_SERVMGMT_DLL
 
 EXTRA_LIBS = psapi.lib $(LIB_DIR)\jf_logger.lib $(LIB_DIR)\olfiles.lib \
-    $(LIB_DIR)\olxmlparser.lib $(LIB_DIR)\jf_uuid.lib
+    $(LIB_DIR)\jf_xmlparser.lib $(LIB_DIR)\jf_uuid.lib
              
 EXTRA_INC_DIR =
 

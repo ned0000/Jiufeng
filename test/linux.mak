@@ -216,7 +216,7 @@ $(BIN_DIR)/archive-test: archive-test.o $(JIUTAI_DIR)/jf_mem.o
 
 $(BIN_DIR)/xmlparser-test: xmlparser-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lm -lolxmlparser -ljf_logger
+       -o $@ $(SYSLIBS) -lm -ljf_xmlparser -ljf_logger
 
 $(BIN_DIR)/httpparser-test: httpparser-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

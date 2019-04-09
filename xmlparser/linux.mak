@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = olxmlparser
+SONAME = jf_xmlparser
 
 SOURCES = xmlparser.c
 

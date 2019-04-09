@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "xmlparser.h"
+#include "jf_xmlparser.h"
 
 /* An example of XML file for testing purpose:
 

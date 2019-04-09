@@ -18,7 +18,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_string.h"
-#include "xmlparser.h"
+#include "jf_xmlparser.h"
 #include "jf_stack.h"
 #include "jf_mem.h"
 #include "jf_file.h"

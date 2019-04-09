@@ -1,11 +1,11 @@
 /**
- *  @file xmlparser.h
+ *  @file jf_xmlparser.h
  *
  *  @brief xml parser header file
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_xmlparser library
  *  
  */
 

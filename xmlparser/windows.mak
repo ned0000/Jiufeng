@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = olxmlparser
+DLLNAME = jf_xmlparser
 RESOURCE = xmlparser
 
 SOURCES = xmlparser.c
