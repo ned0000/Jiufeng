@@ -12,7 +12,7 @@
 
 SOURCES = hexstr.c jf_process.c jf_thread.c jf_time.c jf_date.c  \
     jf_stack.c jf_queue.c jf_linklist.c jf_dlinklist.c jf_hashtree.c jf_mem.c jf_mutex.c  \
-    jf_rwlock.c jf_sem.c jf_array.c hash.c jf_menu.c crc32c.c  \
+    jf_rwlock.c jf_sem.c jf_array.c hash.c jf_menu.c jf_crc.c  \
     sharedmemory.c jf_dynlib.c jf_hsm.c jf_host.c respool.c randnum.c  \
     jf_attask.c jf_sqlite.c
 

@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "crc32c.h"
+#include "jf_crc.h"
 #include "hexstr.h"
 
 /* --- private data/data structure section --------------------------------- */

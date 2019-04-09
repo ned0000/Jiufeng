@@ -1,19 +1,20 @@
 /**
- *  @file crc32c.h
+ *  @file jf_crc.h
  *
- *  @brief crc32c header file,  implement CRC32C, 32 bit CRC of the polynomial
+ *  @brief CRC header file, implement CRC32C, 32 bit CRC of the polynomial
  *   represented by 0x11EDC6F41
  *
  *  @author Min Zhang
  *
+ *  @note Routines declared in this file are included in jf_crc object
  *  @note cyclic redundancy check (CRC) is a type of function that takes as
  *   input a data stream of any length, and produces as output a value
  *   of a certain space, commonly a 32-bit integer.
  *
  */
 
-#ifndef JIUTAI_CRC32C_H
-#define JIUTAI_CRC32C_H
+#ifndef JIUTAI_CRC_H
+#define JIUTAI_CRC_H
 
 /* --- standard C lib header files ----------------------------------------- */
 
@@ -40,7 +41,7 @@ void jf_crc_crc32c(u8 * pu8Data, u32 u32Len, u32 u32Flags, u32 * pu32Result);
 void jf_crc_crc32cVec(
     jf_crc_crc32c_vec_t * pjccv, u32 u32Count, u32 u32Flags, u32 * pu32Result);
 
-#endif /*JIUTAI_CRC32C_H*/
+#endif /*JIUTAI_CRC_H*/
 
 /*---------------------------------------------------------------------------*/
 

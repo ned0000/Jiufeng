@@ -1,5 +1,5 @@
 /**
- *  @file crc32c.c
+ *  @file jf_crc.c
  *
  *  @brief The object implements CRC-32C
  *
@@ -16,7 +16,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "crc32c.h"
+#include "jf_crc.h"
 
 /* --- private data/data structure section --------------------------------- */
 
