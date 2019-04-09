@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "jiukun.h"
+#include "jf_jiukun.h"
 #include "jf_thread.h"
 
 /* --- private data/data structure section --------------------------------- */

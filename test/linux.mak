@@ -176,7 +176,7 @@ $(BIN_DIR)/bitop-test: bitop-test.o
 $(BIN_DIR)/jiukun-test: jiukun-test.o $(JIUTAI_DIR)/jf_process.o \
        $(JIUTAI_DIR)/jf_mutex.o $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_logger -loljiukun
+       -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun
 
 $(BIN_DIR)/cghash-test: cghash-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

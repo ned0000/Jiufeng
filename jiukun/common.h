@@ -17,7 +17,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "jiukun.h"
+#include "jf_jiukun.h"
 
 /* --- constant definitions ------------------------------------------------ */
 

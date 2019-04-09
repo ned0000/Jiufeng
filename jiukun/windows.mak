@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = oljiukun
+DLLNAME = jf_jiukun
 
 RESOURCE = jiukun
 

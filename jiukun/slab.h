@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "buddy.h"
-#include "jiukun.h"
+#include "jf_jiukun.h"
 
 /* --- constant definitions ------------------------------------------------ */
 

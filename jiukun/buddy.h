@@ -19,7 +19,7 @@
 #include "jf_basic.h"
 #include "jf_listhead.h"
 #include "jf_err.h"
-#include "jiukun.h"
+#include "jf_jiukun.h"
 
 /* --- constant definitions ------------------------------------------------ */
 

@@ -1,12 +1,12 @@
 /**
- *  @file jiukun.h
+ *  @file jf_jiukun.h
  *
- *  @brief jiukun header file. Provide some functional routine for jiukun
+ *  @brief Jiukun header file. Provide some functional routine for jiukun
  *   library
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_jiukun library
  *
  */
 

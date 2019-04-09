@@ -16,7 +16,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "jiukun.h"
+#include "jf_jiukun.h"
 #include "buddy.h"
 #include "slab.h"
 #include "common.h"

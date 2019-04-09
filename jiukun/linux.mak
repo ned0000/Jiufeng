@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = oljiukun
+SONAME = jf_jiukun
 
 SOURCES = buddy.c slab.c jiukun.c
 
