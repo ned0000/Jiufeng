@@ -18,7 +18,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_cghash.h"
-#include "cgmac.h"
+#include "jf_cgmac.h"
 #include "md5.h"
 #include "sha1.h"
 

@@ -12,7 +12,7 @@
 #-----------------------------------------------------------------------------
 
 SOURCES = hmac.c
-SONAME = olcgmac
+SONAME = jf_cgmac
 
 JIUTAI_SRCS = jf_mem.c
 

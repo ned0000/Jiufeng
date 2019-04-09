@@ -184,7 +184,7 @@ $(BIN_DIR)/cghash-test: cghash-test.o
 
 $(BIN_DIR)/cgmac-test: cgmac-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolcgmac -ljf_logger -ljf_string
+       -o $@ $(SYSLIBS) -ljf_cgmac -ljf_logger -ljf_string
 
 $(BIN_DIR)/encrypt-test: encrypt-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

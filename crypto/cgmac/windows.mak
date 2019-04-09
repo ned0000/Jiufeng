@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = olcgmac
+DLLNAME = jf_cgmac
 RESOURCE = cgmac
 
 SOURCES = hmac.c

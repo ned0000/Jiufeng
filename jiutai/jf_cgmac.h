@@ -1,5 +1,5 @@
 /**
- *  @file cgmac.h
+ *  @file jf_cgmac.h
  *
  *  @brief Header file of keyed-hash message authentication code(HMAC or KHMAC),
  *   HMAC is a type of message authentication code (MAC) calculated using a
@@ -8,7 +8,7 @@
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_cgmac library
  *  
  */
 
