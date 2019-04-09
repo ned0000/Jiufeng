@@ -1,12 +1,13 @@
 /**
- *  @file prng.h
+ *  @file jf_prng.h
  *
  *  @brief Header file for pseudo random number generator
  *
  *  @author Min Zhang
  *
+ *  @note Routines declared in this file are included in jf_prng library
  *  @note The prng library is thread safe
- *  @note Link with olfiles library
+ *  @note Link with jf_files library
  *  @note The library is written based on openssl rand function
  */
 

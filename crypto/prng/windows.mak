@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = olprng
+DLLNAME = jf_prng
 RESOURCE = prng
 
 SOURCES = ..\common\clrmem.c prng.c seed.c

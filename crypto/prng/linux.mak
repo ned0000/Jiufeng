@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = olprng
+SONAME = jf_prng
 
 SOURCES = ../common/clrmem.c prng.c seed.c
 

@@ -36,7 +36,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "prng.h"
+#include "jf_prng.h"
 #include "jf_file.h"
 #include "jf_time.h"
 

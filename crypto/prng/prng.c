@@ -19,7 +19,7 @@
 #endif
 
 /* --- internal header files ----------------------------------------------- */
-#include "prng.h"
+#include "jf_prng.h"
 #include "jf_cghash.h"
 #include "jf_err.h"
 #include "jf_mem.h"

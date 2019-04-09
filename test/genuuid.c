@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "jf_string.h"
 #include "jf_uuid.h"
-#include "prng.h"
+#include "jf_prng.h"
 
 /* --- private data/data structure section --------------------------------- */
 static jf_uuid_ver_t ls_juvVersion = JF_UUID_VER_1;

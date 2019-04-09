@@ -192,7 +192,7 @@ $(BIN_DIR)/encrypt-test: encrypt-test.o
 
 $(BIN_DIR)/prng-test: prng-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolprng -ljf_logger -ljf_cghash
+       -o $@ $(SYSLIBS) -ljf_prng -ljf_logger -ljf_cghash
 
 $(BIN_DIR)/encode-test: encode-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
@@ -200,7 +200,7 @@ $(BIN_DIR)/encode-test: encode-test.o $(JIUTAI_DIR)/jf_mem.o
 
 $(BIN_DIR)/genuuid: genuuid.o $(JIUTAI_DIR)/jf_time.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_logger -ljf_uuid -lolprng
+       -o $@ $(SYSLIBS) -ljf_logger -ljf_uuid -ljf_prng
 
 $(BIN_DIR)/randnum-test: randnum-test.o $(JIUTAI_DIR)/randnum.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
