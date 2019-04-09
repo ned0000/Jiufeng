@@ -1,11 +1,12 @@
 /**
- *  @file encrypt.h
+ *  @file jf_encrypt.h
  *
  *  @brief encryption/decryption header file. It provides fucntions to encrypt
  *   and decrypt file and string.
  *
  *  @author Min Zhang
  *
+ *  @note Routines declared in this file are included in jf_encrypt library
  *  @note On Linux platform, link with ssl and crypto library
  *  @note Link with olstringparse and olfiles library
  *  @note Use AES as the encrypt algorithm, the length of the encrypt key

@@ -17,7 +17,7 @@ JIUTAI_SRCS = jf_mem.c
 
 EXTRA_LIBS = -lssl -lcrypt -ljf_string -ljf_files
 
-SONAME = olencrypt
+SONAME = jf_encrypt
 
 include $(TOPDIR)/mak/lnxlib.mak
 

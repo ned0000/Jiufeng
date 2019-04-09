@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = olencrypt
+DLLNAME = jf_encrypt
 RESOURCE = encrypt
 
 SOURCES = encrypt.c

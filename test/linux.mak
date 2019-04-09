@@ -188,7 +188,7 @@ $(BIN_DIR)/cgmac-test: cgmac-test.o
 
 $(BIN_DIR)/encrypt-test: encrypt-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolencrypt -ljf_logger -ljf_string -lssl -lcrypto
+       -o $@ $(SYSLIBS) -ljf_encrypt -ljf_logger -ljf_string -lssl -lcrypto
 
 $(BIN_DIR)/prng-test: prng-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

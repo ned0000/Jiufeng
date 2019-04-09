@@ -20,7 +20,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "encrypt.h"
+#include "jf_encrypt.h"
 #include "jf_mem.h"
 #include "jf_string.h"
 #include "jf_limit.h"
