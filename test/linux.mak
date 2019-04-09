@@ -14,9 +14,9 @@ include $(TOPDIR)/mak/lnxcfg.mak
 
 PROGRAMS = xmalloc-test hashtree-test listhead-test           \
     listarray-test logger-test process-test         \
-    hash-test mutex-test rwlock-test sem-test date-test       \
+    hashtable-test mutex-test rwlock-test sem-test date-test       \
     time-test stringparse-test bitarray-test conffile-test   \
-    menu-test crc32c-test dynlib-test ifmgmt-test             \
+    menu-test crc-test dynlib-test ifmgmt-test             \
     sharedmemory-test-consumer sharedmemory-test-worker       \
     files-test hsm-test host-test respool-test            \
     bitop-test jiukun-test cghash-test cgmac-test genuuid     \
@@ -29,9 +29,9 @@ PROGRAMS = xmalloc-test hashtree-test listhead-test           \
 
 SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c             \
     listarray-test.c logger-test.c process-test.c   \
-    hash-test.c mutex-test.c rwlock-test.c sem-test.c date-test.c    \
+    hashtable-test.c mutex-test.c rwlock-test.c sem-test.c date-test.c    \
     time-test.c stringparse-test.c bitarray-test.c conffile-test.c  \
-    menu-test.c crc32c-test.c dynlib-test.c ifmgmt-test.c            \
+    menu-test.c crc-test.c dynlib-test.c ifmgmt-test.c            \
     sharedmemory-test-consumer.c sharedmemory-test-worker.c          \
     files-test.c hsm-test.c host-test.c respool-test.c           \
     bitop-test.c jiukun-test.c cghash-test.c cgmac-test.c genuuid.c  \
@@ -101,8 +101,8 @@ $(BIN_DIR)/rwlock-test: rwlock-test.o $(JIUTAI_DIR)/jf_rwlock.o \
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
-$(BIN_DIR)/hash-test: hash-test.o $(JIUTAI_DIR)/hash.o $(JIUTAI_DIR)/jf_mem.o \
-       $(JIUTAI_DIR)/jf_process.o
+$(BIN_DIR)/hashtable-test: hashtable-test.o $(JIUTAI_DIR)/jf_hashtable.o \
+       $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
@@ -126,7 +126,7 @@ $(BIN_DIR)/menu-test: menu-test.o $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_menu.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_string
 
-$(BIN_DIR)/crc32c-test: crc32c-test.o $(JIUTAI_DIR)/crc32c.o \
+$(BIN_DIR)/crc-test: crc-test.o $(JIUTAI_DIR)/jf_crc.o \
        $(JIUTAI_DIR)/hexstr.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger

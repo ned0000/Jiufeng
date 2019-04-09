@@ -1,10 +1,11 @@
 /**
- *  @file hash.h
+ *  @file jf_hashtable.h
  *
  *  @brief Header file for hash common object.
  *
  *  @author Min Zhang
  *
+ *  @note Routines declared in this file are included in jf_hashtable object
  *  @note This is an implementation of a general hash table module. It assumes
  *   that keys for entry stored in the hash table can be extracted from the
  *   entry.

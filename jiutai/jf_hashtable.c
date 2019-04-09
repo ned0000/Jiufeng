@@ -1,5 +1,5 @@
 /**
- *  @file hash.c
+ *  @file jf_hashtable.c
  *
  *  @brief Hash table implementation file
  *
@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "hash.h"
+#include "jf_hashtable.h"
 #include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */
