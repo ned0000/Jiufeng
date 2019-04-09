@@ -22,7 +22,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "network.h"
+#include "jf_network.h"
 #include "internalsocket.h"
 
 /* --- private data/data structure section --------------------------------- */

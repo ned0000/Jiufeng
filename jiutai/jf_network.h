@@ -1,10 +1,11 @@
 /**
- *  @file network.h
+ *  @file jf_network.h
  *
  *  @brief Header file of network library
  *
  *  @author Min Zhang
  *
+ *  @note Routines declared in this file are included in jf_network library
  *  @note timeout is in second if not specified
  *
  */

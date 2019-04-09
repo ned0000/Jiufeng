@@ -18,7 +18,7 @@
 #include "jf_limit.h"
 #include "jf_mem.h"
 #include "jf_err.h"
-#include "network.h"
+#include "jf_network.h"
 #include "jf_mutex.h"
 
 #if defined(LINUX)

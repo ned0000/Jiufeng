@@ -17,7 +17,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_time.h"
-#include "network.h"
+#include "jf_network.h"
 #include "jf_mutex.h"
 #include "jf_mem.h"
 

@@ -225,26 +225,26 @@ $(BIN_DIR)/httpparser-test: httpparser-test.o
 $(BIN_DIR)/network-test: network-test.o $(JIUTAI_DIR)/jf_process.o \
        $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolnetwork -ljf_string -ljf_logger -lolifmgmt
+       -o $@ $(SYSLIBS) -ljf_network -ljf_string -ljf_logger -lolifmgmt
 
 $(BIN_DIR)/network-test-server: network-test-server.o \
        $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolnetwork -ljf_logger -ljf_string -lolifmgmt
+       -o $@ $(SYSLIBS) -ljf_network -ljf_logger -ljf_string -lolifmgmt
 
 $(BIN_DIR)/network-test-client: network-test-client.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolnetwork -ljf_logger -lolifmgmt
+       -o $@ $(SYSLIBS) -ljf_network -ljf_logger -lolifmgmt
 
 $(BIN_DIR)/network-test-client-chain: network-test-client-chain.o \
        $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolnetwork -ljf_logger -lolifmgmt
+       -o $@ $(SYSLIBS) -ljf_network -ljf_logger -lolifmgmt
 
 $(BIN_DIR)/webclient-test: webclient-test.o $(JIUTAI_DIR)/jf_mem.o \
        $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolhttpparser -lolnetwork -lolwebclient -ljf_logger \
+       -o $@ $(SYSLIBS) -lolhttpparser -ljf_network -lolwebclient -ljf_logger \
        -ljf_files -lolifmgmt
 
 $(BIN_DIR)/olservmgmt: servmgmt-test.o

@@ -16,7 +16,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "network.h"
+#include "jf_network.h"
 
 /* --- constant definitions ------------------------------------------------ */
 

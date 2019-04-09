@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = olnetwork
+SONAME = jf_network
 
 SOURCES = internalsocket.c socket.c socketpair.c \
     chain.c utimer.c asocket.c assocket.c acsocket.c \

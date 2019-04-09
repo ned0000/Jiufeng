@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "network.h"
+#include "jf_network.h"
 #include "jf_string.h"
 #include "jf_process.h"
 #include "jf_thread.h"

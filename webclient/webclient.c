@@ -19,7 +19,7 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_mutex.h"
-#include "network.h"
+#include "jf_network.h"
 #include "httpparser.h"
 #include "webclient.h"
 #include "jf_mem.h"

@@ -17,7 +17,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "network.h"
+#include "jf_network.h"
 
 /* --- private data/data structure section --------------------------------- */
 

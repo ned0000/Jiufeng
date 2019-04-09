@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = olnetwork
+DLLNAME = jf_network
 RESOURCE = network
 
 SOURCES = internalsocket.c socket.c socketpair.c chain.c \
