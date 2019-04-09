@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_logger.h"
 #include "engio.h"
-#include "clieng.h"
+#include "jf_clieng.h"
 
 /* --- constant definitions ------------------------------------------------ */
 

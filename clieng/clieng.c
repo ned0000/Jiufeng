@@ -19,7 +19,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "clieng.h"
+#include "jf_clieng.h"
 #include "engio.h"
 #include "cmdhistory.h"
 #include "cmdparser.h"

@@ -16,7 +16,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "clieng.h"
+#include "jf_clieng.h"
 #include "main.h"
 
 /* --- constant definitions ------------------------------------------------ */

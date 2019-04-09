@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = olclieng
+SONAME = jf_clieng
 
 SOURCES = clieng.c engio.c cmdparser.c cmdhistory.c 
 

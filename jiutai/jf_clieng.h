@@ -1,12 +1,12 @@
 /**
- *  @file clieng.h
+ *  @file jf_clieng.h
  *
  *  @brief CLI Engine header file. Define the interfaces and data structures
  *   exposed by the CLI engine
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_clieng library
  *  
  */
 

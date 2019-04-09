@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = olclieng
+DLLNAME = jf_clieng
 RESOURCE = clieng
 
 SOURCES = clieng.c cmdhistory.c cmdparser.c engio.c

@@ -27,7 +27,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "clieng.h"
+#include "jf_clieng.h"
 #include "clicmd.h"
 #include "main.h"
 #include "jf_mem.h"
