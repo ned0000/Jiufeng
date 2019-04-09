@@ -20,7 +20,7 @@ JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c
 
 EXTRA_DEFS = -DJIUFENG_IFMGMT_DLL
 
-EXTRA_LIBS = ws2_32.lib Iphlpapi.lib $(LIB_DIR)\ollogger.lib
+EXTRA_LIBS = ws2_32.lib Iphlpapi.lib $(LIB_DIR)\jf_logger.lib
 
 !if "$(DEBUG_JIUFENG)" == "yes"
 EXTRA_CFLAGS =

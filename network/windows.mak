@@ -23,7 +23,7 @@ JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\jf_mutex.c \
 
 EXTRA_DEFS = -DJIUFENG_NETWORK_DLL
 
-EXTRA_LIBS = ws2_32.lib Iphlpapi.lib $(LIB_DIR)\ollogger.lib \
+EXTRA_LIBS = ws2_32.lib Iphlpapi.lib $(LIB_DIR)\jf_logger.lib \
              $(LIB_DIR)\olifmgmt.lib $(LIB_DIR)\jf_string.lib
 
 !if "$(DEBUG_JIUFENG)" == "yes"

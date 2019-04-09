@@ -21,7 +21,7 @@ JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c
 
 EXTRA_DEFS = -DJIUFENG_MATRIX_DLL
 
-EXTRA_LIBS = ollogger.lib
+EXTRA_LIBS = jf_logger.lib
 
 !if "$(DEBUG_JIUFENG)" == "yes"
 EXTRA_CFLAGS = -DDEBUG_MATRIX

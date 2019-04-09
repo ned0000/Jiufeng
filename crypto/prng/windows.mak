@@ -18,7 +18,7 @@ SOURCES = ..\common\clrmem.c prng.c seed.c
 
 JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\jf_mutex.c $(JIUTAI_DIR)\jf_time.c
 
-EXTRA_LIBS = ollogger.lib olcghash.lib Netapi32.lib
+EXTRA_LIBS = jf_logger.lib olcghash.lib Netapi32.lib
 
 EXTRA_INC_DIR = -I..\common
 

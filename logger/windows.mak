@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = ollogger
+DLLNAME = jf_logger
 RESOURCE = logger
 
 SOURCES = common.c logger.c errcode.c
