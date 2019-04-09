@@ -19,7 +19,7 @@
 #include "jf_mem.h"
 #include "sharedmemory.h"
 #include "jf_filestream.h"
-#include "process.h"
+#include "jf_process.h"
 #include "jf_attask.h"
 #include "xtime.h"
 #include "servmgmt.h"

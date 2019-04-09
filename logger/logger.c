@@ -31,7 +31,8 @@
 #include "jf_logger.h"
 #include "hexstr.h"
 #include "jf_limit.h"
-#include "process.h"
+#include "jf_process.h"
+#include "jf_thread.h"
 #include "common.h"
 
 /* --- private data/data structure section --------------------------------- */

@@ -19,7 +19,6 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "sharedmemory.h"
-#include "process.h"
 
 /* --- private data/data structure section --------------------------------- */
 

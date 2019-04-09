@@ -20,7 +20,8 @@
 #include "jf_err.h"
 #include "network.h"
 #include "stringparse.h"
-#include "process.h"
+#include "jf_process.h"
+#include "jf_thread.h"
 #include "xtime.h"
 
 /* --- private data/data structure section --------------------------------- */

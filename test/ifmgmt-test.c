@@ -20,7 +20,7 @@
 #include "ifmgmt.h"
 #include "jf_err.h"
 #include "stringparse.h"
-#include "process.h"
+#include "jf_process.h"
 #include "xtime.h"
 
 /* --- private data/data structure section --------------------------------- */

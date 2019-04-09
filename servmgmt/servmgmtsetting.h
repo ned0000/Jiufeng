@@ -18,7 +18,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "process.h"
+#include "jf_process.h"
 #include "jf_limit.h"
 
 /* --- constant definitions ------------------------------------------------ */

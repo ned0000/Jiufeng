@@ -73,7 +73,8 @@ $(BIN_DIR)/logger-test: logger-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
-$(BIN_DIR)/process-test: process-test.o $(JIUTAI_DIR)/process.o
+$(BIN_DIR)/process-test: process-test.o $(JIUTAI_DIR)/jf_process.o \
+       $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
@@ -82,22 +83,22 @@ $(BIN_DIR)/xmalloc-test: xmalloc-test.o $(JIUTAI_DIR)/jf_mem.o
        -o $@ $(SYSLIBS)
 
 $(BIN_DIR)/sem-test: sem-test.o $(JIUTAI_DIR)/jf_sem.o \
-       $(JIUTAI_DIR)/process.o
+       $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
 $(BIN_DIR)/mutex-test: mutex-test.o $(JIUTAI_DIR)/jf_mutex.o \
-       $(JIUTAI_DIR)/process.o
+       $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
 $(BIN_DIR)/rwlock-test: rwlock-test.o $(JIUTAI_DIR)/jf_rwlock.o \
-       $(JIUTAI_DIR)/process.o
+       $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
 $(BIN_DIR)/hash-test: hash-test.o $(JIUTAI_DIR)/hash.o $(JIUTAI_DIR)/jf_mem.o \
-       $(JIUTAI_DIR)/process.o
+       $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
@@ -141,11 +142,12 @@ $(BIN_DIR)/sharedmemory-test-consumer: sharedmemory-test-consumer.o \
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
-$(BIN_DIR)/ifmgmt-test: ifmgmt-test.o $(JIUTAI_DIR)/process.o
+$(BIN_DIR)/ifmgmt-test: ifmgmt-test.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolifmgmt -lolstringparse -ljf_logger
 
-$(BIN_DIR)/files-test: files-test.o $(JIUTAI_DIR)/process.o
+$(BIN_DIR)/files-test: files-test.o $(JIUTAI_DIR)/jf_process.o \
+       $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -ljf_files -lolstringparse
 
@@ -159,7 +161,7 @@ $(BIN_DIR)/host-test: host-test.o $(JIUTAI_DIR)/jf_host.o
 
 $(BIN_DIR)/respool-test: respool-test.o $(JIUTAI_DIR)/respool.o \
        $(JIUTAI_DIR)/jf_mutex.o $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_array.o \
-       $(JIUTAI_DIR)/process.o $(JIUTAI_DIR)/jf_sem.o
+       $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_sem.o $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
@@ -167,8 +169,8 @@ $(BIN_DIR)/bitop-test: bitop-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) 
 
-$(BIN_DIR)/jiukun-test: jiukun-test.o $(JIUTAI_DIR)/process.o \
-       $(JIUTAI_DIR)/jf_mutex.o $(JIUTAI_DIR)/jf_mem.o
+$(BIN_DIR)/jiukun-test: jiukun-test.o $(JIUTAI_DIR)/jf_process.o \
+       $(JIUTAI_DIR)/jf_mutex.o $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -loljiukun
 
@@ -216,26 +218,27 @@ $(BIN_DIR)/httpparser-test: httpparser-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lm -lolhttpparser -ljf_logger
 
-$(BIN_DIR)/network-test: network-test.o $(JIUTAI_DIR)/process.o
+$(BIN_DIR)/network-test: network-test.o $(JIUTAI_DIR)/jf_process.o \
+       $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolnetwork -lolstringparse -ljf_logger -lolifmgmt
 
 $(BIN_DIR)/network-test-server: network-test-server.o \
-       $(JIUTAI_DIR)/process.o $(JIUTAI_DIR)/jf_mem.o
+       $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolnetwork -ljf_logger -lolstringparse -lolifmgmt
 
-$(BIN_DIR)/network-test-client: network-test-client.o $(JIUTAI_DIR)/process.o
+$(BIN_DIR)/network-test-client: network-test-client.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolnetwork -ljf_logger -lolifmgmt
 
 $(BIN_DIR)/network-test-client-chain: network-test-client-chain.o \
-       $(JIUTAI_DIR)/process.o
+       $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolnetwork -ljf_logger -lolifmgmt
 
 $(BIN_DIR)/webclient-test: webclient-test.o $(JIUTAI_DIR)/jf_mem.o \
-       $(JIUTAI_DIR)/process.o
+       $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolhttpparser -lolnetwork -lolwebclient -ljf_logger \
        -ljf_files -lolifmgmt

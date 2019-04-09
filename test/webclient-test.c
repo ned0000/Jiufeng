@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "network.h"
 #include "stringparse.h"
-#include "process.h"
+#include "jf_process.h"
 #include "webclient.h"
 #include "jf_mem.h"
 #include "jf_file.h"

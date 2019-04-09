@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "hash.h"
-#include "process.h"
+#include "jf_process.h"
 
 
 /* --- private data/data structure section --------------------------------- */

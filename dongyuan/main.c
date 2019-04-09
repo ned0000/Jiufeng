@@ -18,9 +18,10 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "dongyuan.h"
-#include "process.h"
+#include "jf_process.h"
 #include "jf_file.h"
+
+#include "dongyuan.h"
 
 /* --- private data/data structure section --------------------------------- */
 static dongyuan_t * ls_pgDongyuan = NULL;

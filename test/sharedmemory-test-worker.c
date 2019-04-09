@@ -18,7 +18,6 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "sharedmemory.h"
-#include "process.h"
 #include "xtime.h"
 
 /* --- private data/data structure section --------------------------------- */

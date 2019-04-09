@@ -21,7 +21,7 @@
 #include "jf_file.h"
 #include "jf_filestream.h"
 #include "jf_dir.h"
-#include "process.h"
+#include "jf_thread.h"
 
 /* --- private data/data structure section --------------------------------- */
 static olchar_t * ls_pstrDirName = NULL;

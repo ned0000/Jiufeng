@@ -18,7 +18,7 @@ RESOURCE = servmgmt
 SOURCES = servmgmt.c servmgmtsetting.c
 
 JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\sharedmemory.c \
-    $(JIUTAI_DIR)\process.c $(JIUTAI_DIR)\attask.c $(JIUTAI_DIR)\xtime.c
+    $(JIUTAI_DIR)\jf_process.c $(JIUTAI_DIR)\attask.c $(JIUTAI_DIR)\xtime.c
 
 EXTRA_DEFS = -DJIUFENG_SERVMGMT_DLL
 

@@ -26,11 +26,12 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_logger.h"
-#include "cmdparser.h"
 #include "hash.h"
 #include "stringparse.h"
-#include "process.h"
+#include "jf_process.h"
 #include "jf_mem.h"
+
+#include "cmdparser.h"
 
 #if defined(WINDOWS)
     #include "getopt.h"

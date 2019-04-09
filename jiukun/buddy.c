@@ -19,11 +19,12 @@
 #include "jf_limit.h"
 #include "jf_listhead.h"
 #include "jf_err.h"
-#include "buddy.h"
 #include "jf_mem.h"
 #include "jf_mutex.h"
+#include "jf_thread.h"
+
 #include "common.h"
-#include "process.h"
+#include "buddy.h"
 
 /* --- private data/data structure section --------------------------------- */
 

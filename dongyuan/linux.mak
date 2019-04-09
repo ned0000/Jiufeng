@@ -14,7 +14,7 @@ EXE = oldongyuan
 
 SOURCES = dongyuan.c main.c
 
-JIUTAI_SRCS = jf_mem.c process.c
+JIUTAI_SRCS = jf_mem.c jf_process.c
 
 EXTRA_INC_DIR = 
 
