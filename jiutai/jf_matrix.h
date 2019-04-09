@@ -1,12 +1,12 @@
 /**
- *  @file matrix.h
+ *  @file jf_matrix.h
  *
  *  @brief Matrix header file, provide some functional routine for matrix
  *   library
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_matrix library
  *
  */
 

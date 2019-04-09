@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = olmatrix
+DLLNAME = jf_matrix
 
 RESOURCE = matrix
 

@@ -17,7 +17,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "matrix.h"
+#include "jf_matrix.h"
 
 /* --- private data/data structure section --------------------------------- */
 

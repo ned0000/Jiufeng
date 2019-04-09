@@ -253,7 +253,7 @@ $(BIN_DIR)/servmgmt-test: servmgmt-test.o
 
 $(BIN_DIR)/matrix-test: matrix-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolmatrix -ljf_logger
+       -o $@ $(SYSLIBS) -ljf_matrix -ljf_logger
 
 $(BIN_DIR)/sqlite-test: sqlite-test.o $(JIUTAI_DIR)/jf_mem.o \
        $(JIUTAI_DIR)/jf_sqlite.o $(JIUTAI_DIR)/randnum.o $(JIUTAI_DIR)/jf_time.o
