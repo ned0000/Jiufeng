@@ -21,7 +21,6 @@
 #include "jf_rwlock.h"
 #include "jf_process.h"
 #include "jf_thread.h"
-#include "xtime.h"
 
 /* --- private data/data structure section --------------------------------- */
 static jf_rwlock_t ls_jrLock;

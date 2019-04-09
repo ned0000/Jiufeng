@@ -21,7 +21,6 @@
 #include "jf_mutex.h"
 #include "jf_process.h"
 #include "jf_thread.h"
-#include "xtime.h"
 
 /* --- private data/data structure section --------------------------------- */
 static jf_mutex_t ls_jmLock;

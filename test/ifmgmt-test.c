@@ -21,7 +21,6 @@
 #include "jf_err.h"
 #include "stringparse.h"
 #include "jf_process.h"
-#include "xtime.h"
 
 /* --- private data/data structure section --------------------------------- */
 static boolean_t ls_bShowIpInfo = FALSE;

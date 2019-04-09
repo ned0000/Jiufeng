@@ -38,7 +38,7 @@
 #include "jf_err.h"
 #include "prng.h"
 #include "jf_file.h"
-#include "xtime.h"
+#include "jf_time.h"
 
 #include "prngcommon.h"
 #include "clrmem.h"

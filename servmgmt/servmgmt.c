@@ -21,7 +21,7 @@
 #include "jf_filestream.h"
 #include "jf_process.h"
 #include "jf_attask.h"
-#include "xtime.h"
+#include "jf_time.h"
 #include "servmgmt.h"
 
 #include "servmgmtsetting.h"

@@ -19,7 +19,7 @@ SOURCES = internalsocket.c socket.c socketpair.c chain.c \
     adgram.c resolve.c network.c
 
 JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\jf_mutex.c \
-             $(JIUTAI_DIR)\xtime.c
+    $(JIUTAI_DIR)\jf_time.c
 
 EXTRA_DEFS = -DJIUFENG_NETWORK_DLL
 

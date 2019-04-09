@@ -32,7 +32,7 @@
 #include "jf_limit.h"
 #include "jf_process.h"
 #include "jf_err.h"
-#include "xtime.h"
+#include "jf_time.h"
 
 /* --- private data/data structure section --------------------------------- */
 

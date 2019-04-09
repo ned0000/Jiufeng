@@ -23,7 +23,6 @@
 #include "cghash.h"
 #include "jf_err.h"
 #include "jf_mem.h"
-#include "xtime.h"
 #include "jf_process.h"
 #include "prngcommon.h"
 #include "seed.h"

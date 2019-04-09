@@ -22,7 +22,6 @@
 #include "stringparse.h"
 #include "jf_process.h"
 #include "jf_thread.h"
-#include "xtime.h"
 
 /* --- private data/data structure section --------------------------------- */
 

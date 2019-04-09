@@ -26,7 +26,7 @@
 #include "common.h"
 #include "bitop.h"
 #include "output.h"
-#include "xtime.h"
+#include "jf_time.h"
 #include "cghash.h"
 
 /* --- private data/data structure section --------------------------------- */

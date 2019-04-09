@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "stringparse.h"
 #include "jf_err.h"
-#include "xtime.h"
+#include "jf_date.h"
 
 /* --- private data/data structure section --------------------------------- */
 const static olchar_t * ls_pstrMonth[] =

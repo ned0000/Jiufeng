@@ -14,8 +14,8 @@ include $(TOPDIR)/mak/lnxcfg.mak
 
 PROGRAMS = xmalloc-test hashtree-test listhead-test           \
     listarray-test logger-test process-test         \
-    hash-test mutex-test rwlock-test sem-test                 \
-    xtime-test stringparse-test bitarray-test conffile-test   \
+    hash-test mutex-test rwlock-test sem-test date-test       \
+    time-test stringparse-test bitarray-test conffile-test   \
     menu-test crc32c-test dynlib-test ifmgmt-test             \
     sharedmemory-test-consumer sharedmemory-test-worker       \
     files-test hsm-test host-test respool-test            \
@@ -29,8 +29,8 @@ PROGRAMS = xmalloc-test hashtree-test listhead-test           \
 
 SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c             \
     listarray-test.c logger-test.c process-test.c   \
-    hash-test.c mutex-test.c rwlock-test.c sem-test.c    \
-    xtime-test.c stringparse-test.c bitarray-test.c conffile-test.c  \
+    hash-test.c mutex-test.c rwlock-test.c sem-test.c date-test.c    \
+    time-test.c stringparse-test.c bitarray-test.c conffile-test.c  \
     menu-test.c crc32c-test.c dynlib-test.c ifmgmt-test.c            \
     sharedmemory-test-consumer.c sharedmemory-test-worker.c          \
     files-test.c hsm-test.c host-test.c respool-test.c           \
@@ -52,7 +52,11 @@ EXTRA_INC_DIR =
 
 all: $(FULL_PROGRAMS)
 
-$(BIN_DIR)/xtime-test: xtime-test.o $(JIUTAI_DIR)/xtime.o
+$(BIN_DIR)/time-test: time-test.o $(JIUTAI_DIR)/jf_time.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -lolstringparse
+
+$(BIN_DIR)/date-test: date-test.o $(JIUTAI_DIR)/jf_date.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolstringparse
 
@@ -194,7 +198,7 @@ $(BIN_DIR)/encode-test: encode-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolencode -ljf_logger -ljf_files
 
-$(BIN_DIR)/genuuid: genuuid.o $(JIUTAI_DIR)/xtime.o
+$(BIN_DIR)/genuuid: genuuid.o $(JIUTAI_DIR)/jf_time.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -loluuid -lolprng
 
@@ -252,7 +256,7 @@ $(BIN_DIR)/matrix-test: matrix-test.o $(JIUTAI_DIR)/jf_mem.o
        -o $@ $(SYSLIBS) -lolmatrix -ljf_logger
 
 $(BIN_DIR)/sqlite-test: sqlite-test.o $(JIUTAI_DIR)/jf_mem.o \
-       $(JIUTAI_DIR)/jf_sqlite.o $(JIUTAI_DIR)/randnum.o $(JIUTAI_DIR)/xtime.o
+       $(JIUTAI_DIR)/jf_sqlite.o $(JIUTAI_DIR)/randnum.o $(JIUTAI_DIR)/jf_time.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -lsqlite3
 

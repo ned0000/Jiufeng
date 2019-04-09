@@ -1,7 +1,7 @@
 /**
- *  @file xtime-test.c
+ *  @file date-test.c
  *
- *  @brief test file for xtime common object
+ *  @brief test file for jf_date common object
  *
  *  @author Min Zhang
  *
@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "xtime.h"
+#include "jf_date.h"
 #include "stringparse.h"
 
 /* --- private data/data structure section --------------------------------- */
@@ -99,28 +99,6 @@ static void test4(void)
     ol_printf("\n");
 }
 
-#define NUM_OF_TEST5_ENTRY  10
-
-static void test5(void)
-{
-    olchar_t * data[NUM_OF_TEST5_ENTRY] = {"00:00:00", "00:00:59",
-                                       "11:59:59", "12:00:00",
-                                       "12:59:59", "13:00:00",
-                                       "13:00:01", "15:00:00",
-                                       "23:00:00", "23:59:59"};
-    olint_t i;
-    olint_t hour, min, sec, seconds;
-
-    for (i = 0; i < NUM_OF_TEST5_ENTRY; i ++)
-    {
-        jf_string_getTimeFromString(data[i], &hour, &min, &sec);
-        seconds = jf_time_convertTimeToSeconds(hour, min, sec);
-        ol_printf("%s, %d secondes\n", data[i], seconds);
-    }
-
-    ol_printf("\n");
-}
-
 u32 getNextTradingDate(const olchar_t * pstrCurr, olchar_t * pstrNext)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -169,8 +147,6 @@ olint_t main(olint_t argc, olchar_t ** argv)
     test3();
 
     test4();
-
-    test5();
 
     ol_strcpy(curdate, "2004-12-03");
     getNextTradingDate(curdate, strdate);
