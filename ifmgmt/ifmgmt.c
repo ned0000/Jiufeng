@@ -19,7 +19,7 @@
 #include "jf_logger.h"
 #include "ifmgmt.h"
 #include "jf_mem.h"
-#include "files.h"
+#include "jf_filestream.h"
 #include "stringparse.h"
 
 /* --- private data/data structure section --------------------------------- */

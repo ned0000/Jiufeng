@@ -26,15 +26,16 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "files.h"
+#include "jf_dir.h"
 #include "jf_err.h"
-#include "common.h"
 #include "jf_mem.h"
+
+#include "common.h"
 
 /* --- private data/data structure section --------------------------------- */
 
 #if defined(LINUX)
-typedef jf_dir_t internal_dir_t;
+typedef jf_dir_t    internal_dir_t;
 #elif defined(WINDOWS)
 typedef struct
 {

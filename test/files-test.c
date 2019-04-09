@@ -18,7 +18,9 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "files.h"
+#include "jf_file.h"
+#include "jf_filestream.h"
+#include "jf_dir.h"
 #include "process.h"
 
 /* --- private data/data structure section --------------------------------- */

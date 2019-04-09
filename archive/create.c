@@ -18,7 +18,9 @@
 #include "jf_limit.h"
 #include "jf_archive.h"
 #include "jf_err.h"
-#include "files.h"
+#include "jf_file.h"
+#include "jf_filestream.h"
+#include "jf_dir.h"
 #include "jf_mem.h"
 
 #include "archivecommon.h"

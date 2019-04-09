@@ -24,7 +24,8 @@
 #include "jf_mem.h"
 #include "stringparse.h"
 #include "jf_limit.h"
-#include "files.h"
+#include "jf_file.h"
+#include "jf_filestream.h"
 
 /* --- constant definitions ------------------------------------------------ */
 

@@ -14,7 +14,7 @@ SONAME = oluuid
 
 SOURCES = uuid.c output.c
 
-EXTRA_LIBS = -lolcghash -lolifmgmt -lolprng -lolstringparse -lolfiles \
+EXTRA_LIBS = -lolcghash -lolifmgmt -lolprng -lolstringparse -ljf_files \
     -lolcghash
 
 JIUTAI_SRCS = xtime.c

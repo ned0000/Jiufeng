@@ -37,10 +37,11 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "prng.h"
+#include "jf_file.h"
+#include "xtime.h"
+
 #include "prngcommon.h"
 #include "clrmem.h"
-#include "files.h"
-#include "xtime.h"
 
 /* --- private data/data structure section --------------------------------- */
 #if defined(LINUX)

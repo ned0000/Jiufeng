@@ -18,7 +18,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_mem.h"
-#include "files.h"
+#include "jf_filestream.h"
 
 #include "arfile.h"
 

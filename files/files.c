@@ -26,7 +26,8 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "files.h"
+#include "jf_file.h"
+#include "jf_filestream.h"
 #include "jf_err.h"
 #include "common.h"
 

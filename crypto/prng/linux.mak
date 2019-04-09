@@ -19,7 +19,7 @@ JIUTAI_SRCS = jf_mem.c jf_mutex.c xtime.c
 
 EXTRA_INC_DIR = -I../common
 
-EXTRA_LIBS = -lolcghash -lolfiles
+EXTRA_LIBS = -lolcghash -ljf_files
 
 include $(TOPDIR)/mak/lnxlib.mak
 

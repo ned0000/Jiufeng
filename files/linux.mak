@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = olfiles
+SONAME = jf_files
 
 SOURCES = files.c directory.c conffile.c
 

@@ -17,7 +17,8 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "conffile.h"
+#include "jf_conffile.h"
+#include "jf_filestream.h"
 #include "jf_array.h"
 #include "stringparse.h"
 #include "jf_mem.h"

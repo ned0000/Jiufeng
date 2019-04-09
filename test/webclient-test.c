@@ -23,7 +23,7 @@
 #include "process.h"
 #include "webclient.h"
 #include "jf_mem.h"
-#include "files.h"
+#include "jf_file.h"
 
 /* --- private data/data structure section --------------------------------- */
 static const olchar_t * ls_pstrProgramName = "webclient-test";

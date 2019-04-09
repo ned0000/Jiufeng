@@ -22,7 +22,7 @@
 #include "hexstr.h"
 #include "stringparse.h"
 #include "encode.h"
-#include "files.h"
+#include "jf_filestream.h"
 #include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */

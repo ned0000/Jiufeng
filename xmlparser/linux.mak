@@ -15,7 +15,7 @@ SONAME = olxmlparser
 
 SOURCES = xmlparser.c
 
-EXTRA_LIBS = -lolstringparse -lolfiles
+EXTRA_LIBS = -lolstringparse -ljf_files
 
 JIUTAI_SRCS = jf_mem.c jf_stack.c jf_hashtree.c
 

@@ -21,7 +21,8 @@
 #include "xmlparser.h"
 #include "jf_stack.h"
 #include "jf_mem.h"
-#include "files.h"
+#include "jf_file.h"
+#include "jf_filestream.h"
 
 /* --- private data/data structure section --------------------------------- */
 

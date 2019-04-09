@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "dongyuan.h"
 #include "process.h"
-#include "files.h"
+#include "jf_file.h"
 
 /* --- private data/data structure section --------------------------------- */
 static dongyuan_t * ls_pgDongyuan = NULL;

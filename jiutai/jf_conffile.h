@@ -1,10 +1,11 @@
 /**
- *  @file conffile.h
+ *  @file jf_conffile.h
  *
  *  @brief configuration file header file
  *
  *  @author Min Zhang
  *
+ *  @note Routines declared in this file are included in jf_files library
  *  @note The implementation is very simple, reads the options in a
  *   configuration file.
  *  @note An example of the configuration file is as below:    \n
@@ -12,17 +13,17 @@
  *   optiontagname1=value1 # this is an example of option      \n
  *   optiontagname2=value2                                     \n
  *   # the end of the configuration file
- *  @note Link with olfiles library
+ *
  */
 
-#ifndef JIUTAI_CONFFILE_H
-#define JIUTAI_CONFFILE_H
+#ifndef JIUFEN_CONFFILE_H
+#define JIUFEN_CONFFILE_H
 
 /* --- standard C lib header files ----------------------------------------- */
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "files.h"
+#include "jf_file.h"
 
 /* --- constant definitions ------------------------------------------------ */
 
@@ -94,7 +95,7 @@ FILESAPI u32 FILESCALL jf_conffile_getString(
     jf_conffile_t * pConffile, const olchar_t * pstrTag,
     const olchar_t * pstrDefault, olchar_t * pstrValueBuf, olsize_t sBuf);
 
-#endif /*JIUTAI_CONFFILE_H*/
+#endif /*JIUFEN_CONFFILE_H*/
 
 /*---------------------------------------------------------------------------*/
 

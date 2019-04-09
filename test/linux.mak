@@ -115,7 +115,7 @@ $(BIN_DIR)/bitarray-test: bitarray-test.o $(JIUTAI_DIR)/jf_mem.o
 
 $(BIN_DIR)/conffile-test: conffile-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_logger -lolfiles
+       -o $@ $(SYSLIBS) -ljf_logger -ljf_files
 
 $(BIN_DIR)/menu-test: menu-test.o $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_menu.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
@@ -147,7 +147,7 @@ $(BIN_DIR)/ifmgmt-test: ifmgmt-test.o $(JIUTAI_DIR)/process.o
 
 $(BIN_DIR)/files-test: files-test.o $(JIUTAI_DIR)/process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_logger -lolfiles -lolstringparse
+       -o $@ $(SYSLIBS) -ljf_logger -ljf_files -lolstringparse
 
 $(BIN_DIR)/hsm-test: hsm-test.o $(JIUTAI_DIR)/jf_hsm.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
@@ -190,7 +190,7 @@ $(BIN_DIR)/prng-test: prng-test.o
 
 $(BIN_DIR)/encode-test: encode-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolencode -ljf_logger -lolfiles
+       -o $@ $(SYSLIBS) -lolencode -ljf_logger -ljf_files
 
 $(BIN_DIR)/genuuid: genuuid.o $(JIUTAI_DIR)/xtime.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
@@ -238,7 +238,7 @@ $(BIN_DIR)/webclient-test: webclient-test.o $(JIUTAI_DIR)/jf_mem.o \
        $(JIUTAI_DIR)/process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -lolhttpparser -lolnetwork -lolwebclient -ljf_logger \
-       -lolfiles -lolifmgmt
+       -ljf_files -lolifmgmt
 
 $(BIN_DIR)/olservmgmt: servmgmt-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

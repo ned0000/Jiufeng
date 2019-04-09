@@ -21,7 +21,6 @@
 #include "jf_err.h"
 #include "jf_linklist.h"
 #include "jf_logger.h"
-#include "files.h"
 #include "jf_mem.h"
 
 #include "archivecommon.h"
