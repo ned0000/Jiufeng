@@ -1,6 +1,6 @@
 #define VER_FILEDESCRIPTION_STR "Jiufeng Jiukun DLL"
-#define VER_INTERNALNAME_STR "oljiukun.dll"
-#define VER_ORIGINALFILENAME_STR "oljiukun.dll"
+#define VER_INTERNALNAME_STR "jf_jiukun.dll"
+#define VER_ORIGINALFILENAME_STR "jf_jiukun.dll"
 #define VER_PRODUCTNAME_STR "Jiufeng Jiukun Dynamic Linking Library"
 
 #include "jiutai.rc"

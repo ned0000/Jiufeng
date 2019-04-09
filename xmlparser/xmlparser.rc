@@ -1,6 +1,6 @@
 #define VER_FILEDESCRIPTION_STR "Jiufeng XML Parser DLL"
-#define VER_INTERNALNAME_STR "olxmlparser.dll"
-#define VER_ORIGINALFILENAME_STR "olxmlparser.dll"
+#define VER_INTERNALNAME_STR "jf_xmlparser.dll"
+#define VER_ORIGINALFILENAME_STR "jf_xmlparser.dll"
 #define VER_PRODUCTNAME_STR "Jiufeng XML Parser Dynamic Linking Library"
 
 #include "jiutai.rc"

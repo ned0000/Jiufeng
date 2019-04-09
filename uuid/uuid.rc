@@ -1,6 +1,6 @@
 #define VER_FILEDESCRIPTION_STR "Jiufeng UUID DLL"
-#define VER_INTERNALNAME_STR "oluuid.dll"
-#define VER_ORIGINALFILENAME_STR "oluuid.dll"
+#define VER_INTERNALNAME_STR "jf_uuid.dll"
+#define VER_ORIGINALFILENAME_STR "jf_uuid.dll"
 #define VER_PRODUCTNAME_STR "Jiufeng UUID Dynamic Linking Library"
 
 #include "jiutai.rc"

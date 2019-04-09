@@ -1,6 +1,6 @@
 #define VER_FILEDESCRIPTION_STR "Jiufeng Template DLL"
-#define VER_INTERNALNAME_STR "oltemplate.dll"
-#define VER_ORIGINALFILENAME_STR "oltemplate.dll"
+#define VER_INTERNALNAME_STR "jf_template.dll"
+#define VER_ORIGINALFILENAME_STR "jf_template.dll"
 #define VER_PRODUCTNAME_STR "Jiufeng Template Dynamic Linking Library"
 
 #include "common.rc"

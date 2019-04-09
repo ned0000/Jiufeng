@@ -1,6 +1,6 @@
 #define VER_FILEDESCRIPTION_STR "Jiufeng Logger DLL"
-#define VER_INTERNALNAME_STR "ollogger.dll"
-#define VER_ORIGINALFILENAME_STR "ollogger.dll"
+#define VER_INTERNALNAME_STR "jf_logger.dll"
+#define VER_ORIGINALFILENAME_STR "jf_logger.dll"
 #define VER_PRODUCTNAME_STR "Jiufeng Logger Dynamic Linking Library"
 
 #include "jiutai.rc"
