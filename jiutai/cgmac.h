@@ -19,7 +19,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "cghash.h"
+#include "jf_cghash.h"
 
 #undef CGMACAPI
 #undef CGMACCALL

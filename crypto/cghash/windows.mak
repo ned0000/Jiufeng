@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = olcghash
+DLLNAME = jf_cghash
 RESOURCE = cghash
 
 SOURCES = md5.c sha1.c

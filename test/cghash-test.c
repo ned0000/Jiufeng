@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "cghash.h"
+#include "jf_cghash.h"
 #include "hexstr.h"
 #include "jf_string.h"
 

@@ -1,11 +1,11 @@
 /**
- *  @file cghash.h
+ *  @file jf_cghash.h
  *
  *  @brief cryptographic hash function
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_cghash library
  *  
  */
 

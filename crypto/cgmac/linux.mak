@@ -16,7 +16,7 @@ SONAME = olcgmac
 
 JIUTAI_SRCS = jf_mem.c
 
-EXTRA_LIBS = -lolcghash
+EXTRA_LIBS = -ljf_cghash
 
 EXTRA_INC_DIR = -I../cghash
 

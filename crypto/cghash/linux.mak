@@ -16,7 +16,7 @@ JIUTAI_SRCS =
 
 EXTRA_LIBS =
 
-SONAME = olcghash
+SONAME = jf_cghash
 
 include $(TOPDIR)/mak/lnxlib.mak
 

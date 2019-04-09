@@ -16,7 +16,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "cghash.h"
+#include "jf_cghash.h"
 #include "cghashcommon.h"
 #include "jf_mem.h"
 #include "sha1.h"

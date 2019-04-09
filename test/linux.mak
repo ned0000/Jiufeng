@@ -180,7 +180,7 @@ $(BIN_DIR)/jiukun-test: jiukun-test.o $(JIUTAI_DIR)/jf_process.o \
 
 $(BIN_DIR)/cghash-test: cghash-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolcghash -ljf_logger -ljf_string
+       -o $@ $(SYSLIBS) -ljf_cghash -ljf_logger -ljf_string
 
 $(BIN_DIR)/cgmac-test: cgmac-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
@@ -192,7 +192,7 @@ $(BIN_DIR)/encrypt-test: encrypt-test.o
 
 $(BIN_DIR)/prng-test: prng-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolprng -ljf_logger -lolcghash
+       -o $@ $(SYSLIBS) -lolprng -ljf_logger -ljf_cghash
 
 $(BIN_DIR)/encode-test: encode-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

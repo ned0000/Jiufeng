@@ -22,7 +22,7 @@
 #include "jf_uuid.h"
 #include "prng.h"
 #include "ifmgmt.h"
-#include "cghash.h"
+#include "jf_cghash.h"
 #include "jf_bitop.h"
 #include "jf_time.h"
 
