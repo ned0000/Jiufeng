@@ -200,7 +200,7 @@ $(BIN_DIR)/encode-test: encode-test.o $(JIUTAI_DIR)/jf_mem.o
 
 $(BIN_DIR)/genuuid: genuuid.o $(JIUTAI_DIR)/jf_time.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_logger -loluuid -lolprng
+       -o $@ $(SYSLIBS) -ljf_logger -ljf_uuid -lolprng
 
 $(BIN_DIR)/randnum-test: randnum-test.o $(JIUTAI_DIR)/randnum.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

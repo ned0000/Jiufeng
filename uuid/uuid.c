@@ -19,7 +19,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "uuid.h"
+#include "jf_uuid.h"
 #include "prng.h"
 #include "ifmgmt.h"
 #include "cghash.h"

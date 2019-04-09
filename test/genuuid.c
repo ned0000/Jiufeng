@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_string.h"
-#include "uuid.h"
+#include "jf_uuid.h"
 #include "prng.h"
 
 /* --- private data/data structure section --------------------------------- */

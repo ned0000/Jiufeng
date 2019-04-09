@@ -24,7 +24,7 @@
 #include "jf_mem.h"
 #include "sharedmemory.h"
 #if defined(WINDOWS)
-    #include "uuid.h"
+    #include "jf_uuid.h"
 #endif
 
 /* --- private data/data structure section --------------------------------- */

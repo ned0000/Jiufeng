@@ -1,11 +1,12 @@
 /**
- *  @file uuid.h
+ *  @file jf_uuid.h
  *
  *  @brief UUID (Universally Unique Identifier) header file, provide some
  *   functional routine to generate UUID (RFC 4122)
  *
  *  @author Min Zhang
  *
+ *  @note Routines declared in this file are included in jf_uuid library
  *  @note Link with prng library, call initPrng() to init the library
  *  @note Link with cghash library
  *  

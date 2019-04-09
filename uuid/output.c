@@ -17,7 +17,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "uuid.h"
+#include "jf_uuid.h"
 #include "common.h"
 //#include "bignum.h"
 

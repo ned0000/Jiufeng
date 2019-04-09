@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = oluuid
+DLLNAME = jf_uuid
 RESOURCE = uuid
 
 SOURCES = uuid.c output.c
