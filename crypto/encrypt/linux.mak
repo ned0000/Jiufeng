@@ -15,7 +15,7 @@ SOURCES = encrypt.c
 
 JIUTAI_SRCS = jf_mem.c
 
-EXTRA_LIBS = -lssl -lcrypt -lolstringparse -ljf_files
+EXTRA_LIBS = -lssl -lcrypt -ljf_string -ljf_files
 
 SONAME = olencrypt
 

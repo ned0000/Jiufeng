@@ -19,7 +19,7 @@ JIUTAI_SRCS = $(JIUTAI_DIR)\bases.c $(JIUTAI_DIR)\jf_mem.c \
 
 EXTRA_LIBS = ws2_32.lib $(LIB_DIR)\ollogger.lib $(LIB_DIR)\olifmgmt.lib \
              $(LIB_DIR)\olhttpparser.lib $(LIB_DIR)\olnetwork.lib \
-             $(LIB_DIR)\olstringparse.lib
+             $(LIB_DIR)\jf_string.lib
 
 EXTRA_DEFS = -DJIUFENG_WEBCLIENT_DLL
 

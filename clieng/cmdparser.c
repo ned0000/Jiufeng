@@ -27,7 +27,7 @@
 #include "jf_err.h"
 #include "jf_logger.h"
 #include "hash.h"
-#include "stringparse.h"
+#include "jf_string.h"
 #include "jf_process.h"
 #include "jf_mem.h"
 

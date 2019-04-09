@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "hexstr.h"
-#include "stringparse.h"
+#include "jf_string.h"
 #include "prng.h"
 #include "jf_mem.h"
 

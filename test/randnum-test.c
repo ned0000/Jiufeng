@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "randnum.h"
-#include "stringparse.h"
+#include "jf_string.h"
 #include "jf_logger.h"
 
 /* --- private data/data structure section --------------------------------- */

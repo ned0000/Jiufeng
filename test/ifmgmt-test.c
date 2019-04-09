@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "ifmgmt.h"
 #include "jf_err.h"
-#include "stringparse.h"
+#include "jf_string.h"
 #include "jf_process.h"
 
 /* --- private data/data structure section --------------------------------- */

@@ -18,7 +18,7 @@ SOURCES = archive.c arfile.c create.c extract.c
 JIUTAI_SRCS = $(JIUTAI_DIR)\bases.c $(JIUTAI_DIR)\jf_mem.c 
 
 EXTRA_LIBS = $(LIB_DIR)\ollogger.lib $(LIB_DIR)\olfiles.lib \
-             $(LIB_DIR)\olstringparse.lib
+             $(LIB_DIR)\jf_string.lib
 
 EXTRA_INC_DIR = -I..\kinc
 

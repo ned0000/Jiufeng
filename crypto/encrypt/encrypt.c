@@ -22,7 +22,7 @@
 #include "jf_err.h"
 #include "encrypt.h"
 #include "jf_mem.h"
-#include "stringparse.h"
+#include "jf_string.h"
 #include "jf_limit.h"
 #include "jf_file.h"
 #include "jf_filestream.h"

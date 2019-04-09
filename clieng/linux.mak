@@ -17,7 +17,7 @@ SOURCES = clieng.c engio.c cmdparser.c cmdhistory.c
 
 JIUTAI_SRCS = jf_mem.c hash.c jf_mutex.c jf_process.c hexstr.c
 
-EXTRA_LIBS = -ljf_logger -lolstringparse
+EXTRA_LIBS = -ljf_logger -ljf_string
 
 include $(TOPDIR)/mak/lnxlib.mak
 

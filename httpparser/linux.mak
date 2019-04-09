@@ -14,7 +14,7 @@ SONAME = olhttpparser
 
 SOURCES = httpparser.c
 
-EXTRA_LIBS = -lolstringparse
+EXTRA_LIBS = -ljf_string
 
 JIUTAI_SRCS = jf_mem.c 
 

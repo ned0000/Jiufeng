@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "encrypt.h"
 #include "hexstr.h"
-#include "stringparse.h"
+#include "jf_string.h"
 
 /* --- private data/data structure section --------------------------------- */
 static boolean_t ls_bTestEncryptString = FALSE;

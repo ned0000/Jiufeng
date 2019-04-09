@@ -35,7 +35,7 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_host.h"
-#include "stringparse.h"
+#include "jf_string.h"
 #include "ifmgmt.h"
 
 /* --- private data/data structure section --------------------------------- */

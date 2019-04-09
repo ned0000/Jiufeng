@@ -54,11 +54,11 @@ all: $(FULL_PROGRAMS)
 
 $(BIN_DIR)/time-test: time-test.o $(JIUTAI_DIR)/jf_time.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolstringparse
+       -o $@ $(SYSLIBS) -ljf_string
 
 $(BIN_DIR)/date-test: date-test.o $(JIUTAI_DIR)/jf_date.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolstringparse
+       -o $@ $(SYSLIBS) -ljf_string
 
 $(BIN_DIR)/hashtree-test: hashtree-test.o $(JIUTAI_DIR)/jf_hashtree.o \
        $(JIUTAI_DIR)/jf_mem.o
@@ -108,7 +108,7 @@ $(BIN_DIR)/hash-test: hash-test.o $(JIUTAI_DIR)/hash.o $(JIUTAI_DIR)/jf_mem.o \
 
 $(BIN_DIR)/stringparse-test: stringparse-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolstringparse -ljf_logger
+       -o $@ $(SYSLIBS) -ljf_string -ljf_logger
 
 $(BIN_DIR)/hexstr-test: hexstr-test.o $(JIUTAI_DIR)/hexstr.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
@@ -116,7 +116,7 @@ $(BIN_DIR)/hexstr-test: hexstr-test.o $(JIUTAI_DIR)/hexstr.o
 
 $(BIN_DIR)/bitarray-test: bitarray-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_logger -lolstringparse
+       -o $@ $(SYSLIBS) -ljf_logger -ljf_string
 
 $(BIN_DIR)/conffile-test: conffile-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
@@ -124,7 +124,7 @@ $(BIN_DIR)/conffile-test: conffile-test.o
 
 $(BIN_DIR)/menu-test: menu-test.o $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_menu.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolstringparse
+       -o $@ $(SYSLIBS) -ljf_string
 
 $(BIN_DIR)/crc32c-test: crc32c-test.o $(JIUTAI_DIR)/crc32c.o \
        $(JIUTAI_DIR)/hexstr.o
@@ -148,12 +148,12 @@ $(BIN_DIR)/sharedmemory-test-consumer: sharedmemory-test-consumer.o \
 
 $(BIN_DIR)/ifmgmt-test: ifmgmt-test.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolifmgmt -lolstringparse -ljf_logger
+       -o $@ $(SYSLIBS) -lolifmgmt -ljf_string -ljf_logger
 
 $(BIN_DIR)/files-test: files-test.o $(JIUTAI_DIR)/jf_process.o \
        $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_logger -ljf_files -lolstringparse
+       -o $@ $(SYSLIBS) -ljf_logger -ljf_files -ljf_string
 
 $(BIN_DIR)/hsm-test: hsm-test.o $(JIUTAI_DIR)/jf_hsm.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
@@ -161,7 +161,7 @@ $(BIN_DIR)/hsm-test: hsm-test.o $(JIUTAI_DIR)/jf_hsm.o
 
 $(BIN_DIR)/host-test: host-test.o $(JIUTAI_DIR)/jf_host.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolifmgmt -lolstringparse -ljf_logger
+       -o $@ $(SYSLIBS) -lolifmgmt -ljf_string -ljf_logger
 
 $(BIN_DIR)/respool-test: respool-test.o $(JIUTAI_DIR)/respool.o \
        $(JIUTAI_DIR)/jf_mutex.o $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_array.o \
@@ -180,15 +180,15 @@ $(BIN_DIR)/jiukun-test: jiukun-test.o $(JIUTAI_DIR)/jf_process.o \
 
 $(BIN_DIR)/cghash-test: cghash-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolcghash -ljf_logger -lolstringparse
+       -o $@ $(SYSLIBS) -lolcghash -ljf_logger -ljf_string
 
 $(BIN_DIR)/cgmac-test: cgmac-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolcgmac -ljf_logger -lolstringparse
+       -o $@ $(SYSLIBS) -lolcgmac -ljf_logger -ljf_string
 
 $(BIN_DIR)/encrypt-test: encrypt-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolencrypt -ljf_logger -lolstringparse -lssl -lcrypto
+       -o $@ $(SYSLIBS) -lolencrypt -ljf_logger -ljf_string -lssl -lcrypto
 
 $(BIN_DIR)/prng-test: prng-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
@@ -225,12 +225,12 @@ $(BIN_DIR)/httpparser-test: httpparser-test.o
 $(BIN_DIR)/network-test: network-test.o $(JIUTAI_DIR)/jf_process.o \
        $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolnetwork -lolstringparse -ljf_logger -lolifmgmt
+       -o $@ $(SYSLIBS) -lolnetwork -ljf_string -ljf_logger -lolifmgmt
 
 $(BIN_DIR)/network-test-server: network-test-server.o \
        $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lolnetwork -ljf_logger -lolstringparse -lolifmgmt
+       -o $@ $(SYSLIBS) -lolnetwork -ljf_logger -ljf_string -lolifmgmt
 
 $(BIN_DIR)/network-test-client: network-test-client.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

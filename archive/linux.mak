@@ -14,7 +14,7 @@ SONAME = jf_archive
 
 SOURCES = archive.c arfile.c create.c extract.c
 
-EXTRA_LIBS = -ljf_files -lolstringparse
+EXTRA_LIBS = -ljf_files -ljf_string
 
 JIUTAI_SRCS = jf_mem.c jf_linklist.c
 

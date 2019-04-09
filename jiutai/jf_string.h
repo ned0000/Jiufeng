@@ -1,17 +1,17 @@
 /**
- *  @file stringparse.h
+ *  @file jf_string.h
  *
  *  @brief String parse header file, provide some functional routine for
  *   string manipulation
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_string library
  *  
  */
 
-#ifndef JIUFENG_STRINGPARSE_H
-#define JIUFENG_STRINGPARSE_H
+#ifndef JIUFENG_STRING_H
+#define JIUFENG_STRING_H
 
 /* --- standard C lib header files ----------------------------------------- */
 
@@ -641,7 +641,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSettingsString(
     const olchar_t * pstrDefaultValue, olchar_t * pstrValue, olsize_t sValue);
 
 
-#endif /*JIUFENG_STRINGPARSE_H*/
+#endif /*JIUFENG_STRING_H*/
 
 /*---------------------------------------------------------------------------*/
 

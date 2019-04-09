@@ -19,7 +19,7 @@
 #include "jf_err.h"
 #include "hexstr.h"
 #include "jf_bitop.h"
-#include "stringparse.h"
+#include "jf_string.h"
 
 /* --- private data/data structure section --------------------------------- */
 

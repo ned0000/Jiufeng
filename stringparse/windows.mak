@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-DLLNAME = olstringparse
+DLLNAME = jf_string
 RESOURCE = stringparse
 
 SOURCES = parsestring.c scanstring.c printstring.c validatestring.c \

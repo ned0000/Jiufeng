@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "encrypt.h"
 #include "hexstr.h"
-#include "stringparse.h"
+#include "jf_string.h"
 #include "encode.h"
 #include "jf_filestream.h"
 #include "jf_mem.h"

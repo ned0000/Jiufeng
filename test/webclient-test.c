@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "network.h"
-#include "stringparse.h"
+#include "jf_string.h"
 #include "jf_process.h"
 #include "webclient.h"
 #include "jf_mem.h"

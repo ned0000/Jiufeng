@@ -20,7 +20,7 @@
 #include "httpparser.h"
 #include "jf_err.h"
 #include "jf_mem.h"
-#include "stringparse.h"
+#include "jf_string.h"
 
 /* --- private data/data structure section --------------------------------- */
 

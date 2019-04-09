@@ -16,7 +16,7 @@ SOURCES = ifmgmt.c ipaddr.c
 
 JIUTAI_SRCS = jf_mem.c
 
-EXTRA_LIBS = -ljf_files -lolstringparse
+EXTRA_LIBS = -ljf_files -ljf_string
 
 ifeq ("$(DEBUG_JIUFENG)", "yes")
     EXTRA_CFLAGS =

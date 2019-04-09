@@ -18,7 +18,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "clieng.h"
-#include "stringparse.h"
+#include "jf_string.h"
 
 /* --- constant definitions ------------------------------------------------ */
 

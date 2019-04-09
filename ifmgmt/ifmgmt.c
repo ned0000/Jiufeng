@@ -20,7 +20,7 @@
 #include "ifmgmt.h"
 #include "jf_mem.h"
 #include "jf_filestream.h"
-#include "stringparse.h"
+#include "jf_string.h"
 
 /* --- private data/data structure section --------------------------------- */
 #define SYSTEM_NET_DEV_FILE   "/proc/net/dev"

@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-SONAME = olstringparse
+SONAME = jf_string
 
 JIUTAI_SRCS = jf_mem.c jf_time.c jf_date.c
 

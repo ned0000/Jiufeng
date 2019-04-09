@@ -20,7 +20,7 @@
 #include "jf_conffile.h"
 #include "jf_filestream.h"
 #include "jf_array.h"
-#include "stringparse.h"
+#include "jf_string.h"
 #include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */

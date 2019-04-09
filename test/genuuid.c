@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "stringparse.h"
+#include "jf_string.h"
 #include "uuid.h"
 #include "prng.h"
 

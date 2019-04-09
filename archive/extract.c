@@ -19,7 +19,7 @@
 #include "jf_err.h"
 #include "jf_filestream.h"
 #include "jf_dir.h"
-#include "stringparse.h"
+#include "jf_string.h"
 #include "jf_archive.h"
 
 #include "archivecommon.h"

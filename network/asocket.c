@@ -21,7 +21,7 @@
 #include "network.h"
 #include "jf_mutex.h"
 #include "jf_mem.h"
-#include "stringparse.h"
+#include "jf_string.h"
 
 /* --- private data/data structure section --------------------------------- */
 typedef struct send_data

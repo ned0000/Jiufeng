@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "cgmac.h"
 #include "hexstr.h"
-#include "stringparse.h"
+#include "jf_string.h"
 
 /* --- private data/data structure section --------------------------------- */
 boolean_t ls_bHmacSha1 = FALSE;
