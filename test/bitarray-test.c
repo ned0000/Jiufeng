@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_hex.h"
-#include "bitarray.h"
+#include "jf_bitarray.h"
 #include "jf_string.h"
 
 /* --- private data/data structure section --------------------------------- */

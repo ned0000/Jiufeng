@@ -18,7 +18,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "bitarray.h"
+#include "jf_bitarray.h"
 #include "jf_flag.h"
 
 #undef JIUKUNAPI

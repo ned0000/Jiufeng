@@ -21,7 +21,7 @@
 #include "huffman.h"
 #include "jf_err.h"
 #include "jf_mem.h"
-#include "bitarray.h"
+#include "jf_bitarray.h"
 
 /* --- private data/data structure section --------------------------------- */
 #define HUFFMAN_NONE      (-1)

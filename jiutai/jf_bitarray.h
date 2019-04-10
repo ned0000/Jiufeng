@@ -1,5 +1,5 @@
 /**
- *  @file bitarray.h
+ *  @file jf_bitarray.h
  *
  *  @brief bit array header file, arrays of arbitrary bit length
  *
