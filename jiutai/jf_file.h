@@ -25,7 +25,7 @@
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "datavec.h"
+#include "jf_datavec.h"
 
 #undef FILESAPI
 #undef FILESCALL

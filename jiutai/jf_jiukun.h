@@ -19,7 +19,7 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "bitarray.h"
-#include "olflag.h"
+#include "jf_flag.h"
 
 #undef JIUKUNAPI
 #undef JIUKUNCALL

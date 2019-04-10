@@ -1,5 +1,5 @@
 /**
- *  @file olflag.h
+ *  @file jf_flag.h
  *
  *  @brief Flag header file.
  *
@@ -10,8 +10,8 @@
  *
  */
 
-#ifndef JIUTAI_OLFLAG_H
-#define JIUTAI_OLFLAG_H
+#ifndef JIUTAI_FLAG_H
+#define JIUTAI_FLAG_H
 
 /* --- standard C lib header files ----------------------------------------- */
 
@@ -56,7 +56,7 @@ typedef u64    olflag_t;
 
 /* --- functional routines ------------------------------------------------- */
 
-#endif /*JIUTAI_OLFLAG_H*/
+#endif /*JIUTAI_FLAG_H*/
 
 /*---------------------------------------------------------------------------*/
 

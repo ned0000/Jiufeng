@@ -1,5 +1,5 @@
 /**
- *  @file datavec.h
+ *  @file jf_datavec.h
  *
  *  @brief data vector definition
  *
