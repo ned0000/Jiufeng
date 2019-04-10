@@ -19,7 +19,7 @@
 #include "jf_err.h"
 #include "jf_sqlite.h"
 #include "jf_time.h"
-#include "randnum.h"
+#include "jf_rand.h"
 #include "jf_mem.h"
 
 /* --- private data/data structure section --------------------------------- */

@@ -1,16 +1,16 @@
 /**
- *  @file randnum.h
+ *  @file jf_rand.h
  *
  *  @brief The random number common object header file.
  *
  *  @author Min Zhang
  *  
- *  @note
+ *  @note Routines declared in this file are included in jf_rand object
  *
  */
 
-#ifndef JIUTAI_RANDNUM_H
-#define JIUTAI_RANDNUM_H
+#ifndef JIUTAI_RAND_H
+#define JIUTAI_RAND_H
 
 /* --- standard C lib header files ----------------------------------------- */
 
@@ -34,7 +34,7 @@
 u32 jf_rand_getU32InRange(u32 u32Lower, u32 u32Upper);
 
 
-#endif /*JIUTAI_RANDNUM_H*/
+#endif /*JIUTAI_RAND_H*/
 
 /*---------------------------------------------------------------------------*/
 

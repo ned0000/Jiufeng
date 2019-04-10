@@ -23,7 +23,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "randnum.h"
+#include "jf_rand.h"
 
 /* --- private data/data structure section --------------------------------- */
 
