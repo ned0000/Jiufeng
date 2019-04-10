@@ -1,5 +1,5 @@
 /**
- *  @file respool.c
+ *  @file jf_respool.c
  *
  *  @brief resource pool implementation file
  *
@@ -14,7 +14,7 @@
 #include <string.h>
 
 /* --- internal header files ----------------------------------------------- */
-#include "respool.h"
+#include "jf_respool.h"
 #include "jf_logger.h"
 #include "jf_err.h"
 #include "jf_array.h"

@@ -1,5 +1,5 @@
 /**
- *  @file hexstr.c
+ *  @file jf_hex.c
  *
  *  @brief Hex string header file, provide some functional routine to dump
  *   hex logs

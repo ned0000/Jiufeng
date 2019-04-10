@@ -1,5 +1,5 @@
 /**
- *  @file randnum.c
+ *  @file jf_rand.c
  *
  *  @brief The random number common object implementation file
  *

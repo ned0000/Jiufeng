@@ -1,12 +1,13 @@
 /**
- *  @file respool.h
+ *  @file jf_respool.h
  *
  *  @brief Resource pool header file. Resource pool contains some homogeneous
  *  resources, which can be statically or dynamically allocated and released.
  *
  *  @author Min Zhang
- *  
- *  @note link with common object: syncmutex, xmalloc, array
+ *
+ *  @note Routines declared in this file are included in jf_respool object
+ *  @note link with common object: jf_mutex, jf_mem, jf_array
  *  @note the object is thread safe
  *
  */
