@@ -14,7 +14,7 @@ SONAME = jf_webclient
 
 SOURCES = webclient.c
 
-JIUTAI_SRCS = jf_hashtree.c jf_queue.c jf_mem.c jf_mutex.c hexstr.c
+JIUTAI_SRCS = jf_hashtree.c jf_queue.c jf_mem.c jf_mutex.c jf_hex.c
 
 EXTRA_LIBS = -ljf_httpparser -ljf_network -ljf_string
 

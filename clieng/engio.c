@@ -24,7 +24,7 @@
 #include "jf_err.h"
 #include "jf_logger.h"
 #include "engio.h"
-#include "hexstr.h"
+#include "jf_hex.h"
 
 /* --- private data structures --------------------------------------------- */
 const static olchar_t * cls_pstrCaptionDelimit = ": ";

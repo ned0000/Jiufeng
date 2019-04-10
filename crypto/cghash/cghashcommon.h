@@ -1,5 +1,5 @@
 /**
- *  @file hexstr.h
+ *  @file jf_hex.h
  *
  *  @brief header file for cghash library, provide common constant
  *

@@ -15,7 +15,7 @@ RESOURCE = logger
 
 SOURCES = common.c logger.c errcode.c
 
-JIUTAI_SRCS = $(JIUTAI_DIR)\hexstr.c
+JIUTAI_SRCS = $(JIUTAI_DIR)\jf_hex.c
 
 EXTRA_DEFS = -DJIUFENG_LOGGER_DLL
 

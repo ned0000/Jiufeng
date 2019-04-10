@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "hexstr.h"
+#include "jf_hex.h"
 #include "jf_string.h"
 #include "jf_prng.h"
 #include "jf_mem.h"

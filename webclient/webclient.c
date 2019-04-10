@@ -24,7 +24,7 @@
 #include "jf_webclient.h"
 #include "jf_mem.h"
 #include "jf_string.h"
-#include "hexstr.h"
+#include "jf_hex.h"
 #include "jf_hashtree.h"
 #include "jf_queue.h"
 

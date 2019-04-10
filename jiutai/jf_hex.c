@@ -17,7 +17,7 @@
 
 /* --- internal header files ----------------------------------------------- */
 #include "jf_basic.h"
-#include "hexstr.h"
+#include "jf_hex.h"
 #include "jf_err.h"
 
 /* --- private data/data structure section --------------------------------- */

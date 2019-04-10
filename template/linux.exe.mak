@@ -18,7 +18,7 @@ EXE = olexe
 SOURCES = template.c
 
 # Jiutai source files
-JIUTAI_SRCS = hexstr.c
+JIUTAI_SRCS = jf_hex.c
 
 # For code complile
 EXTRA_INC_DIR = -I../kinc

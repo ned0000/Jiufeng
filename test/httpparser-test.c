@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "jf_httpparser.h"
 #include "jf_mem.h"
-#include "hexstr.h"
+#include "jf_hex.h"
 
 /* --- private data/data structure section --------------------------------- */
 

@@ -15,7 +15,7 @@ RESOURCE = template
 
 SOURCES = template.c
 
-JIUTAI_SRCS = $(JIUTAI_DIR)\hexstr.c
+JIUTAI_SRCS = $(JIUTAI_DIR)\jf_hex.c
 
 EXTRA_DEFS = -DJIUFENG_TEMPLATE_DLL
 

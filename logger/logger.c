@@ -29,7 +29,7 @@
 #include "jf_basic.h" 
 #include "jf_err.h"
 #include "jf_logger.h"
-#include "hexstr.h"
+#include "jf_hex.h"
 #include "jf_limit.h"
 #include "jf_process.h"
 #include "jf_thread.h"

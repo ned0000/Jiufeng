@@ -1,17 +1,17 @@
 /**
- *  @file hexstr.h
+ *  @file jf_hex.h
  *
  *  @brief hex string header file. Provide some functional routine to dump hex
  *   logs
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @note Routines declared in this file are included in jf_hex object
  *
  */
 
-#ifndef JIUTAI_HEXSTR_H
-#define JIUTAI_HEXSTR_H
+#ifndef JIUTAI_HEX_H
+#define JIUTAI_HEX_H
 
 /* --- standard C lib header files ----------------------------------------- */
 
@@ -87,7 +87,7 @@ olsize_t jf_hexstr_convertByteDataWithAscii(
  */
 void jf_hexstr_dumpByteDataBuffer(const u8 * pu8Data, const olsize_t sLen);
 
-#endif /*JIUTAI_HEXSTR_H*/
+#endif /*JIUTAI_HEX_H*/
 
 /*---------------------------------------------------------------------------*/
 
