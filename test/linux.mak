@@ -12,34 +12,34 @@
 
 include $(TOPDIR)/mak/lnxcfg.mak
 
-PROGRAMS = xmalloc-test hashtree-test listhead-test           \
-    listarray-test logger-test process-test         \
+PROGRAMS = xmalloc-test hashtree-test listhead-test                \
+    listarray-test logger-test process-test                        \
     hashtable-test mutex-test rwlock-test sem-test date-test       \
-    time-test stringparse-test bitarray-test conffile-test   \
-    menu-test crc-test dynlib-test ifmgmt-test             \
-    sharedmemory-test-consumer sharedmemory-test-worker       \
-    files-test hsm-test host-test respool-test            \
-    bitop-test jiukun-test cghash-test cgmac-test genuuid     \
-    encrypt-test prng-test encode-test xmlparser-test         \
-    randnum-test persistency-test archive-test                \
-    httpparser-test network-test network-test-server          \
-    network-test-client network-test-client-chain             \
-    matrix-test webclient-test servmgmt-test sqlite-test       \
+    time-test stringparse-test bitarray-test conffile-test         \
+    menu-test crc-test dynlib-test ifmgmt-test                     \
+    sharedmemory-test-consumer sharedmemory-test-worker            \
+    files-test hsm-test host-test respool-test                     \
+    bitop-test jiukun-test cghash-test cgmac-test genuuid          \
+    encrypt-test prng-test encode-test xmlparser-test              \
+    rand-test persistency-test archive-test                        \
+    httpparser-test network-test network-test-server               \
+    network-test-client network-test-client-chain                  \
+    matrix-test webclient-test servmgmt-test sqlite-test           \
     hex-test
 
-SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c             \
-    listarray-test.c logger-test.c process-test.c   \
-    hashtable-test.c mutex-test.c rwlock-test.c sem-test.c date-test.c    \
-    time-test.c stringparse-test.c bitarray-test.c conffile-test.c  \
-    menu-test.c crc-test.c dynlib-test.c ifmgmt-test.c            \
-    sharedmemory-test-consumer.c sharedmemory-test-worker.c          \
-    files-test.c hsm-test.c host-test.c respool-test.c           \
-    bitop-test.c jiukun-test.c cghash-test.c cgmac-test.c genuuid.c  \
-    encrypt-test.c prng-test.c encode-test.c xmlparser-test.c        \
-    randnum-test.c persistency-test.c archive-test.c                 \
-    httpparser-test.c network-test.c network-test-server.c           \
-    network-test-client.c network-test-client-chain.c                \
-    matrix-test.c webclient-test.c servmgmt-test.c sqlite-test.c   \
+SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c               \
+    listarray-test.c logger-test.c process-test.c                      \
+    hashtable-test.c mutex-test.c rwlock-test.c sem-test.c date-test.c \
+    time-test.c stringparse-test.c bitarray-test.c conffile-test.c     \
+    menu-test.c crc-test.c dynlib-test.c ifmgmt-test.c                 \
+    sharedmemory-test-consumer.c sharedmemory-test-worker.c            \
+    files-test.c hsm-test.c host-test.c respool-test.c                 \
+    bitop-test.c jiukun-test.c cghash-test.c cgmac-test.c genuuid.c    \
+    encrypt-test.c prng-test.c encode-test.c xmlparser-test.c          \
+    rand-test.c persistency-test.c archive-test.c                      \
+    httpparser-test.c network-test.c network-test-server.c             \
+    network-test-client.c network-test-client-chain.c                  \
+    matrix-test.c webclient-test.c servmgmt-test.c sqlite-test.c       \
     hex-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
@@ -202,7 +202,7 @@ $(BIN_DIR)/genuuid: genuuid.o $(JIUTAI_DIR)/jf_time.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -ljf_uuid -ljf_prng
 
-$(BIN_DIR)/randnum-test: randnum-test.o $(JIUTAI_DIR)/jf_rand.o
+$(BIN_DIR)/rand-test: rand-test.o $(JIUTAI_DIR)/jf_rand.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
