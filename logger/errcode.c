@@ -61,13 +61,13 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_SERVICE_BUSY, "Service is busy."},
     {JF_ERR_NOT_READY, "Not ready."},
     {JF_ERR_NOT_MATCH, "Not match."},
-/* bases error */
+/* queue error */
     {JF_ERR_FAIL_CREATE_QUEUE, "Failed to creat queue."},
-/* xmalloc error */
+/* mem error */
     {JF_ERR_OUT_OF_MEMORY, "Out of memory."},
 /* array error */
 
-/* synobj error */
+/* mutex error */
     {JF_ERR_FAIL_CREATE_MUTEX, "Failed to create mutex."},
     {JF_ERR_FAIL_DESTROY_MUTEX, "Failed to destroy mutex."},
     {JF_ERR_FAIL_ACQUIRE_MUTEX, "Failed to acquire mutex."},
@@ -78,7 +78,7 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
 
 /* conffile error */
 
-/* hostinfo error */
+/* host error */
 
 /* menu error */
 
@@ -86,16 +86,17 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_PROCESS_CREATED, "Process has been created. The program continues in background."},
     {JF_ERR_ALREADY_RUNNING, "The program is already running."},
     {JF_ERR_FAIL_CREATE_PROCESS, "Failed to create process."},
+/* thread error */
     {JF_ERR_FAIL_CREATE_THREAD, "Failed to create thread."},
-/* cksum error */
-
 /* shared memory error */
     {JF_ERR_INVALID_SHAREDMEMORY_ID, "Invalid shared memory identifier."},
     {JF_ERR_FAIL_CREATE_SHAREDMEMORY, "Failed to create shared memory."},
     {JF_ERR_FAIL_ATTACH_SHAREDMEMORY, "Failed to attach shared memory."},
     {JF_ERR_FAIL_DETACH_SHAREDMEMORY, "Failed to detach shared memory."},
     {JF_ERR_FAIL_DESTROY_SHAREDMEMORY, "Failed to detroy shared memory."},
-/* xtime error */
+/* time error */
+
+/* date error */
 
 /* resouce error */
 
@@ -112,12 +113,6 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_CALLER_NAME_TOO_LONG, "Length of the caller name is too long."},
 /* archive error */
     {JF_ERR_ARCHIVE_CORRUPTED, "Archive file is corrupted."},
-/* smtp error */
-    {JF_ERR_FAIL_SEND_EMAIL, "Failed to sent email."},
-    {JF_ERR_EMAIL_SUBJECT_TOO_LONG, "Maximum email subject length is reached."},
-    {JF_ERR_SMTP_FATAL_ERROR, "Server return a fatal error"},
-    {JF_ERR_INVALID_SMTP_RECIPIENTS, "No valid recipient was given."},
-    {JF_ERR_UNSUPPORTED_SMTP_AUTH_METHOD, "Unsupported SMTP authentication method."},
 /* network error */
     {JF_ERR_FAIL_INIT_NETWORK_LIB, "Failed to initialize network library."},
     {JF_ERR_SOCKET_PEER_CLOSED, "Connection is closed by peer."},
@@ -135,8 +130,6 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
 
 /* encode error */
 
-/* netsend error */
-
 /* clieng error */
     {JF_ERR_INVALID_CMD_GROUP, "Invalid command or request group."},
     {JF_ERR_INVALID_COMMAND, "Invalid command or request."},
@@ -145,10 +138,7 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_INVALID_COUNT, "Invalid count."},
     {JF_ERR_COMMENT_CMD, "Command line is for comments."},
     {JF_ERR_LINE_TOO_LONG, "Output line is too long."},
-/* event */
-    {JF_ERR_EVENT_NOT_FOUND, "Event not found."},
-    {JF_ERR_INVALID_EVENT_LOCATION, "Invalid event location."},
-/* stringparse error */
+/* string error */
     {JF_ERR_INVALID_STRING, "Invalid string."},
     {JF_ERR_INVALID_SIZE, "Invalid size."},
     {JF_ERR_INVALID_IP, "Invalid IP address."},
@@ -197,14 +187,10 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_ILLEGAL_CLOSE_TAG, "Illegal close tag."},
     {JF_ERR_UNMATCHED_CLOSE_TAG, "Unmatched close tag found."},
     {JF_ERR_CORRUPTED_XML_FILE, "Corrupted XML file."},
-/* http parser error */
+/* httpparser error */
     {JF_ERR_HTTP_STATUS_NOT_OK, "HTTP status is not OK."},
-/* web client error */
+/* webclient error */
 
-/* web server error */
-
-/* slp error */
-    {JF_ERR_INVALID_SLP_MSG, "Invalid SLP message."},
 /* cghash error */
     {JF_ERR_SHA1_STATE_ERROR, "SHA1 state error."},
 /* prng error */
