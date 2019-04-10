@@ -32,7 +32,7 @@ static u32 _printHexDumpInByte(u8 * pu8Buffer, u32 u32Length)
 
     while (u32Index < u32Length)
     {
-        u32Dumped = jf_hexstr_convertByteDataWithAscii(
+        u32Dumped = jf_hex_convertByteDataToStringWithAscii(
             pu8Buffer, u32Length, u32Index, strLine, 80);
         if (u32Dumped > 0)
         {

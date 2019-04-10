@@ -37,7 +37,7 @@
  *
  *  @return the number of bytes converted to hex string
  */
-olsize_t jf_hexstr_convertByteData(
+olsize_t jf_hex_convertByteDataToString(
     const u8 * pu8Data, const olsize_t sData, const olsize_t sOffset,
     olchar_t * pstrHex, olsize_t sStr);
 
@@ -54,7 +54,7 @@ olsize_t jf_hexstr_convertByteData(
  *
  *  @return the number of words converted to hex string
  */
-olsize_t jf_hexstr_convertWordData(
+olsize_t jf_hex_convertWordDataToString(
     const u16 * pu16Data, const olsize_t sData, const olsize_t sOffset,
     olchar_t * pstrHex, olsize_t sStr);
 
@@ -72,7 +72,7 @@ olsize_t jf_hexstr_convertWordData(
  *
  *  @return the number of words converted to hex string and ASCII
  */
-olsize_t jf_hexstr_convertByteDataWithAscii(
+olsize_t jf_hex_convertByteDataToStringWithAscii(
     const u8 * pu8Data, const olsize_t sData, const olsize_t sOffset,
     olchar_t * pstrHex, olsize_t sStr);
 
@@ -85,7 +85,7 @@ olsize_t jf_hexstr_convertByteDataWithAscii(
  *
  *  @return void
  */
-void jf_hexstr_dumpByteDataBuffer(const u8 * pu8Data, const olsize_t sLen);
+void jf_hex_dumpByteDataBuffer(const u8 * pu8Data, const olsize_t sLen);
 
 #endif /*JIUTAI_HEX_H*/
 

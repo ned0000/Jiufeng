@@ -39,7 +39,7 @@
 
 /* --- public routine section ---------------------------------------------- */
 
-olsize_t jf_hexstr_convertByteData(
+olsize_t jf_hex_convertByteDataToString(
     const u8 * pu8Data, const olsize_t sData, const olsize_t sOffset, 
     olchar_t * pstrHex, olsize_t sStr)
 {
@@ -75,7 +75,7 @@ olsize_t jf_hexstr_convertByteData(
     return sLen;
 }
 
-olsize_t jf_hexstr_convertWordData(
+olsize_t jf_hex_convertWordDataToString(
     const u16 * pu16Data, const olsize_t sData, const olsize_t sOffset, 
     olchar_t * pstrHex, olsize_t sStr)
 {
@@ -111,7 +111,7 @@ olsize_t jf_hexstr_convertWordData(
     return sLen;
 }
 
-olsize_t jf_hexstr_convertByteDataWithAscii(
+olsize_t jf_hex_convertByteDataToStringWithAscii(
     const u8 * pu8Data, const olsize_t sData, const olsize_t sOffset, 
     olchar_t * pstrHex, olsize_t sStr)
 {
@@ -164,14 +164,14 @@ olsize_t jf_hexstr_convertByteDataWithAscii(
     return sLen;
 }
 
-void jf_hexstr_dumpByteDataBuffer(const u8 * pu8Data, const olsize_t sLen)
+void jf_hex_dumpByteDataBuffer(const u8 * pu8Data, const olsize_t sLen)
 {
     olsize_t sIndex = 0, sDumped = 0xff;
     olchar_t strLine[80];
 
     while (sIndex < sLen)
     {
-        sDumped = jf_hexstr_convertByteDataWithAscii(
+        sDumped = jf_hex_convertByteDataToStringWithAscii(
             pu8Data, sLen, sIndex, strLine, 80);
         if (sDumped > 0)
         {

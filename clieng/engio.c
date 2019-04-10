@@ -1433,7 +1433,7 @@ u32 jf_clieng_printHexDumpInByte(u8 * pu8Buffer, u32 u32Len)
     while ((u32Index < u32Len) && (u32Dumped != 0) &&
            (u32Ret == JF_ERR_NO_ERROR))
     {
-        u32Dumped = jf_hexstr_convertByteData(
+        u32Dumped = jf_hex_convertByteDataToString(
             pu8Buffer, u32Len, u32Index, strLine, JF_CLIENG_MAX_OUTPUT_LINE_LEN);
         if (u32Dumped > 0)
         {
