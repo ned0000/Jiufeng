@@ -512,25 +512,6 @@ const olchar_t * jf_string_getStringTrue(const boolean_t bTrue)
     }
 }
 
-olsize_t jf_string_getStringHex(olchar_t * pstr, olsize_t size,
-    const u8 * pu8Hex, const olsize_t sHex)
-{
-    olsize_t sLen, sIndex;
-
-    sLen = 0;
-    sIndex = 0;
-
-    while ((sLen + 2 <= size) && (sIndex < sHex))
-    {
-        ol_sprintf(pstr + sLen, "%02x", pu8Hex[sIndex]);
-
-        sLen += 2;
-        sIndex ++;
-    }
-
-    return sLen;
-}
-
 /*---------------------------------------------------------------------------*/
 
 

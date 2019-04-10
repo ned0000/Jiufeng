@@ -425,7 +425,7 @@ static u32 _baseJiukunFunc(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u8 * page = NULL;
-    olflag_t flags;
+    jf_flag_t flags;
     olint_t order = 5;
     jf_jiukun_cache_create_param_t jjccp;
     jf_jiukun_cache_t * cache;
@@ -445,8 +445,8 @@ static u32 _baseJiukunFunc(void)
     }
 
     ol_printf("get jiukun page with nowait: ");
-    INIT_FLAG(flags);
-    SET_FLAG(flags, JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT);
+    JF_FLAG_INIT(flags);
+    JF_FLAG_SET(flags, JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT);
     u32Ret = jf_jiukun_allocPage((void **)&page, 10, flags);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -462,7 +462,7 @@ static u32 _baseJiukunFunc(void)
     ol_memset(&jjccp, 0, sizeof(jjccp));
     jjccp.jjccp_pstrName = "jiukun-test";
     jjccp.jjccp_sObj = 16;
-    SET_FLAG(jjccp.jjccp_fCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO);
+    JF_FLAG_SET(jjccp.jjccp_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO);
 
     u32Ret = jf_jiukun_createCache(&cache, &jjccp);
     if (u32Ret == JF_ERR_NO_ERROR)

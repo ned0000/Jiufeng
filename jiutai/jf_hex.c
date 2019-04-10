@@ -182,6 +182,51 @@ void jf_hex_dumpByteDataBuffer(const u8 * pu8Data, const olsize_t sLen)
 
 }
 
+olsize_t jf_hex_convertStringToHex(
+    const olchar_t * pstr, const olsize_t sStr, u8 * pu8Hex, olsize_t sHexLen)
+{
+    olsize_t sLen = 0, start;
+    u32 u32Hex;
+    olchar_t u8Temp[8];
+    
+    assert((pstr != NULL) && (sStr > 0) && (pu8Hex != NULL) && (sHexLen > 0));
+
+    start = 0;
+    ol_bzero(u8Temp, sizeof(u8Temp));
+    while ((sLen < sHexLen) && (start + 2 <= sStr))
+    {
+        ol_strncpy(u8Temp, &(pstr[start]), 2);
+
+        ol_sscanf(u8Temp, "%x", &u32Hex);
+        pu8Hex[sLen] = (u8)u32Hex;
+
+        start += 2;
+
+        sLen ++;
+    }
+
+    return sLen;
+}
+
+olsize_t jf_hex_convertHexToString(
+    olchar_t * pstr, olsize_t sStr, const u8 * pu8Hex, const olsize_t sHex)
+{
+    olsize_t sLen, sIndex;
+
+    sLen = 0;
+    sIndex = 0;
+
+    while ((sLen + 2 <= sStr) && (sIndex < sHex))
+    {
+        ol_sprintf(pstr + sLen, "%02x", pu8Hex[sIndex]);
+
+        sLen += 2;
+        sIndex ++;
+    }
+
+    return sLen;
+}
+
 /*---------------------------------------------------------------------------*/
 
 

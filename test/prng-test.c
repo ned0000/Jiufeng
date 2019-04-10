@@ -85,7 +85,7 @@ static u32 _testPrng(void)
                 u32Ret = jf_prng_getData(u8Random[u32Index], u32Size);
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
-                    jf_hexstr_dumpByteDataBuffer(u8Random[u32Index], u32Size);
+                    jf_hex_dumpByteDataBuffer(u8Random[u32Index], u32Size);
                 }
             }
 

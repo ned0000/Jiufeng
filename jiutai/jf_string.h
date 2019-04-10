@@ -332,9 +332,6 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_getStringSizeMax(
 STRINGPARSEAPI void STRINGPARSECALL jf_string_getStringSize1000Based(
     olchar_t * pstrSize, const u64 u64Size);
 
-STRINGPARSEAPI olsize_t STRINGPARSECALL jf_string_getStringHex(
-    olchar_t * pstr, olsize_t size, const u8 * pu8Hex, const olsize_t sHex);
-
 /** Get the string of time period in the format of "[# hr] [# min] [# sec]"
  *
  *  @note This function does not check the size of the string buffer. Please make
@@ -510,12 +507,6 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getDate2FromString(
 
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getMACAddressFromString(
     const olchar_t * pstrMACString, u8 * pu8Value);
-
-/** Convert the string to byte hex
- *  return the number of bytes hex converted from the string
- */
-STRINGPARSEAPI olsize_t STRINGPARSECALL jf_string_getHexFromString(
-    const olchar_t * pstr, const olsize_t size, u8 * pu8Hex, olsize_t sHexLen);
 
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getFloatFromString(
     const olchar_t * pstrFloat, const olsize_t size, olfloat_t * pflValue);

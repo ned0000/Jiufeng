@@ -87,6 +87,15 @@ olsize_t jf_hex_convertByteDataToStringWithAscii(
  */
 void jf_hex_dumpByteDataBuffer(const u8 * pu8Data, const olsize_t sLen);
 
+/** Convert the string to byte hex
+ *  return the number of bytes hex converted from the string
+ */
+olsize_t jf_hex_convertStringToHex(
+    const olchar_t * pstr, const olsize_t sStr, u8 * pu8Hex, olsize_t sHex);
+
+olsize_t jf_hex_convertHexToString(
+    olchar_t * pstr, olsize_t sStr, const u8 * pu8Hex, const olsize_t sHex);
+
 #endif /*JIUTAI_HEX_H*/
 
 /*---------------------------------------------------------------------------*/

@@ -88,7 +88,7 @@ static u32 _testMd5(void)
     ol_printf("test case 1\n");
 
     jf_cghash_doMd5((u8 *)"Jefe", 4, u8Digest);
-    jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
+    jf_hex_convertHexToString(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
 
     str[JF_CGHASH_MD5_DIGEST_LEN * 2] = '\0';
 
@@ -101,7 +101,7 @@ static u32 _testMd5(void)
     ol_printf("test case 2\n");
 
     jf_cghash_doMd5((u8 *)"Doing a market survey.", 22, u8Digest);
-    jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
+    jf_hex_convertHexToString(str, sizeof(str), u8Digest, JF_CGHASH_MD5_DIGEST_LEN);
 
     str[JF_CGHASH_MD5_DIGEST_LEN * 2] = '\0';
 
@@ -126,7 +126,7 @@ static u32 _testSha1(void)
     u32Ret = jf_cghash_doSha1((u8 *)"Jefe", 4, u8Digest);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
+        jf_hex_convertHexToString(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
         str[JF_CGHASH_SHA1_DIGEST_LEN * 2] = '\0';
 
@@ -142,7 +142,7 @@ static u32 _testSha1(void)
     u32Ret = jf_cghash_doSha1((u8 *)"Doing a market survey.", 22, u8Digest);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
+        jf_hex_convertHexToString(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
         str[JF_CGHASH_SHA1_DIGEST_LEN * 2] = '\0';
 
@@ -167,7 +167,7 @@ static u32 _sha1Str(olchar_t * source)
     u32Ret = jf_cghash_doSha1((u8 *)source, ol_strlen(source), u8Digest);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_string_getStringHex(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
+        jf_hex_convertHexToString(str, sizeof(str), u8Digest, JF_CGHASH_SHA1_DIGEST_LEN);
 
         str[JF_CGHASH_SHA1_DIGEST_LEN * 2] = '\0';
 

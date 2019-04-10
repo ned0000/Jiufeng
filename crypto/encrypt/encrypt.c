@@ -26,6 +26,7 @@
 #include "jf_limit.h"
 #include "jf_file.h"
 #include "jf_filestream.h"
+#include "jf_hex.h"
 
 /* --- constant definitions ------------------------------------------------ */
 
@@ -256,7 +257,7 @@ u32 jf_encrypt_encryptString(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_string_getStringHex(pDestStr, 2 * outlen + 1, pstr, outlen);
+        jf_hex_convertHexToString(pDestStr, 2 * outlen + 1, pstr, outlen);
     }
 
     if (pstr != NULL)
@@ -288,7 +289,7 @@ u32 jf_encrypt_decryptString(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pDestStr[outlen] = '\0';
-        jf_string_getHexFromString(
+        jf_hex_convertStringToHex(
             pSrcStr, ol_strlen(pSrcStr), (u8 *)pDestStr, outlen);
 
         _setEncryptIv(iv);

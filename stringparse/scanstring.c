@@ -755,34 +755,6 @@ u32 jf_string_getMACAddressFromString(const olchar_t * pMACString, u8 * pu8Value
     return u32Ret;
 }
 
-olsize_t jf_string_getHexFromString(
-    const olchar_t * pstr, const olsize_t size,
-    u8 * pu8Hex, olsize_t sHexLen)
-{
-    olsize_t sLen = 0, start;
-    u32 u32Hex;
-    olchar_t u8Temp[8];
-    
-    assert((pstr != NULL) && (size > 0) &&
-           (pu8Hex != NULL) && (sHexLen > 0));
-
-    start = 0;
-    ol_bzero(u8Temp, sizeof(u8Temp));
-    while ((sLen < sHexLen) && (start + 2 <= size))
-    {
-        ol_strncpy(u8Temp, &(pstr[start]), 2);
-
-        ol_sscanf(u8Temp, "%x", &u32Hex);
-        pu8Hex[sLen] = (u8)u32Hex;
-
-        start += 2;
-
-        sLen ++;
-    }
-
-    return sLen;
-}
-
 u32 jf_string_getFloatFromString(
     const olchar_t * pstrFloat, const olsize_t size, olfloat_t * pflValue)
 {

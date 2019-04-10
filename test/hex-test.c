@@ -88,7 +88,7 @@ static u32 _testHexstr(void)
     index = 0;
     while (index < TEST_HEXSTR_DATA_SIZE)
     {
-        datasize = jf_hexstr_convertByteData(
+        datasize = jf_hex_convertByteDataToString(
             u8Data, TEST_HEXSTR_DATA_SIZE, index, str, sizeof(str));
 
         ol_printf("%s\n", str);
@@ -100,7 +100,7 @@ static u32 _testHexstr(void)
     index = 0;
     while (index < TEST_HEXSTR_DATA_SIZE)
     {
-        datasize = jf_hexstr_convertWordData(
+        datasize = jf_hex_convertWordDataToString(
             u16Data, TEST_HEXSTR_DATA_SIZE, index, str, sizeof(str));
 
         ol_printf("%s\n", str);
@@ -112,7 +112,7 @@ static u32 _testHexstr(void)
     index = 0;
     while (index < TEST_HEXSTR_DATA_SIZE)
     {
-        datasize = jf_hexstr_convertByteDataWithAscii(
+        datasize = jf_hex_convertByteDataToStringWithAscii(
             u8Data, TEST_HEXSTR_DATA_SIZE, index, str, sizeof(str));
 
         ol_printf("%s\n", str);
@@ -121,7 +121,7 @@ static u32 _testHexstr(void)
     ol_printf("\n");
 
     ol_printf("Dump Data:\n");
-    jf_hexstr_dumpByteDataBuffer(u8Data, TEST_HEXSTR_DATA_SIZE);
+    jf_hex_dumpByteDataBuffer(u8Data, TEST_HEXSTR_DATA_SIZE);
 
     return u32Ret;
 }

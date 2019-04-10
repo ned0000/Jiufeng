@@ -25,7 +25,7 @@ PROGRAMS = xmalloc-test hashtree-test listhead-test           \
     httpparser-test network-test network-test-server          \
     network-test-client network-test-client-chain             \
     matrix-test webclient-test servmgmt-test sqlite-test       \
-    hexstr-test
+    hex-test
 
 SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c             \
     listarray-test.c logger-test.c process-test.c   \
@@ -40,7 +40,7 @@ SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c             \
     httpparser-test.c network-test.c network-test-server.c           \
     network-test-client.c network-test-client-chain.c                \
     matrix-test.c webclient-test.c servmgmt-test.c sqlite-test.c   \
-    hexstr-test.c
+    hex-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -110,7 +110,7 @@ $(BIN_DIR)/stringparse-test: stringparse-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_string -ljf_logger
 
-$(BIN_DIR)/hexstr-test: hexstr-test.o $(JIUTAI_DIR)/jf_hex.o
+$(BIN_DIR)/hex-test: hex-test.o $(JIUTAI_DIR)/jf_hex.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
@@ -163,7 +163,7 @@ $(BIN_DIR)/host-test: host-test.o $(JIUTAI_DIR)/jf_host.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_ifmgmt -ljf_string -ljf_logger
 
-$(BIN_DIR)/respool-test: respool-test.o $(JIUTAI_DIR)/respool.o \
+$(BIN_DIR)/respool-test: respool-test.o $(JIUTAI_DIR)/jf_respool.o \
        $(JIUTAI_DIR)/jf_mutex.o $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_array.o \
        $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_sem.o $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
@@ -202,7 +202,7 @@ $(BIN_DIR)/genuuid: genuuid.o $(JIUTAI_DIR)/jf_time.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -ljf_uuid -ljf_prng
 
-$(BIN_DIR)/randnum-test: randnum-test.o $(JIUTAI_DIR)/randnum.o
+$(BIN_DIR)/randnum-test: randnum-test.o $(JIUTAI_DIR)/jf_rand.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
@@ -256,7 +256,7 @@ $(BIN_DIR)/matrix-test: matrix-test.o $(JIUTAI_DIR)/jf_mem.o
        -o $@ $(SYSLIBS) -ljf_matrix -ljf_logger
 
 $(BIN_DIR)/sqlite-test: sqlite-test.o $(JIUTAI_DIR)/jf_mem.o \
-       $(JIUTAI_DIR)/jf_sqlite.o $(JIUTAI_DIR)/randnum.o $(JIUTAI_DIR)/jf_time.o
+       $(JIUTAI_DIR)/jf_sqlite.o $(JIUTAI_DIR)/jf_rand.o $(JIUTAI_DIR)/jf_time.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -lsqlite3
 
