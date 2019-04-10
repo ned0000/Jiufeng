@@ -41,32 +41,32 @@ typedef enum jiukun_page_flag
  */
 typedef struct jiukun_page
 {
-    olflag_t jp_fPage;
+    jf_flag_t jp_jfPage;
     jf_listhead_t jp_jlLru;
     /** private data, the content is determined by flags */
     ulong jp_ulPrivate;
     u32 jp_u32Reserved[2];
 } jiukun_page_t;
 
-#define setJpAllocated(page) (SET_FLAG(page->jp_fPage, JP_FLAG_ALLOCATED))
-#define clearJpAllocated(page) (CLEAR_FLAG(page->jp_fPage, JP_FLAG_ALLOCATED))
-#define isJpAllocated(page) (GET_FLAG(page->jp_fPage, JP_FLAG_ALLOCATED))
+#define setJpAllocated(page) (JF_FLAG_SET(page->jp_jfPage, JP_FLAG_ALLOCATED))
+#define clearJpAllocated(page) (JF_FLAG_CLEAR(page->jp_jfPage, JP_FLAG_ALLOCATED))
+#define isJpAllocated(page) (JF_FLAG_GET(page->jp_jfPage, JP_FLAG_ALLOCATED))
 
-#define setJpSlab(page) (SET_FLAG(page->jp_fPage, JP_FLAG_SLAB))
-#define clearJpSlab(page) (CLEAR_FLAG(page->jp_fPage, JP_FLAG_SLAB))
-#define isJpSlab(page)  (GET_FLAG(page->jp_fPage, JP_FLAG_SLAB))
+#define setJpSlab(page) (JF_FLAG_SET(page->jp_jfPage, JP_FLAG_SLAB))
+#define clearJpSlab(page) (JF_FLAG_CLEAR(page->jp_jfPage, JP_FLAG_SLAB))
+#define isJpSlab(page)  (JF_FLAG_GET(page->jp_jfPage, JP_FLAG_SLAB))
 
 /** order is at bit 48 ~ 55
  */
 #define setJpOrder(page, order) \
-    (SET_FLAG_VALUE(page->jp_fPage, 55, 48, order))
-#define getJpOrder(page)   (GET_FLAG_VALUE(page->jp_fPage, 55, 48))
+    (JF_FLAG_SET_VALUE(page->jp_jfPage, 55, 48, order))
+#define getJpOrder(page)   (JF_FLAG_GET_VALUE(page->jp_jfPage, 55, 48))
 
 /** zone id is at bit 56 ~ 63
  */
 #define setJpZoneId(page, zoneid) \
-    (SET_FLAG_VALUE(page->jp_fPage, 63, 56, zoneid))
-#define getJpZoneId(page)   (GET_FLAG_VALUE(page->jp_fPage, 63, 56))
+    (JF_FLAG_SET_VALUE(page->jp_jfPage, 63, 56, zoneid))
+#define getJpZoneId(page)   (JF_FLAG_GET_VALUE(page->jp_jfPage, 63, 56))
 
 #define pageToIndex(page, base) ((u32)(page - base))
 
@@ -87,7 +87,7 @@ void dumpJiukunBuddy(void);
 #endif
 
 u32 getJiukunPage(
-    jiukun_page_t ** ppPage, u32 u32Order, olflag_t flag);
+    jiukun_page_t ** ppPage, u32 u32Order, jf_flag_t flag);
 
 void putJiukunPage(jiukun_page_t ** ppPage);
 

@@ -110,7 +110,7 @@ $(BIN_DIR)/stringparse-test: stringparse-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_string -ljf_logger
 
-$(BIN_DIR)/hexstr-test: hexstr-test.o $(JIUTAI_DIR)/hexstr.o
+$(BIN_DIR)/hexstr-test: hexstr-test.o $(JIUTAI_DIR)/jf_hex.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
@@ -127,7 +127,7 @@ $(BIN_DIR)/menu-test: menu-test.o $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_menu.o
        -o $@ $(SYSLIBS) -ljf_string
 
 $(BIN_DIR)/crc-test: crc-test.o $(JIUTAI_DIR)/jf_crc.o \
-       $(JIUTAI_DIR)/hexstr.o
+       $(JIUTAI_DIR)/jf_hex.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
@@ -137,12 +137,12 @@ $(BIN_DIR)/dynlib-test: dynlib-test.o $(JIUTAI_DIR)/jf_dynlib.o \
        -o $@ $(SYSLIBS) -ldl -ljf_logger
 
 $(BIN_DIR)/sharedmemory-test-worker: sharedmemory-test-worker.o \
-       $(JIUTAI_DIR)/sharedmemory.o $(JIUTAI_DIR)/jf_mem.o
+       $(JIUTAI_DIR)/jf_sharedmemory.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
 $(BIN_DIR)/sharedmemory-test-consumer: sharedmemory-test-consumer.o \
-       $(JIUTAI_DIR)/sharedmemory.o $(JIUTAI_DIR)/jf_mem.o
+       $(JIUTAI_DIR)/jf_sharedmemory.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 

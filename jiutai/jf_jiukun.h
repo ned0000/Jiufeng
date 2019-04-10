@@ -94,7 +94,7 @@ typedef struct
     u8 jjccp_u8Reserved[4];
     olsize_t jjccp_sObj;
     olsize_t jjccp_sOffset;
-    olflag_t jjccp_fCache;
+    jf_flag_t jjccp_jfCache;
     u32 jjccp_u32Reserved2[4];
 } jf_jiukun_cache_create_param_t;
 
@@ -128,7 +128,7 @@ JIUKUNAPI u32 JIUKUNCALL jf_jiukun_fini(void);
 /** Get memory from jiukun page allocator
  */
 JIUKUNAPI u32 JIUKUNCALL jf_jiukun_allocPage(
-    void ** pptr, u32 u32Order, olflag_t flag);
+    void ** pptr, u32 u32Order, jf_flag_t flag);
 
 /** Free memory to jiukun page allocator
  */
@@ -164,7 +164,7 @@ JIUKUNAPI u32 JIUKUNCALL jf_jiukun_destroyCache(jf_jiukun_cache_t ** ppCache);
  *  @return the error code
  */
 JIUKUNAPI u32 JIUKUNCALL jf_jiukun_allocObject(
-    jf_jiukun_cache_t * pCache, void ** ppObj, olflag_t flag);
+    jf_jiukun_cache_t * pCache, void ** ppObj, jf_flag_t flag);
 
 JIUKUNAPI void JIUKUNCALL jf_jiukun_freeObject(
     jf_jiukun_cache_t * pCache, void ** ppObj);
@@ -178,7 +178,7 @@ JIUKUNAPI void JIUKUNCALL jf_jiukun_freeObject(
  *  @return the error code
  */
 JIUKUNAPI u32 JIUKUNCALL jf_jiukun_allocMemory(
-    void ** pptr, olsize_t size, olflag_t flag);
+    void ** pptr, olsize_t size, jf_flag_t flag);
 
 /** Free previously allocated memory
  *

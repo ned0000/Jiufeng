@@ -87,7 +87,7 @@ typedef struct slab_cache
     u32 sc_u32ObjSize;
     u32 sc_u32RealObjSize;
     /** cache flags */
-    olflag_t sc_fCache;
+    jf_flag_t sc_jfCache;
     /** num of objs per slab */
     u32 sc_u32Num;
 
@@ -104,7 +104,7 @@ typedef struct slab_cache
     u32 sc_u32Order;
 
     /** page flags */
-    olflag_t sc_fPage;
+    jf_flag_t sc_jfPage;
 
     /** cache for slab_t */
     struct slab_cache * sc_pscSlab;
@@ -125,8 +125,8 @@ typedef struct slab_cache
 } slab_cache_t;
 
 
-#define OFF_SLAB(x) (GET_FLAG((x)->sc_fCache, SC_FLAG_OFF_SLAB))
-#define GROWN(x)    (GET_FLAG((x)->sc_fCache, AF_FLAGS_GROWN))
+#define OFF_SLAB(x) (JF_FLAG_GET((x)->sc_jfCache, SC_FLAG_OFF_SLAB))
+#define GROWN(x)    (JF_FLAG_GET((x)->sc_jfCache, AF_FLAGS_GROWN))
 
 #if DEBUG_JIUKUN_STAT
     #define STATS_INC_ACTIVE(x)  ((x)->sc_ulNumActive++)
@@ -274,20 +274,20 @@ void _dumpSlabCache(slab_cache_t * pCache)
 #endif
 
 static inline u32 _allocObj(internal_jiukun_slab_t * pijs,
-    slab_cache_t * pCache, void ** ppObj, olflag_t flag);
+    slab_cache_t * pCache, void ** ppObj, jf_flag_t flag);
 
 
 /* Cal the num objs, wastage, and bytes left over for a given slab size. */
 static void _slabCacheEstimate(
     ulong jporder, olsize_t size,
-    olflag_t flag, olsize_t * left_over, u32 * num)
+    jf_flag_t flag, olsize_t * left_over, u32 * num)
 {
     olint_t i;
     olsize_t wastage = BUDDY_PAGE_SIZE << jporder;
     olsize_t extra = 0;
     olsize_t base = 0;
 
-    if (! GET_FLAG(flag, SC_FLAG_OFF_SLAB))
+    if (! JF_FLAG_GET(flag, SC_FLAG_OFF_SLAB))
     {
         base = sizeof(slab_t);
         extra = sizeof(slab_bufctl_t);
@@ -334,7 +334,7 @@ static inline void _poisonObj(slab_cache_t * pCache, u8 * addr)
 {
     olint_t size = pCache->sc_u32ObjSize;
 
-    if (GET_FLAG(pCache->sc_fCache, SC_FLAG_RED_ZONE))
+    if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
     {
         addr += SLAB_ALIGN_SIZE;
         size -= 2 * SLAB_ALIGN_SIZE;
@@ -348,7 +348,7 @@ static inline boolean_t _checkPoisonObj(slab_cache_t * pCache, u8 * addr)
     olint_t size = pCache->sc_u32ObjSize;
     void * end;
 
-    if (GET_FLAG(pCache->sc_fCache, SC_FLAG_RED_ZONE))
+    if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
     {
         addr += SLAB_ALIGN_SIZE;
         size -= 2 * SLAB_ALIGN_SIZE;
@@ -383,14 +383,14 @@ static inline void * _allocOneObjFromTail(
     }
 
 #if DEBUG_JIUKUN
-    if (GET_FLAG(pCache->sc_fCache, SC_FLAG_POISON))
+    if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_POISON))
         if (_checkPoisonObj(pCache, objp))
         {
             jf_logger_logInfoMsg("Out of bound access");
             abort();
         }
 
-    if (GET_FLAG(pCache->sc_fCache, SC_FLAG_RED_ZONE))
+    if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
     {
         /* check old one. */
         if ((*((ulong *)(objp)) != RED_MAGIC1) ||
@@ -418,7 +418,7 @@ static inline slab_t * _slabMgmt(
     internal_jiukun_slab_t * pijs, slab_cache_t * pCache, u8 * objp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olflag_t flags = 0;
+    jf_flag_t flags = 0;
     slab_t * slabp = NULL;
     olint_t offset = 0;
 
@@ -452,7 +452,7 @@ static inline void _initSlabCacheObjs(slab_cache_t * pCache, slab_t * slabp)
 #if DEBUG_JIUKUN
         u8 * objp = (u8 *)slabp->s_pMem + pCache->sc_u32ObjSize * i;
 
-        if (GET_FLAG(pCache->sc_fCache, SC_FLAG_RED_ZONE))
+        if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
         {
             *((ulong*)(objp)) = RED_MAGIC1;
             *((ulong*)(objp + pCache->sc_u32ObjSize -
@@ -462,14 +462,14 @@ static inline void _initSlabCacheObjs(slab_cache_t * pCache, slab_t * slabp)
 #endif
 
 #if DEBUG_JIUKUN
-        if (GET_FLAG(pCache->sc_fCache, SC_FLAG_RED_ZONE))
+        if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
             objp -= SLAB_ALIGN_SIZE;
 
-        if (GET_FLAG(pCache->sc_fCache, SC_FLAG_POISON))
+        if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_POISON))
             /* need to poison the objs */
             _poisonObj(pCache, objp);
 
-        if (GET_FLAG(pCache->sc_fCache, SC_FLAG_RED_ZONE))
+        if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
         {
             if (*((ulong *)(objp)) != RED_MAGIC1)
                 abort();
@@ -488,7 +488,7 @@ static inline void _initSlabCacheObjs(slab_cache_t * pCache, slab_t * slabp)
  *  there are no active objs left in a cache.
  */
 static u32 _growSlabCache(
-    internal_jiukun_slab_t * pijs, slab_cache_t * pCache, olflag_t jpflag)
+    internal_jiukun_slab_t * pijs, slab_cache_t * pCache, jf_flag_t jpflag)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     slab_t * slabp;
@@ -496,10 +496,10 @@ static u32 _growSlabCache(
     void * objp;
     u32 i;
 
-    SET_FLAG(pCache->sc_fCache, SC_FLAG_GROWN);
+    JF_FLAG_SET(pCache->sc_jfCache, SC_FLAG_GROWN);
 
     /* Get mem for the objs. */
-    jpflag |= pCache->sc_fPage;
+    jpflag |= pCache->sc_jfPage;
     u32Ret = jf_jiukun_allocPage(&objp, pCache->sc_u32Order, jpflag);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -539,7 +539,7 @@ static u32 _growSlabCache(
 #endif
     }
 
-    CLEAR_FLAG(pCache->sc_fCache, SC_FLAG_GROWN);
+    JF_FLAG_CLEAR(pCache->sc_jfCache, SC_FLAG_GROWN);
 
     return u32Ret;
 }
@@ -548,7 +548,7 @@ static inline void _lockSlabCache(
     internal_jiukun_slab_t * pijs, slab_cache_t * pCache)
 {
     jf_mutex_acquire(&pijs->ijs_smLock);
-    SET_FLAG(pCache->sc_fCache, SC_FLAG_LOCKED);
+    JF_FLAG_SET(pCache->sc_jfCache, SC_FLAG_LOCKED);
     jf_mutex_release(&pijs->ijs_smLock);
 }
 
@@ -556,18 +556,18 @@ static inline void _unlockSlabCache(
     internal_jiukun_slab_t * pijs, slab_cache_t * pCache)
 {
     jf_mutex_acquire(&pijs->ijs_smLock);
-    CLEAR_FLAG(pCache->sc_fCache, SC_FLAG_LOCKED);
+    JF_FLAG_CLEAR(pCache->sc_jfCache, SC_FLAG_LOCKED);
     jf_mutex_release(&pijs->ijs_smLock);
 }
 
 static inline u32 _allocObj(
     internal_jiukun_slab_t * pijs,
-    slab_cache_t * pCache, void ** ppObj, olflag_t flag)
+    slab_cache_t * pCache, void ** ppObj, jf_flag_t flag)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_listhead_t * entry;
     slab_t * slabp;
-    olflag_t jpflag = 0;
+    jf_flag_t jpflag = 0;
 
 #if defined(DEBUG_JIUKUN_VERBOSE)
     jf_logger_logInfoMsg("alloc obj from %s", pCache->sc_strName);
@@ -586,8 +586,8 @@ static inline u32 _allocObj(
             entry = pCache->sc_jlFree.jl_pjlNext;
             if (jf_listhead_isEmpty(&pCache->sc_jlFree))
             {
-                if (GET_FLAG(flag, JF_JIUKUN_MEM_ALLOC_FLAG_NOWAIT))
-                    SET_FLAG(jpflag, JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT);
+                if (JF_FLAG_GET(flag, JF_JIUKUN_MEM_ALLOC_FLAG_NOWAIT))
+                    JF_FLAG_SET(jpflag, JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT);
 
                 u32Ret = _growSlabCache(pijs, pCache, jpflag);
                 if (u32Ret != JF_ERR_NO_ERROR)
@@ -667,7 +667,7 @@ static inline void _freeOneObj(
     slabp = GET_PAGE_SLAB(addrToJiukunPage(objp));
 
 #if DEBUG_JIUKUN
-    if (GET_FLAG(pCache->sc_fCache, SC_FLAG_RED_ZONE))
+    if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
     {
         objp -= SLAB_ALIGN_SIZE;
 
@@ -686,7 +686,7 @@ static inline void _freeOneObj(
                              SLAB_ALIGN_SIZE)) = RED_MAGIC1;
     }
 
-    if (GET_FLAG(pCache->sc_fCache, SC_FLAG_POISON))
+    if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_POISON))
         _poisonObj(pCache, objp);
 
     if (_extraFreeChecks(pCache, slabp, objp))
@@ -721,7 +721,7 @@ static inline void _freeOneObj(
 static inline void _freeObj(
     internal_jiukun_slab_t * pijs, slab_cache_t * pCache, void ** pptr)
 {
-    assert(! GET_FLAG(pCache->sc_fCache, SC_FLAG_DESTROY));
+    assert(! JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_DESTROY));
 
     _lockSlabCache(pijs, pCache);
 
@@ -744,22 +744,22 @@ static void _destroySlab(
     slab_t * pSlab = slabp;
 
 #if DEBUG_JIUKUN
-    if (GET_FLAG(pCache->sc_fCache, SC_FLAG_POISON) ||
-        GET_FLAG(pCache->sc_fCache, SC_FLAG_RED_ZONE))
+    if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_POISON) ||
+        JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
     {
         olint_t i;
         for (i = 0; i < pCache->sc_u32Num; i++)
         {
             u8 * objp = (u8 *)slabp->s_pMem + pCache->sc_u32ObjSize * i;
 
-            if (GET_FLAG(pCache->sc_fCache, SC_FLAG_RED_ZONE))
+            if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
             {
                 assert(*((ulong*)(objp)) == RED_MAGIC1);
                 assert(*((ulong*)(objp + pCache->sc_u32ObjSize
                           - SLAB_ALIGN_SIZE)) == RED_MAGIC1);
             }
 
-            if (GET_FLAG(pCache->sc_fCache, SC_FLAG_POISON) &&
+            if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_POISON) &&
                 _checkPoisonObj(pCache, objp))
                 abort();
         }
@@ -834,15 +834,15 @@ static u32 _createSlabCache(
 
     jf_logger_logInfoMsg(
         "create jiukun cache, %s, size: %u, flag: 0x%llX",
-        pjjccp->jjccp_pstrName, pjjccp->jjccp_sObj, pjjccp->jjccp_fCache);
+        pjjccp->jjccp_pstrName, pjjccp->jjccp_sObj, pjjccp->jjccp_jfCache);
 
 #if DEBUG_JIUKUN
     /* do not red zone large object, causes severe fragmentation.
      */
     if (pjjccp->jjccp_sObj < (BUDDY_PAGE_SIZE >> 3))
-        SET_FLAG(pjjccp->jjccp_fCache, SC_FLAG_RED_ZONE);
+        JF_FLAG_SET(pjjccp->jjccp_jfCache, SC_FLAG_RED_ZONE);
 
-    SET_FLAG(pjjccp->jjccp_fCache, SC_FLAG_POISON);
+    JF_FLAG_SET(pjjccp->jjccp_jfCache, SC_FLAG_POISON);
 #endif
 
     /* Check that size is in terms of words. This is needed to avoid
@@ -859,7 +859,7 @@ static u32 _createSlabCache(
         memset(pCache, 0, sizeof(slab_cache_t));
 
 #if DEBUG_JIUKUN
-        if (GET_FLAG(pjjccp->jjccp_fCache, SC_FLAG_RED_ZONE))
+        if (JF_FLAG_GET(pjjccp->jjccp_jfCache, SC_FLAG_RED_ZONE))
         {
             pjjccp->jjccp_sObj += 2 * SLAB_ALIGN_SIZE;   /* words for redzone */
         }
@@ -869,7 +869,7 @@ static u32 _createSlabCache(
             /* Size is large, assume best to place the slab management obj
              * off-slab (should allow better packing of objs).
              */
-            SET_FLAG(pjjccp->jjccp_fCache, SC_FLAG_OFF_SLAB);
+            JF_FLAG_SET(pjjccp->jjccp_jfCache, SC_FLAG_OFF_SLAB);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -882,7 +882,7 @@ static u32 _createSlabCache(
 
             _slabCacheEstimate(
                 pCache->sc_u32Order, pjjccp->jjccp_sObj,
-                pjjccp->jjccp_fCache, &left_over, &pCache->sc_u32Num);
+                pjjccp->jjccp_jfCache, &left_over, &pCache->sc_u32Num);
             if (break_flag)
                 break;
             if (pCache->sc_u32Order >= MAX_JP_ORDER)
@@ -892,7 +892,7 @@ static u32 _createSlabCache(
                 pCache->sc_u32Order++;
                 continue;
             }
-            if (GET_FLAG(pjjccp->jjccp_fCache, SC_FLAG_OFF_SLAB) &&
+            if (JF_FLAG_GET(pjjccp->jjccp_jfCache, SC_FLAG_OFF_SLAB) &&
                 (pCache->sc_u32Num > pijs->ijs_u32OffSlabLimit))
             {
                 /* this num of objs will cause problems. */
@@ -928,15 +928,15 @@ static u32 _createSlabCache(
         /* If the slab has been placed off-slab, and we have enough space then
          * move it on-slab.
          */
-        if (GET_FLAG(pjjccp->jjccp_fCache, SC_FLAG_OFF_SLAB) &&
+        if (JF_FLAG_GET(pjjccp->jjccp_jfCache, SC_FLAG_OFF_SLAB) &&
             left_over >= slab_size)
         {
-            CLEAR_FLAG(pjjccp->jjccp_fCache, SC_FLAG_OFF_SLAB);
+            JF_FLAG_CLEAR(pjjccp->jjccp_jfCache, SC_FLAG_OFF_SLAB);
             left_over -= slab_size;
         }
 
-        pCache->sc_fCache = pjjccp->jjccp_fCache;
-        pCache->sc_fPage = 0;
+        pCache->sc_jfCache = pjjccp->jjccp_jfCache;
+        pCache->sc_jfPage = 0;
 
         u32Ret = jf_mutex_init(&(pCache->sc_jmCache));
     }
@@ -950,7 +950,7 @@ static u32 _createSlabCache(
         jf_listhead_init(&(pCache->sc_jlPartial));
         jf_listhead_init(&(pCache->sc_jlFree));
 
-        if (GET_FLAG(pjjccp->jjccp_fCache, SC_FLAG_OFF_SLAB))
+        if (JF_FLAG_GET(pjjccp->jjccp_jfCache, SC_FLAG_OFF_SLAB))
             pCache->sc_pscSlab = _findGeneralSlabCache(pijs, slab_size, 0);
         ol_strncpy(pCache->sc_strName, pjjccp->jjccp_pstrName, CACHE_NAME_LEN - 1);
 
@@ -993,7 +993,7 @@ static u32 _initSlabCache(internal_jiukun_slab_t * pijs)
     jf_listhead_init(&(pkc->sc_jlFree));
 
     pkc->sc_u32ObjSize = sizeof(slab_cache_t);
-    SET_FLAG(pkc->sc_fCache, JF_JIUKUN_CACHE_CREATE_FLAG_NOREAP);
+    JF_FLAG_SET(pkc->sc_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_NOREAP);
     ol_strcpy(pkc->sc_strName, "cache_cache");
 
     _slabCacheEstimate(
@@ -1158,7 +1158,7 @@ u32 jf_jiukun_destroyCache(jf_jiukun_cache_t ** ppCache)
     jf_mutex_acquire(&(pijs->ijs_smLock));
     /* the chain is never empty, cache_cache is never destroyed */
     jf_listhead_del(&(psc->sc_jlNext));
-    SET_FLAG(psc->sc_fCache, SC_FLAG_DESTROY);
+    JF_FLAG_SET(psc->sc_jfCache, SC_FLAG_DESTROY);
     jf_mutex_release(&(pijs->ijs_smLock));
 
     _destroySlabCache(pijs, psc);
@@ -1195,19 +1195,19 @@ u32 reapJiukunSlab(boolean_t bNoWait)
     {
         searchp = jf_listhead_getEntry(pjl, slab_cache_t, sc_jlNext);
 
-        if (GET_FLAG(searchp->sc_fCache, JF_JIUKUN_CACHE_CREATE_FLAG_NOREAP))
+        if (JF_FLAG_GET(searchp->sc_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_NOREAP))
         {
             jf_logger_logInfoMsg("reap cache, %s no reap", searchp->sc_strName);
             continue;
         }
 
-        if (GET_FLAG(searchp->sc_fCache, SC_FLAG_GROWN))
+        if (JF_FLAG_GET(searchp->sc_jfCache, SC_FLAG_GROWN))
         {
             jf_logger_logInfoMsg("reap cache, %s is growing", searchp->sc_strName);
             continue;
         }
 
-        if (GET_FLAG(searchp->sc_fCache, SC_FLAG_LOCKED))
+        if (JF_FLAG_GET(searchp->sc_jfCache, SC_FLAG_LOCKED))
         {
             jf_logger_logInfoMsg("reap cache, %s is locked", searchp->sc_strName);
             continue;
@@ -1217,7 +1217,7 @@ u32 reapJiukunSlab(boolean_t bNoWait)
 #if DEBUG_JIUKUN
         jf_logger_logInfoMsg(
             "cache %p, name %s, flag 0x%llx", searchp, searchp->sc_strName,
-            searchp->sc_fCache);
+            searchp->sc_jfCache);
         _dumpSlabCache(searchp);
 #endif
 
@@ -1247,7 +1247,7 @@ void jf_jiukun_freeObject(jf_jiukun_cache_t * pCache, void ** pptr)
 }
 
 u32 jf_jiukun_allocObject(
-    jf_jiukun_cache_t * pCache, void ** pptr, olflag_t flag)
+    jf_jiukun_cache_t * pCache, void ** pptr, jf_flag_t flag)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jiukun_slab_t * pijs = &ls_iasSlab;
@@ -1259,15 +1259,15 @@ u32 jf_jiukun_allocObject(
     u32Ret = _allocObj(pijs, cache, pptr, flag);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (GET_FLAG(cache->sc_fCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO) ||
-            GET_FLAG(flag, JF_JIUKUN_MEM_ALLOC_FLAG_ZERO))
+        if (JF_FLAG_GET(cache->sc_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO) ||
+            JF_FLAG_GET(flag, JF_JIUKUN_MEM_ALLOC_FLAG_ZERO))
             memset(*pptr, 0, cache->sc_u32RealObjSize);
     }
 
     return u32Ret;
 }
 
-u32 jf_jiukun_allocMemory(void ** pptr, olsize_t size, olflag_t flag)
+u32 jf_jiukun_allocMemory(void ** pptr, olsize_t size, jf_flag_t flag)
 {
     u32 u32Ret = JF_ERR_UNSUPPORTED_MEMORY_SIZE;
     internal_jiukun_slab_t * pijs = &ls_iasSlab;
@@ -1291,7 +1291,7 @@ u32 jf_jiukun_allocMemory(void ** pptr, olsize_t size, olflag_t flag)
                 *pptr, size, flag);
 #endif
 
-    if (u32Ret == JF_ERR_NO_ERROR && GET_FLAG(flag, JF_JIUKUN_MEM_ALLOC_FLAG_ZERO))
+    if (u32Ret == JF_ERR_NO_ERROR && JF_FLAG_GET(flag, JF_JIUKUN_MEM_ALLOC_FLAG_ZERO))
         memset(*pptr, 0, size);
 
     return u32Ret;

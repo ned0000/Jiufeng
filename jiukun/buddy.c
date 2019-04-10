@@ -294,7 +294,7 @@ static u32 _createBuddyZone(
 }
 
 static jiukun_page_t * _allocPages(
-    internal_jiukun_buddy_t * piab, u32 u32Order, olflag_t flag)
+    internal_jiukun_buddy_t * piab, u32 u32Order, jf_flag_t flag)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Pages = 1UL << u32Order;
@@ -454,7 +454,7 @@ u32 finiJiukunBuddy(void)
     return u32Ret;
 }
 
-u32 jf_jiukun_allocPage(void ** pptr, u32 u32Order, olflag_t flag)
+u32 jf_jiukun_allocPage(void ** pptr, u32 u32Order, jf_flag_t flag)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jiukun_page_t * pap = NULL;
@@ -481,7 +481,7 @@ void jf_jiukun_freePage(void ** pptr)
     putJiukunPage(&pap);
 }
 
-u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, olflag_t flag)
+u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, jf_flag_t flag)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jiukun_buddy_t * piab = &ls_ijbBuddy;
@@ -514,7 +514,7 @@ u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, olflag_t flag)
 
             retrycount ++;
         }
-    } while (pap == NULL && ! GET_FLAG(flag, JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT));
+    } while (pap == NULL && ! JF_FLAG_GET(flag, JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT));
 
     if (pap == NULL)
     {
