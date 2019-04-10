@@ -1,5 +1,5 @@
 /**
- *  @file sharedmemory.c
+ *  @file jf_sharedmemory.c
  *
  *  @brief The implementation of share memory common object
  *
@@ -22,7 +22,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_mem.h"
-#include "sharedmemory.h"
+#include "jf_sharedmemory.h"
 #if defined(WINDOWS)
     #include "jf_uuid.h"
 #endif

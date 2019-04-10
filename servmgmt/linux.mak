@@ -15,7 +15,7 @@ SONAME = jf_servmgmt
 
 SOURCES = servmgmt.c servmgmtsetting.c
 
-JIUTAI_SRCS = jf_mem.c sharedmemory.c jf_process.c jf_attask.c jf_time.c
+JIUTAI_SRCS = jf_mem.c jf_sharedmemory.c jf_process.c jf_attask.c jf_time.c
 
 EXTRA_LIBS = -ljf_logger -ljf_files -lxml2
 

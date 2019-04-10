@@ -1,11 +1,12 @@
 /**
- *  @file sharedmemory.h
+ *  @file jf_sharedmemory.h
  *
  *  @brief Shared memory header file. Provide some functional routine for
  *   shared memory
  *
  *  @author Min Zhang
  *
+ *  @note Routines declared in this file are included in jf_sharedmemory library
  *  @note Link with xmalloc common object
  *  @note Link with oluuid.lib on Windows platform
  *  

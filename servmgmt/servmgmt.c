@@ -17,7 +17,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_mem.h"
-#include "sharedmemory.h"
+#include "jf_sharedmemory.h"
 #include "jf_filestream.h"
 #include "jf_process.h"
 #include "jf_attask.h"
