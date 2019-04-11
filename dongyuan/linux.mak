@@ -10,7 +10,7 @@
 
 #-----------------------------------------------------------------------------
 
-EXE = oldongyuan
+EXE = jf_dongyuan
 
 SOURCES = dongyuan.c main.c
 

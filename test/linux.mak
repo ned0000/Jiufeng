@@ -19,12 +19,12 @@ PROGRAMS = xmalloc-test hashtree-test listhead-test                \
     menu-test crc-test dynlib-test ifmgmt-test                     \
     sharedmemory-test-consumer sharedmemory-test-worker            \
     files-test hsm-test host-test respool-test                     \
-    bitop-test jiukun-test cghash-test cgmac-test genuuid          \
+    bitop-test jiukun-test cghash-test cgmac-test jf_genuuid       \
     encrypt-test prng-test encode-test xmlparser-test              \
     rand-test persistency-test archive-test                        \
     httpparser-test network-test network-test-server               \
     network-test-client network-test-client-chain                  \
-    matrix-test webclient-test servmgmt-test sqlite-test           \
+    matrix-test webclient-test jf_servmgmt sqlite-test             \
     hex-test
 
 SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c               \
@@ -198,7 +198,7 @@ $(BIN_DIR)/encode-test: encode-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_encode -ljf_logger -ljf_files
 
-$(BIN_DIR)/genuuid: genuuid.o $(JIUTAI_DIR)/jf_time.o
+$(BIN_DIR)/jf_genuuid: genuuid.o $(JIUTAI_DIR)/jf_time.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -ljf_uuid -ljf_prng
 
@@ -247,7 +247,7 @@ $(BIN_DIR)/webclient-test: webclient-test.o $(JIUTAI_DIR)/jf_mem.o \
        -o $@ $(SYSLIBS) -ljf_httpparser -ljf_network -ljf_webclient -ljf_logger \
        -ljf_files -ljf_ifmgmt
 
-$(BIN_DIR)/servmgmt-test: servmgmt-test.o
+$(BIN_DIR)/jf_servmgmt: servmgmt-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -ljf_servmgmt
 

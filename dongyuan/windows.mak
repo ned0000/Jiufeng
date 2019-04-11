@@ -11,7 +11,7 @@
 
 #-----------------------------------------------------------------------------
 
-EXE = oldongyuan.exe
+EXE = jf_dongyuan.exe
 
 SOURCES = dongyuan.c main.c
 

@@ -11,7 +11,7 @@ debug=no
 cd ..
 topdir=`pwd`
 
-bin_files="genuuid oldongyuan olservmgmt"
+bin_files="jf_genuuid jf_dongyuan jf_servmgmt"
 setting_files="servmgmt/servmgmt.setting"
 
 help_gen_jtk()

@@ -33,22 +33,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-
-#undef IFMGMTAPI
-#undef IFMGMTCALL
-#ifdef WINDOWS
-    #include "windows.h"
-    #if defined(JIUFENG_IFMGMT_DLL)
-        #define IFMGMTAPI  __declspec(dllexport)
-        #define IFMGMTCALL
-    #else
-        #define IFMGMTAPI
-        #define IFMGMTCALL __cdecl
-    #endif
-#else
-    #define IFMGMTAPI
-    #define IFMGMTCALL
-#endif
+#include "jf_ipaddr.h"
 
 /* --- constant definitions ------------------------------------------------ */
 
@@ -64,24 +49,9 @@
 /*maximum interface mac length*/
 #define JF_IFMGMT_MAC_LEN               (MAC_LEN)
 
-#define JF_IPADDR_TYPE_V4               (0x0)
-
-#define JF_IPADDR_TYPE_V6               (0x1)
-
 #define JF_IFMGMT_IF_FLAGS_STR_SIZE     (128)
 
 /* --- data structures ----------------------------------------------------- */
-
-typedef struct
-{
-    u8 ji_u8AddrType;
-    u8 ji_u8Reserved[7];
-    union
-    {
-        olint_t ju_nAddr;
-        u8 ju_u8Addr[16];
-    } ji_uAddr;
-} jf_ipaddr_t;
 
 typedef struct jf_ifmgmt_if
 {
@@ -124,40 +94,6 @@ IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_getStringIfFlags(
     olchar_t * pstrFlags, jf_ifmgmt_if_t * pjii);
 
 IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[JF_LIMIT_MAC_LEN]);
-
-/* ip addr */
-/*get local ip addr list, not include the loop back*/
-IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getLocalIpAddrList(
-    u8 u8AddrType, jf_ipaddr_t * pAddr, u16 * pu16Count);
-
-IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_convertSockAddrToIpAddr(
-    const struct sockaddr * psa, const olint_t nSaLen,
-    jf_ipaddr_t * pji, u16 * pu16Port);
-
-IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_convertIpAddrToSockAddr(
-    const jf_ipaddr_t * pji, const u16 u16Port,
-    struct sockaddr * psa, olint_t * pnSaLen);
-
-IFMGMTAPI void IFMGMTCALL jf_ipaddr_setIpV4Addr(
-    jf_ipaddr_t * pji, olint_t nAddr);
-
-IFMGMTAPI boolean_t IFMGMTCALL jf_ipaddr_isIpV4Addr(jf_ipaddr_t * pji);
-
-IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_setIpAddrToInaddrAny(jf_ipaddr_t * pji);
-
-IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_setIpV4AddrToInaddrAny(jf_ipaddr_t * pji);
-
-IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_setIpV6AddrToInaddrAny(jf_ipaddr_t * pji);
-
-IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getStringIpAddr(
-    olchar_t * pstrIp, const jf_ipaddr_t * pji);
-
-IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getIpAddrFromString(
-    const olchar_t * pstrIp, u8 u8AddrType, jf_ipaddr_t * pji);
-
-/*the string is something like xxx.xxx.xxx.xxx:xxx*/
-IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getIpAddrPortFromString(
-    const olchar_t * pstrIp, u8 u8AddrType, jf_ipaddr_t * pji, u16 * pu16Port);
 
 #endif /*JIUFENG_IFMGMT_H */
 

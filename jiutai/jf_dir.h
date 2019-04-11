@@ -36,8 +36,6 @@
     typedef void     jf_dir_t;
 #endif
 
-#define JF_FILE_DEFAULT_CREATE_MODE    (0644)
-
 #define JF_DIR_DEFAULT_CREATE_MODE     (0755)
 
 
