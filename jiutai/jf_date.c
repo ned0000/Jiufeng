@@ -38,6 +38,91 @@ static const olchar_t * _getStringNotApplicable(void)
     return "N/A";
 }
 
+static boolean_t _isDayInRange(olint_t year, olint_t month, olint_t day)
+{
+    olint_t dm = jf_date_getDaysOfMonth(year, month);
+
+    if (day <= 0 || day > dm)
+        return FALSE;
+
+    return TRUE;
+}
+
+/** Get date from the string with the format yyyy%mm%dd where '%' is the
+ *  seperator
+ */
+static u32 _getDateFromString(
+    const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay,
+    olchar_t sep)
+{
+    u32 u32Ret = JF_ERR_INVALID_DATE;
+    olsize_t size = 0;
+    olchar_t * firstChar, * psubStr;
+    olchar_t u8Data[100];
+    u32 u32Value;
+
+    memset(u8Data, 0, 100);
+    ol_strncpy(u8Data, pstrDate, 99);
+    firstChar = u8Data;
+
+    /* year */
+    psubStr = ol_strchr(firstChar, sep);
+    if(psubStr != NULL)
+    {
+        size = (u32)(psubStr - firstChar);
+        firstChar[size] = 0;
+        if (ol_sscanf(firstChar, "%04d", &u32Value) == 1)
+        {
+            if (u32Value >= 1970 && u32Value <= 2037)
+            {
+                firstChar = psubStr + 1;
+                *pYear = u32Value;
+                u32Ret = JF_ERR_NO_ERROR;
+            }
+        }
+    }
+    if (u32Ret != JF_ERR_NO_ERROR)
+    {
+        return u32Ret;
+    }
+
+    /* Month */
+    u32Ret = JF_ERR_INVALID_DATE;
+    psubStr = ol_strchr(firstChar, sep);
+    if(psubStr != NULL)
+    {
+        u32Ret = JF_ERR_INVALID_DATE;
+        size = (u32)(psubStr - firstChar);
+        firstChar[size] = 0;
+        if (ol_sscanf(firstChar, "%02d", &u32Value) == 1)
+        {
+            if (u32Value <= 12 && u32Value >= 1)
+            {
+                firstChar = psubStr + 1;
+                *pMon = u32Value;
+                u32Ret = JF_ERR_NO_ERROR;
+            }
+        }
+    }
+    if (u32Ret != JF_ERR_NO_ERROR)
+    {
+        return u32Ret;
+    }
+
+    /* Day */
+    u32Ret = JF_ERR_INVALID_DATE;
+    if (ol_sscanf(firstChar, "%02d", &u32Value) == 1)
+    {
+        if (_isDayInRange(*pYear, *pMon, u32Value) == TRUE)
+        {
+            *pDay = u32Value;
+            u32Ret = JF_ERR_NO_ERROR;
+        }
+    }
+
+    return u32Ret;
+}
+
 /* --- public routine section ---------------------------------------------- */
 
 boolean_t jf_date_isLeapYear(olint_t year)
@@ -277,6 +362,32 @@ u32 jf_date_getStringLocalTime(olchar_t * pstrTime, const time_t tTime)
         ol_sprintf(pstrTime, "%s %02d:%02d:%02d", strDate,
             ptmLocal->tm_hour, ptmLocal->tm_min, ptmLocal->tm_sec);
     }
+
+    return u32Ret;
+}
+
+/** Get date from the string with the format year/month/date like 2005/10/20
+ */
+u32 jf_date_getDateFromString(
+    const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay)
+{
+    u32 u32Ret = JF_ERR_INVALID_DATE;
+    olchar_t cSlash = '/';
+
+    u32Ret = _getDateFromString(pstrDate, pYear, pMon, pDay, cSlash);
+
+    return u32Ret;
+}
+
+/** Get date from the string with the format year-month-date like 2005-10-20
+ */
+u32 jf_date_getDate2FromString(
+    const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay)
+{
+    u32 u32Ret = JF_ERR_INVALID_DATE;
+    olchar_t cSlash = '-';
+
+    u32Ret = _getDateFromString(pstrDate, pYear, pMon, pDay, cSlash);
 
     return u32Ret;
 }

@@ -76,6 +76,13 @@ olint_t jf_time_convertTimeToSeconds(olint_t hour, olint_t min, olint_t sec);
 void jf_time_getStringTimePeriod(
     olchar_t * pstrTime, const u32 u32Period);
 
+/** Get the time from the string with the format hour:minute:second like
+ *  15:23:58
+ */
+u32 jf_time_getTimeFromString(
+    const olchar_t * pstrTimeString, olint_t * pHour, olint_t * pMin,
+    olint_t * pSec);
+
 #endif /*JIUTAI_TIME_H*/
 
 /*---------------------------------------------------------------------------*/

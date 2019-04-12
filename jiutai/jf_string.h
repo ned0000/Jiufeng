@@ -423,23 +423,6 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getBinaryFromString(
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSizeFromString(
     const olchar_t * pstrSize, u64 * pu64Size);
 
-/** Get the time from the string with the format hour:minute:second like
- *  15:23:58
- */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getTimeFromString(
-    const olchar_t * pstrTimeString, olint_t * pHour, olint_t * pMin,
-    olint_t * pSec);
-
-/** Get date from the string with the format year/month/date like 2005/10/20
- */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getDateFromString(
-    const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay);
-
-/** Get date from the string with the format year-month-date like 2005-10-20
- */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getDate2FromString(
-    const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay);
-
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getMACAddressFromString(
     const olchar_t * pstrMACString, u8 * pu8Value);
 

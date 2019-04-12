@@ -105,7 +105,7 @@ u32 getNextTradingDate(const olchar_t * pstrCurr, olchar_t * pstrNext)
     olint_t year, month, day;
     olint_t days, dw;
 
-    jf_string_getDate2FromString(pstrCurr, &year, &month, &day);
+    jf_date_getDate2FromString(pstrCurr, &year, &month, &day);
     days = jf_date_convertDateToDaysFrom1970(year, month, day);
     dw = jf_date_getDayOfWeekFromDate(year, month, day);
     if (dw == 5)

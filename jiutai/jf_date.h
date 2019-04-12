@@ -192,6 +192,16 @@ u32 jf_date_getStringLocalTime(olchar_t * pstrTime, const time_t tTime);
  */
 u32 jf_date_getStringUTCTime(olchar_t * pstrTime, const time_t tTime);
 
+/** Get date from the string with the format year/month/date like 2005/10/20
+ */
+u32 jf_date_getDateFromString(
+    const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay);
+
+/** Get date from the string with the format year-month-date like 2005-10-20
+ */
+u32 jf_date_getDate2FromString(
+    const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay);
+
 #endif /*JIUTAI_DATE_H*/
 
 /*---------------------------------------------------------------------------*/

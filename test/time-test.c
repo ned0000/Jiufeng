@@ -39,7 +39,7 @@ static void test5(void)
 
     for (i = 0; i < NUM_OF_TEST5_ENTRY; i ++)
     {
-        jf_string_getTimeFromString(data[i], &hour, &min, &sec);
+        jf_time_getTimeFromString(data[i], &hour, &min, &sec);
         seconds = jf_time_convertTimeToSeconds(hour, min, sec);
         ol_printf("%s, %d secondes\n", data[i], seconds);
     }

@@ -154,6 +154,89 @@ void jf_time_getStringTimePeriod(olchar_t * pstrTime, const u32 u32Period)
     }
 }
 
+/** Get the time from the string with the format hour:minute:second
+ *
+ */
+u32 jf_time_getTimeFromString(
+    const olchar_t * pstrTime, olint_t * pHour, olint_t * pMin, olint_t * pSec)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t * firstChar, * psubStr, cCol = ':';
+    olchar_t strTime[100];
+    u32 u32Value;
+    olsize_t size;
+
+    memset(strTime, 0, sizeof(strTime));
+    ol_strncpy(strTime, pstrTime, sizeof(strTime) - 1);
+    firstChar = strTime;
+
+    /* hour */
+    psubStr = ol_strchr(firstChar, cCol);
+    if(psubStr != NULL)
+    {
+        size = (u32)(psubStr - firstChar);
+        firstChar[size] = 0;
+        if (ol_sscanf(firstChar, "%02d", &u32Value) != 1)
+        {
+            return JF_ERR_INVALID_TIME;
+        }
+        else if (u32Value > 23)
+        {
+            return JF_ERR_INVALID_TIME;
+        }
+        else
+        {
+            firstChar = psubStr + 1;
+            *pHour = u32Value;
+        }
+    }
+    else
+    {
+        return JF_ERR_INVALID_TIME;
+    }
+
+    /* Minute */
+    psubStr = ol_strchr(firstChar, cCol);
+    if(psubStr != NULL)
+    {
+        size = (u32)(psubStr - firstChar);
+        firstChar[size] = 0;
+        if (ol_sscanf(firstChar, "%02d", &u32Value) != 1)
+        {
+            return JF_ERR_INVALID_TIME;
+        }
+        else if (u32Value >= 60)
+        {
+            return JF_ERR_INVALID_TIME;
+        }
+        else
+        {
+            firstChar = psubStr + 1;
+            *pMin = u32Value;
+        }
+    }
+    else
+    {
+        return JF_ERR_INVALID_TIME;
+    }
+
+    /* Second */
+    if (ol_sscanf(firstChar, "%02d", &u32Value) != 1)
+    {
+        return JF_ERR_INVALID_TIME;
+    }
+    else if (u32Value >= 60)
+    {
+        return JF_ERR_INVALID_TIME;
+    }
+    else
+    {
+        *pSec = u32Value;
+    }
+
+    return u32Ret;
+}
+
 /*---------------------------------------------------------------------------*/
 
 
