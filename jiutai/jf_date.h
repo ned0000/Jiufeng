@@ -141,6 +141,57 @@ boolean_t jf_date_isWeekendForDate(olint_t year, olint_t mon, olint_t day);
  */
 void jf_date_getDateToday(olint_t * year, olint_t * mon, olint_t * day);
 
+/** Get the string of date in the format of "<mon> dd, yyyy".
+ *
+ *  @note This function does not check the size of the string buffer. Please make
+ *   sure it is big enough to avoid memory access violation.
+ *
+ *  @param pstrDate [out] the string buffer where the date string will return
+ *  @param u8Month [in] the month of the year
+ *  @param u8Day [in] the day of the month
+ *  @param u16Year [in] the year
+ */
+void jf_date_getStringDate(
+    olchar_t * pstrDate, const olint_t year, const olint_t mon, const olint_t day);
+
+/** Get the string of date in the format of "yyyy-mm-dd"
+ *
+ *  @note This function does not check the size of the string buffer. Please make
+ *   sure it is big enough to avoid memory access violation.
+ *
+ *  @param pstrDate [out] the string buffer where the date string will return
+ *  @param u8Month [in] the month of the year
+ *  @param u8Day [in] the day of the month
+ *  @param u16Year [in] the year
+ */
+void jf_date_getStringDate2(
+    olchar_t * pstrDate, const olint_t year, const olint_t mon, const olint_t day);
+
+/*print date with format yyyy-mm-dd*/
+void jf_date_getStringDate2ForDaysFrom1970(olchar_t * pstrDate, const olint_t nDays);
+
+/** Get the string of time in the format of "hh:mm:ss <month> <day>, <year>".
+ *  The time is local time
+ *
+ *  @note This function does not check the size of the string buffer. Please make
+ *   sure it is big enough to avoid memory access violation.
+ *
+ *  @param pstrDate [out] the string buffer where the date string will return
+ *  @param tTime [in] the time
+ */
+u32 jf_date_getStringLocalTime(olchar_t * pstrTime, const time_t tTime);
+
+/** Get the string of time in the format of "hh:mm:ss <month> <day>, <year>".
+ *  the time is UTC time
+ *
+ *  @note This function does not check the size of the string buffer. Please make
+ *   sure it is big enough to avoid memory access violation.
+ *
+ *  @param pstrDate [out] the string buffer where the date string will return
+ *  @param tTime [in] the time
+ */
+u32 jf_date_getStringUTCTime(olchar_t * pstrTime, const time_t tTime);
+
 #endif /*JIUTAI_DATE_H*/
 
 /*---------------------------------------------------------------------------*/

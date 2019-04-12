@@ -109,6 +109,51 @@ olint_t jf_time_convertTimeToSeconds(olint_t hour, olint_t min, olint_t sec)
     return hour * 3600 + min * 60 + sec;
 }
 
+void jf_time_getStringTimePeriod(olchar_t * pstrTime, const u32 u32Period)
+{
+    u32 u32Temp, u32Seconds, u32Minutes, u32Hours;
+    olchar_t strTemp[16];
+
+    if (u32Period == 0)
+    {
+        ol_sprintf(pstrTime, "0 sec");
+    }
+    else
+    {
+        u32Hours = u32Period / 3600;
+        u32Temp = u32Period % 3600;
+
+        u32Minutes = u32Temp / 60;
+        u32Seconds = u32Temp % 60;
+
+        pstrTime[0] = 0;
+        if (u32Hours > 0)
+        {
+            ol_sprintf(pstrTime, "%d hr", u32Hours);
+        }
+
+        if (u32Minutes > 0)
+        {
+            ol_sprintf(strTemp, "%d min", u32Minutes);
+            if (ol_strlen(pstrTime) > 0)
+            {
+                ol_strcat(pstrTime, " ");
+            }
+            ol_strcat(pstrTime, strTemp);
+        }
+
+        if (u32Seconds > 0)
+        {
+            ol_sprintf(strTemp, "%d sec", u32Seconds);
+            if (ol_strlen(pstrTime) > 0)
+            {
+                ol_strcat(pstrTime, " ");
+            }
+            ol_strcat(pstrTime, strTemp);
+        }
+    }
+}
+
 /*---------------------------------------------------------------------------*/
 
 

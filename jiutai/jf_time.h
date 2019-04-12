@@ -65,6 +65,17 @@ u32 jf_time_nsleep(u32 u32Nanoseconds);
  */
 olint_t jf_time_convertTimeToSeconds(olint_t hour, olint_t min, olint_t sec);
 
+/** Get the string of time period in the format of "[# hr] [# min] [# sec]"
+ *
+ *  @note This function does not check the size of the string buffer. Please make
+ *   sure it is big enough to avoid memory access violation.
+ *
+ *  @param pstrTime [out] the string buffer where the period string will return
+ *  @param u32Period [in] the time
+ */
+void jf_time_getStringTimePeriod(
+    olchar_t * pstrTime, const u32 u32Period);
+
 #endif /*JIUTAI_TIME_H*/
 
 /*---------------------------------------------------------------------------*/

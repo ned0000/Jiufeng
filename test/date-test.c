@@ -111,17 +111,17 @@ u32 getNextTradingDate(const olchar_t * pstrCurr, olchar_t * pstrNext)
     if (dw == 5)
     {
         jf_date_convertDaysFrom1970ToDate(days + 3, &year, &month, &day);
-        jf_string_getStringDate2(pstrNext, year, month, day);
+        jf_date_getStringDate2(pstrNext, year, month, day);
     }
     else if (dw == 6)
     {
         jf_date_convertDaysFrom1970ToDate(days + 2, &year, &month, &day);
-        jf_string_getStringDate2(pstrNext, year, month, day);
+        jf_date_getStringDate2(pstrNext, year, month, day);
     }
     else
     {
         jf_date_convertDaysFrom1970ToDate(days + 1, &year, &month, &day);
-        jf_string_getStringDate2(pstrNext, year, month, day);
+        jf_date_getStringDate2(pstrNext, year, month, day);
     }
 
     return u32Ret;
