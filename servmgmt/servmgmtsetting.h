@@ -13,18 +13,18 @@
 #ifndef SERVMGMT_SETTING_H
 #define SERVMGMT_SETTING_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_process.h"
 #include "jf_limit.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 #define MAX_SERVICE_CMD_PARAM_LEN    (512)
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef struct
 {
     olchar_t isi_strName[JF_SERVMGMT_MAX_SERV_NAME_LEN];
@@ -57,7 +57,7 @@ typedef struct
     u8 isms_u8Reserved2[16];
 } internal_serv_mgmt_setting_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 u32 readServMgmtSetting(
     internal_serv_mgmt_setting_t * pisms);
 
@@ -70,6 +70,6 @@ u32 modifyServiceStartupType(
 
 #endif /*SERVMGMT_SETTING_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

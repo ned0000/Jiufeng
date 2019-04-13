@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,17 +18,17 @@
 #endif
 #include <libxml/tree.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_servmgmt.h"
 
 #include "servmgmtsetting.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 
-/* --- private funciton routines ------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static void _parseServiceSettingValue(
     const olchar_t * pstrTag, const olchar_t * pstrValue,
@@ -118,7 +118,7 @@ static u32 _servmgmtXmlNewChild(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 readServMgmtSetting(internal_serv_mgmt_setting_t * pisms)
 {
@@ -363,6 +363,6 @@ u32 writeServMgmtSetting(
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
