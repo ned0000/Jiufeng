@@ -9,13 +9,13 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_mutex.h"
@@ -28,7 +28,7 @@
 #include "jf_hashtree.h"
 #include "jf_queue.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 /** Keep a table of all the connections. This is the maximum number allowed
  *  to be idle. Since we have in the constructor a pool size, this feature may
  *  be depracted. ToDo: Look into depracating this
@@ -164,7 +164,7 @@ typedef struct internal_web_dataobject
 
 } internal_web_dataobject_t;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static olint_t _getStringHashKey(olchar_t * key, jf_ipaddr_t * addr, u16 port)
 {
@@ -1278,7 +1278,7 @@ static u32 _internalWebclientOnResponse(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_webclient_destroy(jf_webclient_t ** ppWebclient)
 {
@@ -1569,6 +1569,6 @@ u32 jf_webclient_resumeDataobject(jf_webclient_dataobject_t * pDataobject)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
