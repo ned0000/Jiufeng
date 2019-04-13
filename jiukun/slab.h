@@ -12,23 +12,23 @@
 #ifndef JIUKUN_SLAB_H
 #define JIUKUN_SLAB_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "buddy.h"
 #include "jf_jiukun.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef struct
 {
     u8 sp_u8Reserved[16];
 } slab_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 u32 initJiukunSlab(slab_param_t * pbp);
 
 u32 finiJiukunSlab(void);
@@ -43,6 +43,6 @@ u32 reapJiukunSlab(boolean_t bNoWait);
 
 #endif /*JIUKUN_SLAB_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

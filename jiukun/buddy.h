@@ -13,17 +13,17 @@
 #ifndef JIUKUN_BUDDY_H
 #define JIUKUN_BUDDY_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_listhead.h"
 #include "jf_err.h"
 #include "jf_jiukun.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 #define BUDDY_PAGE_SIZE      (JF_JIUKUN_PAGE_SIZE)
 
@@ -77,7 +77,7 @@ typedef struct
     u8 bp_u8Reserved[6];
 } buddy_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 u32 initJiukunBuddy(buddy_param_t * pbp);
 
 u32 finiJiukunBuddy(void);
@@ -97,6 +97,6 @@ jiukun_page_t * addrToJiukunPage(void * pAddr);
 
 #endif /*JIUKUN_BUDDY_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

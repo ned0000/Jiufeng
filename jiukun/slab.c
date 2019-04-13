@@ -9,13 +9,13 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <limits.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "slab.h"
@@ -23,7 +23,7 @@
 #include "jf_mutex.h"
 #include "common.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 /** Maximum size of an obj (in 2^order pages) and absolute limit for the page
  *  order. The size should be more than the maximum size of general cache.
@@ -216,7 +216,7 @@ typedef struct internal_jiukun_slab
 
 static internal_jiukun_slab_t ls_iasSlab;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 #if defined(DEBUG_JIUKUN)
 void _dumpSlabCache(slab_cache_t * pCache)
 {
@@ -1070,7 +1070,7 @@ static olint_t _shrinkSlabCache(
     return ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 initJiukunSlab(slab_param_t * psp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -1330,6 +1330,6 @@ u32 jf_jiukun_copyMemory(void ** pptr, u8 * pu8Buffer, olsize_t size)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

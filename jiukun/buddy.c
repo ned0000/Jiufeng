@@ -9,12 +9,12 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_listhead.h"
@@ -26,7 +26,7 @@
 #include "common.h"
 #include "buddy.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 typedef struct free_area
 {
@@ -69,7 +69,7 @@ typedef struct
 
 static internal_jiukun_buddy_t ls_ijbBuddy;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static inline void _setPageOrder(jiukun_page_t * page, olint_t order)
 {
@@ -400,7 +400,7 @@ static inline u32 _u32Log2(u32 x)
     return r;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 initJiukunBuddy(buddy_param_t * pbp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -607,6 +607,6 @@ void dumpJiukunBuddy(void)
 }
 #endif
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

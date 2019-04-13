@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_jiukun.h"
@@ -21,7 +21,7 @@
 #include "slab.h"
 #include "common.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 static u32 ls_u32OrderPrimes[] = {
     1, 3, 7, 15, 31,
@@ -48,9 +48,9 @@ static internal_jiukun_t ls_iaJiukun;
  */
 #define MIN_JIUKUN_POOL_SIZE  (1UL << 20)
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_jiukun_init(jf_jiukun_init_param_t * pjjip)
 {
@@ -136,6 +136,6 @@ void jf_jiukun_dump(void)
 }
 #endif
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
