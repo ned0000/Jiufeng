@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_archive.h"
@@ -25,9 +25,9 @@
 
 #include "archivecommon.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _alignData(ar_file_t * paf, jf_file_stat_t * pFilestat, u8 * pu8Buffer)
 {
@@ -426,7 +426,7 @@ static u32 _handleMemberFile(const olchar_t * pstrFullpath, jf_file_stat_t * pFi
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 writeToArchive(
     ar_file_t * pafArchive, const olchar_t * pstrFullpath,
     u8 * pu8Buffer, olsize_t sBuf, jf_archive_create_param_t * pParam)
@@ -464,6 +464,6 @@ u32 writeToArchive(
     return u32Ret;
 } 
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

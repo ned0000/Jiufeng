@@ -9,11 +9,11 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -22,7 +22,7 @@
 
 #include "arfile.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 #define IAF_BUF_LEN  65536
 
 typedef struct
@@ -36,7 +36,7 @@ typedef struct
     olsize_t iaf_sTotalLen;
 } internal_ar_file_t;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _flushArBuffer(internal_ar_file_t * piaf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -71,7 +71,7 @@ static u32 _fillArBuffer(internal_ar_file_t * piaf)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 createArFile(
     olchar_t * pstrArchiveName, ar_file_param_t * pafp, ar_file_t ** ppaf)
 {
@@ -252,6 +252,6 @@ boolean_t isEndOfArFile(ar_file_t * paf)
     return bRet;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

@@ -12,15 +12,15 @@
 #ifndef ARCHIVE_COMMON_H
 #define ARCHIVE_COMMON_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "arfile.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 /* values for ah_u8Type field */
 #define AH_TYPE_REGULAR   0x30    /* regular file */
 #define AH_TYPE_HARD_LINK 0x31    /* hard link */
@@ -116,11 +116,11 @@ typedef struct
 #define ARCHIVE_ALIGH_SIZE(size) \
     (((size - 1) & (~(ARCHIVE_BLOCK_SIZE - 1))) + ARCHIVE_BLOCK_SIZE)
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 
 #endif /*ARCHIVE_COMMON_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

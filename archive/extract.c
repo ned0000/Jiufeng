@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -24,9 +24,9 @@
 
 #include "archivecommon.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 /* expect the u32Size, otherwise error */
 static u32 _readDataForArchive(
     ar_file_t * pafArchive, u8 * pu8Buffer, olsize_t u32Size)
@@ -323,7 +323,7 @@ static u32 _extractMemberFile(archive_header_t * pah, file_handler_t * pfh)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 extractFromArchive(
     ar_file_t * pafArchive, u8 * pu8Buffer, olsize_t sBuf,
     jf_archive_extract_param_t * pParam)
@@ -365,6 +365,6 @@ u32 extractFromArchive(
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

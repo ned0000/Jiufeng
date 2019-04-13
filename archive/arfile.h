@@ -12,14 +12,14 @@
 #ifndef ARCHIVE_ARFILE_H
 #define ARCHIVE_ARFILE_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef void ar_file_t;
 
 typedef struct
@@ -29,7 +29,7 @@ typedef struct
     u32 afp_u32Reserved1[4];
 } ar_file_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 u32 createArFile(olchar_t * pstrArchiveName, ar_file_param_t * pafp,
     ar_file_t ** ppaf);
 
@@ -45,6 +45,6 @@ u32 seekArFile(ar_file_t * paf, long offset, olint_t whence);
 
 #endif /*ARCHIVE_ARFILE_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
