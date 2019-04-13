@@ -9,12 +9,12 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -23,7 +23,7 @@
 #include "jf_mem.h"
 #include "jf_string.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 typedef struct send_data
 {
     u8 * sd_pu8Buffer;
@@ -92,7 +92,7 @@ typedef struct
     jf_network_fnAsocketOnSendOK_t ia_fnOnSendOK;
 } internal_asocket_t;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _asRecvn(jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv)
 {
@@ -609,7 +609,7 @@ static u32 _asTrySendData(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_network_destroyAsocket(jf_network_asocket_t ** ppAsocket)
 {
@@ -1026,6 +1026,6 @@ void jf_network_setTagOfAsocket(jf_network_asocket_t * pAsocket, void * pTag)
     pia->ia_pTag = pTag;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

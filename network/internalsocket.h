@@ -12,16 +12,16 @@
 #ifndef NETWORK_INTERNALSOCKET_H
 #define NETWORK_INTERNALSOCKET_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_network.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 #if defined(LINUX)
     typedef olint_t isocket_t;
@@ -40,7 +40,7 @@ typedef struct
     void * is_pPrivate;
 } internal_socket_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 u32 newIsocket(internal_socket_t ** ppIsocket);
 
 u32 newIsocketWithSocket(internal_socket_t ** ppIsocket, isocket_t sock);
@@ -185,6 +185,6 @@ u32 WSAIoctlIsocket(
 
 #endif /*NETWORK_INTERNALSOCKET_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -32,14 +32,14 @@
     #include <Ws2tcpip.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "internalsocket.h"
 #include "jf_mem.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 /** The minimal port number from that the allocation will be
  */
 #define  NET_MIN_PORT_NUMBER          (50000)
@@ -48,9 +48,9 @@
  */
 #define  NET_PORT_NUMBER_RANGE        (15000)
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 newIsocket(internal_socket_t ** ppIsocket)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -1102,6 +1102,6 @@ u32 isSetSockOpt(
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

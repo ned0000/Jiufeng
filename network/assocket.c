@@ -9,12 +9,12 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -23,7 +23,7 @@
 #include "jf_mem.h"
 #include "jf_listarray.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 struct internal_assocket;
 
 typedef struct assocket_data
@@ -63,7 +63,7 @@ typedef struct internal_assocket
 
 #define ASS_MAX_CONNECTIONS   4000
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 /** preselect handler for basic chain
  */
@@ -280,7 +280,7 @@ static u32 _assOnSendOK(jf_network_asocket_t * pAsocket, void * pUser)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_network_destroyAssocket(jf_network_assocket_t ** ppAssocket)
 {
@@ -597,6 +597,6 @@ u32 jf_network_sendnAssocket(
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

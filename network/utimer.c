@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_time.h"
@@ -21,7 +21,7 @@
 #include "jf_mutex.h"
 #include "jf_mem.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 typedef struct utimer_item
 {
     u32 ui_u32Expire;
@@ -40,7 +40,7 @@ typedef struct utimer
     jf_mutex_t iu_jmLock;
 } internal_utimer_t;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 /** Checks the utimer item.
  *
@@ -176,7 +176,7 @@ static u32 _flushUtimer(internal_utimer_t * piu)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_network_addUtimerItem(
     jf_network_utimer_t * pUtimer, void * pData, u32 u32Seconds,
@@ -397,5 +397,5 @@ u32 jf_network_createUtimer(
     return u32Ret;
 }
 
-/*-----------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

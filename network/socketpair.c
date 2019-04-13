@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
@@ -19,15 +19,15 @@
     #include <winsock2.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_network.h"
 #include "internalsocket.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 #if defined(LINUX)
 static u32 _createUnixSocketPair(olint_t type, jf_network_socket_t * psPair[2])
 {
@@ -103,7 +103,7 @@ static u32 _createInetSocketPair(olint_t domain, olint_t type, jf_network_socket
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_network_createSocketPair(
     olint_t domain, olint_t type, jf_network_socket_t * psPair[2])
@@ -156,6 +156,6 @@ u32 jf_network_destroySocketPair(jf_network_socket_t * psPair[2])
 }
 
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

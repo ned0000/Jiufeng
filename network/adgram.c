@@ -9,12 +9,12 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -22,7 +22,7 @@
 #include "jf_mutex.h"
 #include "jf_mem.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 typedef struct send_data
 {
     u8 * sd_pu8Buffer;
@@ -76,7 +76,7 @@ typedef struct
     jf_mutex_t ia_jmLock;
 } internal_adgram_t;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _adRecvfrom(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
     jf_ipaddr_t * pjiRemote, u16 * pu16Port)
@@ -406,7 +406,7 @@ static u32 _adTrySendData(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_network_destroyAdgram(jf_network_adgram_t ** ppAdgram)
 {
@@ -702,6 +702,6 @@ u32 jf_network_enableBroadcastOfAdgram(jf_network_adgram_t * pAdgram)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

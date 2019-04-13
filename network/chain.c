@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_mem.h"
@@ -25,7 +25,7 @@
     #include "signal.h"   
 #endif
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 /** Maximum wait time in second, 24 hours
  */
@@ -48,7 +48,7 @@ typedef struct internal_basic_chain
 } internal_basic_chain_t;
 
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _readWakeupSocket(internal_basic_chain_t * pibc)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -77,7 +77,7 @@ static u32 _readWakeupSocket(internal_basic_chain_t * pibc)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_network_createChain(jf_network_chain_t ** ppChain)
 {
@@ -307,6 +307,6 @@ u32 jf_network_wakeupChain(jf_network_chain_t * pChain)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

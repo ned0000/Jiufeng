@@ -9,7 +9,7 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -30,20 +30,20 @@
     #include <Ws2tcpip.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_network.h"
 #include "jf_mem.h"
 #include "internalsocket.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_network_createDgramSocket(
     jf_ipaddr_t * pjiLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket)
@@ -488,5 +488,5 @@ u32 jf_network_setSocketOpt(
     return isSetSockOpt(pis, level, optname, optval, optlen);
 }
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
