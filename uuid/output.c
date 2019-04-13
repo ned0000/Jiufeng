@@ -9,11 +9,11 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -21,9 +21,9 @@
 #include "common.h"
 //#include "bignum.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _writeUuidBin(uuid_obj_t * puo, olchar_t * pstrUuid, olsize_t sUuid)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -118,7 +118,7 @@ static u32 _writeUuidSiv(uuid_obj_t * puo, olchar_t * pstrUuid, olsize_t sUuid)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 outputUuid(
     uuid_obj_t * puo, jf_uuid_fmt_t fmt, olchar_t * pstrUuid, olsize_t sUuid)
 {
@@ -144,6 +144,6 @@ u32 outputUuid(
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

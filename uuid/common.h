@@ -13,13 +13,13 @@
 #ifndef UUID_COMMON_H
 #define UUID_COMMON_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_ifmgmt.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 
 typedef s8   uuid_int8_t;
@@ -29,7 +29,7 @@ typedef u16  uuid_uint16_t;
 typedef s32  uuid_int32_t;
 typedef u32  uuid_uint32_t;
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 /** UUID binary representation according to UUID standards
  */
@@ -49,11 +49,11 @@ typedef struct
     uuid_uint8_t uo_u8Node[JF_LIMIT_MAC_LEN];
 } uuid_obj_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 
 #endif /*UUID_COMMON_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

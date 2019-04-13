@@ -9,14 +9,14 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #if defined(LINUX)
     #include <sys/time.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_uuid.h"
@@ -29,7 +29,7 @@
 #include "output.h"
 #include "common.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 /** maximum number of 100ns ticks of the actual resolution of system clock
  *  which in our case is 1us (= 1000ns) because we use getTimeOfDay
@@ -87,7 +87,7 @@ typedef struct
  */
 static uuid_gen_t ls_ugUuidGen;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 /* brand UUID with version and variant */
 static void _brandUuid(uuid_gen_t * pug, jf_uuid_ver_t version)
@@ -459,7 +459,7 @@ static u32 _genUuid(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_uuid_get(
     u8 * pu8Uuid, u32 u32Len, jf_uuid_ver_t version, jf_uuid_param_t * pjup)
@@ -473,6 +473,6 @@ u32 jf_uuid_get(
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
