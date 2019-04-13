@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdlib.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_persistency.h"
@@ -21,13 +21,13 @@
 #include "sqlitepersistency.h"
 #include "jf_mem.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 
-/* --- private routine section --------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 u32 jf_persistency_create(
     jf_persistency_type_t type, jf_persistency_config_t * ppc,
@@ -159,7 +159,7 @@ u32 jf_persistency_rollbackTransaction(jf_persistency_t * pPersist)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
 

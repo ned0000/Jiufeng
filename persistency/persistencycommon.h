@@ -12,17 +12,17 @@
 #ifndef PERSISTENCY_COMMON_H
 #define PERSISTENCY_COMMON_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_persistency.h"
 #include "jf_sqlite.h"
 #include "jf_mutex.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 struct persistency_manager;
 
 typedef u32 (* fnFiniPersistency_t)(struct persistency_manager * pMananger);
@@ -67,11 +67,11 @@ typedef struct persistency_manager
     jf_mutex_t pm_jmLock;
 } persistency_manager_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 
 #endif /*PERSISTENCY_COMMON_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
