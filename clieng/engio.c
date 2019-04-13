@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -19,14 +19,15 @@
     #include <sys/ioctl.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_logger.h"
 #include "engio.h"
 #include "jf_hex.h"
 
-/* --- private data structures --------------------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
+
 const static olchar_t * cls_pstrCaptionDelimit = ": ";
 
 const static olchar_t * cls_pstrByteHexDumpBegin = "Begin Hex Dump in Byte";
@@ -81,7 +82,8 @@ static olchar_t str_backspace[] = {27, '[', 'D', ' ', 27, '[', 'D'};
 
 static internal_clieng_io_t ls_iciCliengIo;
 
-/* --- private funciton routines ------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
+
 #ifndef WINDOWS
 u32 _getMaxMoreLines()
 {
@@ -692,7 +694,7 @@ static u32 _checkCaption(const jf_clieng_caption_t * pjcc, u32 u32Count)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 initCliengIo(clieng_io_param_t * pcip)
 {
@@ -1569,6 +1571,6 @@ void jf_clieng_appendBriefColumn(
     ol_strcat(pstrLine, getDelimit(u32Len, pjcc->jcc_u32Len));
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

@@ -12,17 +12,17 @@
 #ifndef CLIENG_CMDPARSER_H
 #define CLIENG_CMDPARSER_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_logger.h"
 #include "engio.h"
 #include "jf_clieng.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef void  clieng_parser_t;
 
@@ -33,7 +33,7 @@ typedef struct
     void * cpp_pMaster;
 } clieng_parser_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** Create the CLI Parser.
  *
@@ -67,6 +67,6 @@ u32 newCmd(
 
 #endif /*CLIENG_CMDPARSER_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

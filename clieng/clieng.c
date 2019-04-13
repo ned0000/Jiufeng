@@ -9,14 +9,14 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <signal.h>
 #include <stdarg.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_clieng.h"
@@ -24,7 +24,7 @@
 #include "cmdhistory.h"
 #include "cmdparser.h"
 
-/* --- private data structures --------------------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 #define DEFAULT_PROMPT         "cli> "
 #define MAX_PROMPT_LEN         (24)
@@ -54,7 +54,7 @@ typedef struct
 static olint_t ls_nTerminationSignal = -1;
 static internal_clieng_t ls_icClieng;
 
-/* --- private funciton routines ------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _createCmdHistory(
     internal_clieng_t * pic, jf_clieng_init_param_t * pjcip)
@@ -260,7 +260,7 @@ static u32 _processScriptCmd(internal_clieng_t * pic, olchar_t * pstrInput)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_clieng_clearCommandHistory(void)
 {
@@ -433,5 +433,5 @@ u32 jf_clieng_setPrompt(const olchar_t * pstrPrompt)
 }
 
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

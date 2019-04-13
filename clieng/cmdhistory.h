@@ -12,14 +12,14 @@
 #ifndef CLIENG_CMDHISTORY_H
 #define CLIENG_CMDHISTORY_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef void clieng_cmd_history_t;
 
@@ -31,7 +31,7 @@ typedef struct
 	olsize_t cchp_sCmdHistroyBuf;
 } clieng_cmd_history_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** Create the CLI command history buffer
  *
@@ -93,7 +93,7 @@ u32 getNextCommand(
 
 #endif /*CLIENG_CMDHISTORY_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
 

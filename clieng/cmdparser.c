@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -22,7 +22,7 @@
     #include <signal.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_logger.h"
@@ -37,7 +37,7 @@
     #include "getopt.h"
 #endif
 
-/* --- private data structures --------------------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 #define MAX_ARGC           (JF_CLIENG_MAX_COMMAND_LINE_SIZE / 4)
 
@@ -75,7 +75,7 @@ typedef struct
     jf_hashtable_t * icp_jhCmd;
 } internal_clieng_parser_t;
 
-/* --- private funciton routines ------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _printError(internal_clieng_parser_t * picp, const u32 u32ErrorCode)
 {
@@ -310,7 +310,7 @@ static void * _getKeyFromCmd(void * pCmd)
     return picc->icc_strName;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 createParser(clieng_parser_t ** pcp, clieng_parser_param_t * pcpp)
 {
@@ -469,6 +469,6 @@ u32 newCmd(
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

@@ -9,18 +9,19 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "cmdhistory.h"
 #include "jf_mem.h"
 
-/* --- private data structures --------------------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
+
 #define INVALID_CMD_INDEX    (0xffffffff)
 
 typedef struct
@@ -35,9 +36,9 @@ typedef struct
 	olchar_t  icch_strCommands[4];
 } internal_clieng_cmd_history_t;
 
-/* --- private funciton routines ------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 createCommandHistory(
     clieng_cmd_history_t ** ppcch, clieng_cmd_history_param_t * pcchp)
@@ -232,6 +233,6 @@ u32 getNextCommand(
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

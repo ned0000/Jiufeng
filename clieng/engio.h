@@ -12,19 +12,19 @@
 #ifndef CLIENG_IO_H
 #define CLIENG_IO_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdarg.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_clieng.h"
 #include "jf_string.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 #define MAX_OUTPUT_BUFFER_LEN    (512) 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef enum
 {
@@ -104,7 +104,7 @@ typedef struct
     u32 cip_u32Reserved[4];
 } clieng_io_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** Create the CLI input and output module.
  *
@@ -198,6 +198,6 @@ u32 getInputKey(clieng_io_key_t * pcikKey, olchar_t * pstrKey);
 
 #endif /*CLIENG_IO_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
