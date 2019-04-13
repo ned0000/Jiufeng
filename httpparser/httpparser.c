@@ -9,12 +9,12 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_httpparser.h"
@@ -22,9 +22,9 @@
 #include "jf_mem.h"
 #include "jf_string.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _parseHttpStartLine(
     jf_httpparser_packet_header_t * retval, jf_string_parse_result_field_t * field)
@@ -217,7 +217,7 @@ static u32 _parseHttpHeaderLine(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_httpparser_destroyPacketHeader(jf_httpparser_packet_header_t ** ppHeader)
 {
@@ -896,5 +896,5 @@ u32 jf_httpparser_getHeaderLine(
     return JF_ERR_NOT_FOUND;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
