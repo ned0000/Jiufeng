@@ -12,18 +12,18 @@
 #ifndef CLI_CLICMD_H
 #define CLI_CLICMD_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_clieng.h"
 #include "main.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 #define CLI_ACTION_UNKNOWN    0
 #define CLI_ACTION_SHOW_HELP  1
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef struct
 {
 #define CLI_ACTION_ADD_USER  0x80
@@ -53,12 +53,12 @@ typedef union
     cli_user_param_t cp_cupUser;
 } cli_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 u32 addCmd(jiufeng_cli_master_t * pocm, cli_param_t * pcp);
 
 #endif /*CLI_CLICMD_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

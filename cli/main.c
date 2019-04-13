@@ -9,7 +9,7 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
@@ -23,7 +23,7 @@
     #include <sys/ioctl.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -32,14 +32,14 @@
 #include "main.h"
 #include "jf_mem.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 jiufeng_cli_master_t * ls_pocmMaster = NULL;
 
 static const olchar_t * ls_pstrProgramName = "olcli";
 static const olchar_t * ls_pstrVersion = "1.0.0";
 static const olchar_t * ls_pstrBuildData = "2/30/2018";
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static void _printUsage(void)
 {
     ol_printf("\
@@ -117,7 +117,7 @@ static u32 _printShellGreeting(void * pMaster)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
@@ -170,5 +170,5 @@ olint_t main(olint_t argc, olchar_t ** argv)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
