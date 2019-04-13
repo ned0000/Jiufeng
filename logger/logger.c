@@ -9,7 +9,7 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
@@ -25,7 +25,7 @@
     #include <unistd.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h" 
 #include "jf_err.h"
 #include "jf_logger.h"
@@ -35,7 +35,7 @@
 #include "jf_thread.h"
 #include "common.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 #define IL_LOG_MASK_NONE     0x0
 #define IL_LOG_MASK_STDOUT   0x01
 #define IL_LOG_MASK_SYSLOG   0x02
@@ -77,7 +77,7 @@ typedef struct
 
 static internal_logger_t ls_ilLogger;
 
-/* --- private routine section ------------------------------------------------ */
+/* --- private routine section ------------------------------------------------------------------ */
 /** Get max lines of the log file according to the file size.
  *
  *  @param u32Size [in] the file size
@@ -306,7 +306,7 @@ static u32 _logErrMsg(internal_logger_t * pil, u32 u32ErrCode,
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_logger_init(jf_logger_init_param_t * pParam)
 {
@@ -587,6 +587,6 @@ u32 jf_logger_logDataMsgWithAscii(
     return u32Ret;    
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

@@ -9,17 +9,17 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_err.h"
 #include "common.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 #define ERR_MSG_FORMAT      "ERR - (0x%X) %s"
 #define SYS_ERR_MSG_FORMAT  "ERR - (0x%X) %s\n      %d, %s"
 
@@ -220,7 +220,7 @@ static u32 ls_u32NumberOfErrorCodes = sizeof(ls_iecdErrorCodeDesc) / \
 static internal_error_code_desc_t \
     ls_iecdVendorSpecErrorCodeDesc[JF_ERR_MAX_VENDOR_SPEC_ERROR];
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static void _getSysErrMsg(u32 u32Ret, olchar_t * pstrBuf, olsize_t sBuf)
 {
     olchar_t strMsg[128 + 1];
@@ -262,7 +262,7 @@ void _getErrMsg(u32 u32Ret, olchar_t * pstrBuf, olsize_t sBuf)
 #endif
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 olchar_t * jf_err_getDescription(u32 u32ErrCode)
 {
     olchar_t * pstrDesc = ls_iecdErrorCodeDesc[1].iecd_pstrDesc;
@@ -359,6 +359,6 @@ void checkErrCode(void)
 }
 #endif
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
