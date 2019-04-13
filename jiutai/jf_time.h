@@ -12,21 +12,21 @@
 #ifndef JIUTAI_TIME_H
 #define JIUTAI_TIME_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 #if defined(LINUX)
     #define INFINITE  0xFFFFFFFF
 #elif defined(WINDOWS)
 
 #endif
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 #if defined(WINDOWS)
 u32 jf_time_fileTimeToSecondsSince1970(FILETIME * pTime);
 #endif
@@ -85,6 +85,6 @@ u32 jf_time_getTimeFromString(
 
 #endif /*JIUTAI_TIME_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

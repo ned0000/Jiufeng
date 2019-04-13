@@ -15,20 +15,20 @@
 #ifndef JIUTAI_SHAREDMEMORY_H
 #define JIUTAI_SHAREDMEMORY_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 /*the shared memory identifier is a string with NULL-terminated*/
 typedef olchar_t  jf_sharedmemory_id_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 u32 jf_sharedmemory_create(jf_sharedmemory_id_t ** ppShmId, u32 u32MemorySize);
 
@@ -40,6 +40,6 @@ u32 jf_sharedmemory_destroy(jf_sharedmemory_id_t ** ppShmId);
 
 #endif /*JIUTAI_SHAREDMEMORY_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

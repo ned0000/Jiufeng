@@ -12,16 +12,16 @@
 #ifndef JIUTAI_LISTHEAD_H
 #define JIUTAI_LISTHEAD_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stddef.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 /*list head*/
 typedef struct jf_listhead
@@ -30,7 +30,7 @@ typedef struct jf_listhead
     struct jf_listhead * jl_pjlPrev;
 } jf_listhead_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** list head
  */
@@ -329,5 +329,5 @@ static inline void jf_listhead_split(
 
 #endif /*JIUTAI_LISTHEAD_H*/
 
-/*-----------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

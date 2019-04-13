@@ -15,12 +15,12 @@
 #ifndef JIUTAI_THREAD_H
 #define JIUTAI_THREAD_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 #if defined(LINUX)
     #define jf_thread_getCurrentId()   pthread_self()
 #elif defined(WINDOWS)
@@ -29,7 +29,7 @@
     #define sleep(seconds)  Sleep(seconds * 1000)
 #endif
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct
 {
@@ -64,7 +64,7 @@ typedef struct
 
 typedef void (* jf_process_fnSignalHandler_t)(olint_t signal);
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 void jf_thread_initId(jf_thread_id_t * pThreadId);
 
@@ -81,6 +81,6 @@ u32 jf_thread_waitForThreadTermination(jf_thread_id_t threadId, u32 * pu32RetCod
 
 #endif /*JIUTAI_THREAD_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

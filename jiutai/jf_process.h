@@ -15,12 +15,12 @@
 #ifndef JIUTAI_PROCESS_H
 #define JIUTAI_PROCESS_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 #if defined(LINUX)
     #define jf_process_getCurrentId()  getpid()
 #elif defined(WINDOWS)
@@ -29,7 +29,7 @@
     #define sleep(seconds)  Sleep(seconds * 1000)
 #endif
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef struct
 {
     u8 jpa_u8Reserved[32];
@@ -46,7 +46,7 @@ typedef struct
 
 typedef void (* jf_process_fnSignalHandler_t)(olint_t signal);
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 void jf_process_getPidFilename(
     olchar_t * pstrPidFilename, olsize_t sFile, olchar_t * pstrDaemonName);
@@ -98,6 +98,6 @@ u32 jf_process_finiSocket(void);
 
 #endif /*JIUTAI_PROCESS_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

@@ -19,13 +19,13 @@
 #ifndef JIUFENG_ERR_H
 #define JIUFENG_ERR_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_logger.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 /* Sys error code */
 #define JF_ERR_CODE_FLAG_SYSTEM       (0x800000)
@@ -504,7 +504,7 @@
    tune this value if more error codes are required*/
 #define JF_ERR_MAX_VENDOR_SPEC_ERROR    (200)
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** Get the description of the specified error code.
  *
@@ -523,7 +523,7 @@ LOGGERAPI u32 LOGGERCALL jf_err_addCode(u32 u32Err, olchar_t * pstrDesc);
 
 #endif /*JIUFENG_ERR_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
 

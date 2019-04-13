@@ -9,18 +9,18 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_rwlock.h"
 #include "jf_err.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 #if defined(WINDOWS)
 static u32 _acquireSyncReadlock(jf_rwlock_t * pRwlock, u32 u32Timeout)
 {
@@ -147,7 +147,7 @@ static u32 _acquireSyncWritelock(jf_rwlock_t * pRwlock, u32 u32Timeout)
 
 #endif
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_rwlock_init(jf_rwlock_t * pRwlock)
 {
@@ -460,6 +460,6 @@ u32 jf_rwlock_releaseWritelock(jf_rwlock_t * pRwlock)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

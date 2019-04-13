@@ -12,9 +12,9 @@
 #ifndef JIUFENG_WEBCLIENT_H
 #define JIUFENG_WEBCLIENT_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_httpparser.h"
 
@@ -34,7 +34,7 @@
     #define WEBCLIENTCALL
 #endif
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 typedef void  jf_webclient_t;
 
 /** The possible value for nEvent in function jf_webclient_fnOnResponse_t
@@ -46,7 +46,7 @@ enum jf_webclient_event
     JF_WEBCLIENT_EVENT_WEB_REQUEST_DELETED,
 } jf_webclient_event_t;
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef struct
 {
     olint_t jwcp_nPoolSize;
@@ -57,7 +57,7 @@ typedef u32 (* jf_webclient_fnOnResponse_t)(
     jf_network_asocket_t * pAsocket, olint_t nEvent,
     jf_httpparser_packet_header_t * header, void * pUser, boolean_t * pbPause);
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** Create a new webclient
  *
@@ -137,6 +137,6 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_destroy(
 
 #endif /*JIUFENG_WEBCLIENT_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

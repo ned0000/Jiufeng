@@ -15,15 +15,15 @@
 #ifndef JIUTAI_RESPOOL_H
 #define JIUTAI_RESPOOL_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_logger.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 /** The resource pool type definition
  */
@@ -89,7 +89,7 @@ typedef struct
     u32 jrcp_u32Reserved2[4];
 } jf_respool_create_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** Create a resource pool according to the parameters.
  *
@@ -149,5 +149,5 @@ u32 jf_respool_reapResource(jf_respool_t * pjr);
 
 #endif /*JIUTAI_RESPOOL_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

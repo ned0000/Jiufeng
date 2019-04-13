@@ -16,16 +16,16 @@
 #ifndef JIUTAI_HASHTREE_H
 #define JIUTAI_HASHTREE_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stddef.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 /*hash tree*/
 typedef struct jf_hashtree_node
@@ -50,7 +50,7 @@ typedef struct jf_hashtree
 
 typedef u32 (* jf_hashtree_fnFreeData_t)(void ** ppData);
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** Creates an empty hash tree
  *  
@@ -240,5 +240,5 @@ static inline void jf_hashtree_getEnumeratorValue(
 
 #endif /*JIUTAI_HASHTREE_H*/
 
-/*-----------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

@@ -13,12 +13,12 @@
 #ifndef JIUTAI_BITOP_H
 #define JIUTAI_BITOP_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 /** generate a bitmask consisting of 1 bits from (and including)
  *  bit position 'left' to (and including) bit position 'right'
  */
@@ -91,12 +91,12 @@
     ((JF_BITOP_SHR(((word) & JF_BITOP_MASK(word, n, 0)), (k))) |   \
      JF_BITOP_SHL(((word), (n) - (k)) & JF_BITOP_MASK(word, n, 0)))
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 #endif /*JIUTAI_BITOP_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

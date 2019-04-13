@@ -11,12 +11,12 @@
 #ifndef JIUTAI_HSM_H
 #define JIUTAI_HSM_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 /** Last event ID
  */
@@ -26,7 +26,7 @@
  */
 #define JF_HSM_MAX_STATE_NAME_LEN    (32)
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef u32  jf_hsm_state_id_t;
 typedef u32  jf_hsm_event_id_t;
@@ -63,7 +63,7 @@ typedef struct
     jf_hsm_state_t * jh_pjhsCurrent;
 } jf_hsm_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 u32 jf_hsm_init(jf_hsm_t * pjh, jf_hsm_state_t * pInitial);
 
@@ -77,6 +77,6 @@ u32 jf_hsm_handleEvent(jf_hsm_t * pjh, jf_hsm_event_t * pEvent);
 
 #endif /*JIUTAI_HSM_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

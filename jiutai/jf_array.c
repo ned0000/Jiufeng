@@ -9,16 +9,16 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_array.h"
 #include "jf_mem.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 /* a single list */
 typedef struct internal_jf_array_node_t
@@ -33,7 +33,7 @@ typedef struct
     internal_jf_array_node_t * ija_pijanElements;
 } internal_jf_array_t;
 
-/* --- private routine section ------------------------------------------------ */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _getElementAt(
     internal_jf_array_t * pija, u32 u32Index, jf_array_element_t ** ppjae)
@@ -133,7 +133,7 @@ static u32 _insertElementAt(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_array_create(jf_array_t ** ppja)
 {
@@ -405,5 +405,5 @@ u32 jf_array_traverse(
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

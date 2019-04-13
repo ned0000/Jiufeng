@@ -12,17 +12,17 @@
 #ifndef JIUTAI_HLISTHEAD_H
 #define JIUTAI_HLISTHEAD_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stddef.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_listhead.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 /** Double linked lists with a single pointer list head.
  *  Mostly useful for hash tables where the two pointer list head is too
@@ -40,7 +40,7 @@ typedef struct jf_hlisthead
     jf_hlisthead_node_t * jh_pjhnFirst;
 } jf_hlisthead_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 #define JF_HLISTHEAD(name) jf_hlisthead_t name = {  .jh_pjhnFirst = NULL }
 #define JF_HLISTHEAD_INIT(ptr) ((ptr)->jh_pjhnFirst = NULL)
@@ -103,5 +103,5 @@ static inline void jf_hlisthead_addHead(jf_hlisthead_t * h, jf_hlisthead_node_t 
 
 #endif /*JIUTAI_HLISTHEAD_H*/
 
-/*-----------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

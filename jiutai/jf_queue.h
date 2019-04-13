@@ -14,16 +14,16 @@
 #ifndef JIUTAI_QUEUE_H
 #define JIUTAI_QUEUE_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stddef.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 /*basic queue*/
 typedef struct jf_queue_node
@@ -40,7 +40,7 @@ typedef struct jf_queue
 
 typedef u32 (* jf_queue_fnFreeData_t)(void ** ppData);
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** Initialize an empty Queue
  *
@@ -101,5 +101,5 @@ void * jf_queue_peek(jf_queue_t * pQueue);
 
 #endif /*JIUTAI_QUEUE_H*/
 
-/*-----------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

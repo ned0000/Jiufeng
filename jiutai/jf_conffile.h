@@ -19,17 +19,17 @@
 #ifndef JIUFEN_CONFFILE_H
 #define JIUFEN_CONFFILE_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_file.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 #define JF_CONFFILE_MAX_LINE_LEN    (256)
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef void  jf_conffile_t;
 
@@ -39,7 +39,7 @@ typedef struct
     u32 jcop_u32Reserved[8];
 } jf_conffile_open_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** Open a configuration file according to the file path.
  *
@@ -97,6 +97,6 @@ FILESAPI u32 FILESCALL jf_conffile_getString(
 
 #endif /*JIUFEN_CONFFILE_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

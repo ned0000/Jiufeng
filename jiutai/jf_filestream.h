@@ -11,7 +11,7 @@
 #ifndef JIUFENG_FILESTREAM_H
 #define JIUFENG_FILESTREAM_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
@@ -22,21 +22,21 @@
     #include <io.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_datavec.h"
 #include "jf_file.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 typedef FILE     jf_filestream_t;
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 FILESAPI u32 FILESCALL jf_filestream_open(
     const olchar_t * pstrFilename, const olchar_t * mode, jf_filestream_t ** ppjf);
@@ -83,5 +83,5 @@ FILESAPI olint_t FILESCALL jf_filestream_getChar(jf_filestream_t * pjf);
 
 #endif /*JIUFENG_FILESTREAM_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

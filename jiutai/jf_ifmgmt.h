@@ -11,12 +11,12 @@
  *
  */
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 #ifndef JIUFENG_IFMGMT_H
 #define JIUFENG_IFMGMT_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #if defined(LINUX)
     #include <sys/socket.h>
     #include <netinet/in.h>
@@ -29,13 +29,13 @@
     #include <Iphlpapi.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_ipaddr.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 /*maximum physical interface*/
 #define JF_IFMGMT_MAX_IF                (6)
@@ -51,7 +51,7 @@
 
 #define JF_IFMGMT_IF_FLAGS_STR_SIZE     (128)
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct jf_ifmgmt_if
 {
@@ -75,7 +75,7 @@ typedef struct jf_ifmgmt_if
     u8 jii_u8Reserved2[2];
 } jf_ifmgmt_if_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /*get interface config*/
 IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_getAllIf(
@@ -97,5 +97,5 @@ IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[JF_LIMIT_MAC_LEN]);
 
 #endif /*JIUFENG_IFMGMT_H */
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

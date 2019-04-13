@@ -24,18 +24,18 @@
 #ifndef JIUTAI_BITARRAY_H
 #define JIUTAI_BITARRAY_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 typedef u8  jf_bitarray_t;
 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /* number of bit in bit array unit */
 #define JF_BITARRAY_BITS_PER_UNIT  (BITS_PER_U8)
@@ -329,5 +329,5 @@ static inline boolean_t jf_bitarray_testClearBit(jf_bitarray_t * ba, u32 pos)
 
 #endif /*JIUTAI_BITARRAY_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

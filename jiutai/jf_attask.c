@@ -9,18 +9,18 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_attask.h"
 #include "jf_time.h"
 #include "jf_mem.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 typedef struct attask_item
 {
     u32 ai_u32Expire;
@@ -36,7 +36,7 @@ typedef struct attask
     attask_item_t * ia_paiItems;
 } internal_attask_t;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 /** Flushes all task from the attask
  *
@@ -68,7 +68,7 @@ static u32 _flushAttask(internal_attask_t * piu)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_attask_check(jf_attask_t * pAttask, u32 * pu32Blocktime)
 {
@@ -324,5 +324,5 @@ u32 jf_attask_create(jf_attask_t ** ppAttask)
     return u32Ret;
 }
 
-/*-----------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

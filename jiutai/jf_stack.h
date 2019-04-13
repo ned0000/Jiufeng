@@ -14,16 +14,16 @@
 #ifndef JIUTAI_STACK_H
 #define JIUTAI_STACK_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stddef.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 /*basic stack*/
 typedef struct jf_stack_node
@@ -34,7 +34,7 @@ typedef struct jf_stack_node
 
 typedef void  jf_stack_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** Init an empty Stack
  *
@@ -87,5 +87,5 @@ void jf_stack_clear(jf_stack_t ** ppStack);
 
 #endif /*JIUTAI_STACK_H*/
 
-/*-----------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

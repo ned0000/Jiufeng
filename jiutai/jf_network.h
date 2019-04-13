@@ -10,12 +10,12 @@
  *
  */
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 #ifndef JIUFENG_NETWORK_H
 #define JIUFENG_NETWORK_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #if defined(LINUX)
     #include <sys/socket.h>
     #include <netinet/in.h>
@@ -28,7 +28,7 @@
     #include <Iphlpapi.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_ifmgmt.h"
@@ -50,10 +50,10 @@
     #define NETWORKCALL
 #endif
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 #if defined(LINUX)
 
 #elif defined(WINDOWS)
@@ -303,7 +303,7 @@ typedef struct
     void * jnacp_pUser;
 } jf_network_adgram_create_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** socket
  */
@@ -1095,5 +1095,5 @@ NETWORKAPI u32 NETWORKCALL jf_network_getHostByName(
 
 #endif /*JIUFENG_NETWORK_H */
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

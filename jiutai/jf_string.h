@@ -13,9 +13,9 @@
 #ifndef JIUFENG_STRING_H
 #define JIUFENG_STRING_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 
@@ -35,10 +35,10 @@
     #define STRINGPARSECALL
 #endif
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 /** Parse result field
  */
 typedef struct jf_string_parse_result_field
@@ -63,7 +63,7 @@ typedef struct jf_string_parse_result
     u32 jspr_u32NumOfResult;
 } jf_string_parse_result_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /*basic string parse*/
 
@@ -552,6 +552,6 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSettingsString(
 
 #endif /*JIUFENG_STRING_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

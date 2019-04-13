@@ -16,25 +16,25 @@
 #ifndef JIUTAI_CRC_H
 #define JIUTAI_CRC_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 /*init the result before doing crc*/
 #define JF_CRC_CRC32C_FLAG_INIT_RESULT         (0x1)
 /*return the result with network byte order*/
 #define JF_CRC_CRC32C_FLAG_NETWORK_BYTE_ORDER  (0x2)
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef struct
 {
     u8 * jccv_pu8Buffer;
     u32 jccv_u32Len;
 } jf_crc_crc32c_vec_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 void jf_crc_crc32c(u8 * pu8Data, u32 u32Len, u32 u32Flags, u32 * pu32Result);
 
@@ -43,6 +43,6 @@ void jf_crc_crc32cVec(
 
 #endif /*JIUTAI_CRC_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

@@ -15,21 +15,21 @@
 #ifndef JIUTAI_ATTASK_H
 #define JIUTAI_ATTASK_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef void  jf_attask_t;
 
 typedef u32 (* jf_attask_fnCallbackOfItem_t)(void * pData);
 typedef u32 (* jf_attask_fnDestroyItem_t)(void ** ppData);
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** Creates an empty attask 
  *
@@ -86,6 +86,6 @@ u32 jf_attask_check(jf_attask_t * pAttask, u32 * pu32Blocktime);
 
 #endif  /*JIUTAI_ATTASK_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

@@ -13,9 +13,9 @@
 #ifndef JIUFENG_JIUKUN_H
 #define JIUFENG_JIUKUN_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_bitarray.h"
@@ -37,7 +37,7 @@
     #define JIUKUNCALL
 #endif
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 #define JF_JIUKUN_PAGE_SHIFT         (12)
 #define JF_JIUKUN_PAGE_SIZE          (1 << JF_JIUKUN_PAGE_SHIFT)
@@ -56,7 +56,7 @@
 #define JF_JIUKUN_MAX_OBJECT_ORDER   (20)
 #define JF_JIUKUN_MAX_OBJECT_SIZE    (1 << JF_JIUKUN_MAX_OBJECT_ORDER)
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct
 {
@@ -116,7 +116,7 @@ typedef enum jf_jiukun_mem_alloc_flag
     JF_JIUKUN_MEM_ALLOC_FLAG_ZERO, /* zero the allocated memory */
 } jf_jiukun_mem_alloc_flag_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 JIUKUNAPI u32 JIUKUNCALL jf_jiukun_init(jf_jiukun_init_param_t * pjjip);
 
@@ -196,6 +196,6 @@ JIUKUNAPI void JIUKUNCALL jf_jiukun_dump(void);
 
 #endif /*JIUFENG_JIUKUN_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

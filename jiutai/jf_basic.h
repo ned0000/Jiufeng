@@ -11,7 +11,7 @@
 #ifndef JIUTAI_JF_BASIC_H
 #define JIUTAI_JF_BASIC_H
 
-/* --- standard C lib header files ------------------------------------------ */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -29,7 +29,7 @@
     #include <arpa/inet.h>
 #endif
 
-/* --- internal header files ------------------------------------------------ */
+/* --- internal header files -------------------------------------------------------------------- */
 #if defined(WINDOWS)
     #include "getopt.h"
     #define optarg getoptarg()
@@ -37,7 +37,7 @@
 
 #endif
 
-/* --- constants & data structures ------------------------------------------ */
+/* --- constants & data structures -------------------------------------------------------------- */
 
 #define IN
 #define OUT
@@ -222,12 +222,12 @@ typedef time_t                       oltime_t;
 
 #define JF_BASIC_ARRAY_SIZE(x)   (sizeof(x) / sizeof((x)[0]))
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 
 #endif /*JIUTAI_JF_BASIC_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
 

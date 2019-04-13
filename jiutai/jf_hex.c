@@ -10,17 +10,17 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_hex.h"
 #include "jf_err.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 /*xxxxxxxxh: xx xx xx xx ...*/
 #define BYTE_HEXSTR_HEADER_LENGTH  (11)
@@ -35,9 +35,9 @@
 /*xxxxxxxxh: xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx xx ; abcdefghijklmnop*/
 #define MIN_BYTE_HEXSTR_WITH_ASCII_LENGTH    (63)
 
-/* --- private routine section ------------------------------------------------ */
+/* --- private routine section ------------------------------------------------------------------ */
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 olsize_t jf_hex_convertByteDataToString(
     const u8 * pu8Data, const olsize_t sData, const olsize_t sOffset, 
@@ -227,6 +227,6 @@ olsize_t jf_hex_convertHexToString(
     return sLen;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

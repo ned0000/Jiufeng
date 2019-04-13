@@ -9,14 +9,14 @@
  *
  */
 
-/*-----------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 #ifndef JIUFENG_ENCODE_H
 #define JIUFENG_ENCODE_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_bitarray.h"
@@ -37,9 +37,9 @@
     #define ENCODECALL
 #endif
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 #define JF_ENCODE_MAX_HUFFMAN_CODE_LEN    (8)
 
@@ -55,7 +55,7 @@ typedef struct jf_encode_huffman_code
     jf_bitarray_t jehc_jbCode[JF_ENCODE_MAX_HUFFMAN_CODE_LEN];
 } jf_encode_huffman_code_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /*base64 encode and decode*/
 
@@ -115,6 +115,6 @@ ENCODEAPI u32 ENCODECALL jf_encode_genCanonicalHuffmanCode(
 
 #endif /*JIUFENG_ENCODE_H*/
 
-/*-----------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

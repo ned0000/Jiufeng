@@ -14,14 +14,14 @@
 #ifndef JIUFENG_PERSISTENCY_H
 #define JIUFENG_PERSISTENCY_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef enum jf_persistency_type
 {
@@ -48,7 +48,7 @@ typedef union jf_persistency_config
 
 typedef void  jf_persistency_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 u32 jf_persistency_create(
     jf_persistency_type_t type, jf_persistency_config_t * ppc,
@@ -71,5 +71,5 @@ u32 jf_persistency_rollbackTransaction(jf_persistency_t * pPersist);
 
 #endif  /*JIUFENG_PERSISTENCY_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

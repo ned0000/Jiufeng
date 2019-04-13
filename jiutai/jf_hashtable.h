@@ -12,17 +12,17 @@
  *  @note Link with xmalloc object file
  */
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 #ifndef JIUTAI_HASH_H
 #define JIUTAI_HASH_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 typedef void  jf_hashtable_t;
 
 typedef olint_t (* jf_hashtable_fnCmpKeys_t) (void * pKey1, void * pKey2);
@@ -31,7 +31,7 @@ typedef void * (* jf_hashtable_fnGetKeyFromEntry_t) (void * pEntry);
 typedef u32 (* jf_hashtable_fnFreeEntry_t) (void ** ppEntry);
 typedef void (* jf_hashtable_fnError_t) (u8 * pu8Errmsg);
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef struct
 {
     u32 jhcp_u32MinSize; /*minimal number of entry by estimation*/
@@ -44,7 +44,7 @@ typedef struct
     u32 jhcp_u32Reserved2[4];
 } jf_hashtable_create_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 u32 jf_hashtable_create(
     jf_hashtable_t ** ppjh, jf_hashtable_create_param_t * pjhcp);
@@ -185,5 +185,5 @@ static inline unsigned long jf_hashtable_hashPtr(void *ptr, u32 bits)
 
 #endif /*JIUTAI_HASH_H*/
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

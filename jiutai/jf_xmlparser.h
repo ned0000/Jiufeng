@@ -12,9 +12,9 @@
 #ifndef JIUFENG_XMLPARSER_H
 #define JIUFENG_XMLPARSER_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_hashtree.h"
 
@@ -34,9 +34,9 @@
     #define XMLPARSERCALL
 #endif
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct jf_xmlparser_xml_node
 {
@@ -91,7 +91,7 @@ typedef struct jf_xmlparser_xml_file
     jf_xmlparser_xml_doc_t jxxf_jxxdDoc;
 } jf_xmlparser_xml_file_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** Parse xml string in memory, start from sOffset with sBuf
  *
@@ -154,6 +154,6 @@ XMLPARSERAPI void XMLPARSERCALL jf_xmlparser_printXMLNodeList(
 
 #endif /*JIUFENG_XMLPARSER_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

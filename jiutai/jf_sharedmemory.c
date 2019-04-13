@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #if defined(LINUX)
@@ -17,7 +17,7 @@
     #include <sys/shm.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -27,7 +27,7 @@
     #include "jf_uuid.h"
 #endif
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 #if defined(LINUX)
     #define SV_W    0400
@@ -41,7 +41,7 @@
 
 #define SHM_ID_LEN   40
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 #if defined(LINUX)
 static u32 _getShmId(jf_sharedmemory_id_t * pjsi, olint_t * pnShmId)
 {
@@ -72,7 +72,7 @@ static u32 _getShmId(jf_sharedmemory_id_t * pjsi)
 }
 #endif
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_sharedmemory_create(jf_sharedmemory_id_t ** ppShmId, u32 u32MemorySize)
 {
@@ -269,6 +269,6 @@ u32 jf_sharedmemory_detach(void ** ppMapAddress)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

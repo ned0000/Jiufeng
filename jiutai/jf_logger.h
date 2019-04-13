@@ -15,9 +15,9 @@
 #ifndef JIUFENG_LOGGER_H
 #define JIUFENG_LOGGER_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
 #undef LOGGERAPI
@@ -35,7 +35,7 @@
     #define LOGGERCALL
 #endif
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 #define JF_LOGGER_TRACE_NONE      (0)
 #define JF_LOGGER_TRACE_ERROR     (1)
@@ -45,7 +45,7 @@
 
 #define JF_LOGGER_MAX_MSG_SIZE    (256)
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef struct
 {
     /** log to the stdout */
@@ -72,7 +72,7 @@ typedef struct
     olchar_t * jlip_pstrCallerName;
 } jf_logger_init_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** Initialize the looger according to the specified parameters.
  *
@@ -150,6 +150,6 @@ LOGGERAPI u32 LOGGERCALL jf_logger_logDataMsgWithAscii(
 
 #endif /*JIUFENG_LOGGER_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

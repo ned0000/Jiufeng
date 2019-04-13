@@ -13,18 +13,18 @@
 #ifndef JIUTAI_SQLITE_H
 #define JIUTAI_SQLITE_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
 #include "sqlite3.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct jf_sqlite_init_param
 {
@@ -41,7 +41,7 @@ typedef struct jf_sqlite
     sqlite3 * js_psSqlite;
 } jf_sqlite_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 u32 jf_sqlite_init(jf_sqlite_t * pjs, jf_sqlite_init_param_t * param);
 
@@ -59,6 +59,6 @@ u32 jf_sqlite_execSql(
 
 #endif /*JIUTAI_SQLITE_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

@@ -11,12 +11,12 @@
  *
  */
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 #ifndef JIUFENG_IPADDR_H
 #define JIUFENG_IPADDR_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #if defined(LINUX)
     #include <sys/socket.h>
     #include <netinet/in.h>
@@ -29,7 +29,7 @@
     #include <Iphlpapi.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -50,13 +50,13 @@
     #define IFMGMTCALL
 #endif
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 #define JF_IPADDR_TYPE_V4               (0x0)
 
 #define JF_IPADDR_TYPE_V6               (0x1)
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct
 {
@@ -69,7 +69,7 @@ typedef struct
     } ji_uAddr;
 } jf_ipaddr_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /*get local ip addr list, not include the loop back*/
 IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getLocalIpAddrList(
@@ -106,5 +106,5 @@ IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getIpAddrPortFromString(
 
 #endif /*JIUFENG_IPADDR_H */
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

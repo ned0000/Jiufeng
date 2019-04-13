@@ -10,7 +10,7 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <signal.h>
@@ -27,16 +27,16 @@
     #include <psapi.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_process.h"
 #include "jf_err.h"
 #include "jf_time.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 #if defined(LINUX)
 
@@ -81,7 +81,7 @@ static void setProcessTerminationReason(olint_t nStatus, u32 * pu32Reason)
 }
 #endif
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 #if defined(LINUX)
 void jf_process_getPidFilename(
@@ -671,6 +671,6 @@ u32 jf_process_finiSocket(void)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

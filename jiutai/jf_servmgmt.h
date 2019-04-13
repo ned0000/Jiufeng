@@ -16,9 +16,9 @@
 #ifndef JIUFENG_SERVMGMT_H
 #define JIUFENG_SERVMGMT_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
@@ -38,7 +38,7 @@
     #define SERVMGMTCALL
 #endif
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 #define JF_SERVMGMT_MAX_NUM_OF_SERVICE      (24)
 
@@ -62,7 +62,7 @@ typedef enum
     JF_SERVMGMT_SERV_STARTUPTYPE_MANUAL,
 } jf_servmgmt_serv_startuptype_t;
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct
 {
@@ -91,7 +91,7 @@ typedef struct
     u32 jssp_u32Reserved[8];
 } jf_servmgmt_start_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 SERVMGMTAPI u32 SERVMGMTCALL jf_servmgmt_init(jf_servmgmt_init_param_t * pjsip);
 
@@ -122,6 +122,6 @@ SERVMGMTAPI u32 SERVMGMTCALL jf_servmgmt_setServStartupType(
 
 #endif /*JIUFENG_SERVMGMT_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

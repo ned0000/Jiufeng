@@ -9,12 +9,12 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_mem.h"
@@ -22,7 +22,7 @@
 #include "jf_err.h"
 #include "jf_string.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 struct internal_menu;
 struct internal_menu_entry;
 
@@ -117,7 +117,7 @@ typedef struct internal_menu
     void * im_pArg;
 } internal_menu_t;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static internal_menu_t * _getTopMenu(internal_menu_t * pMenu)
 {
@@ -402,7 +402,7 @@ static olint_t _destroyMenu(internal_menu_t * pTop)
     return 0;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_menu_createTopMenu(
     jf_menu_fnPreShow_t fnPreShow, jf_menu_fnPostShow_t fnPostShow, void * pArg,
@@ -497,5 +497,5 @@ u32 jf_menu_start(jf_menu_t * pTop)
     return u32Ret;
 }
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

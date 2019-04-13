@@ -14,16 +14,16 @@
 #ifndef JIUTAI_LINKLIST_H
 #define JIUTAI_LINKLIST_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stddef.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 /*linked list*/
 typedef struct jf_linklist_node
@@ -39,7 +39,7 @@ typedef struct jf_linklist
 
 typedef u32 (* jf_linklist_fnFreeNodeData_t)(void ** ppData);
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 void jf_linklist_init(jf_linklist_t * pList);
 
@@ -93,5 +93,5 @@ static inline void * jf_linklist_getDataFromNode(jf_linklist_node_t * pNode)
 
 #endif /*JIUTAI_LINKLIST_H*/
 
-/*-----------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

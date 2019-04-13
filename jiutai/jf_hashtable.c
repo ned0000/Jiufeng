@@ -8,20 +8,20 @@
  *  @note
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_hashtable.h"
 #include "jf_mem.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 typedef struct hash_table_bucket
 {
     void * htb_pEntry;
@@ -74,7 +74,7 @@ static olint_t primes[] = {
     812001067, 1299201731, 2078722769
 };
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static olint_t _default_fnHtCmpKeys(void * pKey1, void * pKey2)
 {
     if (pKey1 == pKey2)
@@ -231,7 +231,7 @@ static u32 _overwriteAtPosition(internal_hash_table_t * piht,
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_hashtable_create(
     jf_hashtable_t ** ppht, jf_hashtable_create_param_t * pjhcp)
@@ -548,5 +548,5 @@ olint_t jf_hashtable_hashPJW(void * pKey)
 }
 
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdlib.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_respool.h"
 #include "jf_logger.h"
 #include "jf_err.h"
@@ -21,7 +21,7 @@
 #include "jf_mutex.h"
 #include "jf_mem.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 /**
  *  Internal resource state
@@ -71,7 +71,7 @@ typedef struct
 
 } internal_resource_pool_t;
 
-/* --- private routine section --------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 /** Validate resource pool parameter
  *
@@ -625,7 +625,7 @@ static u32 _reapResourceInPool(internal_resource_pool_t * pirp)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_respool_create(
     jf_respool_t ** ppjr, jf_respool_create_param_t * pjrcp)
@@ -719,5 +719,5 @@ u32 jf_respool_reapResource(jf_respool_t * pjr)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

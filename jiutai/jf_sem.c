@@ -9,7 +9,7 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <string.h>
 #if defined(LINUX)
     #include <sys/types.h>
@@ -17,13 +17,13 @@
     #include <sys/sem.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_sem.h"
 #include "jf_err.h"
 #include "jf_mem.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 #if defined(LINUX)
     #define SV_W    0400
     #define SV_R    0200
@@ -40,9 +40,9 @@ union semun
 } ;
 #endif
 
-/* --- private routine section ------------------------------------------------ */
+/* --- private routine section ------------------------------------------------------------------ */
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_sem_init(jf_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount)
 {
@@ -274,6 +274,6 @@ u32 jf_sem_up(jf_sem_t * pSem)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

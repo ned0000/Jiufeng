@@ -13,11 +13,11 @@
 #ifndef JIUFENG_CLIENG_H
 #define JIUFENG_CLIENG_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <time.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -38,7 +38,7 @@
     #define CLIENGCALL
 #endif
 
-/* --- constants and data structures --------------------------------------- */
+/* --- constants and data structures ------------------------------------------------------------ */
 
 typedef void  jf_clieng_cmd_t;
 typedef void  jf_clieng_cmd_set_t;
@@ -89,7 +89,7 @@ typedef u32 (* jf_clieng_fnParseCmd_t)(
     void * pMaster, olint_t argc, olchar_t ** argv, void * pParam);
 typedef u32 (* jf_clieng_fnProcessCmd_t)(void * pMaster, void * pParam);
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 CLIENGAPI u32 CLIENGCALL jf_clieng_init(jf_clieng_init_param_t * pParam);
 
@@ -207,5 +207,5 @@ CLIENGAPI void CLIENGCALL jf_clieng_appendBriefColumn(
 
 #endif /*JIUFENG_CLIEN_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

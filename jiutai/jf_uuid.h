@@ -15,9 +15,9 @@
 #ifndef JIUFENG_UUID_H
 #define JIUFENG_UUID_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
 #undef UUIDAPI
@@ -36,7 +36,7 @@
     #define UUIDCALL
 #endif
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 /** UUID with bin format, bit / bytes
  */
@@ -55,7 +55,7 @@
  */
 #define JF_UUID_LEN_SIV    (39)
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 /** UUID version number
  */
@@ -91,13 +91,13 @@ typedef struct
     u8 * jup_pu8NameSpace;
 } jf_uuid_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 UUIDAPI u32 UUIDCALL jf_uuid_get(
     u8 * pu8Uuid, u32 u32Len, jf_uuid_ver_t version, jf_uuid_param_t * pjup);
 
 #endif /*JIUFENG_UUID_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

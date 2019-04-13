@@ -9,16 +9,16 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_crc.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 static u32 ls_u32CrcTable[256] =
 {
@@ -92,9 +92,9 @@ static u32 ls_u32CrcTable[256] =
 #define TB_INIT_REFLECTED 0xFFFFFFFF
 #define TB_XOROT 0xFFFFFFFF
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 /*if restart has CRC32C_FLAG_INIT_RESULT set, initialize the accumulator */
 /*if restart has CRC32C_FLAG_NETWORK_BYTE_ORDER set,
   save result in network byte order */
@@ -138,6 +138,6 @@ void jf_crc_crc32cVec(
     *pu32Result = u32Crc;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

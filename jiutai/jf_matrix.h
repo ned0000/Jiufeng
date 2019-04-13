@@ -13,9 +13,9 @@
 #ifndef JIUFENG_MATRIX_H
 #define JIUFENG_MATRIX_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
@@ -35,10 +35,10 @@
     #define MATRIXCALL
 #endif
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef struct
 {
     oldouble_t * m_pdbData;
@@ -46,7 +46,7 @@ typedef struct
     olint_t m_nCol;
 } matrix_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 MATRIXAPI u32 MATRIXCALL jf_matrix_alloc(
     olint_t row, olint_t col, matrix_t ** ppm);
@@ -78,5 +78,5 @@ MATRIXAPI u32 MATRIXCALL jf_matrix_hat(matrix_t * pmh, matrix_t * pmo);
 
 #endif /*JIUFENG_MATRIX_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

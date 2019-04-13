@@ -11,7 +11,7 @@
 #ifndef JIUFENG_DIR_H
 #define JIUFENG_DIR_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
@@ -22,13 +22,13 @@
     #include <io.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_datavec.h"
 #include "jf_file.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 #if defined(LINUX)
     typedef DIR      jf_dir_t;
@@ -39,7 +39,7 @@
 #define JF_DIR_DEFAULT_CREATE_MODE     (0755)
 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct
 {
@@ -48,7 +48,7 @@ typedef struct
     u8 jde_u8Reserved[60];
 } jf_dir_entry_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /*'mode' is for Linux only, it specifies the permission to use*/
 FILESAPI u32 FILESCALL jf_dir_create(
@@ -89,5 +89,5 @@ FILESAPI olint_t FILESCALL jf_dir_compareDirEntry(const void * a, const void * b
 
 #endif /*JIUFENG_DIR_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

@@ -9,11 +9,11 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -22,7 +22,7 @@
 #include "jf_rand.h"
 #include "jf_mem.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 /** The wait time in milli-second when DB is locked
  */
 #define DB_LOCK_WAIT                 (100)
@@ -38,7 +38,7 @@
  */
 #define TRANSACTION_RETRY_MAX_TIME   (2000)
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _jtSqliteEvalSqlStmt(
     jf_sqlite_t * pjs, boolean_t bTransaction,
@@ -154,7 +154,7 @@ static u32 _jtSqliteExecSqlTransaction(jf_sqlite_t * pjs, olchar_t * pSql)
     return u32Ret;
 }    
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_sqlite_init(jf_sqlite_t * pjs, jf_sqlite_init_param_t * param)
 {
@@ -299,5 +299,5 @@ u32 jf_sqlite_execSql(
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

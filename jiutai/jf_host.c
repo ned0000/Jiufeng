@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -31,21 +31,21 @@
     #include <arpa/inet.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_host.h"
 #include "jf_string.h"
 #include "jf_ifmgmt.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 #if defined(WINDOWS)
     typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO);
 #endif
 #define SM_SERVERR2 89
 #define BUFSIZE 80
 
-/* --- private funciton routines ------------------------------------------- */
+/* --- private funciton routines ---------------------------------------------------------------- */
 
 static u32 _getHostVersion(jf_host_info_t * pjhi)
 {
@@ -395,7 +395,7 @@ static u32 _getHostNetworkInfo(jf_host_info_t * pjhi)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 void jf_host_getName(olchar_t * pstrName, u32 u32Len)
 {
 #if defined(LINUX)
@@ -420,6 +420,6 @@ u32 jf_host_getInfo(jf_host_info_t * pjhi)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

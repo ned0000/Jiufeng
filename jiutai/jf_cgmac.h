@@ -15,9 +15,9 @@
 #ifndef JIUFENG_CGMAC_H
 #define JIUFENG_CGMAC_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_cghash.h"
 
@@ -37,10 +37,10 @@
     #define CGMACCALL
 #endif
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 CGMACAPI u32 CGMACCALL jf_cgmac_doHmacMd5(
     const u8 * pu8Key, olsize_t sKey, const u8 * pu8Input, olsize_t sInput,
@@ -52,7 +52,7 @@ CGMACAPI u32 CGMACCALL jf_cgmac_doHmacSha1(
 
 #endif /*JIUFENG_CGMAC_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
 

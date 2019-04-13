@@ -11,7 +11,7 @@
 #ifndef JIUFENG_FILE_H
 #define JIUFENG_FILE_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
@@ -22,7 +22,7 @@
     #include <io.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_datavec.h"
@@ -43,7 +43,7 @@
     #define FILESCALL
 #endif
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 #if defined(LINUX)
     typedef olint_t  jf_file_t;
@@ -145,10 +145,10 @@ FILESAPI boolean_t FILESCALL jf_file_isLinkFile(u32 u32Mode);
 
 #define JF_FILE_DEFAULT_CREATE_MODE    (0644)
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 FILESAPI u32 FILESCALL jf_file_getStat(
     const olchar_t * pstrFilename, jf_file_stat_t * pStat);
@@ -199,5 +199,5 @@ FILESAPI u32 FILESCALL jf_file_readLine(
 
 #endif /*JIUFENG_FILE_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

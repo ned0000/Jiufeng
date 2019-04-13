@@ -13,9 +13,9 @@
 #ifndef JIUFENG_HTTPPARSER_H
 #define JIUFENG_HTTPPARSER_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 
 #undef HTTPPARSERAPI
@@ -34,9 +34,9 @@
     #define HTTPPARSERCALL
 #endif
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef struct jf_httpparser_packet_header_field
 {
     olchar_t * jhphf_pstrName;
@@ -75,7 +75,7 @@ typedef struct jf_httpparser_packet_header
 } jf_httpparser_packet_header_t;
 
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 /** Frees resources associated with a packet that was created either by
  *  createEmptyPacketHeader or parsePacketheader
@@ -227,6 +227,6 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parseUri(
 
 #endif /*JIUFENG_HTTPPARSER_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

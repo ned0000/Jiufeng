@@ -14,16 +14,16 @@
 #ifndef JIUTAI_DLINKLIST_H
 #define JIUTAI_DLINKLIST_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stddef.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 /*double linked list*/
 typedef struct jf_dlinklist_node
@@ -43,7 +43,7 @@ typedef u32 (* jf_dlinklist_fnFreeNodeData_t)(void ** ppData);
 
 typedef boolean_t (* jf_dlinklist_fnFindNodeData_t)(void * pData, void * pKey);
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 void jf_dlinklist_init(jf_dlinklist_t * pList);
 
@@ -127,5 +127,5 @@ static inline jf_dlinklist_node_t * jf_dlinklist_getPrevNode(
 
 #endif /*JIUTAI_DLINKLIST_H*/
 
-/*-----------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

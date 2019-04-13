@@ -12,16 +12,16 @@
 #ifndef JIUTAI_LISTARRAY_H
 #define JIUTAI_LISTARRAY_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stddef.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 
 /** Linked list using arrays of node
  */
@@ -36,7 +36,7 @@ typedef struct jf_listarray
 
 #define JF_LISTARRAY_END   U32_MAX
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 
 static inline olsize_t jf_listarray_getSize(u32 u32NumOfNode)
 {
@@ -89,5 +89,5 @@ static inline boolean_t jf_listarray_isEnd(jf_listarray_t * pla)
 
 #endif /*JIUTAI_LISTARRAY_H*/
 
-/*-----------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
