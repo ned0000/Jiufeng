@@ -9,12 +9,12 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_ifmgmt.h"
@@ -22,7 +22,7 @@
 #include "jf_string.h"
 #include "jf_process.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static boolean_t ls_bShowIpInfo = FALSE;
 static boolean_t ls_bShowIfInfo = FALSE;
 static boolean_t ls_bShowAllIfInfo = FALSE;
@@ -31,7 +31,7 @@ static boolean_t ls_bDownIf = FALSE;
 
 static olchar_t * ls_pstrIfName = NULL;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static void _printUsage(void)
 {
     ol_printf("\
@@ -204,7 +204,7 @@ static u32 _downIf(olchar_t * name)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
@@ -246,5 +246,5 @@ olint_t main(olint_t argc, olchar_t ** argv)
     return u32Ret;
 }
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

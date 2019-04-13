@@ -9,12 +9,12 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -22,13 +22,13 @@
 #include "jf_hex.h"
 #include "jf_string.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static boolean_t ls_bMd5 = FALSE;
 static boolean_t ls_bSha1 = FALSE;
 static olchar_t * ls_pstrSource = NULL;
 static boolean_t ls_bVerbose = FALSE;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static void _printUsage(void)
 {
     ol_printf("\
@@ -177,7 +177,7 @@ static u32 _sha1Str(olchar_t * source)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
@@ -209,5 +209,5 @@ olint_t main(olint_t argc, olchar_t ** argv)
     return u32Ret;
 }
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

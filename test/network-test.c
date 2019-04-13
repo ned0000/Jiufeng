@@ -9,12 +9,12 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -23,7 +23,7 @@
 #include "jf_process.h"
 #include "jf_thread.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 #define NETWORK_TEST  "NET-SERVER"
 
@@ -32,7 +32,7 @@ static boolean_t ls_bToTerminate = FALSE;
 static olchar_t * ls_pstrServerIp = NULL;
 static u16 ls_u16Port = 0;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static void _printUsage(void)
 {
     ol_printf("\
@@ -225,7 +225,7 @@ static u32 _testConnectServer(void)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
@@ -271,5 +271,5 @@ olint_t main(olint_t argc, olchar_t ** argv)
     return u32Ret;
 }
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

@@ -9,12 +9,12 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -23,13 +23,13 @@
 #include "jf_dir.h"
 #include "jf_thread.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static olchar_t * ls_pstrDirName = NULL;
 static olchar_t * ls_pstrFileName = NULL;
 static boolean_t ls_bLockFile = FALSE;
 static boolean_t ls_bAppendFile = FALSE;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static void _printUsage(void)
 {
     ol_printf("\
@@ -198,7 +198,7 @@ static u32 _testAppendFile(void)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
@@ -229,5 +229,5 @@ olint_t main(olint_t argc, olchar_t ** argv)
     exit(0);
 }
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

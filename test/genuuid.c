@@ -9,12 +9,12 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -22,7 +22,7 @@
 #include "jf_uuid.h"
 #include "jf_prng.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static jf_uuid_ver_t ls_juvVersion = JF_UUID_VER_1;
 static jf_uuid_fmt_t ls_jufFormat = JF_UUID_FMT_STR;
 static boolean_t ls_bMulticastMac = FALSE;
@@ -36,7 +36,7 @@ static u8 ls_u8NameSpace_X500[] = { /* 6ba7b814-9dad-11d1-80b4-00c04fd430c8 */
     0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8
 };
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static void _printUsage(void)
 {
@@ -160,7 +160,7 @@ void _outputUuid(u8 * pu8Uuid, jf_uuid_fmt_t format)
     ol_printf("\n");
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
@@ -204,5 +204,5 @@ olint_t main(olint_t argc, olchar_t ** argv)
     return u32Ret;
 }
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

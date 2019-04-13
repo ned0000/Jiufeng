@@ -9,12 +9,12 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -22,7 +22,7 @@
 #include "jf_mem.h"
 #include "jf_servmgmt.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 static boolean_t ls_bList = FALSE;
 static boolean_t ls_bStop = FALSE;
 static boolean_t ls_bStart = FALSE;
@@ -33,7 +33,7 @@ static u8 ls_u8StartupType = JF_SERVMGMT_SERV_STARTUPTYPE_UNKNOWN;
 static const olchar_t * ls_pstrProgramName = "olservmgmt";
 static const olchar_t * ls_pstrVersion = "1.0.0";
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static void _printUsage(void)
 {
     ol_printf("\
@@ -203,7 +203,7 @@ static u32 _changeServiceStartupType(olchar_t * name, u8 u8Type)
 
     return u32Ret;
 }
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
@@ -253,5 +253,5 @@ olint_t main(olint_t argc, olchar_t ** argv)
     return u32Ret;
 }
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
