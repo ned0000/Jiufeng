@@ -10,7 +10,7 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
@@ -23,7 +23,7 @@
     #include <stdlib.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_dir.h"
@@ -32,7 +32,7 @@
 
 #include "common.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 #if defined(LINUX)
 typedef jf_dir_t    internal_dir_t;
@@ -45,7 +45,7 @@ typedef struct
 } internal_dir_t;
 #endif
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _getFirstDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -191,7 +191,7 @@ static u32 _traversalDirectory(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_dir_open(const olchar_t * pstrDirName, jf_dir_t ** ppDir)
 {
@@ -426,6 +426,6 @@ olint_t jf_dir_compareDirEntry(const void * a, const void * b)
 
 	return strcmp(e1->jde_strName, e2->jde_strName);
 }
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

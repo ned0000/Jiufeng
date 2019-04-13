@@ -10,7 +10,7 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <fcntl.h>
@@ -23,7 +23,7 @@
     #include <sys/file.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_file.h"
@@ -31,9 +31,9 @@
 #include "jf_err.h"
 #include "common.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static u32 _writeVec(
     jf_filestream_t * pjf, olsize_t vecoffset, jf_datavec_t * pjdData,
     olsize_t * psData)
@@ -108,7 +108,7 @@ static u32 _readVec(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 #if defined(LINUX)
 u32 _setFileStat(jf_file_stat_t * pStat, struct stat * pFileInfo)
 {
@@ -961,6 +961,6 @@ boolean_t jf_file_isLinkFile(u32 u32Mode)
     return bRet;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

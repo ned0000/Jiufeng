@@ -9,12 +9,12 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_conffile.h"
@@ -23,7 +23,7 @@
 #include "jf_string.h"
 #include "jf_mem.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 #define COMMENT_INDICATOR '#'
 
@@ -33,7 +33,7 @@ typedef struct
     u8 ijc_u8Reserved[8];
 } internal_jf_conffile_t;
 
-/* --- private routine section ------------------------------------------------ */
+/* --- private routine section ------------------------------------------------------------------ */
 
 /** Read a line from the file, and trim line comment.
  *
@@ -172,7 +172,7 @@ static u32 _getValueStringByTag(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_conffile_open(
     jf_conffile_open_param_t * pParam, jf_conffile_t ** ppConffile)
@@ -305,6 +305,6 @@ u32 jf_conffile_getString(
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
