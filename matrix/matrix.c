@@ -9,19 +9,19 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_mem.h"
 #include "jf_matrix.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 static void _clearMatrixData(matrix_t * pm)
 {
     ol_memset(pm->m_pdbData, 0, sizeof(oldouble_t) * pm->m_nRow * pm->m_nCol);
@@ -141,7 +141,7 @@ static u32 _algebraicCofactor(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_matrix_alloc(olint_t row, olint_t col, matrix_t ** ppm)
 {
@@ -374,6 +374,6 @@ u32 jf_matrix_hat(matrix_t * pmh, matrix_t * pmo)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
