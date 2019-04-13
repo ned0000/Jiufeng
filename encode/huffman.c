@@ -9,12 +9,12 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_encode.h"
@@ -23,7 +23,7 @@
 #include "jf_mem.h"
 #include "jf_bitarray.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 #define HUFFMAN_NONE      (-1)
 
 typedef struct huffman_node
@@ -48,7 +48,7 @@ typedef struct
     u32 hnp_u32NumOfAlloc;
 } huffman_node_pool_t;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _destroyHuffmanNodePool(huffman_node_pool_t ** ppPool)
 {
@@ -478,7 +478,7 @@ static u32 _genCanonicalHuffmanCode(
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_encode_genHuffmanCode(jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
 {
@@ -586,6 +586,6 @@ u32 jf_encode_genCanonicalHuffmanCodeByCodeLen(
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

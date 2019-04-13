@@ -9,19 +9,19 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_mem.h"
 #include "jf_encode.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 /** ASCII
  *   A ~ Z: 0x41 ~ 0x5A
@@ -36,7 +36,7 @@ static const olchar_t ls_cDecode[] = "|$$$}rstuvwxyz{$$$$$$$>?@"
     "ABCDEFGHIJKLMNOPQRSTUVW$$$$$$XYZ"
     "[\\]^_`abcdefghijklmnopq";
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 /** Encode 3 8-bit binary bytes as 4 '6-bit' characters 
  * 
@@ -85,7 +85,7 @@ static void _decodeBlock(const u8 in[4], u8 out[3])
     out[2] = (u8) (((in[2] << 6) & 0xc0) | in[3]);
 }
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 u32 jf_encode_encodeBase64(
     const u8 * pu8Input, const olsize_t sInput, olchar_t ** ppstrOutput)
@@ -196,5 +196,5 @@ u32 jf_encode_freeBase64Buffer(u8 ** ppu8Output)
     return u32Ret;
 }
 
-/*--------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
