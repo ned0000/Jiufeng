@@ -9,7 +9,7 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -18,7 +18,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -30,7 +30,7 @@
 
 #include "dongyuan.h"
 
-/* --- private data structures --------------------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 typedef struct
 {
@@ -38,10 +38,10 @@ typedef struct
     u32 ig_u8Reserved[8];
 } internal_dongyuan_t;
 
-/* --- private routine section --------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -132,6 +132,6 @@ u32 setDefaultDongyuanParam(dongyuan_param_t * pgp)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

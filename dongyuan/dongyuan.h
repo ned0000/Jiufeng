@@ -12,16 +12,16 @@
 #ifndef JIUFENG_DONGYUAN_H
 #define JIUFENG_DONGYUAN_H
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
 
-/* --- data structures ----------------------------------------------------- */
+/* --- data structures -------------------------------------------------------------------------- */
 typedef void  dongyuan_t;
 
 typedef struct
@@ -31,7 +31,7 @@ typedef struct
     u8 gp_u8Reserved[16];
 } dongyuan_param_t;
 
-/* --- functional routines ------------------------------------------------- */
+/* --- functional routines ---------------------------------------------------------------------- */
 u32 setDefaultDongyuanParam(dongyuan_param_t * pgp);
 
 u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp);
@@ -44,6 +44,6 @@ u32 stopDongyuan(dongyuan_t * pDongyuan);
 
 #endif /*JIUFENG_DONGYUAN_H*/
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
