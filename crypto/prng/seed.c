@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <string.h>
 #if defined(LINUX)
@@ -32,7 +32,7 @@
     #include <Tlhelp32.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -43,7 +43,7 @@
 #include "prngcommon.h"
 #include "clrmem.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 #if defined(LINUX)
     /** Set this to a comma-separated list of 'random' device files to try out.
      */
@@ -52,7 +52,7 @@
 
 #endif
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _getSeedFromSystem(void)
 {
@@ -172,7 +172,7 @@ static u32 _getSeedFromTime(void)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 getSeed(void)
 {
@@ -198,6 +198,6 @@ u32 getSeed(void)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

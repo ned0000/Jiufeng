@@ -9,7 +9,7 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
@@ -18,7 +18,7 @@
     #include <sys/time.h>
 #endif
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_prng.h"
 #include "jf_cghash.h"
 #include "jf_err.h"
@@ -28,7 +28,7 @@
 #include "seed.h"
 #include "jf_mutex.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 #define PRNG_POOL_SIZE    (1024)
 
@@ -53,7 +53,7 @@ typedef struct
 
 static internal_prng_t ls_ipPrng;
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
 {
@@ -173,7 +173,7 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_prng_init(void)
 {
@@ -306,5 +306,5 @@ u32 jf_prng_seed(const u8 * pu8Data, olint_t u32Len, oldouble_t dbEntropy)
     return u32Ret;
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

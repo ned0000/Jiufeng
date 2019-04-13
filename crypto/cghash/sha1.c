@@ -9,11 +9,11 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdlib.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_cghash.h"
@@ -21,10 +21,10 @@
 #include "jf_mem.h"
 #include "sha1.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 /*
  *  This is a RFC 3174 compliant Secure Hash Function (SHA-1) algorithm
  *  implementation. It is directly derived from the SHA-1 reference
@@ -332,7 +332,7 @@ static void SHA1PadMessage(SHA1Context *context)
 ** ==== END RFC 3174 CODE ====
 */
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 void jf_cghash_initSha1(jf_cghash_sha1_t * pSha1)
 {
@@ -387,6 +387,6 @@ u32 jf_cghash_doSha1(
 }
 
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 

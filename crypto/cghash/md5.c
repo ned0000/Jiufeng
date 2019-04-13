@@ -9,19 +9,19 @@
  *  
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdlib.h>
 #include <string.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_cghash.h"
 #include "cghashcommon.h"
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
-/* --- private routine section---------------------------------------------- */
+/* --- private routine section ------------------------------------------------------------------ */
 /*
  * This is a RFC 1321 compliant Message Digest 5 (MD5) algorithm
  * implementation. It is directly derived from the RSA code published in
@@ -354,7 +354,7 @@ static void Decode(
 ** ==== END RFC 1321 CODE ====
 */
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 void jf_cghash_initMd5(jf_cghash_md5_t * pMd5)
 {
@@ -391,5 +391,5 @@ void jf_cghash_doMd5(
     MD5Final(u8Digest, &md5);
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 

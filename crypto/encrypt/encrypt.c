@@ -10,14 +10,14 @@
  *
  */
 
-/* --- standard C lib header files ----------------------------------------- */
+/* --- standard C lib header files -------------------------------------------------------------- */
 #include <stdio.h>
 #include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
 #include <openssl/aes.h>
 
-/* --- internal header files ----------------------------------------------- */
+/* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_encrypt.h"
@@ -28,11 +28,11 @@
 #include "jf_filestream.h"
 #include "jf_hex.h"
 
-/* --- constant definitions ------------------------------------------------ */
+/* --- constant definitions --------------------------------------------------------------------- */
 
-/* --- private data/data structure section --------------------------------- */
+/* --- private data/data structure section ------------------------------------------------------ */
 
-/* --- private routine section ------------------------------------------------ */
+/* --- private routine section ------------------------------------------------------------------ */
 
 static void _setEncryptIv(u8 * piv)
 {
@@ -79,7 +79,7 @@ static u32 _setDecryptKey(olchar_t * pKey, AES_KEY * pAesKey)
     return u32Ret;
 }
 
-/* --- public routine section ---------------------------------------------- */
+/* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_encrypt_encryptFile(
     olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey)
@@ -310,7 +310,7 @@ void jf_encrypt_freeString(olchar_t ** ppStr)
     jf_mem_free((void **)ppStr);
 }
 
-/*---------------------------------------------------------------------------*/
+/*------------------------------------------------------------------------------------------------*/
 
 
 
