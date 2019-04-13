@@ -189,6 +189,7 @@ typedef time_t                       oltime_t;
     #define ol_ntohl                 ntohl
     #define ol_time                  time
     #define ol_strchr                strchr
+    #define ol_qsort                 qsort
 #endif
 
 #if defined(WINDOWS)
