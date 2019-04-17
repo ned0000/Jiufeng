@@ -43,7 +43,7 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_FILE_NOT_FOUND, "File is not found."},
     {JF_ERR_NOT_SUPPORTED, "Not supported."},
     {JF_ERR_OPERATION_FAIL, "Operation failed due to some system error."},
-    {JF_ERR_PROGRAM_ERROR, "Program error. Please contact the technical support."},
+    {JF_ERR_PROGRAM_ERROR, "Program error."},
     {JF_ERR_BUFFER_TOO_SMALL, "Buffer is too small."},
     {JF_ERR_WRONG_PRODUCT_TYPE, "Operation is not supported by this product type."},
     {JF_ERR_NOT_IMPLEMENTED, "Not implemented."},
@@ -61,6 +61,10 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_SERVICE_BUSY, "Service is busy."},
     {JF_ERR_NOT_READY, "Not ready."},
     {JF_ERR_NOT_MATCH, "Not match."},
+    {JF_ERR_BUFFER_IS_FULL, "Buffer is full."},
+    {JF_ERR_NOT_INITIALIZED, "Not initialized."},
+    {JF_ERR_INVALID_NAME, "Invalid name."},
+    {JF_ERR_INVALID_CALLBACK_FUNCTION, "Invalid callback function."},
 /* queue error */
     {JF_ERR_FAIL_CREATE_QUEUE, "Failed to creat queue."},
 /* mem error */
