@@ -13,6 +13,8 @@
 
 SONAME = jf_servmgmt
 
+CONFIG_FILES = servmgmt.setting
+
 SOURCES = servmgmt.c servmgmtsetting.c
 
 JIUTAI_SRCS = jf_mem.c jf_sharedmemory.c jf_process.c jf_attask.c jf_time.c

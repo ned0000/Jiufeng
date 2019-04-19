@@ -20,7 +20,10 @@ TMP_JIUTAI_OBJS = $(foreach i,$(JIUTAI_SRCS),$(JIUTAI_DIR)/$i)
 JIUTAI_OBJS = $(TMP_JIUTAI_OBJS:.c=.o)
 
 all: $(PROGRAM)
-	
+	@for i in $(CONFIG_FILES); do \
+        $(CP) -af $$i $(CONFIG_DIR); \
+    done
+
 $(PROGRAM) : $(OBJECTS) $(JIUTAI_OBJS)
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $(OBJECTS) $(JIUTAI_OBJS) \
       $(EXTRA_OBJECTS) -o $(PROGRAM) $(SYSLIBS) $(EXTRA_LIB_DIR) $(EXTRA_LIBS)

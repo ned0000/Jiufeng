@@ -1,21 +1,24 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <servMgmtSetting>
   <version>1.0</version>
+  <globalSetting>
+    <MaxFailureRetryCount>3</MaxFailureRetryCount>
+  </globalSetting>
   <serviceSetting>
     <service>
       <name>zeus</name>
+      <description>zeus service</description>
       <startupType>automatic</startupType>
       <role>external</role>
       <cmdPath>olzeus</cmdPath>
-      <restartDelay>0</restartDelay>
       <cmdParam></cmdParam>
     </service>
     <service>
       <name>bio</name>
+      <description>bio service</description>
       <startupType>automatic</startupType>
       <role>wakeup</role>
       <cmdPath>olbio</cmdPath>
-      <restartDelay>0</restartDelay>
       <cmdParam></cmdParam>
     </service>
   </serviceSetting>

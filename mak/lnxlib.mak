@@ -21,6 +21,9 @@ TMP_JIUTAI_OBJS = $(foreach i,$(JIUTAI_SRCS),$(JIUTAI_DIR)/$i)
 JIUTAI_OBJS = $(TMP_JIUTAI_OBJS:.c=.o)
 
 all: $(SHAREOBJ)
+	@for i in $(CONFIG_FILES); do \
+        $(CP) -af $$i $(CONFIG_DIR); \
+    done
 
 firstsource = $(firstword $(SOURCES))
 

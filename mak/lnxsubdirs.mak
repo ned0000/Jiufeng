@@ -17,6 +17,7 @@ include $(TOPDIR)/mak/lnxcfg.mak
 .builddirs:
 	@mkdir -p $(BIN_DIR)
 	@mkdir -p $(LIB_DIR)
+	@mkdir -p $(CONFIG_DIR)
 	@touch .builddirs
 
 all: .builddirs subdirs
