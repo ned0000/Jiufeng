@@ -53,6 +53,7 @@ rootdir=$destdir/jtk
 bindir=$rootdir/bin
 incdir=$rootdir/inc
 libdir=$rootdir/lib
+configdir=$rootdir/config
 docdir=$rootdir/doc
 makdir=$rootdir/mak
 templatedir=$rootdir/template
@@ -63,6 +64,7 @@ mkdir $rootdir
 mkdir $bindir
 mkdir $incdir
 mkdir $libdir
+mkdir $configdir
 mkdir $docdir
 mkdir $makdir
 mkdir $templatedir
@@ -80,7 +82,16 @@ if [ $? -ne 0 ]; then
     exit $E_BUILD_ERROR
 fi
 
-cd $topdir
+print_banner "Copy executable files"
+cd $topdir/build/bin
+for file in $bin_files
+do
+    echo "Copy $file"
+    if [ $debug != yes ]; then
+        strip $file
+    fi
+    cp $file $bindir
+done
 
 print_banner "Copy header files"
 cd $topdir/jiutai
@@ -107,15 +118,12 @@ do
     cp $libfile $libdir
 done
 
-print_banner "Copy executable files"
-cd $topdir/build/bin
-for file in $bin_files
+print_banner "Copy config files"
+cd $topdir/build/config
+for file in $(ls)
 do
     echo "Copy $file"
-    if [ $debug != yes ]; then
-        strip $file
-    fi
-    cp $file $bindir
+    cp $file $configdir
 done
 
 print_banner "Copy makefiles"
@@ -130,14 +138,6 @@ if [ $debug == yes ]; then
     echo "DEBUG_JIUFENG = yes" > $makdir/lnxcfg.mak
     cat $topdir/mak/lnxcfg.mak >> $makdir/lnxcfg.mak
 fi
-
-print_banner "Copy setting files"
-cd $topdir
-for file in $setting_files
-do
-    echo "Copy $file"
-    cp $file $bindir
-done
 
 print_banner "Copy template files"
 cd $topdir/template
