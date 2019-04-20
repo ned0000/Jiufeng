@@ -180,8 +180,7 @@ static u32 _resizeHashTable(internal_hash_table_t ** ppiht)
 }
 
 static u32 _insertAtPosition(
-    internal_hash_table_t * piht,
-    hash_table_bucket_t ** ppPosition, void * pEntry)
+    internal_hash_table_t * piht, hash_table_bucket_t ** ppPosition, void * pEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     hash_table_bucket_t * phtb, ** position = ppPosition;
@@ -233,8 +232,7 @@ static u32 _overwriteAtPosition(
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 jf_hashtable_create(
-    jf_hashtable_t ** ppht, jf_hashtable_create_param_t * pjhcp)
+u32 jf_hashtable_create(jf_hashtable_t ** ppht, jf_hashtable_create_param_t * pjhcp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_hash_table_t *piht;
@@ -265,14 +263,12 @@ u32 jf_hashtable_create(
         piht->iht_u32Threshold = (((piht->iht_u32Size) << 2) + 4) / 5;
         piht->iht_u32Resizes = 0;
 
-        u32Ret = jf_mem_alloc((void **)&(piht->iht_phtbBucket),
-            piht->iht_u32Size * sizeof(hash_table_bucket_t *));
+        u32Ret = jf_mem_calloc(
+            (void **)&(piht->iht_phtbBucket), piht->iht_u32Size * sizeof(hash_table_bucket_t *));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(piht->iht_phtbBucket, 0, piht->iht_u32Size * sizeof(hash_table_bucket_t *));
-
         *ppht = piht;
     }
     else if (piht != NULL)
@@ -458,8 +454,8 @@ void jf_hashtable_setupIterator(
     internal_hash_table_t * piht = (internal_hash_table_t *)pht;
 
     pIterator->jhi_htTable = piht;
-    pIterator->jhi_nPos = -1;   /* have a look at ht_increment_iterator */
-    pIterator->jhi_pCursor = 0;
+    pIterator->jhi_nPos = -1;
+    pIterator->jhi_pCursor = NULL;
     jf_hashtable_incrementIterator(pIterator);
 }
 
@@ -467,7 +463,7 @@ void jf_hashtable_incrementIterator(jf_hashtable_iterator_t * pIterator)
 {
     hash_table_bucket_t * current = (hash_table_bucket_t *)pIterator->jhi_pCursor;
 
-    if (current && current->htb_phtbNext)
+    if ((current != NULL) && (current->htb_phtbNext != NULL))
     {
         pIterator->jhi_pCursor = current->htb_phtbNext;
     }
@@ -492,7 +488,7 @@ void jf_hashtable_incrementIterator(jf_hashtable_iterator_t * pIterator)
             }
         }
 
-        pIterator->jhi_pCursor = 0;
+        pIterator->jhi_pCursor = NULL;
         pIterator->jhi_nPos = sz;
     }
 
