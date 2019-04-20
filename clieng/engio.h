@@ -100,7 +100,7 @@ typedef enum
 typedef struct
 {
     olchar_t * cip_pstrNewLine;
-    FILE * cip_fhOutput;
+    jf_filestream_t * cip_pjfOutput;
     u32 cip_u32Reserved[4];
 } clieng_io_param_t;
 

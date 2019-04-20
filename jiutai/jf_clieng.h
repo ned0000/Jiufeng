@@ -21,6 +21,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
+#include "jf_filestream.h"
 
 #undef CLIENGAPI
 #undef CLIENGCALL
@@ -43,9 +44,11 @@
 typedef void  jf_clieng_cmd_t;
 typedef void  jf_clieng_cmd_set_t;
 
-#define JF_CLIENG_MAX_OUTPUT_LINE_LEN      (80)
+/** Maximum output line length
+ */
+#define JF_CLIENG_MAX_OUTPUT_LINE_LEN      (100)
 
-#define JF_CLIENG_MAX_COMMAND_LINE_SIZE    (280)
+#define JF_CLIENG_MAX_COMMAND_LINE_SIZE    (320)
 
 #define JF_CLIENG_MAX_CLI_NAME_LEN         (32)
 
@@ -70,7 +73,7 @@ typedef struct
     u32 jcip_u32MaxCmdSet;
     boolean_t jcip_bEnableScriptEngine;
     u8 jcip_u8Reserved[3];
-    FILE * jcip_fhOutput;
+    jf_filestream_t * jcip_pjfOutput;
     olchar_t  jcip_strInputCmd[JF_CLIENG_MAX_COMMAND_LINE_SIZE];
 } jf_clieng_init_param_t;
 

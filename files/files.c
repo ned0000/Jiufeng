@@ -15,6 +15,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <stdarg.h>
 #if defined(WINDOWS)
 
 #elif defined(LINUX)
@@ -24,11 +25,13 @@
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_file.h"
 #include "jf_filestream.h"
 #include "jf_err.h"
+
 #include "common.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -685,6 +688,18 @@ u32 jf_filestream_flush(jf_filestream_t * pjf)
         u32Ret = JF_ERR_FAIL_FLUSH_FILE;
 
     return u32Ret;
+}
+
+olsize_t jf_filestream_printf(jf_filestream_t * pjf, const olchar_t * format, ...)
+{
+    olsize_t sRet = 0;
+    va_list vlParam;
+
+    va_start(vlParam, format);
+    sRet = vfprintf(pjf, format, vlParam);
+    va_end(vlParam);
+
+    return sRet;
 }
 
 u32 jf_filestream_seek(jf_filestream_t * pjf, long offset, olint_t whence)

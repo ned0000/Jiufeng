@@ -81,7 +81,7 @@ static u32 _createInputOutput(
     jf_logger_logInfoMsg("create input output");
     
     param.cip_pstrNewLine = pjcip->jcip_pstrNewLine;
-    param.cip_fhOutput = pjcip->jcip_fhOutput;
+    param.cip_pjfOutput = pjcip->jcip_pjfOutput;
 
     u32Ret = initCliengIo(&param);
     

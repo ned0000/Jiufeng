@@ -173,7 +173,7 @@ static u32 _processUser(void * pMaster, void * pParam)
         u32Ret = _userHelp(pocm);
     else if (pcup->cup_u8Action == CLI_ACTION_LIST_USER)
     {
-        memset(&userlist, 0, sizeof(user_list_t));
+        ol_memset(&userlist, 0, sizeof(user_list_t));
         userlist.ul_u16NumUser = 3;
 
         ol_strcpy(userlist.ul_tUser[0].ui_strUsername, "min");

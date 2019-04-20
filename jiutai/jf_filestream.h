@@ -77,6 +77,9 @@ FILESAPI u32 FILESCALL jf_filestream_copyFile(
 
 FILESAPI u32 FILESCALL jf_filestream_flush(jf_filestream_t * pjf);
 
+FILESAPI olsize_t FILESCALL jf_filestream_printf(
+    jf_filestream_t * pjf, const olchar_t * format, ...);
+
 FILESAPI boolean_t FILESCALL jf_filestream_isEndOfFile(jf_filestream_t * pjf);
 
 FILESAPI olint_t FILESCALL jf_filestream_getChar(jf_filestream_t * pjf);

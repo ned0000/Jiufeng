@@ -34,25 +34,25 @@ const static olchar_t * cls_pstrByteHexDumpBegin = "Begin Hex Dump in Byte";
 const static olchar_t * cls_pstrByteHexDumpEnd = "End Hex Dump in Byte";
 
 const static olchar_t * cls_pstrBanner = "\
-===============================================================================";
+====================================================================================================";
 
 const static olchar_t * cls_pstrDivider = "\
--------------------------------------------------------------------------------";
+----------------------------------------------------------------------------------------------------";
 
 const static olchar_t * cls_pstrBannerShift4 = "\
-    ===========================================================================";
+    ================================================================================================";
 
 const static olchar_t * cls_pstrDividerShift2 = "\
-  -----------------------------------------------------------------------------";
+  --------------------------------------------------------------------------------------------------";
 
 typedef struct
 {
     boolean_t ici_bInitialized;
     u8 ici_u8Reserved[7];
     /* ";" */
-	char ici_strSpecialDelimit[8];
-	char ici_strNewLine[8];
-	char ici_strBlankSpaces[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
+	olchar_t ici_strSpecialDelimit[8];
+	olchar_t ici_strNewLine[8];
+	olchar_t ici_strBlankSpaces[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
     olchar_t ici_strOutputBuffer[MAX_OUTPUT_BUFFER_LEN];
     olsize_t ici_sNewLine;
 	u8 ici_u8MoreLines;
@@ -63,7 +63,7 @@ typedef struct
 	boolean_t ici_bMoreEnabled;
 	boolean_t ici_bMoreCancel;
     u8 ici_u8Reserved2[3];
-    FILE * ici_fhOutput;
+    jf_filestream_t * ici_pjfOutput;
 } internal_clieng_io_t;
 
 #ifndef WINDOWS
@@ -72,8 +72,8 @@ typedef struct
     #define MAX_MORE_LINES    (23)
 #endif
 
-/* constant definitions */
-#define MAX_CMD_LEN           (280)
+/** Maximum number of command in command history
+ */
 #define MAX_CMD_HISTORY       (64)
 
 /** use LEFT-SPACE-LEFT to implement backspace
@@ -297,7 +297,7 @@ static u32 _getInputLine(
     clieng_input_type_t *pType, olchar_t * pBuf,
     olsize_t * pLen, olsize_t sPrompt)
 {
-#define MAX_INPUT_LEN (2 * MAX_CMD_LEN)
+#define MAX_INPUT_LEN (2 * JF_CLIENG_MAX_COMMAND_LINE_SIZE)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t string[MAX_INPUT_LEN + 8];
     olchar_t cur_char[3];
@@ -592,8 +592,7 @@ static u32 _getAnyKey(
 }
 
 static u32 _getInput(
-    clieng_input_type_t *pType, olchar_t *pBuf,
-    olsize_t * pLen, olsize_t promptLen)
+    clieng_input_type_t *pType, olchar_t *pBuf, olsize_t * pLen, olsize_t promptLen)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -619,8 +618,8 @@ static u32 _getInput(
     return u32Ret;
 }
 
-static u32 _postOutput(internal_clieng_io_t * pici, clieng_output_type_t type,
-    const olchar_t * pBuf, u32 len)
+static u32 _postOutput(
+    internal_clieng_io_t * pici, clieng_output_type_t type, const olchar_t * pBuf, u32 len)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -630,8 +629,8 @@ static u32 _postOutput(internal_clieng_io_t * pici, clieng_output_type_t type,
     }
     else
     {
-        fprintf(pici->ici_fhOutput, "%s", pBuf);
-        fflush(pici->ici_fhOutput);
+        jf_filestream_printf(pici->ici_pjfOutput, "%s", pBuf);
+        jf_filestream_flush(pici->ici_pjfOutput);
     }
 
     return u32Ret;
@@ -682,7 +681,7 @@ static u32 _checkCaption(const jf_clieng_caption_t * pjcc, u32 u32Count)
     u32 u32Index, u32Length;
 
     u32Length = 0;
-    for (u32Index=0; u32Index<u32Count; u32Index++)
+    for (u32Index = 0; u32Index < u32Count; u32Index++)
     {
         u32Length += pjcc[u32Index].jcc_u32Len;
     }
@@ -705,16 +704,15 @@ u32 initCliengIo(clieng_io_param_t * pcip)
     assert(pcip != NULL);
     assert(! pici->ici_bInitialized);
 
-    memset(pici, 0, sizeof(internal_clieng_io_t));
+    ol_memset(pici, 0, sizeof(internal_clieng_io_t));
     pici->ici_bSpecialDelimit = FALSE;
     pici->ici_strSpecialDelimit[0] = ';';
     pici->ici_strSpecialDelimit[1] = 0;
     ol_strcpy(pici->ici_strNewLine, pcip->cip_pstrNewLine);
     pici->ici_sNewLine = ol_strlen(pici->ici_strNewLine);
-    memset(pici->ici_strBlankSpaces, ' ', JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1);
+    ol_memset(pici->ici_strBlankSpaces, ' ', JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1);
     pici->ici_strBlankSpaces[JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1] = '\0';
-    pici->ici_fhOutput =
-        (pcip->cip_fhOutput == NULL) ? stdout : pcip->cip_fhOutput;
+    pici->ici_pjfOutput = (pcip->cip_pjfOutput == NULL) ? stdout : pcip->cip_pjfOutput;
 
     setMoreDisable();
 
@@ -746,14 +744,13 @@ u32 finiCliengIo(void)
 }
 
 u32 engioInput(
-    clieng_input_type_t * pcitInputType,
-    olchar_t * pstrInputBuf, olsize_t * psInputBuf, olsize_t sPrompt)
+    clieng_input_type_t * pcitInputType, olchar_t * pstrInputBuf, olsize_t * psInputBuf,
+    olsize_t sPrompt)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 //    internal_clieng_io_t * pici = &ls_iciCliengIo;
     
-    assert(pcitInputType != NULL &&
-           pstrInputBuf != NULL && psInputBuf != NULL);
+    assert(pcitInputType != NULL && pstrInputBuf != NULL && psInputBuf != NULL);
 
     u32Ret = _getInput(pcitInputType, pstrInputBuf, psInputBuf, sPrompt);
     
@@ -770,8 +767,7 @@ u32 voutputLine(const olchar_t * fmt, va_list ap)
 
     assert(fmt != NULL);
 
-    sLength = ol_vsnprintf(
-        pici->ici_strOutputBuffer, MAX_OUTPUT_BUFFER_LEN, fmt, ap);
+    sLength = ol_vsnprintf(pici->ici_strOutputBuffer, MAX_OUTPUT_BUFFER_LEN, fmt, ap);
     
     pstrLineBegin = pici->ici_strOutputBuffer;
     sRestOutput = sLength;
@@ -815,12 +811,12 @@ u32 voutputLine(const olchar_t * fmt, va_list ap)
         {
             if (sRestOutput >= JF_CLIENG_MAX_OUTPUT_LINE_LEN)
             {
-                memcpy(strBuffer, pstrLineBegin, JF_CLIENG_MAX_OUTPUT_LINE_LEN);
+                ol_memcpy(strBuffer, pstrLineBegin, JF_CLIENG_MAX_OUTPUT_LINE_LEN);
                 sLength = JF_CLIENG_MAX_OUTPUT_LINE_LEN;
             }
             else
             {
-                memcpy(strBuffer, pstrLineBegin, sRestOutput);
+                ol_memcpy(strBuffer, pstrLineBegin, sRestOutput);
                 sLength = sRestOutput;
             }
             
@@ -1317,12 +1313,12 @@ u32 jf_clieng_outputRawLine(const olchar_t * line)
         {
             if (sRestOutput >= JF_CLIENG_MAX_OUTPUT_LINE_LEN)
             {
-                memcpy(strBuffer, pstrLineBegin, JF_CLIENG_MAX_OUTPUT_LINE_LEN);
+                ol_memcpy(strBuffer, pstrLineBegin, JF_CLIENG_MAX_OUTPUT_LINE_LEN);
                 sLength = JF_CLIENG_MAX_OUTPUT_LINE_LEN;
             }
             else
             {
-                memcpy(strBuffer, pstrLineBegin, sRestOutput);
+                ol_memcpy(strBuffer, pstrLineBegin, sRestOutput);
                 sLength = sRestOutput;
             }
             
@@ -1526,8 +1522,7 @@ u32 jf_clieng_printOneFullLine(
 }
 
 u32 jf_clieng_printTwoHalfLine(
-    const jf_clieng_caption_t * pjcc, const olchar_t * pstrLeft,
-    const olchar_t *pstrRight)
+    const jf_clieng_caption_t * pjcc, const olchar_t * pstrLeft, const olchar_t *pstrRight)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Len = 0;
@@ -1557,8 +1552,7 @@ u32 jf_clieng_printTwoHalfLine(
 }
 
 void jf_clieng_appendBriefColumn(
-    const jf_clieng_caption_t * pjcc, olchar_t * pstrLine,
-    const olchar_t * pstrColumn)
+    const jf_clieng_caption_t * pjcc, olchar_t * pstrLine, const olchar_t * pstrColumn)
 {
     u32 u32Len = ol_strlen(pstrColumn);
 
