@@ -23,26 +23,45 @@
 #include "jf_err.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
+
 typedef void  jf_hashtable_t;
 
 typedef olint_t (* jf_hashtable_fnCmpKeys_t) (void * pKey1, void * pKey2);
 typedef olint_t (* jf_hashtable_fnHashKey_t) (void * pKey);
 typedef void * (* jf_hashtable_fnGetKeyFromEntry_t) (void * pEntry);
 typedef u32 (* jf_hashtable_fnFreeEntry_t) (void ** ppEntry);
-typedef void (* jf_hashtable_fnError_t) (u8 * pu8Errmsg);
 
 /* --- data structures -------------------------------------------------------------------------- */
+
 typedef struct
 {
-    u32 jhcp_u32MinSize; /*minimal number of entry by estimation*/
+    /** minimal number of entry by estimation */
+    u32 jhcp_u32MinSize;
     u32 jhcp_u32Reserved;
+    /** callback function to compare key */
     jf_hashtable_fnCmpKeys_t jhcp_fnCmpKeys;
+    /** callback function to hash key */
     jf_hashtable_fnHashKey_t jhcp_fnHashKey;
+    /** callback function to get key from entry */
     jf_hashtable_fnGetKeyFromEntry_t jhcp_fnGetKeyFromEntry;
+    /** callback function to free the entry */
     jf_hashtable_fnFreeEntry_t jhcp_fnFreeEntry;
-    jf_hashtable_fnError_t jhcp_fnError;
     u32 jhcp_u32Reserved2[4];
 } jf_hashtable_create_param_t;
+
+typedef struct
+{
+    /** Number of entry in hash table */
+    u32 jhs_u32NumOfEntry;
+    /** Size of hash table */
+    u32 jhs_u32Size;
+    /** Number of collisions */
+    u32 jhs_u32Collisions;
+    /** The bucket index with maximum entries */
+    u32 jhs_u32BucketIndexWithMaxEntries;
+    /** Count of resize operation */
+    u32 jhs_u32CountOfResizeOp;
+} jf_hashtable_stat_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
@@ -87,7 +106,7 @@ u32 jf_hashtable_getSize(jf_hashtable_t * pjh);
 /** Returns an statically allocated string with useful statistical information.
  *  This string is overwritten by subsequent calls to this function.
  */
-void jf_hashtable_showStatistics(jf_hashtable_t * pjh);
+void jf_hashtable_getStat(jf_hashtable_t * pjh, jf_hashtable_stat_t * stat);
 
 /** The definition of this structure is placed here because it should be
  *  possible to allocate an iterator as an automatic variable. This is also more
