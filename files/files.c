@@ -976,6 +976,32 @@ boolean_t jf_file_isLinkFile(u32 u32Mode)
     return bRet;
 }
 
+boolean_t jf_file_isTypedFile(
+    const olchar_t * pstrName, const olchar_t * pstrPrefex, const olchar_t * pstrFileExt)
+{
+    boolean_t bRet = FALSE;
+    olsize_t namesize, extsize;
+
+    if (pstrPrefex != NULL)
+    {
+        if (ol_strncmp(pstrName, pstrPrefex, strlen(pstrPrefex)) != 0)
+            return bRet;
+    }
+
+    if (pstrFileExt != NULL)
+    {
+        namesize = ol_strlen(pstrName);
+        extsize = ol_strlen(pstrFileExt);
+        if (namesize <= extsize)
+            return bRet;
+
+        if (ol_strcmp(pstrName + namesize - extsize, pstrFileExt) != 0)
+            return bRet;
+    }
+
+    return TRUE;
+}
+
 /*------------------------------------------------------------------------------------------------*/
 
 

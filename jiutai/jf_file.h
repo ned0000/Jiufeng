@@ -196,6 +196,21 @@ FILESAPI u32 FILESCALL jf_file_writen(
 FILESAPI u32 FILESCALL jf_file_readLine(
     jf_file_t fd, void * pBuffer, olsize_t * psRead);
 
+/** Check if the file is the typed file
+ *  
+ *  @param pstrName [in] the name of the file, no path in the string
+ *  @param pstrPrefex [in] the prefix string
+ *  @param pstrFileExt [in] the file extension
+ *
+ *  @return the status of the file
+ *  @retval TRUE the file is typed file
+ *  @retval FALSE the file is not typed file
+ *
+ *  @note fnCreateResource_t must be called successfully before this func is
+ *   called.
+ */
+FILESAPI boolean_t FILESCALL jf_file_isTypedFile(
+    const olchar_t * pstrName, const olchar_t * pstrPrefex, const olchar_t * pstrFileExt);
 
 #endif /*JIUFENG_FILE_H*/
 
