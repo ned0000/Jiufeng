@@ -99,7 +99,7 @@ static void test4(void)
     ol_printf("\n");
 }
 
-u32 getNextTradingDate(const olchar_t * pstrCurr, olchar_t * pstrNext)
+static u32 _testGetNextTradingDate(const olchar_t * pstrCurr, olchar_t * pstrNext)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t year, month, day;
@@ -149,7 +149,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     test4();
 
     ol_strcpy(curdate, "2004-12-03");
-    getNextTradingDate(curdate, strdate);
+    _testGetNextTradingDate(curdate, strdate);
     ol_printf("curdate: %s, nextdate: %s\n", curdate, strdate);
     return u32Ret;
 }
