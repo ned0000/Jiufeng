@@ -20,7 +20,7 @@ RANLIB = ranlib
 CP = cp
 
 # C flags
-CFLAGS = -Wall -DLINUX -D_REENTRANT -fPIC
+CFLAGS = -Wall -DLINUX -D_REENTRANT -fPIC -Wno-format-truncation
 
 # for 64bit version
 CFLAGS += -DJIUFENG_64BIT

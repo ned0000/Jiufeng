@@ -48,10 +48,10 @@ static u32 _setName(archive_header_t * pah, const olchar_t * pstrFullpath,
     jf_file_stat_t * pFilestat)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strFilename[JF_LIMIT_MAX_PATH_LEN];
+    olchar_t strFilename[256];
     archive_block_t * pab;
 
-    jf_file_getFileName(strFilename, JF_LIMIT_MAX_PATH_LEN, pstrFullpath);
+    jf_file_getFileName(strFilename, sizeof(strFilename), pstrFullpath);
     if (strlen(strFilename) < AH_NAME_LEN)
     {
         ol_snprintf((olchar_t *)pah->ah_u8Name, AH_NAME_LEN - 1, "%s", strFilename);
