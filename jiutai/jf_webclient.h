@@ -55,7 +55,7 @@ typedef struct
 
 typedef u32 (* jf_webclient_fnOnResponse_t)(
     jf_network_asocket_t * pAsocket, olint_t nEvent,
-    jf_httpparser_packet_header_t * header, void * pUser, boolean_t * pbPause);
+    jf_httpparser_packet_header_t * header, void * pUser);
 
 /* --- functional routines ---------------------------------------------------------------------- */
 

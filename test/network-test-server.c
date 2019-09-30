@@ -115,8 +115,7 @@ static void _terminate(olint_t signal)
 }
 
 static u32 _onNtsConnect(
-    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    void ** ppUser)
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket, void ** ppUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     server_data_t * psd = NULL;
@@ -134,9 +133,8 @@ static u32 _onNtsConnect(
     return u32Ret;
 }
 
-static u32 _onNtsDisConnect(
-    jf_network_assocket_t * pAssocket, void * pAsocket, u32 u32Status,
-    void * pUser)
+static u32 _onNtsDisconnect(
+    jf_network_assocket_t * pAssocket, void * pAsocket, u32 u32Status, void * pUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     server_data_t * psd = (server_data_t *)pUser;
@@ -148,21 +146,20 @@ static u32 _onNtsDisConnect(
     return u32Ret;
 }
 
-static u32 _onNtsSendOK(
-    jf_network_assocket_t * pAssocket, jf_network_asocket_t * connection,
-    void * pUser)
+static u32 _onNtsSendData(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket, u32 u32Status,
+    u8 * pu8Buffer, olsize_t sBuf, void * pUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    ol_printf("send ok\n");
+    ol_printf("on send data\n");
 
     return u32Ret;
 }
 
 static u32 _onNtsData(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t * pu32BeginPointer, olsize_t u32EndPointer,
-    void * pUser, boolean_t * bPause)
+    u8 * pu8Buffer, olsize_t * pu32BeginPointer, olsize_t u32EndPointer, void * pUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     server_data_t * psd = (server_data_t *)pUser;
@@ -171,15 +168,15 @@ static u32 _onNtsData(
 
     ol_printf("receive ok, id: %s\n", psd->sd_u8Id);
     ol_printf("begin: %d, end: %d\n", u32Begin, u32EndPointer);
-    memcpy(u8Buffer, pu8Buffer + u32Begin, u32EndPointer - u32Begin);
+    ol_memcpy(u8Buffer, pu8Buffer + u32Begin, u32EndPointer - u32Begin);
     u8Buffer[u32EndPointer - u32Begin] = '\0';
     ol_printf("%s\n", u8Buffer);
+
     *pu32BeginPointer = u32EndPointer;
 
     ol_strcpy((olchar_t *)u8Buffer, "hello everybody");
     u32Ret = jf_network_sendAssocketData(
-        pAssocket, pAsocket, u8Buffer,
-        ol_strlen((olchar_t *)u8Buffer), JF_NETWORK_MEM_OWNER_USER);
+        pAssocket, pAsocket, u8Buffer, ol_strlen((olchar_t *)u8Buffer));
 
     return u32Ret;
 }
@@ -195,7 +192,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
     jlipParam.jlip_pstrCallerName = NETWORK_TEST_SERVER;
-//    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_u8TraceLevel = 3;
 
     u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
@@ -219,8 +216,8 @@ olint_t main(olint_t argc, olchar_t ** argv)
                 jnacp.jnacp_u32MaxConn = 10;
                 jnacp.jnacp_u16PortNumber = SERVER_PORT;
                 jnacp.jnacp_fnOnConnect = _onNtsConnect;
-                jnacp.jnacp_fnOnDisconnect = _onNtsDisConnect;
-                jnacp.jnacp_fnOnSendOK = _onNtsSendOK;
+                jnacp.jnacp_fnOnDisconnect = _onNtsDisconnect;
+                jnacp.jnacp_fnOnSendData = _onNtsSendData;
                 jnacp.jnacp_fnOnData = _onNtsData;
 
                 u32Ret = jf_network_createAssocket(ls_pjncChain, &pAssocket, &jnacp);

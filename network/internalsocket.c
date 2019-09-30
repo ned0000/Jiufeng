@@ -435,7 +435,9 @@ u32 isSend(internal_socket_t * pis, void * pBuffer, olsize_t * psSend)
         *psSend = 0;
     }
     else
+    {
         *psSend = sSent;
+    }
 
     return u32Ret;
 }
@@ -889,7 +891,7 @@ u32 isAccept(
     u32Ret = jf_mem_alloc((void **)&pisAccept, sizeof(internal_socket_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(pisAccept, 0, sizeof(internal_socket_t));
+        ol_memset(pisAccept, 0, sizeof(internal_socket_t));
 
 #if defined(LINUX)
         pisAccept->is_isSocket = accept(

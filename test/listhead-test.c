@@ -30,7 +30,7 @@ static boolean_t ls_bListHead = FALSE;
 static void _printUsage(void)
 {
     ol_printf("\
-Usage: bases-test [-l] \n\
+Usage: listhead-test [-l] \n\
          [-T <trace level>] [-F <trace log file>] [-S <trace file size>]\n\
      -l test list head \n");
 
@@ -113,12 +113,12 @@ static u32 _initTestListhead(test_listhead_t * ptl)
     return u32Ret;
 }
 
-static void _listHeadEntry(jf_listhead_t * head)
+static void _listHeadEntry(jf_listhead_t * head, s32 index)
 {
     jf_listhead_t * pjl;
     test_listhead_t * ptl;
 
-    ol_printf("list entry\n");
+    ol_printf("list entry %d\n", index);
 
     jf_listhead_forEach(head, pjl)
     {
@@ -133,9 +133,9 @@ static void _listHeadEntry(jf_listhead_t * head)
 static u32 _testListHead(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    test_listhead_t tl1, tl2, tl3, tl4, tl5;
-    JF_LISTHEAD(head1);
-    JF_LISTHEAD(head2);
+    test_listhead_t tl1, tl2, tl3, tl4, tl5, tl6;
+    JF_LISTHEAD(list1);
+    JF_LISTHEAD(list2);
 
     ol_printf("init entry\n");
 
@@ -144,57 +144,108 @@ static u32 _testListHead(void)
     _initTestListhead(&tl3);
     _initTestListhead(&tl4);
     _initTestListhead(&tl5);
+    _initTestListhead(&tl6);
 
-    jf_listhead_addTail(&head1, &(tl1.tl_jlList));
-    jf_listhead_addTail(&head1, &(tl2.tl_jlList));
-    jf_listhead_addTail(&head1, &(tl3.tl_jlList));
-    jf_listhead_addTail(&head1, &(tl4.tl_jlList));
+    jf_listhead_addTail(&list1, &(tl1.tl_jlList));
+    jf_listhead_addTail(&list1, &(tl2.tl_jlList));
+    jf_listhead_addTail(&list1, &(tl3.tl_jlList));
+    jf_listhead_addTail(&list1, &(tl4.tl_jlList));
 
-    _listHeadEntry(&head1);
+    _listHeadEntry(&list1, 1);
 
-    ol_printf("delete entry 2 from head 1\n");
-    jf_listhead_del(&(tl2.tl_jlList));
-    _listHeadEntry(&head1);
+    ol_printf("=== delete entry 2 from list 1\n");
+    jf_listhead_del(&tl2.tl_jlList);
+    _listHeadEntry(&list1, 1);
 
-    ol_printf("delete entry 4 from head 1\n");
-    jf_listhead_del(&(tl4.tl_jlList));
-    _listHeadEntry(&head1);
+    ol_printf("=== delete entry 4 from list 1\n");
+    jf_listhead_del(&tl4.tl_jlList);
+    _listHeadEntry(&list1, 1);
 
-    ol_printf("insert entry 2 to head 1\n");
-    jf_listhead_add(&(tl1.tl_jlList), &(tl2.tl_jlList));
-    _listHeadEntry(&head1);
+    ol_printf("=== insert entry 4 to tail of list 1\n");
+    jf_listhead_addTail(&list1, &tl4.tl_jlList);
+    _listHeadEntry(&list1, 1);
 
-    ol_printf("insert entry 4 to head 1\n");
-    jf_listhead_add(&(tl3.tl_jlList), &(tl4.tl_jlList));
-    _listHeadEntry(&head1);
+    ol_printf("=== delete entry 4 from list 1\n");
+    jf_listhead_del(&tl4.tl_jlList);
+    _listHeadEntry(&list1, 1);
 
-    ol_printf("replace entry 2 with 5 of head 1\n");
-    jf_listhead_replace(&(tl2.tl_jlList), &(tl5.tl_jlList));
-    _listHeadEntry(&head1);
+    ol_printf("=== insert entry 2 to list 1\n");
+    jf_listhead_add(&list1, &tl2.tl_jlList);
+    _listHeadEntry(&list1, 1);
 
-    ol_printf("replace entry 5 with 2 of head 1\n");
-    jf_listhead_replace(&(tl5.tl_jlList), &(tl2.tl_jlList));
-    _listHeadEntry(&head1);
+    ol_printf("=== insert entry 4 to list 1\n");
+    jf_listhead_add(&list1, &tl4.tl_jlList);
+    _listHeadEntry(&list1, 1);
 
-    ol_printf("add entry 5 to head 2\n");
-    jf_listhead_add(&head2, &(tl5.tl_jlList));
-    _listHeadEntry(&head2);
+    ol_printf("=== replace entry 2 with 5 of list 1\n");
+    jf_listhead_replace(&tl2.tl_jlList, &tl5.tl_jlList);
+    _listHeadEntry(&list1, 1);
 
-    ol_printf("move entry 5 from head 2 to head 1\n");
-    jf_listhead_move(&head1, &(tl5.tl_jlList));
-    _listHeadEntry(&head1);
+    ol_printf("=== replace entry 5 with 2 of list 1\n");
+    jf_listhead_replace(&tl5.tl_jlList, &tl2.tl_jlList);
+    _listHeadEntry(&list1, 1);
 
-    ol_printf("delete entry 5 from head 1\n");
-    jf_listhead_del(&(tl5.tl_jlList));
-    _listHeadEntry(&head1);
+    ol_printf("=== add entry 5 to list 2\n");
+    jf_listhead_add(&list2, &tl5.tl_jlList);
+    _listHeadEntry(&list2, 2);
 
-    ol_printf("add entry 5 to head 2\n");
-    jf_listhead_add(&head2, &(tl5.tl_jlList));
-    _listHeadEntry(&head2);
+    ol_printf("=== move entry 5 from list 2 to list 1\n");
+    jf_listhead_move(&list1, &tl5.tl_jlList);
+    _listHeadEntry(&list1, 1);
+    _listHeadEntry(&list2, 2);
 
-    ol_printf("splice head 2 to head\n");
-    jf_listhead_splice(&head1, &head2);
-    _listHeadEntry(&head1);
+    ol_printf("=== delete entry 5 from list 1\n");
+    jf_listhead_del(&tl5.tl_jlList);
+    _listHeadEntry(&list1, 1);
+
+    ol_printf("=== add entry 5 to list 2\n");
+    jf_listhead_add(&list2, &tl5.tl_jlList);
+    _listHeadEntry(&list2, 2);
+
+    ol_printf("=== add entry 6 to the tail of list 2\n");
+    jf_listhead_addTail(&list2, &tl6.tl_jlList);
+    _listHeadEntry(&list2, 2);
+
+    ol_printf("=== splice list 2 to list 1\n");
+    jf_listhead_splice(&list1, &list2);
+    _listHeadEntry(&list1, 1);
+    _listHeadEntry(&list2, 2);
+
+    ol_printf("=== delete entry 6 from list 1\n");
+    jf_listhead_del(&tl6.tl_jlList);
+    _listHeadEntry(&list1, 1);
+
+    ol_printf("=== add entry 6 to list 2\n");
+    jf_listhead_add(&list2, &tl6.tl_jlList);
+    _listHeadEntry(&list2, 2);
+
+    ol_printf("=== delete entry 5 from list 1\n");
+    jf_listhead_del(&tl5.tl_jlList);
+    _listHeadEntry(&list1, 1);
+
+    ol_printf("=== add entry 5 to list 2\n");
+    jf_listhead_add(&list2, &tl5.tl_jlList);
+    _listHeadEntry(&list2, 2);
+
+    ol_printf("=== splice list 2 to the tail of list 1\n");
+    jf_listhead_spliceTail(&list1, &list2);
+    _listHeadEntry(&list1, 1);
+    _listHeadEntry(&list2, 2);
+
+    {
+        jf_listhead_t * pos, * next;
+        test_listhead_t * entry;
+        ol_printf("=== remove all entries in list 1\n");
+        jf_listhead_forEachSafe(&list1, pos, next)
+        {
+            entry = jf_listhead_getEntry(pos, test_listhead_t, tl_jlList);
+            ol_printf("remove entries %d in list 1\n", entry->tl_u32Flag1);
+            jf_listhead_del(pos);
+
+            _listHeadEntry(&list1, 1);
+        }
+
+    }
 
     return u32Ret;
 }
@@ -207,18 +258,15 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_logger_init_param_t jlipParam;
 
     memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
-    jlipParam.jlip_pstrCallerName = "BASES-TEST";
+    jlipParam.jlip_pstrCallerName = "LISTHEAD-TEST";
 
     u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jlipParam.jlip_bLogToStdout = TRUE;
-        jlipParam.jlip_u8TraceLevel = 0;
-        jf_logger_init(&jlipParam);
-    }
 
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
+        jf_logger_init(&jlipParam);
+
         if (ls_bListHead)
             u32Ret = _testListHead();
         else
@@ -226,11 +274,10 @@ olint_t main(olint_t argc, olchar_t ** argv)
             ol_printf("No operation is specified !!!!\n\n");
             _printUsage();
         }
+
+        jf_logger_logErrMsg(u32Ret, "Quit");
+        jf_logger_fini();
     }
-
-    jf_logger_logErrMsg(u32Ret, "Quit");
-
-    jf_logger_fini();
 
     return u32Ret;
 }

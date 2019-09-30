@@ -131,7 +131,7 @@ static u32 _makeUuidV1(uuid_gen_t * pug)
             }
             /* stall the UUID generation until the system clock catches up.
                getTimeOfDay has resolution of 1us. Sleep for 500ns (1/2us) */
-            jf_time_nsleep(500);
+            jf_time_nanoSleep(500);
         }
     }
 

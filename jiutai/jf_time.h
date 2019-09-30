@@ -39,21 +39,37 @@ u32 jf_time_fileTimeToSecondsSince1970(FILETIME * pTime);
  */
 u32 jf_time_getTimeOfDay(struct timeval * tv);
 
-/** Sleep some time in milliseconds
- *  
- *  @param u32Milliseconds [in] the time to sleep
+/** Sleep some time in seconds
+ *
+ *  @param u32Seconds [in] the time to sleep
  *
  *  @return the error code
  */
-u32 jf_time_msleep(u32 u32Milliseconds);
+u32 jf_time_sleep(u32 u32Seconds);
+
+/** Sleep some time in milliseconds
+ *  
+ *  @param u32MilliSeconds [in] the time to sleep
+ *
+ *  @return the error code
+ */
+u32 jf_time_milliSleep(u32 u32MilliSeconds);
+
+/** Sleep some time in microseconds
+ *  
+ *  @param u32MicroSeconds [in] the time to sleep
+ *
+ *  @return the error code
+ */
+u32 jf_time_microSleep(u32 u32MicroSeconds);
 
 /** Sleep some time in nanoseconds
  *  
- *  @param u32Nanoseconds [in] the time to sleep
+ *  @param u32NanoSeconds [in] the time to sleep
  *
  *  @return the error code
  */
-u32 jf_time_nsleep(u32 u32Nanoseconds);
+u32 jf_time_nanoSleep(u32 u32NanoSeconds);
 
 /** Convert time in hour:min:sec to seconds
  *

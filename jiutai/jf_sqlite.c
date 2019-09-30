@@ -74,7 +74,7 @@ static u32 _jtSqliteEvalSqlStmt(
             }
             else
             {
-                jf_time_msleep(DB_LOCK_WAIT);
+                jf_time_milliSleep(DB_LOCK_WAIT);
             }
             /* Reset the statement */
             sqlite3_reset(pStatement);
@@ -147,7 +147,7 @@ static u32 _jtSqliteExecSqlTransaction(jf_sqlite_t * pjs, olchar_t * pSql)
             TRANSACTION_RETRY_MIN_TIME, TRANSACTION_RETRY_MAX_TIME);
         jf_logger_logDebugMsg(
             "retry jt sqlite trans, attemp: %d, sleep: %u", nAttempt, u32Value);
-		jf_time_msleep(u32Value);
+		jf_time_milliSleep(u32Value);
 		nAttempt++;
 	} while (u32Ret != JF_ERR_NO_ERROR);
 

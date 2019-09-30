@@ -66,8 +66,7 @@ u32 jf_network_createStreamSocket(
 
     assert((pjiLocal != NULL) && (pu16Port != NULL) && (ppSocket != NULL));
 
-    u32Ret = createStreamIsocket(pjiLocal, pu16Port,
-        (internal_socket_t **)ppSocket);
+    u32Ret = createStreamIsocket(pjiLocal, pu16Port, (internal_socket_t **)ppSocket);
 
     return u32Ret;
 }

@@ -360,7 +360,7 @@ static u32 _monitorServices(
     }
     else
     {
-        jf_time_msleep(u32BlockTime);
+        jf_time_milliSleep(u32BlockTime);
     }
 
     return u32Ret;

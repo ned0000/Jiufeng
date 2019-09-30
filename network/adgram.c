@@ -140,7 +140,7 @@ static u32 _processAdgram(internal_adgram_t * pia)
         if (pia->ia_fnOnData != NULL)
         {
             pia->ia_fnOnData(pia, pia->ia_pu8Buffer, &(pia->ia_sBeginPointer),
-                pia->ia_sEndPointer, pia->ia_pUser, &(pia->ia_bPause),
+                pia->ia_sEndPointer, pia->ia_pUser,
                 &(pia->ia_iaRemote), pia->ia_u16RemotePort);
         }
 
@@ -661,20 +661,6 @@ u32 jf_network_freeSocketForAdgram(jf_network_adgram_t * pAdgram)
 
     if (pia->ia_pjnsSocket != NULL)
         jf_network_destroySocket(&(pia->ia_pjnsSocket));
-
-    return u32Ret;
-}
-
-u32 jf_network_resumeAdgram(jf_network_adgram_t * pAdgram)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_adgram_t * pia = (internal_adgram_t *) pAdgram;
-
-    if (pia->ia_bPause)
-    {
-        pia->ia_bPause = FALSE;
-        u32Ret = jf_network_wakeupChain(pia->ia_pjncChain);
-    }
 
     return u32Ret;
 }

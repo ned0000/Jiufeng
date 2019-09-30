@@ -167,6 +167,7 @@ typedef time_t                       oltime_t;
     #define ol_memcpy                memcpy
     #define ol_memcmp                memcmp
     #define ol_memchr                memchr
+    #define ol_memmove               memmove
     #define ol_bzero                 bzero
     #define ol_strcmp                strcmp
     #define ol_strncmp               strncmp

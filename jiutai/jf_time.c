@@ -75,30 +75,56 @@ u32 jf_time_getTimeOfDay(struct timeval * tv)
     return u32Ret;
 }
 
-u32 jf_time_msleep(u32 u32Milliseconds)
+u32 jf_time_sleep(u32 u32Seconds)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
 #if defined(LINUX)
-    usleep(u32Milliseconds * 1000);
+    sleep(u32Seconds);
 #elif defined(WINDOWS)
-    Sleep(u32Milliseconds);
+    Sleep(u32Seconds * 1000);
 #endif
 
     return u32Ret;
 }
 
-u32 jf_time_nsleep(u32 u32Nanoseconds)
+u32 jf_time_milliSleep(u32 u32MilliSeconds)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+#if defined(LINUX)
+    usleep(u32MilliSeconds * 1000);
+#elif defined(WINDOWS)
+    Sleep(u32MilliSeconds);
+#endif
+
+    return u32Ret;
+}
+
+u32 jf_time_microSleep(u32 u32MicroSeconds)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+#if defined(LINUX)
+    usleep(u32MicroSeconds);
+#elif defined(WINDOWS)
+    TO_BE_DONE;
+#endif
+
+    return u32Ret;
+}
+
+u32 jf_time_nanoSleep(u32 u32NanoSeconds)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     struct timespec ts;
 
     ts.tv_sec  = 0;
-    ts.tv_nsec = 500;
+    ts.tv_nsec = u32NanoSeconds;
     nanosleep(&ts, NULL);
 #elif defined(WINDOWS)
-    Sleep(1);
+    TO_BE_DONE;
 #endif
 
     return u32Ret;

@@ -201,22 +201,53 @@ static inline void _listSplice(jf_listhead_t * head, jf_listhead_t * list)
     at->jl_pjlPrev = last;
 }
 
-/** Join two lists
+/** Join two lists, the list is joined at head
  * 
- *  @param head the place to add it in the first list.
- *  @param list the new list to add.
+ *  @param head [in] the place to add it in the first list.
+ *  @param list [in] the new list to add.
  */
 static inline void jf_listhead_splice(
     jf_listhead_t * head, jf_listhead_t * list)
 {
     if (! jf_listhead_isEmpty(list))
+    {
         _listSplice(head, list);
+        jf_listhead_init(list);
+    }
+}
+
+static inline void _listSpliceTail(jf_listhead_t * head, jf_listhead_t * list)
+{
+    jf_listhead_t * first = list->jl_pjlNext;
+    jf_listhead_t * last = list->jl_pjlPrev;
+    jf_listhead_t * at = head->jl_pjlPrev;
+
+    first->jl_pjlPrev = at;
+    at->jl_pjlNext = first;
+
+    last->jl_pjlNext = head;
+    head->jl_pjlPrev = last;
+}
+
+/** Join two lists, the list is joined at tail
+ * 
+ *  @param head [in] the place to add it in the first list.
+ *  @param list [in] the new list to add.
+ */
+static inline void jf_listhead_spliceTail(
+    jf_listhead_t * head, jf_listhead_t * list)
+{
+    if (! jf_listhead_isEmpty(list))
+    {
+        _listSpliceTail(head, list);
+        jf_listhead_init(list);
+    }
 }
 
 /** Join two lists and reinitialise the emptied list.
  * 
- *  @param head the place to add it in the first list.
- *  @param list the new list to add.
+ *  @param head [in] the place to add it in the first list.
+ *  @param list [in] the new list to add.
  *
  *  @note the list at 'list' is reinitialised
  */
@@ -230,8 +261,8 @@ static inline void jf_listhead_spliceInit(
     }
 }
 
-/** Split the 'head' at the position 'list' and add the removed part
- *  (exclude 'list') to 'newhead'
+/** Split the 'head' at the position 'list' and add the removed part (exclude 'list') to 'newhead'
+ *  After split, 'list' is added to 'head'
  */
 static inline void jf_listhead_split(
     jf_listhead_t * head, jf_listhead_t * list, jf_listhead_t * newhead)

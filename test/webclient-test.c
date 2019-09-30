@@ -114,7 +114,7 @@ static void _terminate(olint_t signal)
 
 static u32 _wcTestOnResponse(
     jf_network_asocket_t * pAsocket, olint_t nEvent,
-    jf_httpparser_packet_header_t * header, void * user, boolean_t * pbPause)
+    jf_httpparser_packet_header_t * header, void * user)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * buf = NULL;
