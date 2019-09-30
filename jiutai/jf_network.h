@@ -238,25 +238,6 @@ typedef struct
     jf_network_fnAcsocketOnSendData_t jnacp_fnOnSendData;
 } jf_network_acsocket_create_param_t;
 
-/** async datagram socket
- */
-
-typedef u32 (* jf_network_fnAdgramOnData_t)(
-    jf_network_adgram_t * pAdgram, u8 * pu8Buffer, olsize_t * psBeginPointer,
-    olsize_t sEndPointer, void * pUser, jf_ipaddr_t * pjiRemote, u16 u16Port);
-
-typedef u32 (* jf_network_fnAdgramOnSendOK_t)(
-    jf_network_adgram_t * pAdgram, void * pUser);
-
-typedef struct
-{
-    olsize_t jnacp_sInitialBuf;
-    u32 jnacp_u32Reserved;
-    jf_network_fnAdgramOnData_t jnacp_fnOnData;
-    jf_network_fnAdgramOnSendOK_t jnacp_fnOnSendOK;
-    u8 jnacp_u8Reserved[16];
-    void * jnacp_pUser;
-} jf_network_adgram_create_param_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
@@ -299,6 +280,9 @@ NETWORKAPI u32 NETWORKCALL jf_network_createStreamSocket(
 /** Allocate a TCP socket according to address type
  */
 NETWORKAPI u32 NETWORKCALL jf_network_createTypeStreamSocket(
+    u8 u8AddrType, jf_network_socket_t ** ppSocket);
+
+NETWORKAPI u32 NETWORKCALL jf_network_createTypeDgramSocket(
     u8 u8AddrType, jf_network_socket_t ** ppSocket);
 
 NETWORKAPI u32 NETWORKCALL jf_network_ioctlSocket(
@@ -652,117 +636,6 @@ NETWORKAPI u32 NETWORKCALL jf_network_sendAcsocketData(
 
 NETWORKAPI void NETWORKCALL jf_network_getLocalInterfaceOfAcsocket(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, jf_ipaddr_t * pjiAddr);
-
-/** async datagram socket
- */
-
-/** Creates a new async dgram object
- *
- *  @param pChain [in] the chain object to add the adgram object
- *  @param ppAdgram [out] the adgram object created
- *  @param pjnacp [in] the parameter for creating the adgram
- *
- *  @return the error code
- */
-NETWORKAPI u32 NETWORKCALL jf_network_createAdgram(
-    jf_network_chain_t * pChain, jf_network_adgram_t ** ppAdgram,
-    jf_network_adgram_create_param_t * pjnacp);
-
-/** Destroy async dgram object
- *
- *  @param ppAdgram [in/out] the async dgram object
- *
- *  @return the error code
- */
-NETWORKAPI u32 NETWORKCALL jf_network_destroyAdgram(
-    jf_network_adgram_t ** ppAdgram);
-
-/** Clears all the pending data to be sent
- *
- *  @param pAdgram [in] the adgram to clear
- *
- *  @return the error code
- */
-NETWORKAPI u32 NETWORKCALL jf_network_clearPendingSendOfAdgram(
-    jf_network_adgram_t * pAdgram);
-
-/** Determines if an adgram is utilized
- *
- *  @param pAdgram [in] the asocket to check
- *
- *  @return the status of adgram
- *  @retval FALSE if utilized
- *  @retval TRUE if free
- */
-NETWORKAPI boolean_t NETWORKCALL jf_network_isAdgramFree(
-    jf_network_adgram_t *pAdgram);
-
-/** Associates an actual socket with adgram. To associate adgram with an already
- *  connected socket.
- *
- *  @param pAdgram [in] the adgram to associate with
- *  @param pSocket [in] the socket to associate
- *  @param pUser [in] the user 
- */
-NETWORKAPI u32 NETWORKCALL jf_network_useSocketForAdgram(
-    jf_network_adgram_t * pAdgram, jf_network_socket_t * pSocket, void * pUser);
-
-NETWORKAPI u32 NETWORKCALL jf_network_freeSocketForAdgram(
-    jf_network_adgram_t * pAdgram);
-
-/** Returns the buffer associated with an adgram
- *
- *  @param pAdgram [in] the adgram to obtain the buffer from
- *  @param ppBuffer [out] the buffer
- *  @param psBeginPointer [out] the begin pointer of the buffer
- *  @param psEndPointer [out] the end pointer of the buffer
- */
-NETWORKAPI void NETWORKCALL jf_network_getBufferOfAdgram(
-    jf_network_adgram_t * pAdgram, u8 ** ppBuffer,
-    olsize_t * psBeginPointer, olsize_t * psEndPointer);
-
-NETWORKAPI void NETWORKCALL jf_network_clearBufferOfAdgram(
-    jf_network_adgram_t * pAdgram);
-
-/** Returns the number of bytes that are pending to be sent
- *
- *  @param pAdgram [in] the asocket to check
- *
- *  @return number of pending bytes
- */
-NETWORKAPI olsize_t NETWORKCALL jf_network_getPendingBytesToSendOfAdgram(
-    jf_network_adgram_t * pAdgram);
-
-/** Returns the total number of bytes that have been sent, since the last reset
- *
- *  @param pAdgram [in] the adgram to check
- *
- *  @return number of bytes sent
- */
-NETWORKAPI olsize_t NETWORKCALL jf_network_getTotalBytesSentOfAdgram(
-    jf_network_adgram_t * pAdgram);
-
-/** Resets the total bytes sent counter
- *
- *  @param pAdgram [in] the adgram to reset
- */
-NETWORKAPI void NETWORKCALL jf_network_resetTotalBytesSentOfAdgram(
-    jf_network_adgram_t * pAdgram);
-
-/** Sends data on an adgram
- *
- *  @param pAdgram [in] the adgram object to send data on
- *  @param pu8Buffer [in] the buffer to send
- *  @param sBuf [in] the length of the buffer to send
- *  @param memowner [in] flag indicating memory ownership.
- *  @param pjiRemote [in] the remote host to send data to
- *  @param u16Port [in] the remote port
- *
- *  @return the error code
- */
-NETWORKAPI u32 NETWORKCALL jf_network_sendAdgramData(
-    jf_network_adgram_t * pAdgram, u8 * pu8Buffer, olsize_t sBuf,
-    jf_network_mem_owner_t memowner, jf_ipaddr_t * pjiRemote, u16 u16Port);
 
 /** resolve
  */

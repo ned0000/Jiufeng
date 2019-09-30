@@ -128,7 +128,7 @@ static void _destroyAsocketSendData(asocket_send_data_t ** ppasd)
     jf_mem_free((void **)ppasd);
 }
 
-/** Clears all the pending data to be sent for an AsyncSocket
+/** Clears all the pending data to be sent for an async socket
  *
  *  @param pia [in] the asocket to clear
  */
@@ -271,18 +271,16 @@ static u32 _asConnectTo(internal_asocket_t * pia)
     /*If there isn't a socket already allocated, we need to allocate one*/
     if (pia->ia_pjnsSocket == NULL)
     {
-        if (pia->ia_jiRemote.ji_u8AddrType == JF_IPADDR_TYPE_V4)
-            u32Ret = jf_network_createSocket(
-                AF_INET, SOCK_STREAM, 0, &pia->ia_pjnsSocket);
-        else
-            u32Ret = jf_network_createSocket(
-                AF_INET6, SOCK_STREAM, 0, &pia->ia_pjnsSocket);
+        u32Ret = jf_network_createTypeStreamSocket(
+            pia->ia_jiRemote.ji_u8AddrType, &pia->ia_pjnsSocket);
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            jf_network_setSocketNonblock(pia->ia_pjnsSocket);
+        }
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_network_setSocketNonblock(pia->ia_pjnsSocket);
-
         /*Connect the socket, and force the chain to unblock, since the select
           statement doesn't have us in the fdset yet.*/
         u32Ret = jf_network_connect(pia->ia_pjnsSocket, &pia->ia_jiRemote, pia->ia_u16RemotePort);

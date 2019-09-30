@@ -71,8 +71,7 @@ u32 jf_network_createStreamSocket(
     return u32Ret;
 }
 
-u32 jf_network_createTypeStreamSocket(
-    u8 u8AddrType, jf_network_socket_t ** ppSocket)
+u32 jf_network_createTypeStreamSocket(u8 u8AddrType, jf_network_socket_t ** ppSocket)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -84,6 +83,22 @@ u32 jf_network_createTypeStreamSocket(
     else
         u32Ret = createIsocket(
             AF_INET, SOCK_STREAM, 0, (internal_socket_t **)ppSocket);
+
+    return u32Ret;
+}
+
+u32 jf_network_createTypeDgramSocket(u8 u8AddrType, jf_network_socket_t ** ppSocket)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    assert(ppSocket != NULL);
+
+    if (u8AddrType == JF_IPADDR_TYPE_V6)
+        u32Ret = createIsocket(
+            AF_INET6, SOCK_DGRAM, 0, (internal_socket_t **)ppSocket);
+    else
+        u32Ret = createIsocket(
+            AF_INET, SOCK_DGRAM, 0, (internal_socket_t **)ppSocket);
 
     return u32Ret;
 }
