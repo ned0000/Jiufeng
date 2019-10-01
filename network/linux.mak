@@ -22,7 +22,7 @@ JIUTAI_SRCS = jf_mem.c jf_mutex.c jf_time.c
 EXTRA_LIBS = -ljf_logger -ljf_ifmgmt
 
 ifeq ("$(DEBUG_JIUFENG)", "yes")
-    EXTRA_CFLAGS = # -DDEBUG_CHAIN -DDEBUG_UTIMER
+    EXTRA_CFLAGS = -DDEBUG_CHAIN -DDEBUG_UTIMER
 endif
 
 include $(TOPDIR)/mak/lnxlib.mak

@@ -216,7 +216,7 @@ static u32 _acsOnSendData(
     acsocket_data_t * pad = (acsocket_data_t *) pUser;
     internal_acsocket_t * pia = pad->ad_iaAcsocket;
 
-    jf_logger_logInfoMsg("acs on send ok");
+    jf_logger_logInfoMsg("acs on send data");
 
     /*Pass the OnSendOK event up*/
     pia->ia_fnOnSendData(pad->ad_iaAcsocket, pAsocket, u32Status, pu8Buffer, sBuf, pad->ad_pUser);

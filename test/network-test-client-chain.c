@@ -30,6 +30,8 @@ static jf_network_chain_t * ls_pjncNtccChain = NULL;
 
 static jf_network_acsocket_t * ls_pjnaNtccAcsocket = NULL;
 
+static boolean_t ls_bToTerminateNtcc = FALSE;
+
 #define SERVER_PORT          (51200)
 
 /* --- private routine section ------------------------------------------------------------------ */
@@ -40,59 +42,68 @@ static void _terminate(olint_t signal)
 
     if (ls_pjncNtccChain != NULL)
         jf_network_stopChain(ls_pjncNtccChain);
+
+    ls_bToTerminateNtcc = TRUE;
 }
 
 static u32 _ntccOnConnect(
-    jf_network_acsocket_t * ls_pjnaNtccAcsocket, jf_network_asocket_t * pAsocket,
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
     u32 u32Status, void * pUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t strBuffer[32];
 
     if (u32Status == JF_ERR_NO_ERROR)
     {
-        ol_printf("connected\n");
+        ol_printf("on ntcc connect, connected\n");
+        ol_strcpy(strBuffer, "hello");
+        u32Ret = jf_network_sendAcsocketData(pAcsocket, pAsocket, (u8 *)strBuffer, 5);
     }
     else
     {
-        ol_printf("not connected\n");
+        ol_printf("on ntcc connect, not connected\n");
     }
 
     return u32Ret;
 }
 
 static u32 _ntccOnDisconnect(
-    jf_network_acsocket_t * ls_pjnaNtccAcsocket, jf_network_asocket_t * pAsocket,
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
     u32 u32Status, void * pUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
+    ol_printf("on ntcc disconnect, reason: %s\n", jf_err_getDescription(u32Status));
 
     return u32Ret;
 }
 
 static u32 _ntccOnData(
-    jf_network_acsocket_t * ls_pjnaNtccAcsocket, jf_network_asocket_t * pAsocket,
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
     u8 * pu8Buffer, olsize_t * psBeginPointer, olsize_t sEndPointer, void * pUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t slen = sEndPointer - *psBeginPointer;
 
-    ol_printf("on ntcc data, len: %d", slen);
-    ol_printf("on ntcc data, content: %s", (olchar_t *) (pu8Buffer + *psBeginPointer));
+    ol_printf("on ntcc data, len: %d\n", slen);
+    ol_printf("on ntcc data, content: %s\n", (olchar_t *) (pu8Buffer + *psBeginPointer));
 
     *psBeginPointer = sEndPointer;
+
+    u32Ret = jf_network_disconnectAcsocket(pAcsocket, pAsocket);
     
     return u32Ret;
 }
 
-
 static u32 _ntccOnSendData(
-    jf_network_acsocket_t * ls_pjnaNtccAcsocket, jf_network_asocket_t * pAsocket,
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
     u32 u32Status, u8 * pu8Buffer, olsize_t sBuf, void * pUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    ol_printf("on ntcc send data");
+    ol_printf(
+        "on ntcc send data, status: %s, data: %s\n",
+        jf_err_getDescription(u32Status), (olchar_t *)pu8Buffer);
 
     return u32Ret;
 }
@@ -134,6 +145,8 @@ olint_t main(olint_t argc, olchar_t ** argv)
     olchar_t strErrMsg[300];
     jf_logger_init_param_t jlipParam;
     jf_ipaddr_t serveraddr;
+    jf_thread_id_t threadid;
+    u32 u32RetCode = 0;
 
     memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
     jlipParam.jlip_bLogToStdout = TRUE;
@@ -147,7 +160,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         u32Ret = jf_process_registerSignalHandlers(_terminate);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = jf_thread_create(NULL, NULL, _ntccThread, NULL);
+            u32Ret = jf_thread_create(&threadid, NULL, _ntccThread, NULL);
         }
 
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -158,12 +171,16 @@ olint_t main(olint_t argc, olchar_t ** argv)
             u32Ret = jf_network_connectAcsocketTo(ls_pjnaNtccAcsocket, &serveraddr, SERVER_PORT, NULL);
         }
 
-        while (u32Ret == JF_ERR_NO_ERROR)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            jf_time_sleep(10);
+            while (! ls_bToTerminateNtcc)
+            {
+                jf_time_sleep(3);
+            }
         }
 
         jf_process_finiSocket();
+        jf_thread_waitForThreadTermination(threadid, &u32RetCode);
     }
 
     jf_logger_fini();

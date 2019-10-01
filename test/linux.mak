@@ -228,7 +228,7 @@ $(BIN_DIR)/network-test: network-test.o $(JIUTAI_DIR)/jf_process.o \
        -o $@ $(SYSLIBS) -ljf_network -ljf_string -ljf_logger -ljf_ifmgmt
 
 $(BIN_DIR)/network-test-server: network-test-server.o \
-       $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_mem.o
+       $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_network -ljf_logger -ljf_string -ljf_ifmgmt
 

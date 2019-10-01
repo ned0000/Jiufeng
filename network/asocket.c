@@ -137,6 +137,14 @@ static void _clearPendingSendOfAsocket(internal_asocket_t * pia)
     asocket_send_data_t * pasd = NULL;
     jf_listhead_t * pos = NULL, * temppos = NULL;
 
+    jf_logger_logInfoMsg("as clear pending send data");
+    
+    /*wait data should be also freed*/
+    jf_mutex_acquire(&pia->ia_jmLock);
+    if (! jf_listhead_isEmpty(&pia->ia_jlWaitData))
+        jf_listhead_spliceTail(&pia->ia_jlSendData, &pia->ia_jlWaitData);
+    jf_mutex_release(&pia->ia_jmLock);
+            
     jf_listhead_forEachSafe(&pia->ia_jlSendData, pos, temppos)
     {
         pasd = jf_listhead_getEntry(pos, asocket_send_data_t, asd_jlList);
@@ -271,6 +279,7 @@ static u32 _asConnectTo(internal_asocket_t * pia)
     /*If there isn't a socket already allocated, we need to allocate one*/
     if (pia->ia_pjnsSocket == NULL)
     {
+        jf_logger_logInfoMsg("as connect, create stream socket");
         u32Ret = jf_network_createTypeStreamSocket(
             pia->ia_jiRemote.ji_u8AddrType, &pia->ia_pjnsSocket);
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -304,6 +313,7 @@ static u32 _handleAsocketRequest(internal_asocket_t * pia)
     {
         bToDisconnect = pia->ia_bToDisconnect;
         pia->ia_bToDisconnect = FALSE;
+        pia->ia_u32Status = JF_ERR_SOCKET_LOCAL_CLOSED;
     }
     jf_mutex_release(&pia->ia_jmLock);
 
@@ -354,7 +364,8 @@ static u32 _preSelectAsocket(
             jf_network_setSocketToFdSet(pia->ia_pjnsSocket, errorset);
 
             jf_mutex_acquire(&pia->ia_jmLock);
-            jf_listhead_spliceTail(&pia->ia_jlSendData, &pia->ia_jlWaitData);
+            if (! jf_listhead_isEmpty(&pia->ia_jlWaitData))
+                jf_listhead_spliceTail(&pia->ia_jlSendData, &pia->ia_jlWaitData);
             jf_mutex_release(&pia->ia_jmLock);
             
             if (! jf_listhead_isEmpty(&pia->ia_jlSendData))
@@ -375,6 +386,8 @@ static u32 _asPostSelectSendData(internal_asocket_t * pia)
     olsize_t bytesSent = 0;
     asocket_send_data_t * pasd = NULL;
     jf_listhead_t * pos = NULL, * temppos = NULL;
+
+    jf_logger_logInfoMsg("as post select, send data");
     
     /*Keep trying to send data, until we are told we can't*/
     jf_listhead_forEachSafe(&pia->ia_jlSendData, pos, temppos)
@@ -509,6 +522,7 @@ static u32 _asAddSendData(internal_asocket_t * pia, u8 * pu8Buffer, olsize_t sBu
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*queue up the data to wait data list*/
+        jf_logger_logInfoMsg("as add send data to wait list");
         jf_mutex_acquire(&pia->ia_jmLock);
         jf_listhead_addTail(&pia->ia_jlWaitData, &pasd->asd_jlList);
         jf_mutex_release(&pia->ia_jmLock);
@@ -623,9 +637,10 @@ u32 createAsocket(
         pia->ia_pjncChain = pChain;
         pia->ia_bFree = TRUE;
         pia->ia_pjnsSocket = NULL;
-        pia->ia_sMalloc = pjnacp->jnacp_sInitialBuf;
-
+        jf_listhead_init(&pia->ia_jlSendData);
+        jf_listhead_init(&pia->ia_jlWaitData);
         _setInternalCallbackFunction(pia, pjnacp);
+        pia->ia_sMalloc = pjnacp->jnacp_sInitialBuf;
 
         u32Ret = jf_mem_alloc(
             (void **)&pia->ia_pu8Buffer, pjnacp->jnacp_sInitialBuf);
@@ -728,7 +743,7 @@ u32 connectAsocketTo(
         pia->ia_pUser = pUser;
 
         pia->ia_bToConnect = TRUE;
-        pia->ia_bFree = TRUE;
+        pia->ia_bFree = FALSE;
     }
     jf_mutex_release(&pia->ia_jmLock);
 

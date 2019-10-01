@@ -181,7 +181,8 @@ static u32 _handleAdgramRequest(internal_adgram_t * pia)
     adgram_send_data_t * pasd = NULL;
 
     jf_mutex_acquire(&pia->ia_jmLock);
-    jf_listhead_spliceTail(&pia->ia_jlSendData, &pia->ia_jlWaitData);
+    if (! jf_listhead_isEmpty(&pia->ia_jlWaitData))
+        jf_listhead_spliceTail(&pia->ia_jlSendData, &pia->ia_jlWaitData);
     jf_mutex_release(&pia->ia_jmLock);
 
     if ((pia->ia_pjnsSocket == NULL) && (! jf_listhead_isEmpty(&pia->ia_jlSendData)))
@@ -379,14 +380,14 @@ u32 createAdgram(
         pia->ia_jncohHeader.jncoh_fnPostSelect = _postSelectAdgram;
         pia->ia_pjnsSocket = NULL;
         pia->ia_pjncChain = pChain;
-
         pia->ia_sMalloc = pjnacp->jnacp_sInitialBuf;
         pia->ia_pUser = pjnacp->jnacp_pUser;
-
         pia->ia_fnOnData = pjnacp->jnacp_fnOnData;
         pia->ia_fnOnSendData = pjnacp->jnacp_fnOnSendData;
         if (pia->ia_fnOnSendData == NULL)
             pia->ia_fnOnSendData = _onAdgramSendData;
+        jf_listhead_init(&pia->ia_jlSendData);
+        jf_listhead_init(&pia->ia_jlWaitData);
 
         u32Ret = jf_mem_alloc(
             (void **)&(pia->ia_pu8Buffer), pjnacp->jnacp_sInitialBuf);

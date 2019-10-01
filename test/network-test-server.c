@@ -22,6 +22,8 @@
 #include "jf_string.h"
 #include "jf_process.h"
 #include "jf_mem.h"
+#include "jf_thread.h"
+#include "jf_time.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 #define NETWORK_TEST_SERVER  "NT-SERVER"
@@ -32,7 +34,11 @@ typedef struct server_data
     u8 sd_u8Id[24];
 } server_data_t;
 
-static jf_network_chain_t * ls_pjncChain = NULL;
+static jf_network_chain_t * ls_pjncNtsChain = NULL;
+
+static jf_network_assocket_t * ls_pjnaNtsAssocket = NULL;
+
+static boolean_t ls_bToTerminateNts = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
@@ -110,8 +116,10 @@ static void _terminate(olint_t signal)
 {
     ol_printf("get signal\n");
 
-    if (ls_pjncChain != NULL)
-        jf_network_stopChain(ls_pjncChain);
+    if (ls_pjncNtsChain != NULL)
+        jf_network_stopChain(ls_pjncNtsChain);
+
+    ls_bToTerminateNts = TRUE;
 }
 
 static u32 _onNtsConnect(
@@ -120,7 +128,7 @@ static u32 _onNtsConnect(
     u32 u32Ret = JF_ERR_NO_ERROR;
     server_data_t * psd = NULL;
 
-    ol_printf("New connection\n");
+    ol_printf("on nts connect, new connection\n");
 
     u32Ret = jf_mem_calloc((void **)&psd, sizeof(server_data_t));
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -139,7 +147,8 @@ static u32 _onNtsDisconnect(
     u32 u32Ret = JF_ERR_NO_ERROR;
     server_data_t * psd = (server_data_t *)pUser;
 
-    ol_printf("connection closed, id: %s\n", psd->sd_u8Id);
+    ol_printf(
+        "on nts disconnect, id: %s, reason: %s\n", psd->sd_u8Id, jf_err_getDescription(u32Status));
 
     jf_mem_free((void **)&psd);
 
@@ -152,7 +161,8 @@ static u32 _onNtsSendData(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    ol_printf("on send data\n");
+    ol_printf("on nts send data, len: %d\n", sBuf);
+    ol_printf("on nts send data, content: %s\n", (olchar_t *)pu8Buffer);
 
     return u32Ret;
 }
@@ -166,11 +176,11 @@ static u32 _onNtsData(
     u32 u32Begin = *pu32BeginPointer;
     u8 u8Buffer[100];
 
-    ol_printf("receive ok, id: %s\n", psd->sd_u8Id);
-    ol_printf("begin: %d, end: %d\n", u32Begin, u32EndPointer);
+    ol_printf("on nts data, receive ok, id: %s\n", psd->sd_u8Id);
+    ol_printf("on nts data, begin: %d, end: %d\n", u32Begin, u32EndPointer);
     ol_memcpy(u8Buffer, pu8Buffer + u32Begin, u32EndPointer - u32Begin);
     u8Buffer[u32EndPointer - u32Begin] = '\0';
-    ol_printf("%s\n", u8Buffer);
+    ol_printf("on nts data, buffer: %s\n", u8Buffer);
 
     *pu32BeginPointer = u32EndPointer;
 
@@ -181,14 +191,44 @@ static u32 _onNtsData(
     return u32Ret;
 }
 
+JF_THREAD_RETURN_VALUE _ntccThread(void * pArg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    jf_network_assocket_create_param_t jnacp;
+
+    u32Ret = jf_network_createChain(&ls_pjncNtsChain);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_memset(&jnacp, 0, sizeof(jnacp));
+
+        jnacp.jnacp_sInitialBuf = 2048;
+        jnacp.jnacp_u32MaxConn = 10;
+        jnacp.jnacp_u16PortNumber = SERVER_PORT;
+        jnacp.jnacp_fnOnConnect = _onNtsConnect;
+        jnacp.jnacp_fnOnDisconnect = _onNtsDisconnect;
+        jnacp.jnacp_fnOnSendData = _onNtsSendData;
+        jnacp.jnacp_fnOnData = _onNtsData;
+
+        u32Ret = jf_network_createAssocket(ls_pjncNtsChain, &ls_pjnaNtsAssocket, &jnacp);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = jf_network_startChain(ls_pjncNtsChain);
+    }
+
+    JF_THREAD_RETURN(u32Ret);
+}
+
 /* --- public routine section ------------------------------------------------------------------- */
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
-    jf_network_assocket_t * pAssocket = NULL;
-    jf_network_assocket_create_param_t jnacp;
     jf_logger_init_param_t jlipParam;
+    jf_thread_id_t threadid;
+    u32 u32RetCode = 0;
 
     memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
     jlipParam.jlip_pstrCallerName = NETWORK_TEST_SERVER;
@@ -206,36 +246,24 @@ olint_t main(olint_t argc, olchar_t ** argv)
         u32Ret = jf_process_initSocket();
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = jf_network_createChain(&ls_pjncChain);
-
+            u32Ret = jf_thread_create(&threadid, NULL, _ntccThread, NULL);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                ol_memset(&jnacp, 0, sizeof(jnacp));
-
-                jnacp.jnacp_sInitialBuf = 2048;
-                jnacp.jnacp_u32MaxConn = 10;
-                jnacp.jnacp_u16PortNumber = SERVER_PORT;
-                jnacp.jnacp_fnOnConnect = _onNtsConnect;
-                jnacp.jnacp_fnOnDisconnect = _onNtsDisconnect;
-                jnacp.jnacp_fnOnSendData = _onNtsSendData;
-                jnacp.jnacp_fnOnData = _onNtsData;
-
-                u32Ret = jf_network_createAssocket(ls_pjncChain, &pAssocket, &jnacp);
-            }
-
-            if (u32Ret == JF_ERR_NO_ERROR)
-            {
-                u32Ret = jf_network_startChain(ls_pjncChain);
+                while (! ls_bToTerminateNts)
+                {
+                    jf_time_sleep(3);
+                }
             }
 
             jf_process_finiSocket();
+            jf_thread_waitForThreadTermination(threadid, &u32RetCode);
         }
 
         jf_logger_fini();
     }
 
-    if (ls_pjncChain != NULL)
-        jf_network_destroyChain(&ls_pjncChain);
+    if (ls_pjncNtsChain != NULL)
+        jf_network_destroyChain(&ls_pjncNtsChain);
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {
