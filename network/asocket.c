@@ -35,8 +35,7 @@ typedef struct asocket_send_data
     olsize_t asd_sBytesSent;
 
     jf_listhead_t asd_jlList;
-    
-    jf_network_mem_owner_t asd_jnmoOwner;
+
     struct asocket_send_data *asd_pasdNext;
 } asocket_send_data_t;
 

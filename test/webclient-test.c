@@ -181,8 +181,7 @@ static u32 _getSinaQuotation(void * object)
 
 #endif
     u32Ret = jf_webclient_pipelineWebRequestEx(
-        ls_pwWebclient, &ls_jiServerAddr, 80, buffer, len, FALSE, NULL, 0,
-        FALSE, _wcTestOnResponse, NULL);
+        ls_pwWebclient, &ls_jiServerAddr, 80, buffer, len, NULL, 0, _wcTestOnResponse, NULL);
 
 //    jf_network_addUtimerItem(ls_pjnuUtimer, NULL, 30, _getSinaQuotation, NULL);
 

@@ -100,12 +100,8 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequest(
  *  @param u16Port [in] the port of remote server
  *  @param pstrHeader [in] the buffer containing the headers
  *  @param sHeader [in] the length of the headers
- *  @param bStaticHeader [in] flag indicating memory ownership of buffer, if
- *   true, the header is static
  *  @param pstrBody [in] the buffer containing the HTTP body
  *  @param sBody [in] the length of the buffer
- *  @param bStaticBody [in] flag indicating memory ownership of buffer, if true,
- *   the body is static
  *  @param fnOnResponse [in] data reception handler
  *  @param pUser [in] the user
  *
@@ -113,8 +109,7 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequest(
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequestEx(
     jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port,
-    olchar_t * pstrHeader, olsize_t sHeader, boolean_t bStaticHeader,
-    olchar_t * pstrBody, olsize_t sBody, boolean_t bStaticBody,
+    olchar_t * pstrHeader, olsize_t sHeader, olchar_t * pstrBody, olsize_t sBody,
     jf_webclient_fnOnResponse_t fnOnResponse, void * pUser);
 
 /** Deletes all pending requests to a specific IP/Port combination

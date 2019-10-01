@@ -77,7 +77,6 @@ typedef struct internal_web_request
     /**If UserFree is TRUE, webclient will not free the buffer
        If UserFree is FALSE, webclient will free the buffer*/
     boolean_t iwr_bUserFree[IWR_MAX_NUM_OF_BUF];
-    jf_network_mem_owner_t iwr_jnmoMemOwner[IWR_MAX_NUM_OF_BUF];
 
     u16 iwr_u16Reserved[4];
 
@@ -1220,7 +1219,6 @@ static u32 _webclientOnData(
     return u32Ret;
 }
 
-/*Allocate memory for the buffers in web request which are volatile*/
 static u32 _webRequestStaticMemory(internal_web_request_t * request)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -1229,17 +1227,12 @@ static u32 _webRequestStaticMemory(internal_web_request_t * request)
 
     for (i = 0; i < request->iwr_u32NumOfBuffers; ++ i)
     {
-        if (request->iwr_jnmoMemOwner[i] == JF_NETWORK_MEM_OWNER_USER)
+        u32Ret = jf_mem_duplicate(
+            (void **)&pu8Buffer, request->iwr_pu8Buffer[i], request->iwr_sBuffer[i]);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = jf_mem_duplicate(
-                (void **)&pu8Buffer, request->iwr_pu8Buffer[i],
-                request->iwr_sBuffer[i]);
-            if (u32Ret == JF_ERR_NO_ERROR)
-            {
-                request->iwr_pu8Buffer[i] = pu8Buffer;
-                request->iwr_bUserFree[1] = FALSE;
-                request->iwr_jnmoMemOwner[i] = JF_NETWORK_MEM_OWNER_STATIC;
-            }
+            request->iwr_pu8Buffer[i] = pu8Buffer;
+            request->iwr_bUserFree[1] = FALSE;
         }
     }
 
@@ -1372,7 +1365,6 @@ u32 jf_webclient_pipelineWebRequest(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         request->iwr_bUserFree[0] = FALSE;
-        request->iwr_jnmoMemOwner[0] = JF_NETWORK_MEM_OWNER_STATIC;
         request->iwr_fnOnResponse =
             (fnOnResponse == NULL) ? _internalWebclientOnResponse : fnOnResponse;
         request->iwr_pUser = user;
@@ -1385,8 +1377,7 @@ u32 jf_webclient_pipelineWebRequest(
 
 u32 jf_webclient_pipelineWebRequestEx(
     jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port,
-    olchar_t * pstrHeader, olsize_t sHeader, boolean_t bStaticHeader,
-    olchar_t * pstrBody, olsize_t sBody, boolean_t bStaticBody,
+    olchar_t * pstrHeader, olsize_t sHeader, olchar_t * pstrBody, olsize_t sBody,
     jf_webclient_fnOnResponse_t fnOnResponse, void * user)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -1406,20 +1397,12 @@ u32 jf_webclient_pipelineWebRequestEx(
         request->iwr_pu8Buffer[0] = (u8 *)pstrHeader;
         request->iwr_sBuffer[0] = sHeader;
         request->iwr_bUserFree[0] = TRUE;
-        if (bStaticHeader)
-            request->iwr_jnmoMemOwner[0] = JF_NETWORK_MEM_OWNER_STATIC;
-        else
-            request->iwr_jnmoMemOwner[0] = JF_NETWORK_MEM_OWNER_USER;
 
         if (pstrBody != NULL)
         {
             request->iwr_pu8Buffer[1] = (u8 *)pstrBody;
             request->iwr_sBuffer[1] = sBody;
             request->iwr_bUserFree[1] = TRUE;
-            if (bStaticBody)
-                request->iwr_jnmoMemOwner[1] = JF_NETWORK_MEM_OWNER_STATIC;
-            else
-                request->iwr_jnmoMemOwner[1] = JF_NETWORK_MEM_OWNER_USER;
         }
 
         request->iwr_fnOnResponse =

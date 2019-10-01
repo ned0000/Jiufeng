@@ -119,20 +119,6 @@ typedef void  jf_network_utimer_t;
 typedef u32 (* jf_network_fnCallbackOfUtimerItem_t)(void * pData);
 typedef u32 (* jf_network_fnDestroyUtimerItem_t)(void ** ppData);
 
-/** memory ower
- */
-typedef enum jf_network_mem_owner
-{
-    JF_NETWORK_MEM_OWNER_LIB = 0, /**< owner is this library */
-    JF_NETWORK_MEM_OWNER_STATIC,  /**< owner is uesr but it's static,
-    library can use it until the data is sent. user will not recycle the momery
-    until the send is ok. */
-    JF_NETWORK_MEM_OWNER_USER, /**< owner is user, library can use it
-    if the data is failed to be sent, library will duplicate the
-    data and send it later. User can recycle the momery after send
-    weather the data is sent or not */
-} jf_network_mem_owner_t;
-
 /** async server socket
  */
 
