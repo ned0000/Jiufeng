@@ -25,7 +25,7 @@ PROGRAMS = xmalloc-test hashtree-test listhead-test                \
     httpparser-test network-test network-test-server               \
     network-test-client network-test-client-chain                  \
     matrix-test webclient-test jf_servmgmt sqlite-test             \
-    hex-test
+    hex-test utimer-test
 
 SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c               \
     listarray-test.c logger-test.c process-test.c                      \
@@ -40,7 +40,7 @@ SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c               \
     httpparser-test.c network-test.c network-test-server.c             \
     network-test-client.c network-test-client-chain.c                  \
     matrix-test.c webclient-test.c servmgmt-test.c sqlite-test.c       \
-    hex-test.c
+    hex-test.c utimer-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -259,6 +259,11 @@ $(BIN_DIR)/sqlite-test: sqlite-test.o $(JIUTAI_DIR)/jf_mem.o \
        $(JIUTAI_DIR)/jf_sqlite.o $(JIUTAI_DIR)/jf_rand.o $(JIUTAI_DIR)/jf_time.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -lsqlite3
+
+$(BIN_DIR)/utimer-test: utimer-test.o \
+       $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_thread.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
+       -o $@ $(SYSLIBS) -ljf_network -ljf_logger -ljf_ifmgmt
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 

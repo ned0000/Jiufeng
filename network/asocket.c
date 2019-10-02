@@ -86,6 +86,7 @@ typedef struct
     void * ia_pTag;
 
     /*start of lock protected section*/
+    /**mutex lock*/
     jf_mutex_t ia_jmLock;
     /**wait data list*/
     jf_listhead_t ia_jlWaitData;

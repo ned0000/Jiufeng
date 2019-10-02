@@ -13,6 +13,7 @@
 #define JIUTAI_TIME_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+#include <time.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
@@ -38,6 +39,15 @@ u32 jf_time_fileTimeToSecondsSince1970(FILETIME * pTime);
  *  @return the error code
  */
 u32 jf_time_getTimeOfDay(struct timeval * tv);
+
+/** Get time
+ *
+ *  @param clkid [in] identifier of the particular clock
+ *  @param tp [out] the timespec structures
+ *
+ *  @return the error code
+ */
+u32 jf_time_getClockTime(clockid_t clkid, struct timespec *tp);
 
 /** Sleep some time in seconds
  *
@@ -89,15 +99,13 @@ olint_t jf_time_convertTimeToSeconds(olint_t hour, olint_t min, olint_t sec);
  *  @param pstrTime [out] the string buffer where the period string will return
  *  @param u32Period [in] the time
  */
-void jf_time_getStringTimePeriod(
-    olchar_t * pstrTime, const u32 u32Period);
+void jf_time_getStringTimePeriod(olchar_t * pstrTime, const u32 u32Period);
 
 /** Get the time from the string with the format hour:minute:second like
  *  15:23:58
  */
 u32 jf_time_getTimeFromString(
-    const olchar_t * pstrTimeString, olint_t * pHour, olint_t * pMin,
-    olint_t * pSec);
+    const olchar_t * pstrTimeString, olint_t * pHour, olint_t * pMin, olint_t * pSec);
 
 #endif /*JIUTAI_TIME_H*/
 

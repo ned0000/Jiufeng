@@ -118,7 +118,7 @@ static void _listHeadEntry(jf_listhead_t * head, s32 index)
     jf_listhead_t * pjl;
     test_listhead_t * ptl;
 
-    ol_printf("list entry %d\n", index);
+    ol_printf("list %d\n", index);
 
     jf_listhead_forEach(head, pjl)
     {
@@ -247,6 +247,22 @@ static u32 _testListHead(void)
 
     }
 
+    ol_printf("=== add entry 5 to list 1\n");
+    jf_listhead_add(&list1, &tl5.tl_jlList);
+    _listHeadEntry(&list1, 1);
+
+    ol_printf("=== add entry 6 to the tail of list 1\n");
+    jf_listhead_addTail(&list1, &tl6.tl_jlList);
+    _listHeadEntry(&list1, 1);
+
+    ol_printf("=== insert entry 4 before entry 6 to the list 1\n");
+    jf_listhead_addTail(&tl6.tl_jlList, &tl4.tl_jlList);
+    _listHeadEntry(&list1, 1);
+
+    ol_printf("=== insert entry 3 before entry 5 to the list 1\n");
+    jf_listhead_addTail(&tl5.tl_jlList, &tl3.tl_jlList);
+    _listHeadEntry(&list1, 1);
+    
     return u32Ret;
 }
 

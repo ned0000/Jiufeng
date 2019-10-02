@@ -117,7 +117,7 @@ typedef struct
 typedef void  jf_network_utimer_t;
 
 typedef u32 (* jf_network_fnCallbackOfUtimerItem_t)(void * pData);
-typedef u32 (* jf_network_fnDestroyUtimerItem_t)(void ** ppData);
+typedef u32 (* jf_network_fnDestroyUtimerItemData_t)(void ** ppData);
 
 /** async server socket
  */
@@ -466,7 +466,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_wakeupChain(jf_network_chain_t * pChain);
 /** utimer
  */
 
-/** Add a timed callback with millisecond granularity
+/** Add a timed callback with second granularity
  *
  *  @param pUtimer [in] the timer
  *  @param pData [in] the data object to associate with the timed callback 
@@ -480,7 +480,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_wakeupChain(jf_network_chain_t * pChain);
 NETWORKAPI u32 NETWORKCALL jf_network_addUtimerItem(
     jf_network_utimer_t * pUtimer, void * pData, u32 u32Seconds,
     jf_network_fnCallbackOfUtimerItem_t fnCallback,
-    jf_network_fnDestroyUtimerItem_t fnDestroy);
+    jf_network_fnDestroyUtimerItemData_t fnDestroy);
 
 /** Removes timed callback(s) specified by pData from an utimer
  *
@@ -519,6 +519,8 @@ NETWORKAPI u32 NETWORKCALL jf_network_destroyUtimer(jf_network_utimer_t ** ppUti
  */
 NETWORKAPI u32 NETWORKCALL jf_network_createUtimer(
     jf_network_chain_t * pChain, jf_network_utimer_t ** ppUtimer);
+
+NETWORKAPI void NETWORKCALL jf_network_dumpUtimerItem(jf_network_utimer_t * pUtimer);
 
 /** async server socket
  */

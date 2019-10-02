@@ -27,6 +27,39 @@
 
 #define NUM_OF_TEST5_ENTRY  10
 
+static void testClockTime(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    struct timespec tp;
+
+    u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &tp);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_printf("current time, tv_sec: %ld, tv_nsec: %ld\n", tp.tv_sec, tp.tv_nsec);
+
+        jf_time_sleep(5);
+
+        u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &tp);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_printf("current time, tv_sec: %ld, tv_nsec: %ld\n", tp.tv_sec, tp.tv_nsec);
+
+        jf_time_sleep(3);
+
+        u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &tp);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_printf("current time, tv_sec: %ld, tv_nsec: %ld\n", tp.tv_sec, tp.tv_nsec);
+
+    }
+
+    ol_printf("\n");
+}
+
 static void test5(void)
 {
     olchar_t * data[NUM_OF_TEST5_ENTRY] = {"00:00:00", "00:00:59",
@@ -52,6 +85,8 @@ static void test5(void)
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+
+    testClockTime();
 
     test5();
 

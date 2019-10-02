@@ -75,6 +75,24 @@ u32 jf_time_getTimeOfDay(struct timeval * tv)
     return u32Ret;
 }
 
+u32 jf_time_getClockTime(clockid_t clkid, struct timespec *tp)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+#if defined(LINUX)
+    s32 ret = 0;
+
+    ret = clock_gettime(CLOCK_MONOTONIC_RAW, tp);
+    if (ret == -1)
+        u32Ret = JF_ERR_FAIL_GET_CLOCK_TIME;
+
+#elif defined(WINDOWS)
+    u32Ret = JF_ERR_NOT_IMPLEMENTED;
+#endif
+
+    return u32Ret;
+}
+
 u32 jf_time_sleep(u32 u32Seconds)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
