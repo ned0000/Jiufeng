@@ -92,11 +92,7 @@ typedef struct
     jf_listhead_t ia_jlWaitData;
     /**If the asocket is free or not*/
     boolean_t ia_bFree;
-    /**To disconnect the conection*/
-    boolean_t ia_bToDisconnect;
-    /**To estalish the connection*/
-    boolean_t ia_bToConnect;
-    u8 ia_u8Reserved3[5];
+    u8 ia_u8Reserved3[7];
     /*end of lock protected section*/
     
 } internal_asocket_t;
@@ -298,38 +294,6 @@ static u32 _asConnectTo(internal_asocket_t * pia)
     return u32Ret;
 }
 
-static u32 _handleAsocketRequest(internal_asocket_t * pia)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    boolean_t bToConnect = FALSE, bToDisconnect = FALSE;
-
-    jf_mutex_acquire(&pia->ia_jmLock);
-    if (pia->ia_bToConnect)
-    {
-        bToConnect = pia->ia_bToConnect;
-        pia->ia_bToConnect = FALSE;
-    }
-    else if (pia->ia_bToDisconnect)
-    {
-        bToDisconnect = pia->ia_bToDisconnect;
-        pia->ia_bToDisconnect = FALSE;
-        pia->ia_u32Status = JF_ERR_SOCKET_LOCAL_CLOSED;
-    }
-    jf_mutex_release(&pia->ia_jmLock);
-
-    if (bToConnect)
-    {
-        u32Ret = _asConnectTo(pia);
-    }
-    else if (bToDisconnect)
-    {
-        /*disconnect the connection*/
-        u32Ret = _asDisconnect(pia);
-    }
-
-    return u32Ret;
-}
-
 /** Pre select handler for asocket
  *
  *  @param pAsocket [in] the async socket 
@@ -347,7 +311,7 @@ static u32 _preSelectAsocket(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
-    _handleAsocketRequest(pia);
+    jf_logger_logInfoMsg("pre select asocket");
     
     if (pia->ia_pjnsSocket != NULL)
     {
@@ -454,6 +418,8 @@ static u32 _postSelectAsocket(
     struct sockaddr * psa = (struct sockaddr *)u8Addr;
     olint_t nLen;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
+
+    jf_logger_logInfoMsg("post select asocket");
 
     /*write handling*/
     if ((pia->ia_pjnsSocket != NULL) && pia->ia_bFinConnect &&
@@ -580,6 +546,30 @@ static void _setInternalCallbackFunction(
 
 }
 
+static u32 _asUtimerConnect(void * pData)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_asocket_t * pia = (internal_asocket_t *)pData;
+
+    jf_logger_logInfoMsg("as utimer trigger, connect");
+    
+    u32Ret = _asConnectTo(pia);
+
+    return u32Ret;
+}
+
+static u32 _asUtimerDisconnect(void * pData)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_asocket_t * pia = (internal_asocket_t *)pData;
+
+    jf_logger_logInfoMsg("as utimer trigger, disconnect");
+
+    u32Ret = _asDisconnect(pia);
+
+    return u32Ret;
+}
+
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 destroyAsocket(jf_network_asocket_t ** ppAsocket)
@@ -676,15 +666,12 @@ u32 disconnectAsocket(jf_network_asocket_t * pAsocket)
         u32Ret = JF_ERR_SOCKET_ALREADY_CLOSED;
         jf_logger_logErrMsg(u32Ret, "as disconnect, asocket is free");
     }
-    else
-    {
-        pia->ia_bToDisconnect = TRUE;
-    }
     jf_mutex_release(&pia->ia_jmLock);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_network_wakeupChain(pia->ia_pjncChain);
+        u32Ret = jf_network_addUtimerItem(
+            pia->ia_pjnuUtimer, pia, 0, _asUtimerDisconnect, NULL);
     }
 
     return u32Ret;
@@ -742,14 +729,14 @@ u32 connectAsocketTo(
         pia->ia_u16RemotePort = u16Port;
         pia->ia_pUser = pUser;
 
-        pia->ia_bToConnect = TRUE;
         pia->ia_bFree = FALSE;
     }
     jf_mutex_release(&pia->ia_jmLock);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_network_wakeupChain(pia->ia_pjncChain);
+        u32Ret = jf_network_addUtimerItem(
+            pia->ia_pjnuUtimer, pia, 0, _asUtimerConnect, NULL);
     }
     
     return u32Ret;

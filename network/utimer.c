@@ -71,12 +71,14 @@ static u32 _destroyUtimerItems(jf_listhead_t * list, boolean_t bCallback)
     jf_listhead_forEachSafe(list, pos, temppos)
     {
         temp = jf_listhead_getEntry(pos, utimer_item_t, ui_jlList);
+
+        if (bCallback)
+            temp->ui_fnCallback(temp->ui_pData);
+
 #if defined(DEBUG_UTIMER)
         jf_logger_logInfoMsg("destroy utimer item, expire: %d", temp->ui_u32Expire);
 #endif
-        if (bCallback)
-            temp->ui_fnCallback(temp->ui_pData);
-        
+
         _freeUtimerItem(&temp);
     }
 
