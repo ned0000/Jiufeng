@@ -50,6 +50,61 @@
 
 /* --- private routine section ------------------------------------------------------------------ */
 
+static u32 _bindUdsSocket(
+    jf_ipaddr_t * pjiLocal, u16 * pu16Port, internal_socket_t * pis)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olint_t nRet = -1;
+    u8 u8Addr[256];
+    struct sockaddr * psa = (struct sockaddr *)u8Addr;
+    olint_t nAddr = sizeof(u8Addr);
+
+    jf_ipaddr_convertIpAddrToSockAddr(pjiLocal, 0, psa, &nAddr);
+
+    nRet = bind(pis->is_isSocket, psa, nAddr);
+    if (nRet == -1)
+        u32Ret = JF_ERR_FAIL_BIND_SOCKET;
+
+    return u32Ret;
+}
+
+static u32 _bindIpSocket(
+    jf_ipaddr_t * pjiLocal, u16 * pu16Port, internal_socket_t * pis)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olint_t ra = 1;
+    olint_t nRet = -1;
+    u8 u8Addr[256];
+    struct sockaddr * psa = (struct sockaddr *)u8Addr;
+    olint_t nAddr = sizeof(u8Addr);
+
+    if (*pu16Port == 0)
+    {
+        /*If *pu16Port is 0, we need to choose a random port from 
+          NET_MIN_PORT_NUMBER to NET_MIN_PORT_NUMBER + NET_PORT_NUMBER_RANGE.
+          By default this is 50000 + 15000, which gives us the IANA 
+          defined range to use*/
+        do
+        {
+            *pu16Port = (u16) (NET_MIN_PORT_NUMBER + ((u16) rand() % NET_PORT_NUMBER_RANGE));
+            jf_ipaddr_convertIpAddrToSockAddr(pjiLocal, *pu16Port, psa, &nAddr);
+        } while (bind(pis->is_isSocket, psa, nAddr) < 0);
+    }
+    else
+    {
+        /*If a specific port was specified, try to use that*/
+        jf_ipaddr_convertIpAddrToSockAddr(pjiLocal, *pu16Port, psa, &nAddr);
+        /*This doesn't matter if failed*/
+        setsockopt(pis->is_isSocket, SOL_SOCKET, SO_REUSEADDR, (olchar_t *) &ra, sizeof(ra));
+
+        nRet = bind(pis->is_isSocket, psa, nAddr);
+        if (nRet == -1)
+            u32Ret = JF_ERR_FAIL_BIND_SOCKET;
+    }
+
+    return u32Ret;
+}
+
 /* --- public routine section ------------------------------------------------------------------- */
 u32 newIsocket(internal_socket_t ** ppIsocket)
 {
@@ -183,64 +238,29 @@ u32 createDgramIsocket(
     return u32Ret;
 }
 
-/** Allocates a TCP socket for a given interface, choosing a random port number
- *  from 50000 to 65000
- *
- *  @note If the port is 0, select a random port from the port number range
- *
- *  @param pjiLocal [in] the interface to bind to 
- *  @param pu16Port [in/out] the port number to bind to
- *  @param ppIsocket [out] the created UDP socket 
- *
- *  @return the error code
- */
 u32 createStreamIsocket(
     jf_ipaddr_t * pjiLocal, u16 * pu16Port, internal_socket_t ** ppIsocket)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = NULL;
-    olint_t ra = 1;
-    olint_t nRet = -1;
-    u8 u8Addr[100];
-    struct sockaddr * psa = (struct sockaddr *)u8Addr;
-    olint_t nAddr = sizeof(u8Addr);
 
     assert((pjiLocal != NULL) && (pu16Port != NULL) && (ppIsocket != NULL));
 
     if (pjiLocal->ji_u8AddrType == JF_IPADDR_TYPE_V4)
         u32Ret = createIsocket(AF_INET, SOCK_STREAM, 0, ppIsocket);
-    else
+    else if (pjiLocal->ji_u8AddrType == JF_IPADDR_TYPE_V6)
         u32Ret = createIsocket(AF_INET6, SOCK_STREAM, 0, ppIsocket);
+    else
+        u32Ret = createIsocket(AF_UNIX, SOCK_STREAM, 0, ppIsocket);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pis = *ppIsocket;
 
-        if (*pu16Port == 0)
-        {
-            /*If *pu16Port is 0, we need to choose a random port from 
-              NET_MIN_PORT_NUMBER to NET_MIN_PORT_NUMBER + NET_PORT_NUMBER_RANGE.
-              By default this is 50000 + 15000, which gives us the IANA 
-              defined range to use*/
-            do
-            {
-                *pu16Port = (unsigned short) (NET_MIN_PORT_NUMBER +
-                    ((unsigned short) rand() % NET_PORT_NUMBER_RANGE));
-                jf_ipaddr_convertIpAddrToSockAddr(pjiLocal, *pu16Port, psa, &nAddr);
-            } while (bind(pis->is_isSocket, psa, nAddr) < 0);
-        }
+        if (pjiLocal->ji_u8AddrType == JF_IPADDR_TYPE_UDS)
+            u32Ret = _bindUdsSocket(pjiLocal, pu16Port, pis);
         else
-        {
-            /*If a specific port was specified, try to use that*/
-            jf_ipaddr_convertIpAddrToSockAddr(pjiLocal, *pu16Port, psa, &nAddr);
-            /*This doesn't matter if failed*/
-            setsockopt(pis->is_isSocket, SOL_SOCKET, SO_REUSEADDR,
-                       (olchar_t *) &ra, sizeof(ra));
-
-            nRet = bind(pis->is_isSocket, psa, nAddr);
-            if (nRet == -1)
-                u32Ret = JF_ERR_FAIL_BIND_SOCKET;
-        }
+            u32Ret = _bindIpSocket(pjiLocal, pu16Port, pis);
     }
 
     return u32Ret;

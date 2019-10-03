@@ -60,7 +60,16 @@ u32 createDgramIsocket(
     jf_ipaddr_t * pjiLocal, u16 * pu16Port, internal_socket_t ** ppIsocket);
 
 /** Allocates a TCP socket for a given interface, choosing a random port number
- *  from 55000 to 65000
+ *  from 50000 to 65000
+ *
+ *  @note For unix domain socket, port number is ignored
+ *  @note If the port is 0, select a random port from the port number range
+ *
+ *  @param pjiLocal [in] the interface to bind to 
+ *  @param pu16Port [in/out] the port number to bind to
+ *  @param ppIsocket [out] the created UDP socket 
+ *
+ *  @return the error code
  */
 u32 createStreamIsocket(
     jf_ipaddr_t * pjiLocal, u16 * pu16Port, internal_socket_t ** ppIsocket);

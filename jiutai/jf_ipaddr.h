@@ -52,20 +52,30 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
+/**IPV4 address type*/
 #define JF_IPADDR_TYPE_V4               (0x0)
 
+/**IPV6 address type*/
 #define JF_IPADDR_TYPE_V6               (0x1)
+
+/**Unix domain socket*/
+#define JF_IPADDR_TYPE_UDS              (0x2)
 
 /* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct
 {
+    /**address type*/
     u8 ji_u8AddrType;
     u8 ji_u8Reserved[7];
     union
     {
+        /**IPV4 address*/
         olint_t ju_nAddr;
+        /**IPV6 address*/
         u8 ju_u8Addr[16];
+        /**Unix domain socket*/
+        olchar_t ju_strPath[120];
     } ji_uAddr;
 } jf_ipaddr_t;
 
@@ -76,15 +86,14 @@ IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getLocalIpAddrList(
     u8 u8AddrType, jf_ipaddr_t * pAddr, u16 * pu16Count);
 
 IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_convertSockAddrToIpAddr(
-    const struct sockaddr * psa, const olint_t nSaLen,
-    jf_ipaddr_t * pji, u16 * pu16Port);
+    const struct sockaddr * psa, const olint_t nSaLen, jf_ipaddr_t * pji, u16 * pu16Port);
 
 IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_convertIpAddrToSockAddr(
-    const jf_ipaddr_t * pji, const u16 u16Port,
-    struct sockaddr * psa, olint_t * pnSaLen);
+    const jf_ipaddr_t * pji, const u16 u16Port, struct sockaddr * psa, olint_t * pnSaLen);
 
-IFMGMTAPI void IFMGMTCALL jf_ipaddr_setIpV4Addr(
-    jf_ipaddr_t * pji, olint_t nAddr);
+IFMGMTAPI void IFMGMTCALL jf_ipaddr_setIpV4Addr(jf_ipaddr_t * pji, const olint_t nAddr);
+
+IFMGMTAPI void IFMGMTCALL jf_ipaddr_setUdsAddr(jf_ipaddr_t * pji, const olchar_t * pstrPath);
 
 IFMGMTAPI boolean_t IFMGMTCALL jf_ipaddr_isIpV4Addr(jf_ipaddr_t * pji);
 
@@ -94,6 +103,18 @@ IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_setIpV4AddrToInaddrAny(jf_ipaddr_t * pji);
 
 IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_setIpV6AddrToInaddrAny(jf_ipaddr_t * pji);
 
+/** Get the string of IP Address according to the IP address type
+ *
+ *  the function does not check the size of the string buffer.
+ *  please make sure it is big enough to avoid memory access violation.
+ *
+ *  @param pstrIpAddr [in] the string buffer where the IP address string will return
+ *  @param pji [out] the ip address
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_INVALID_IP_ADDR_TYPE invalid address type
+ */
 IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getStringIpAddr(
     olchar_t * pstrIp, const jf_ipaddr_t * pji);
 
