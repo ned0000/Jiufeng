@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief the makefile for service manangement library
+#  @brief The Makefile for servmgmt library and daemon
 #
 #  @author Min Zhang
 #
@@ -11,19 +11,10 @@
 
 #---------------------------------------------------------------------------------------------------
 
-SONAME = jf_servmgmt
+SUBDIRS = servmgmt dongyuan
 
-CONFIG_FILES = servmgmt.setting
-
-SOURCES = servmgmt.c servmgmtsetting.c
-
-JIUTAI_SRCS = jf_mem.c jf_sharedmemory.c jf_process.c jf_attask.c jf_time.c
-
-EXTRA_LIBS = -ljf_logger -ljf_files -lxml2
-
-EXTRA_INC_DIR = -I/usr/include/libxml2
-
-include $(TOPDIR)/mak/lnxlib.mak
+include $(TOPDIR)/mak/lnxsubdirs.mak
 
 #---------------------------------------------------------------------------------------------------
+
 

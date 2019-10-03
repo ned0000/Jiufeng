@@ -1,7 +1,7 @@
 #
 #  @file windows.mak
 #
-#  @brief the makefile for service management library
+#  @brief The main Makefile for servmgmt library and daemon
 #
 #  @author Min Zhang
 #
@@ -11,23 +11,9 @@
 
 #---------------------------------------------------------------------------------------------------
 
-DLLNAME = jf_servmgmt
+SUBDIRS = servmgmt dongyuan
 
-RESOURCE = servmgmt
-
-SOURCES = servmgmt.c servmgmtsetting.c
-
-JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\jf_sharedmemory.c \
-    $(JIUTAI_DIR)\jf_process.c $(JIUTAI_DIR)\attask.c $(JIUTAI_DIR)\jf_time.c
-
-EXTRA_DEFS = -DJIUFENG_SERVMGMT_DLL
-
-EXTRA_LIBS = psapi.lib $(LIB_DIR)\jf_logger.lib $(LIB_DIR)\olfiles.lib \
-    $(LIB_DIR)\jf_xmlparser.lib $(LIB_DIR)\jf_uuid.lib
-             
-EXTRA_INC_DIR =
-
-!include "$(TOPDIR)\mak\winlib.mak"
+!include "$(TOPDIR)\mak\winsubdirs.mak"
 
 #---------------------------------------------------------------------------------------------------
 
