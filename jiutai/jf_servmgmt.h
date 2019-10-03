@@ -97,18 +97,15 @@ SERVMGMTAPI u32 SERVMGMTCALL jf_servmgmt_init(jf_servmgmt_init_param_t * pjsip);
 
 SERVMGMTAPI u32 SERVMGMTCALL jf_servmgmt_fini(void);
 
-SERVMGMTAPI u32 SERVMGMTCALL jf_servmgmt_start(
-    jf_servmgmt_start_param_t * pjssp);
+SERVMGMTAPI u32 SERVMGMTCALL jf_servmgmt_start(jf_servmgmt_start_param_t * pjssp);
 
 SERVMGMTAPI u32 SERVMGMTCALL jf_servmgmt_stop(void);
 
 SERVMGMTAPI u32 SERVMGMTCALL jf_servmgmt_getInfo(jf_servmgmt_info_t * pjsi);
 
-SERVMGMTAPI const olchar_t * SERVMGMTCALL jf_servmgmt_getStringServStatus(
-    u8 u8Status);
+SERVMGMTAPI const olchar_t * SERVMGMTCALL jf_servmgmt_getStringServStatus(u8 u8Status);
 
-SERVMGMTAPI const olchar_t * SERVMGMTCALL jf_servmgmt_getStringServStartupType(
-    u8 u8StartupType);
+SERVMGMTAPI const olchar_t * SERVMGMTCALL jf_servmgmt_getStringServStartupType(u8 u8StartupType);
 
 SERVMGMTAPI u32 SERVMGMTCALL jf_servmgmt_getServStartupTypeFromString(
     const olchar_t * pstrType, u8 * pu8StartupType);
@@ -117,8 +114,7 @@ SERVMGMTAPI u32 SERVMGMTCALL jf_servmgmt_stopServ(olchar_t * pstrName);
 
 SERVMGMTAPI u32 SERVMGMTCALL jf_servmgmt_startServ(olchar_t * pstrName);
 
-SERVMGMTAPI u32 SERVMGMTCALL jf_servmgmt_setServStartupType(
-    olchar_t * pstrName, u8 u8StartupType);
+SERVMGMTAPI u32 SERVMGMTCALL jf_servmgmt_setServStartupType(olchar_t * pstrName, u8 u8StartupType);
 
 #endif /*JIUFENG_SERVMGMT_H*/
 

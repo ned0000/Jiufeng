@@ -126,7 +126,7 @@ u32 setDefaultDongyuanParam(dongyuan_param_t * pgp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    memset(pgp, 0, sizeof(dongyuan_param_t));
+    ol_memset(pgp, 0, sizeof(dongyuan_param_t));
 
 
     return u32Ret;

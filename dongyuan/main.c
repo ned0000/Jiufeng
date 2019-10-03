@@ -142,9 +142,10 @@ static u32 _initDongyuan(olint_t argc, olchar_t ** argv)
     jf_logger_init_param_t jlipParam;
     olchar_t strExecutable[100];
 
-    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    ol_memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
     jlipParam.jlip_pstrCallerName = "DONGYUAN";
-    jlipParam.jlip_u8TraceLevel = 0;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
+    jlipParam.jlip_bLogToStdout = TRUE;
 
     setDefaultDongyuanParam(&gp);
     gp.gp_pstrCmdLine = argv[0];
