@@ -11,7 +11,7 @@
 
 #---------------------------------------------------------------------------------------------------
 
-SUBDIRS = servmgmt dongyuan
+SUBDIRS = serv dongyuan
 
 !include "$(TOPDIR)\mak\winsubdirs.mak"
 

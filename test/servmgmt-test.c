@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "jf_sem.h"
 #include "jf_mem.h"
-#include "jf_servmgmt.h"
+#include "jf_serv.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 static boolean_t ls_bList = FALSE;
@@ -28,9 +28,9 @@ static boolean_t ls_bStop = FALSE;
 static boolean_t ls_bStart = FALSE;
 static boolean_t ls_bStartupType = FALSE;
 static olchar_t * ls_pstrServName = NULL;
-static u8 ls_u8StartupType = JF_SERVMGMT_SERV_STARTUPTYPE_UNKNOWN;
+static u8 ls_u8StartupType = JF_SERV_STARTUPTYPE_UNKNOWN;
 
-static const olchar_t * ls_pstrProgramName = "olservmgmt";
+static const olchar_t * ls_pstrProgramName = "jf_serv";
 static const olchar_t * ls_pstrVersion = "1.0.0";
 
 /* --- private routine section ------------------------------------------------------------------ */
@@ -73,7 +73,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
             break;
         case 'u':
             ls_bStartupType = TRUE;
-            u32Ret = jf_servmgmt_getServStartupTypeFromString(
+            u32Ret = jf_serv_getServStartupTypeFromString(
                 optarg, &ls_u8StartupType);
             break;
         case 'l':
@@ -125,27 +125,26 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
 static u32 _listService(olchar_t * name)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_servmgmt_info_t jsi;
-    jf_servmgmt_serv_info_t * pjssi;
+    jf_serv_t js;
+    jf_serv_info_t * pjsi;
     u8 u8Index;
 
-    u32Ret = jf_servmgmt_getInfo(&jsi);
+    u32Ret = jf_serv_getInfo(&js);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("%-12s %-12s %-10s\n", "Name", "StartupType", "Status");
         ol_printf("----------------------------------------------\n");
 
-        for (u8Index = 0; u8Index < jsi.jsi_u8NumOfService; u8Index ++)
+        for (u8Index = 0; u8Index < js.js_u16NumOfService; u8Index ++)
         {
-            pjssi = &jsi.jsi_jssiService[u8Index];
-            if (name != NULL &&
-                ol_strcmp(name, pjssi->jssi_strName) != 0)
+            pjsi = &js.js_jsiService[u8Index];
+            if (name != NULL && ol_strcmp(name, pjsi->jsi_strName) != 0)
                 continue;
 
             ol_printf(
-                "%-12s %-12s %-10s\n", pjssi->jssi_strName,
-                jf_servmgmt_getStringServStartupType(pjssi->jssi_u8StartupType),
-                jf_servmgmt_getStringServStatus(pjssi->jssi_u8Status));
+                "%-12s %-12s %-10s\n", pjsi->jsi_strName,
+                jf_serv_getStringServStartupType(pjsi->jsi_u8StartupType),
+                jf_serv_getStringServStatus(pjsi->jsi_u8Status));
         }
     }
     else
@@ -167,7 +166,7 @@ static u32 _stopService(olchar_t * name)
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_servmgmt_stopServ(name);
+        u32Ret = jf_serv_stopServ(name);
 
     return u32Ret;
 }
@@ -183,7 +182,7 @@ static u32 _startService(olchar_t * name)
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_servmgmt_startServ(name);
+        u32Ret = jf_serv_startServ(name);
 
     return u32Ret;
 }
@@ -199,7 +198,7 @@ static u32 _changeServiceStartupType(olchar_t * name, u8 u8Type)
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_servmgmt_setServStartupType(name, u8Type);
+        u32Ret = jf_serv_setServStartupType(name, u8Type);
 
     return u32Ret;
 }
@@ -210,13 +209,13 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     jf_logger_init_param_t jlipParam;
-    jf_servmgmt_init_param_t jsip;
+    jf_serv_init_param_t jsip;
 
     memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
 
-    jlipParam.jlip_pstrCallerName = "SERVMGMT-TEST";
-//    jlipParam.jlip_bLogToStdout = TRUE;
-    jlipParam.jlip_u8TraceLevel = 0;
+    jlipParam.jlip_pstrCallerName = "JF_SERV";
+    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_u8TraceLevel = 3;
 
     u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -225,7 +224,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
         ol_memset(&jsip, 0, sizeof(jsip));
 
-        u32Ret = jf_servmgmt_init(&jsip);
+        u32Ret = jf_serv_init(&jsip);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (ls_bStop)
@@ -238,7 +237,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
             else
                 u32Ret = _listService(ls_pstrServName);                
 
-            jf_servmgmt_fini();
+            jf_serv_fini();
         }
 
         jf_logger_fini();

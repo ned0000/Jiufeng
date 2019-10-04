@@ -25,10 +25,12 @@
 #include "jf_logger.h"
 #include "jf_process.h"
 #include "jf_file.h"
-#include "jf_servmgmt.h"
+#include "jf_serv.h"
 #include "jf_mem.h"
+#include "jf_network.h"
 
 #include "dongyuan.h"
+#include "servmgmt.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -36,6 +38,10 @@ typedef struct
 {
     olchar_t * ig_pstrSettingFile;
     u32 ig_u8Reserved[8];
+
+    jf_network_chain_t * ls_pjncDongyuanChain;
+    jf_network_assocket_t * ls_pjnaDongyuanAssocket;
+
 } internal_dongyuan_t;
 
 /* --- private routine section ------------------------------------------------------------------ */
@@ -46,7 +52,7 @@ u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dongyuan_t * pig;
-    jf_servmgmt_init_param_t jsip;
+    serv_mgmt_init_param_t smip;
     olchar_t strExecutablePath[JF_LIMIT_MAX_PATH_LEN];
 
     jf_logger_logInfoMsg("create dongyuan");
@@ -65,9 +71,9 @@ u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(&jsip, 0, sizeof(jsip));
+        ol_memset(&smip, 0, sizeof(smip));
 
-        u32Ret = jf_servmgmt_init(&jsip);
+        u32Ret = initServMgmt(&smip);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -93,17 +99,11 @@ u32 destroyDongyuan(dongyuan_t ** ppDongyuan)
 u32 startDongyuan(dongyuan_t * pDongyuan)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_dongyuan_t * pig;
-    jf_servmgmt_start_param_t jssp;
+//    internal_dongyuan_t * pig = (internal_dongyuan_t *)pDongyuan;
 
     assert(pDongyuan != NULL);
 
-    pig = (internal_dongyuan_t *)pDongyuan;
 
-    ol_memset(&jssp, 0, sizeof(jssp));
-    jssp.jssp_pstrSettingFile = pig->ig_pstrSettingFile;
-
-    u32Ret = jf_servmgmt_start(&jssp);
 
     return u32Ret;
 }
@@ -115,9 +115,7 @@ u32 stopDongyuan(dongyuan_t * pDongyuan)
 
     assert(pDongyuan != NULL);
 
-//    pig = (internal_dongyuan_t *)pDongyuan;
 
-    u32Ret = jf_servmgmt_stop();
 
     return u32Ret;
 }

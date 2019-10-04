@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief the makefile for service manangement library
+#  @brief the makefile for service library
 #
 #  @author Min Zhang
 #
@@ -11,17 +11,15 @@
 
 #---------------------------------------------------------------------------------------------------
 
-SONAME = jf_servmgmt
+SONAME = jf_serv
 
-CONFIG_FILES = servmgmt.setting
+SOURCES = ../servmgmtcommon/servmgmtcommon.c serv.c
 
-SOURCES = servmgmt.c servmgmtsetting.c
+JIUTAI_SRCS = jf_mem.c jf_process.c jf_time.c
 
-JIUTAI_SRCS = jf_mem.c jf_sharedmemory.c jf_process.c jf_attask.c jf_time.c
+EXTRA_LIBS = -ljf_logger -ljf_files -ljf_ifmgmt -ljf_network
 
-EXTRA_LIBS = -ljf_logger -ljf_files -lxml2
-
-EXTRA_INC_DIR = -I/usr/include/libxml2
+EXTRA_INC_DIR = -I../servmgmtcommon
 
 include $(TOPDIR)/mak/lnxlib.mak
 
