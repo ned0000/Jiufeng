@@ -63,7 +63,7 @@ static u32 _onDongyuanConnect(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logDebugMsg("on dongyuan connect, new connection\n");
+    jf_logger_logDebugMsg("on dongyuan connect, new connection");
 
     return u32Ret;
 }
@@ -74,7 +74,7 @@ static u32 _onDongyuanDisconnect(
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     jf_logger_logDebugMsg(
-        "on dongyuan disconnect, reason: %s\n", jf_err_getDescription(u32Status));
+        "on dongyuan disconnect, reason: %s", jf_err_getDescription(u32Status));
 
     return u32Ret;
 }
@@ -85,7 +85,168 @@ static u32 _onDongyuanSendData(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logDebugMsg("on dongyuan send data, len: %d\n", sBuf);
+    jf_logger_logDebugMsg("on dongyuan send data, len: %d", sBuf);
+
+    return u32Ret;
+}
+
+static u32 _procesServMgmtMsgGetInfo(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    u8 * pu8Buffer, olsize_t u32Size)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    servmgmt_get_info_req_t * pReq = (servmgmt_get_info_req_t *)pu8Buffer;
+    servmgmt_get_info_resp_t inforesp;
+
+    if (u32Size < sizeof(servmgmt_get_info_req_t))
+        u32Ret = JF_ERR_INCOMPLETE_DATA;
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        inforesp.sgir_u32RetCode = getServMgmtServInfo(pReq->sgir_strName, &inforesp.sgir_jsiInfo);
+
+        u32Ret = jf_network_sendAssocketData(
+            pAssocket, pAsocket, (u8 *)&inforesp, sizeof(inforesp));
+    }
+
+    return u32Ret;
+}
+
+static u32 _procesServMgmtMsgGetInfoList(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    u8 * pu8Buffer, olsize_t u32Size)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    servmgmt_get_info_list_req_t * pReq = (servmgmt_get_info_list_req_t *)pu8Buffer;
+    servmgmt_get_info_list_resp_t inforesp;
+    jf_serv_info_list_t * pList = NULL;
+
+    if (u32Size < sizeof(servmgmt_get_info_list_req_t))
+        u32Ret = JF_ERR_INCOMPLETE_DATA;
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_sharedmemory_attach(pReq->sgilr_jsiShmId, (void **)&pList);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        inforesp.sgilr_u32RetCode = getServMgmtServInfoList(pList);
+
+        u32Ret = jf_network_sendAssocketData(
+            pAssocket, pAsocket, (u8 *)&inforesp, sizeof(inforesp));
+    }
+
+    if (pList != NULL)
+        jf_sharedmemory_detach((void **)&pList);
+    
+    return u32Ret;
+}
+
+static u32 _procesServMgmtMsgStartServ(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    u8 * pu8Buffer, olsize_t u32Size)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    servmgmt_start_serv_req_t * pReq = (servmgmt_start_serv_req_t *)pu8Buffer;
+    servmgmt_start_serv_resp_t servresp;
+
+    if (u32Size < sizeof(servmgmt_start_serv_req_t))
+        u32Ret = JF_ERR_INCOMPLETE_DATA;
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        servresp.sssr_u32RetCode = startServMgmtServ(pReq->sssr_strName);
+
+        u32Ret = jf_network_sendAssocketData(
+            pAssocket, pAsocket, (u8 *)&servresp, sizeof(servresp));
+    }
+
+    return u32Ret;
+}
+
+static u32 _procesServMgmtMsgStopServ(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    u8 * pu8Buffer, olsize_t u32Size)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    servmgmt_stop_serv_req_t * pReq = (servmgmt_stop_serv_req_t *)pu8Buffer;
+    servmgmt_stop_serv_resp_t servresp;
+
+    if (u32Size < sizeof(servmgmt_stop_serv_req_t))
+        u32Ret = JF_ERR_INCOMPLETE_DATA;
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        servresp.sssr_u32RetCode = stopServMgmtServ(pReq->sssr_strName);
+
+        u32Ret = jf_network_sendAssocketData(
+            pAssocket, pAsocket, (u8 *)&servresp, sizeof(servresp));
+    }
+
+    return u32Ret;
+}
+
+static u32 _procesServMgmtMsgSetStartupType(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    u8 * pu8Buffer, olsize_t u32Size)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    servmgmt_set_startup_type_req_t * pReq = (servmgmt_set_startup_type_req_t *)pu8Buffer;
+    servmgmt_set_startup_type_resp_t servresp;
+
+    if (u32Size < sizeof(servmgmt_set_startup_type_req_t))
+        u32Ret = JF_ERR_INCOMPLETE_DATA;
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        servresp.ssstr_u32RetCode = setServMgmtServStartupType(
+            pReq->ssstr_strName, pReq->ssstr_u8StartupType);
+
+        u32Ret = jf_network_sendAssocketData(
+            pAssocket, pAsocket, (u8 *)&servresp, sizeof(servresp));
+    }
+
+    return u32Ret;
+}
+
+static u32 _procesServMgmtMsg(
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
+    u8 * pu8Buffer, olsize_t * pu32BeginPointer, olsize_t u32EndPointer)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    u32 u32Begin = *pu32BeginPointer;
+    u32 u32Size = u32EndPointer - u32Begin;
+    servmgmt_msg_header_t * pHeader = NULL;
+
+    if (u32Size < sizeof(servmgmt_msg_header_t))
+        return u32Ret;
+
+    pHeader = (servmgmt_msg_header_t *)pu8Buffer;
+    switch (pHeader->smh_u8MsgId)
+    {
+    case SERVMGMT_MSG_ID_GET_INFO_REQ:
+        u32Ret = _procesServMgmtMsgGetInfo(pAssocket, pAsocket, pu8Buffer + u32Begin, u32Size);
+        break;
+    case SERVMGMT_MSG_ID_GET_INFO_LIST_REQ:
+        u32Ret = _procesServMgmtMsgGetInfoList(pAssocket, pAsocket, pu8Buffer + u32Begin, u32Size);
+        break;
+    case SERVMGMT_MSG_ID_START_SERV_REQ:
+        u32Ret = _procesServMgmtMsgStartServ(pAssocket, pAsocket, pu8Buffer + u32Begin, u32Size);
+        break;
+    case SERVMGMT_MSG_ID_STOP_SERV_REQ:
+        u32Ret = _procesServMgmtMsgStopServ(pAssocket, pAsocket, pu8Buffer + u32Begin, u32Size);
+        break;
+    case SERVMGMT_MSG_ID_SET_STARTUP_TYPE_REQ:
+        u32Ret = _procesServMgmtMsgSetStartupType(
+            pAssocket, pAsocket, pu8Buffer + u32Begin, u32Size);
+        break;
+    default:
+        break;
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        *pu32BeginPointer = u32EndPointer;
+    else if (u32Ret == JF_ERR_INCOMPLETE_DATA)
+        u32Ret = JF_ERR_NO_ERROR;
 
     return u32Ret;
 }
@@ -97,10 +258,9 @@ static u32 _onDongyuanData(
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Begin = *pu32BeginPointer;
 
-    jf_logger_logDebugMsg("on dongyuan data, begin: %d, end: %d\n", u32Begin, u32EndPointer);
+    jf_logger_logDebugMsg("on dongyuan data, begin: %d, end: %d", u32Begin, u32EndPointer);
 
-
-    *pu32BeginPointer = u32EndPointer;
+    u32Ret = _procesServMgmtMsg(pAssocket, pAsocket, pu8Buffer, pu32BeginPointer, u32EndPointer);
 
     return u32Ret;
 }

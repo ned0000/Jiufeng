@@ -16,7 +16,7 @@ CONFIG_FILES = servmgmt.setting
 
 SOURCES = ../servmgmtcommon/servmgmtcommon.c servmgmtsetting.c servmgmt.c dongyuan.c main.c
 
-JIUTAI_SRCS = jf_mem.c jf_process.c jf_mutex.c jf_attask.c jf_thread.c
+JIUTAI_SRCS = jf_mem.c jf_process.c jf_mutex.c jf_attask.c jf_thread.c jf_sharedmemory.c
 
 EXTRA_INC_DIR = ../servmgmtcommon
 

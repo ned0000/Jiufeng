@@ -328,6 +328,8 @@ static u32 _monitorServices(
 
     jf_logger_logInfoMsg("monitor serv");
 
+    jf_mutex_acquire(&pism->ism_jmLock);
+
     for (u32Count = 0, u32ServIndex = 0;
          u32ServIndex < pisms->isms_u16NumOfService; u32ServIndex ++)
     {
@@ -341,6 +343,8 @@ static u32 _monitorServices(
             u32Count ++;
         }
     }
+
+    jf_mutex_release(&pism->ism_jmLock);
 
     if (u32Count > 0)
     {
@@ -495,10 +499,13 @@ u32 stopServMgmt(void)
 u32 getServMgmtServInfo(const olchar_t * pstrName, jf_serv_info_t * pjsi)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_serv_mgmt_setting_t * pisms = &ls_ismServMgmt.ism_ismsSetting;
+    internal_serv_mgmt_t * pism = &ls_ismServMgmt;
+    internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
     internal_service_info_t * pisi = NULL;
 
     ol_memset(pjsi, 0, sizeof(*pjsi));
+
+    jf_mutex_acquire(&pism->ism_jmLock);
 
     u32Ret = _findServMgmtServ(pstrName, pisms, &pisi);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -509,6 +516,8 @@ u32 getServMgmtServInfo(const olchar_t * pstrName, jf_serv_info_t * pjsi)
 
     }
 
+    jf_mutex_release(&pism->ism_jmLock);
+
     return u32Ret;
 }
 
@@ -516,21 +525,20 @@ u32 getServMgmtServInfoList(jf_serv_info_list_t * pjsil)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32ServIndex;
-    internal_serv_mgmt_setting_t * pisms = &ls_ismServMgmt.ism_ismsSetting;
+    internal_serv_mgmt_t * pism = &ls_ismServMgmt;
+    internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
     internal_service_info_t * pisi = NULL;
     jf_serv_info_t * pjsi = NULL;
-    olsize_t size = 0;
 
-    size = sizeof(jf_serv_info_list_t) + (pjsil->jsil_u16MaxService - 1) * sizeof(jf_serv_info_t);
-
-    ol_memset(pjsil, 0, size);
-
+    jf_mutex_acquire(&pism->ism_jmLock);
+    
     for (u32ServIndex = 0; u32ServIndex < pisms->isms_u16NumOfService; u32ServIndex ++)
     {
         pisi = &pisms->isms_isiService[u32ServIndex];
 
         pjsi = &pjsil->jsil_jsiService[pjsil->jsil_u16NumOfService];
 
+        ol_memset(pjsi, 0, sizeof(*pjsi));
         ol_strcpy(pjsi->jsi_strName, pisi->isi_strName);
         pjsi->jsi_u8Status = pisi->isi_u8Status;
         pjsi->jsi_u8StartupType = pisi->isi_u8StartupType;
@@ -540,14 +548,19 @@ u32 getServMgmtServInfoList(jf_serv_info_list_t * pjsil)
             break;
     }
 
+    jf_mutex_release(&pism->ism_jmLock);
+
     return u32Ret;
 }
 
 u32 stopServMgmtServ(const olchar_t * pstrName)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_serv_mgmt_setting_t * pisms = &ls_ismServMgmt.ism_ismsSetting;
+    internal_serv_mgmt_t * pism = &ls_ismServMgmt;
+    internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
     internal_service_info_t * pisi = NULL;
+
+    jf_mutex_acquire(&pism->ism_jmLock);
 
     u32Ret = _findServMgmtServ(pstrName, pisms, &pisi);
 
@@ -556,14 +569,19 @@ u32 stopServMgmtServ(const olchar_t * pstrName)
         u32Ret = _stopServMgmtServ(pisms, pisi);
     }
 
+    jf_mutex_release(&pism->ism_jmLock);
+
     return u32Ret;
 }
 
 u32 startServMgmtServ(const olchar_t * pstrName)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_serv_mgmt_setting_t * pisms = &ls_ismServMgmt.ism_ismsSetting;
+    internal_serv_mgmt_t * pism = &ls_ismServMgmt;
+    internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
     internal_service_info_t * pisi = NULL;
+
+    jf_mutex_acquire(&pism->ism_jmLock);
 
     u32Ret = _findServMgmtServ(pstrName, pisms, &pisi);
     
@@ -571,16 +589,19 @@ u32 startServMgmtServ(const olchar_t * pstrName)
     {
         pisi->isi_u8Status = JF_SERV_STATUS_STARTING;
 
-        _startServMgmtServ(&ls_ismServMgmt, pisi);
+        u32Ret = _startServMgmtServ(&ls_ismServMgmt, pisi);
     }
+
+    jf_mutex_release(&pism->ism_jmLock);
 
     return u32Ret;
 }
 
-u32 setServStartupType(const olchar_t * pstrName, const u8 u8StartupType)
+u32 setServMgmtServStartupType(const olchar_t * pstrName, const u8 u8StartupType)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_serv_mgmt_setting_t * pisms = &ls_ismServMgmt.ism_ismsSetting;
+    internal_serv_mgmt_t * pism = &ls_ismServMgmt;
+    internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
     internal_service_info_t * pisi = NULL;
 
     assert(u8StartupType == JF_SERV_STARTUP_TYPE_AUTOMATIC ||
@@ -588,6 +609,8 @@ u32 setServStartupType(const olchar_t * pstrName, const u8 u8StartupType)
 
     jf_logger_logInfoMsg(
         "set serv %s startup type to %s", pstrName, getStringServStartupType(u8StartupType));
+
+    jf_mutex_acquire(&pism->ism_jmLock);
 
     u32Ret = _findServMgmtServ(pstrName, pisms, &pisi);
 
@@ -597,6 +620,8 @@ u32 setServStartupType(const olchar_t * pstrName, const u8 u8StartupType)
 
         u32Ret = _writeServMgmtSetting(pisms);
     }
+
+    jf_mutex_release(&pism->ism_jmLock);
 
     return u32Ret;
 }
