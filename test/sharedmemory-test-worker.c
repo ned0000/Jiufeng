@@ -35,15 +35,15 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32Ret = jf_sharedmemory_create(&pjsi, 4000);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_printf("succeed to create shared memory\n");
-        ol_printf("shm id: %s\n", pjsi);
+        ol_printf("Succeed to create shared memory\n");
+        ol_printf("Shared memory ID: %s\n", pjsi);
 
         u32Ret = jf_sharedmemory_attach(pjsi, (void **)&pstrShared);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_printf("succeed to attach shared memory\n");
+        ol_printf("Succeed to attach shared memory\n");
         ol_strcpy(pstrShared, "have a good day");
         ol_printf("Write to shared memory\n");
     }

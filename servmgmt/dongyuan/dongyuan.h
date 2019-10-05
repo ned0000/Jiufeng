@@ -22,25 +22,25 @@
 
 
 /* --- data structures -------------------------------------------------------------------------- */
-typedef void  dongyuan_t;
 
 typedef struct
 {
-    olchar_t * gp_pstrCmdLine;
-    olchar_t * gp_pstrSettingFile;
-    u8 gp_u8Reserved[16];
+    olchar_t * dp_pstrCmdLine;
+    olchar_t * dp_pstrSettingFile;
+    u8 dp_u8Reserved[16];
 } dongyuan_param_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
+
 u32 setDefaultDongyuanParam(dongyuan_param_t * pgp);
 
-u32 createDongyuan(dongyuan_t ** ppDongyuan, dongyuan_param_t * pgp);
+u32 initDongyuan(dongyuan_param_t * pgp);
 
-u32 destroyDongyuan(dongyuan_t ** ppDongyuan);
+u32 finiDongyuan(void);
 
-u32 startDongyuan(dongyuan_t * pDongyuan);
+u32 startDongyuan(void);
 
-u32 stopDongyuan(dongyuan_t * pDongyuan);
+u32 stopDongyuan(void);
 
 #endif /*JIUFENG_DONGYUAN_H*/
 

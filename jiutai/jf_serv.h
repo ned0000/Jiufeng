@@ -6,9 +6,6 @@
  *  @author Min Zhang
  *
  *  @note Routines declared in this file are included in jf_serv library
- *  @note Service management library will create the setting and status files.
- *   The location of those files are in current working directory. The user
- *   should set the working directory accordingly before using this library.
  */
 
 #ifndef JIUFENG_SERV_H

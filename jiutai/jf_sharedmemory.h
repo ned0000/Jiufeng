@@ -25,7 +25,12 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-/*the shared memory identifier is a string with NULL-terminated*/
+/** the shared memory id length
+ */
+#define JF_SHAREDMEMORY_ID_LEN     (40)
+
+/** the shared memory identifier is a string with NULL-terminated
+ */
 typedef olchar_t  jf_sharedmemory_id_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */

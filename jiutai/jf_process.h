@@ -56,6 +56,19 @@ u32 jf_process_formCmdLineArguments(
 
 u32 jf_process_switchToDaemon(olchar_t * pstrDaemonName);
 
+/** Test if the process is already running.
+ *  
+ *  @note Check the pid file in /var/run directory, the name of the pid file is daemon-name.pid
+ *  @note If the pid file is existing and the name is the same as the daemon name, another process
+ *   is already running, current process will quit
+ *  @note If the no pid file is found or the name is not the same as the daemon name, this function
+ *   will create the pid file
+ *
+ *  @param pstrDaemonName [in] the daemon name
+ *  
+ *  @return the status of the daemon 
+ *
+ */
 boolean_t jf_process_isAlreadyRunning(olchar_t * pstrDaemonName);
 
 void jf_process_initId(jf_process_id_t * pProcessId);
@@ -66,6 +79,12 @@ u32 jf_process_create(
     jf_process_id_t * pProcessId, jf_process_attr_t * pAttr,
     olchar_t * pstrCommandLine);
 
+/** Send SIGKILL to process to kill the process, SIGKILL cannot be caught by process
+ */
+u32 jf_process_kill(jf_process_id_t * pProcessId);
+
+/** Send SIGTERM to process to terminate the process, SIGKILL can be caught by process
+ */
 u32 jf_process_terminate(jf_process_id_t * pProcessId);
 
 /*unknown reason*/

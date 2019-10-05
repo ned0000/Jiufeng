@@ -24,11 +24,11 @@
 #include "dongyuan.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
-static dongyuan_t * ls_pgDongyuan = NULL;
+
 static boolean_t ls_bForeground = FALSE;
 
-static const olchar_t * ls_pstrProgramName = "oldongyuan";
-static const olchar_t * ls_pstrVersion = "1.0.0";
+static olchar_t ls_strProgramName[64];
+static olchar_t * ls_pstrVersion = "1.0.0";
 
 #if defined(LINUX)
     #define SERVICE_RETURN_VALUE  int
@@ -44,13 +44,13 @@ static void _printDongyuanUsage(void)
     ol_printf("\
 Usage: %s [-f] [-s setting file] [-V] [logger options]\n\
     -f ruuning in foreground.\n\
-    -s setting file: specify the setting file.\n\
+    -s specify the setting file.\n\
     -V show version information.\n\
 logger options:\n\
     -T <0|1|2|3> the log level. 0: no log, 1: error only, 2: info, 3: all.\n\
     -F <log file> the log file.\n\
     -S <log file size> the size of log file. No limit if not specified.\n",
-           ls_pstrProgramName);
+           ls_strProgramName);
 
     ol_printf("\n");
 
@@ -59,7 +59,7 @@ logger options:\n\
 
 static u32 _parseDongyuanCmdLineParam(
     olint_t argc, olchar_t ** argv, 
-    dongyuan_param_t * pgp, jf_logger_init_param_t * pjlip)
+    dongyuan_param_t * pdp, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
@@ -74,14 +74,14 @@ static u32 _parseDongyuanCmdLineParam(
             ls_bForeground = TRUE;
             break;
         case 's':
-            pgp->gp_pstrSettingFile = optarg;
+            pdp->dp_pstrSettingFile = optarg;
             break;
         case '?':
         case 'h':
             _printDongyuanUsage();
             break;
         case 'V':
-            ol_printf("%s %s\n", ls_pstrProgramName, ls_pstrVersion);
+            ol_printf("%s %s\n", ls_strProgramName, ls_pstrVersion);
             exit(0);
         case 'T':
             if (sscanf(optarg, "%d", &u32Value) == 1)
@@ -115,64 +115,67 @@ static void _terminate(olint_t signal)
 {
     ol_printf("get signal\n");
 
-    if (ls_pgDongyuan != NULL)
-        stopDongyuan(ls_pgDongyuan);
+    stopDongyuan();
 }
 
-static u32 _startDongyuan(void)
+static u32 _startDongyuan(dongyuan_param_t * pdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = startDongyuan(ls_pgDongyuan);
-    if (u32Ret != JF_ERR_NO_ERROR)
-        jf_logger_logErrMsg(u32Ret, "quit dongyuan");
+    u32Ret = initDongyuan(pdp);
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = startDongyuan();
 
-    if (ls_pgDongyuan != NULL)
-        destroyDongyuan(&ls_pgDongyuan);
-
-    jf_logger_fini();
+    finiDongyuan();
 
     return u32Ret;
 }
 
-static u32 _initDongyuan(olint_t argc, olchar_t ** argv)
+static u32 _serviceDongyuan(olint_t argc, char** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    dongyuan_param_t gp;
+    dongyuan_param_t dp;
     jf_logger_init_param_t jlipParam;
     olchar_t strExecutable[100];
+
+    jf_file_getFileName(ls_strProgramName, sizeof(ls_strProgramName), argv[0]);
+
+    if (jf_process_isAlreadyRunning(ls_strProgramName))
+    {
+        fprintf(stderr, "Another %s is ruuning\n", strExecutable);
+        exit(-1);
+    }
 
     ol_memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
     jlipParam.jlip_pstrCallerName = "DONGYUAN";
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
     jlipParam.jlip_bLogToStdout = TRUE;
 
-    setDefaultDongyuanParam(&gp);
-    gp.gp_pstrCmdLine = argv[0];
+    setDefaultDongyuanParam(&dp);
+    dp.dp_pstrCmdLine = argv[0];
 
-    u32Ret = _parseDongyuanCmdLineParam(argc, argv, &gp, &jlipParam);
+    u32Ret = _parseDongyuanCmdLineParam(argc, argv, &dp, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
-
-        jf_file_getFileName(strExecutable, 100, argv[0]);
-
-        if (jf_process_isAlreadyRunning(strExecutable))
-        {
-            fprintf(stderr, "another %s is ruuning\n", strExecutable);
-            exit(-1);
-        }
+        jf_process_initSocket();
 
         if (! ls_bForeground)
-            u32Ret = jf_process_switchToDaemon(strExecutable);
+            u32Ret = jf_process_switchToDaemon(ls_strProgramName);
+
+        if (u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = jf_process_registerSignalHandlers(_terminate);
+
+        if (u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = _startDongyuan(&dp);
+
+        jf_process_finiSocket();
+        jf_logger_fini();
     }
 
-    if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_process_registerSignalHandlers(_terminate);
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = createDongyuan(&ls_pgDongyuan, &gp);
-
+    if (u32Ret != JF_ERR_NO_ERROR)
+        jf_logger_logErrMsg(u32Ret, "quit dongyuan");
+        
     return u32Ret;
 }
 
@@ -181,9 +184,7 @@ SERVICE_RETURN_VALUE _serviceMain(olint_t argc, char** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
 
 #if defined(LINUX)
-    u32Ret = _initDongyuan(argc, argv);
-    if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = _startDongyuan();
+    u32Ret = _serviceDongyuan(argc, argv);
 #endif
 
     SERVICE_RETURN(u32Ret);
@@ -202,7 +203,6 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     return u32Ret;
 }
-
 
 /*------------------------------------------------------------------------------------------------*/
 

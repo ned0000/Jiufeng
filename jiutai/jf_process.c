@@ -381,6 +381,24 @@ u32 jf_process_create(
     return u32Ret;
 }
 
+u32 jf_process_kill(jf_process_id_t * pProcessId)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+#if defined(LINUX)
+    olint_t nRet;
+
+    nRet = kill(pProcessId->jpi_pId, SIGKILL);
+    if (nRet != 0)
+        u32Ret = JF_ERR_FAIL_TERMINATE_PROCESS;
+    else
+        jf_process_initId(pProcessId);
+#elif defined(WINDOWS)
+    u32Ret = JF_ERR_NOT_IMPLEMENTED;
+#endif
+
+    return u32Ret;
+}
+
 u32 jf_process_terminate(jf_process_id_t * pProcessId)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;

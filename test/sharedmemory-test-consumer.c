@@ -39,12 +39,13 @@ olint_t main(olint_t argc, olchar_t ** argv)
         ol_printf("sharedmemory-test-consumer sharedmemory-identifier\n");
         exit(0);
     }
-    sleep(20);
+
     pjsi = argv[1];
+    ol_printf("Shared memory ID: %s\n", pjsi);
     u32Ret = jf_sharedmemory_attach(pjsi, (void **)&pstrShared);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_printf("succeed to attach shared memroy\n");
+        ol_printf("Succeed to attach shared memroy\n");
         ol_printf("%s\n", pstrShared);
 
         u32Ret = jf_sharedmemory_detach((void **)&pstrShared);
@@ -52,7 +53,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_printf("succeed to detach shared memory\n");
+        ol_printf("Succeed to detach shared memory\n");
     }
     else
     {

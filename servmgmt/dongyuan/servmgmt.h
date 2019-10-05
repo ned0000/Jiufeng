@@ -37,6 +37,10 @@ u32 initServMgmt(serv_mgmt_init_param_t * psip);
 
 u32 finiServMgmt(void);
 
+u32 startServMgmt(void);
+
+u32 stopServMgmt(void);
+
 u32 getServMgmtInfo(jf_serv_t * pjs);
 
 u32 stopServMgmtServ(const olchar_t * pstrName);

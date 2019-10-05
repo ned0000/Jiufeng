@@ -39,8 +39,6 @@
     #define DEFAULT_SHARED_MEMORY_SIZE 4000
 #endif
 
-#define SHM_ID_LEN   40
-
 /* --- private routine section ------------------------------------------------------------------ */
 #if defined(LINUX)
 static u32 _getShmId(jf_sharedmemory_id_t * pjsi, olint_t * pnShmId)
@@ -58,11 +56,11 @@ static u32 _getShmId(jf_sharedmemory_id_t * pjsi)
     u32 u32Ret = JF_ERR_NO_ERROR;
     uuid_param_t up;
 
-	memset(&up, 0, sizeof(uuid_param_t));
+	ol_memset(&up, 0, sizeof(uuid_param_t));
 
 	up.up_ufFmt = UUID_FMT_HEX;
 
-	u32Ret = getUuid(pjsi, SHM_ID_LEN, UUID_VER_1, &up);
+	u32Ret = getUuid(pjsi, JF_SHAREDMEMORY_ID_LEN, UUID_VER_1, &up);
     if (u32Ret != JF_ERR_NO_ERROR)
 	{
 		u32Ret = JF_ERR_FAIL_CREATE_SHAREDMEMORY;
@@ -83,10 +81,10 @@ u32 jf_sharedmemory_create(jf_sharedmemory_id_t ** ppShmId, u32 u32MemorySize)
 
     assert(ppShmId != NULL);
 
-    u32Ret = jf_mem_alloc((void **)&pjsi, SHM_ID_LEN);
+    u32Ret = jf_mem_alloc((void **)&pjsi, JF_SHAREDMEMORY_ID_LEN);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(pjsi, 0, SHM_ID_LEN);
+        ol_memset(pjsi, 0, JF_SHAREDMEMORY_ID_LEN);
 
         nShmId = shmget(IPC_PRIVATE, u32MemorySize, SVSHM_MODE | IPC_CREAT);
         if (nShmId == -1)
@@ -101,7 +99,7 @@ u32 jf_sharedmemory_create(jf_sharedmemory_id_t ** ppShmId, u32 u32MemorySize)
          */
 //        nRet = shmctl(nShmId, IPC_RMID, NULL);
 
-        ol_snprintf(pjsi, SHM_ID_LEN - 1, "%d", nShmId);
+        ol_snprintf(pjsi, JF_SHAREDMEMORY_ID_LEN - 1, "%d", nShmId);
     }
 
 #elif defined(WINDOWS)
@@ -109,10 +107,10 @@ u32 jf_sharedmemory_create(jf_sharedmemory_id_t ** ppShmId, u32 u32MemorySize)
 
     assert(ppShmId != NULL);
 
-    u32Ret = jf_mem_alloc((void **)&pjsi, SHM_ID_LEN);
+    u32Ret = jf_mem_alloc((void **)&pjsi, JF_SHAREDMEMORY_ID_LEN);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(pjsi, 0, SHM_ID_LEN);
+        ol_memset(pjsi, 0, JF_SHAREDMEMORY_ID_LEN);
 
         u32Ret = _getShmId(pjsi);
     }

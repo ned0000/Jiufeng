@@ -39,7 +39,7 @@ SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c               \
     rand-test.c persistency-test.c archive-test.c                      \
     httpparser-test.c network-test.c network-test-server.c             \
     network-test-client.c network-test-client-chain.c                  \
-    matrix-test.c webclient-test.c serv-test.c sqlite-test.c           \
+    matrix-test.c webclient-test.c servmgmt-test.c sqlite-test.c       \
     hex-test.c utimer-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak

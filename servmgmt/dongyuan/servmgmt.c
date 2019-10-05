@@ -221,7 +221,7 @@ static u32 _startAllServices(internal_serv_mgmt_t * pism)
     return u32Ret;
 }
 
-static u32 _stopService(
+static u32 _stopServMgmtServ(
     internal_serv_mgmt_setting_t * pisms, internal_service_info_t * pisi)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -231,6 +231,31 @@ static u32 _stopService(
     u32Ret = jf_process_terminate(&(pisi->isi_jpiProcessId));
     if (u32Ret == JF_ERR_NO_ERROR)
         pisi->isi_u8Status = JF_SERV_STATUS_STOPPED;
+
+    return u32Ret;
+}
+
+static u32 _stopAllServices(internal_serv_mgmt_t * pism)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    u32 u32Index = 0;
+    internal_service_info_t * pisi = NULL;
+    internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
+
+    jf_logger_logInfoMsg("stop all serv");
+
+    for (u32Index = 0;
+         (u32Index < pisms->isms_u16NumOfService) && (u32Ret == JF_ERR_NO_ERROR);
+         u32Index++)
+    {
+        pisi = &(pisms->isms_isiService[u32Index]);
+
+        if (pisi->isi_u8Status == JF_SERV_STATUS_RUNNING)
+            u32Ret = _stopServMgmtServ(pisms, pisi);
+
+        if (u32Ret == JF_ERR_NO_ERROR)
+            pisi->isi_u8Status = JF_SERV_STATUS_STOPPED;
+    }
 
     return u32Ret;
 }
@@ -372,6 +397,9 @@ static u32 _initServMgmt(internal_serv_mgmt_t * pism, serv_mgmt_init_param_t * p
     u32Ret = _readServMgmtSetting(pisms);
 
     if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_mutex_init(&pism->ism_jmLock);
+    
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _startAllServices(pism);
     }
@@ -437,8 +465,30 @@ u32 finiServMgmt(void)
 
     jf_logger_logInfoMsg("fini serv mgmt");
 
+    u32Ret = _stopAllServices(pism);
+
+    jf_mutex_fini(&pism->ism_jmLock);
+
     pism->ism_bInitialized = FALSE;
     
+    return u32Ret;
+}
+
+u32 startServMgmt(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+//    internal_serv_mgmt_t * pism = &ls_ismServMgmt;
+
+    return u32Ret;
+}
+
+u32 stopServMgmt(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_serv_mgmt_t * pism = &ls_ismServMgmt;
+
+    pism->ism_bToTerminateMonitorThread = TRUE;
+
     return u32Ret;
 }
 
@@ -481,7 +531,7 @@ u32 stopServMgmtServ(const olchar_t * pstrName)
 
     if ((u32Ret == JF_ERR_NO_ERROR) && (pisi->isi_u8Status == JF_SERV_STATUS_RUNNING))
     {
-        u32Ret = _stopService(pisms, pisi);
+        u32Ret = _stopServMgmtServ(pisms, pisi);
     }
 
     return u32Ret;
