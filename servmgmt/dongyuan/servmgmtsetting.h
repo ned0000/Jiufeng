@@ -62,7 +62,7 @@ u32 readServMgmtSetting(internal_serv_mgmt_setting_t * pisms);
 u32 writeServMgmtSetting(internal_serv_mgmt_setting_t * pisms);
 
 u32 modifyServiceStartupType(
-    const olchar_t * pu8SettingFile, olchar_t * pstrServiceName, jf_serv_startuptype_t startupType);
+    const olchar_t * pu8SettingFile, olchar_t * pstrServName, jf_serv_startup_type_t startupType);
 
 #endif /*DONGYUAN_SERVMGMT_SETTING_H*/
 

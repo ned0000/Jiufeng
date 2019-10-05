@@ -74,7 +74,7 @@ u32 jf_serv_fini(void)
     return u32Ret;
 }
 
-u32 jf_serv_getInfo(jf_serv_t * pjs)
+u32 jf_serv_getInfoList(jf_serv_info_list_t * pjsil)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -82,7 +82,7 @@ u32 jf_serv_getInfo(jf_serv_t * pjs)
     return u32Ret;
 }
 
-u32 jf_serv_stopServ(olchar_t * pstrName)
+u32 jf_serv_getInfo(const olchar_t * pstrName, jf_serv_info_t * pjsi)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -90,7 +90,7 @@ u32 jf_serv_stopServ(olchar_t * pstrName)
     return u32Ret;
 }
 
-u32 jf_serv_startServ(olchar_t * pstrName)
+u32 jf_serv_stopServ(const olchar_t * pstrName)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -98,12 +98,20 @@ u32 jf_serv_startServ(olchar_t * pstrName)
     return u32Ret;
 }
 
-const olchar_t * jf_serv_getStringServStatus(u8 u8Status)
+u32 jf_serv_startServ(const olchar_t * pstrName)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+
+    return u32Ret;
+}
+
+const olchar_t * jf_serv_getStringServStatus(const u8 u8Status)
 {
     return getStringServStatus(u8Status);
 }
 
-const olchar_t * jf_serv_getStringServStartupType(u8 u8StartupType)
+const olchar_t * jf_serv_getStringServStartupType(const u8 u8StartupType)
 {
     return getStringServStartupType(u8StartupType);
 }
@@ -117,7 +125,7 @@ u32 jf_serv_getServStartupTypeFromString(const olchar_t * pstrType, u8 * pu8Star
     return u32Ret;
 }
 
-u32 jf_serv_setServStartupType(olchar_t * pstrName, u8 u8StartupType)
+u32 jf_serv_setServStartupType(const olchar_t * pstrName, const u8 u8StartupType)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 

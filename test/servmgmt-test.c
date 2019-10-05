@@ -28,7 +28,7 @@ static boolean_t ls_bStop = FALSE;
 static boolean_t ls_bStart = FALSE;
 static boolean_t ls_bStartupType = FALSE;
 static olchar_t * ls_pstrServName = NULL;
-static u8 ls_u8StartupType = JF_SERV_STARTUPTYPE_UNKNOWN;
+static u8 ls_u8StartupType = JF_SERV_STARTUP_TYPE_UNKNOWN;
 
 static const olchar_t * ls_pstrProgramName = "jf_serv";
 static const olchar_t * ls_pstrVersion = "1.0.0";
@@ -125,19 +125,19 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
 static u32 _listService(olchar_t * name)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_serv_t js;
+    jf_serv_info_list_t jsil;
     jf_serv_info_t * pjsi;
     u8 u8Index;
 
-    u32Ret = jf_serv_getInfo(&js);
+    u32Ret = jf_serv_getInfoList(&jsil);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("%-12s %-12s %-10s\n", "Name", "StartupType", "Status");
         ol_printf("----------------------------------------------\n");
 
-        for (u8Index = 0; u8Index < js.js_u16NumOfService; u8Index ++)
+        for (u8Index = 0; u8Index < jsil.jsil_u16NumOfService; u8Index ++)
         {
-            pjsi = &js.js_jsiService[u8Index];
+            pjsi = &jsil.jsil_jsiService[u8Index];
             if (name != NULL && ol_strcmp(name, pjsi->jsi_strName) != 0)
                 continue;
 

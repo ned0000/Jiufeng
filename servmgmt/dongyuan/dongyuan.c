@@ -33,6 +33,7 @@
 #include "dongyuan.h"
 #include "servmgmt.h"
 #include "servmgmtcommon.h"
+#include "servmgmtmsg.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

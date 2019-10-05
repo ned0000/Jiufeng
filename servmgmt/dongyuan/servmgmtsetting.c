@@ -46,9 +46,9 @@ static u32 _parseServiceSettingValue(
     else if (ol_strcmp(pstrTag, "startupType") == 0)
     { 
         if (ol_strcmp(pstrValue, "automatic") == 0)
-            pisi->isi_u8StartupType = JF_SERV_STARTUPTYPE_AUTOMATIC;
+            pisi->isi_u8StartupType = JF_SERV_STARTUP_TYPE_AUTOMATIC;
         else if (ol_strcmp(pstrValue, "manual") == 0)
-            pisi->isi_u8StartupType = JF_SERV_STARTUPTYPE_MANUAL;
+            pisi->isi_u8StartupType = JF_SERV_STARTUP_TYPE_MANUAL;
     }
     else if (ol_strcmp(pstrTag, "cmdPath") == 0)
     {
@@ -198,7 +198,7 @@ u32 readServMgmtSetting(internal_serv_mgmt_setting_t * pisms)
 }
 
 u32 modifyServiceStartupType(
-    const olchar_t * pstrSettingFile, olchar_t * pstrServiceName, jf_serv_startuptype_t startupType)
+    const olchar_t * pstrSettingFile, olchar_t * pstrServName, jf_serv_startup_type_t startupType)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strSettingFilename[JF_LIMIT_MAX_PATH_LEN];
@@ -210,8 +210,8 @@ u32 modifyServiceStartupType(
     boolean_t bFound = FALSE;
     
     assert((pstrSettingFile != NULL) &&
-           ((startupType == JF_SERV_STARTUPTYPE_MANUAL) ||
-            (startupType == JF_SERV_STARTUPTYPE_AUTOMATIC)));
+           ((startupType == JF_SERV_STARTUP_TYPE_MANUAL) ||
+            (startupType == JF_SERV_STARTUP_TYPE_AUTOMATIC)));
     
     xmlKeepBlanksDefault(0);
     doc = xmlParseFile(strSettingFilename);
@@ -242,16 +242,16 @@ u32 modifyServiceStartupType(
             if (xmlStrcmp(servicesetting->name, BAD_CAST "name") == 0)
             {
                 key = xmlNodeListGetString(doc, servicesetting->xmlChildrenNode, 1);
-                if (xmlStrcmp(key, BAD_CAST pstrServiceName) == 0)
+                if (xmlStrcmp(key, BAD_CAST pstrServName) == 0)
                 {
                     cur2 = repository->xmlChildrenNode;
                     while (cur2 != NULL && u32Ret == JF_ERR_NO_ERROR)
                     {
                         if (xmlStrcmp(cur2->name, BAD_CAST "startupType") == 0)
                         {
-                            if (startupType == JF_SERV_STARTUPTYPE_AUTOMATIC)
+                            if (startupType == JF_SERV_STARTUP_TYPE_AUTOMATIC)
                                 xmlNodeSetContent(cur2, (xmlChar *)"automatic");
-                            else if (startupType == JF_SERV_STARTUPTYPE_MANUAL)
+                            else if (startupType == JF_SERV_STARTUP_TYPE_MANUAL)
                                 xmlNodeSetContent(cur2, (xmlChar *)"manual");
 
                             bFound = TRUE;

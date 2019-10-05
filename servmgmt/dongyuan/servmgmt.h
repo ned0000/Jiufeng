@@ -41,7 +41,9 @@ u32 startServMgmt(void);
 
 u32 stopServMgmt(void);
 
-u32 getServMgmtInfo(jf_serv_t * pjs);
+u32 getServMgmtServInfoList(jf_serv_info_list_t * pjsil);
+
+u32 getServMgmtServInfo(const olchar_t * pstrName, jf_serv_info_t * pjsi);
 
 u32 stopServMgmtServ(const olchar_t * pstrName);
 

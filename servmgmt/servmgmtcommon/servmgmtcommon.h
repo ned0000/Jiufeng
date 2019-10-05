@@ -23,63 +23,7 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-/** servmgmt message header
- */
-typedef struct 
-{
-    /**unique identifier of the message*/    
-    u8 smh_u8MsgId;
-    /**message priority*/
-    u8 smh_u8MsgPrio;
-    u8 smh_u8Reserved[2];
-    /**transaction identifier*/
-    u32 smh_u32TransactionId;
-    /**source identifier*/
-    jf_process_id_t smh_jpiSourceId;
-    /**destination identifier*/
-    jf_process_id_t smh_jpiDestinationId;
-} servmgmt_msg_header_t;
 
-typedef enum
-{
-    SERVMGMT_MSG_ID_GET_UNKNOWN = 0,
-    SERVMGMT_MSG_ID_GET_INFO,
-    SERVMGMT_MSG_ID_START_SERV,
-    SERVMGMT_MSG_ID_STOP_SERV,
-    SERVMGMT_MSG_ID_SET_STARTUP_TYPE,
-    SERVMGMT_MSG_ID_MAX,
-} servmgmt_msg_id_t;
-
-typedef struct
-{
-    servmgmt_msg_header_t smgi_smhHeader;
-
-    u32 smgi_u32ShmLen;
-    jf_sharedmemory_id_t smgi_jsiShmId[ JF_SHAREDMEMORY_ID_LEN];
-} servmgmt_msg_get_info_t;
-
-typedef struct
-{
-    servmgmt_msg_header_t smss_smhHeader;
-
-    olchar_t smss_strName[JF_SERV_MAX_SERV_NAME_LEN];
-} servmgmt_msg_start_serv_t;
-
-typedef struct
-{
-    servmgmt_msg_header_t smss_smhHeader;
-
-    olchar_t smss_strName[JF_SERV_MAX_SERV_NAME_LEN];
-} servmgmt_msg_stop_serv_t;
-
-typedef struct
-{
-    servmgmt_msg_header_t smsst_smhHeader;
-
-    olchar_t smsst_strName[JF_SERV_MAX_SERV_NAME_LEN];
-    u8 smsst_u8StartupType;
-    u8 smsst_u8Reserved[7];
-} servmgmt_msg_set_startup_type_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
 

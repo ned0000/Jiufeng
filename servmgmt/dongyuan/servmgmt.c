@@ -214,7 +214,7 @@ static u32 _startAllServices(internal_serv_mgmt_t * pism)
 
         pisi->isi_u8Status = JF_SERV_STATUS_STOPPED;
 
-        if (pisi->isi_u8StartupType == JF_SERV_STARTUPTYPE_AUTOMATIC)
+        if (pisi->isi_u8StartupType == JF_SERV_STARTUP_TYPE_AUTOMATIC)
             u32Ret = _startServMgmtServ(pism, pisi);
     }
 
@@ -492,7 +492,27 @@ u32 stopServMgmt(void)
     return u32Ret;
 }
 
-u32 getServMgmtInfo(jf_serv_t * pjs)
+u32 getServMgmtServInfo(const olchar_t * pstrName, jf_serv_info_t * pjsi)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_serv_mgmt_setting_t * pisms = &ls_ismServMgmt.ism_ismsSetting;
+    internal_service_info_t * pisi = NULL;
+
+    ol_memset(pjsi, 0, sizeof(*pjsi));
+
+    u32Ret = _findServMgmtServ(pstrName, pisms, &pisi);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_strcpy(pjsi->jsi_strName, pisi->isi_strName);
+        pjsi->jsi_u8Status = pisi->isi_u8Status;
+        pjsi->jsi_u8StartupType = pisi->isi_u8StartupType;
+
+    }
+
+    return u32Ret;
+}
+
+u32 getServMgmtServInfoList(jf_serv_info_list_t * pjsil)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32ServIndex;
@@ -501,21 +521,23 @@ u32 getServMgmtInfo(jf_serv_t * pjs)
     jf_serv_info_t * pjsi = NULL;
     olsize_t size = 0;
 
-    size = sizeof(jf_serv_t) + (pisms->isms_u16NumOfService - 1) * sizeof(jf_serv_info_t);
+    size = sizeof(jf_serv_info_list_t) + (pjsil->jsil_u16MaxService - 1) * sizeof(jf_serv_info_t);
 
-    ol_memset(pjs, 0, size);
+    ol_memset(pjsil, 0, size);
 
     for (u32ServIndex = 0; u32ServIndex < pisms->isms_u16NumOfService; u32ServIndex ++)
     {
         pisi = &pisms->isms_isiService[u32ServIndex];
 
-        pjsi = &pjs->js_jsiService[pjs->js_u16NumOfService];
+        pjsi = &pjsil->jsil_jsiService[pjsil->jsil_u16NumOfService];
 
         ol_strcpy(pjsi->jsi_strName, pisi->isi_strName);
         pjsi->jsi_u8Status = pisi->isi_u8Status;
         pjsi->jsi_u8StartupType = pisi->isi_u8StartupType;
 
-        pjs->js_u16NumOfService ++;
+        pjsil->jsil_u16NumOfService ++;
+        if (pjsil->jsil_u16NumOfService >= pjsil->jsil_u16MaxService)
+            break;
     }
 
     return u32Ret;
@@ -561,8 +583,8 @@ u32 setServStartupType(const olchar_t * pstrName, const u8 u8StartupType)
     internal_serv_mgmt_setting_t * pisms = &ls_ismServMgmt.ism_ismsSetting;
     internal_service_info_t * pisi = NULL;
 
-    assert(u8StartupType == JF_SERV_STARTUPTYPE_AUTOMATIC ||
-           u8StartupType == JF_SERV_STARTUPTYPE_MANUAL);
+    assert(u8StartupType == JF_SERV_STARTUP_TYPE_AUTOMATIC ||
+           u8StartupType == JF_SERV_STARTUP_TYPE_MANUAL);
 
     jf_logger_logInfoMsg(
         "set serv %s startup type to %s", pstrName, getStringServStartupType(u8StartupType));

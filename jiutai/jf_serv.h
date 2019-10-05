@@ -52,10 +52,10 @@ typedef enum
 
 typedef enum
 {
-    JF_SERV_STARTUPTYPE_UNKNOWN = 0,
-    JF_SERV_STARTUPTYPE_AUTOMATIC,
-    JF_SERV_STARTUPTYPE_MANUAL,
-} jf_serv_startuptype_t;
+    JF_SERV_STARTUP_TYPE_UNKNOWN = 0,
+    JF_SERV_STARTUP_TYPE_AUTOMATIC,
+    JF_SERV_STARTUP_TYPE_MANUAL,
+} jf_serv_startup_type_t;
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -69,12 +69,12 @@ typedef struct
 
 typedef struct
 {
-    u16 js_u16MaxService;
-    u16 js_u16NumOfService;
-    u16 js_u8Reserved[2];
+    u16 jsil_u16MaxService;
+    u16 jsil_u16NumOfService;
+    u16 jsil_u8Reserved[2];
     /*variable length for the service info array*/
-    jf_serv_info_t js_jsiService[1];
-} jf_serv_t;
+    jf_serv_info_t jsil_jsiService[1];
+} jf_serv_info_list_t;
 
 typedef struct
 {
@@ -87,17 +87,19 @@ SERVAPI u32 SERVCALL jf_serv_init(jf_serv_init_param_t * pjsip);
 
 SERVAPI u32 SERVCALL jf_serv_fini(void);
 
-SERVAPI u32 SERVCALL jf_serv_getInfo(jf_serv_t * pjs);
+SERVAPI u32 SERVCALL jf_serv_getInfoList(jf_serv_info_list_t * pjsil);
 
-SERVAPI u32 SERVCALL jf_serv_stopServ(olchar_t * pstrName);
+SERVAPI u32 SERVCALL jf_serv_getInfo(const olchar_t * pstrName, jf_serv_info_t * pjsi);
 
-SERVAPI u32 SERVCALL jf_serv_startServ(olchar_t * pstrName);
+SERVAPI u32 SERVCALL jf_serv_stopServ(const olchar_t * pstrName);
 
-SERVAPI u32 SERVCALL jf_serv_setServStartupType(olchar_t * pstrName, u8 u8StartupType);
+SERVAPI u32 SERVCALL jf_serv_startServ(const olchar_t * pstrName);
 
-SERVAPI const olchar_t * SERVCALL jf_serv_getStringServStatus(u8 u8Status);
+SERVAPI u32 SERVCALL jf_serv_setServStartupType(const olchar_t * pstrName, const u8 u8StartupType);
 
-SERVAPI const olchar_t * SERVCALL jf_serv_getStringServStartupType(u8 u8StartupType);
+SERVAPI const olchar_t * SERVCALL jf_serv_getStringServStatus(const u8 u8Status);
+
+SERVAPI const olchar_t * SERVCALL jf_serv_getStringServStartupType(const u8 u8StartupType);
 
 SERVAPI u32 SERVCALL jf_serv_getServStartupTypeFromString(
     const olchar_t * pstrType, u8 * pu8StartupType);

@@ -60,9 +60,9 @@ const olchar_t * getStringServStartupType(u8 u8StartupType)
 {
     olchar_t * pstr = NULL;
 
-    if (u8StartupType == JF_SERV_STARTUPTYPE_AUTOMATIC)
+    if (u8StartupType == JF_SERV_STARTUP_TYPE_AUTOMATIC)
         pstr = "automatic";
-    else if (u8StartupType == JF_SERV_STARTUPTYPE_MANUAL)
+    else if (u8StartupType == JF_SERV_STARTUP_TYPE_MANUAL)
         pstr = "manual";
     else
         pstr = "unknown";
@@ -75,9 +75,9 @@ u32 getServStartupTypeFromString(const olchar_t * pstrType, u8 * pu8StartupType)
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (strcmp(pstrType, "automatic") == 0)
-        *pu8StartupType = JF_SERV_STARTUPTYPE_AUTOMATIC;
+        *pu8StartupType = JF_SERV_STARTUP_TYPE_AUTOMATIC;
     else if (strcmp(pstrType, "manual") == 0)
-        *pu8StartupType = JF_SERV_STARTUPTYPE_MANUAL;
+        *pu8StartupType = JF_SERV_STARTUP_TYPE_MANUAL;
     else
         u32Ret = JF_ERR_INVALID_PARAM;
 
