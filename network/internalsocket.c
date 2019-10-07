@@ -79,6 +79,8 @@ static u32 _bindIpSocket(
     struct sockaddr * psa = (struct sockaddr *)u8Addr;
     olint_t nAddr = sizeof(u8Addr);
 
+    assert(pu16Port != NULL);
+
     if (*pu16Port == 0)
     {
         /*If *pu16Port is 0, we need to choose a random port from 
@@ -245,7 +247,7 @@ u32 createStreamIsocket(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = NULL;
 
-    assert((pjiLocal != NULL) && (pu16Port != NULL) && (ppIsocket != NULL));
+    assert((pjiLocal != NULL) && (ppIsocket != NULL));
 
     if (pjiLocal->ji_u8AddrType == JF_IPADDR_TYPE_V4)
         u32Ret = createIsocket(AF_INET, SOCK_STREAM, 0, ppIsocket);
@@ -814,7 +816,7 @@ u32 isListen(internal_socket_t * pisListen, olint_t backlog)
 u32 isConnect(internal_socket_t * pis, const jf_ipaddr_t * pji, u16 u16Port)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u8 u8Sa[100];
+    u8 u8Sa[128];
     struct sockaddr * psaTo = (struct sockaddr *)u8Sa;
     olint_t salen = sizeof(u8Sa);
     olint_t nRet;

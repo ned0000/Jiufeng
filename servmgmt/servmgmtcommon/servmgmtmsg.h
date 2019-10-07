@@ -34,9 +34,9 @@ typedef struct
     /**transaction identifier*/
     u32 smh_u32TransactionId;
     /**source identifier*/
-    jf_process_id_t smh_jpiSourceId;
+    pid_t smh_piSourceId;
     /**destination identifier*/
-    jf_process_id_t smh_jpiDestinationId;
+    pid_t smh_piDestinationId;
 } servmgmt_msg_header_t;
 
 typedef enum
