@@ -29,6 +29,7 @@
 #include "jf_mem.h"
 #include "jf_network.h"
 #include "jf_ipaddr.h"
+#include "jf_thread.h"
 
 #include "dongyuan.h"
 #include "servmgmt.h"
@@ -270,24 +271,30 @@ static u32 _createDongyuanAssocket(internal_dongyuan_t * pid, dongyuan_param_t *
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_network_assocket_create_param_t jnacp;
 
-    u32Ret = jf_network_createChain(&pid->id_pjncDongyuanChain);
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        ol_memset(&jnacp, 0, sizeof(jnacp));
+    ol_memset(&jnacp, 0, sizeof(jnacp));
 
-        jnacp.jnacp_sInitialBuf = MAX_DONGYUAN_ASSOCKET_BUF_SIZE;
-        jnacp.jnacp_u32MaxConn = MAX_DONGYUAN_ASSOCKET_CONN;
-        jf_ipaddr_setUdsAddr(&jnacp.jnacp_jiAddr, SERVMGMT_SERVER_ADDR);
-        jnacp.jnacp_fnOnConnect = _onDongyuanConnect;
-        jnacp.jnacp_fnOnDisconnect = _onDongyuanDisconnect;
-        jnacp.jnacp_fnOnSendData = _onDongyuanSendData;
-        jnacp.jnacp_fnOnData = _onDongyuanData;
+    jnacp.jnacp_sInitialBuf = MAX_DONGYUAN_ASSOCKET_BUF_SIZE;
+    jnacp.jnacp_u32MaxConn = MAX_DONGYUAN_ASSOCKET_CONN;
+    jf_ipaddr_setUdsAddr(&jnacp.jnacp_jiAddr, SERVMGMT_SERVER_ADDR);
+    jnacp.jnacp_fnOnConnect = _onDongyuanConnect;
+    jnacp.jnacp_fnOnDisconnect = _onDongyuanDisconnect;
+    jnacp.jnacp_fnOnSendData = _onDongyuanSendData;
+    jnacp.jnacp_fnOnData = _onDongyuanData;
 
-        u32Ret = jf_network_createAssocket(
-            pid->id_pjncDongyuanChain, &pid->id_pjnaDongyuanAssocket, &jnacp);
-    }
+    u32Ret = jf_network_createAssocket(
+        pid->id_pjncDongyuanChain, &pid->id_pjnaDongyuanAssocket, &jnacp);
 
     return u32Ret;
+}
+
+static void _dongyuanSignalHandler(olint_t signal)
+{
+    ol_printf("get signal %d\n", signal);
+
+    if (signal == SIGCHLD)
+        handleServMgmtSignal(signal);
+    else
+        stopDongyuan();
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
@@ -314,14 +321,20 @@ u32 initDongyuan(dongyuan_param_t * pdp)
     if (strlen(strExecutablePath) > 0)
         u32Ret = jf_process_setCurrentWorkingDirectory(strExecutablePath);
 
+    u32Ret = jf_network_createChain(&pid->id_pjncDongyuanChain);
+    
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(&smip, 0, sizeof(smip));
 
         smip.smip_pstrSettingFile = pid->id_pstrSettingFile;
+        smip.smip_pjncChain = pid->id_pjncDongyuanChain;
 
         u32Ret = initServMgmt(&smip);
     }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_thread_registerSignalHandlers(_dongyuanSignalHandler);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -341,11 +354,13 @@ u32 finiDongyuan(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dongyuan_t * pid = &ls_idDongyuan;
 
+    jf_logger_logDebugMsg("fini dongyuan");
+    
     if (pid->id_pjnaDongyuanAssocket != NULL)
         u32Ret = jf_network_destroyAssocket(&pid->id_pjnaDongyuanAssocket);
 
     if (pid->id_pjncDongyuanChain != NULL)
-        u32Ret = jf_network_destroyChain(pid->id_pjncDongyuanChain);
+        u32Ret = jf_network_destroyChain(&pid->id_pjncDongyuanChain);
 
     finiServMgmt();
 
@@ -359,6 +374,8 @@ u32 startDongyuan(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dongyuan_t * pid = &ls_idDongyuan;
 
+    jf_logger_logDebugMsg("start dongyuan");
+    
     if (! pid->id_bInitialized)
         u32Ret = JF_ERR_NOT_INITIALIZED;
 

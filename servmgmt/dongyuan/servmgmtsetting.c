@@ -34,10 +34,9 @@
 /* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _parseServiceSettingValue(
-    const olchar_t * pstrTag, const olchar_t * pstrValue, internal_serv_mgmt_setting_t * pisms)
+    const olchar_t * pstrTag, const olchar_t * pstrValue, internal_service_info_t * pisi)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_service_info_t * pisi = &(pisms->isms_isiService[pisms->isms_u16NumOfService]);
 
     if (ol_strcmp(pstrTag, "name") == 0)
     { 
@@ -58,8 +57,6 @@ static u32 _parseServiceSettingValue(
     {
         ol_strncpy(pisi->isi_strCmdParam, pstrValue, MAX_SERVICE_CMD_PARAM_LEN - 1);
     }
-
-    pisms->isms_u16NumOfService ++;
 
     return u32Ret;
 }
@@ -102,6 +99,8 @@ static u32 _parseGlobalSetting(
                 xmlFree(key);
             }
         }
+
+        cur = cur->next;
     }
 
     return u32Ret;
@@ -117,30 +116,31 @@ static u32 _parseServiceSetting(
     service = overall->xmlChildrenNode;
     while ((service != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        if ((service != NULL) &&
-            (xmlStrcmp(service->name, BAD_CAST "service") == 0))
+        if (xmlStrcmp(service->name, BAD_CAST "service") == 0)
         {
             cur = service->xmlChildrenNode;
-            while (cur != NULL && u32Ret == JF_ERR_NO_ERROR)
+            while ((cur != NULL) && (u32Ret == JF_ERR_NO_ERROR))
             {
                 key = xmlNodeListGetString(doc, cur->xmlChildrenNode, 1);
                 if (key != NULL)
                 {
                     u32Ret = _parseServiceSettingValue(
-                        (olchar_t *)cur->name, (olchar_t *)key, pisms);
+                        (olchar_t *)cur->name, (olchar_t *)key,
+                        &pisms->isms_isiService[pisms->isms_u16NumOfService]);
 
                     xmlFree(key);
                 }
                 cur = cur->next;
             }
 
+            pisms->isms_u16NumOfService ++;
         }
-        service = service->next;           
+        service = service->next;
     }
 
     return u32Ret;
 }
-    
+
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 readServMgmtSetting(internal_serv_mgmt_setting_t * pisms)
@@ -149,6 +149,7 @@ u32 readServMgmtSetting(internal_serv_mgmt_setting_t * pisms)
     xmlDocPtr doc = NULL;
     xmlNodePtr root = NULL, overall = NULL;
     xmlChar * key = NULL;
+    u16 u16Index = 0;
 
     assert(pisms != NULL);
 
@@ -192,6 +193,21 @@ u32 readServMgmtSetting(internal_serv_mgmt_setting_t * pisms)
         }
 
         xmlFreeDoc(doc);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        jf_logger_logInfoMsg("version     : %s", pisms->isms_strVersion);
+        jf_logger_logInfoMsg("failureRetry: %u", pisms->isms_u8FailureRetryCount);
+
+        for (u16Index = 0; u16Index < pisms->isms_u16NumOfService; u16Index ++)
+        {
+            jf_logger_logInfoMsg(
+                "service name: %s, startup type: %s, cmdPath: %s",
+                pisms->isms_isiService[u16Index].isi_strName,
+                getStringServStartupType(pisms->isms_isiService[u16Index].isi_u8StartupType),
+                pisms->isms_isiService[u16Index].isi_strCmdPath);
+        }
     }
     
     return u32Ret;

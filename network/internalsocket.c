@@ -60,6 +60,7 @@ static u32 _bindUdsSocket(
     olint_t nAddr = sizeof(u8Addr);
 
     jf_ipaddr_convertIpAddrToSockAddr(pjiLocal, 0, psa, &nAddr);
+    unlink(pjiLocal->ji_uAddr.ju_strPath);
 
     nRet = bind(pis->is_isSocket, psa, nAddr);
     if (nRet == -1)

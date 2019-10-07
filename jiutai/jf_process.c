@@ -21,6 +21,7 @@
     #include <sys/stat.h>
     #include <fcntl.h>
     #include <sys/wait.h>
+    #include <errno.h>
 #elif defined(WINDOWS)
     #include <time.h>
     #include <process.h>
@@ -58,7 +59,7 @@ static u32 _runCommandLine(olchar_t * pstrCommandLine)
     return u32Ret;
 }
 
-static void setProcessTerminationReason(olint_t nStatus, u32 * pu32Reason)
+static void _setProcessTerminationReason(olint_t nStatus, u32 * pu32Reason)
 {
     olint_t nSignal;
 
@@ -271,6 +272,10 @@ boolean_t jf_process_isAlreadyRunning(olchar_t * pstrDaemonName)
             write(fd, strBuf, ol_strlen(strBuf));
             close(fd);
         }
+        else
+        {
+            fprintf(stderr, "Failed to open file %s, %s\n", strPidFile, strerror(errno));
+        }
     }
 #elif defined(WINDOWS)
     DWORD dwProcesses[1024], dwNeeded, dwNrOfProcess, dwPid;
@@ -431,8 +436,7 @@ u32 jf_process_terminate(jf_process_id_t * pProcessId)
 /*it returns if a child process terminates*/
 /*u32BlockTime is in millisecond*/
 u32 jf_process_waitForChildProcessTermination(
-    jf_process_id_t pidChild[], u32 u32Count,
-    u32 u32BlockTime, u32 * pu32Index, u32 * pu32Reason)
+    jf_process_id_t pidChild[], u32 u32Count, u32 u32BlockTime, u32 * pu32Index, u32 * pu32Reason)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
@@ -448,6 +452,10 @@ u32 jf_process_waitForChildProcessTermination(
     if (u32BlockTime == INFINITE)
     {
         pid = wait(&nStatus);
+    }
+    else if (u32BlockTime == 0)
+    {
+        pid = waitpid(-1, &nStatus, WNOHANG);
     }
     else
     {
@@ -482,14 +490,15 @@ u32 jf_process_waitForChildProcessTermination(
         if (u32Index == u32Count)
             u32Ret = JF_ERR_FAIL_WAIT_PROCESS_TERMINATION;
         else
-            setProcessTerminationReason(nStatus, &u32Reason);
+            _setProcessTerminationReason(nStatus, &u32Reason);
     }
     else
+    {
         u32Ret = JF_ERR_FAIL_WAIT_PROCESS_TERMINATION;
+    }
 
     if (pu32Reason != NULL)
         *pu32Reason = u32Reason;
-
 
 #elif defined(WINDOWS)
     u32 u32Index, u32Wait, u32Reason;
@@ -509,8 +518,7 @@ u32 jf_process_waitForChildProcessTermination(
         hHandle[u32Index] = pidChild[u32Index].jpi_hProcess;
     }
 
-    u32Wait = WaitForMultipleObjects(u32HandleCount, hHandle,
-        FALSE, u32BlockTime);
+    u32Wait = WaitForMultipleObjects(u32HandleCount, hHandle, FALSE, u32BlockTime);
     if ((u32Wait == WAIT_FAILED) || (u32Wait == WAIT_ABANDONED))
         u32Ret = JF_ERR_FAIL_WAIT_PROCESS_TERMINATION;
     else if ((u32Wait >= WAIT_OBJECT_0) && (u32Wait < WAIT_OBJECT_0 + u32Count))
@@ -568,7 +576,7 @@ u32 jf_process_registerSignalHandlers(jf_process_fnSignalHandler_t fnSignalHandl
             else
                 act.sa_handler = fnSignalHandler;
             act.sa_mask = ssSignalSet;
-            act.sa_flags = SA_SIGINFO;
+            act.sa_flags = 0;
 
 #ifdef SA_RESTART
             act.sa_flags |= SA_RESTART;
@@ -583,6 +591,16 @@ u32 jf_process_registerSignalHandlers(jf_process_fnSignalHandler_t fnSignalHandl
         nIndex ++;
     }
 #endif
+    return u32Ret;
+}
+
+u32 jf_process_ignoreSignal(olint_t sig)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    if (signal(sig, SIG_IGN) == SIG_ERR)
+        u32Ret = JF_ERR_OPERATION_FAIL;
+
     return u32Ret;
 }
 

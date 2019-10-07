@@ -25,6 +25,7 @@
 #include "jf_serv.h"
 
 #include "servmgmtcommon.h"
+#include "servmgmtmsg.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -74,9 +75,25 @@ u32 jf_serv_fini(void)
     return u32Ret;
 }
 
+static u32 _initServMgmtMsgHeader(servmgmt_msg_header_t * pHeader, internal_serv_t * pis)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+//    pHeader->smh_jpiSourceId = jf_process_getCurrentId();
+
+    return u32Ret;
+}
+
 u32 jf_serv_getInfoList(jf_serv_info_list_t * pjsil)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_serv_t * pis = &ls_isServ;
+    servmgmt_get_info_list_req_t sgilr;
+
+    ol_memset(&sgilr, 0, sizeof(sgilr));
+    _initServMgmtMsgHeader(&sgilr.sgilr_smhHeader, pis);
+
+//    u32Ret = jf_sharedmemory_create
 
 
     return u32Ret;

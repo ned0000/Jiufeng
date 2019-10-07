@@ -35,7 +35,7 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-#define JF_SERV_MAX_NUM_OF_SERV         (100)
+#define JF_SERV_MAX_NUM_OF_SERV         (50)
 
 #define JF_SERV_MAX_SERV_NAME_LEN       (24)
 

@@ -1,8 +1,7 @@
 /**
  *  @file jf_thread.c
  *
- *  @brief Thread implementation file. Provide some functional routine for
- *   managing thread
+ *  @brief Thread implementation file. Provide some functional routine for managing thread
  *
  *  @author Min Zhang
  *  
@@ -35,6 +34,14 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+typedef struct
+{
+    sigset_t sha_ssSet;
+    jf_thread_fnSignalHandler_t sha_fnHandler;
+} signal_handler_arg;
+
+static signal_handler_arg ls_shaSignalArg;
+
 /* --- private routine section ------------------------------------------------------------------ */
 
 #if defined(LINUX)
@@ -50,6 +57,29 @@ static u32 _setThreadAttr(jf_thread_attr_t * pjta, pthread_attr_t * ppa)
         pthread_attr_setdetachstate(ppa, PTHREAD_CREATE_JOINABLE);
 
     return u32Ret;
+}
+
+JF_THREAD_RETURN_VALUE _signalHandlerThread(void * pArg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olint_t sig, ret;
+    signal_handler_arg * pSha = (signal_handler_arg *)pArg;
+    boolean_t bToTerminate = FALSE;
+    sigset_t set = pSha->sha_ssSet;
+    jf_thread_fnSignalHandler_t fnHandler = pSha->sha_fnHandler;
+
+    while (! bToTerminate)
+    {
+        ret = sigwait(&set, &sig);
+        if (ret == 0)
+        {
+            fnHandler(sig);
+            if ((sig == SIGTERM) || (sig == SIGINT))
+                break;
+        }
+    }
+
+    JF_THREAD_RETURN(u32Ret);
 }
 
 #endif
@@ -100,7 +130,7 @@ u32 jf_thread_create(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pThreadId != NULL)
-            memcpy(pThreadId, &jti, sizeof(jf_thread_id_t));
+            ol_memcpy(pThreadId, &jti, sizeof(jf_thread_id_t));
     }
 #elif defined(WINDOWS)
     jti.jti_hThread = CreateThread(NULL, 0, fnRoutine, pArg, 0, NULL);
@@ -110,7 +140,7 @@ u32 jf_thread_create(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pThreadId != NULL)
-            memcpy(pThreadId, &jti, sizeof(jf_thread_id_t));
+            ol_memcpy(pThreadId, &jti, sizeof(jf_thread_id_t));
     }
 #endif
 
@@ -162,6 +192,39 @@ u32 jf_thread_waitForThreadTermination(jf_thread_id_t threadId, u32 * pu32RetCod
     return u32Ret;
 }
 
-/*------------------------------------------------------------------------------------------------*/
+u32 jf_thread_registerSignalHandlers(jf_thread_fnSignalHandler_t fnSignalHandler)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+#if defined(WINDOWS)
+    u32Ret = JF_ERR_NOT_IMPLEMENTED;
+#elif defined(LINUX)
+    olint_t nIndex = 0;
+    olint_t nSignals[] = {SIGABRT, SIGHUP, SIGPIPE, SIGQUIT, SIGTERM, SIGTSTP, SIGINT, SIGCHLD};
+    olint_t nRet = 0, nSignalCount = 8;
+    sigset_t ssSignalSet;
 
+    sigemptyset(&ssSignalSet);
+
+    for (nIndex = 0; nIndex < nSignalCount; nIndex ++)
+    {
+        sigaddset(&ssSignalSet, nSignals[nIndex]);
+    }
+
+    nRet = pthread_sigmask(SIG_BLOCK, &ssSignalSet, NULL);
+    if (nRet != 0)
+        u32Ret = JF_ERR_OPERATION_FAIL;
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ls_shaSignalArg.sha_ssSet = ssSignalSet;
+        ls_shaSignalArg.sha_fnHandler = fnSignalHandler;
+
+        u32Ret = jf_thread_create(NULL, NULL, _signalHandlerThread, (void *)&ls_shaSignalArg);
+    }
+
+#endif
+    return u32Ret;
+}
+
+/*------------------------------------------------------------------------------------------------*/
 

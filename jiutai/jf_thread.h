@@ -16,6 +16,7 @@
 #define JIUTAI_THREAD_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+#include <signal.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
@@ -62,7 +63,7 @@ typedef struct
     typedef LPTHREAD_START_ROUTINE           jf_thread_fnRoutine_t;
 #endif
 
-typedef void (* jf_process_fnSignalHandler_t)(olint_t signal);
+typedef void (* jf_thread_fnSignalHandler_t)(olint_t signal);
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
@@ -78,6 +79,7 @@ u32 jf_thread_terminate(jf_thread_id_t * pThreadId);
 
 u32 jf_thread_waitForThreadTermination(jf_thread_id_t threadId, u32 * pu32RetCode);
 
+u32 jf_thread_registerSignalHandlers(jf_thread_fnSignalHandler_t fnSignalHandler);
 
 #endif /*JIUTAI_THREAD_H*/
 

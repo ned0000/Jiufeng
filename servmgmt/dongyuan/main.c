@@ -43,7 +43,7 @@ static void _printDongyuanUsage(void)
 {
     ol_printf("\
 Usage: %s [-f] [-s setting file] [-V] [logger options]\n\
-    -f ruuning in foreground.\n\
+    -f running in foreground.\n\
     -s specify the setting file.\n\
     -V show version information.\n\
 logger options:\n\
@@ -111,13 +111,6 @@ static u32 _parseDongyuanCmdLineParam(
     return u32Ret;
 }
 
-static void _terminate(olint_t signal)
-{
-    ol_printf("get signal\n");
-
-    stopDongyuan();
-}
-
 static u32 _startDongyuan(dongyuan_param_t * pdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -136,15 +129,8 @@ static u32 _serviceDongyuan(olint_t argc, char** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     dongyuan_param_t dp;
     jf_logger_init_param_t jlipParam;
-    olchar_t strExecutable[100];
 
     jf_file_getFileName(ls_strProgramName, sizeof(ls_strProgramName), argv[0]);
-
-    if (jf_process_isAlreadyRunning(ls_strProgramName))
-    {
-        fprintf(stderr, "Another %s is ruuning\n", strExecutable);
-        exit(-1);
-    }
 
     ol_memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
     jlipParam.jlip_pstrCallerName = "DONGYUAN";
@@ -164,7 +150,13 @@ static u32 _serviceDongyuan(olint_t argc, char** argv)
             u32Ret = jf_process_switchToDaemon(ls_strProgramName);
 
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = jf_process_registerSignalHandlers(_terminate);
+        {
+            if (jf_process_isAlreadyRunning(ls_strProgramName))
+            {
+                fprintf(stderr, "Another %s is running\n", ls_strProgramName);
+                u32Ret = JF_ERR_ALREADY_RUNNING;
+            }
+        }
 
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = _startDongyuan(&dp);

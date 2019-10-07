@@ -19,6 +19,7 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_serv.h"
+#include "jf_network.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
@@ -28,6 +29,7 @@
 typedef struct
 {
     olchar_t * smip_pstrSettingFile;
+    jf_network_chain_t * smip_pjncChain;
     u8 smip_u8Reserved[32];
 } serv_mgmt_init_param_t;
 
@@ -50,6 +52,8 @@ u32 stopServMgmtServ(const olchar_t * pstrName);
 u32 startServMgmtServ(const olchar_t * pstrName);
 
 u32 setServMgmtServStartupType(const olchar_t * pstrName, const u8 u8StartupType);
+
+u32 handleServMgmtSignal(olint_t sig);
 
 #endif /*DONGYUAN_SERVMGMT_H*/
 
