@@ -35,7 +35,7 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-#define JF_SERV_MAX_NUM_OF_SERV         (50)
+#define JF_SERV_MAX_NUM_OF_SERV         (30)
 
 #define JF_SERV_MAX_SERV_NAME_LEN       (24)
 
@@ -64,16 +64,14 @@ typedef struct
     olchar_t jsi_strName[JF_SERV_MAX_SERV_NAME_LEN];
     u8 jsi_u8Status;
     u8 jsi_u8StartupType;
-    u8 jsi_u8Reserved[22];
+    u8 jsi_u8Reserved[14];
 } jf_serv_info_t;
 
 typedef struct
 {
-    u16 jsil_u16MaxService;
     u16 jsil_u16NumOfService;
-    u16 jsil_u8Reserved[2];
-    /*variable length for the service info array*/
-    jf_serv_info_t jsil_jsiService[1];
+    u16 jsil_u8Reserved[3];
+    jf_serv_info_t jsil_jsiService[JF_SERV_MAX_NUM_OF_SERV];
 } jf_serv_info_list_t;
 
 typedef struct

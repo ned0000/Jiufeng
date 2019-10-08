@@ -16,6 +16,7 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_sharedmemory.h"
+#include "jf_serv.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
@@ -33,6 +34,7 @@ typedef struct
     u8 smh_u8Reserved[2];
     /**transaction identifier*/
     u32 smh_u32TransactionId;
+
     /**source identifier*/
     pid_t smh_piSourceId;
     /**destination identifier*/
@@ -59,8 +61,6 @@ typedef struct
 {
     servmgmt_msg_header_t sgilr_smhHeader;
 
-    u32 sgilr_u32ShmLen;
-    jf_sharedmemory_id_t sgilr_jsiShmId[JF_SHAREDMEMORY_ID_LEN];
 } servmgmt_get_info_list_req_t;
 
 typedef struct
@@ -68,6 +68,8 @@ typedef struct
     servmgmt_msg_header_t sgilr_smhHeader;
 
     u32 sgilr_u32RetCode;
+
+    jf_serv_info_list_t sgilr_jsilList;
 } servmgmt_get_info_list_resp_t;
 
 typedef struct

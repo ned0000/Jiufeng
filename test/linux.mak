@@ -24,7 +24,7 @@ PROGRAMS = xmalloc-test hashtree-test listhead-test                \
     rand-test persistency-test archive-test                        \
     httpparser-test network-test network-test-server               \
     network-test-client network-test-client-chain                  \
-    matrix-test webclient-test jf_serv sqlite-test                 \
+    matrix-test webclient-test jf_service sqlite-test              \
     hex-test utimer-test
 
 SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c               \
@@ -247,7 +247,7 @@ $(BIN_DIR)/webclient-test: webclient-test.o $(JIUTAI_DIR)/jf_mem.o \
        -o $@ $(SYSLIBS) -ljf_httpparser -ljf_network -ljf_webclient -ljf_logger \
        -ljf_files -ljf_ifmgmt
 
-$(BIN_DIR)/jf_serv: servmgmt-test.o
+$(BIN_DIR)/jf_service: servmgmt-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -ljf_serv
 

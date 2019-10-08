@@ -38,7 +38,10 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-#define MAX_DONGYUAN_ASSOCKET_BUF_SIZE  (1024)
+/** the buffer should be large enough to hold all sevice information
+ *  sizeof(jf_serv_info_t) * JF_SERV_MAX_NUM_OF_SERV
+ */
+#define MAX_DONGYUAN_ASSOCKET_BUF_SIZE  (2048)
 
 #define MAX_DONGYUAN_ASSOCKET_CONN      (3)
 
@@ -118,26 +121,18 @@ static u32 _procesServMgmtMsgGetInfoList(
     u8 * pu8Buffer, olsize_t u32Size)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    servmgmt_get_info_list_req_t * pReq = (servmgmt_get_info_list_req_t *)pu8Buffer;
     servmgmt_get_info_list_resp_t inforesp;
-    jf_serv_info_list_t * pList = NULL;
 
     if (u32Size < sizeof(servmgmt_get_info_list_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_sharedmemory_attach(pReq->sgilr_jsiShmId, (void **)&pList);
-
-    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        inforesp.sgilr_u32RetCode = getServMgmtServInfoList(pList);
+        inforesp.sgilr_u32RetCode = getServMgmtServInfoList(&inforesp.sgilr_jsilList);
 
         u32Ret = jf_network_sendAssocketData(
             pAssocket, pAsocket, (u8 *)&inforesp, sizeof(inforesp));
     }
-
-    if (pList != NULL)
-        jf_sharedmemory_detach((void **)&pList);
     
     return u32Ret;
 }

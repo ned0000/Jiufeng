@@ -59,7 +59,7 @@ static u32 _setThreadAttr(jf_thread_attr_t * pjta, pthread_attr_t * ppa)
     return u32Ret;
 }
 
-/** TODO: if the signal(not real signal) is sent to this process more than once at the same time,
+/** Note: if the signal(not real signal) is sent to this process more than once at the same time,
  *  there is possibility that only 1 signal is received and other signals are missed.
  *  for SIGCHLD, this problem will cause the defunct process cannot be handled by parent process.
  */
@@ -71,16 +71,11 @@ JF_THREAD_RETURN_VALUE _signalHandlerThread(void * pArg)
     boolean_t bToTerminate = FALSE;
     sigset_t set = pSha->sha_ssSet;
     jf_thread_fnSignalHandler_t fnHandler = pSha->sha_fnHandler;
-    siginfo_t info;
-    struct timespec tp;
 
     while (! bToTerminate)
     {
-        tp.tv_sec = 3;
-        tp.tv_nsec = 0;
-
-        sig = sigtimedwait(&set, &info, &tp);
-        if (sig > 0)
+        ret = sigwait(&set, &sig);
+        if (ret == 0)
         {
             fnHandler(sig);
             if ((sig == SIGTERM) || (sig == SIGINT))

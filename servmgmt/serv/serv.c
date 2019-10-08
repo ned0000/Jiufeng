@@ -158,43 +158,19 @@ u32 jf_serv_getInfoList(jf_serv_info_list_t * pjsil)
     internal_serv_t * pis = &ls_isServ;
     servmgmt_get_info_list_req_t sgilr;
     servmgmt_get_info_list_resp_t sgilrResp;
-    jf_sharedmemory_id_t * pShmId = NULL;
-    u8 * pMap = NULL;
 
-    assert((pjsil != NULL) && (pjsil->jsil_u16MaxService >= 1));
+    assert(pjsil != NULL);
 
     ol_memset(&sgilr, 0, sizeof(sgilr));
     _initServMgmtMsgHeader(&sgilr.sgilr_smhHeader, pis, SERVMGMT_MSG_ID_GET_INFO_LIST_REQ);
 
-    sgilr.sgilr_u32ShmLen =
-        sizeof(*pjsil) + (pjsil->jsil_u16MaxService - 1) * sizeof(jf_serv_info_t);
+    u32Ret = _sendRecvServMgmtMsg(
+        pis, (u8 *)&sgilr, sizeof(sgilr), (u8 *)&sgilrResp, sizeof(sgilrResp));
 
-    u32Ret = jf_sharedmemory_create(&pShmId, sgilr.sgilr_u32ShmLen);
-    if (u32Ret == JF_ERR_NO_ERROR)
+    if ((u32Ret == JF_ERR_NO_ERROR) && (sgilrResp.sgilr_u32RetCode == JF_ERR_NO_ERROR))
     {
-        ol_strncpy(sgilr.sgilr_jsiShmId, pShmId, JF_SHAREDMEMORY_ID_LEN - 1);
-
-        u32Ret = jf_sharedmemory_attach(pShmId, (void **)&pMap);
+        ol_memcpy(pjsil, &sgilrResp.sgilr_jsilList, sizeof(*pjsil));
     }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        ol_memcpy(pMap, pjsil, sgilr.sgilr_u32ShmLen);
-
-        u32Ret = _sendRecvServMgmtMsg(
-            pis, (u8 *)&sgilr, sizeof(sgilr), (u8 *)&sgilrResp, sizeof(sgilrResp));
-    }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        ol_memcpy(pjsil, pMap, sgilr.sgilr_u32ShmLen);
-    }
-
-    if (pMap != NULL)
-        jf_sharedmemory_detach((void **)&pMap);
-    
-    if (pShmId != NULL)
-        jf_sharedmemory_destroy(&pShmId);
 
     return u32Ret;
 }

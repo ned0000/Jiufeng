@@ -125,22 +125,19 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
 static u32 _listService(olchar_t * name)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u8 u8Buffer[1024];
-    jf_serv_info_list_t * pjsil = (jf_serv_info_list_t *)u8Buffer;
-    jf_serv_info_t * pjsi;
+    jf_serv_info_list_t jsil;
+    jf_serv_info_t * pjsi = NULL;
     u16 u16Index;
 
-    pjsil->jsil_u16MaxService = 8;
-
-    u32Ret = jf_serv_getInfoList(pjsil);
+    u32Ret = jf_serv_getInfoList(&jsil);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("%-12s %-12s %-10s\n", "Name", "StartupType", "Status");
         ol_printf("----------------------------------------------\n");
 
-        for (u16Index = 0; u16Index < pjsil->jsil_u16NumOfService; u16Index ++)
+        for (u16Index = 0; u16Index < jsil.jsil_u16NumOfService; u16Index ++)
         {
-            pjsi = &pjsil->jsil_jsiService[u16Index];
+            pjsi = &jsil.jsil_jsiService[u16Index];
             if (name != NULL && ol_strcmp(name, pjsi->jsi_strName) != 0)
                 continue;
 

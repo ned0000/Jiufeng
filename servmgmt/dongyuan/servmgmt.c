@@ -276,7 +276,7 @@ static void _dumpServMgmtInfo(internal_service_info_t * pisi)
 }
 
 static u32 _waitForChildProcess(
-    internal_serv_mgmt_t * pism, jf_process_id_t pid[], u32 u32Count)
+    internal_serv_mgmt_t * pism, jf_process_id_t pid[], u32 u32Count, boolean_t * pbRetry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32ServIndex, u32Index, u32Reason;
@@ -303,17 +303,18 @@ static u32 _waitForChildProcess(
             {
                 _dumpServMgmtInfo(pisi);
                 _tryStartServMgmtServ(pism, pisi);
+                *pbRetry = TRUE;
                 break;
             }
         }
 
-        jf_mutex_release(&pism->ism_jmLock);        
+        jf_mutex_release(&pism->ism_jmLock);
     }
 
     return u32Ret;
 }
 
-static u32 _handleChildProcess(void * pData)
+static u32 _handleChildProcess(boolean_t * pbRetry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_serv_mgmt_t * pism = &ls_ismServMgmt;
@@ -343,8 +344,24 @@ static u32 _handleChildProcess(void * pData)
 
     if (u32Count > 0)
     {
-        u32Ret = _waitForChildProcess(pism, pid, u32Count);
+        u32Ret = _waitForChildProcess(pism, pid, u32Count, pbRetry);
     }
+
+    return u32Ret;
+}
+
+static u32 _handleSigchldForChildProcess(void * pData)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    boolean_t bRetry = FALSE;
+
+    do
+    {
+        bRetry = FALSE;
+
+        _handleChildProcess(&bRetry);
+
+    } while (bRetry);
 
     return u32Ret;
 }
@@ -509,8 +526,6 @@ u32 getServMgmtServInfoList(jf_serv_info_list_t * pjsil)
         pjsi->jsi_u8StartupType = pisi->isi_u8StartupType;
 
         pjsil->jsil_u16NumOfService ++;
-        if (pjsil->jsil_u16NumOfService >= pjsil->jsil_u16MaxService)
-            break;
     }
 
     jf_mutex_release(&pism->ism_jmLock);
@@ -601,7 +616,8 @@ u32 handleServMgmtSignal(olint_t sig)
         jf_logger_logInfoMsg("get signal SIGCHLD");
 
         if (pism->ism_pjnuUtimer != NULL)
-            jf_network_addUtimerItem(pism->ism_pjnuUtimer, pism, 0, _handleChildProcess, NULL);
+            jf_network_addUtimerItem(
+                pism->ism_pjnuUtimer, pism, 0, _handleSigchldForChildProcess, NULL);
     }
 
     return u32Ret;
