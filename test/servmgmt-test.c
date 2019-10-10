@@ -37,16 +37,15 @@ static const olchar_t * ls_pstrVersion = "1.0.0";
 static void _printUsage(void)
 {
     ol_printf("\
-Usage: %s [-l] [-s] [-t] [-u automatic|manual] [-n service name] \n\
-      [-V] [logger options]\n\
+Usage: %s [-l] [-s] [-t] [-u automatic|manual] [-n service name] [-V] [logger options]\n\
     -l list service.\n\
     -t start service.\n\
     -s stop service.\n\
     -u <automatic|manual> change the startup type of the service.\n\
+    -n specify the service name.\n\
     -V show version information.\n\
 logger options:\n\
-    -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug,\n\
-       4: data.\n\
+    -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug, 4: data.\n\
     -F <log file> the log file.\n\
     -S <log file size> the size of log file. No limit if not specified.\n",
            ls_pstrProgramName);
@@ -122,34 +121,62 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
     return u32Ret;
 }
 
+#define SERVICE_CAPTION  "%-12s %-12s %-10s\n"
+
+static void _printServiceCaption(void)
+{
+    ol_printf(SERVICE_CAPTION, "Name", "StartupType", "Status");
+    ol_printf("-----------------------------------------------------------------\n");
+}
+
 static u32 _listService(olchar_t * name)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_serv_info_list_t jsil;
+    jf_serv_info_t jsi;
+
+    u32Ret = jf_serv_getInfo(name, &jsi);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        _printServiceCaption();
+        ol_printf(
+            SERVICE_CAPTION, jsi.jsi_strName,
+            jf_serv_getStringServStartupType(jsi.jsi_u8StartupType),
+            jf_serv_getStringServStatus(jsi.jsi_u8Status));
+    }
+    else
+    {
+        ol_printf("Failed to get service information. %s\n", jf_err_getDescription(u32Ret));
+    }
+
+    return u32Ret;
+}
+
+static u32 _listAllServices(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    u8 u8Buffer[2048];
+    jf_serv_info_list_t * pjsil = (jf_serv_info_list_t *)u8Buffer;
     jf_serv_info_t * pjsi = NULL;
     u16 u16Index;
 
-    u32Ret = jf_serv_getInfoList(&jsil);
+    u32Ret = jf_serv_getInfoList(pjsil);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_printf("%-12s %-12s %-10s\n", "Name", "StartupType", "Status");
-        ol_printf("----------------------------------------------\n");
+        _printServiceCaption();
 
-        for (u16Index = 0; u16Index < jsil.jsil_u16NumOfService; u16Index ++)
+        for (u16Index = 0; u16Index < pjsil->jsil_u16NumOfService; u16Index ++)
         {
-            pjsi = &jsil.jsil_jsiService[u16Index];
-            if (name != NULL && ol_strcmp(name, pjsi->jsi_strName) != 0)
-                continue;
+            pjsi = &pjsil->jsil_jsiService[u16Index];
 
             ol_printf(
-                "%-12s %-12s %-10s\n", pjsi->jsi_strName,
+                SERVICE_CAPTION, pjsi->jsi_strName,
                 jf_serv_getStringServStartupType(pjsi->jsi_u8StartupType),
                 jf_serv_getStringServStatus(pjsi->jsi_u8Status));
         }
     }
     else
     {
-        ol_printf("Failed to get service information\n");
+        ol_printf("Failed to get service information, %s\n", jf_err_getDescription(u32Ret));
     }
 
     return u32Ret;
@@ -161,7 +188,7 @@ static u32 _stopService(olchar_t * name)
 
     if (name == NULL)
     {
-        ol_printf("service name is not specified\n");
+        ol_printf("Service name is not specified\n");
         u32Ret = JF_ERR_INVALID_PARAM;
     }
 
@@ -177,7 +204,7 @@ static u32 _startService(olchar_t * name)
 
     if (name == NULL)
     {
-        ol_printf("service name is not specified\n");
+        ol_printf("Service name is not specified\n");
         u32Ret = JF_ERR_INVALID_PARAM;
     }
 
@@ -193,7 +220,7 @@ static u32 _changeServiceStartupType(olchar_t * name, u8 u8Type)
 
     if (name == NULL)
     {
-        ol_printf("service name is not specified\n");
+        ol_printf("Service name is not specified\n");
         u32Ret = JF_ERR_INVALID_PARAM;
     }
 
@@ -228,14 +255,29 @@ olint_t main(olint_t argc, olchar_t ** argv)
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (ls_bStop)
+            {
                 u32Ret = _stopService(ls_pstrServName);
+            }
             else if (ls_bStart)
+            {
                 u32Ret = _startService(ls_pstrServName);
+            }
             else if (ls_bStartupType)
-                u32Ret = _changeServiceStartupType(
-                    ls_pstrServName, ls_u8StartupType);
+            {
+                u32Ret = _changeServiceStartupType(ls_pstrServName, ls_u8StartupType);
+            }
+            else if (ls_bList)
+            {
+                if (ls_pstrServName != NULL)
+                    u32Ret = _listService(ls_pstrServName);                
+                else
+                    u32Ret = _listAllServices();
+            }
             else
-                u32Ret = _listService(ls_pstrServName);                
+            {
+                ol_printf("Operation is not specified!\n");
+                u32Ret = JF_ERR_INVALID_PARAM;
+            }
 
             jf_serv_fini();
         }

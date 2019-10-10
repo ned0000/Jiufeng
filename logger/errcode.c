@@ -198,11 +198,13 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
 /* cghash error */
     {JF_ERR_SHA1_STATE_ERROR, "SHA1 state error."},
 /* prng error */
-    {JF_ERR_PRNG_NOT_SEEDED, "Prng is not seeded"},
+    {JF_ERR_PRNG_NOT_SEEDED, "Prng is not seeded."},
 /* jiukun error */
-    {JF_ERR_JIUKUN_OUT_OF_MEMORY, "Out of user memory"},
+    {JF_ERR_JIUKUN_OUT_OF_MEMORY, "Out of user memory."},
 /* ifmgmt error */
 
+/* servmgmt error */
+    {JF_ERR_SERV_NOT_FOUND, "Service is not found."},
 /* matrix error */
     {JF_ERR_MATRIX_SINGULAR, "Matrix is singular."},
 /* jiuhua error */

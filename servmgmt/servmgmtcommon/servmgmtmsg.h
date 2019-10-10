@@ -20,6 +20,9 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
+/** magic number SEMG (0x53 0x45 0x4D 0x47)
+ */
+#define SERVMGMT_MSG_MAGIC_NUMBER  (0x53454D47)
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -34,11 +37,13 @@ typedef struct
     u8 smh_u8Reserved[2];
     /**transaction identifier*/
     u32 smh_u32TransactionId;
-
-    /**source identifier*/
-    pid_t smh_piSourceId;
-    /**destination identifier*/
-    pid_t smh_piDestinationId;
+    /**magic number for validation*/
+    u32 smh_u32MagicNumber;
+    /**payload size*/
+    u32 smh_u32PayloadSize;
+    /**result code for response message*/
+    u32 smh_u32Result;
+    u32 smh_u32Reserved[3];
 } servmgmt_msg_header_t;
 
 typedef enum
@@ -67,8 +72,6 @@ typedef struct
 {
     servmgmt_msg_header_t sgilr_smhHeader;
 
-    u32 sgilr_u32RetCode;
-
     jf_serv_info_list_t sgilr_jsilList;
 } servmgmt_get_info_list_resp_t;
 
@@ -83,7 +86,6 @@ typedef struct
 {
     servmgmt_msg_header_t sgir_smhHeader;
 
-    u32 sgir_u32RetCode;
     jf_serv_info_t sgir_jsiInfo;
 } servmgmt_get_info_resp_t;
 
@@ -97,8 +99,6 @@ typedef struct
 typedef struct
 {
     servmgmt_msg_header_t sssr_smhHeader;
-
-    u32 sssr_u32RetCode;
 } servmgmt_start_serv_resp_t;
 
 typedef struct
@@ -112,7 +112,6 @@ typedef struct
 {
     servmgmt_msg_header_t sssr_smhHeader;
 
-    u32 sssr_u32RetCode;
 } servmgmt_stop_serv_resp_t;
 
 typedef struct
@@ -128,7 +127,6 @@ typedef struct
 {
     servmgmt_msg_header_t ssstr_smhHeader;
 
-    u32 ssstr_u32RetCode;
 } servmgmt_set_startup_type_resp_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */

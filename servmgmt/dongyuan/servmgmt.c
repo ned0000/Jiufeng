@@ -512,6 +512,8 @@ u32 getServMgmtServInfoList(jf_serv_info_list_t * pjsil)
     internal_service_info_t * pisi = NULL;
     jf_serv_info_t * pjsi = NULL;
 
+    ol_memset(pjsil, 0, sizeof(*pjsil));
+    
     jf_mutex_acquire(&pism->ism_jmLock);
     
     for (u32ServIndex = 0; u32ServIndex < pisms->isms_u16NumOfService; u32ServIndex ++)

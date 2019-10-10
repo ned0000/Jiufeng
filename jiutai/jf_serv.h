@@ -71,7 +71,7 @@ typedef struct
 {
     u16 jsil_u16NumOfService;
     u16 jsil_u8Reserved[3];
-    jf_serv_info_t jsil_jsiService[JF_SERV_MAX_NUM_OF_SERV];
+    jf_serv_info_t jsil_jsiService[0];
 } jf_serv_info_list_t;
 
 typedef struct

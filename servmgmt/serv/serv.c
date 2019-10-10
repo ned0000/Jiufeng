@@ -54,13 +54,14 @@ static internal_serv_t ls_isServ;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _initServMgmtMsgHeader(
-    servmgmt_msg_header_t * pHeader, internal_serv_t * pis, u8 u8MsgId)
+static u32 _initServMgmtReqMsgHeader(
+    servmgmt_msg_header_t * pHeader, internal_serv_t * pis, u8 u8MsgId, u32 u32MsgSize)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     pHeader->smh_u8MsgId = u8MsgId;
-    pHeader->smh_piSourceId = jf_process_getCurrentId();
+    pHeader->smh_u32MagicNumber = SERVMGMT_MSG_MAGIC_NUMBER;
+    pHeader->smh_u32PayloadSize = u32MsgSize - sizeof(servmgmt_msg_header_t);
 
     jf_mutex_acquire(&pis->is_jmLock);
     pHeader->smh_u32TransactionId = pis->is_u32TransactionId;
@@ -76,6 +77,7 @@ static u32 _sendRecvServMgmtMsg(
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_network_socket_t * pSocket = NULL;
     olsize_t sMsg = 0;
+    servmgmt_msg_header_t * pHeader = NULL;
 
     u32Ret = jf_network_createSocket(AF_UNIX, SOCK_STREAM, 0, &pSocket);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -95,10 +97,24 @@ static u32 _sendRecvServMgmtMsg(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_logger_logDebugMsg("recv data, size: %d", sRecvMsg);
+        sMsg = sizeof(servmgmt_msg_header_t);
 
-        sMsg = sRecvMsg;
+        jf_logger_logDebugMsg("recv header, size: %d", sMsg);
+
         u32Ret = jf_network_recvnWithTimeout(pSocket, (void *)pRecvMsg, &sMsg, pis->is_u32Timeout);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        pHeader = (servmgmt_msg_header_t *)pRecvMsg;
+        pRecvMsg = (u8 *)pRecvMsg + sMsg;
+        sMsg = pHeader->smh_u32PayloadSize;
+
+        jf_logger_logDebugMsg("recv payload, size: %d", sMsg);
+
+        if (sMsg != 0)
+            u32Ret = jf_network_recvnWithTimeout(
+                pSocket, (void *)pRecvMsg, &sMsg, pis->is_u32Timeout);
     }
 
     if (u32Ret != JF_ERR_NO_ERROR)
@@ -156,21 +172,24 @@ u32 jf_serv_getInfoList(jf_serv_info_list_t * pjsil)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_serv_t * pis = &ls_isServ;
-    servmgmt_get_info_list_req_t sgilr;
-    servmgmt_get_info_list_resp_t sgilrResp;
+    servmgmt_get_info_list_req_t req;
+    u8 u8Buffer[2048];
+    servmgmt_get_info_list_resp_t * pResp = (servmgmt_get_info_list_resp_t *)u8Buffer;
 
     assert(pjsil != NULL);
 
-    ol_memset(&sgilr, 0, sizeof(sgilr));
-    _initServMgmtMsgHeader(&sgilr.sgilr_smhHeader, pis, SERVMGMT_MSG_ID_GET_INFO_LIST_REQ);
+    ol_memset(&req, 0, sizeof(req));
+    _initServMgmtReqMsgHeader(
+        (servmgmt_msg_header_t *)&req, pis, SERVMGMT_MSG_ID_GET_INFO_LIST_REQ, sizeof(req));
 
     u32Ret = _sendRecvServMgmtMsg(
-        pis, (u8 *)&sgilr, sizeof(sgilr), (u8 *)&sgilrResp, sizeof(sgilrResp));
+        pis, (u8 *)&req, sizeof(req), u8Buffer, sizeof(u8Buffer));
 
-    if ((u32Ret == JF_ERR_NO_ERROR) && (sgilrResp.sgilr_u32RetCode == JF_ERR_NO_ERROR))
-    {
-        ol_memcpy(pjsil, &sgilrResp.sgilr_jsilList, sizeof(*pjsil));
-    }
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = pResp->sgilr_smhHeader.smh_u32Result;
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        ol_memcpy(pjsil, &pResp->sgilr_jsilList, pResp->sgilr_smhHeader.smh_u32PayloadSize);
 
     return u32Ret;
 }
@@ -178,7 +197,24 @@ u32 jf_serv_getInfoList(jf_serv_info_list_t * pjsil)
 u32 jf_serv_getInfo(const olchar_t * pstrName, jf_serv_info_t * pjsi)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_serv_t * pis = &ls_isServ;
+    servmgmt_get_info_req_t req;
+    servmgmt_get_info_resp_t resp;
 
+    assert((pstrName != NULL) && (pjsi != NULL));
+
+    ol_memset(&req, 0, sizeof(req));
+    _initServMgmtReqMsgHeader(
+        (servmgmt_msg_header_t *)&req, pis, SERVMGMT_MSG_ID_GET_INFO_REQ, sizeof(req));
+    ol_strncpy(req.sgir_strName, pstrName, JF_SERV_MAX_SERV_NAME_LEN - 1);
+
+    u32Ret = _sendRecvServMgmtMsg(pis, (u8 *)&req, sizeof(req), (u8 *)&resp, sizeof(resp));
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = resp.sgir_smhHeader.smh_u32Result;
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        ol_memcpy(pjsi, &resp.sgir_jsiInfo, resp.sgir_smhHeader.smh_u32PayloadSize);
 
     return u32Ret;
 }
@@ -186,7 +222,21 @@ u32 jf_serv_getInfo(const olchar_t * pstrName, jf_serv_info_t * pjsi)
 u32 jf_serv_stopServ(const olchar_t * pstrName)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_serv_t * pis = &ls_isServ;
+    servmgmt_stop_serv_req_t req;
+    servmgmt_stop_serv_resp_t resp;
 
+    assert(pstrName != NULL);
+
+    ol_memset(&req, 0, sizeof(req));
+    _initServMgmtReqMsgHeader(
+        (servmgmt_msg_header_t *)&req, pis, SERVMGMT_MSG_ID_STOP_SERV_REQ, sizeof(req));
+    ol_strncpy(req.sssr_strName, pstrName, JF_SERV_MAX_SERV_NAME_LEN - 1);
+
+    u32Ret = _sendRecvServMgmtMsg(pis, (u8 *)&req, sizeof(req), (u8 *)&resp, sizeof(resp));
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = resp.sssr_smhHeader.smh_u32Result;
 
     return u32Ret;
 }
@@ -194,7 +244,44 @@ u32 jf_serv_stopServ(const olchar_t * pstrName)
 u32 jf_serv_startServ(const olchar_t * pstrName)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_serv_t * pis = &ls_isServ;
+    servmgmt_start_serv_req_t req;
+    servmgmt_start_serv_resp_t resp;
 
+    assert(pstrName != NULL);
+
+    ol_memset(&req, 0, sizeof(req));
+    _initServMgmtReqMsgHeader(
+        (servmgmt_msg_header_t *)&req, pis, SERVMGMT_MSG_ID_START_SERV_REQ, sizeof(req));
+    ol_strncpy(req.sssr_strName, pstrName, JF_SERV_MAX_SERV_NAME_LEN - 1);
+
+    u32Ret = _sendRecvServMgmtMsg(pis, (u8 *)&req, sizeof(req), (u8 *)&resp, sizeof(resp));
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = resp.sssr_smhHeader.smh_u32Result;
+
+    return u32Ret;
+}
+
+u32 jf_serv_setServStartupType(const olchar_t * pstrName, const u8 u8StartupType)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_serv_t * pis = &ls_isServ;
+    servmgmt_set_startup_type_req_t req;
+    servmgmt_set_startup_type_resp_t resp;
+
+    assert(pstrName != NULL);
+
+    ol_memset(&req, 0, sizeof(req));
+    _initServMgmtReqMsgHeader(
+        (servmgmt_msg_header_t *)&req, pis, SERVMGMT_MSG_ID_SET_STARTUP_TYPE_REQ, sizeof(req));
+    ol_strncpy(req.ssstr_strName, pstrName, JF_SERV_MAX_SERV_NAME_LEN - 1);
+    req.ssstr_u8StartupType = u8StartupType;
+
+    u32Ret = _sendRecvServMgmtMsg(pis, (u8 *)&req, sizeof(req), (u8 *)&resp, sizeof(resp));
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = resp.ssstr_smhHeader.smh_u32Result;
 
     return u32Ret;
 }
@@ -214,14 +301,6 @@ u32 jf_serv_getServStartupTypeFromString(const olchar_t * pstrType, u8 * pu8Star
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = getServStartupTypeFromString(pstrType, pu8StartupType);
-
-    return u32Ret;
-}
-
-u32 jf_serv_setServStartupType(const olchar_t * pstrName, const u8 u8StartupType)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-
 
     return u32Ret;
 }
