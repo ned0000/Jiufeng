@@ -1,7 +1,7 @@
 #
 #  @file windows.mak
 #
-#  @brief the makefile for service management library
+#  @brief the makefile for service library
 #
 #  @author Min Zhang
 #
@@ -11,21 +11,20 @@
 
 #---------------------------------------------------------------------------------------------------
 
-DLLNAME = jf_servmgmt
+DLLNAME = jf_serv
 
-RESOURCE = servmgmt
+RESOURCE = serv
 
-SOURCES = servmgmt.c servmgmtsetting.c
+SOURCES = ../common/servmgmtcommon.c serv.c
 
-JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\jf_sharedmemory.c \
-    $(JIUTAI_DIR)\jf_process.c $(JIUTAI_DIR)\attask.c $(JIUTAI_DIR)\jf_time.c
+JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\jf_process.c $(JIUTAI_DIR)\jf_time.c
 
-EXTRA_DEFS = -DJIUFENG_SERVMGMT_DLL
+EXTRA_DEFS = -DJIUFENG_SERV_DLL
 
 EXTRA_LIBS = psapi.lib $(LIB_DIR)\jf_logger.lib $(LIB_DIR)\olfiles.lib \
-    $(LIB_DIR)\jf_xmlparser.lib $(LIB_DIR)\jf_uuid.lib
+    $(LIB_DIR)\jf_ifmgmt.lib $(LIB_DIR)\jf_network.lib
              
-EXTRA_INC_DIR =
+EXTRA_INC_DIR = -I../common
 
 !include "$(TOPDIR)\mak\winlib.mak"
 
