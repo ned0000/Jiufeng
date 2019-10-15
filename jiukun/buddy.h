@@ -54,19 +54,17 @@ typedef struct jiukun_page
 
 #define setJpSlab(page) (JF_FLAG_SET(page->jp_jfPage, JP_FLAG_SLAB))
 #define clearJpSlab(page) (JF_FLAG_CLEAR(page->jp_jfPage, JP_FLAG_SLAB))
-#define isJpSlab(page)  (JF_FLAG_GET(page->jp_jfPage, JP_FLAG_SLAB))
+#define isJpSlab(page) (JF_FLAG_GET(page->jp_jfPage, JP_FLAG_SLAB))
 
 /** order is at bit 48 ~ 55
  */
-#define setJpOrder(page, order) \
-    (JF_FLAG_SET_VALUE(page->jp_jfPage, 55, 48, order))
-#define getJpOrder(page)   (JF_FLAG_GET_VALUE(page->jp_jfPage, 55, 48))
+#define setJpOrder(page, order) (JF_FLAG_SET_VALUE(page->jp_jfPage, 55, 48, order))
+#define getJpOrder(page) (JF_FLAG_GET_VALUE(page->jp_jfPage, 55, 48))
 
 /** zone id is at bit 56 ~ 63
  */
-#define setJpZoneId(page, zoneid) \
-    (JF_FLAG_SET_VALUE(page->jp_jfPage, 63, 56, zoneid))
-#define getJpZoneId(page)   (JF_FLAG_GET_VALUE(page->jp_jfPage, 63, 56))
+#define setJpZoneId(page, zoneid) (JF_FLAG_SET_VALUE(page->jp_jfPage, 63, 56, zoneid))
+#define getJpZoneId(page) (JF_FLAG_GET_VALUE(page->jp_jfPage, 63, 56))
 
 #define pageToIndex(page, base) ((u32)(page - base))
 
@@ -86,8 +84,7 @@ u32 finiJiukunBuddy(void);
 void dumpJiukunBuddy(void);
 #endif
 
-u32 getJiukunPage(
-    jiukun_page_t ** ppPage, u32 u32Order, jf_flag_t flag);
+u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, jf_flag_t flag);
 
 void putJiukunPage(jiukun_page_t ** ppPage);
 

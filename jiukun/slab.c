@@ -824,8 +824,7 @@ static u32 _createSlabCache(
     pjjccp->jjccp_sObj = ALIGN(pjjccp->jjccp_sObj, SLAB_ALIGN_SIZE);
 
     /* Get cache's description obj. */
-    u32Ret = _allocObj(
-        pijs, &(pijs->ijs_scCacheCache), (void **)&pCache, 0);
+    u32Ret = _allocObj(pijs, &(pijs->ijs_scCacheCache), (void **)&pCache, 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(pCache, 0, sizeof(slab_cache_t));
