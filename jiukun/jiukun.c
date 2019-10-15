@@ -17,6 +17,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_jiukun.h"
+
 #include "buddy.h"
 #include "slab.h"
 #include "common.h"
@@ -74,13 +75,14 @@ u32 jf_jiukun_init(jf_jiukun_init_param_t * pjjip)
     while (u32NumOfPages > ls_u32OrderPrimes[bp.bp_u8MaxOrder])
         bp.bp_u8MaxOrder ++;
 
-    jf_logger_logInfoMsg("init aehter, size: %u, page: %u, order: %u",
-           pjjip->jjip_sPool, u32NumOfPages, bp.bp_u8MaxOrder);
+    jf_logger_logInfoMsg(
+        "init aehter, size: %u, page: %u, order: %u",
+        pjjip->jjip_sPool, u32NumOfPages, bp.bp_u8MaxOrder);
 
     u32Ret = initJiukunBuddy(&bp);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(&sp, 0, sizeof(slab_param_t));
+        ol_memset(&sp, 0, sizeof(slab_param_t));
 
         u32Ret = initJiukunSlab(&sp);
     }

@@ -29,15 +29,19 @@ static boolean_t ls_bToTerminate = FALSE;
 
 boolean_t ls_bMultiThread = FALSE;
 boolean_t ls_bStress = FALSE;
+boolean_t ls_bDoubleFreeMemory = FALSE;
+boolean_t ls_bDoubleFreePage = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
 static void _printUsage(void)
 {
     ol_printf("\
-Usage: jiukun-test [-t] [logger options]\n\
+Usage: jiukun-test [-t] [-s] [-d] [logger options]\n\
     -t test in multi-threading environment.\n\
     -s stress testing.\n\
+    -m test double free memory.\n\
+    -p test double free page.\n\
 logger options:\n\
     -T <0|1|2|3> the log level. 0: no log, 1: error only, 2: info, 3: all.\n\
     -F <log file> the log file.\n\
@@ -53,7 +57,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
     u32 u32Value;
 
     while (((nOpt = getopt(argc, argv,
-        "tsOT:F:S:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+        "tsmpOT:F:S:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -67,6 +71,12 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
             break;
         case 's':
             ls_bStress = TRUE;
+            break;
+        case 'm':
+            ls_bDoubleFreeMemory = TRUE;
+            break;
+        case 'p':
+            ls_bDoubleFreePage = TRUE;
             break;
         case 'T':
             if (sscanf(optarg, "%d", &u32Value) == 1)
@@ -421,6 +431,48 @@ static u32 _testJiukunInThread(void)
     return u32Ret;
 }
 
+static u32 _testJiukunDoubleFreeMemory(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    u8 * pu8Buf = NULL, * pu8Temp = NULL;
+
+    ol_printf("testing double free memory\n");
+
+    u32Ret = jf_jiukun_allocMemory((void **)&pu8Buf, 64, 0);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        pu8Temp = pu8Buf;
+        ol_printf("free the memeory\n");
+        jf_jiukun_freeMemory((void **)&pu8Buf);
+
+        ol_printf("double free the memory\n");
+        jf_jiukun_freeMemory((void **)&pu8Temp);
+    }
+
+    return u32Ret;
+}
+
+static u32 _testJiukunDoubleFreePage(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    u8 * pu8Buf = NULL, * pu8Temp = NULL;
+
+    ol_printf("testing double free page\n");
+
+    u32Ret = jf_jiukun_allocPage((void **)&pu8Buf, 1, 0);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        pu8Temp = pu8Buf;
+        ol_printf("free the page\n");
+        jf_jiukun_freePage((void **)&pu8Buf);
+
+        ol_printf("double free the page\n");
+        jf_jiukun_freePage((void **)&pu8Temp);
+    }
+
+    return u32Ret;
+}
+
 static u32 _baseJiukunFunc(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -508,7 +560,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(&jjip, 0, sizeof(jjip));
+        ol_memset(&jjip, 0, sizeof(jjip));
         jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
         jjip.jjip_bNoGrow = TRUE;
 
@@ -519,6 +571,10 @@ olint_t main(olint_t argc, olchar_t ** argv)
                 u32Ret = _testJiukunInThread();
             else if (ls_bStress)
                 u32Ret = _stressJiukun();
+            else if (ls_bDoubleFreeMemory)
+                u32Ret = _testJiukunDoubleFreeMemory();
+            else if (ls_bDoubleFreePage)
+                u32Ret = _testJiukunDoubleFreePage();
             else
                 u32Ret = _baseJiukunFunc();
 

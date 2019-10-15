@@ -1,8 +1,7 @@
 /**
  *  @file jiukun/common.h
  *
- *  @brief Common Header File, common data structure and routines for junkun
- *   library
+ *  @brief Common Header File, common data structure and routines for junkun library
  *
  *  @author Min Zhang
  *
