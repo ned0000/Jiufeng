@@ -805,7 +805,7 @@ static u32 _createSlabCache(
 #endif
 
     jf_logger_logInfoMsg(
-        "create jiukun cache, %s, size: %u, flag: 0x%llX",
+        "create slab cache, %s, size: %u, flag: 0x%llX",
         pjjccp->jjccp_pstrName, pjjccp->jjccp_sObj, pjjccp->jjccp_jfCache);
 
 #if DEBUG_JIUKUN
@@ -966,13 +966,12 @@ static u32 _initSlabCache(internal_jiukun_slab_t * pijs)
 
     sizes = &(pijs->ijs_gcGeneral[0]);
 
-    while ((ls_sCacheSize[u16NumOfSize] != OLSIZE_MAX) &&
-           (u32Ret == JF_ERR_NO_ERROR))
+    while ((ls_sCacheSize[u16NumOfSize] != OLSIZE_MAX) && (u32Ret == JF_ERR_NO_ERROR))
     {
         sizes->gc_sSize = ls_sCacheSize[u16NumOfSize];
         ol_snprintf(name, sizeof(name), "size-%d", sizes->gc_sSize);
 
-        memset(&jjccp, 0, sizeof(jjccp));
+        ol_memset(&jjccp, 0, sizeof(jjccp));
 
         jjccp.jjccp_pstrName = name;
         jjccp.jjccp_sObj = sizes->gc_sSize;
