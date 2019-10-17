@@ -78,13 +78,14 @@ typedef enum slab_cache_flag
     SC_FLAG_DESTROY,      /**< Cache is being destroyed */
     SC_FLAG_RED_ZONE,     /**< Red zone objs in a cache, available when DEBUG_JIUKUN is true, the
                              size of obj should less than (BUDDY_PAGE_SIZE >> 3) */
-    SC_FLAG_POISON,       /**< Poison objects */
     SC_FLAG_LOCKED,       /**< Cache is locked */
 } slab_cache_flag_t;
 
 typedef struct slab_cache
 {
+    /** object size including red zone */
     u32 sc_u32ObjSize;
+    /** real object size user requests*/
     u32 sc_u32RealObjSize;
     /** cache flags */
     jf_flag_t sc_jfCache;
@@ -155,11 +156,6 @@ typedef struct slab_cache
  */
 #define RED_MAGIC1  0x5A2CF071UL    /* when obj is allocated */
 #define RED_MAGIC2  0x170FC2A5UL    /* when obj is freed */
-
-/** For poisoning
- */
-#define POISON_BYTE 0x5a            /* byte value for poisoning */
-#define POISON_END  0xa5            /* end-byte of poisoning */
 
 #endif
 
@@ -323,41 +319,7 @@ static inline void _freePages(
     jf_jiukun_freePage(&pAddr);
 }
 
-#if DEBUG_JIUKUN
-static inline void _poisonObj(slab_cache_t * pCache, u8 * addr)
-{
-    olint_t size = pCache->sc_u32ObjSize;
-
-    if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
-    {
-        addr += SLAB_ALIGN_SIZE;
-        size -= 2 * SLAB_ALIGN_SIZE;
-    }
-    memset(addr, POISON_BYTE, size);
-    *(u8 *)(addr + size - 1) = POISON_END;
-}
-
-static inline boolean_t _checkPoisonObj(slab_cache_t * pCache, u8 * addr)
-{
-    olint_t size = pCache->sc_u32ObjSize;
-    void * end;
-
-    if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
-    {
-        addr += SLAB_ALIGN_SIZE;
-        size -= 2 * SLAB_ALIGN_SIZE;
-    }
-
-    end = memchr(addr, POISON_END, size);
-    if (end != (addr + size - 1))
-        return TRUE;
-
-    return FALSE;
-}
-#endif
-
-static inline void * _allocOneObjFromTail(
-    slab_cache_t * pCache, slab_t * slabp)
+static inline void * _allocOneObjFromTail(slab_cache_t * pCache, slab_t * slabp)
 {
     u8 * objp;
 
@@ -377,21 +339,12 @@ static inline void * _allocOneObjFromTail(
     }
 
 #if DEBUG_JIUKUN
-    if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_POISON))
-    {
-        if (_checkPoisonObj(pCache, objp))
-        {
-            jf_logger_logInfoMsg("Out of bound access");
-            abort();
-        }
-    }
 
     if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
     {
         /* check old one. */
         if ((*((ulong *)(objp)) != RED_MAGIC1) ||
-            (*((ulong *)(objp + pCache->sc_u32ObjSize - SLAB_ALIGN_SIZE)) !=
-             RED_MAGIC1))
+            (*((ulong *)(objp + pCache->sc_u32ObjSize - SLAB_ALIGN_SIZE)) != RED_MAGIC1))
         {
             jf_logger_logInfoMsg("Invalid red zone");
             abort();
@@ -449,24 +402,6 @@ static inline void _initSlabCacheObjs(slab_cache_t * pCache, slab_t * slabp)
         {
             *((ulong*)(objp)) = RED_MAGIC1;
             *((ulong*)(objp + pCache->sc_u32ObjSize - SLAB_ALIGN_SIZE)) = RED_MAGIC1;
-            objp += SLAB_ALIGN_SIZE;
-        }
-#endif
-
-#if DEBUG_JIUKUN
-        if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
-            objp -= SLAB_ALIGN_SIZE;
-
-        if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_POISON))
-            /* need to poison the objs */
-            _poisonObj(pCache, objp);
-
-        if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
-        {
-            if (*((ulong *)(objp)) != RED_MAGIC1)
-                abort();
-            if (*((ulong *)(objp + pCache->sc_u32ObjSize - SLAB_ALIGN_SIZE)) != RED_MAGIC1)
-                abort();
         }
 #endif
         slab_bufctl(slabp)[i] = i + 1;
@@ -664,9 +599,6 @@ static inline void _freeOneObj(
         *((ulong *)(objp + pCache->sc_u32ObjSize - SLAB_ALIGN_SIZE)) = RED_MAGIC1;
     }
 
-    if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_POISON))
-        _poisonObj(pCache, objp);
-
     if (_extraFreeChecks(pCache, slabp, objp))
         return;
 #endif
@@ -722,8 +654,7 @@ static void _destroySlab(
     slab_t * pSlab = slabp;
 
 #if DEBUG_JIUKUN
-    if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_POISON) ||
-        JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
+    if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
     {
         olint_t i;
         for (i = 0; i < pCache->sc_u32Num; i++)
@@ -735,9 +666,6 @@ static void _destroySlab(
                 assert(*((ulong*)(objp)) == RED_MAGIC1);
                 assert(*((ulong*)(objp + pCache->sc_u32ObjSize - SLAB_ALIGN_SIZE)) == RED_MAGIC1);
             }
-
-            if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_POISON) && _checkPoisonObj(pCache, objp))
-                abort();
         }
     }
 #endif
@@ -814,7 +742,6 @@ static u32 _createSlabCache(
     if (pjjccp->jjccp_sObj < (BUDDY_PAGE_SIZE >> 3))
         JF_FLAG_SET(pjjccp->jjccp_jfCache, SC_FLAG_RED_ZONE);
 
-    JF_FLAG_SET(pjjccp->jjccp_jfCache, SC_FLAG_POISON);
 #endif
 
     /* Check that size is in terms of words. This is needed to avoid
