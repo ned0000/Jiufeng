@@ -512,7 +512,8 @@ static inline u32 _allocObj(
             entry = pCache->sc_jlFree.jl_pjlNext;
             if (jf_listhead_isEmpty(&pCache->sc_jlFree))
             {
-                if (JF_FLAG_GET(flag, JF_JIUKUN_MEM_ALLOC_FLAG_NOWAIT))
+                if (JF_FLAG_GET(flag, JF_JIUKUN_MEM_ALLOC_FLAG_NOWAIT) ||
+                    JF_FLAG_GET(pCache->sc_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_WAIT))
                     JF_FLAG_SET(jpflag, JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT);
 
                 u32Ret = _growSlabCache(pijs, pCache, jpflag);
@@ -1135,8 +1136,7 @@ void jf_jiukun_freeObject(jf_jiukun_cache_t * pCache, void ** pptr)
     *pptr = NULL;
 }
 
-u32 jf_jiukun_allocObject(
-    jf_jiukun_cache_t * pCache, void ** pptr, jf_flag_t flag)
+u32 jf_jiukun_allocObject(jf_jiukun_cache_t * pCache, void ** pptr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jiukun_slab_t * pijs = &ls_iasSlab;
@@ -1145,11 +1145,10 @@ u32 jf_jiukun_allocObject(
     assert(pijs->ijs_bInitialized);
     assert((pCache != NULL) && (pptr != NULL));
 
-    u32Ret = _allocObj(pijs, cache, pptr, flag);
+    u32Ret = _allocObj(pijs, cache, pptr, 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (JF_FLAG_GET(cache->sc_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO) ||
-            JF_FLAG_GET(flag, JF_JIUKUN_MEM_ALLOC_FLAG_ZERO))
+        if (JF_FLAG_GET(cache->sc_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO))
             ol_memset(*pptr, 0, cache->sc_u32RealObjSize);
     }
 

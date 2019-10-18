@@ -315,7 +315,7 @@ u32 _testJiukunCache(void)
                 nRand = rand();
 
                 u32Ret = jf_jiukun_allocObject(
-                    ls_pacCache, (void **)&(pu8Mem[u32Index]), 0);
+                    ls_pacCache, (void **)&(pu8Mem[u32Index]));
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     jf_logger_logInfoMsg("success, at %u, %p\n", u32Index,
@@ -519,7 +519,7 @@ static u32 _baseJiukunFunc(void)
     u32Ret = jf_jiukun_createCache(&cache, &jjccp);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_jiukun_allocObject(cache, &object, 0);
+        u32Ret = jf_jiukun_allocObject(cache, &object);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_printf("success\n");

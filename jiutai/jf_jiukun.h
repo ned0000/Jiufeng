@@ -80,13 +80,14 @@ typedef void  jf_jiukun_cache_t;
  */
 typedef enum jf_jiukun_cache_create_flag
 {
-    JF_JIUKUN_CACHE_CREATE_FLAG_DEBUG_FREE = 0, /**< Peform (expensive) checks on
+    JF_JIUKUN_CACHE_CREATE_FLAG_DEBUG_FREE = 0, /**< Perform (expensive) checks on
                                                    free, available when DEBUG_JIUKUN is true */
     JF_JIUKUN_CACHE_CREATE_FLAG_NOREAP,  /**< never reap from the cache */
     JF_JIUKUN_CACHE_CREATE_FLAG_NOGROW,  /**< don't grow a cache */
     JF_JIUKUN_CACHE_CREATE_FLAG_RECLAIM_ACCOUNT,/**< track pages allocated to
                                                    indicate what is reclaimable later*/
     JF_JIUKUN_CACHE_CREATE_FLAG_ZERO,    /**< zero the allocated object */
+    JF_JIUKUN_CACHE_CREATE_FLAG_WAIT,    /**< wait if memory fails to be allocated*/
 } jf_jiukun_cache_create_flag_t;
 
 typedef struct
@@ -106,8 +107,7 @@ typedef enum jf_jiukun_page_alloc_flag
     JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT = 0, /**< Donot wait, the page may be failed to be allocated*/
 } jf_jiukun_page_alloc_flag_t;
 
-/** Flags for allocting object or memory from jiukun cache used by
- *  jf_jiukun_allocMemory(), jf_jiukun_allocObject()
+/** Flags for allocting object or memory from jiukun cache used by jf_jiukun_allocMemory()
  */
 typedef enum jf_jiukun_mem_alloc_flag
 {
@@ -157,12 +157,10 @@ JIUKUNAPI u32 JIUKUNCALL jf_jiukun_destroyCache(jf_jiukun_cache_t ** ppCache);
  *
  *  @param pCache [in] the cache to allocate from.
  *  @param ppObj [out] the pointer to object
- *  @param flag [in] flags
  *
  *  @return the error code
  */
-JIUKUNAPI u32 JIUKUNCALL jf_jiukun_allocObject(
-    jf_jiukun_cache_t * pCache, void ** ppObj, jf_flag_t flag);
+JIUKUNAPI u32 JIUKUNCALL jf_jiukun_allocObject(jf_jiukun_cache_t * pCache, void ** ppObj);
 
 JIUKUNAPI void JIUKUNCALL jf_jiukun_freeObject(jf_jiukun_cache_t * pCache, void ** ppObj);
 
