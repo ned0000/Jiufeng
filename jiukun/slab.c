@@ -512,9 +512,9 @@ static inline u32 _allocObj(
             entry = pCache->sc_jlFree.jl_pjlNext;
             if (jf_listhead_isEmpty(&pCache->sc_jlFree))
             {
-                if (JF_FLAG_GET(flag, JF_JIUKUN_MEM_ALLOC_FLAG_NOWAIT) ||
+                if (JF_FLAG_GET(flag, JF_JIUKUN_MEM_ALLOC_FLAG_WAIT) ||
                     JF_FLAG_GET(pCache->sc_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_WAIT))
-                    JF_FLAG_SET(jpflag, JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT);
+                    JF_FLAG_SET(jpflag, JF_JIUKUN_PAGE_ALLOC_FLAG_WAIT);
 
                 u32Ret = _growSlabCache(pijs, pCache, jpflag);
                 if (u32Ret != JF_ERR_NO_ERROR)
@@ -1179,7 +1179,7 @@ u32 jf_jiukun_allocMemory(void ** pptr, olsize_t size, jf_flag_t flag)
         "alloc sized obj %p, size: %u, flags: 0x%llX", *pptr, size, flag);
 #endif
 
-    if (u32Ret == JF_ERR_NO_ERROR && JF_FLAG_GET(flag, JF_JIUKUN_MEM_ALLOC_FLAG_ZERO))
+    if ((u32Ret == JF_ERR_NO_ERROR) && JF_FLAG_GET(flag, JF_JIUKUN_MEM_ALLOC_FLAG_ZERO))
         ol_memset(*pptr, 0, size);
 
     return u32Ret;

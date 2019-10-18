@@ -104,14 +104,14 @@ typedef struct
  */
 typedef enum jf_jiukun_page_alloc_flag
 {
-    JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT = 0, /**< Donot wait, the page may be failed to be allocated*/
+    JF_JIUKUN_PAGE_ALLOC_FLAG_WAIT = 0, /**< wait if the page fails to be allocated*/
 } jf_jiukun_page_alloc_flag_t;
 
 /** Flags for allocting object or memory from jiukun cache used by jf_jiukun_allocMemory()
  */
 typedef enum jf_jiukun_mem_alloc_flag
 {
-    JF_JIUKUN_MEM_ALLOC_FLAG_NOWAIT = 0, /**< donot wait, the memory may be failed to be allocated*/
+    JF_JIUKUN_MEM_ALLOC_FLAG_WAIT = 0, /**< wait if memory fails to be allocated*/
     JF_JIUKUN_MEM_ALLOC_FLAG_ZERO, /**< zero the allocated memory */
 } jf_jiukun_mem_alloc_flag_t;
 

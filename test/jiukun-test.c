@@ -483,7 +483,7 @@ static u32 _baseJiukunFunc(void)
     jf_jiukun_cache_t * cache;
     void * object;
 
-    ol_printf("get jiukun page memory with wait: ");
+    ol_printf("get jiukun page memory with no wait: ");
     u32Ret = jf_jiukun_allocPage((void **)&page, order, 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -496,9 +496,9 @@ static u32 _baseJiukunFunc(void)
         return u32Ret;
     }
 
-    ol_printf("get jiukun page with nowait: ");
+    ol_printf("get jiukun page with wait: ");
     JF_FLAG_INIT(flags);
-    JF_FLAG_SET(flags, JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT);
+    JF_FLAG_SET(flags, JF_JIUKUN_PAGE_ALLOC_FLAG_WAIT);
     u32Ret = jf_jiukun_allocPage((void **)&page, 10, flags);
     if (u32Ret == JF_ERR_NO_ERROR)
     {

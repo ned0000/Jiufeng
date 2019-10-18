@@ -508,7 +508,7 @@ u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, jf_flag_t flag)
 
             retrycount ++;
         }
-    } while (pap == NULL && ! JF_FLAG_GET(flag, JF_JIUKUN_PAGE_ALLOC_FLAG_NOWAIT));
+    } while ((pap == NULL) && JF_FLAG_GET(flag, JF_JIUKUN_PAGE_ALLOC_FLAG_WAIT));
 
     if (pap == NULL)
     {
