@@ -496,7 +496,7 @@ static inline u32 _allocObj(
     jf_flag_t jpflag = 0;
 
 #if defined(DEBUG_JIUKUN_VERBOSE)
-    jf_logger_logInfoMsg("alloc obj from %s", pCache->sc_strName);
+    jf_logger_logDebugMsg("alloc obj from %s", pCache->sc_strName);
 #endif
 
     *ppObj = NULL;
@@ -661,10 +661,11 @@ static void _destroySlab(
         {
             u8 * objp = (u8 *)slabp->s_pMem + pCache->sc_u32ObjSize * i;
 
-            if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
+            if ((*((ulong *)(objp)) != RED_MAGIC1) ||
+                (*((ulong *)(objp + pCache->sc_u32ObjSize - SLAB_ALIGN_SIZE)) != RED_MAGIC1))
             {
-                assert(*((ulong*)(objp)) == RED_MAGIC1);
-                assert(*((ulong*)(objp + pCache->sc_u32ObjSize - SLAB_ALIGN_SIZE)) == RED_MAGIC1);
+                jf_logger_logErrMsg(
+                    JF_ERR_JIUKUN_MEMORY_LEAK, "destroy slab, objp: %p", objp + SLAB_ALIGN_SIZE);
             }
         }
     }
@@ -675,33 +676,43 @@ static void _destroySlab(
         _freeObj(pijs, pCache->sc_pscSlab, (void **)&pSlab);
 }
 
-static u32 _destroySlabCache(
-    internal_jiukun_slab_t * pijs, slab_cache_t * psc)
+static u32 _destroySlabCacheSlabs(
+    internal_jiukun_slab_t * pijs, slab_cache_t * psc, jf_listhead_t * pjl)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    slab_t * slabp;
-    jf_listhead_t * p;
+    jf_listhead_t * pos = NULL, * next = NULL;
+    slab_t * slabp = NULL;
 
-    jf_logger_logInfoMsg("destroy jiukun cache %s", psc->sc_strName);
-
-    jf_mutex_acquire(&(psc->sc_jmCache));
-
-    while (u32Ret == JF_ERR_NO_ERROR)
+    jf_listhead_forEachSafe(pjl, pos, next)
     {
-        p = psc->sc_jlFree.jl_pjlPrev;
-        if (p == &(psc->sc_jlFree))
-            break;
+        slabp = jf_listhead_getEntry(pos, slab_t, s_jlList);
 
-        slabp = jf_listhead_getEntry(psc->sc_jlFree.jl_pjlPrev, slab_t, s_jlList);
-#if DEBUG_JIUKUN
-        assert(slabp->s_u32InUse == 0);
-#endif
-        jf_listhead_del(&(slabp->s_jlList));
+        if (slabp->s_u32InUse != 0)
+        {
+            jf_logger_logErrMsg(JF_ERR_JIUKUN_MEMORY_LEAK, "destroy cache slabs");
+        }
+
+        jf_listhead_del(pos);
 
         _destroySlab(pijs, psc, slabp);
     }
 
-    jf_mutex_release(&(psc->sc_jmCache));
+    return u32Ret;
+}
+
+static u32 _destroySlabCache(internal_jiukun_slab_t * pijs, slab_cache_t * psc)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    jf_logger_logInfoMsg("destroy jiukun cache %s", psc->sc_strName);
+
+    _destroySlabCacheSlabs(pijs, psc, &psc->sc_jlFree);
+
+    _destroySlabCacheSlabs(pijs, psc, &psc->sc_jlPartial);
+
+    _destroySlabCacheSlabs(pijs, psc, &psc->sc_jlFull);
+
+    jf_mutex_fini(&psc->sc_jmCache);
 
     return u32Ret;
 }
@@ -1057,7 +1068,7 @@ u32 jf_jiukun_destroyCache(jf_jiukun_cache_t ** ppCache)
     return u32Ret;
 }
 
-u32 reapJiukunSlab(boolean_t bNoWait)
+olint_t reapJiukunSlab(boolean_t bNoWait)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jiukun_slab_t * pijs = &ls_iasSlab;
@@ -1067,19 +1078,19 @@ u32 reapJiukunSlab(boolean_t bNoWait)
 
     assert(pijs->ijs_bInitialized);
 
-    jf_logger_logInfoMsg("reap slab, nowait %d", bNoWait);
+    jf_logger_logInfoMsg("reap cache, nowait %d", bNoWait);
 
     if (bNoWait)
     {
         u32Ret = jf_mutex_tryAcquire(&(pijs->ijs_smLock));
         if (u32Ret != JF_ERR_NO_ERROR)
-            return u32Ret;
+            return ret;
     }
     else
     {
         jf_mutex_acquire(&(pijs->ijs_smLock));
     }
-    jf_logger_logInfoMsg("reap slab, start");
+    jf_logger_logInfoMsg("reap cache, start");
 
     jf_listhead_forEach(&(pijs->ijs_scCacheCache.sc_jlNext), pjl)
     {
@@ -1106,7 +1117,7 @@ u32 reapJiukunSlab(boolean_t bNoWait)
         jf_mutex_acquire(&(searchp->sc_jmCache));
 #if DEBUG_JIUKUN
         jf_logger_logInfoMsg(
-            "cache %p, name %s, flag 0x%llx", searchp, searchp->sc_strName, searchp->sc_jfCache);
+            "cache %p, name %s, flag 0x%llX", searchp, searchp->sc_strName, searchp->sc_jfCache);
         _dumpSlabCache(searchp);
 #endif
 
@@ -1115,13 +1126,9 @@ u32 reapJiukunSlab(boolean_t bNoWait)
         jf_mutex_release(&(searchp->sc_jmCache));
     }
 
-    if ((u32Ret == JF_ERR_NO_ERROR) && (ret == 0))
-    {
-        /*no cache is reaped*/
-        u32Ret = JF_ERR_FAIL_REAP_JIUKUN;
-    }
+    jf_mutex_release(&(pijs->ijs_smLock));
 
-    return u32Ret;
+    return ret;
 }
 
 void jf_jiukun_freeObject(jf_jiukun_cache_t * pCache, void ** pptr)
@@ -1151,6 +1158,10 @@ u32 jf_jiukun_allocObject(jf_jiukun_cache_t * pCache, void ** pptr)
             ol_memset(*pptr, 0, cache->sc_u32RealObjSize);
     }
 
+#if defined(DEBUG_JIUKUN_VERBOSE)
+    jf_logger_logDebugMsg("alloc obj: %p", *pptr);
+#endif
+
     return u32Ret;
 }
 
@@ -1175,7 +1186,7 @@ u32 jf_jiukun_allocMemory(void ** pptr, olsize_t size, jf_flag_t flag)
 
 #if defined(DEBUG_JIUKUN_VERBOSE)
     jf_logger_logDebugMsg(
-        "alloc sized obj %p, size: %u, flags: 0x%llX", *pptr, size, flag);
+        "alloc memory: %p, size: %u, flags: 0x%llX", *pptr, size, flag);
 #endif
 
     if ((u32Ret == JF_ERR_NO_ERROR) && JF_FLAG_GET(flag, JF_JIUKUN_MEM_ALLOC_FLAG_ZERO))

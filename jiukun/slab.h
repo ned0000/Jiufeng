@@ -39,7 +39,7 @@ u32 finiJiukunSlab(void);
  *
  *  @return the error code
  */
-u32 reapJiukunSlab(boolean_t bNoWait);
+olint_t reapJiukunSlab(boolean_t bNoWait);
 
 #endif /*JIUKUN_SLAB_H*/
 

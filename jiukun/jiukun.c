@@ -101,7 +101,7 @@ u32 jf_jiukun_fini(void)
     internal_jiukun_t * pia = &ls_iaJiukun;
 
 #if defined(DEBUG_JIUKUN)
-    jf_logger_logInfoMsg("fini aehter");
+    jf_logger_logInfoMsg("fini jiukun");
 #endif
 
     finiJiukunSlab();
@@ -115,16 +115,24 @@ u32 jf_jiukun_fini(void)
 
 u32 reapJiukun(boolean_t bNoWait)
 {
-    u32 u32Reap;
+    u32 u32Ret;
+    olint_t ret;
 
     assert(ls_iaJiukun.ia_bInitialized);
 
-    u32Reap = reapJiukunSlab(bNoWait);
+    ret = reapJiukunSlab(bNoWait);
 #if defined(DEBUG_JIUKUN)
-    jf_logger_logInfoMsg("reap jiukun, nowait %d, reaped %u", bNoWait, u32Reap);
+    jf_logger_logInfoMsg("reap jiukun, %u slabs are reaped", ret);
     jf_jiukun_dump();
 #endif
-    return u32Reap;
+
+    if (ret == 0)
+    {
+        /*no cache is reaped*/
+        u32Ret = JF_ERR_FAIL_REAP_JIUKUN;
+    }
+
+    return u32Ret;
 }
 
 #if defined(DEBUG_JIUKUN)

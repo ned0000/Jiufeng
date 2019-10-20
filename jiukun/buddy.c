@@ -89,8 +89,7 @@ static inline ulong _getPageOrder(jiukun_page_t * page)
 }
 
 static jiukun_page_t * _expand(
-    buddy_zone_t * zone,
-    jiukun_page_t * page, olint_t low, olint_t high, free_area_t * area)
+    buddy_zone_t * zone, jiukun_page_t * page, olint_t low, olint_t high, free_area_t * area)
 {
     ulong size = 1 << high;
 
@@ -249,8 +248,7 @@ static u32 _createBuddyZone(
         pbz->bz_u32FreePages = pbz->bz_u32NumOfPage;
 
         u32Ret = jf_mem_calloc(
-            (void **)&(pbz->bz_papPage),
-            pbz->bz_u32NumOfPage * sizeof(jiukun_page_t));
+            (void **)&(pbz->bz_papPage), pbz->bz_u32NumOfPage * sizeof(jiukun_page_t));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -268,8 +266,7 @@ static u32 _createBuddyZone(
             &(pbz->bz_papPage[0].jp_jlLru));
 
         u32Ret = jf_mem_alloc(
-            (void **)&(pbz->bz_pu8Pool),
-            pbz->bz_u32NumOfPage * BUDDY_PAGE_SIZE);
+            (void **)&(pbz->bz_pu8Pool), pbz->bz_u32NumOfPage * BUDDY_PAGE_SIZE);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -300,8 +297,7 @@ static jiukun_page_t * _allocPages(
     for (u32Index = 0; u32Index < piab->ijb_u32NumOfZone; u32Index ++)
     {
         pbz = piab->ijb_pbzZone[u32Index];
-        if ((pbz->bz_u32FreePages >= u32Pages) &&
-            (u32Left > pbz->bz_u32FreePages - u32Pages))
+        if ((pbz->bz_u32FreePages >= u32Pages) && (u32Left > pbz->bz_u32FreePages - u32Pages))
         {
             u32Left = pbz->bz_u32FreePages - u32Pages;
             u32Id = u32Index;
@@ -316,7 +312,7 @@ static jiukun_page_t * _allocPages(
     }
 
     /*maximum zone is reached*/
-    if (piab->ijb_u32NumOfZone == MAX_BUDDY_ZONES || piab->ijb_bNoGrow)
+    if ((piab->ijb_u32NumOfZone == MAX_BUDDY_ZONES) || piab->ijb_bNoGrow)
         return NULL;
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -341,9 +337,10 @@ static jiukun_page_t * _allocPages(
 static void _dumpBuddyZone(buddy_zone_t * pbz)
 {
     u32 u32Index;
-    free_area_t * pfa;
-    jf_listhead_t * pjl;
-    jiukun_page_t * pap;
+    free_area_t * pfa = NULL;
+    jf_listhead_t * pjl = NULL;
+    jiukun_page_t * pap = NULL;
+    boolean_t bNoErrMsg = FALSE;
 
     jf_logger_logInfoMsg("  max page: %u, %p", pbz->bz_u32NumOfPage, pbz->bz_papPage);
     jf_logger_logInfoMsg("  free page: %u", pbz->bz_u32FreePages);
@@ -365,8 +362,9 @@ static void _dumpBuddyZone(buddy_zone_t * pbz)
             }
         }
 
-        if ((u32Index < pbz->bz_u32MaxOrder - 1) && (pfa->fa_u32Free != 0))
+        if ((u32Index < pbz->bz_u32MaxOrder - 1) && (pfa->fa_u32Free != 0) && (! bNoErrMsg))
         {
+            bNoErrMsg = TRUE;
             jf_logger_logErrMsg(JF_ERR_JIUKUN_MEMORY_LEAK, "buddy page not free");
         }
     }
@@ -490,7 +488,7 @@ u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, jf_flag_t flag)
     assert(ppPage != NULL);
 
 #if defined(DEBUG_JIUKUN)
-    jf_logger_logInfoMsg("get aehter page, order: %u, flag 0x%llX", u32Order, flag);
+    jf_logger_logDebugMsg("get jiukun page, order: %u, flag 0x%llX", u32Order, flag);
 #endif
 
     *ppPage = NULL;
@@ -524,7 +522,7 @@ u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, jf_flag_t flag)
         setJpAllocated(pap);
         *ppPage = pap;
 #if defined(DEBUG_JIUKUN)
-        jf_logger_logInfoMsg("get aehter page, page addr: %p", pap);
+        jf_logger_logDebugMsg("get jiukun page, page: %p", pap);
 #endif
     }
 

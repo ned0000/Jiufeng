@@ -6,6 +6,10 @@
  *  @author Min Zhang
  *
  *  @note Routines declared in this file are included in jf_jiukun library
+ *  @note If DEBUG_JIUFENG is equal to "yes", the debug function of jiukun library is enabled.
+ *   When enabled, double free jiukun memory and free unallocated jiukun memory can be detected and
+ *   the library will abort. If jiukun memory is allocated but not freed, an error mesage will be
+ *   logged when the cache or page is destroyed.
  *
  */
 
