@@ -23,25 +23,43 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+typedef enum
+{
+    TEST_JIUKUN_TARGET_UNKNOWN = 0,
+    TEST_JIUKUN_TARGET_PAGE,
+    TEST_JIUKUN_TARGET_MEMORY,
+    TEST_JIUKUN_TARGET_OBJECT,
+} test_jiukun_target_t;
+
 #define MAX_THREAD_COUNT  2
 
 static boolean_t ls_bToTerminate = FALSE;
 
 boolean_t ls_bMultiThread = FALSE;
 boolean_t ls_bStress = FALSE;
-boolean_t ls_bDoubleFreeMemory = FALSE;
-boolean_t ls_bDoubleFreePage = FALSE;
+
+u8 ls_u8TestTarget = TEST_JIUKUN_TARGET_UNKNOWN;
+
+boolean_t ls_bDoubleFree = FALSE;
+boolean_t ls_bUnallocatedFree = FALSE;
+boolean_t ls_bAllocateWithoutFree = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
 static void _printUsage(void)
 {
     ol_printf("\
-Usage: jiukun-test [-t] [-s] [-d] [logger options]\n\
+Usage: jiukun-test [-t] [-s] [-j page|memory|object] [allocate without free] \n\
+    [double free option] [unallocated free option] [logger options]\n\
     -t test in multi-threading environment.\n\
     -s stress testing.\n\
-    -m test double free memory.\n\
-    -p test double free page.\n\
+    -j specify the test target.\n\
+double free option:\n\
+    -d test double free.\n\
+unallocated free option:\n\
+    -u test unallocated free.\n\
+allocate without free:\n\
+    -w test allocate without free.\n\
 logger options:\n\
     -T <0|1|2|3> the log level. 0: no log, 1: error only, 2: info, 3: all.\n\
     -F <log file> the log file.\n\
@@ -56,8 +74,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
     olint_t nOpt;
     u32 u32Value;
 
-    while (((nOpt = getopt(argc, argv,
-        "tsmpOT:F:S:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "wj:tsduOT:F:S:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -66,17 +83,28 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
             _printUsage();
             exit(u32Ret);
             break;
+        case 'j':
+            if (ol_strcmp(optarg, "page") == 0)
+                ls_u8TestTarget = TEST_JIUKUN_TARGET_PAGE;
+            else if (ol_strcmp(optarg, "memory") == 0)
+                ls_u8TestTarget = TEST_JIUKUN_TARGET_MEMORY;
+            else if (ol_strcmp(optarg, "object") == 0)
+                ls_u8TestTarget = TEST_JIUKUN_TARGET_OBJECT;
+            break;
         case 't':
             ls_bMultiThread = TRUE;
             break;
         case 's':
             ls_bStress = TRUE;
             break;
-        case 'm':
-            ls_bDoubleFreeMemory = TRUE;
+        case 'd':
+            ls_bDoubleFree = TRUE;
             break;
-        case 'p':
-            ls_bDoubleFreePage = TRUE;
+        case 'u':
+            ls_bUnallocatedFree = TRUE;
+            break;
+        case 'w':
+            ls_bAllocateWithoutFree = TRUE;
             break;
         case 'T':
             if (sscanf(optarg, "%d", &u32Value) == 1)
@@ -431,6 +459,27 @@ static u32 _testJiukunInThread(void)
     return u32Ret;
 }
 
+static u32 _testJiukunDoubleFreePage(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    u8 * pu8Buf = NULL, * pu8Temp = NULL;
+
+    ol_printf("testing double free page\n");
+
+    u32Ret = jf_jiukun_allocPage((void **)&pu8Buf, 1, 0);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        pu8Temp = pu8Buf;
+        ol_printf("free the page\n");
+        jf_jiukun_freePage((void **)&pu8Buf);
+
+        ol_printf("double free the page\n");
+        jf_jiukun_freePage((void **)&pu8Temp);
+    }
+
+    return u32Ret;
+}
+
 static u32 _testJiukunDoubleFreeMemory(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -452,23 +501,200 @@ static u32 _testJiukunDoubleFreeMemory(void)
     return u32Ret;
 }
 
-static u32 _testJiukunDoubleFreePage(void)
+static u32 _testJiukunDoubleFreeObject(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u8 * pu8Buf = NULL, * pu8Temp = NULL;
+    jf_jiukun_cache_create_param_t jjccp;
+    jf_jiukun_cache_t * cache;
+    void * object = NULL, * pTemp = NULL;
 
-    ol_printf("testing double free page\n");
+    ol_printf("testing double free object\n");
 
+    ol_printf("create jiukun cache\n");
+    ol_memset(&jjccp, 0, sizeof(jjccp));
+    jjccp.jjccp_pstrName = "jiukun-test";
+    jjccp.jjccp_sObj = 16;
+    JF_FLAG_SET(jjccp.jjccp_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO);
+
+    u32Ret = jf_jiukun_createCache(&cache, &jjccp);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = jf_jiukun_allocObject(cache, &object);
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            pTemp = object;
+
+            ol_printf("free the object\n");
+            jf_jiukun_freeObject(cache, &object);
+
+            ol_printf("double free the object\n");
+            jf_jiukun_freeObject(cache, &pTemp);
+        }
+
+        jf_jiukun_destroyCache(&cache);
+    }
+
+    return u32Ret;
+}
+
+static u32 _testJiukunDoubleFree(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    if (ls_u8TestTarget == TEST_JIUKUN_TARGET_PAGE)
+        u32Ret = _testJiukunDoubleFreePage();
+    else if (ls_u8TestTarget == TEST_JIUKUN_TARGET_MEMORY)
+        u32Ret = _testJiukunDoubleFreeMemory();
+    else if (ls_u8TestTarget == TEST_JIUKUN_TARGET_OBJECT)
+        u32Ret = _testJiukunDoubleFreeObject();
+
+    return u32Ret;
+}
+
+static u32 _testJiukunUnallocatedFreePage(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    u8 * pu8Buf = (u8 *)0x7f7cbf437060;
+
+    ol_printf("testing unallocated free page\n");
+
+    ol_printf("free the unallocated page\n");
+    jf_jiukun_freePage((void **)&pu8Buf);
+
+    return u32Ret;
+}
+
+static u32 _testJiukunUnallocatedFreeMemory(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    u8 * pu8Buf = (u8 *)0x7fdfe85af0f0;
+
+    ol_printf("testing unallocated free memory\n");
+
+    ol_printf("free the unallocated memeory\n");
+    jf_jiukun_freeMemory((void **)&pu8Buf);
+
+    return u32Ret;
+}
+
+static u32 _testJiukunUnallocatedFreeObject(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_jiukun_cache_create_param_t jjccp;
+    jf_jiukun_cache_t * cache;
+    void * object = (void *)0x7fd8f881f1f0;
+
+    ol_printf("testing unallocated free object\n");
+
+    ol_printf("create jiukun cache\n");
+    ol_memset(&jjccp, 0, sizeof(jjccp));
+    jjccp.jjccp_pstrName = "jiukun-test";
+    jjccp.jjccp_sObj = 16;
+    JF_FLAG_SET(jjccp.jjccp_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO);
+
+    u32Ret = jf_jiukun_createCache(&cache, &jjccp);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_printf("free the unallocated object\n");
+        jf_jiukun_freeObject(cache, &object);
+
+        jf_jiukun_destroyCache(&cache);
+    }
+
+    return u32Ret;
+}
+
+static u32 _testJiukunUnallocatedFree(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    if (ls_u8TestTarget == TEST_JIUKUN_TARGET_PAGE)
+        u32Ret = _testJiukunUnallocatedFreePage();
+    else if (ls_u8TestTarget == TEST_JIUKUN_TARGET_MEMORY)
+        u32Ret = _testJiukunUnallocatedFreeMemory();
+    else if (ls_u8TestTarget == TEST_JIUKUN_TARGET_OBJECT)
+        u32Ret = _testJiukunUnallocatedFreeObject();
+
+    return u32Ret;
+}
+
+static u32 _testJiukunAllocateWithoutFreePage(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    u8 * pu8Buf = NULL;
+
+    ol_printf("testing allocate without free page\n");
+
+    ol_printf("allocate page\n");
     u32Ret = jf_jiukun_allocPage((void **)&pu8Buf, 1, 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        pu8Temp = pu8Buf;
-        ol_printf("free the page\n");
-        jf_jiukun_freePage((void **)&pu8Buf);
 
-        ol_printf("double free the page\n");
-        jf_jiukun_freePage((void **)&pu8Temp);
     }
+
+    return u32Ret;
+}
+
+static u32 _testJiukunAllocateWithoutFreeMemory(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    u8 * pu8Buf = NULL;
+
+    ol_printf("testing allocate without free memory\n");
+
+    ol_printf("allocate memory\n");
+    u32Ret = jf_jiukun_allocMemory((void **)&pu8Buf, 64, 0);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+
+    }
+
+    return u32Ret;
+}
+
+static u32 _testJiukunAllocateWithoutFreeObject(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_jiukun_cache_create_param_t jjccp;
+    jf_jiukun_cache_t * cache;
+    void * object = NULL;
+
+    ol_printf("testing allocate without free object\n");
+
+    ol_printf("create jiukun cache\n");
+    ol_memset(&jjccp, 0, sizeof(jjccp));
+    jjccp.jjccp_pstrName = "jiukun-test";
+    jjccp.jjccp_sObj = 16;
+    JF_FLAG_SET(jjccp.jjccp_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO);
+
+    u32Ret = jf_jiukun_createCache(&cache, &jjccp);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_printf("allocate object\n");
+
+        u32Ret = jf_jiukun_allocObject(cache, &object);
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+
+        }
+
+        ol_printf("destroy cache\n");
+        jf_jiukun_destroyCache(&cache);
+    }
+
+    return u32Ret;
+}
+
+static u32 _testJiukunAllocateWithoutFree(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    if (ls_u8TestTarget == TEST_JIUKUN_TARGET_PAGE)
+        u32Ret = _testJiukunAllocateWithoutFreePage();
+    else if (ls_u8TestTarget == TEST_JIUKUN_TARGET_MEMORY)
+        u32Ret = _testJiukunAllocateWithoutFreeMemory();
+    else if (ls_u8TestTarget == TEST_JIUKUN_TARGET_OBJECT)
+        u32Ret = _testJiukunAllocateWithoutFreeObject();
 
     return u32Ret;
 }
@@ -571,10 +797,12 @@ olint_t main(olint_t argc, olchar_t ** argv)
                 u32Ret = _testJiukunInThread();
             else if (ls_bStress)
                 u32Ret = _stressJiukun();
-            else if (ls_bDoubleFreeMemory)
-                u32Ret = _testJiukunDoubleFreeMemory();
-            else if (ls_bDoubleFreePage)
-                u32Ret = _testJiukunDoubleFreePage();
+            else if (ls_bDoubleFree)
+                u32Ret = _testJiukunDoubleFree();
+            else if (ls_bUnallocatedFree)
+                u32Ret = _testJiukunUnallocatedFree();
+            else if (ls_bAllocateWithoutFree)
+                u32Ret = _testJiukunAllocateWithoutFree();
             else
                 u32Ret = _baseJiukunFunc();
 

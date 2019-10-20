@@ -361,9 +361,13 @@ static void _dumpBuddyZone(buddy_zone_t * pbz)
             jf_listhead_forEach(&(pfa->fa_jlFree), pjl)
             {
                 pap = jf_listhead_getEntry(pjl, jiukun_page_t, jp_jlLru);
-                jf_logger_logInfoMsg(
-                    "        %u, %p", pageToIndex(pap, pbz->bz_papPage), pap);
+                jf_logger_logInfoMsg("        %u, %p", pageToIndex(pap, pbz->bz_papPage), pap);
             }
+        }
+
+        if ((u32Index < pbz->bz_u32MaxOrder - 1) && (pfa->fa_u32Free != 0))
+        {
+            jf_logger_logErrMsg(JF_ERR_JIUKUN_MEMORY_LEAK, "buddy page not free");
         }
     }
 }
@@ -539,12 +543,12 @@ void putJiukunPage(jiukun_page_t ** ppPage)
     u32Order = getJpOrder((*ppPage));
 
 #if defined(DEBUG_JIUKUN)
-    jf_logger_logInfoMsg("put aehter page, paga addr: %p, order: %u", *ppPage, u32Order);
+    jf_logger_logInfoMsg("put jiukun page, paga addr: %p, order: %u", *ppPage, u32Order);
 #endif
 
     if (! isJpAllocated((*ppPage)))
     {
-        jf_logger_logErrMsg(JF_ERR_JIUKUN_FREE_UNALLOCATED_PAGE, "Free an unallocated page");
+        jf_logger_logErrMsg(JF_ERR_JIUKUN_FREE_UNALLOCATED, "put jiukun page");
         abort();
     }
 
@@ -589,7 +593,11 @@ jiukun_page_t * addrToJiukunPage(void * pAddr)
             break;
     }
 
-    assert(u32Index != piab->ijb_u32NumOfZone);
+    if (u32Index == piab->ijb_u32NumOfZone)
+    {
+        jf_logger_logErrMsg(JF_ERR_JIUKUN_BAD_POINTER, "addr to page");
+        abort();
+    }
 
     return pbz->bz_papPage + ((u8 *)pAddr - pbz->bz_pu8Pool) / BUDDY_PAGE_SIZE;
 }

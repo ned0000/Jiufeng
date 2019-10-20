@@ -154,8 +154,8 @@ typedef struct slab_cache
 /** Magic nums for obj red zoning.
  *  Placed in the first word before and the first word after an obj.
  */
-#define RED_MAGIC1  0x5A2CF071UL    /* when obj is allocated */
-#define RED_MAGIC2  0x170FC2A5UL    /* when obj is freed */
+#define RED_MAGIC1  0x5A2CF071UL    /* when obj is active */
+#define RED_MAGIC2  0x170FC2A5UL    /* when obj is inactive */
 
 #endif
 
@@ -346,7 +346,7 @@ static inline void * _allocOneObjFromTail(slab_cache_t * pCache, slab_t * slabp)
         if ((*((ulong *)(objp)) != RED_MAGIC1) ||
             (*((ulong *)(objp + pCache->sc_u32ObjSize - SLAB_ALIGN_SIZE)) != RED_MAGIC1))
         {
-            jf_logger_logInfoMsg("Invalid red zone");
+            jf_logger_logErrMsg(JF_ERR_JIUKUN_MEMORY_CORRUPTED, "Invalid red zone");
             abort();
         }
 
@@ -538,8 +538,7 @@ static inline u32 _allocObj(
 }
 
 #if DEBUG_JIUKUN
-static olint_t _extraFreeChecks (slab_cache_t * pCache,
-    slab_t * slabp, u8 * objp)
+static olint_t _extraFreeChecks(slab_cache_t * pCache, slab_t * slabp, u8 * objp)
 {
     olint_t i;
     u32 objnr = (objp - (u8 *)slabp->s_pMem) / pCache->sc_u32ObjSize;
@@ -555,7 +554,7 @@ static olint_t _extraFreeChecks (slab_cache_t * pCache,
     {
         if (i == objnr)
         {
-            jf_logger_logInfoMsg("Double free is detected");
+            jf_logger_logErrMsg(JF_ERR_JIUKUN_DOUBLE_FREE, "extra free check");
             abort();
         }
     }
@@ -591,7 +590,7 @@ static inline void _freeOneObj(
         if ((*((ulong *)(objp)) != RED_MAGIC2) ||
             (*((ulong *)(objp + pCache->sc_u32ObjSize - SLAB_ALIGN_SIZE)) != RED_MAGIC2))
         {
-            jf_logger_logInfoMsg("Free an unallocated memory");
+            jf_logger_logErrMsg(JF_ERR_JIUKUN_FREE_UNALLOCATED, "red zone check");
             abort();
         }
 
