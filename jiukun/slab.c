@@ -339,7 +339,6 @@ static inline void * _allocOneObjFromTail(slab_cache_t * pCache, slab_t * slabp)
     }
 
 #if DEBUG_JIUKUN
-
     if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
     {
         /* check old one. */
@@ -430,7 +429,7 @@ static u32 _growSlabCache(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
 #if DEBUG_JIUKUN
-        jf_logger_logInfoMsg("grow cache, %p", objp);
+        jf_logger_logInfoMsg("grow cache, addr: %p", objp);
 #endif
         /* Get slab management. */
         slabp = _slabMgmt(pijs, pCache, objp);
@@ -971,6 +970,33 @@ static olint_t _shrinkSlabCache(
     return ret;
 }
 
+#if DEBUG_JIUKUN
+static void * _getMemoryEndAddr(internal_jiukun_slab_t * pijs, void * pMem)
+{
+    void * pRet = NULL;
+    jiukun_page_t * pap = NULL;
+    slab_cache_t * pCache = NULL;
+    slab_t * slabp = NULL;
+    u32 objnr = 0;
+
+    pap = addrToJiukunPage(pMem);
+    pCache = GET_PAGE_CACHE(pap);
+    slabp = GET_PAGE_SLAB(pap);
+
+    objnr = (pMem - slabp->s_pMem) / pCache->sc_u32ObjSize;
+    /*start address of the memory*/
+    pRet = (u8 *)slabp->s_pMem + objnr * pCache->sc_u32ObjSize;
+
+    /*end address of the memory*/
+    pRet += pCache->sc_u32RealObjSize;
+
+    if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
+        pRet += SLAB_ALIGN_SIZE;
+
+    return pRet;
+}
+#endif
+
 /* --- public routine section ------------------------------------------------------------------- */
 u32 initJiukunSlab(slab_param_t * psp)
 {
@@ -1213,7 +1239,7 @@ void jf_jiukun_freeMemory(void ** pptr)
     _freeObj(pijs, pCache, pptr);
 }
 
-u32 jf_jiukun_copyMemory(void ** pptr, u8 * pu8Buffer, olsize_t size)
+u32 jf_jiukun_cloneMemory(void ** pptr, const u8 * pu8Buffer, olsize_t size)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -1224,6 +1250,33 @@ u32 jf_jiukun_copyMemory(void ** pptr, u8 * pu8Buffer, olsize_t size)
     {
         ol_memcpy(*pptr, pu8Buffer, size);
     }
+
+    return u32Ret;
+}
+
+u32 jf_jiukun_memcpy(void * pDest, const void * pSource, olsize_t size)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+#if DEBUG_JIUKUN
+    internal_jiukun_slab_t * pijs = &ls_iasSlab;
+    void * pEnd = pDest + size; 
+    void * pMemEnd = NULL;
+
+    assert((pDest != NULL) && (pSource != NULL) && (size > 0));
+
+    pMemEnd = _getMemoryEndAddr(pijs, pDest);
+    if (pEnd > pMemEnd)
+    {
+        jf_logger_logErrMsg(JF_ERR_JIUKUN_MEMORY_OUT_OF_BOUND, "jiukun memcpy");
+        abort();
+    }
+    else
+    {
+        ol_memcpy(pDest, pSource, size);
+    }
+#else
+    ol_memcpy(pDest, pSource, size);
+#endif
 
     return u32Ret;
 }

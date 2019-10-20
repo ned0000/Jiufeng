@@ -39,6 +39,7 @@ static boolean_t ls_bToTerminate = FALSE;
 
 boolean_t ls_bMultiThread = FALSE;
 boolean_t ls_bStress = FALSE;
+boolean_t ls_bOutOfBound = FALSE;
 
 u8 ls_u8TestTarget = TEST_JIUKUN_TARGET_UNKNOWN;
 
@@ -52,7 +53,7 @@ static void _printUsage(void)
 {
     ol_printf("\
 Usage: jiukun-test [-t] [-j page|memory|object] [stress testing option] [allocate without free] \n\
-    [double free option] [unallocated free option] [logger options]\n\
+    [double free option] [unallocated free option] [out of bound option] [logger options]\n\
     -t test in multi-threading environment.\n\
     -j specify the test target.\n\
 double free option:\n\
@@ -61,6 +62,8 @@ unallocated free option:\n\
     -u test unallocated free.\n\
 allocate without free:\n\
     -w test allocate without free.\n\
+out of bound option:\n\
+    -b test out of bound.\n\
 stress testing option:\n\
     -s stress testing.\n\
 logger options:\n\
@@ -78,7 +81,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
     olint_t nOpt;
     u32 u32Value;
 
-    while (((nOpt = getopt(argc, argv, "wj:tsduOT:F:S:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "bwj:tsduOT:F:S:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -100,6 +103,9 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
             break;
         case 's':
             ls_bStress = TRUE;
+            break;
+        case 'b':
+            ls_bOutOfBound = TRUE;
             break;
         case 'd':
             ls_bDoubleFree = TRUE;
@@ -702,6 +708,27 @@ static u32 _testJiukunAllocateWithoutFree(void)
     return u32Ret;
 }
 
+static u32 _testJiukunOutOfBound(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    void * pMem = NULL;
+    olsize_t size = 32;
+
+    ol_printf("allocate jiukun memory\n");
+    u32Ret = jf_jiukun_allocMemory((void **)&pMem, size, 0);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_bzero(pMem, size);
+        jf_jiukun_memcpy(pMem, "12345678901234567890123456789012", 33);
+
+        ol_printf("mem: %s\n", (olchar_t *)pMem);
+
+        jf_jiukun_freeMemory((void **)&pMem);
+    }
+
+    return u32Ret;
+}
+
 static u32 _baseJiukunFunc(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -803,6 +830,8 @@ olint_t main(olint_t argc, olchar_t ** argv)
                 u32Ret = _testJiukunUnallocatedFree();
             else if (ls_bAllocateWithoutFree)
                 u32Ret = _testJiukunAllocateWithoutFree();
+            else if (ls_bOutOfBound)
+                u32Ret = _testJiukunOutOfBound();
             else
                 u32Ret = _baseJiukunFunc();
 
