@@ -14,7 +14,7 @@ TOPDIR := $(shell /bin/pwd)
 
 export TOPDIR
 
-SUBDIRS = jiutai logger stringparse files ifmgmt jiukun crypto encode uuid \
+SUBDIRS = jiutai logger jiukun stringparse files ifmgmt crypto encode uuid \
     persistency archive xmlparser httpparser network webclient clieng  \
     matrix servmgmt cli test
 

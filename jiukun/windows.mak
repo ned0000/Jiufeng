@@ -16,8 +16,7 @@ RESOURCE = jiukun
 
 SOURCES = buddy.c slab.c mempool.c jiukun.c
 
-JIUTAISRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\jf_mutex.c \
-             $(JIUTAI_DIR)\waitqueue.c $(JIUTAI_DIR)\jf_sem.c
+JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\jf_mutex.c
 
 EXTRA_DEFS = -DJIUFENG_JIUKUN_DLL
 
@@ -25,6 +24,8 @@ EXTRA_LIBS = jf_logger.lib
 
 !if "$(DEBUG_JIUFENG)" == "yes"
 EXTRA_CFLAGS = -DDEBUG_JIUKUN
+EXTRA_CFLAGS += -DDEBUG_JIUKUN_STAT
+EXTRA_CFLAGS += -DDEBUG_JIUKUN_VERBOSE
 !endif
 
 !include "$(TOPDIR)\mak\winlib.mak"

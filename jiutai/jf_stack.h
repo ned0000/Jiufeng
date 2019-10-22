@@ -85,6 +85,22 @@ void * jf_stack_peek(jf_stack_t ** ppStack);
  */
 void jf_stack_clear(jf_stack_t ** ppStack);
 
+/** Create cache for stack node
+ *
+ *  @note Cache should be created before other functions
+ *
+ *  @return the error code
+ */
+u32 jf_stack_createCache(void);
+
+
+/** Destroy cache for stack node
+ *
+ *  @return the error code
+ */
+u32 jf_stack_destroyCache(void);
+
+
 #endif /*JIUTAI_STACK_H*/
 
 /*------------------------------------------------------------------------------------------------*/
