@@ -119,7 +119,8 @@ u32 jf_stack_destroyCache(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = jf_jiukun_destroyCache(&ls_pjjcStackNodeCache);
+    if (ls_pjjcStackNodeCache != NULL)
+        u32Ret = jf_jiukun_destroyCache(&ls_pjjcStackNodeCache);
 
     return u32Ret;
 }

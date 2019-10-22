@@ -27,10 +27,11 @@
 #include "jf_mem.h"
 #include "jf_err.h"
 #include "jf_queue.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-
+static jf_jiukun_cache_t * ls_pjjcQueueNodeCache = NULL;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
@@ -53,7 +54,7 @@ void jf_queue_fini(jf_queue_t * pQueue)
     while (temp != NULL)
     {
         pjqn = temp->jqn_pjqnNext;
-        jf_mem_free((void **)&temp);
+        jf_jiukun_freeObject(ls_pjjcQueueNodeCache, (void **)&temp);
         temp = pjqn;
     }
 }
@@ -72,7 +73,7 @@ void jf_queue_finiQueueAndData(
 
         fnFreeData(&(temp->jqn_pData));
 
-        jf_mem_free((void **)&temp);
+        jf_jiukun_freeObject(ls_pjjcQueueNodeCache, (void **)&temp);
         temp = pjqn;
     }
 }
@@ -87,7 +88,7 @@ u32 jf_queue_enqueue(jf_queue_t * pQueue, void * data)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_queue_node_t * pjqn;
 
-    u32Ret = jf_mem_calloc((void **)&pjqn, sizeof(jf_queue_node_t));
+    u32Ret = jf_jiukun_allocObject(ls_pjjcQueueNodeCache, (void **)&pjqn);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pjqn->jqn_pData = data;
@@ -112,7 +113,7 @@ u32 jf_queue_enqueue(jf_queue_t * pQueue, void * data)
 
 void * jf_queue_dequeue(jf_queue_t * pQueue)
 {
-    jf_queue_node_t * temp;
+    jf_queue_node_t * temp = NULL;
     void * retval = NULL;
 
     assert(pQueue != NULL);
@@ -127,7 +128,7 @@ void * jf_queue_dequeue(jf_queue_t * pQueue)
     {
         pQueue->jq_pjqnTail = NULL;
     }
-    jf_mem_free((void **)&temp);
+    jf_jiukun_freeObject(ls_pjjcQueueNodeCache, (void **)&temp);
 
     return retval;
 }
@@ -138,6 +139,31 @@ void * jf_queue_peek(jf_queue_t * pQueue)
         return NULL;
     else
         return pQueue->jq_pjqnHead->jqn_pData;
+}
+
+u32 jf_queue_createCache(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_jiukun_cache_create_param_t jjccp;
+
+    ol_bzero(&jjccp, sizeof(jjccp));
+    jjccp.jjccp_pstrName = "QueueCache";
+    jjccp.jjccp_sObj = sizeof(jf_queue_node_t);
+    JF_FLAG_SET(jjccp.jjccp_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO);
+
+    u32Ret = jf_jiukun_createCache(&ls_pjjcQueueNodeCache, &jjccp);
+
+    return u32Ret;
+}
+
+u32 jf_stack_destroyCache(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    if (ls_pjjcQueueNodeCache != NULL)
+        u32Ret = jf_jiukun_destroyCache(&ls_pjjcQueueNodeCache);
+
+    return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/

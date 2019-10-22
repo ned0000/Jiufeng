@@ -6,7 +6,7 @@
  *  @author Min Zhang
  *
  *  @note Routines declared in this file are included in jf_queue object
- *  @note Link with xmalloc object file
+ *  @note Link with jf_jiukun library for cache
  *  @note The object is not thread safe
  *  
  */
@@ -98,6 +98,20 @@ void * jf_queue_dequeue(jf_queue_t * pQueue);
  *  @return the queue entry
  */
 void * jf_queue_peek(jf_queue_t * pQueue);
+
+/** Create cache for queue node
+ *
+ *  @note Cache should be created before using other functions
+ *
+ *  @return the error code
+ */
+u32 jf_queue_createCache(void);
+
+/** Destroy cache for queue node
+ *
+ *  @return the error code
+ */
+u32 jf_queue_destroyCache(void);
 
 #endif /*JIUTAI_QUEUE_H*/
 
