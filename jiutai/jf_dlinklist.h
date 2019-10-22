@@ -6,7 +6,7 @@
  *  @author Min Zhang
  *
  *  @note Routines declared in this file are included in jf_dlinklist object
- *  @note Link with xmalloc object file
+ *  @note Link with jiukun library
  *  @note This object is not thread safe
  *  
  */
@@ -56,15 +56,13 @@ void jf_dlinklist_removeAllNodes(
     jf_dlinklist_t * pList, jf_dlinklist_fnFreeNodeData_t fnFreeData);
 
 u32 jf_dlinklist_findFirstData(
-    jf_dlinklist_t * pList, void ** ppData,
-    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey);
+    jf_dlinklist_t * pList, void ** ppData, jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey);
 
 u32 jf_dlinklist_findLastData(
-    jf_dlinklist_t * pList, void ** ppData,
-    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey);
+    jf_dlinklist_t * pList, void ** ppData, jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey);
 
-u32 jf_dlinklist_findFirstNode(jf_dlinklist_t * pList,
-    jf_dlinklist_node_t ** ppNode,
+u32 jf_dlinklist_findFirstNode(
+    jf_dlinklist_t * pList, jf_dlinklist_node_t ** ppNode,
     jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey);
 
 u32 jf_dlinklist_findLastNode(
@@ -81,6 +79,20 @@ u32 jf_dlinklist_findPrevNode(
 
 u32 jf_dlinklist_appendTo(jf_dlinklist_t * pList, void * pData);
 
+/** Create cache for dlinklist node
+ *
+ *  @note Cache should be created before using other functions
+ *
+ *  @return the error code
+ */
+u32 jf_dlinklist_createCache(void);
+
+/** Destroy cache for dlinklist node
+ *
+ *  @return the error code
+ */
+u32 jf_dlinklist_destroyCache(void);
+
 /**
  *  Get data from the linked node
  */
@@ -92,8 +104,7 @@ static inline void * jf_dlinklist_getDataFromNode(jf_dlinklist_node_t * pNode)
 /**
  *  Get the first node of double linked list
  */
-static inline jf_dlinklist_node_t * jf_dlinklist_getFirstNode(
-    jf_dlinklist_t * pList)
+static inline jf_dlinklist_node_t * jf_dlinklist_getFirstNode(jf_dlinklist_t * pList)
 {
     return pList->jd_pjdnHead;
 }
@@ -101,8 +112,7 @@ static inline jf_dlinklist_node_t * jf_dlinklist_getFirstNode(
 /**
  *  Get the last node of the double linked list
  */
-static inline jf_dlinklist_node_t * jf_dlinklist_getLastNode(
-    jf_dlinklist_t * pList)
+static inline jf_dlinklist_node_t * jf_dlinklist_getLastNode(jf_dlinklist_t * pList)
 {
     return pList->jd_pjdnTail;
 }
@@ -110,8 +120,7 @@ static inline jf_dlinklist_node_t * jf_dlinklist_getLastNode(
 /**
  *  Get the next node of the specified node
  */
-static inline jf_dlinklist_node_t * jf_dlinklist_getNextNode(
-    jf_dlinklist_node_t * pNode)
+static inline jf_dlinklist_node_t * jf_dlinklist_getNextNode(jf_dlinklist_node_t * pNode)
 {
     return pNode->jdn_pjdnNext;
 }
@@ -119,8 +128,7 @@ static inline jf_dlinklist_node_t * jf_dlinklist_getNextNode(
 /**
  *  Get the previous node of the specified node
  */
-static inline jf_dlinklist_node_t * jf_dlinklist_getPrevNode(
-    jf_dlinklist_node_t * pNode)
+static inline jf_dlinklist_node_t * jf_dlinklist_getPrevNode(jf_dlinklist_node_t * pNode)
 {
     return pNode->jdn_pjdnPrev;
 }

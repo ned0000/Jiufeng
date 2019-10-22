@@ -24,13 +24,13 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "jf_mem.h"
 #include "jf_err.h"
 #include "jf_dlinklist.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-
+static jf_jiukun_cache_t * ls_pjjcDlinklistNodeCache = NULL;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
@@ -61,7 +61,7 @@ void jf_dlinklist_fini(jf_dlinklist_t * pList)
     while (pjdn != NULL)
     {
         pNode = pjdn->jdn_pjdnNext;
-        jf_mem_free((void **)&pjdn);
+        jf_jiukun_freeObject(ls_pjjcDlinklistNodeCache, (void **)&pjdn);
         pjdn = pNode;
     }
 
@@ -85,7 +85,7 @@ void jf_dlinklist_finiListAndData(
 
         fnFreeData(&(pjdn->jdn_pData));
 
-        jf_mem_free((void **)&pjdn);
+        jf_jiukun_freeObject(ls_pjjcDlinklistNodeCache, (void **)&pjdn);
         pjdn = pNode;
     }
 
@@ -109,7 +109,7 @@ void jf_dlinklist_removeAllNodes(
 
         fnFreeData(&(pjdn->jdn_pData));
 
-        jf_mem_free((void **)&pjdn);
+        jf_jiukun_freeObject(ls_pjjcDlinklistNodeCache, (void **)&pjdn);
         pjdn = pNode;
     }
 
@@ -308,7 +308,7 @@ u32 jf_dlinklist_appendTo(jf_dlinklist_t * pList, void * pData)
 
     assert(pList != NULL);
 
-    u32Ret = jf_mem_calloc((void **)&pNode, sizeof(jf_dlinklist_node_t));
+    u32Ret = jf_jiukun_allocObject(ls_pjjcDlinklistNodeCache, (void **)&pNode);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pNode->jdn_pData = pData;
@@ -325,6 +325,31 @@ u32 jf_dlinklist_appendTo(jf_dlinklist_t * pList, void * pData)
             pList->jd_pjdnTail = pNode;
         }
     }
+
+    return u32Ret;
+}
+
+u32 jf_dlinklist_createCache(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_jiukun_cache_create_param_t jjccp;
+
+    ol_bzero(&jjccp, sizeof(jjccp));
+    jjccp.jjccp_pstrName = "DlinklistCache";
+    jjccp.jjccp_sObj = sizeof(jf_dlinklist_node_t);
+    JF_FLAG_SET(jjccp.jjccp_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO);
+
+    u32Ret = jf_jiukun_createCache(&ls_pjjcDlinklistNodeCache, &jjccp);
+
+    return u32Ret;
+}
+
+u32 jf_dlinklist_destroyCache(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    if (ls_pjjcDlinklistNodeCache != NULL)
+        u32Ret = jf_jiukun_destroyCache(&ls_pjjcDlinklistNodeCache);
 
     return u32Ret;
 }
