@@ -50,7 +50,7 @@ typedef u32 (* jf_queue_fnFreeData_t)(void ** ppData);
  */
 void jf_queue_init(jf_queue_t * pQueue);
 
-/** Free the resources associated with a queue
+/** Finalize the queue
  *
  *  @param pQueue [in] The queue to finalize
  *  
@@ -58,8 +58,12 @@ void jf_queue_init(jf_queue_t * pQueue);
  */
 void jf_queue_fini(jf_queue_t * pQueue);
 
-/** Fini the queue and data
- * 
+/** Finalize the queue and data
+ *
+ *  @param pQueue [in] The linklist to finalize
+ *  @param fnFreeData [in] The call back function to free data
+ *
+ *  @return void
  */
 void jf_queue_finiQueueAndData(
     jf_queue_t * pQueue, jf_queue_fnFreeData_t fnFreeData);

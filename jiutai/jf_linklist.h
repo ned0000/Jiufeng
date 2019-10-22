@@ -6,7 +6,7 @@
  *  @author Min Zhang
  *
  *  @note Routines declared in this file are included in jf_linklist object
- *  @note Link with xmalloc object file
+ *  @note Link with jiukun library for cache
  *  @note This object is not thread safe
  *  
  */
@@ -41,22 +41,63 @@ typedef u32 (* jf_linklist_fnFreeNodeData_t)(void ** ppData);
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+/** Initialize an empty linklist
+ *
+ *  @param pList [in] the linklist to be initialized
+ *
+ *  @return void
+ */
 void jf_linklist_init(jf_linklist_t * pList);
 
+/** Finalize the linklist
+ *
+ *  @param pList [in] The linklist to finalize
+ *  
+ *  @return void
+ */
 void jf_linklist_fini(jf_linklist_t * pList);
 
+/** Finalize the linklist and data
+ *
+ *  @param pList [in] The linklist to finalize
+ *  @param fnFreeData [in] The call back function to free data
+ *
+ *  @return void
+ */
 void jf_linklist_finiListAndData(
     jf_linklist_t * pList, jf_linklist_fnFreeNodeData_t fnFreeData);
 
-/**
- *  Append to the tail of the linked list
+/** Append to the tail of the linked list
+ *
+ *  @param pList [in] The linklist to append data
+ *  @param pData [in] The data to be appended
+ *
+ *  @return the error code
  */
 u32 jf_linklist_appendTo(jf_linklist_t * pList, void * pData);
 
-/**
- *  Intert to the head of the linked list
+/** Intert to the head of the linked list
+ *
+ *  @param pList [in] The linklist to insert data
+ *  @param pData [in] The data to be inserted
+ *
+ *  @return the error code
  */
 u32 jf_linklist_insertTo(jf_linklist_t * pList, void * pData);
+
+/** Create cache for linklist node
+ *
+ *  @note Cache should be created before using other functions
+ *
+ *  @return the error code
+ */
+u32 jf_linklist_createCache(void);
+
+/** Destroy cache for linklist node
+ *
+ *  @return the error code
+ */
+u32 jf_linklist_destroyCache(void);
 
 static inline boolean_t jf_linklist_isEmpty(jf_linklist_t * pList)
 {
