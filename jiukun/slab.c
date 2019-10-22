@@ -1259,7 +1259,7 @@ u32 jf_jiukun_memcpy(void * pDest, const void * pSource, olsize_t size)
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if DEBUG_JIUKUN
     internal_jiukun_slab_t * pijs = &ls_iasSlab;
-    void * pEnd = pDest + size; 
+    void * pEnd = pDest + size;
     void * pMemEnd = NULL;
 
     assert((pDest != NULL) && (pSource != NULL) && (size > 0));
@@ -1276,6 +1276,33 @@ u32 jf_jiukun_memcpy(void * pDest, const void * pSource, olsize_t size)
     }
 #else
     ol_memcpy(pDest, pSource, size);
+#endif
+
+    return u32Ret;
+}
+
+u32 jf_jiukun_strncpy(olchar_t * pDest, const olchar_t * pSource, olsize_t size)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+#if DEBUG_JIUKUN
+    internal_jiukun_slab_t * pijs = &ls_iasSlab;
+    void * pEnd = pDest + size;
+    void * pMemEnd = NULL;
+
+    assert((pDest != NULL) && (pSource != NULL) && (size > 0));
+
+    pMemEnd = _getMemoryEndAddr(pijs, pDest);
+    if (pEnd > pMemEnd)
+    {
+        jf_logger_logErrMsg(JF_ERR_JIUKUN_MEMORY_OUT_OF_BOUND, "jiukun strncpy");
+        abort();
+    }
+    else
+    {
+        ol_strncpy(pDest, pSource, size);
+    }
+#else
+    ol_strncpy(pDest, pSource, size);
 #endif
 
     return u32Ret;

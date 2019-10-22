@@ -188,6 +188,9 @@ JIUKUNAPI u32 JIUKUNCALL jf_jiukun_cloneMemory(void ** pptr, const u8 * pu8Buffe
 
 JIUKUNAPI u32 JIUKUNCALL jf_jiukun_memcpy(void * pDest, const void * pSource, olsize_t size);
 
+JIUKUNAPI u32 JIUKUNCALL jf_jiukun_strncpy(
+    olchar_t * pDest, const olchar_t * pSource, olsize_t size);
+
 /*debug*/
 #if defined(DEBUG_JIUKUN)
 JIUKUNAPI void JIUKUNCALL jf_jiukun_dump(void);

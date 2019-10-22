@@ -719,7 +719,8 @@ static u32 _testJiukunOutOfBound(void)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pMem, size);
-        jf_jiukun_memcpy(pMem, "12345678901234567890123456789012", 33);
+//        pMem += 10;
+        jf_jiukun_strncpy(pMem, "12345678901234567890123456789012", 33);
 
         ol_printf("mem: %s\n", (olchar_t *)pMem);
 
