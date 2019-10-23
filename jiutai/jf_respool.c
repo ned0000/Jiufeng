@@ -19,7 +19,7 @@
 #include "jf_err.h"
 #include "jf_array.h"
 #include "jf_mutex.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -158,7 +158,7 @@ static u32 _destroyResourceInPool(
 
     u32Ret = pirp->irp_fnDestroyResource((jf_respool_resource_t *)pir, &pir->ir_pjrrdData);
     
-    jf_mem_free((void **)&pir);
+    jf_jiukun_freeMemory((void **)&pir);
 
     return u32Ret;
 }
@@ -252,7 +252,7 @@ static u32 _createResourceInPoolArray(
             u32Ret = _isMaxPoolResourcesReached(pirp, bFulltime);
 
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = jf_mem_alloc((void **)&pir, sizeof(internal_resource_t));
+            u32Ret = jf_jiukun_allocMemory((void **)&pir, sizeof(internal_resource_t), 0);
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
@@ -396,7 +396,7 @@ static u32 _createResourcePool(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_resource_pool_t * pirp;
 
-    u32Ret = jf_mem_alloc((void **)&pirp, sizeof(internal_resource_pool_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&pirp, sizeof(internal_resource_pool_t), 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(pirp, 0, sizeof(internal_resource_pool_t));
@@ -668,7 +668,7 @@ u32 jf_respool_destroy(jf_respool_t ** ppjr)
     u32Ret = jf_mutex_fini(&(pirp->irp_jmLock));
 
     /* free the resource pool */
-    jf_mem_free((void **)&pirp);
+    jf_jiukun_freeMemory((void **)&pirp);
 
     return u32Ret;
 }

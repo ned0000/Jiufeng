@@ -7,7 +7,8 @@
  *  @author Min Zhang
  *
  *  @note Routines declared in this file are included in jf_respool object
- *  @note link with common object: jf_mutex, jf_mem, jf_array
+ *  @note link with common object: jf_mutex, jf_array
+ *  @note link with jiukun library for memory allocation
  *  @note the object is thread safe
  *
  */
