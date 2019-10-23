@@ -5,14 +5,12 @@
  *
  *  @author Min Zhang
  *
- *  @note a menu has a series of entries, the entry has many attributes, like
- *  name, description, type, handler, etc. The entry may be a menu, if 
- *  that's the case, the entry has a child menu. 
- *  @note If the entry is a command, the selection of this entry will execute a 
- *  given routine.
- *  @note Every menu except root menu has at least 2 entries (the top menu 
- *  certainly has only one entry that is "exit"): "exit" and "up one 
- *  level". This 2 entries are built along with the creation of an entry.
+ *  @note a menu has a series of entries, the entry has many attributes, like name, description,
+ *   type, handler, etc. The entry may be a menu, if that's the case, the entry has a child menu. 
+ *  @note If the entry is a command, the selection of this entry will execute a given routine.
+ *  @note Every menu except root menu has at least 2 entries (the top menu certainly has only one
+ *   entry that is "exit"): "exit" and "up one level". This 2 entries are built along with the
+ *   creation of an entry.
  */
 
 #ifndef JIUTAI_MENU_H

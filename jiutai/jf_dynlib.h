@@ -1,13 +1,12 @@
 /**
  *  @file jf_dynlib.h
  *
- *  @brief Dynamic library header file. Provide some functional routine for
- *   dynamic library
+ *  @brief Dynamic library header file. Provide some functional routine for dynamic library
  *
  *  @author Min Zhang
  *
  *  @note Routines declared in this file are included in jf_dynlib object
- *  @note Link with jf_mem object file
+ *  @note Link with jf_jiukun library for memory allocation
  *  @note Link with dl library on Linux platform
  *  
  */

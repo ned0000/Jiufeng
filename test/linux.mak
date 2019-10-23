@@ -122,19 +122,18 @@ $(BIN_DIR)/conffile-test: conffile-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger -ljf_files
 
-$(BIN_DIR)/menu-test: menu-test.o $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_menu.o
+$(BIN_DIR)/menu-test: menu-test.o $(JIUTAI_DIR)/jf_menu.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_string
+       -o $@ $(SYSLIBS) -ljf_string -ljf_jiukun
 
 $(BIN_DIR)/crc-test: crc-test.o $(JIUTAI_DIR)/jf_crc.o \
        $(JIUTAI_DIR)/jf_hex.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
-$(BIN_DIR)/dynlib-test: dynlib-test.o $(JIUTAI_DIR)/jf_dynlib.o \
-       $(JIUTAI_DIR)/jf_mem.o
+$(BIN_DIR)/dynlib-test: dynlib-test.o $(JIUTAI_DIR)/jf_dynlib.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ldl -ljf_logger
+       -o $@ $(SYSLIBS) -ldl -ljf_logger -ljf_jiukun
 
 $(BIN_DIR)/sharedmemory-test-worker: sharedmemory-test-worker.o \
        $(JIUTAI_DIR)/jf_sharedmemory.o $(JIUTAI_DIR)/jf_mem.o

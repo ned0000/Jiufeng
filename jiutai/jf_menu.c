@@ -17,7 +17,7 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_menu.h"
 #include "jf_err.h"
 #include "jf_string.h"
@@ -145,17 +145,17 @@ static u32 _newMenuEntry(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_entry_t *pEntry;
 
-    u32Ret = jf_mem_alloc((void **)&pEntry, sizeof(internal_menu_entry_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&pEntry, sizeof(internal_menu_entry_t), 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(pEntry, 0, sizeof(internal_menu_entry_t));
+        ol_memset(pEntry, 0, sizeof(internal_menu_entry_t));
         pEntry->ime_u32Attribute = attr;
         pEntry->ime_imParent = pParent;
 
         u32Ret = jf_string_duplicate(&(pEntry->ime_pstrName), pstrName);
         if (u32Ret != JF_ERR_NO_ERROR)
         {
-            jf_mem_free((void **)&pEntry);
+            jf_jiukun_freeMemory((void **)&pEntry);
         }
         else
         {
@@ -164,8 +164,8 @@ static u32 _newMenuEntry(
                 u32Ret = jf_string_duplicate(&(pEntry->ime_pstrDesc), pstrDesc);
                 if (u32Ret != JF_ERR_NO_ERROR)
                 {
-                    jf_mem_free((void **)&(pEntry->ime_pstrName));
-                    jf_mem_free((void **)&pEntry);
+                    jf_jiukun_freeMemory((void **)&(pEntry->ime_pstrName));
+                    jf_jiukun_freeMemory((void **)&pEntry);
                 }
             }
         }
@@ -237,10 +237,10 @@ static u32 _newMenu(
     internal_menu_t *pMenu;
     internal_menu_entry_t *pEntry;
 
-    u32Ret = jf_mem_alloc((void **)&pMenu, sizeof(internal_menu_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&pMenu, sizeof(internal_menu_t), 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(pMenu, 0, sizeof(internal_menu_t));
+        ol_memset(pMenu, 0, sizeof(internal_menu_t));
 
         pMenu->im_fnPreShow = fnPreShow;
         pMenu->im_fnPostShow = fnPostShow;
@@ -261,14 +261,14 @@ static u32 _newMenu(
                 }
                 else
                 {
-                    jf_mem_free((void **)&pMenu);
+                    jf_jiukun_freeMemory((void **)&pMenu);
                     _destroyEntry(&pEntry);
                 }
             }
         }
         else
         {
-            jf_mem_free((void **)&pMenu);
+            jf_jiukun_freeMemory((void **)&pMenu);
         }
     }
 
