@@ -1,15 +1,14 @@
 /**
  *  @file jf_array.h
  *
- *  @brief Basic array header file. The array element can be the pointer to any
- *   type of data
+ *  @brief Basic array header file. The array element can be the pointer to any type of data
  *
  *  @author Min Zhang
  *
  *  @note Routines declared in this file are included in jf_array object
- *  @note It is NOT thread safe. The caller should provide synchronization for
- *   the array if necessary
- *  
+ *  @note It is NOT thread safe. The caller should provide synchronization for the array if
+ *   necessary
+ *  @note Link with jf_jiukun library
  */
 
 #ifndef JIUTAI_ARRAY_H

@@ -6,7 +6,7 @@
  *  @author Min Zhang
  *
  *  @note Routines declared in this file are included in jf_dlinklist object
- *  @note Link with jiukun library
+ *  @note Link with jiukun library for memory allocation
  *  @note This object is not thread safe
  *  
  */
@@ -78,20 +78,6 @@ u32 jf_dlinklist_findPrevNode(
     jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey);
 
 u32 jf_dlinklist_appendTo(jf_dlinklist_t * pList, void * pData);
-
-/** Create cache for dlinklist node
- *
- *  @note Cache should be created before using other functions
- *
- *  @return the error code
- */
-u32 jf_dlinklist_createCache(void);
-
-/** Destroy cache for dlinklist node
- *
- *  @return the error code
- */
-u32 jf_dlinklist_destroyCache(void);
 
 /**
  *  Get data from the linked node

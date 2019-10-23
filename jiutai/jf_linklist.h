@@ -6,7 +6,7 @@
  *  @author Min Zhang
  *
  *  @note Routines declared in this file are included in jf_linklist object
- *  @note Link with jiukun library for cache
+ *  @note Link with jiukun library for memory allocation
  *  @note This object is not thread safe
  *  
  */
@@ -84,20 +84,6 @@ u32 jf_linklist_appendTo(jf_linklist_t * pList, void * pData);
  *  @return the error code
  */
 u32 jf_linklist_insertTo(jf_linklist_t * pList, void * pData);
-
-/** Create cache for linklist node
- *
- *  @note Cache should be created before using other functions
- *
- *  @return the error code
- */
-u32 jf_linklist_createCache(void);
-
-/** Destroy cache for linklist node
- *
- *  @return the error code
- */
-u32 jf_linklist_destroyCache(void);
 
 static inline boolean_t jf_linklist_isEmpty(jf_linklist_t * pList)
 {

@@ -163,11 +163,11 @@ $(BIN_DIR)/host-test: host-test.o $(JIUTAI_DIR)/jf_host.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_ifmgmt -ljf_string -ljf_logger
 
-$(BIN_DIR)/respool-test: respool-test.o $(JIUTAI_DIR)/jf_respool.o \
-       $(JIUTAI_DIR)/jf_mutex.o $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_array.o \
-       $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_sem.o $(JIUTAI_DIR)/jf_thread.o
+$(BIN_DIR)/respool-test: respool-test.o $(JIUTAI_DIR)/jf_respool.o $(JIUTAI_DIR)/jf_mutex.o \
+       $(JIUTAI_DIR)/jf_array.o $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_sem.o \
+       $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_logger
+       -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun
 
 $(BIN_DIR)/bitop-test: bitop-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

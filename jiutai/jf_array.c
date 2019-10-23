@@ -16,7 +16,7 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_array.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -91,7 +91,7 @@ static u32 _removeElementAt(
 
         pija->ija_u32ArraySize = pija->ija_u32ArraySize - 1;
 
-        jf_mem_free((void **)&pijan);
+        jf_jiukun_freeMemory((void **)&pijan);
     }
 
     return u32Ret;
@@ -114,7 +114,7 @@ static u32 _insertElementAt(
         u32Pos = u32Pos + 1;
     }
 
-    u32Ret = jf_mem_alloc((void **)&pijanNew, sizeof(internal_jf_array_node_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&pijanNew, sizeof(*pijanNew), 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pijanNew->ijan_pjaeElement = pjae;
@@ -140,7 +140,7 @@ u32 jf_array_create(jf_array_t ** ppja)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jf_array_t * pija;
 
-    u32Ret = jf_mem_alloc((void **)&pija, sizeof(internal_jf_array_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&pija, sizeof(*pija), 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pija->ija_u32ArraySize = 0;
@@ -163,7 +163,7 @@ u32 jf_array_destroy(jf_array_t ** ppja)
 
     u32Ret = jf_array_removeAllElements(pija);
 
-    jf_mem_free(ppja);
+    jf_jiukun_freeMemory(ppja);
 
     return u32Ret;
 }
@@ -253,7 +253,7 @@ u32 jf_array_removeElement(jf_array_t * pja, jf_array_element_t * pjae)
         else
             pija->ija_pijanElements = pijan->ijan_pijanNext;
         pija->ija_u32ArraySize = u32Size - 1;
-        jf_mem_free((void **)&pijan);
+        jf_jiukun_freeMemory((void **)&pijan);
     }
 
     return u32Ret;
@@ -340,7 +340,7 @@ u32 jf_array_destroyArrayAndElements(
 
     u32Ret = jf_array_destroyAllElements(pija, fnDestroyElement);
 
-    jf_mem_free(ppja);
+    jf_jiukun_freeMemory(ppja);
 
     return u32Ret;
 }

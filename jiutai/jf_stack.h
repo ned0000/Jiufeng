@@ -6,7 +6,7 @@
  *  @author Min Zhang
  *
  *  @note Routines declared in this file are included in jf_stack object
- *  @note Link with jf_jiukun library for cache
+ *  @note Link with jf_jiukun library for memory allocation
  *  @note This object is not thread safe
  *  
  */
@@ -84,20 +84,6 @@ void * jf_stack_peek(jf_stack_t ** ppStack);
  *  @return void
  */
 void jf_stack_clear(jf_stack_t ** ppStack);
-
-/** Create cache for stack node
- *
- *  @note Cache should be created before using other functions
- *
- *  @return the error code
- */
-u32 jf_stack_createCache(void);
-
-/** Destroy cache for stack node
- *
- *  @return the error code
- */
-u32 jf_stack_destroyCache(void);
 
 #endif /*JIUTAI_STACK_H*/
 

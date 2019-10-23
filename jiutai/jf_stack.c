@@ -30,7 +30,7 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-static jf_jiukun_cache_t * ls_pjjcStackNodeCache = NULL;
+
 
 /* --- private routine section ------------------------------------------------------------------ */
 
@@ -48,7 +48,7 @@ u32 jf_stack_push(jf_stack_t ** ppStack, void * data)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_stack_node_t * retval = NULL;
 
-    u32Ret = jf_jiukun_allocObject(ls_pjjcStackNodeCache, (void **)&retval);
+    u32Ret = jf_jiukun_allocMemory((void **)&retval, sizeof(*retval), 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         retval->jsn_pData = data;
@@ -70,7 +70,7 @@ void * jf_stack_pop(jf_stack_t ** ppStack)
         retval = ((jf_stack_node_t *) *ppStack)->jsn_pData;
         temp = *ppStack;
         *ppStack = ((jf_stack_node_t *) *ppStack)->jsn_pjsnNext;
-        jf_jiukun_freeObject(ls_pjjcStackNodeCache, (void **)&temp);
+        jf_jiukun_freeMemory((void **)&temp);
     }
 
     return retval;
@@ -97,31 +97,6 @@ void jf_stack_clear(jf_stack_t ** ppStack)
     while (temp != NULL);
 
     *ppStack = NULL;
-}
-
-u32 jf_stack_createCache(void)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_jiukun_cache_create_param_t jjccp;
-
-    ol_bzero(&jjccp, sizeof(jjccp));
-    jjccp.jjccp_pstrName = "StackCache";
-    jjccp.jjccp_sObj = sizeof(jf_stack_node_t);
-    JF_FLAG_SET(jjccp.jjccp_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO);
-
-    u32Ret = jf_jiukun_createCache(&ls_pjjcStackNodeCache, &jjccp);
-
-    return u32Ret;
-}
-
-u32 jf_stack_destroyCache(void)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-
-    if (ls_pjjcStackNodeCache != NULL)
-        u32Ret = jf_jiukun_destroyCache(&ls_pjjcStackNodeCache);
-
-    return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/
