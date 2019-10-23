@@ -24,7 +24,7 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_err.h"
 #include "jf_hashtree.h"
 
@@ -50,24 +50,24 @@ static olint_t _getHashValue(void * pKey, u32 u32KeyLen)
     {
         // If the key length is <= 4, the hash is just the key 
         // expressed as an integer
-        memset(temp, 0, 4);
-        memcpy(temp, pKey, u32KeyLen);
+        ol_memset(temp, 0, 4);
+        ol_memcpy(temp, pKey, u32KeyLen);
         value = *((olint_t *) temp);
     }
     else
     {
         // If the key length is >4, the hash is the first 4 bytes 
         // XOR with the last 4
-        memcpy(temp, pKey, 4);
+        ol_memcpy(temp, pKey, 4);
         value = *((olint_t *) temp);
-        memcpy(temp, (olchar_t *) pKey + (u32KeyLen - 4), 4);
+        ol_memcpy(temp, (olchar_t *) pKey + (u32KeyLen - 4), 4);
         value = value ^ (*((olint_t *) temp));
 
         // If the key length is >= 10, the hash is also XOR with the 
         // middle 4 bytes
         if (u32KeyLen >= 10)
         {
-            memcpy(temp, (olchar_t *) pKey + (u32KeyLen / 2), 4);
+            ol_memcpy(temp, (olchar_t *) pKey + (u32KeyLen / 2), 4);
             value = value ^ (*((olint_t *) temp));
         }
     }
@@ -82,10 +82,12 @@ static u32 _newHashtreeEntry(
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_hashtree_node_t * node = NULL;
 
-    u32Ret = jf_mem_calloc((void **)&node, sizeof(jf_hashtree_node_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&node, sizeof(jf_hashtree_node_t), 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_mem_duplicate((void **)&node->jhn_pstrKeyValue, pKey, sKey);
+        ol_bzero(node, sizeof(jf_hashtree_node_t));
+
+        u32Ret = jf_jiukun_cloneMemory((void **)&node->jhn_pstrKeyValue, pKey, sKey);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             node->jhn_nKey = value;
@@ -99,7 +101,9 @@ static u32 _newHashtreeEntry(
             *ppNode = node;
         }
         else
-            jf_mem_free((void **)&node);
+        {
+            jf_jiukun_freeMemory((void **)&node);
+        }
     }
 
     return u32Ret;
@@ -136,7 +140,7 @@ static u32 _findHashtreeEntry(
         {
             /*Verify this is really a match*/
             if (current->jhn_sKey == sKey &&
-                memcmp(current->jhn_pstrKeyValue, pKey, sKey) == 0)
+                ol_memcmp(current->jhn_pstrKeyValue, pKey, sKey) == 0)
             {
                 *ppNode = current;
                 u32Ret = JF_ERR_NO_ERROR;
@@ -171,9 +175,9 @@ void jf_hashtree_fini(jf_hashtree_t * pHashtree)
         pNode = pjhn->jhn_pjhnNext;
         if (pjhn->jhn_pstrKeyValue != NULL)
         {
-            jf_mem_free((void **)&(pjhn->jhn_pstrKeyValue));
+            jf_jiukun_freeMemory((void **)&(pjhn->jhn_pstrKeyValue));
         }
-        jf_mem_free((void **)&pjhn);
+        jf_jiukun_freeMemory((void **)&pjhn);
         pjhn = pNode;
     }
 }
@@ -197,9 +201,9 @@ void jf_hashtree_finiHashtreeAndData(
 
         if (pjhn->jhn_pstrKeyValue != NULL)
         {
-            jf_mem_free((void **)&pjhn->jhn_pstrKeyValue);
+            jf_jiukun_freeMemory((void **)&pjhn->jhn_pstrKeyValue);
         }
-        jf_mem_free((void **)&pjhn);
+        jf_jiukun_freeMemory((void **)&pjhn);
 
         pjhn = pNode;
     }
@@ -274,8 +278,8 @@ u32 jf_hashtree_deleteEntry(
             if (pjhn->jhn_pjhnNext != NULL)
                 pjhn->jhn_pjhnNext->jhn_pjhnPrev = pjhn->jhn_pjhnPrev;
         }
-        jf_mem_free((void **)&pjhn->jhn_pstrKeyValue);
-        jf_mem_free((void **)&pjhn);
+        jf_jiukun_freeMemory((void **)&pjhn->jhn_pstrKeyValue);
+        jf_jiukun_freeMemory((void **)&pjhn);
     }
 
     return u32Ret;

@@ -21,7 +21,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_hashtable.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 typedef struct hash_table_bucket
@@ -170,8 +170,8 @@ static u32 _resizeHashTable(internal_hash_table_t ** ppiht)
             }
         }
 
-        jf_mem_free((void **)&piht->iht_phtbBucket);
-        jf_mem_free((void **)ppiht);
+        jf_jiukun_freeMemory((void **)&piht->iht_phtbBucket);
+        jf_jiukun_freeMemory((void **)ppiht);
         newIht->iht_u32Resizes = piht->iht_u32Resizes + 1;
         **ppiht = *newIht;
     }
@@ -200,11 +200,13 @@ static u32 _insertAtPosition(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_mem_calloc((void **)&phtb, sizeof(hash_table_bucket_t));
+        u32Ret = jf_jiukun_allocMemory((void **)&phtb, sizeof(hash_table_bucket_t), 0);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(phtb, sizeof(hash_table_bucket_t));
+
         phtb->htb_pEntry = pEntry;
         phtb->htb_phtbNext = *position;
         *position = phtb;
@@ -240,7 +242,7 @@ u32 jf_hashtable_create(jf_hashtable_t ** ppht, jf_hashtable_create_param_t * pj
 
     assert((ppht != NULL) && (pjhcp != NULL));
 
-    u32Ret = jf_mem_alloc((void **)&piht, sizeof(internal_hash_table_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&piht, sizeof(internal_hash_table_t), 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(piht, 0, sizeof(internal_hash_table_t));
@@ -263,12 +265,14 @@ u32 jf_hashtable_create(jf_hashtable_t ** ppht, jf_hashtable_create_param_t * pj
         piht->iht_u32Threshold = (((piht->iht_u32Size) << 2) + 4) / 5;
         piht->iht_u32Resizes = 0;
 
-        u32Ret = jf_mem_calloc(
-            (void **)&(piht->iht_phtbBucket), piht->iht_u32Size * sizeof(hash_table_bucket_t *));
+        u32Ret = jf_jiukun_allocMemory(
+            (void **)&(piht->iht_phtbBucket), piht->iht_u32Size * sizeof(hash_table_bucket_t *), 0);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(piht->iht_phtbBucket, piht->iht_u32Size * sizeof(hash_table_bucket_t *));
+
         *ppht = piht;
     }
     else if (piht != NULL)
@@ -301,14 +305,14 @@ u32 jf_hashtable_destroy(jf_hashtable_t ** ppht)
             {
                 tmp = phtb->htb_phtbNext;
                 fnFreeEntry(&(phtb->htb_pEntry));
-                jf_mem_free((void **)&phtb);
+                jf_jiukun_freeMemory((void **)&phtb);
             }
         }
 
-        jf_mem_free((void **)&(piht->iht_phtbBucket));
+        jf_jiukun_freeMemory((void **)&(piht->iht_phtbBucket));
     }
 
-    jf_mem_free((void **)ppht);
+    jf_jiukun_freeMemory((void **)ppht);
 
     return u32Ret;
 }
@@ -339,7 +343,7 @@ u32 jf_hashtable_removeEntry(jf_hashtable_t * pht, void * pEntry)
     {
         *position = tmp->htb_phtbNext;
         piht->iht_fnFreeEntry(tmp->htb_pEntry);
-        jf_mem_free((void **)&tmp);
+        jf_jiukun_freeMemory((void **)&tmp);
         piht->iht_u32NumOfEntry --;
     }
     else

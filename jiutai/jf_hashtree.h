@@ -6,9 +6,9 @@
  *  @author Min Zhang
  *
  *  @note Routines declared in this file are included in jf_hashtree object
- *  @note Link with xmalloc object file
- *  @note The simple hash tree, suitable for items less than 50. For large
- *   amount of items, uses hash table in jf_hashtable.h
+ *  @note Link with jiukun library for memory allocation
+ *  @note The simple hash tree, suitable for items less than 50. For large amount of items, uses
+ *   hash table in jf_hashtable.h
  *  @note This object is not thread safe
  *  
  */

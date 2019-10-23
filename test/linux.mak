@@ -60,10 +60,9 @@ $(BIN_DIR)/date-test: date-test.o $(JIUTAI_DIR)/jf_date.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_string
 
-$(BIN_DIR)/hashtree-test: hashtree-test.o $(JIUTAI_DIR)/jf_hashtree.o \
-       $(JIUTAI_DIR)/jf_mem.o
+$(BIN_DIR)/hashtree-test: hashtree-test.o $(JIUTAI_DIR)/jf_hashtree.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_logger
+       -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun
 
 $(BIN_DIR)/listhead-test: listhead-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
@@ -101,10 +100,9 @@ $(BIN_DIR)/rwlock-test: rwlock-test.o $(JIUTAI_DIR)/jf_rwlock.o \
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
        -o $@ $(SYSLIBS) -ljf_logger
 
-$(BIN_DIR)/hashtable-test: hashtable-test.o $(JIUTAI_DIR)/jf_hashtable.o \
-       $(JIUTAI_DIR)/jf_mem.o $(JIUTAI_DIR)/jf_process.o
+$(BIN_DIR)/hashtable-test: hashtable-test.o $(JIUTAI_DIR)/jf_hashtable.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_logger
+       -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun
 
 $(BIN_DIR)/stringparse-test: stringparse-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
