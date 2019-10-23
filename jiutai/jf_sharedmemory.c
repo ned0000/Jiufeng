@@ -21,7 +21,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_sharedmemory.h"
 #if defined(WINDOWS)
     #include "jf_uuid.h"
@@ -81,7 +81,7 @@ u32 jf_sharedmemory_create(jf_sharedmemory_id_t ** ppShmId, u32 u32MemorySize)
 
     assert(ppShmId != NULL);
 
-    u32Ret = jf_mem_alloc((void **)&pjsi, JF_SHAREDMEMORY_ID_LEN);
+    u32Ret = jf_jiukun_allocMemory((void **)&pjsi, JF_SHAREDMEMORY_ID_LEN, 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(pjsi, 0, JF_SHAREDMEMORY_ID_LEN);
@@ -107,7 +107,7 @@ u32 jf_sharedmemory_create(jf_sharedmemory_id_t ** ppShmId, u32 u32MemorySize)
 
     assert(ppShmId != NULL);
 
-    u32Ret = jf_mem_alloc((void **)&pjsi, JF_SHAREDMEMORY_ID_LEN);
+    u32Ret = jf_jiukun_allocMemory((void **)&pjsi, JF_SHAREDMEMORY_ID_LEN, 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(pjsi, 0, JF_SHAREDMEMORY_ID_LEN);
@@ -150,6 +150,9 @@ u32 jf_sharedmemory_destroy(jf_sharedmemory_id_t ** ppShmId)
         if (nRet == -1)
             u32Ret = JF_ERR_FAIL_DESTROY_SHAREDMEMORY;
     }
+
+    jf_jiukun_freeMemory((void **)ppShmId);
+
 #elif defined(WINDOWS)
 	HANDLE hMap;
 
@@ -175,6 +178,9 @@ u32 jf_sharedmemory_destroy(jf_sharedmemory_id_t ** ppShmId)
 
 	if (u32Ret == JF_ERR_NO_ERROR)
 		CloseHandle(hMap);
+
+    jf_jiukun_freeMemory((void **)ppShmId);
+
 #endif
 
     return u32Ret;

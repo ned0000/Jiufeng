@@ -21,7 +21,6 @@
 #include "jf_basic.h"
 #include "jf_sem.h"
 #include "jf_err.h"
-#include "jf_mem.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 #if defined(LINUX)

@@ -20,7 +20,6 @@
 #include "jf_sqlite.h"
 #include "jf_time.h"
 #include "jf_rand.h"
-#include "jf_mem.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 /** The wait time in milli-second when DB is locked
