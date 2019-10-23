@@ -6,10 +6,9 @@
  *  @author Min Zhang
  *
  *  @note Routines declared in this file are included in jf_attask object
- *  @note The attask object is not thread safe, DO NOT use it in multi-thread
- *   envirionment
- *  @note link with xtime, xmalloc common object
- *
+ *  @note The attask object is not thread safe, DO NOT use it in multi-thread envirionment
+ *  @note link with xtime common object
+ *  @note link with jiukun library for memory allocation
  */
 
 #ifndef JIUTAI_ATTASK_H

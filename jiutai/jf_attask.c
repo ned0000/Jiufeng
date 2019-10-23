@@ -18,7 +18,7 @@
 #include "jf_limit.h"
 #include "jf_attask.h"
 #include "jf_time.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 typedef struct attask_item
@@ -61,7 +61,7 @@ static u32 _flushAttask(internal_attask_t * piu)
         {
             temp->ai_fnDestroy(&(temp->ai_pData));
         }
-        jf_mem_free((void **)&temp);
+        jf_jiukun_freeMemory((void **)&temp);
         temp = temp2;
     }
 
@@ -129,7 +129,7 @@ u32 jf_attask_check(jf_attask_t * pAttask, u32 * pu32Blocktime)
             {
                 evt->ai_fnDestroy(&(evt->ai_pData));
             }
-            jf_mem_free((void **)&evt);
+            jf_jiukun_freeMemory((void **)&evt);
 
             evt = temp;
         }
@@ -154,9 +154,10 @@ u32 jf_attask_addItem(
     attask_item_t * pai, * temp;
     internal_attask_t * pia = (internal_attask_t *) pAttask;
 
-    u32Ret = jf_mem_calloc((void **)&pai, sizeof(attask_item_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&pai, sizeof(attask_item_t), 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(pai, sizeof(attask_item_t));
         /*Get the current time for reference*/
         jf_time_getTimeOfDay(&tv);
 
@@ -272,8 +273,11 @@ u32 jf_attask_removeItem(jf_attask_t * pAttask, void * pData)
 
     /*Iterate through each node that is to be removed*/
     if (evt == NULL)
+    {
         u32Ret = JF_ERR_ATTASK_ITEM_NOT_FOUND;
+    }
     else
+    {
         while (evt != NULL)
         {
             first = evt->ai_paiNext;
@@ -281,9 +285,10 @@ u32 jf_attask_removeItem(jf_attask_t * pAttask, void * pData)
             {
                 evt->ai_fnDestroy(&(evt->ai_pData));
             }
-            jf_mem_free((void **)&evt);
+            jf_jiukun_freeMemory((void **)&evt);
             evt = first;
         }
+    }
 
     return u32Ret;
 }
@@ -299,7 +304,7 @@ u32 jf_attask_destroy(jf_attask_t ** ppAttask)
 
     _flushAttask(pia);
 
-    jf_mem_free(ppAttask);
+    jf_jiukun_freeMemory(ppAttask);
     *ppAttask = NULL;
 
     return u32Ret;
@@ -310,10 +315,10 @@ u32 jf_attask_create(jf_attask_t ** ppAttask)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_attask_t * pia;
 
-    u32Ret = jf_mem_calloc((void **)&pia, sizeof(internal_attask_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&pia, sizeof(internal_attask_t), 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-
+        ol_bzero(pia, sizeof(internal_attask_t));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
