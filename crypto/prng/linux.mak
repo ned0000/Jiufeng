@@ -15,7 +15,7 @@ SONAME = jf_prng
 
 SOURCES = ../common/clrmem.c prng.c seed.c
 
-JIUTAI_SRCS = jf_mem.c jf_mutex.c jf_time.c
+JIUTAI_SRCS = jf_mutex.c jf_time.c
 
 EXTRA_INC_DIR = -I../common
 

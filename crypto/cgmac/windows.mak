@@ -16,7 +16,7 @@ RESOURCE = cgmac
 
 SOURCES = hmac.c
 
-JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c
+JIUTAI_SRCS = 
 
 EXTRA_LIBS = $(LIB_DIR)\jf_cghash.lib
 

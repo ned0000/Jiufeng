@@ -14,7 +14,7 @@
 SOURCES = hmac.c
 SONAME = jf_cgmac
 
-JIUTAI_SRCS = jf_mem.c
+JIUTAI_SRCS = 
 
 EXTRA_LIBS = -ljf_cghash
 

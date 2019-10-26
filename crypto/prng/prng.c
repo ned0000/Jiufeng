@@ -22,11 +22,11 @@
 #include "jf_prng.h"
 #include "jf_cghash.h"
 #include "jf_err.h"
-#include "jf_mem.h"
 #include "jf_process.h"
+#include "jf_mutex.h"
+
 #include "prngcommon.h"
 #include "seed.h"
-#include "jf_mutex.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 

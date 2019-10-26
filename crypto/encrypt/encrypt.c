@@ -21,7 +21,7 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_encrypt.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_string.h"
 #include "jf_limit.h"
 #include "jf_file.h"
@@ -96,7 +96,7 @@ u32 jf_encrypt_encryptFile(
     u32Ret = _setEncryptKey(pKey, &aeskey);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_mem_alloc((void **)&pBuf, JF_LIMIT_MAX_DATA_TRANSFER_SIZE);
+        u32Ret = jf_jiukun_allocMemory((void **)&pBuf, JF_LIMIT_MAX_DATA_TRANSFER_SIZE);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -142,7 +142,7 @@ u32 jf_encrypt_encryptFile(
         u32Ret = JF_ERR_NO_ERROR;
 
     if (pBuf != NULL)
-        jf_mem_free((void **)&pBuf);
+        jf_jiukun_freeMemory((void **)&pBuf);
     if (fpSrc != NULL)
         jf_filestream_close(&fpSrc);
     if (fpDest != NULL)
@@ -166,7 +166,7 @@ u32 jf_encrypt_decryptFile(
     u32Ret = _setDecryptKey(pKey, &aeskey);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_mem_alloc((void **)&pBuf, JF_LIMIT_MAX_DATA_TRANSFER_SIZE);
+        u32Ret = jf_jiukun_allocMemory((void **)&pBuf, JF_LIMIT_MAX_DATA_TRANSFER_SIZE);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -216,7 +216,7 @@ u32 jf_encrypt_decryptFile(
         u32Ret = JF_ERR_NO_ERROR;
 
     if (pBuf != NULL)
-        jf_mem_free((void **)&pBuf);
+        jf_jiukun_freeMemory((void **)&pBuf);
     if (fpSrc != NULL)
         jf_filestream_close(&fpSrc);
     if (fpDest != NULL)
@@ -239,12 +239,12 @@ u32 jf_encrypt_encryptString(
     u32Ret = _setEncryptKey(pKey, &aeskey);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_mem_alloc((void **)&pstr, outlen);
+        u32Ret = jf_jiukun_allocMemory((void **)&pstr, outlen);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_mem_alloc((void **)&pDestStr, 2 * outlen + 1);
+        u32Ret = jf_jiukun_allocMemory((void **)&pDestStr, 2 * outlen + 1);
     }
     
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -261,12 +261,12 @@ u32 jf_encrypt_encryptString(
     }
 
     if (pstr != NULL)
-        jf_mem_free((void **)&pstr);
+        jf_jiukun_freeMemory((void **)&pstr);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         *ppDestStr = pDestStr;
     else if (pDestStr != NULL)
-        jf_mem_free((void **)&pDestStr);
+        jf_jiukun_freeMemory((void **)&pDestStr);
 
     return u32Ret;   
 }
@@ -283,7 +283,7 @@ u32 jf_encrypt_decryptString(
     u32Ret = _setDecryptKey(pKey, &aeskey);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_mem_alloc((void **)&pDestStr, outlen + 1);
+        u32Ret = jf_jiukun_allocMemory((void **)&pDestStr, outlen + 1);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -300,14 +300,14 @@ u32 jf_encrypt_decryptString(
     if (u32Ret == JF_ERR_NO_ERROR)
         *ppDestStr = pDestStr;
     else if (pDestStr != NULL)
-        jf_mem_free((void **)&pDestStr);
+        jf_jiukun_freeMemory((void **)&pDestStr);
     
     return u32Ret; 
 }
 
 void jf_encrypt_freeString(olchar_t ** ppStr)
 {
-    jf_mem_free((void **)ppStr);
+    jf_jiukun_freeMemory((void **)ppStr);
 }
 
 /*------------------------------------------------------------------------------------------------*/

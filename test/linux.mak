@@ -189,7 +189,7 @@ $(BIN_DIR)/encrypt-test: encrypt-test.o
 
 $(BIN_DIR)/prng-test: prng-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_prng -ljf_logger -ljf_cghash
+       -o $@ $(SYSLIBS) -ljf_prng -ljf_logger -ljf_cghash -ljf_jiukun
 
 $(BIN_DIR)/encode-test: encode-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

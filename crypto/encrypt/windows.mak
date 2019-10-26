@@ -16,7 +16,7 @@ RESOURCE = encrypt
 
 SOURCES = encrypt.c
 
-JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c
+JIUTAI_SRCS = 
 
 EXTRA_LIBS = 
 

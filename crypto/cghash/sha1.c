@@ -17,8 +17,8 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_cghash.h"
+
 #include "cghashcommon.h"
-#include "jf_mem.h"
 #include "sha1.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
