@@ -14,7 +14,7 @@ SONAME = jf_ifmgmt
 
 SOURCES = ifmgmt.c ipaddr.c
 
-JIUTAI_SRCS = jf_mem.c
+JIUTAI_SRCS = 
 
 EXTRA_LIBS = -ljf_files -ljf_string
 
