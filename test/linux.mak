@@ -217,7 +217,7 @@ $(BIN_DIR)/xmlparser-test: xmlparser-test.o
 
 $(BIN_DIR)/httpparser-test: httpparser-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -lm -ljf_httpparser -ljf_logger
+       -o $@ $(SYSLIBS) -lm -ljf_httpparser -ljf_logger -ljf_jiukun
 
 $(BIN_DIR)/network-test: network-test.o $(JIUTAI_DIR)/jf_process.o \
        $(JIUTAI_DIR)/jf_thread.o

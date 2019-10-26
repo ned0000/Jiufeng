@@ -14,9 +14,9 @@ SONAME = jf_httpparser
 
 SOURCES = httpparser.c
 
-EXTRA_LIBS = -ljf_string
+EXTRA_LIBS = -ljf_string -ljf_jiukun
 
-JIUTAI_SRCS = jf_mem.c 
+JIUTAI_SRCS =
 
 include $(TOPDIR)/mak/lnxlib.mak
 

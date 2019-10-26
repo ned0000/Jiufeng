@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_httpparser.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_hex.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -186,7 +186,7 @@ static u32 _testHttpMsg(void)
             ol_printf("HTTP message\n");
             jf_hex_dumpByteDataBuffer((u8 *)pstr, size);
 
-            jf_mem_free((void **)&pstr);
+            jf_jiukun_freeMemory((void **)&pstr);
         }
     }
 
@@ -341,8 +341,8 @@ static u32 _testParseUri(void)
             ol_printf("Port: %d\n", u16Port);
             ol_printf("Path: %s\n", pPath);
 
-            jf_mem_free((void **)&pIp);
-            jf_mem_free((void **)&pPath);
+            jf_jiukun_freeMemory((void **)&pIp);
+            jf_jiukun_freeMemory((void **)&pPath);
         }
         else if (u32Ret != thp[u32Index].u32ErrCode)
         {
