@@ -17,9 +17,10 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_persistency.h"
+#include "jf_jiukun.h"
+
 #include "persistencycommon.h"
 #include "sqlitepersistency.h"
-#include "jf_mem.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -38,7 +39,7 @@ u32 jf_persistency_create(
 
     jf_logger_logInfoMsg("create persistency");
 
-    u32Ret = jf_mem_alloc((void **)&ppm, sizeof(persistency_manager_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&ppm, sizeof(persistency_manager_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ppm->pm_jptType = type;
@@ -81,7 +82,7 @@ u32 jf_persistency_destroy(jf_persistency_t ** ppPersist)
 
     jf_mutex_fini(&ppm->pm_jmLock);
     
-    jf_mem_free((void **)ppPersist);
+    jf_jiukun_freeMemory((void **)ppPersist);
 
     return u32Ret;
 }

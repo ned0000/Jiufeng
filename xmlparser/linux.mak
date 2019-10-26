@@ -15,7 +15,7 @@ SONAME = jf_xmlparser
 
 SOURCES = xmlparser.c
 
-JIUTAI_SRCS = jf_mem.c jf_stack.c jf_hashtree.c
+JIUTAI_SRCS = jf_stack.c jf_hashtree.c
 
 EXTRA_LIBS = -ljf_string -ljf_files -ljf_jiukun
 

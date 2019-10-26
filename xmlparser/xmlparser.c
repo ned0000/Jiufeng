@@ -20,7 +20,7 @@
 #include "jf_string.h"
 #include "jf_xmlparser.h"
 #include "jf_stack.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_file.h"
 #include "jf_filestream.h"
 
@@ -45,7 +45,7 @@ static u32 _destroyXMLNodeList(jf_xmlparser_xml_node_t ** ppNode)
         /*If there was a namespace table, delete it*/
         jf_hashtree_fini(&node->jxxn_jhNameSpace);
 
-        jf_mem_free((void **)&node);
+        jf_jiukun_freeMemory((void **)&node);
         node = temp;
     }
 
@@ -64,9 +64,11 @@ static u32 _newXMLNode(
     jf_xmlparser_xml_node_t * jxxnNew = NULL;
     olchar_t * pu8Reserved;
 
-    u32Ret = jf_mem_calloc((void **)&jxxnNew, sizeof(jf_xmlparser_xml_node_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&jxxnNew, sizeof(jf_xmlparser_xml_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(jxxnNew, sizeof(jf_xmlparser_xml_node_t));
+
         jxxnNew->jxxn_pstrName = pstrTagName;
         jxxnNew->jxxn_sName = sTagName;
         jxxnNew->jxxn_bStartTag = bStartTag;
@@ -107,10 +109,10 @@ static u32 _newXMLNode(
                a bogus EndElement, 
                just so the tree is consistent. No point in 
                introducing unnecessary complexity */
-            u32Ret = jf_mem_alloc((void **)&jxxnNew, sizeof(jf_xmlparser_xml_node_t));
+            u32Ret = jf_jiukun_allocMemory((void **)&jxxnNew, sizeof(jf_xmlparser_xml_node_t));
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                memset(jxxnNew, 0, sizeof(jf_xmlparser_xml_node_t));
+                ol_memset(jxxnNew, 0, sizeof(jf_xmlparser_xml_node_t));
                 jxxnNew->jxxn_pstrName = pstrTagName;
                 jxxnNew->jxxn_sName = sTagName;
                 jxxnNew->jxxn_pstrNs = pstrNSTag;
@@ -457,15 +459,18 @@ static u32 _getXmlAttribute(
         if (retval == NULL)
         {
             /* If we haven't already created an attribute node, create it now */
-            u32Ret = jf_mem_calloc((void **)&retval, sizeof(jf_xmlparser_xml_attribute_t));
+            u32Ret = jf_jiukun_allocMemory((void **)&retval, sizeof(jf_xmlparser_xml_attribute_t));
         }
         else
         {
+            ol_bzero(retval, sizeof(jf_xmlparser_xml_attribute_t));
             /* We already created an attribute node, so simply create a new one,
                and attach it on the beginning of the old one. */
-            u32Ret = jf_mem_calloc((void **)&current, sizeof(jf_xmlparser_xml_attribute_t));
+            u32Ret = jf_jiukun_allocMemory((void **)&current, sizeof(jf_xmlparser_xml_attribute_t));
             if (u32Ret == JF_ERR_NO_ERROR)
             {
+                ol_bzero(current, sizeof(jf_xmlparser_xml_attribute_t));
+
                 current->jxxa_pjxxaNext = retval;
                 retval = current;
             }
@@ -540,7 +545,7 @@ u32 jf_xmlparser_destroyXMLAttributeList(jf_xmlparser_xml_attribute_t ** ppAttri
     while (attribute != NULL)
     {
         temp = attribute->jxxa_pjxxaNext;
-        jf_mem_free((void **)&attribute);
+        jf_jiukun_freeMemory((void **)&attribute);
         attribute = temp;
     }
 
@@ -776,7 +781,7 @@ u32 jf_xmlparser_parseXMLFile(
 
     assert((pstrFilename != NULL) && (ppFile != NULL));
 
-    u32Ret = jf_mem_alloc((void **)&pjxxf, sizeof(*pjxxf));
+    u32Ret = jf_jiukun_allocMemory((void **)&pjxxf, sizeof(*pjxxf));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pjxxf, 0, sizeof(*pjxxf));
@@ -786,7 +791,7 @@ u32 jf_xmlparser_parseXMLFile(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Size = (olsize_t)filestat.jfs_u64Size;
-        u32Ret = jf_mem_alloc((void **)&(pjxxf->jxxf_pstrBuf), u32Size);
+        u32Ret = jf_jiukun_allocMemory((void **)&(pjxxf->jxxf_pstrBuf), u32Size);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -829,7 +834,7 @@ u32 jf_xmlparser_destroyXMLFile(jf_xmlparser_xml_file_t ** ppFile)
         _destroyXMLNodeList(&(pjxxf->jxxf_jxxdDoc.jxxd_pjxxnRoot));
 
     if (pjxxf->jxxf_pstrBuf != NULL)
-        jf_mem_free((void **)&(pjxxf->jxxf_pstrBuf));
+        jf_jiukun_freeMemory((void **)&(pjxxf->jxxf_pstrBuf));
 
     return u32Ret;
 }

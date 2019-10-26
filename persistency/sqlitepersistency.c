@@ -18,10 +18,11 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_persistency.h"
+#include "jf_rand.h"
+#include "jf_jiukun.h"
+
 #include "persistencycommon.h"
 #include "sqlitepersistency.h"
-#include "jf_rand.h"
-#include "jf_mem.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -108,7 +109,7 @@ static u32 _setSqliteValue(
     olchar_t strRet[128];
     olsize_t nsize = ol_strlen(pValue) + ol_strlen(pKey) + 256;
 
-    u32Ret = jf_mem_alloc((void **)&pstrSql, nsize);
+    u32Ret = jf_jiukun_allocMemory((void **)&pstrSql, nsize);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*update or insert the value into the DB*/
@@ -122,7 +123,7 @@ static u32 _setSqliteValue(
     }
     
     if (pstrSql != NULL)
-        jf_mem_free((void **)&pstrSql);
+        jf_jiukun_freeMemory((void **)&pstrSql);
 
     return u32Ret;
 }
