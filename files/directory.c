@@ -28,7 +28,6 @@
 #include "jf_limit.h"
 #include "jf_dir.h"
 #include "jf_err.h"
-#include "jf_mem.h"
 
 #include "common.h"
 

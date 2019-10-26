@@ -21,7 +21,7 @@
 #include "jf_filestream.h"
 #include "jf_array.h"
 #include "jf_string.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -182,9 +182,11 @@ u32 jf_conffile_open(
 
     assert(ppConffile != NULL);
 
-    u32Ret = jf_mem_calloc((void **)&pijc, sizeof(*pijc));
+    u32Ret = jf_jiukun_allocMemory((void **)&pijc, sizeof(*pijc), 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(pijc, sizeof(*pijc));
+
         u32Ret = jf_filestream_open(
             pParam->jcop_pstrFile, "r", &pijc->ijc_pjfConfFile);
     }
@@ -209,7 +211,7 @@ u32 jf_conffile_close(jf_conffile_t ** ppConffile)
         jf_filestream_close(&pijc->ijc_pjfConfFile);
     }
 
-    jf_mem_free(ppConffile);
+    jf_jiukun_freeMemory(ppConffile);
 
     return u32Ret;
 }

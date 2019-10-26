@@ -15,9 +15,9 @@ SONAME = jf_files
 
 SOURCES = files.c directory.c conffile.c
 
-EXTRA_LIBS =
+EXTRA_LIBS = -ljf_jiukun
 
-JIUTAI_SRCS = jf_mem.c
+JIUTAI_SRCS =
 
 EXTRA_INC_DIR =
 
