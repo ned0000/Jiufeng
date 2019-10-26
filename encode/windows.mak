@@ -16,9 +16,9 @@ RESOURCE = encode
 
 SOURCES = base64.c huffman.c
 
-JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c
+JIUTAI_SRCS =
 
-EXTRA_LIBS =
+EXTRA_LIBS = $(LIB_DIR)\jf_jiukun.lib
 
 EXTRA_DEFS = -DJIUFENG_ENCODE_DLL
 

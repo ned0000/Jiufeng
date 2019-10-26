@@ -18,10 +18,11 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_encode.h"
-#include "huffman.h"
 #include "jf_err.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_bitarray.h"
+
+#include "huffman.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 #define HUFFMAN_NONE      (-1)
@@ -56,9 +57,9 @@ static u32 _destroyHuffmanNodePool(huffman_node_pool_t ** ppPool)
     huffman_node_pool_t * phnp = *ppPool;
 
     if (phnp->hnp_phnNodes != NULL)
-        jf_mem_free((void **)&(phnp->hnp_phnNodes));
+        jf_jiukun_freeMemory((void **)&(phnp->hnp_phnNodes));
 
-    jf_mem_free((void **)ppPool);
+    jf_jiukun_freeMemory((void **)ppPool);
 
     return u32Ret;
 }
@@ -69,19 +70,19 @@ static u32 _createHuffmanNodePool(
     u32 u32Ret = JF_ERR_NO_ERROR;
     huffman_node_pool_t * phnp = NULL;
 
-    u32Ret = jf_mem_calloc((void **)&phnp, sizeof(huffman_node_pool_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&phnp, sizeof(huffman_node_pool_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(phnp, sizeof(huffman_node_pool_t));
         phnp->hnp_u32MaxNode = 2 * u16NumOfCode;
 
-        u32Ret = jf_mem_calloc(
-            (void **)&(phnp->hnp_phnNodes),
-            sizeof(huffman_node_t) * phnp->hnp_u32MaxNode);
+        u32Ret = jf_jiukun_allocMemory(
+            (void **)&(phnp->hnp_phnNodes), sizeof(huffman_node_t) * phnp->hnp_u32MaxNode);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-
+        ol_bzero(phnp->hnp_phnNodes, sizeof(huffman_node_t) * phnp->hnp_u32MaxNode);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -487,10 +488,11 @@ u32 jf_encode_genHuffmanCode(jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
     huffman_node_t * pRoot = NULL;
     huffman_node_pool_t * pPool;
 
-    u32Ret = jf_mem_calloc(
-        (void **)&ppLeaf, sizeof(huffman_node_t *) * u16NumOfCode);
+    u32Ret = jf_jiukun_allocMemory((void **)&ppLeaf, sizeof(huffman_node_t *) * u16NumOfCode);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(ppLeaf, sizeof(huffman_node_t *) * u16NumOfCode);
+
         u32Ret = _createHuffmanNodePool(&pPool, u16NumOfCode);
     }
 
@@ -510,7 +512,7 @@ u32 jf_encode_genHuffmanCode(jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
     }
 
     if (ppLeaf != NULL)
-        jf_mem_free((void **)ppLeaf);
+        jf_jiukun_freeMemory((void **)ppLeaf);
 
     if (pPool != NULL)
         _destroyHuffmanNodePool(&pPool);
@@ -526,10 +528,11 @@ u32 jf_encode_genCanonicalHuffmanCode(
     huffman_node_t * pRoot = NULL;
     huffman_node_pool_t * pPool;
 
-    u32Ret = jf_mem_calloc(
-        (void **)&ppLeaf, sizeof(huffman_node_t *) * u16NumOfCode);
+    u32Ret = jf_jiukun_allocMemory((void **)&ppLeaf, sizeof(huffman_node_t *) * u16NumOfCode);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(ppLeaf, sizeof(huffman_node_t *) * u16NumOfCode);
+
         u32Ret = _createHuffmanNodePool(&pPool, u16NumOfCode);
     }
 
@@ -549,7 +552,7 @@ u32 jf_encode_genCanonicalHuffmanCode(
     }
 
     if (ppLeaf != NULL)
-        jf_mem_free((void **)&ppLeaf);
+        jf_jiukun_freeMemory((void **)&ppLeaf);
 
     if (pPool != NULL)
         _destroyHuffmanNodePool(&pPool);
@@ -564,10 +567,12 @@ u32 jf_encode_genCanonicalHuffmanCodeByCodeLen(
     jf_encode_huffman_code_t ** ppjehc = NULL;
     u16 u16Index;
 
-    u32Ret = jf_mem_calloc(
+    u32Ret = jf_jiukun_allocMemory(
         (void **)&ppjehc, sizeof(jf_encode_huffman_code_t *) * u16NumOfCode);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(ppjehc, sizeof(jf_encode_huffman_code_t *) * u16NumOfCode);
+
         for (u16Index = 0; u16Index < u16NumOfCode; u16Index ++)
         {
             ppjehc[u16Index] = &(pjehc[u16Index]);
@@ -580,7 +585,7 @@ u32 jf_encode_genCanonicalHuffmanCodeByCodeLen(
 
         u32Ret = _assignCanonicalCodes(ppjehc, u16NumOfCode);
 
-        jf_mem_free((void **)&ppjehc);
+        jf_jiukun_freeMemory((void **)&ppjehc);
     }
 
     return u32Ret;

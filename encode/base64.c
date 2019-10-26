@@ -18,7 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_encode.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -97,7 +97,7 @@ u32 jf_encode_encodeBase64(
 
     assert((pu8Input != NULL) && (sInput != 0));
 
-    u32Ret = jf_mem_alloc((void **)ppstrOutput, ((sInput * 4) / 3) + 6);
+    u32Ret = jf_jiukun_allocMemory((void **)ppstrOutput, ((sInput * 4) / 3) + 6);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         out = (u8 *)*ppstrOutput;
@@ -135,7 +135,7 @@ u32 jf_encode_decodeBase64(
 
     assert((pstrInput != NULL) && (sInput != 0));
 
-    u32Ret = jf_mem_alloc((void **)ppu8Output, ((sInput * 3) / 4) + 6);
+    u32Ret = jf_jiukun_allocMemory((void **)ppu8Output, ((sInput * 3) / 4) + 6);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         out = *ppu8Output;
@@ -191,7 +191,7 @@ u32 jf_encode_freeBase64Buffer(u8 ** ppu8Output)
 
     assert((ppu8Output != NULL) && (*ppu8Output != NULL));
 
-    jf_mem_free((void **)ppu8Output);
+    jf_jiukun_freeMemory((void **)ppu8Output);
 
     return u32Ret;
 }
