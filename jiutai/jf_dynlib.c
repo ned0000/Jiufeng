@@ -46,7 +46,7 @@ u32 jf_dynlib_load(const olchar_t * pstrLibFile, jf_dynlib_t ** ppLib)
     internal_dyn_lib_t * pidl = NULL;
 
 #if defined(LINUX)
-    u32Ret = jf_jiukun_allocMemory((void **)&pidl, sizeof(internal_dyn_lib_t), 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pidl, sizeof(internal_dyn_lib_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pidl, 0, sizeof(internal_dyn_lib_t));
@@ -57,7 +57,7 @@ u32 jf_dynlib_load(const olchar_t * pstrLibFile, jf_dynlib_t ** ppLib)
     }
 
 #elif defined(WINDOWS)
-    u32Ret = jf_jiukun_allocMemory((void **)&pidl, sizeof(internal_dyn_lib_t), 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pidl, sizeof(internal_dyn_lib_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pidl, 0, sizeof(internal_dyn_lib_t));

@@ -114,7 +114,7 @@ static u32 _insertElementAt(
         u32Pos = u32Pos + 1;
     }
 
-    u32Ret = jf_jiukun_allocMemory((void **)&pijanNew, sizeof(*pijanNew), 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pijanNew, sizeof(*pijanNew));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pijanNew->ijan_pjaeElement = pjae;
@@ -140,7 +140,7 @@ u32 jf_array_create(jf_array_t ** ppja)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jf_array_t * pija;
 
-    u32Ret = jf_jiukun_allocMemory((void **)&pija, sizeof(*pija), 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pija, sizeof(*pija));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pija->ija_u32ArraySize = 0;

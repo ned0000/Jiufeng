@@ -87,7 +87,7 @@ u32 jf_queue_enqueue(jf_queue_t * pQueue, void * data)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_queue_node_t * pjqn;
 
-    u32Ret = jf_jiukun_allocMemory((void **)&pjqn, sizeof(*pjqn), 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pjqn, sizeof(*pjqn));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pjqn, sizeof(*pjqn));

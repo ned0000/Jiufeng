@@ -252,7 +252,7 @@ static u32 _createResourceInPoolArray(
             u32Ret = _isMaxPoolResourcesReached(pirp, bFulltime);
 
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = jf_jiukun_allocMemory((void **)&pir, sizeof(internal_resource_t), 0);
+            u32Ret = jf_jiukun_allocMemory((void **)&pir, sizeof(internal_resource_t));
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
@@ -396,7 +396,7 @@ static u32 _createResourcePool(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_resource_pool_t * pirp;
 
-    u32Ret = jf_jiukun_allocMemory((void **)&pirp, sizeof(internal_resource_pool_t), 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pirp, sizeof(internal_resource_pool_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(pirp, 0, sizeof(internal_resource_pool_t));

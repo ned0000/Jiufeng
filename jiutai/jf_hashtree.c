@@ -82,7 +82,7 @@ static u32 _newHashtreeEntry(
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_hashtree_node_t * node = NULL;
 
-    u32Ret = jf_jiukun_allocMemory((void **)&node, sizeof(jf_hashtree_node_t), 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&node, sizeof(jf_hashtree_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(node, sizeof(jf_hashtree_node_t));

@@ -308,7 +308,7 @@ u32 jf_dlinklist_appendTo(jf_dlinklist_t * pList, void * pData)
 
     assert(pList != NULL);
 
-    u32Ret = jf_jiukun_allocMemory((void **)&pNode, sizeof(*pNode), 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pNode, sizeof(*pNode));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pNode, sizeof(*pNode));

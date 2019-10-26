@@ -182,7 +182,7 @@ u32 jf_conffile_open(
 
     assert(ppConffile != NULL);
 
-    u32Ret = jf_jiukun_allocMemory((void **)&pijc, sizeof(*pijc), 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pijc, sizeof(*pijc));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pijc, sizeof(*pijc));

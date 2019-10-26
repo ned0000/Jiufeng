@@ -154,7 +154,7 @@ u32 jf_attask_addItem(
     attask_item_t * pai, * temp;
     internal_attask_t * pia = (internal_attask_t *) pAttask;
 
-    u32Ret = jf_jiukun_allocMemory((void **)&pai, sizeof(attask_item_t), 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pai, sizeof(attask_item_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pai, sizeof(attask_item_t));
@@ -315,7 +315,7 @@ u32 jf_attask_create(jf_attask_t ** ppAttask)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_attask_t * pia;
 
-    u32Ret = jf_jiukun_allocMemory((void **)&pia, sizeof(internal_attask_t), 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pia, sizeof(internal_attask_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pia, sizeof(internal_attask_t));

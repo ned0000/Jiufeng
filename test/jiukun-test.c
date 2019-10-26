@@ -187,7 +187,7 @@ u32 _testAllocMem(void)
 
                 jf_logger_logInfoMsg("!!!! Allocate %u", u32Size);
 
-                u32Ret = jf_jiukun_allocMemory((void **)&(pu8Mem[u32Index]), u32Size, 0);
+                u32Ret = jf_jiukun_allocMemory((void **)&(pu8Mem[u32Index]), u32Size);
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     jf_logger_logInfoMsg("success, at %u, %p\n", u32Index,
@@ -496,7 +496,7 @@ static u32 _testJiukunDoubleFreeMemory(void)
 
     ol_printf("testing double free memory\n");
 
-    u32Ret = jf_jiukun_allocMemory((void **)&pu8Buf, 64, 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pu8Buf, 64);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pu8Temp = pu8Buf;
@@ -652,7 +652,7 @@ static u32 _testJiukunAllocateWithoutFreeMemory(void)
     ol_printf("testing allocate without free memory\n");
 
     ol_printf("allocate memory\n");
-    u32Ret = jf_jiukun_allocMemory((void **)&pu8Buf, 64, 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pu8Buf, 64);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
 
@@ -715,7 +715,7 @@ static u32 _testJiukunOutOfBound(void)
     olsize_t size = 32;
 
     ol_printf("allocate jiukun memory\n");
-    u32Ret = jf_jiukun_allocMemory((void **)&pMem, size, 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pMem, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pMem, size);
@@ -753,7 +753,7 @@ static u32 _baseJiukunFunc(void)
     }
 
     ol_printf("allocate jiukun memory: ");
-    u32Ret = jf_jiukun_allocMemory((void **)&pMem, 10, 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pMem, 10);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("success\n");

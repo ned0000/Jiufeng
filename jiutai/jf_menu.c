@@ -145,7 +145,7 @@ static u32 _newMenuEntry(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_entry_t *pEntry;
 
-    u32Ret = jf_jiukun_allocMemory((void **)&pEntry, sizeof(internal_menu_entry_t), 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pEntry, sizeof(internal_menu_entry_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(pEntry, 0, sizeof(internal_menu_entry_t));
@@ -237,7 +237,7 @@ static u32 _newMenu(
     internal_menu_t *pMenu;
     internal_menu_entry_t *pEntry;
 
-    u32Ret = jf_jiukun_allocMemory((void **)&pMenu, sizeof(internal_menu_t), 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pMenu, sizeof(internal_menu_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(pMenu, 0, sizeof(internal_menu_t));

@@ -200,7 +200,7 @@ static u32 _insertAtPosition(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_jiukun_allocMemory((void **)&phtb, sizeof(hash_table_bucket_t), 0);
+        u32Ret = jf_jiukun_allocMemory((void **)&phtb, sizeof(hash_table_bucket_t));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -242,7 +242,7 @@ u32 jf_hashtable_create(jf_hashtable_t ** ppht, jf_hashtable_create_param_t * pj
 
     assert((ppht != NULL) && (pjhcp != NULL));
 
-    u32Ret = jf_jiukun_allocMemory((void **)&piht, sizeof(internal_hash_table_t), 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&piht, sizeof(internal_hash_table_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(piht, 0, sizeof(internal_hash_table_t));
@@ -266,7 +266,7 @@ u32 jf_hashtable_create(jf_hashtable_t ** ppht, jf_hashtable_create_param_t * pj
         piht->iht_u32Resizes = 0;
 
         u32Ret = jf_jiukun_allocMemory(
-            (void **)&(piht->iht_phtbBucket), piht->iht_u32Size * sizeof(hash_table_bucket_t *), 0);
+            (void **)&(piht->iht_phtbBucket), piht->iht_u32Size * sizeof(hash_table_bucket_t *));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

@@ -48,7 +48,7 @@ u32 jf_stack_push(jf_stack_t ** ppStack, void * data)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_stack_node_t * retval = NULL;
 
-    u32Ret = jf_jiukun_allocMemory((void **)&retval, sizeof(*retval), 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&retval, sizeof(*retval));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         retval->jsn_pData = data;

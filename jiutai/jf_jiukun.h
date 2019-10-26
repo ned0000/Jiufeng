@@ -111,14 +111,6 @@ typedef enum jf_jiukun_page_alloc_flag
     JF_JIUKUN_PAGE_ALLOC_FLAG_WAIT = 0, /**< wait if the page fails to be allocated*/
 } jf_jiukun_page_alloc_flag_t;
 
-/** Flags for allocting object or memory from jiukun cache used by jf_jiukun_allocMemory()
- */
-typedef enum jf_jiukun_mem_alloc_flag
-{
-    JF_JIUKUN_MEM_ALLOC_FLAG_WAIT = 0, /**< wait if memory fails to be allocated*/
-    JF_JIUKUN_MEM_ALLOC_FLAG_ZERO, /**< zero the allocated memory */
-} jf_jiukun_mem_alloc_flag_t;
-
 /* --- functional routines ---------------------------------------------------------------------- */
 
 JIUKUNAPI u32 JIUKUNCALL jf_jiukun_init(jf_jiukun_init_param_t * pjjip);
@@ -172,11 +164,10 @@ JIUKUNAPI void JIUKUNCALL jf_jiukun_freeObject(jf_jiukun_cache_t * pCache, void 
  * 
  *  @param pptr [out] the pointer to the allocated memory
  *  @param size [in] bytes of memory are required
- *  @param flag [in] the flags for memory allocation
  *
  *  @return the error code
  */
-JIUKUNAPI u32 JIUKUNCALL jf_jiukun_allocMemory(void ** pptr, olsize_t size, jf_flag_t flag);
+JIUKUNAPI u32 JIUKUNCALL jf_jiukun_allocMemory(void ** pptr, olsize_t size);
 
 /** Free previously allocated memory
  *

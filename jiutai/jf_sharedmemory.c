@@ -81,7 +81,7 @@ u32 jf_sharedmemory_create(jf_sharedmemory_id_t ** ppShmId, u32 u32MemorySize)
 
     assert(ppShmId != NULL);
 
-    u32Ret = jf_jiukun_allocMemory((void **)&pjsi, JF_SHAREDMEMORY_ID_LEN, 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pjsi, JF_SHAREDMEMORY_ID_LEN);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(pjsi, 0, JF_SHAREDMEMORY_ID_LEN);
@@ -107,7 +107,7 @@ u32 jf_sharedmemory_create(jf_sharedmemory_id_t ** ppShmId, u32 u32MemorySize)
 
     assert(ppShmId != NULL);
 
-    u32Ret = jf_jiukun_allocMemory((void **)&pjsi, JF_SHAREDMEMORY_ID_LEN, 0);
+    u32Ret = jf_jiukun_allocMemory((void **)&pjsi, JF_SHAREDMEMORY_ID_LEN);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(pjsi, 0, JF_SHAREDMEMORY_ID_LEN);
