@@ -34,7 +34,6 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_network.h"
-#include "jf_mem.h"
 #include "internalsocket.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */

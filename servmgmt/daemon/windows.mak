@@ -15,8 +15,7 @@ EXE = jf_dongyuan.exe
 
 SOURCES = dongyuan.c main.c
 
-JIUTAI_SRCS = $(JIUTAI_DIR)\getopt.c $(JIUTAI_DIR)\jf_mem.c \
-    $(JIUTAI_DIR)\jf_process.c
+JIUTAI_SRCS = $(JIUTAI_DIR)\getopt.c $(JIUTAI_DIR)\jf_process.c
 
 EXTRA_INC_DIR =
 

@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "jf_network.h"
 #include "jf_mutex.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_listhead.h"
 
 #include "adgram.h"
@@ -108,9 +108,9 @@ static u32 _destroyAdgramSendData(adgram_send_data_t ** ppsd)
 
     if (psd->asd_pu8Buffer != NULL)
     {
-        jf_mem_free((void **)&(psd->asd_pu8Buffer));
+        jf_jiukun_freeMemory((void **)&(psd->asd_pu8Buffer));
     }
-    jf_mem_free((void **)ppsd);
+    jf_jiukun_freeMemory((void **)ppsd);
 
     return u32Ret;
 }
@@ -350,7 +350,7 @@ u32 destroyAdgram(jf_network_adgram_t ** ppAdgram)
     /*Free the buffer if necessary*/
     if (pia->ia_pu8Buffer != NULL)
     {
-        jf_mem_free((void **)&(pia->ia_pu8Buffer));
+        jf_jiukun_freeMemory((void **)&(pia->ia_pu8Buffer));
     }
 
     if (pia->ia_pjnuUtimer != NULL)
@@ -358,7 +358,7 @@ u32 destroyAdgram(jf_network_adgram_t ** ppAdgram)
 
     jf_mutex_fini(&(pia->ia_jmLock));
 
-    jf_mem_free(ppAdgram);
+    jf_jiukun_freeMemory(ppAdgram);
 
     return u32Ret;
 }
@@ -373,9 +373,10 @@ u32 createAdgram(
     assert((pChain != NULL) && (pjnacp != NULL) && (ppAdgram != NULL));
     assert((pjnacp->jnacp_fnOnData != NULL));
 
-    u32Ret = jf_mem_calloc((void **)&pia, sizeof(internal_adgram_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&pia, sizeof(internal_adgram_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(pia, sizeof(internal_adgram_t));
         pia->ia_jncohHeader.jncoh_fnPreSelect = _preSelectAdgram;
         pia->ia_jncohHeader.jncoh_fnPostSelect = _postSelectAdgram;
         pia->ia_pjnsSocket = NULL;
@@ -389,7 +390,7 @@ u32 createAdgram(
         jf_listhead_init(&pia->ia_jlSendData);
         jf_listhead_init(&pia->ia_jlWaitData);
 
-        u32Ret = jf_mem_alloc(
+        u32Ret = jf_jiukun_allocMemory(
             (void **)&(pia->ia_pu8Buffer), pjnacp->jnacp_sInitialBuf);
     }
 
@@ -424,9 +425,10 @@ u32 sendAdgramData(
     internal_adgram_t * pia = (internal_adgram_t *) pAdgram;
     adgram_send_data_t * data = NULL;
 
-    u32Ret = jf_mem_calloc((void **)&data, sizeof(adgram_send_data_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&data, sizeof(adgram_send_data_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(data, sizeof(adgram_send_data_t));
         data->asd_pu8Buffer = pu8Buffer;
         data->asd_sBuf = sBuf;
 

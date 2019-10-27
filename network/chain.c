@@ -16,7 +16,7 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_err.h"
 #include "jf_network.h"
 #include "jf_mutex.h"
@@ -84,13 +84,12 @@ u32 jf_network_createChain(jf_network_chain_t ** ppChain)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_basic_chain_t * pibc;
 
-    u32Ret = jf_mem_alloc((void **)&pibc, sizeof(internal_basic_chain_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&pibc, sizeof(internal_basic_chain_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(pibc, 0, sizeof(internal_basic_chain_t));
+        ol_memset(pibc, 0, sizeof(internal_basic_chain_t));
 
-        u32Ret = jf_network_createSocketPair(
-            AF_INET, SOCK_STREAM, pibc->ibc_pjnsWakeup);
+        u32Ret = jf_network_createSocketPair(AF_INET, SOCK_STREAM, pibc->ibc_pjnsWakeup);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -132,7 +131,7 @@ u32 jf_network_destroyChain(jf_network_chain_t ** ppChain)
     {
         chain = pibc->ibc_pibcNext;
 
-        jf_mem_free((void **)&pibc);
+        jf_jiukun_freeMemory((void **)&pibc);
 
         pibc = chain;
     }
@@ -155,10 +154,12 @@ u32 jf_network_appendToChain(
 
     if (pibc->ibc_pbcoObject != NULL)
     {
-        u32Ret = jf_mem_calloc(
+        u32Ret = jf_jiukun_allocMemory(
             (void **)&pibc->ibc_pibcNext, sizeof(internal_basic_chain_t));
         if (u32Ret == JF_ERR_NO_ERROR)
         {
+            ol_bzero(pibc->ibc_pibcNext, sizeof(internal_basic_chain_t));
+
             pibc = pibc->ibc_pibcNext;
         }
     }

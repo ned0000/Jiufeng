@@ -29,7 +29,7 @@
 #include "jf_hashtable.h"
 #include "jf_string.h"
 #include "jf_process.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 
 #include "cmdparser.h"
 
@@ -322,17 +322,24 @@ u32 createParser(clieng_parser_t ** pcp, clieng_parser_param_t * pcpp)
 
     jf_logger_logInfoMsg("create parser");
 
-    u32Ret = jf_mem_calloc((void **)&picp, sizeof(internal_clieng_parser_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&picp, sizeof(internal_clieng_parser_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(picp, sizeof(internal_clieng_parser_t));
         picp->icp_sArgc = 0;
         picp->icp_pMaster = pcpp->cpp_pMaster;
         picp->icp_u32MaxCmdSet = pcpp->cpp_u32MaxCmdSet;
         if (picp->icp_u32MaxCmdSet != 0)
         {
-            u32Ret = jf_mem_calloc(
+            u32Ret = jf_jiukun_allocMemory(
                 (void **)&picp->icp_piccsCmdSet,
                 sizeof(internal_clieng_cmd_set_t) * picp->icp_u32MaxCmdSet);
+            if (u32Ret == JF_ERR_NO_ERROR)
+            {
+                ol_bzero(
+                    picp->icp_piccsCmdSet,
+                    sizeof(internal_clieng_cmd_set_t) * picp->icp_u32MaxCmdSet);
+            }
         }
     }
 
@@ -377,7 +384,7 @@ u32 destroyParser(clieng_parser_t ** pcp)
     if (picp->icp_jhCmd != NULL)
         jf_hashtable_destroy(&(picp->icp_jhCmd));
 
-    jf_mem_free(pcp);
+    jf_jiukun_freeMemory(pcp);
 
     return u32Ret;
 }
@@ -442,11 +449,12 @@ u32 newCmd(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_mem_calloc((void **)&picc, sizeof(internal_clieng_cmd_t));
+        u32Ret = jf_jiukun_allocMemory((void **)&picc, sizeof(internal_clieng_cmd_t));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(picc, sizeof(internal_clieng_cmd_t));
         ol_strncpy(picc->icc_strName, pstrName, MAX_CMD_NAME_LEN - 1);
         picc->icc_fnSetDefaultParam = fnSetDefaultParam;
         picc->icc_fnParseCmd = fnParseCmd;

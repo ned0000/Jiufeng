@@ -23,7 +23,7 @@
 #include "jf_string.h"
 #include "jf_encode.h"
 #include "jf_filestream.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 static boolean_t ls_bBase64 = FALSE;
@@ -203,18 +203,19 @@ static void _printCanonicalHuffmanCode(
     olchar_t strBit[100];
     jf_encode_huffman_code_t ** ppjehc = NULL;
 
-    u32Ret = jf_mem_calloc(
+    u32Ret = jf_jiukun_allocMemory(
         (void **)&ppjehc, sizeof(jf_encode_huffman_code_t *) * u16NumOfCode);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(ppjehc, sizeof(jf_encode_huffman_code_t *) * u16NumOfCode);
+
         for (u16Index = 0; u16Index < u16NumOfCode; u16Index ++)
         {
             ppjehc[u16Index] = &(pjehc[u16Index]);
         }
 
         /* sort by code length */
-        qsort(
-            ppjehc, u16NumOfCode, sizeof(jf_encode_huffman_code_t *), _encodeTestCompare);
+        qsort(ppjehc, u16NumOfCode, sizeof(jf_encode_huffman_code_t *), _encodeTestCompare);
 
         ol_printf("Char   Count     CodeLen   Encoding\n");
         ol_printf("-----  --------  --------  ----------------\n");
@@ -233,7 +234,7 @@ static void _printCanonicalHuffmanCode(
     }
 
     if (ppjehc != NULL)
-        jf_mem_free((void **)&ppjehc);
+        jf_jiukun_freeMemory((void **)&ppjehc);
 }
 
 static void _printHuffmanCode(jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
@@ -326,18 +327,28 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
+    jf_jiukun_init_param_t jjip;
 
     u32Ret = _parseCmdLineParam(argc, argv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (ls_bBase64)
-            u32Ret = _testBase64();
-        else if (ls_bHuffman)
-            u32Ret = _testHuffman();
-        else
+        ol_bzero(&jjip, sizeof(jjip));
+        jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+        u32Ret = jf_jiukun_init(&jjip);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            ol_printf("No operation is specified !!!!\n\n");
-            _printUsage();
+            if (ls_bBase64)
+                u32Ret = _testBase64();
+            else if (ls_bHuffman)
+                u32Ret = _testHuffman();
+            else
+            {
+                ol_printf("No operation is specified !!!!\n\n");
+                _printUsage();
+            }
+
+            jf_jiukun_fini();
         }
     }
 

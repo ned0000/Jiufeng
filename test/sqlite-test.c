@@ -21,7 +21,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_sqlite.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -69,7 +69,7 @@ static u32 _setJtSqliteValue(
     olchar_t strRet[128];
     olsize_t nsize = ol_strlen(pValue) + ol_strlen(pKey) + 256;
 
-    u32Ret = jf_mem_alloc((void **)&pstrSql, nsize);
+    u32Ret = jf_jiukun_allocMemory((void **)&pstrSql, nsize);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*update or insert the value into the DB*/
@@ -81,7 +81,7 @@ static u32 _setJtSqliteValue(
     }
     
     if (pstrSql != NULL)
-        jf_mem_free((void **)&pstrSql);
+        jf_jiukun_freeMemory((void **)&pstrSql);
 
     return u32Ret;
 }
@@ -209,16 +209,12 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_logger_init_param_t jlipParam;
+    jf_jiukun_init_param_t jjip;
 
     if (argc < 1)
     {
         _printUsage();
         u32Ret = JF_ERR_MISSING_PARAM;
-    }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        u32Ret = _parseCmdLineParam(argc, argv);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -229,15 +225,26 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jlipParam.jlip_bLogToStdout = TRUE;
         jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
 
-        jf_logger_init(&jlipParam);
+        u32Ret = _parseCmdLineParam(argc, argv);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _testJtSqlite();
-    }
+        jf_logger_init(&jlipParam);
 
-    jf_logger_fini();
+        ol_bzero(&jjip, sizeof(jjip));
+        jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+        u32Ret = jf_jiukun_init(&jjip);
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            u32Ret = _testJtSqlite();
+
+            jf_jiukun_fini();
+        }
+
+        jf_logger_fini();
+    }
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {

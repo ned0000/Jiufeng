@@ -17,7 +17,7 @@ RESOURCE = serv
 
 SOURCES = ../common/servmgmtcommon.c serv.c
 
-JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\jf_process.c $(JIUTAI_DIR)\jf_time.c
+JIUTAI_SRCS = $(JIUTAI_DIR)\jf_process.c $(JIUTAI_DIR)\jf_time.c
 
 EXTRA_DEFS = -DJIUFENG_SERV_DLL
 

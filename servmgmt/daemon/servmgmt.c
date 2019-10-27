@@ -17,7 +17,7 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_sharedmemory.h"
 #include "jf_filestream.h"
 #include "jf_process.h"
@@ -120,7 +120,7 @@ static u32 _freeServMgmtUtimerItem(void ** ppServUtimer)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_mem_free(ppServUtimer);
+    jf_jiukun_freeMemory(ppServUtimer);
 
     return u32Ret;
 }
@@ -132,9 +132,10 @@ static u32 _newServMgmtUtimerItem(
     u32 u32Ret = JF_ERR_NO_ERROR;
     serv_mgmt_utimer_t * psmu = NULL;
 
-    u32Ret = jf_mem_calloc((void **)&psmu, sizeof(serv_mgmt_utimer_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&psmu, sizeof(serv_mgmt_utimer_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(psmu, sizeof(serv_mgmt_utimer_t));
         psmu->smu_pismServMgmt = pism;
         psmu->smu_pisiServInfo = pisi;
     }

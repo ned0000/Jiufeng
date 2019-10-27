@@ -17,8 +17,9 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
+#include "jf_jiukun.h"
+
 #include "cmdhistory.h"
-#include "jf_mem.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -53,9 +54,10 @@ u32 createCommandHistory(
         
     size = sizeof(internal_clieng_cmd_history_t) + 
         (pcchp->cchp_sCmdHistroyBuf * (pcchp->cchp_sMaxCmdLine + 1)) - 4;
-    u32Ret = jf_mem_calloc((void **)&picch, size);
+    u32Ret = jf_jiukun_allocMemory((void **)&picch, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(picch, size);
         picch->icch_sMaxCmdLine = pcchp->cchp_sMaxCmdLine;
         picch->icch_sCmdHistroyBuf = pcchp->cchp_sCmdHistroyBuf;
         picch->icch_iFirstCmd = INVALID_CMD_INDEX;
@@ -80,7 +82,7 @@ u32 destroyCommandHistory(clieng_cmd_history_t ** ppcch)
             
     jf_logger_logInfoMsg("destroy cmd history" );
             
-    jf_mem_free((void **)&picch);
+    jf_jiukun_freeMemory((void **)&picch);
     
     return u32Ret;
 }

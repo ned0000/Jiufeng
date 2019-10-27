@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "jf_listhead.h"
 #include "jf_err.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -104,11 +104,13 @@ static u32 _initTestListhead(test_listhead_t * ptl)
     u32 u32Ret = JF_ERR_NO_ERROR;
     static u32 u32Counter = 1;
 
-    jf_mem_calloc((void **)ptl, sizeof(test_listhead_t));
-
-    ptl->tl_u32Flag1 = u32Counter ++;
-
-    jf_listhead_init(&(ptl->tl_jlList));
+    u32Ret = jf_jiukun_allocMemory((void **)ptl, sizeof(test_listhead_t));
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_bzero(ptl, sizeof(test_listhead_t));
+        ptl->tl_u32Flag1 = u32Counter ++;
+        jf_listhead_init(&(ptl->tl_jlList));
+    }
 
     return u32Ret;
 }
@@ -272,6 +274,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_logger_init_param_t jlipParam;
+    jf_jiukun_init_param_t jjip;
 
     memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
     jlipParam.jlip_pstrCallerName = "LISTHEAD-TEST";
@@ -283,12 +286,21 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
         jf_logger_init(&jlipParam);
 
-        if (ls_bListHead)
-            u32Ret = _testListHead();
-        else
+        ol_bzero(&jjip, sizeof(jjip));
+        jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+        u32Ret = jf_jiukun_init(&jjip);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            ol_printf("No operation is specified !!!!\n\n");
-            _printUsage();
+            if (ls_bListHead)
+                u32Ret = _testListHead();
+            else
+            {
+                ol_printf("No operation is specified !!!!\n\n");
+                _printUsage();
+            }
+
+            jf_jiukun_fini();
         }
 
         jf_logger_logErrMsg(u32Ret, "Quit");

@@ -17,14 +17,14 @@ RESOURCE = matrix
 
 SOURCES = matrix.c
 
-JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c
+JIUTAI_SRCS =
 
 EXTRA_DEFS = -DJIUFENG_MATRIX_DLL
 
-EXTRA_LIBS = jf_logger.lib
+EXTRA_LIBS = jf_logger.lib jf_jiukun.lib
 
 !if "$(DEBUG_JIUFENG)" == "yes"
-EXTRA_CFLAGS = -DDEBUG_MATRIX
+    EXTRA_CFLAGS = -DDEBUG_MATRIX
 !endif
 
 !include "$(TOPDIR)\mak\winlib.mak"

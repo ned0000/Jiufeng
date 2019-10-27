@@ -18,7 +18,6 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "jf_mem.h"
 #include "jf_dynlib.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */

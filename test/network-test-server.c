@@ -21,7 +21,7 @@
 #include "jf_network.h"
 #include "jf_string.h"
 #include "jf_process.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_thread.h"
 #include "jf_time.h"
 
@@ -130,9 +130,10 @@ static u32 _onNtsConnect(
 
     ol_printf("on nts connect, new connection\n");
 
-    u32Ret = jf_mem_calloc((void **)&psd, sizeof(server_data_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&psd, sizeof(server_data_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(psd, sizeof(server_data_t));
         ol_strcpy((olchar_t *)psd->sd_u8Id, "network-test-server");
 
         *ppUser = psd;
@@ -150,7 +151,7 @@ static u32 _onNtsDisconnect(
     ol_printf(
         "on nts disconnect, id: %s, reason: %s\n", psd->sd_u8Id, jf_err_getDescription(u32Status));
 
-    jf_mem_free((void **)&psd);
+    jf_jiukun_freeMemory((void **)&psd);
 
     return u32Ret;
 }
@@ -194,7 +195,6 @@ static u32 _onNtsData(
 JF_THREAD_RETURN_VALUE _ntccThread(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-
     jf_network_assocket_create_param_t jnacp;
 
     u32Ret = jf_network_createChain(&ls_pjncNtsChain);
@@ -229,6 +229,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_logger_init_param_t jlipParam;
     jf_thread_id_t threadid;
     u32 u32RetCode = 0;
+    jf_jiukun_init_param_t jjip;
 
     memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
     jlipParam.jlip_pstrCallerName = NETWORK_TEST_SERVER;
@@ -243,20 +244,29 @@ olint_t main(olint_t argc, olchar_t ** argv)
     {
         jf_logger_init(&jlipParam);
 
-        u32Ret = jf_process_initSocket();
+        ol_bzero(&jjip, sizeof(jjip));
+        jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+        u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = jf_thread_create(&threadid, NULL, _ntccThread, NULL);
+            u32Ret = jf_process_initSocket();
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                while (! ls_bToTerminateNts)
+                u32Ret = jf_thread_create(&threadid, NULL, _ntccThread, NULL);
+                if (u32Ret == JF_ERR_NO_ERROR)
                 {
-                    jf_time_sleep(3);
+                    while (! ls_bToTerminateNts)
+                    {
+                        jf_time_sleep(3);
+                    }
                 }
+
+                jf_process_finiSocket();
+                jf_thread_waitForThreadTermination(threadid, &u32RetCode);
             }
 
-            jf_process_finiSocket();
-            jf_thread_waitForThreadTermination(threadid, &u32RetCode);
+            jf_jiukun_fini();
         }
 
         jf_logger_fini();

@@ -19,7 +19,7 @@
 #include "jf_limit.h"
 #include "jf_listarray.h"
 #include "jf_err.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -126,7 +126,7 @@ static u32 _testListArray(void)
     size = jf_listarray_getSize(u32NumOfNode);
     ol_printf("size of list array %u\n", size);
 
-    u32Ret = jf_mem_alloc((void **)&pjl, size);
+    u32Ret = jf_jiukun_allocMemory((void **)&pjl, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_listarray_init(pjl, u32NumOfNode);
@@ -176,7 +176,7 @@ static u32 _testListArray(void)
     }
 
     if (pjl != NULL)
-        jf_mem_free((void **)&pjl);
+        jf_jiukun_freeMemory((void **)&pjl);
 
     return u32Ret;
 }
@@ -187,6 +187,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_logger_init_param_t jlipParam;
+    jf_jiukun_init_param_t jjip;
 
     memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
     jlipParam.jlip_pstrCallerName = "LISTARRAY-TEST";
@@ -197,16 +198,22 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jlipParam.jlip_bLogToStdout = TRUE;
         jlipParam.jlip_u8TraceLevel = 0;
         jf_logger_init(&jlipParam);
-    }
 
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        if (ls_bListArray)
-            u32Ret = _testListArray(); 
-        else
+        ol_bzero(&jjip, sizeof(jjip));
+        jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+        u32Ret = jf_jiukun_init(&jjip);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            ol_printf("No operation is specified !!!!\n\n");
-            _printUsage();
+            if (ls_bListArray)
+                u32Ret = _testListArray(); 
+            else
+            {
+                ol_printf("No operation is specified !!!!\n\n");
+                _printUsage();
+            }
+
+            jf_jiukun_fini();
         }
     }
 

@@ -16,7 +16,7 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_matrix.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -91,9 +91,10 @@ static u32 _determinant(oldouble_t * p, olint_t n, oldouble_t * dbc)
     olint_t i;
     olint_t * list = NULL;
 
-    u32Ret = jf_mem_calloc((void **)&list, sizeof(olint_t) * n);
+    u32Ret = jf_jiukun_allocMemory((void **)&list, sizeof(olint_t) * n);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(list, sizeof(olint_t) * n);
         for (i = 0; i < n; i++)
             list[i] = i;
 
@@ -103,7 +104,7 @@ static u32 _determinant(oldouble_t * p, olint_t n, oldouble_t * dbc)
     }
 
     if (list != NULL)
-        jf_mem_free((void **)&list);
+        jf_jiukun_freeMemory((void **)&list);
 
     return u32Ret;
 }
@@ -118,9 +119,10 @@ static u32 _algebraicCofactor(
     olint_t i, count = 0;
     olint_t raw_len = k * k;
 
-    u32Ret = jf_mem_calloc((void **)&cofactor, sizeof(oldouble_t) * len);
+    u32Ret = jf_jiukun_allocMemory((void **)&cofactor, sizeof(oldouble_t) * len);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(cofactor, sizeof(oldouble_t) * len);
         for (i = 0; i < raw_len; i++)
             if (i / k != m && i % k != n)
                 *(cofactor + count++) = *(p + i);
@@ -136,7 +138,7 @@ static u32 _algebraicCofactor(
     }
 
     if (cofactor != NULL)
-        jf_mem_free((void **)&cofactor);
+        jf_jiukun_freeMemory((void **)&cofactor);
 
     return u32Ret;
 }
@@ -150,9 +152,10 @@ u32 jf_matrix_alloc(olint_t row, olint_t col, matrix_t ** ppm)
     olint_t size;
 
     size = sizeof(matrix_t) + sizeof(oldouble_t) * row * col;
-    u32Ret = jf_mem_calloc((void **)&pm, size);
+    u32Ret = jf_jiukun_allocMemory((void **)&pm, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(pm, size);
         pm->m_pdbData = (oldouble_t *)(pm + 1);
         pm->m_nRow = row;
         pm->m_nCol = col;
@@ -167,7 +170,7 @@ u32 jf_matrix_free(matrix_t ** ppm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = jf_mem_free((void **)ppm);
+    jf_jiukun_freeMemory((void **)ppm);
 
     return u32Ret;
 }

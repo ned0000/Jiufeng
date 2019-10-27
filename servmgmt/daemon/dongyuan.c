@@ -26,7 +26,7 @@
 #include "jf_process.h"
 #include "jf_file.h"
 #include "jf_serv.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_network.h"
 #include "jf_ipaddr.h"
 #include "jf_thread.h"

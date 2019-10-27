@@ -28,9 +28,10 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_clieng.h"
+#include "jf_jiukun.h"
+
 #include "clicmd.h"
 #include "main.h"
-#include "jf_mem.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 jiufeng_cli_master_t * ls_pocmMaster = NULL;
@@ -127,13 +128,14 @@ olint_t main(olint_t argc, olchar_t ** argv)
     cli_param_t cliParam;
 //    aether_param_t ap;
 
-    u32Ret = jf_mem_calloc((void **)&ls_pocmMaster, sizeof(jiufeng_cli_master_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&ls_pocmMaster, sizeof(jiufeng_cli_master_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+        ol_bzero(ls_pocmMaster, sizeof(jiufeng_cli_master_t));
+        ol_bzero(&jlipParam, sizeof(jf_logger_init_param_t));
         jlipParam.jlip_pstrCallerName = "CLI";
 
-        memset(&jcip, 0, sizeof(jcip));
+        ol_memset(&jcip, 0, sizeof(jcip));
 
         jcip.jcip_sMaxCmdLine = JF_CLIENG_MAX_COMMAND_LINE_SIZE;
         jcip.jcip_sCmdHistroyBuf = 20;
@@ -165,7 +167,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_logger_fini();
 
     if (ls_pocmMaster != NULL)
-        jf_mem_free((void **)&ls_pocmMaster);
+        jf_jiukun_freeMemory((void **)&ls_pocmMaster);
 
     return u32Ret;
 }

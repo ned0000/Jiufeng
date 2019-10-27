@@ -15,12 +15,12 @@ SONAME = jf_matrix
 
 SOURCES = matrix.c
 
-JIUTAI_SRCS = jf_mem.c
+JIUTAI_SRCS =
 
-EXTRA_LIBS = -ljf_logger
+EXTRA_LIBS = -ljf_logger -ljf_jiukun
 
 ifeq ("$(DEBUG_JIUFENG)", "yes")
-EXTRA_CFLAGS = -DDEBUG_MATRIX
+    EXTRA_CFLAGS = -DDEBUG_MATRIX
 endif
 
 include $(TOPDIR)/mak/lnxlib.mak

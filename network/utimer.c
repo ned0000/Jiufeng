@@ -19,7 +19,7 @@
 #include "jf_time.h"
 #include "jf_network.h"
 #include "jf_mutex.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_listhead.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -57,7 +57,7 @@ static u32 _freeUtimerItem(utimer_item_t ** ppItem)
     if (item->ui_fnDestroy != NULL)
         item->ui_fnDestroy(&item->ui_pData);
 
-    jf_mem_free((void **)ppItem);
+    jf_jiukun_freeMemory((void **)ppItem);
 
     return u32Ret;
 }
@@ -256,7 +256,7 @@ u32 jf_network_addUtimerItem(
 #if defined(DEBUG_UTIMER)
     jf_logger_logInfoMsg("add utimer item");
 #endif
-    u32Ret = jf_mem_alloc((void **)&pui, sizeof(utimer_item_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&pui, sizeof(utimer_item_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Get the current time for reference*/
@@ -316,7 +316,7 @@ u32 jf_network_destroyUtimer(jf_network_utimer_t ** ppUtimer)
 
     jf_mutex_fini(&piu->iu_jmLock);
 
-    jf_mem_free(ppUtimer);
+    jf_jiukun_freeMemory(ppUtimer);
 
     return u32Ret;
 }
@@ -327,7 +327,7 @@ u32 jf_network_createUtimer(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_utimer_t * piu;
 
-    u32Ret = jf_mem_alloc((void **)&piu, sizeof(internal_utimer_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&piu, sizeof(internal_utimer_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(piu, 0, sizeof(internal_utimer_t));

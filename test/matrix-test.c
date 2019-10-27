@@ -18,6 +18,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_matrix.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -362,13 +363,28 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     jf_logger_init_param_t lp;
+    jf_jiukun_init_param_t jjip;
 
-    memset(&lp, 0, sizeof(lp));
+    ol_memset(&lp, 0, sizeof(lp));
 
     u32Ret = _parseCmdLineParam(argc, argv, &lp);
+    if (u32Ret != JF_ERR_NO_ERROR)
+    {
+        jf_logger_init(&lp);
 
-    if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = _testMatrix();
+        ol_bzero(&jjip, sizeof(jjip));
+        jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+        u32Ret = jf_jiukun_init(&jjip);
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            u32Ret = _testMatrix();
+
+            jf_jiukun_fini();
+        }
+
+        jf_logger_fini();
+    }
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {

@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "jf_network.h"
 #include "jf_mutex.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_string.h"
 #include "jf_listhead.h"
 
@@ -119,9 +119,9 @@ static void _destroyAsocketSendData(asocket_send_data_t ** ppasd)
 
     if (pasd->asd_pu8Buffer != NULL)
     {
-        jf_mem_free((void **)&pasd->asd_pu8Buffer);
+        jf_jiukun_freeMemory((void **)&pasd->asd_pu8Buffer);
     }
-    jf_mem_free((void **)ppasd);
+    jf_jiukun_freeMemory((void **)ppasd);
 }
 
 /** Clears all the pending data to be sent for an async socket
@@ -475,14 +475,15 @@ static u32 _asAddSendData(internal_asocket_t * pia, u8 * pu8Buffer, olsize_t sBu
     u32 u32Ret = JF_ERR_NO_ERROR;
     asocket_send_data_t * pasd = NULL;
 
-    u32Ret = jf_mem_calloc((void **)&pasd, sizeof(*pasd));
+    u32Ret = jf_jiukun_allocMemory((void **)&pasd, sizeof(*pasd));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(pasd, sizeof(*pasd));
         pasd->asd_pu8Buffer = pu8Buffer;
         pasd->asd_sBuf = sBuf;
         jf_listhead_init(&pasd->asd_jlList);
 
-        u32Ret = jf_mem_duplicate((void **)&pasd->asd_pu8Buffer, pu8Buffer, sBuf);
+        u32Ret = jf_jiukun_cloneMemory((void **)&pasd->asd_pu8Buffer, pu8Buffer, sBuf);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -593,7 +594,7 @@ u32 destroyAsocket(jf_network_asocket_t ** ppAsocket)
     /*Free the buffer if necessary*/
     if (pia->ia_pu8Buffer != NULL)
     {
-        jf_mem_free((void **)&pia->ia_pu8Buffer);
+        jf_jiukun_freeMemory((void **)&pia->ia_pu8Buffer);
         pia->ia_sMalloc = 0;
     }
 
@@ -602,7 +603,7 @@ u32 destroyAsocket(jf_network_asocket_t ** ppAsocket)
     if (pia->ia_pjnuUtimer != NULL)
         jf_network_destroyUtimer(&pia->ia_pjnuUtimer);
 
-    jf_mem_free(ppAsocket);
+    jf_jiukun_freeMemory(ppAsocket);
 
     return u32Ret;
 }
@@ -619,9 +620,10 @@ u32 createAsocket(
 
     jf_logger_logInfoMsg("create as");
 
-    u32Ret = jf_mem_calloc((void **)&pia, sizeof(internal_asocket_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&pia, sizeof(internal_asocket_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(pia, sizeof(internal_asocket_t));
         pia->ia_jncohHeader.jncoh_fnPreSelect = _preSelectAsocket;
         pia->ia_jncohHeader.jncoh_fnPostSelect = _postSelectAsocket;
         pia->ia_pjncChain = pChain;
@@ -632,7 +634,7 @@ u32 createAsocket(
         _setInternalCallbackFunction(pia, pjnacp);
         pia->ia_sMalloc = pjnacp->jnacp_sInitialBuf;
 
-        u32Ret = jf_mem_alloc(
+        u32Ret = jf_jiukun_allocMemory(
             (void **)&pia->ia_pu8Buffer, pjnacp->jnacp_sInitialBuf);
     }
 

@@ -23,7 +23,7 @@
 #include "jf_process.h"
 #include "jf_thread.h"
 #include "jf_time.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -85,7 +85,7 @@ static u32 _destroyUtUtimerItemData(void ** ppData)
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     ol_printf("ut destroy utimer data, data: %s\n", (olchar_t *)*ppData);
-    jf_mem_free(ppData);
+    jf_jiukun_freeMemory(ppData);
 
     return u32Ret;
 }
@@ -95,9 +95,10 @@ static u32 _addUtUtimerItem()
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pData1 = NULL;
 
-    u32Ret = jf_mem_alloc((void **)&pData1, 64);
+    u32Ret = jf_jiukun_allocMemory((void **)&pData1, 64);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(pData1, 64);
         ol_strcpy(pData1, "_addUtUtimerItem");
 
         u32Ret = jf_network_addUtimerItem(
@@ -112,12 +113,13 @@ static u32 _addAndRemoveUtUtimerItem()
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pData1 = NULL, * pData2 = NULL;
 
-    u32Ret = jf_mem_alloc((void **)&pData1, 64);
+    u32Ret = jf_jiukun_allocMemory((void **)&pData1, 64);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_bzero(pData1, 64);
         ol_strcpy(pData1, "_addAndRemoveUtUtimerItem 1");
 
-        u32Ret = jf_mem_alloc((void **)&pData2, 64);
+        u32Ret = jf_jiukun_allocMemory((void **)&pData2, 64);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

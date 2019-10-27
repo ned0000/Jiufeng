@@ -22,7 +22,7 @@
 #include "jf_string.h"
 #include "jf_process.h"
 #include "jf_webclient.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 #include "jf_file.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -132,7 +132,7 @@ static u32 _wcTestOnResponse(
     jf_httpparser_getRawPacket(header, &buf, &size);
     jf_logger_logDataMsgWithAscii(
         (u8 *)buf, size, "Wc test on response, body %d", header->jhph_sBody);
-    jf_mem_free((void **)&buf);
+    jf_jiukun_freeMemory((void **)&buf);
 
     if (header->jhph_sBody > 0)
     {
@@ -237,6 +237,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     jf_logger_init_param_t jlipParam;
+    jf_jiukun_init_param_t jjip;
 
     memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
     jlipParam.jlip_pstrCallerName = "wc-test";
@@ -250,12 +251,21 @@ olint_t main(olint_t argc, olchar_t ** argv)
     {
         jf_logger_init(&jlipParam);
 
-        u32Ret = jf_process_initSocket();
+        ol_bzero(&jjip, sizeof(jjip));
+        jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+        u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = _testWebclient(argc, argv);
+            u32Ret = jf_process_initSocket();
+            if (u32Ret == JF_ERR_NO_ERROR)
+            {
+                u32Ret = _testWebclient(argc, argv);
 
-            jf_process_finiSocket();
+                jf_process_finiSocket();
+            }
+
+            jf_jiukun_fini();
         }
 
         jf_logger_fini();

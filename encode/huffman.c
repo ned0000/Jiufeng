@@ -512,7 +512,7 @@ u32 jf_encode_genHuffmanCode(jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode)
     }
 
     if (ppLeaf != NULL)
-        jf_jiukun_freeMemory((void **)ppLeaf);
+        jf_jiukun_freeMemory((void **)&ppLeaf);
 
     if (pPool != NULL)
         _destroyHuffmanNodePool(&pPool);
