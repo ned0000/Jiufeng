@@ -72,8 +72,8 @@ static u32 _fillArBuffer(internal_ar_file_t * piaf)
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
-u32 createArFile(
-    olchar_t * pstrArchiveName, ar_file_param_t * pafp, ar_file_t ** ppaf)
+
+u32 createArFile(olchar_t * pstrArchiveName, ar_file_param_t * pafp, ar_file_t ** ppaf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ar_file_t * piaf;
@@ -81,15 +81,13 @@ u32 createArFile(
     u32Ret = jf_jiukun_allocMemory((void **)&piaf, sizeof(internal_ar_file_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(piaf, 0, sizeof(internal_ar_file_t));
+        ol_bzero(piaf, sizeof(internal_ar_file_t));
 
         piaf->iaf_bExtract = pafp->afp_bExtract;
         if (piaf->iaf_bExtract)
-            u32Ret = jf_filestream_open(
-                pstrArchiveName, "rb", &(piaf->iaf_pjfArchive));
+            u32Ret = jf_filestream_open(pstrArchiveName, "rb", &(piaf->iaf_pjfArchive));
         else
-            u32Ret = jf_filestream_open(
-                pstrArchiveName, "wb", &(piaf->iaf_pjfArchive));
+            u32Ret = jf_filestream_open(pstrArchiveName, "wb", &(piaf->iaf_pjfArchive));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

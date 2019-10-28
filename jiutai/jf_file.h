@@ -53,63 +53,66 @@
     #define JF_FILE_INVALID_FILE_VALUE  (INVALID_HANDLE_VALUE)
 
     #ifndef O_RDONLY
-        #define O_RDONLY          0x0000
+        #define O_RDONLY         (0x0000)
     #endif
 
     #ifndef O_WRONLY
-        #define O_WRONLY          0x0001
+        #define O_WRONLY         (0x0001)
     #endif
 
     #ifndef O_RDWR
-        #define O_RDWR            0x0002
+        #define O_RDWR           (0x0002)
     #endif
 
     #ifndef O_APPEND
-        #define O_APPEND          0x0008
+        #define O_APPEND         (0x0008)
     #endif
 
     #ifndef O_CREAT
-        #define O_CREAT           0x0100
+        #define O_CREAT          (0x0100)
     #endif
 
     #ifndef O_TRUNC
-        #define O_TRUNC           0x0200
+        #define O_TRUNC          (0x0200)
     #endif
 
     #ifndef O_EXCL
-        #define O_EXCL            0x0400
+        #define O_EXCL           (0x0400)
     #endif
 
 #endif
 
 /* Possible value for fs_u32Mode */
-#define JF_FILE_MODE_TYPE_MASK   0x001F0000
+#define JF_FILE_MODE_TYPE_MASK   (0x001F0000)
 
-#define JF_FILE_MODE_TSOCK  0x00070000   /* socket */
-#define JF_FILE_MODE_TLNK   0x00060000   /* symbolic link */
-#define JF_FILE_MODE_TREG   0x00050000   /* regular file */
-#define JF_FILE_MODE_TBLK   0x00040000   /* block device */
-#define JF_FILE_MODE_TDIR   0x00030000   /* directory */
-#define JF_FILE_MODE_TCHR   0x00020000   /* character device */
-#define JF_FILE_MODE_TFIFO  0x00010000   /* fifo */
+#define JF_FILE_MODE_TSOCK       (0x00070000)   /* socket */
+#define JF_FILE_MODE_TLNK        (0x00060000)   /* symbolic link */
+#define JF_FILE_MODE_TREG        (0x00050000)   /* regular file */
+#define JF_FILE_MODE_TBLK        (0x00040000)   /* block device */
+#define JF_FILE_MODE_TDIR        (0x00030000)   /* directory */
+#define JF_FILE_MODE_TCHR        (0x00020000)   /* character device */
+#define JF_FILE_MODE_TFIFO       (0x00010000)   /* fifo */
 
-#define JF_FILE_MODE_SUID   0x00004000
-#define JF_FILE_MODE_SGID   0x00002000
-#define JF_FILE_MODE_SVTX   0x00001000
+#define JF_FILE_MODE_PERM_MASK   (0x00000FFF)
 
-#define JF_FILE_MODE_PERM_MASK   0x00000FFF
+#define JF_FILE_MODE_SUID        (04000)
+#define JF_FILE_MODE_SGID        (02000)
+#define JF_FILE_MODE_SVTX        (01000)
 
-#define JF_FILE_MODE_RUSR   0x00000400
-#define JF_FILE_MODE_WUSR   0x00000200
-#define JF_FILE_MODE_XUSR   0x00000100
+#define JF_FILE_MODE_RWXU        (00700)
+#define JF_FILE_MODE_RUSR        (00400)
+#define JF_FILE_MODE_WUSR        (00200)
+#define JF_FILE_MODE_XUSR        (00100)
 
-#define JF_FILE_MODE_RGRP   0x00000040
-#define JF_FILE_MODE_WGRP   0x00000020
-#define JF_FILE_MODE_XGRP   0x00000010
+#define JF_FILE_MODE_RWXG        (00070)
+#define JF_FILE_MODE_RGRP        (00040)
+#define JF_FILE_MODE_WGRP        (00020)
+#define JF_FILE_MODE_XGRP        (00010)
 
-#define JF_FILE_MODE_ROTH   0x00000004
-#define JF_FILE_MODE_WOTH   0x00000002
-#define JF_FILE_MODE_XOTH   0x00000001
+#define JF_FILE_MODE_RWXO        (00007)
+#define JF_FILE_MODE_ROTH        (00004)
+#define JF_FILE_MODE_WOTH        (00002)
+#define JF_FILE_MODE_XOTH        (00001)
 
 typedef struct
 {

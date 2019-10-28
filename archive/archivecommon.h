@@ -43,7 +43,6 @@
 /* values for ah_u8DirDepth */
 #define AH_DIR_DEPTH_NULL 0xFF
 
-/* file mode */
 #define AH_MODE_SUID   0x00000800
 #define AH_MODE_SGID   0x00000400
 #define AH_MODE_SVTX   0x00000200
@@ -58,16 +57,17 @@
 #define AH_MODE_OEXEC  0x00000001
 
 /* length of the fields */
-#define AH_NAME_LEN 64
-#define AH_MODE_LEN 16
-#define AH_USER_ID_LEN 8
-#define AH_USER_GROUP_ID_LEN 8
-#define AH_SIZE_LEN 24
-#define AH_TIME_LEN 16
-#define AH_MAGIC_LEN 6
-#define AH_VERSION_LEN 2
-#define AH_USER_NAME_LEN 32
-#define AH_GROUP_NAME_LEN 32
+#define AH_NAME_LEN           (128)
+#define AH_MODE_LEN           (16)
+#define AH_USER_ID_LEN        (8)
+#define AH_USER_GROUP_ID_LEN  (8)
+#define AH_SIZE_LEN           (24)
+#define AH_TIME_LEN           (16)
+#define AH_MAGIC_LEN          (6)
+#define AH_VERSION_LEN        (2)
+#define AH_CHK_SUM_LEN        (8)
+#define AH_USER_NAME_LEN      (32)
+#define AH_GROUP_NAME_LEN     (32)
 
 typedef struct archive_header
 {                             /* byte offset */
@@ -76,20 +76,20 @@ typedef struct archive_header
     u8 ah_u8NameLen;
     u8 ah_u8Type;
     u8 ah_u8Name[AH_NAME_LEN];
+    /** file mode, see JF_FILE_MODE_XXX */
     u8 ah_u8Mode[AH_MODE_LEN];
     u8 ah_u8UserId[AH_USER_ID_LEN];
     u8 ah_u8GroupId[AH_USER_GROUP_ID_LEN];
     u8 ah_u8Size[AH_SIZE_LEN];
     u8 ah_u8ModifyTime[AH_TIME_LEN];
-    u8 ah_u8Magic[6];
+    u8 ah_u8Magic[AH_MAGIC_LEN];
     u8 ah_u8Version[AH_VERSION_LEN];
-    u8 ah_u8Chksum[8];
+    u8 ah_u8Chksum[AH_CHK_SUM_LEN];
     u8 ah_u8UserName[AH_USER_NAME_LEN];
     u8 ah_u8GroupName[AH_GROUP_NAME_LEN];
 } archive_header_t;
 
-#define ARCHIVE_BLOCK_SIZE  512
-
+#define ARCHIVE_BLOCK_SIZE      (512)
 
 typedef union archive_block
 {
@@ -97,7 +97,7 @@ typedef union archive_block
     archive_header_t ab_ahHeader;
 } archive_block_t;
 
-#define MAX_BLOCKS    120
+#define MAX_BLOCKS              (120)
 
 #define MAX_ARCHIVE_BUFFER_LEN  (sizeof(archive_block_t) * MAX_BLOCKS)
 
@@ -113,8 +113,7 @@ typedef struct
     u8 fh_u8Reserved2[56];
 } file_handler_t;
 
-#define ARCHIVE_ALIGH_SIZE(size) \
-    (((size - 1) & (~(ARCHIVE_BLOCK_SIZE - 1))) + ARCHIVE_BLOCK_SIZE)
+#define ARCHIVE_ALIGH_SIZE(size)  (((size - 1) & (~(ARCHIVE_BLOCK_SIZE - 1))) + ARCHIVE_BLOCK_SIZE)
 
 /* --- functional routines ---------------------------------------------------------------------- */
 

@@ -43,8 +43,8 @@ static u32 _alignData(ar_file_t * paf, jf_file_stat_t * pFilestat, u8 * pu8Buffe
     return u32Ret;
 }
 
-static u32 _setName(archive_header_t * pah, const olchar_t * pstrFullpath,
-    jf_file_stat_t * pFilestat)
+static u32 _setName(
+    archive_header_t * pah, const olchar_t * pstrFullpath, jf_file_stat_t * pFilestat)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strFilename[256];
@@ -59,7 +59,7 @@ static u32 _setName(archive_header_t * pah, const olchar_t * pstrFullpath,
     {
         pah->ah_u8NameLen = AH_NAME_LEN_LONG;
         pab = (archive_block_t *)((u8 *)pah + ARCHIVE_BLOCK_SIZE);
-        memset(pab, 0, ARCHIVE_BLOCK_SIZE);
+        ol_bzero(pab, ARCHIVE_BLOCK_SIZE);
         ol_snprintf((olchar_t *)pab->ab_u8Buffer, ARCHIVE_BLOCK_SIZE - 1, "%s", strFilename);
     }
 
@@ -102,8 +102,9 @@ static u32 _countDirDepth(
     return u32Ret;
 }
 
-static u32 _setDirDepth(archive_header_t * pah, const olchar_t * pstrFullpath,
-    jf_file_stat_t * pFilestat, file_handler_t * pfh)
+static u32 _setDirDepth(
+    archive_header_t * pah, const olchar_t * pstrFullpath, jf_file_stat_t * pFilestat,
+    file_handler_t * pfh)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -113,8 +114,8 @@ static u32 _setDirDepth(archive_header_t * pah, const olchar_t * pstrFullpath,
     }
     else
     {
-        u32Ret = _countDirDepth(pstrFullpath, pfh->fh_strFullpath,
-            &(pah->ah_u8DirDepth));
+        u32Ret = _countDirDepth(
+            pstrFullpath, pfh->fh_strFullpath, &(pah->ah_u8DirDepth));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -128,28 +129,15 @@ static u32 _setDirDepth(archive_header_t * pah, const olchar_t * pstrFullpath,
 static u32 _setFileMode(archive_header_t * pah, jf_file_stat_t * pFilestat)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Mode = 0;
 
-    u32Mode = ((pFilestat->jfs_u32Mode & JF_FILE_MODE_SUID ? AH_MODE_SUID : 0) |
-               (pFilestat->jfs_u32Mode & JF_FILE_MODE_SGID ? AH_MODE_SGID : 0) |
-               (pFilestat->jfs_u32Mode & JF_FILE_MODE_SVTX ? AH_MODE_SVTX : 0) |
-               (pFilestat->jfs_u32Mode & JF_FILE_MODE_RUSR ? AH_MODE_UREAD : 0) |
-               (pFilestat->jfs_u32Mode & JF_FILE_MODE_WUSR ? AH_MODE_UWRITE : 0) |
-               (pFilestat->jfs_u32Mode & JF_FILE_MODE_XUSR ? AH_MODE_UEXEC : 0) |
-               (pFilestat->jfs_u32Mode & JF_FILE_MODE_RGRP ? AH_MODE_GREAD : 0) |
-               (pFilestat->jfs_u32Mode & JF_FILE_MODE_WGRP ? AH_MODE_GWRITE : 0) |
-               (pFilestat->jfs_u32Mode & JF_FILE_MODE_XGRP ? AH_MODE_GEXEC : 0) |
-               (pFilestat->jfs_u32Mode & JF_FILE_MODE_ROTH ? AH_MODE_OREAD : 0) |
-               (pFilestat->jfs_u32Mode & JF_FILE_MODE_WOTH ? AH_MODE_OWRITE : 0) |
-               (pFilestat->jfs_u32Mode & JF_FILE_MODE_XOTH ? AH_MODE_OEXEC : 0));
-
-    ol_snprintf((olchar_t *)pah->ah_u8Mode, AH_MODE_LEN - 1, "%u", u32Mode);
+    ol_snprintf((olchar_t *)pah->ah_u8Mode, AH_MODE_LEN - 1, "%u", pFilestat->jfs_u32Mode);
 
     return u32Ret;
 }
 
-static u32 _setCommonFields(archive_header_t * pah, const olchar_t * pstrFullpath,
-    jf_file_stat_t * pFilestat, file_handler_t * pfh)
+static u32 _setCommonFields(
+    archive_header_t * pah, const olchar_t * pstrFullpath, jf_file_stat_t * pFilestat,
+    file_handler_t * pfh)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -180,13 +168,13 @@ static u32 _setCommonFields(archive_header_t * pah, const olchar_t * pstrFullpat
     return u32Ret;
 }
 
-static u32 _saveDir(const olchar_t * pstrFullpath,
-    jf_file_stat_t * pFilestat, file_handler_t * pfh)
+static u32 _saveDir(
+    const olchar_t * pstrFullpath, jf_file_stat_t * pFilestat, file_handler_t * pfh)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     archive_header_t * pah = (archive_header_t *)pfh->fh_pu8Buffer;
 
-    memset(pah, 0, sizeof(archive_block_t));
+    ol_bzero(pah, sizeof(archive_block_t));
     pah->ah_u8Type = AH_TYPE_DIR;
     u32Ret = _setCommonFields(pah, pstrFullpath, pFilestat, pfh);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -233,20 +221,19 @@ static u32 _saveRegularFile(const olchar_t * pstrFullpath,
     u32 u32Ret = JF_ERR_NO_ERROR;
     archive_header_t * pah = (archive_header_t *)pfh->fh_pu8Buffer;
 
-    memset(pah, 0, sizeof(archive_block_t));
+    ol_bzero(pah, sizeof(archive_block_t));
     pah->ah_u8Type = AH_TYPE_REGULAR;
     u32Ret = _setCommonFields(pah, pstrFullpath, pFilestat, pfh);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-		snprintf((olchar_t *)pah->ah_u8Size, AH_SIZE_LEN - 1, "%llu",
-            pFilestat->jfs_u64Size);
+		ol_snprintf((olchar_t *)pah->ah_u8Size, AH_SIZE_LEN - 1, "%llu", pFilestat->jfs_u64Size);
         u32Ret = writeArFile(pfh->fh_pafArchive, (u8 *)pah, ARCHIVE_BLOCK_SIZE);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _copyRegularFile(pfh->fh_pafArchive, pstrFullpath,
-            pfh->fh_pu8Buffer, pfh->fh_sBuf);
+        u32Ret = _copyRegularFile(
+            pfh->fh_pafArchive, pstrFullpath, pfh->fh_pu8Buffer, pfh->fh_sBuf);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -370,8 +357,8 @@ static u32 _saveSockFile(const olchar_t * pstrFullpath,
     return u32Ret;
 }
 
-static u32 _addFileToArchive(const olchar_t * pstrFullpath,
-    jf_file_stat_t * pFilestat, file_handler_t * pfh)
+static u32 _addFileToArchive(
+    const olchar_t * pstrFullpath, jf_file_stat_t * pFilestat, file_handler_t * pfh)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -402,8 +389,7 @@ static u32 _addFileToArchive(const olchar_t * pstrFullpath,
     }
     else
     {
-        jf_logger_logInfoMsg("unrecognized file type: %s",
-            pFilestat->jfs_u32Mode);
+        jf_logger_logInfoMsg("unrecognized file type: %s", pFilestat->jfs_u32Mode);
         u32Ret = JF_ERR_UNRECOGNIZED_FILE_TYPE;
     }
 
@@ -442,7 +428,7 @@ u32 writeToArchive(
         strName[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
         jf_file_removeTrailingPathSeparator(strName);
 
-        memset(&fh, 0, sizeof(file_handler_t));
+        ol_bzero(&fh, sizeof(file_handler_t));
         fh.fh_pafArchive = pafArchive;
         fh.fh_pu8Buffer = pu8Buffer;
         fh.fh_sBuf = sBuf;

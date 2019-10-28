@@ -207,7 +207,7 @@ $(BIN_DIR)/persistency-test: persistency-test.o
 
 $(BIN_DIR)/archive-test: archive-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \
-       -o $@ $(SYSLIBS) -ljf_logger -ljf_archive
+       -o $@ $(SYSLIBS) -ljf_logger -ljf_archive -ljf_jiukun -ljf_string
 
 $(BIN_DIR)/xmlparser-test: xmlparser-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ \

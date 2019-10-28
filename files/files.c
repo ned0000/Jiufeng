@@ -117,7 +117,7 @@ u32 _setFileStat(jf_file_stat_t * pStat, struct stat * pFileInfo)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    memset(pStat, 0, sizeof(jf_file_stat_t));
+    ol_bzero(pStat, sizeof(jf_file_stat_t));
 
     if (S_ISREG(pFileInfo->st_mode))
         pStat->jfs_u32Mode |= JF_FILE_MODE_TREG;
@@ -134,7 +134,7 @@ u32 _setFileStat(jf_file_stat_t * pStat, struct stat * pFileInfo)
     else if (S_ISSOCK(pFileInfo->st_mode))
         pStat->jfs_u32Mode |= JF_FILE_MODE_TSOCK;
 
-    pStat->jfs_u32Mode |= (pFileInfo->st_mode | 0x0FFF);
+    pStat->jfs_u32Mode |= (pFileInfo->st_mode & 0x0FFF);
 
     pStat->jfs_u64Size = (u64)pFileInfo->st_size;
     pStat->jfs_u32Dev = (u32)pFileInfo->st_dev;
