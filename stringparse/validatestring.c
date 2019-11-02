@@ -19,6 +19,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_string.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -113,19 +114,11 @@ u32 jf_string_validateHexString(const olchar_t * pstrHex, const olsize_t sHex)
     return u32Ret;
 }
 
-u32 jf_string_validateIntegerString(
-    const olchar_t * pstrInteger, const olsize_t size)
+u32 jf_string_validateIntegerString(const olchar_t * pstrInteger, const olsize_t size)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t i;
 
-    for (i = 0; ((i < size) && (u32Ret == JF_ERR_NO_ERROR)); i++)
-    {
-        if (isdigit(pstrInteger[i]) == 0)
-        {
-            return JF_ERR_INVALID_INTEGER;
-        }
-    }
+    u32Ret = jf_option_validateIntegerString(pstrInteger, size);
 
     return u32Ret;
 }
@@ -133,29 +126,8 @@ u32 jf_string_validateIntegerString(
 u32 jf_string_validateFloatString(const olchar_t * pstrFloat, const olsize_t size)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t i;
-    olchar_t * str = (olchar_t *)pstrFloat;
-    olsize_t sizes = size;
 
-    if (size < 1)
-        return JF_ERR_INVALID_FLOAT;
-
-    if (str[0] == '-')
-    {
-        str ++;
-        sizes --;
-    }
-
-    for (i = 0; ((i < sizes) && (u32Ret == JF_ERR_NO_ERROR)); i++)
-    {
-        if (str[i] == 'e')
-            break;
-
-        if ((isdigit(str[i]) == 0) && (str[i] != '.'))
-        {
-            return JF_ERR_INVALID_FLOAT;
-        }
-    }
+    u32Ret = jf_option_validateFloatString(pstrFloat, size);
 
     return u32Ret;
 }

@@ -26,16 +26,16 @@
 static boolean_t ls_bSizeof = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+static void _printBitarrayTestUsage(void)
 {
     ol_printf("\
 Usage: bitarray-test [-h] [-t]\n\
-         -h show this usage\n\
-         -t test sizeof on local machine\n");
+    -h show this usage\n\
+    -t test sizeof on local machine\n");
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parseBitarrayTestCmdLineParam(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
@@ -47,7 +47,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printBitarrayTestUsage();
             exit(0);
             break;
         case ':':
@@ -268,7 +268,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
-    u32Ret = _parseCmdLineParam(argc, argv);
+    u32Ret = _parseBitarrayTestCmdLineParam(argc, argv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_bSizeof)

@@ -1,7 +1,7 @@
 /**
- *  @file hash-test.c
+ *  @file hashtable-test.c
  *
- *  @brief test file for hash common object file
+ *  @brief test file for hashtable common object file
  *
  *  @author Min Zhang
  *
@@ -20,7 +20,7 @@
 #include "jf_err.h"
 #include "jf_hashtable.h"
 #include "jf_process.h"
-
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 static olint_t terminate_flag;
@@ -28,7 +28,7 @@ static boolean_t ls_bHashU32 = FALSE;
 static boolean_t ls_bHashTable = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+static void _printHashTableTestUsage(void)
 {
     ol_printf("\
 Usage: hash-test [-u] [-t] [-h]\n\
@@ -37,22 +37,22 @@ Usage: hash-test [-u] [-t] [-h]\n\
     -h print the usage\n");
     ol_printf("\n");
 
-    exit(0);
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parseHashTableTestCmdLineParam(
+    olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv,
-        "uth?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "uth?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printHashTableTestUsage();
+            exit(0);
             break;
         case 'u':
             ls_bHashU32 = TRUE;
@@ -140,19 +140,21 @@ static u32 _testHashTable(void)
     jf_hashtable_create_param_t jhcp;
     test_hash_entry_t entry1, entry2;
 
-    memset(&jhcp, 0, sizeof(jf_hashtable_create_param_t));
+    ol_bzero(&jhcp, sizeof(jf_hashtable_create_param_t));
 
     jhcp.jhcp_u32MinSize = 48;
     jhcp.jhcp_fnCmpKeys = _testHtCmpKeys;
     jhcp.jhcp_fnHashKey = _testHtHashKey;
     jhcp.jhcp_fnGetKeyFromEntry = _testHtGetKeyFromEntry;
-
+    
     u32Ret = jf_hashtable_create(&pjh, &jhcp);
     if (u32Ret != JF_ERR_NO_ERROR)
         return u32Ret;
 
-    memset(&entry1, 0, sizeof(test_hash_entry_t));
-    memset(&entry2, 0, sizeof(test_hash_entry_t));
+    ol_printf("hash table is created\n");
+
+    ol_bzero(&entry1, sizeof(test_hash_entry_t));
+    ol_bzero(&entry2, sizeof(test_hash_entry_t));
 
     entry1.the_nKey = 1;
     entry2.the_nKey = 1;
@@ -160,11 +162,15 @@ static u32 _testHashTable(void)
     entry1.the_nId = 1;
     entry2.the_nId = 1;
 
-    jf_hashtable_insertEntry(pjh, &entry1);
-    jf_hashtable_insertEntry(pjh, &entry2);
+    u32Ret = jf_hashtable_insertEntry(pjh, &entry1);
+    if (u32Ret == JF_ERR_NO_ERROR)
+        ol_printf("hash table entry is inserted\n");
 
+    u32Ret = jf_hashtable_insertEntry(pjh, &entry2);
+    if (u32Ret == JF_ERR_NO_ERROR)
+        ol_printf("hash table entry is inserted\n");
 
-
+    ol_printf("hash table entry is destroyed\n");
     jf_hashtable_destroy(&pjh);
 
     return u32Ret;
@@ -176,14 +182,44 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
+    jf_logger_init_param_t jlipParam;
+    jf_jiukun_init_param_t jjip;
 
-    u32Ret = _parseCmdLineParam(argc, argv);
+    ol_bzero(&jlipParam, sizeof(jlipParam));
+    jlipParam.jlip_pstrCallerName = "ARCHIVE";
+    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
+
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+    u32Ret = _parseHashTableTestCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (ls_bHashU32)
-            u32Ret = _hashU32();
-        else if (ls_bHashTable)
-            u32Ret = _testHashTable();
+        jf_logger_init(&jlipParam);
+
+        u32Ret = jf_jiukun_init(&jjip);
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            if (ls_bHashU32)
+            {
+                u32Ret = _hashU32();
+            }
+            else if (ls_bHashTable)
+            {
+                u32Ret = _testHashTable();
+            }
+            else
+            {
+                ol_printf("No operation is specified !!!!\n\n");
+                _printHashTableTestUsage();
+            }
+
+            jf_jiukun_fini();
+        }
+
+        jf_logger_logErrMsg(u32Ret, "Quit");
+        jf_logger_fini();
     }
 
     if (u32Ret != JF_ERR_NO_ERROR)

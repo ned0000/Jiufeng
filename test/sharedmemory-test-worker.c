@@ -18,17 +18,16 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_sharedmemory.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-/* --- public routine section ------------------------------------------------------------------- */
-
-olint_t main(olint_t argc, olchar_t ** argv)
+static u32 _sharedmemoryTestWorker(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strErrMsg[300];
+
     jf_sharedmemory_id_t * pjsi;
     olchar_t * pstrShared;
 
@@ -68,7 +67,30 @@ olint_t main(olint_t argc, olchar_t ** argv)
     {
         ol_printf("succeed to destroy shared memory\n");
     }
-    else
+
+    return u32Ret;
+}
+
+/* --- public routine section ------------------------------------------------------------------- */
+
+olint_t main(olint_t argc, olchar_t ** argv)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t strErrMsg[300];
+    jf_jiukun_init_param_t jjip;
+
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+    u32Ret = jf_jiukun_init(&jjip);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = _sharedmemoryTestWorker();
+
+        jf_jiukun_fini();
+    }
+
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
         jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);

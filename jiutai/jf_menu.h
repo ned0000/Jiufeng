@@ -65,10 +65,9 @@ u32 jf_menu_createTopMenu(
  *
  */
 u32 jf_menu_addSubMenu(
-    jf_menu_t * pParent, const olchar_t * pstrName,
-    const olchar_t * pstrDesc, const u32 attr,
-    jf_menu_fnPreShow_t fnPreShow, jf_menu_fnPostShow_t fnPostShow,
-    void * pArg, jf_menu_t ** ppMenu);
+    jf_menu_t * pParent, const olchar_t * pstrName, const olchar_t * pstrDesc, const u32 attr,
+    jf_menu_fnPreShow_t fnPreShow, jf_menu_fnPostShow_t fnPostShow, void * pArg,
+    jf_menu_t ** ppMenu);
 
 /** Add an entry to the menu 
  *
@@ -85,8 +84,7 @@ u32 jf_menu_addSubMenu(
  *
  */
 u32 jf_menu_addEntry(
-    jf_menu_t * pParent, const olchar_t * pstrName,
-    const olchar_t * pstrDesc, const u32 attr,
+    jf_menu_t * pParent, const olchar_t * pstrName, const olchar_t * pstrDesc, const u32 attr,
     jf_menu_fnHandler_t fnHandler, void * pArg);
 
 /** Start menu

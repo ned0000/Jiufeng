@@ -147,6 +147,10 @@ typedef time_t                       oltime_t;
     #define ol_strncmp               strncmp
     #define ol_strcasecmp            _stricmp
     #define ol_strncasecmp           _strnicmp
+    #define ol_strtol                _strtol
+    #define ol_strtoul               _strtoul
+    #define ol_strtoull              _strtoui64
+    #define ol_strtoll               _strtoi64
     #define ol_sprintf               _sprintf
     #define ol_snprintf              _snprintf
     #define ol_vsnprintf             _vsnprintf
@@ -173,6 +177,10 @@ typedef time_t                       oltime_t;
     #define ol_strncmp               strncmp
     #define ol_strcasecmp            strcasecmp
     #define ol_strncasecmp           strncasecmp
+    #define ol_strtol                strtol
+    #define ol_strtoul               strtoul
+    #define ol_strtoull              strtoull
+    #define ol_strtoll               strtoll
     #define ol_sprintf               sprintf
     #define ol_snprintf              snprintf
     #define ol_vsnprintf             vsnprintf

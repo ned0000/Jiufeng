@@ -148,7 +148,7 @@ static u32 _newMenuEntry(
     u32Ret = jf_jiukun_allocMemory((void **)&pEntry, sizeof(internal_menu_entry_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(pEntry, 0, sizeof(internal_menu_entry_t));
+        ol_bzero(pEntry, sizeof(internal_menu_entry_t));
         pEntry->ime_u32Attribute = attr;
         pEntry->ime_imParent = pParent;
 
@@ -181,8 +181,7 @@ static u32 _destroyEntry(internal_menu_entry_t ** ppEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    free(*ppEntry);
-    *ppEntry = NULL;
+    jf_jiukun_freeMemory((void **)ppEntry);
 
     return u32Ret;
 }
@@ -384,17 +383,15 @@ static olint_t _destroyMenu(internal_menu_t * pTop)
     {
         p1 = p->ime_imeNext;
 
-        free(p->ime_pstrName);
-        p->ime_pstrName = NULL;
+        jf_jiukun_freeMemory((void **)&p->ime_pstrName);
         if (p->ime_pstrDesc != NULL)
         {
-            free(p->ime_pstrDesc);
-            p->ime_pstrDesc = NULL;
+            jf_jiukun_freeMemory((void **)&p->ime_pstrDesc);
         }
         if (p->ime_etType == ENTRY_TYPE_MENU)
             _destroyMenu(p->ime_uContent.iu_imMenu);
 
-        free(p);
+        jf_jiukun_freeMemory((void **)&p);
 
         p = p1;
     }
@@ -441,10 +438,9 @@ u32 jf_menu_addEntry(
 }
 
 u32 jf_menu_addSubMenu(
-    jf_menu_t * pParent, const olchar_t * pstrName,
-    const olchar_t * pstrDesc, const u32 attr,
-    jf_menu_fnPreShow_t fnPreShow, jf_menu_fnPostShow_t fnPostShow,
-    void * pArg, jf_menu_t ** ppMenu)
+    jf_menu_t * pParent, const olchar_t * pstrName, const olchar_t * pstrDesc, const u32 attr,
+    jf_menu_fnPreShow_t fnPreShow, jf_menu_fnPostShow_t fnPostShow, void * pArg,
+    jf_menu_t ** ppMenu)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_entry_t * pEntry;

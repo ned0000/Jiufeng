@@ -1,13 +1,12 @@
 /**
  *  @file jf_string.h
  *
- *  @brief String parse header file, provide some functional routine for
- *   string manipulation
+ *  @brief String parse header file, provide some functional routine for string manipulation
  *
  *  @author Min Zhang
  *
  *  @note Routines declared in this file are included in jf_string library
- *  
+ *  @note Link with jf_jiukun library for memory allocation
  */
 
 #ifndef JIUFENG_STRING_H
@@ -196,8 +195,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_locateSubString(
  *  @retval NULL if no occurence of needle could be found in src
  */
 STRINGPARSEAPI olchar_t * STRINGPARSECALL jf_string_replace(
-    olchar_t * pstrSrc, olsize_t sBuf, olchar_t * pstrNeedle,
-    olchar_t * pstrSubst);
+    olchar_t * pstrSrc, olsize_t sBuf, olchar_t * pstrNeedle, olchar_t * pstrSubst);
 
 /*string print*/
 
@@ -408,8 +406,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getS64FromString(
  *  @retval JF_ERR_NO_ERROR success
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getBinaryFromString(
-    const olchar_t * pstr, const olsize_t size, u8 * pu8Binary,
-    olsize_t * psBinary);
+    const olchar_t * pstr, const olsize_t size, u8 * pu8Binary, olsize_t * psBinary);
 
 /** Get the size accordign to the size stirng. The size string will be the
  *  format of "xxxx.xxGB|MB|KB|B"
@@ -510,8 +507,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateSettings(
  *   than array size, only those tags are returned.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processKeywordSettings(
-    u8 * pu8Settings, olsize_t sSettings,
-    olchar_t * pstrStrArray[], olsize_t * psArray);
+    u8 * pu8Settings, olsize_t sSettings, olchar_t * pstrStrArray[], olsize_t * psArray);
 
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processSettingString(
     olchar_t * pstrSetting, olchar_t ** ppstrName, olchar_t ** ppstrValue);

@@ -13,7 +13,7 @@
 
 SONAME = jf_string
 
-JIUTAI_SRCS = jf_time.c jf_date.c
+JIUTAI_SRCS = jf_time.c jf_date.c jf_option.c
 
 SOURCES = parsestring.c scanstring.c printstring.c validatestring.c settingparse.c
 

@@ -20,6 +20,7 @@
 #include "jf_listhead.h"
 #include "jf_err.h"
 #include "jf_jiukun.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -27,59 +28,42 @@ static boolean_t ls_bListHead = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static void _printUsage(void)
+static void _printListheadTestUsage(void)
 {
     ol_printf("\
-Usage: listhead-test [-l] \n\
-         [-T <trace level>] [-F <trace log file>] [-S <trace file size>]\n\
-     -l test list head \n");
+Usage: listhead-test [-l] [-T <trace level>] [-F <trace log file>] [-S <trace file size>]\n\
+    -l test list head \n");
 
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(
+static u32 _parseListheadTestCmdLineParam(
     olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
-    u32 u32Value;
 
-    while (((nOpt = getopt(argc, argv,
-        "lT:F:S:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "lT:F:S:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printListheadTestUsage();
             exit(0);
             break;
         case 'l':
             ls_bListHead = TRUE;
             break;
         case 'T':
-            if (sscanf(optarg, "%d", &u32Value) == 1)
-            {
-                pjlip->jlip_u8TraceLevel = (u8)u32Value;
-            }
-            else
-            {
-                u32Ret = JF_ERR_INVALID_PARAM;
-            }
+            u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
             pjlip->jlip_pstrLogFilePath = optarg;
             break;
         case 'S':
-            if (sscanf(optarg, "%d", &u32Value) == 1)
-            {
-                pjlip->jlip_sLogFile = u32Value;
-            }
-            else
-            {
-                u32Ret = JF_ERR_INVALID_PARAM;
-            }
+            u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;
@@ -104,13 +88,9 @@ static u32 _initTestListhead(test_listhead_t * ptl)
     u32 u32Ret = JF_ERR_NO_ERROR;
     static u32 u32Counter = 1;
 
-    u32Ret = jf_jiukun_allocMemory((void **)ptl, sizeof(test_listhead_t));
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        ol_bzero(ptl, sizeof(test_listhead_t));
-        ptl->tl_u32Flag1 = u32Counter ++;
-        jf_listhead_init(&(ptl->tl_jlList));
-    }
+    ol_bzero(ptl, sizeof(test_listhead_t));
+    ptl->tl_u32Flag1 = u32Counter ++;
+    jf_listhead_init(&(ptl->tl_jlList));
 
     return u32Ret;
 }
@@ -273,31 +253,34 @@ static u32 _testListHead(void)
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t strErrMsg[300];
     jf_logger_init_param_t jlipParam;
     jf_jiukun_init_param_t jjip;
 
-    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "LISTHEAD-TEST";
+    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
 
-    u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+    u32Ret = _parseListheadTestCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jlipParam.jlip_bLogToStdout = TRUE;
-
         jf_logger_init(&jlipParam);
-
-        ol_bzero(&jjip, sizeof(jjip));
-        jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
 
         u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (ls_bListHead)
+            {
                 u32Ret = _testListHead();
+            }
             else
             {
                 ol_printf("No operation is specified !!!!\n\n");
-                _printUsage();
+                _printListheadTestUsage();
             }
 
             jf_jiukun_fini();
@@ -305,6 +288,12 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
         jf_logger_logErrMsg(u32Ret, "Quit");
         jf_logger_fini();
+    }
+
+    if (u32Ret != JF_ERR_NO_ERROR)
+    {
+        jf_err_getMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
+        ol_printf("%s\n", strErrMsg);
     }
 
     return u32Ret;

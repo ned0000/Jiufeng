@@ -47,23 +47,22 @@ typedef void  jf_respool_resource_data_t;
  *  @retval JF_ERR_NO_ERROR success
  *  @retval JF_ERR_INVALID_PARAM invalid parameter
  *
- *  @note the function cannot be blocked, otherwise it blocks others who are
- *   getting resource from pool
+ *  @note the function cannot be blocked, otherwise it blocks others who are getting resource from
+ *   pool
  */
 typedef u32 (* jf_respool_fnCreateResource_t)(
     jf_respool_resource_t * pjrr, jf_respool_resource_data_t ** ppData);
 
 /** Destroy the resource.
  *  
- *  @param pjrr [in] the pointer to the resource to be destroyed. 
- *   After destruction, it will be set to NULL.
+ *  @param pjrr [in] the pointer to the resource to be destroyed. After destruction, it will be set
+ *   to NULL.
  *  @param ppData [in/out] the pointer to the resource data
  *
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  *
- *  @note fnCreateResource_t must be called successfully before this func is
- *   called.
+ *  @note fnCreateResource_t must be called successfully before this func is called.
  */
 typedef u32 (* jf_respool_fnDestroyResource_t)(
     jf_respool_resource_t * pjrr, jf_respool_resource_data_t ** ppData);
@@ -134,8 +133,7 @@ u32 jf_respool_getResource(jf_respool_t * pjr, jf_respool_resource_t ** ppRes);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  *
- *  @note getResourceFromPool must be called successfully before this func is
- *   called.
+ *  @note getResourceFromPool must be called successfully before this func is called.
  */
 u32 jf_respool_putResource(jf_respool_t * pjr, jf_respool_resource_t ** ppRes);
 

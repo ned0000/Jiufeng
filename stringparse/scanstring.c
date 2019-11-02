@@ -25,6 +25,7 @@
 #include "jf_err.h"
 #include "jf_string.h"
 #include "jf_date.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -38,26 +39,14 @@ u32 jf_string_getS32FromString(
     const olchar_t * pstrInteger, const olsize_t size, s32 * ps32Value)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    s32 s32Value;
     olchar_t * temp_buf = NULL;
 
-    u32Ret = jf_string_validateIntegerString(pstrInteger, size);
+    u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            if ((sscanf(temp_buf, "%d", &s32Value) == 1))
-            {
-                *ps32Value = s32Value;
-            }
-            else
-            {
-                u32Ret = JF_ERR_INVALID_INTEGER;
-            }
+        u32Ret = jf_option_getS32FromString(temp_buf, ps32Value);
 
-            jf_string_free(&temp_buf);
-        }
+        jf_string_free(&temp_buf);
     }
 
     return u32Ret;
@@ -96,26 +85,14 @@ u32 jf_string_getU32FromString(
     const olchar_t * pstrInteger, const olsize_t size, u32 * pu32Value)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Value;
     olchar_t * temp_buf = NULL;
 
-    u32Ret = jf_string_validateIntegerString(pstrInteger, size);
+    u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            if ((sscanf(temp_buf, "%u", &u32Value) == 1))
-            {
-                *pu32Value = u32Value;
-            }
-            else
-            {
-                u32Ret = JF_ERR_INVALID_INTEGER;
-            }
+        u32Ret = jf_option_getU32FromString(temp_buf, pu32Value);
 
-            jf_string_free(&temp_buf);
-        }
+        jf_string_free(&temp_buf);
     }
 
     return u32Ret;
@@ -125,29 +102,14 @@ u32 jf_string_getU16FromString(
     const olchar_t * pstrInteger, const olsize_t size, u16 * pu16Value)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Value;
     olchar_t * temp_buf = NULL;
 
-    u32Ret = jf_string_validateIntegerString(pstrInteger, size);
+    u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            if ((sscanf(temp_buf, "%u", &u32Value) == 1))
-            {
-                if (u32Value > 65535)
-                    u32Ret = JF_ERR_INTEGER_OUT_OF_RANGE;
-                else
-                    *pu16Value = (u16)u32Value;
-            }
-            else
-            {
-                u32Ret = JF_ERR_INVALID_INTEGER;
-            }
+        u32Ret = jf_option_getU16FromString(temp_buf, pu16Value);
 
-            jf_string_free(&temp_buf);
-        }
+        jf_string_free(&temp_buf);
     }
 
     return u32Ret;
@@ -157,60 +119,29 @@ u32 jf_string_getU8FromString(
     const olchar_t * pstrInteger, const olsize_t size, u8 * pu8Value)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Value;
     olchar_t * temp_buf = NULL;
 
-    u32Ret = jf_string_validateIntegerString(pstrInteger, size);
+    u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            if ((sscanf(temp_buf, "%u", &u32Value) == 1))
-            {
-                if (u32Value > 255)
-                    u32Ret = JF_ERR_INTEGER_OUT_OF_RANGE;
-                else
-                    *pu8Value = (u8)u32Value;
-            }
-            else
-            {
-                u32Ret = JF_ERR_INVALID_INTEGER;
-            }
+        u32Ret = jf_option_getU8FromString(temp_buf, pu8Value);
 
-            jf_string_free(&temp_buf);
-        }
+        jf_string_free(&temp_buf);
     }
 
     return u32Ret;
 }
 
 u32 jf_string_getLongFromString(
-    const olchar_t * pstrInteger, const olsize_t size, long * numeric)
+    const olchar_t * pstrInteger, const olsize_t size, slong * numeric)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t * stop_str;
     olchar_t * temp_buf = NULL;
 
     u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        *numeric = strtol(temp_buf, (olchar_t **)&stop_str, 10);
-        if (*stop_str != '\0')
-        {
-            // If strtol stopped somewhere other than the end, there was an error
-            u32Ret = JF_ERR_INVALID_INTEGER;
-        }
-        else
-        {
-            // Now just check errno to see if there was an error reported
-#if defined(LINUX)
-            if (errno == ERANGE)
-            {
-                u32Ret = JF_ERR_INVALID_INTEGER;
-            }
-#endif
-        }
+        u32Ret = jf_option_getLongFromString(temp_buf, numeric);
 
         jf_string_free(&temp_buf);
     }
@@ -219,38 +150,17 @@ u32 jf_string_getLongFromString(
 }
 
 u32 jf_string_getUlongFromString(
-    const olchar_t * pstrInteger, const olsize_t size, unsigned long * numeric)
+    const olchar_t * pstrInteger, const olsize_t size, ulong * numeric)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t * stop_str;
     olchar_t * temp_buf = NULL;
 
     u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        *numeric = strtoul(temp_buf, &stop_str, 10);
-        if (*stop_str != '\0')
-        {
-            jf_string_free(&temp_buf);
-            u32Ret = JF_ERR_INVALID_INTEGER;
-        }
-        else
-        {
-            jf_string_free(&temp_buf);
-#if defined(LINUX)
-            if (errno != ERANGE)
-            {
-                if (memcmp(pstrInteger, "-", 1) == 0)
-                {
-                    u32Ret = JF_ERR_INVALID_INTEGER;
-                }
-            }
-            else
-            {
-                u32Ret = JF_ERR_INVALID_INTEGER;
-            }
-#endif
-        }
+        u32Ret = jf_option_getUlongFromString(temp_buf, numeric);
+
+        jf_string_free(&temp_buf);
     }
 
     return u32Ret;
@@ -260,32 +170,14 @@ u32 jf_string_getU64FromString(
     const olchar_t * pstrInteger, const olsize_t size, u64 * pu64Value)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t * stop_str;
     olchar_t * temp_buf = NULL;
 
     u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-#if defined(WINDOWS)
-        *pu64Value = _strtoui64(temp_buf, &stop_str, 10);
-#elif defined(LINUX)
-        *pu64Value = strtoull(temp_buf, &stop_str, 10);
-#endif
-        if (*stop_str != '\0')
-        {
-            jf_string_free(&temp_buf);
-            u32Ret = JF_ERR_INVALID_INTEGER;
-        }
-        else
-        {
-            jf_string_free(&temp_buf);
-#if defined(LINUX)
-            if (errno == ERANGE)
-            {
-                u32Ret = JF_ERR_INVALID_INTEGER;
-            }
-#endif
-        }
+        u32Ret = jf_option_getU64FromString(temp_buf, pu64Value);
+
+        jf_string_free(&temp_buf);
     }
 
     return u32Ret;
@@ -295,32 +187,14 @@ u32 jf_string_getS64FromString(
     const olchar_t * pstrInteger, const olsize_t size, s64 * ps64Value)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t * stop_str;
     olchar_t * temp_buf = NULL;
 
     u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrInteger, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-#if defined(WINDOWS)
-        *ps64Value = _strtoi64(temp_buf, &stop_str, 10);
-#elif defined(LINUX)
-        *ps64Value = strtoll(temp_buf, &stop_str, 10);
-#endif
-        if (*stop_str != '\0')
-        {
-            jf_string_free(&temp_buf);
-            u32Ret = JF_ERR_INVALID_INTEGER;
-        }
-        else
-        {
-            jf_string_free(&temp_buf);
-#if defined(LINUX)
-            if (errno == ERANGE)
-            {
-                u32Ret = JF_ERR_INVALID_INTEGER;
-            }
-#endif
-        }
+        u32Ret = jf_option_getS64FromString(temp_buf, ps64Value);
+
+        jf_string_free(&temp_buf);
     }
 
     return u32Ret;
@@ -565,26 +439,14 @@ u32 jf_string_getFloatFromString(
     const olchar_t * pstrFloat, const olsize_t size, olfloat_t * pflValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olfloat_t flValue;
     olchar_t * temp_buf = NULL;
 
-    u32Ret = jf_string_validateFloatString(pstrFloat, size);
+    u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrFloat, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrFloat, size);
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            if ((sscanf(temp_buf, "%f", &flValue) == 1))
-            {
-                *pflValue = flValue;
-            }
-            else
-            {
-                u32Ret = JF_ERR_INVALID_FLOAT;
-            }
+        u32Ret = jf_option_getFloatFromString(temp_buf, pflValue);
 
-            jf_string_free(&temp_buf);
-        }
+        jf_string_free(&temp_buf);
     }
 
     return u32Ret;
@@ -594,26 +456,14 @@ u32 jf_string_getDoubleFromString(
     const olchar_t * pstrDouble, const olsize_t size, oldouble_t * pdbValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    oldouble_t dbValue;
     olchar_t * temp_buf = NULL;
 
-    u32Ret = jf_string_validateFloatString(pstrDouble, size);
+    u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrDouble, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrDouble, size);
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            if ((sscanf(temp_buf, "%lf", &dbValue) == 1))
-            {
-                *pdbValue = dbValue;
-            }
-            else
-            {
-                u32Ret = JF_ERR_INVALID_FLOAT;
-            }
+        u32Ret = jf_option_getDoubleFromString(temp_buf, pdbValue);
 
-            jf_string_free(&temp_buf);
-        }
+        jf_string_free(&temp_buf);
     }
 
     return u32Ret;

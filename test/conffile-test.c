@@ -19,12 +19,13 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_conffile.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+static void _printConffileTestUsage(void)
 {
     ol_printf("\
 Usage: conffile-test [-h] conffile\n\
@@ -33,7 +34,8 @@ Usage: conffile-test [-h] conffile\n\
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parseConffileTestCmdLineParam(
+    olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
@@ -45,7 +47,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printConffileTestUsage();
             exit(0);
             break;
         case ':':
@@ -80,8 +82,7 @@ static conf_file_tag_t ls_cftConfFileTag[] =
     {"abcd", "default-abcd", 0},
 };
 
-static u32 ls_u32NumOfConfFileTag = sizeof(ls_cftConfFileTag) / \
-    sizeof(conf_file_tag_t);
+static u32 ls_u32NumOfConfFileTag = sizeof(ls_cftConfFileTag) / sizeof(conf_file_tag_t);
 
 static u32 _testConfFile(const olchar_t * pstrFilename)
 {
@@ -104,31 +105,31 @@ static u32 _testConfFile(const olchar_t * pstrFilename)
         {
             if (ls_cftConfFileTag[u32Index].cft_pstrDefault == NULL)
             {
-                u32Ret = jf_conffile_getInt(pjc,
-                    ls_cftConfFileTag[u32Index].cft_pstrTag,
-                    ls_cftConfFileTag[u32Index].cft_nDefault,
-                    &nValue);
+                u32Ret = jf_conffile_getInt(
+                    pjc, ls_cftConfFileTag[u32Index].cft_pstrTag,
+                    ls_cftConfFileTag[u32Index].cft_nDefault, &nValue);
                 if (u32Ret == JF_ERR_NO_ERROR)
-                    ol_printf("%s=%d(%d)\n", ls_cftConfFileTag[u32Index].cft_pstrTag,
+                    ol_printf(
+                        "%s=%d(%d)\n", ls_cftConfFileTag[u32Index].cft_pstrTag,
                         nValue, ls_cftConfFileTag[u32Index].cft_nDefault);
                 else
                     ol_printf("%s error\n", ls_cftConfFileTag[u32Index].cft_pstrTag);
             }
             else
             {
-                u32Ret = jf_conffile_getString(pjc,
-                    ls_cftConfFileTag[u32Index].cft_pstrTag,
-                    ls_cftConfFileTag[u32Index].cft_pstrDefault,
-                    strValue, sizeof(strValue));
+                u32Ret = jf_conffile_getString(
+                    pjc, ls_cftConfFileTag[u32Index].cft_pstrTag,
+                    ls_cftConfFileTag[u32Index].cft_pstrDefault, strValue, sizeof(strValue));
                 if (u32Ret == JF_ERR_NO_ERROR)
-                    ol_printf("%s=%s(%s)\n", ls_cftConfFileTag[u32Index].cft_pstrTag,
+                    ol_printf(
+                        "%s=%s(%s)\n", ls_cftConfFileTag[u32Index].cft_pstrTag,
                         strValue, ls_cftConfFileTag[u32Index].cft_pstrDefault);
                 else
                     ol_printf("%s error\n", ls_cftConfFileTag[u32Index].cft_pstrTag);
             }
         }
 
-        jf_conffile_close(pjc);
+        jf_conffile_close(&pjc);
     }
 
     return u32Ret;
@@ -139,18 +140,39 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
+    jf_logger_init_param_t jlipParam;
+    jf_jiukun_init_param_t jjip;
+
+    ol_bzero(&jlipParam, sizeof(jlipParam));
+    jlipParam.jlip_pstrCallerName = "ARCHIVE";
+    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
+
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
 
     if (argc < 2)
     {
         ol_printf("Missing parameters!!!\n\n");
-        _printUsage();
+        _printConffileTestUsage();
         exit(0);
     }
 
-    u32Ret = _parseCmdLineParam(argc, argv);
+    u32Ret = _parseConffileTestCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _testConfFile(argv[argc - 1]);
+        jf_logger_init(&jlipParam);
+
+        u32Ret = jf_jiukun_init(&jjip);
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            u32Ret = _testConfFile(argv[argc - 1]);
+
+            jf_jiukun_fini();
+        }
+
+        jf_logger_logErrMsg(u32Ret, "Quit");
+        jf_logger_fini();
     }
 
     if (u32Ret != JF_ERR_NO_ERROR)

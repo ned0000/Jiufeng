@@ -24,6 +24,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_menu.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -39,8 +40,7 @@ static u32 _startInstall(void * pArg)
     return u32Ret;
 }
 
-/* --- public routine section ------------------------------------------------------------------- */
-olint_t main(olint_t argc, olchar_t ** argv)
+static u32 _testMenu(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_menu_t *topMenu = NULL;
@@ -71,7 +71,34 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jf_menu_start(topMenu);
     }
 
-    exit(0);
+    return u32Ret;
+}
+
+/* --- public routine section ------------------------------------------------------------------- */
+olint_t main(olint_t argc, olchar_t ** argv)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t strErrMsg[300];
+    jf_jiukun_init_param_t jjip;
+
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+    u32Ret = jf_jiukun_init(&jjip);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = _testMenu();
+
+        jf_jiukun_fini();
+    }
+
+    if (u32Ret != JF_ERR_NO_ERROR)
+    {
+        jf_err_getMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
+        ol_printf("%s\n", strErrMsg);
+    }
+
+    return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/

@@ -19,28 +19,17 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_sharedmemory.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-/* --- public routine section ------------------------------------------------------------------- */
-
-olint_t main(olint_t argc, olchar_t ** argv)
+static u32 _sharedmemoryTestConsumer(jf_sharedmemory_id_t * pjsi)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_sharedmemory_id_t * pjsi;
     olchar_t * pstrShared;
-    olchar_t strErrMsg[300];
 
-    if (argc < 2)
-    {
-        ol_printf("Missing parameter\n");
-        ol_printf("sharedmemory-test-consumer sharedmemory-identifier\n");
-        exit(0);
-    }
-
-    pjsi = argv[1];
     ol_printf("Shared memory ID: %s\n", pjsi);
     u32Ret = jf_sharedmemory_attach(pjsi, (void **)&pstrShared);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -55,7 +44,37 @@ olint_t main(olint_t argc, olchar_t ** argv)
     {
         ol_printf("Succeed to detach shared memory\n");
     }
-    else
+
+    return u32Ret;
+}
+
+/* --- public routine section ------------------------------------------------------------------- */
+
+olint_t main(olint_t argc, olchar_t ** argv)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t strErrMsg[300];
+    jf_jiukun_init_param_t jjip;
+
+    if (argc < 2)
+    {
+        ol_printf("Missing parameter\n");
+        ol_printf("sharedmemory-test-consumer sharedmemory-identifier\n");
+        exit(0);
+    }
+
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+    u32Ret = jf_jiukun_init(&jjip);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = _sharedmemoryTestConsumer(argv[1]);
+
+        jf_jiukun_fini();
+    }
+
+    if (u32Ret != JF_ERR_NO_ERROR)
     {
         jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);

@@ -21,6 +21,8 @@
 #include "jf_string.h"
 #include "jf_uuid.h"
 #include "jf_prng.h"
+#include "jf_jiukun.h"
+#include "jf_logger.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 static jf_uuid_ver_t ls_juvVersion = JF_UUID_VER_1;
@@ -38,11 +40,10 @@ static u8 ls_u8NameSpace_X500[] = { /* 6ba7b814-9dad-11d1-80b4-00c04fd430c8 */
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static void _printUsage(void)
+static void _printGenUuidUsage(void)
 {
     ol_printf("\
-Usage: genuuid [-v version] [-f output format] [-c count] \n\
-    [version 1 option] [version 3/5 option] \n\
+Usage: genuuid [-v version] [-f output format] [-c count] [version 1 option] [version 3/5 option]\n\
 general options: \n\
     -v <1|3|4|5> version, default is 1.\n\
     -f <string|binary|hexadecimal|siv> output format, default is 'string'.\n\
@@ -54,7 +55,7 @@ version 3/5 option: \n\
     ol_printf("\n");
 }
 
-static u32 _parseOptv(olchar_t * pstrOpt)
+static u32 _parseGenUuidOptv(olchar_t * pstrOpt)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Value;
@@ -78,7 +79,7 @@ static u32 _parseOptv(olchar_t * pstrOpt)
     return u32Ret;
 }
 
-static u32 _parseOptf(olchar_t * pstrOpt)
+static u32 _parseGenUuidOptf(olchar_t * pstrOpt)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -99,35 +100,30 @@ static u32 _parseOptf(olchar_t * pstrOpt)
     return u32Ret;
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parseGenUuidCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
-    u32 u32Value = 0;
 
-    while (((nOpt = getopt(argc, argv,
-        "n:c:v:f:m?h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "n:c:v:f:m?h")) != -1) &&
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printGenUuidUsage();
             exit(0);
         case 'n':
             ls_pstrName = (char *)optarg;
             break;
         case 'c':
-            if (ol_sscanf(optarg, "%d", &u32Value) == 1)
-                ls_u32NumOfUuid = (u8)u32Value;
-            else
-                u32Ret = JF_ERR_INVALID_PARAM;
-            break;
+            u32Ret = jf_string_getU32FromString(optarg, ol_strlen(optarg), &ls_u32NumOfUuid);
         case 'v':
-            u32Ret = _parseOptv(optarg);
+            u32Ret = _parseGenUuidOptv(optarg);
             break;
         case 'f':
-            u32Ret = _parseOptf(optarg);
+            u32Ret = _parseGenUuidOptf(optarg);
             break;
         case 'm':
             ls_bMulticastMac = TRUE;
@@ -169,30 +165,50 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_uuid_param_t jup;
     olchar_t strErrMsg[200];
     u32 u32Index;
+    jf_logger_init_param_t jlipParam;
+    jf_jiukun_init_param_t jjip;
 
-    u32Ret = _parseCmdLineParam(argc, argv);
+    ol_bzero(&jlipParam, sizeof(jlipParam));
+    jlipParam.jlip_pstrCallerName = "ARCHIVE";
+    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
+
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+    u32Ret = _parseGenUuidCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_prng_init();
-    }
+        jf_logger_init(&jlipParam);
 
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        memset(&jup, 0, sizeof(jf_uuid_param_t));
-        jup.jup_ufFmt = ls_jufFormat;
-        jup.jup_bMulticastMac = ls_bMulticastMac;
-        jup.jup_pstrName = ls_pstrName;
-        jup.jup_pu8NameSpace = ls_u8NameSpace_X500;
-        for (u32Index = 0;
-             (u32Index < ls_u32NumOfUuid) && (u32Ret == JF_ERR_NO_ERROR);
-             u32Index ++)
+        u32Ret = jf_jiukun_init(&jjip);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = jf_uuid_get(u8Uuid, 50, ls_juvVersion, &jup);
+            u32Ret = jf_prng_init();
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                _outputUuid(u8Uuid, ls_jufFormat);
+                ol_bzero(&jup, sizeof(jf_uuid_param_t));
+                jup.jup_ufFmt = ls_jufFormat;
+                jup.jup_bMulticastMac = ls_bMulticastMac;
+                jup.jup_pstrName = ls_pstrName;
+                jup.jup_pu8NameSpace = ls_u8NameSpace_X500;
+                for (u32Index = 0;
+                     (u32Index < ls_u32NumOfUuid) && (u32Ret == JF_ERR_NO_ERROR);
+                     u32Index ++)
+                {
+                    u32Ret = jf_uuid_get(u8Uuid, 50, ls_juvVersion, &jup);
+                    if (u32Ret == JF_ERR_NO_ERROR)
+                    {
+                        _outputUuid(u8Uuid, ls_jufFormat);
+                    }
+                }
             }
+
+            jf_jiukun_fini();
         }
+
+        jf_logger_logErrMsg(u32Ret, "Quit");
+        jf_logger_fini();
     }
 
     if (u32Ret != JF_ERR_NO_ERROR)

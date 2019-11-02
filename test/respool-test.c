@@ -24,7 +24,7 @@
 #include "jf_thread.h"
 #include "jf_mutex.h"
 #include "jf_sem.h"
-#include "jf_mem.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -77,7 +77,7 @@ JF_THREAD_RETURN_VALUE _respoolTestWorkerThread(void * pArg)
     }
 
     jf_logger_logDebugMsg("quit respool test worker thread");
-    jf_mem_free((void **)&prtwd);
+    jf_jiukun_freeMemory((void **)&prtwd);
     
     JF_THREAD_RETURN(u32Ret);
 }
@@ -115,10 +115,10 @@ static u32 _createRespoolTestWorker(
 
     jf_logger_logInfoMsg("create respool test worker");
 
-    u32Ret = jf_mem_alloc((void **)&prtwd, sizeof(respool_test_worker_data_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&prtwd, sizeof(respool_test_worker_data_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(prtwd, 0, sizeof(respool_test_worker_data_t));
+        ol_bzero(prtwd, sizeof(respool_test_worker_data_t));
 
         prtwd->rtwd_pjsSem = &ls_jsRespoolTestSem;
         prtwd->rtwd_pjmLock = &ls_smRespoolTestLock;
@@ -132,7 +132,7 @@ static u32 _createRespoolTestWorker(
     if (u32Ret == JF_ERR_NO_ERROR)
         *pprd = prtwd;
     else if (prtwd != NULL)
-        jf_mem_free((void **)&prtwd);
+        jf_jiukun_freeMemory((void **)&prtwd);
 
     return u32Ret;
 }
@@ -176,7 +176,6 @@ static u32 _createTestRespool(jf_respool_t ** ppjr)
 static u32 _testRespool(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-
     u32 u32Index;
 
     u32Ret = jf_sem_init(&ls_jsRespoolTestSem, 0, RESPOOL_TEST_MAX_RESOURCES);
@@ -235,42 +234,49 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     jf_logger_init_param_t jlipParam;
+    jf_jiukun_init_param_t jjip;
 
-    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "RESPOOL-TEST";
-    jlipParam.jlip_bLogToFile = TRUE;
     jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
 
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
     jf_logger_init(&jlipParam);
-
-    u32Ret = jf_process_registerSignalHandlers(_terminate);
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = _testRespool();
-
+    u32Ret = jf_jiukun_init(&jjip);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        while (! ls_bRespoolTestTerminateProducer)
+        u32Ret = jf_process_registerSignalHandlers(_terminate);
+
+        if (u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = _testRespool();
+
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            sleep(1);
+            while (! ls_bRespoolTestTerminateProducer)
+            {
+                sleep(1);
+            }
         }
-    }
 
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        _releaseRespoolTestResource();
-        sleep(3);
-        
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            _releaseRespoolTestResource();
+            sleep(3);
+        }
+
+        jf_jiukun_fini();
     }
     
+    jf_logger_fini();
+
     if (u32Ret != JF_ERR_NO_ERROR)
     {
         jf_err_getMsg(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
-
-    jf_logger_fini();
 
     return u32Ret;
 }

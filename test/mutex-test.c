@@ -1,7 +1,7 @@
 /**
- *  @file syncmutex-test.c
+ *  @file mutex-test.c
  *
- *  @brief test file for syncmutex common object
+ *  @brief test file for jf_mutex common object
  *
  *  @author Min Zhang
  *

@@ -30,32 +30,32 @@ static boolean_t ls_bLockFile = FALSE;
 static boolean_t ls_bAppendFile = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+static void _printFilesTestUsage(void)
 {
     ol_printf("\
 Usage: files-test [-d <directory>] [-l] [-s filename] [-a]\n\
-    -a append file\n\
-    -l lock file test\n\
-    -s test stream file write\n");
+    -d list directory.\n\
+    -a append file.\n\
+    -l lock file test.\n\
+    -s test stream file write.\n");
 
     ol_printf("\n");
 
-    exit(0);
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parseFilesTestCmdLineParam(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv,
-        "lad:s:h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "lad:s:h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printFilesTestUsage();
+            exit(0);
             break;
         case 'a':
             ls_bAppendFile = TRUE;
@@ -81,8 +81,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
     return u32Ret;
 }
 
-static u32 _handleFile(const olchar_t * pstrFilename, jf_file_stat_t * pStat,
-    void * pArg)
+static u32 _handleFile(const olchar_t * pstrFilename, jf_file_stat_t * pStat, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -104,7 +103,9 @@ static u32 _listDir(const olchar_t * pstrDir)
             u32Ret = jf_dir_traversal(ls_pstrDirName, _handleFile, NULL);
         }
         else
+        {
             u32Ret = JF_ERR_NOT_A_DIR;
+        }
     }
 
     return u32Ret;
@@ -161,7 +162,8 @@ static u32 _testLockFile(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
 
-    u32Ret = jf_file_open(ls_pstrLockFile, O_CREAT, &fd);
+    u32Ret = jf_file_openWithMode(
+        ls_pstrLockFile, O_WRONLY | O_CREAT, JF_FILE_MODE_RUSR | JF_FILE_MODE_WUSR, &fd);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_file_writen(fd, "12345678", 8);
@@ -186,9 +188,7 @@ static u32 _testAppendFile(void)
     olchar_t * pstrFile = "appendfile.txt";
 
     u32Ret = jf_file_openWithMode(
-        pstrFile, O_WRONLY | O_APPEND | O_CREAT,
-        JF_FILE_DEFAULT_CREATE_MODE, &fd);
-//    u32Ret = openFile(pstrFile, O_WRONLY | O_APPEND, &fd);
+        pstrFile, O_WRONLY | O_APPEND | O_CREAT, JF_FILE_DEFAULT_CREATE_MODE, &fd);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_file_writen(fd, "12345678", 8);
@@ -205,7 +205,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
-    u32Ret = _parseCmdLineParam(argc, argv);
+    u32Ret = _parseFilesTestCmdLineParam(argc, argv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_pstrDirName != NULL)
@@ -217,7 +217,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         else if (ls_bAppendFile)
             u32Ret = _testAppendFile();
         else
-            _printUsage();
+            _printFilesTestUsage();
     }
 
     if (u32Ret != JF_ERR_NO_ERROR)

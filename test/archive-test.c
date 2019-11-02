@@ -22,6 +22,7 @@
 #include "jf_archive.h"
 #include "jf_string.h"
 #include "jf_jiukun.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 static olchar_t * ls_pstrArchiveName = NULL;
@@ -34,7 +35,7 @@ static boolean_t ls_bVerbose;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static void _printUsage(void)
+static void _printArchiveTestUsage(void)
 {
     ol_printf("\
 Usage: archive-test [-c | -x | -t] -f <archive file> [-m <member file>] [-v] [logger options] \n\
@@ -66,7 +67,7 @@ static u32 _parseArchiveTestCmdLineParam(
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printArchiveTestUsage();
             exit(0);
             break;
         case 'c':
@@ -89,15 +90,14 @@ static u32 _parseArchiveTestCmdLineParam(
             ls_bVerbose = TRUE;
             break;
         case 'T':
-            u32Ret = jf_string_getU8FromString(
-                optarg, ol_strlen(optarg), &pjlip->jlip_u8TraceLevel);
+            u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
             pjlip->jlip_pstrLogFilePath = optarg;
             break;
         case 'S':
-            u32Ret = jf_string_getS32FromString(optarg, ol_strlen(optarg), &pjlip->jlip_sLogFile);
+            u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;
@@ -149,7 +149,7 @@ static u32 _processArchiveTestCommand(olint_t argc, olchar_t ** argv)
             if (jf_linklist_isEmpty(&jlMemberFile))
             {
                 ol_printf("Member files are not specified!!!\n");
-                _printUsage();
+                _printArchiveTestUsage();
                 u32Ret = JF_ERR_MISSING_PARAM;
             }
         }
@@ -192,6 +192,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
 
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
     u32Ret = _parseArchiveTestCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -200,15 +203,12 @@ olint_t main(olint_t argc, olchar_t ** argv)
         if (ls_pstrArchiveName == NULL)
         {
             ol_printf("Archive file is not specified!!!\n");
-            _printUsage();
+            _printArchiveTestUsage();
             u32Ret = JF_ERR_MISSING_PARAM;
         }
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            ol_bzero(&jjip, sizeof(jjip));
-            jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
-
             u32Ret = jf_jiukun_init(&jjip);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
@@ -232,5 +232,3 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-

@@ -19,33 +19,53 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_dynlib.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
 /* --- private routine section ------------------------------------------------------------------ */
+
+static u32 _testDynlib(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_dynlib_t * pjd = NULL;
+    oldouble_t (*pow)(oldouble_t x, oldouble_t y);
+
+    u32Ret = jf_dynlib_load("/lib/x86_64-linux-gnu/libm.so.6", &pjd);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = jf_dynlib_getSymbolAddress(pjd, "pow", (void **)&pow);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_printf("%f\n", (*pow)(3, 10));
+    }
+
+    if (pjd != NULL)
+        jf_dynlib_unload(&pjd);
+
+    return u32Ret;
+}
 
 /* --- public routine section ------------------------------------------------------------------- */
 
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_dynlib_t * pjd = NULL;
-    oldouble_t (*pow)(oldouble_t x, oldouble_t y);
     olchar_t strErrMsg[300];
+    jf_jiukun_init_param_t jjip;
 
-    u32Ret = jf_dynlib_load ("libm.so", &pjd);
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+    u32Ret = jf_jiukun_init(&jjip);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_dynlib_getSymbolAddress(pjd, "powss", (void **)&pow);
-    }
+        u32Ret = _testDynlib();
 
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        printf ("%f\n", (*pow)(3, 10));
+        jf_jiukun_fini();
     }
-
-    if (pjd != NULL)
-        jf_dynlib_unload(&pjd);
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {

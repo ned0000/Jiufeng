@@ -1,7 +1,7 @@
 /**
  *  @file stringparse-test.c
  *
- *  @brief The test file for stringparse library
+ *  @brief The test file for jf_string library
  *
  *  @author Min Zhang
  *
@@ -19,6 +19,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_string.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -27,15 +28,14 @@ static boolean_t ls_bParseString = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static void _printUsage(void)
+static void _printStringparseTestUsage(void)
 {
     ol_printf("\
 Usage: stringparse-test [-s] [-p] [logger options] \n\
     -s test scan string.\n\
     -p test parse string.\n\
 logger options:\n\
-    -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug,\n\
-       4: data.\n\
+    -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug, 4: data.\n\
     -F <log file> the log file.\n\
     -S <log file size> the size of log file. No limit if not specified.\n\
     ");
@@ -44,7 +44,7 @@ logger options:\n\
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(
+static u32 _parseStringparseTestCmdLineParam(
     olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -63,7 +63,7 @@ static u32 _parseCmdLineParam(
             break;
         case '?':
         case 'h':
-            _printUsage();
+            _printStringparseTestUsage();
             exit(u32Ret);
             break;
         default:
@@ -223,21 +223,40 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_logger_init_param_t jlipParam;
 	olchar_t strErrMsg[300];
+    jf_jiukun_init_param_t jjip;
 
-    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
-    jlipParam.jlip_pstrCallerName = "XMLPARSER";
-//    jlipParam.jlip_bLogToStdout = TRUE;
+    ol_bzero(&jlipParam, sizeof(jlipParam));
+    jlipParam.jlip_pstrCallerName = "STRING-TEST";
+    jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
 
-    u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+    u32Ret = _parseStringparseTestCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
 
-        if (ls_bParseString)
-            u32Ret = _testParseString();
-        else if (ls_bScanString)
-            u32Ret = _testScanString();
+        u32Ret = jf_jiukun_init(&jjip);
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            if (ls_bParseString)
+            {
+                u32Ret = _testParseString();
+            }
+            else if (ls_bScanString)
+            {
+                u32Ret = _testScanString();
+            }
+            else
+            {
+                ol_printf("No operation is specified !!!!\n\n");
+                _printStringparseTestUsage();
+            }
+
+            jf_jiukun_fini();
+        }
 
         jf_logger_fini();
     }

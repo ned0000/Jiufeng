@@ -463,8 +463,7 @@ static boolean_t _isPoolResourceFree(internal_resource_t * pir)
  *  @retval JF_ERR_NO_ERROR success
  */
 static u32 _getResourceFromPoolArray(
-    internal_resource_pool_t * pirp, jf_array_t * pja,
-    jf_respool_resource_t ** ppRes)
+    internal_resource_pool_t * pirp, jf_array_t * pja, jf_respool_resource_t ** ppRes)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_resource_t * pir;
@@ -480,8 +479,7 @@ static u32 _getResourceFromPoolArray(
         u32Index = 0;
         while ((u32Index < u32Size) && (u32Ret == JF_ERR_NO_ERROR))
         {
-            u32Ret = jf_array_getElementAt(
-                pja, u32Index, (jf_array_element_t **)&pir);
+            u32Ret = jf_array_getElementAt(pja, u32Index, (jf_array_element_t **)&pir);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 bFree = _isPoolResourceFree(pir);
@@ -523,13 +521,11 @@ static u32 _getResourceFromPool(
 
     /* get resource from fulltime array */
     jf_logger_logDebugMsg("get resource from fulltime pool array");
-    u32Ret = _getResourceFromPoolArray(
-        pirp, pirp->irp_pjaFulltimeResources, ppRes);
+    u32Ret = _getResourceFromPoolArray(pirp, pirp->irp_pjaFulltimeResources, ppRes);
     if (u32Ret != JF_ERR_NO_ERROR)
     {
         jf_logger_logDebugMsg("get resource from parttime pool array");
-        u32Ret = _getResourceFromPoolArray(
-            pirp, pirp->irp_pjaParttimeResources, ppRes);
+        u32Ret = _getResourceFromPoolArray(pirp, pirp->irp_pjaParttimeResources, ppRes);
     }
 
     if (u32Ret != JF_ERR_NO_ERROR)

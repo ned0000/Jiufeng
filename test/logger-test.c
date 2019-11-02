@@ -40,12 +40,12 @@ static u32 ls_u32ErrorCode;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static void _printUsage(void)
+static void _printLoggerTestUsage(void)
 {
     ol_printf("\
 Usage: logger-test [-l] [-c error code] \n\
     [-l]: test the logger. \n\
-    [-c error code]: prolint_t error message for the error coce.\n");
+    [-c error code]: print error message for the error coce.\n");
 
     ol_printf("\n");
 }
@@ -57,29 +57,30 @@ static u32 _scanErrorCode(olchar_t * strcode)
     if (strlen(strcode) > 2)
     {
         if (strncasecmp(strcode, "0x", 2) == 0)
-            sscanf(strcode + 2, "%x", &ls_u32ErrorCode);
+            ol_sscanf(strcode + 2, "%x", &ls_u32ErrorCode);
         else
-            sscanf(strcode, "%d", &ls_u32ErrorCode);
+            ol_sscanf(strcode, "%d", &ls_u32ErrorCode);
     }
     else
-        sscanf(strcode, "%d", &ls_u32ErrorCode);
+    {
+        ol_sscanf(strcode, "%d", &ls_u32ErrorCode);
+    }
 
     return u32Ret;
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parseLoggerTestCmdLineParam(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv,
-        "c:lh")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "c:lh")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printLoggerTestUsage();
             exit(u32Ret);
             break;
         case 'd':
@@ -174,7 +175,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = _parseCmdLineParam(argc, argv);
+    u32Ret = _parseLoggerTestCmdLineParam(argc, argv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_bTestLogger)
@@ -182,7 +183,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         else if (ls_bErrorCode)
             _printErrorCode();
         else
-            _printUsage();
+            _printLoggerTestUsage();
     }
 
     return u32Ret;
