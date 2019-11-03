@@ -36,9 +36,7 @@ typedef struct
 
     jf_sem_t * rtwd_pjsSem;
 
-    /*The SCSI command queue and the lock*/
     jf_mutex_t * rtwd_pjmLock;
-//    list_head_t * rtwd_plhHermesCmd;
 
 } respool_test_worker_data_t;
 
@@ -61,14 +59,14 @@ JF_THREAD_RETURN_VALUE _respoolTestWorkerThread(void * pArg)
     u32 u32Ret = JF_ERR_NO_ERROR;
     respool_test_worker_data_t * prtwd = (respool_test_worker_data_t *)pArg;
 
-    jf_logger_logDebugMsg("enter respool test worker thread");
+    jf_logger_logDebugMsg("enter respool test worker thread, %p", prtwd);
     
     while (! prtwd->rtwd_bToTerminate)
     {
-        u32Ret = jf_sem_down(prtwd->rtwd_pjsSem);
+        u32Ret = jf_sem_downWithTimeout(prtwd->rtwd_pjsSem, 2000);
         if ((u32Ret == JF_ERR_NO_ERROR) && (! prtwd->rtwd_bToTerminate))
         {
-            jf_logger_logInfoMsg("respool test worker thread, got work");
+            jf_logger_logDebugMsg("respool test worker thread, got work");
 
             jf_mutex_acquire(prtwd->rtwd_pjmLock);
             /*do the work*/
@@ -76,7 +74,7 @@ JF_THREAD_RETURN_VALUE _respoolTestWorkerThread(void * pArg)
         }
     }
 
-    jf_logger_logDebugMsg("quit respool test worker thread");
+    jf_logger_logDebugMsg("quit respool test worker thread, %p", prtwd);
     jf_jiukun_freeMemory((void **)&prtwd);
     
     JF_THREAD_RETURN(u32Ret);
@@ -143,10 +141,10 @@ static u32 _destroyRespoolTestWorker(
     u32 u32Ret = JF_ERR_NO_ERROR;
     respool_test_worker_data_t * prtwd = (respool_test_worker_data_t *) *pprd;
 
-    jf_logger_logInfoMsg("destroy respool test worker");
+    jf_logger_logInfoMsg("destroy respool test worker, %p", prtwd);
 
     prtwd->rtwd_bToTerminate = TRUE;
-//    jf_sem_up(prtwd->rtwd_pjsSem);
+    jf_sem_up(prtwd->rtwd_pjsSem);
 
     *pprd = NULL;
 
@@ -156,17 +154,16 @@ static u32 _destroyRespoolTestWorker(
 static u32 _createTestRespool(jf_respool_t ** ppjr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_respool_create_param_t jrcp, * pjrcp = &jrcp;
+    jf_respool_create_param_t jrcp;
 
-    ol_memset(pjrcp, 0, sizeof(jf_respool_create_param_t));
+    ol_bzero(&jrcp, sizeof(jf_respool_create_param_t));
 
-    pjrcp->jrcp_bImmediateRelease = FALSE;
-    pjrcp->jrcp_pstrName = RESPOOL_TEST_RESOURCE_POOL_NAME;
-    pjrcp->jrcp_u32MinResources = RESPOOL_TEST_MIN_RESOURCES;
-    pjrcp->jrcp_u32MaxResources = RESPOOL_TEST_MAX_RESOURCES;
+    jrcp.jrcp_pstrName = RESPOOL_TEST_RESOURCE_POOL_NAME;
+    jrcp.jrcp_u32MinResources = RESPOOL_TEST_MIN_RESOURCES;
+    jrcp.jrcp_u32MaxResources = RESPOOL_TEST_MAX_RESOURCES;
 
-    pjrcp->jrcp_fnCreateResource = _createRespoolTestWorker;
-    pjrcp->jrcp_fnDestroyResource = _destroyRespoolTestWorker;
+    jrcp.jrcp_fnCreateResource = _createRespoolTestWorker;
+    jrcp.jrcp_fnDestroyResource = _destroyRespoolTestWorker;
 
     u32Ret = jf_respool_create(ppjr, &jrcp);
     

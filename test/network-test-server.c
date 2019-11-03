@@ -24,6 +24,7 @@
 #include "jf_jiukun.h"
 #include "jf_thread.h"
 #include "jf_time.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 #define NETWORK_TEST_SERVER  "NT-SERVER"
@@ -36,20 +37,17 @@ typedef struct server_data
 
 static jf_network_chain_t * ls_pjncNtsChain = NULL;
 
-static jf_network_assocket_t * ls_pjnaNtsAssocket = NULL;
-
 static boolean_t ls_bToTerminateNts = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static void _printUsage(void)
+static void _printNetworkTestServerUsage(void)
 {
     ol_printf("\
 Usage: network-test-server [-h] [logger options] \n\
     -h print the usage.\n\
 logger options:\n\
-    -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug,\n\
-       4: data.\n\
+    -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug, 4: data.\n\
     -F <log file> the log file.\n\
     -S <log file size> the size of log file. No limit if not specified.\n\
     ");
@@ -59,12 +57,11 @@ logger options:\n\
     exit(0);
 }
 
-static u32 _parseCmdLineParam(
+static u32 _parseNetworkTestServerCmdLineParam(
     olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
-    u32 u32Value;
 
     while (((nOpt = getopt(argc, argv, "T:F:S:h")) != -1) &&
            (u32Ret == JF_ERR_NO_ERROR))
@@ -73,35 +70,21 @@ static u32 _parseCmdLineParam(
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printNetworkTestServerUsage();
             exit(0);
             break;
         case ':':
             u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case 'T':
-            if (ol_sscanf(optarg, "%d", &u32Value) == 1)
-            {
-                pjlip->jlip_u8TraceLevel = (u8)u32Value;
-            }
-            else
-            {
-                u32Ret = JF_ERR_INVALID_PARAM;
-            }
+            u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
             pjlip->jlip_pstrLogFilePath = optarg;
             break;
         case 'S':
-            if (ol_sscanf(optarg, "%d", &u32Value) == 1)
-            {
-                pjlip->jlip_sLogFile = u32Value;
-            }
-            else
-            {
-                u32Ret = JF_ERR_INVALID_PARAM;
-            }
+            u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;
@@ -192,10 +175,11 @@ static u32 _onNtsData(
     return u32Ret;
 }
 
-JF_THREAD_RETURN_VALUE _ntccThread(void * pArg)
+JF_THREAD_RETURN_VALUE _networkTestServerThread(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_network_assocket_create_param_t jnacp;
+    jf_network_assocket_t * pjnaNtsAssocket = NULL;
 
     u32Ret = jf_network_createChain(&ls_pjncNtsChain);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -210,7 +194,7 @@ JF_THREAD_RETURN_VALUE _ntccThread(void * pArg)
         jnacp.jnacp_fnOnSendData = _onNtsSendData;
         jnacp.jnacp_fnOnData = _onNtsData;
 
-        u32Ret = jf_network_createAssocket(ls_pjncNtsChain, &ls_pjnaNtsAssocket, &jnacp);
+        u32Ret = jf_network_createAssocket(ls_pjncNtsChain, &pjnaNtsAssocket, &jnacp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -218,6 +202,11 @@ JF_THREAD_RETURN_VALUE _ntccThread(void * pArg)
         u32Ret = jf_network_startChain(ls_pjncNtsChain);
     }
 
+    if (pjnaNtsAssocket != NULL)
+        jf_network_destroyAssocket(&pjnaNtsAssocket);
+    if (ls_pjncNtsChain != NULL)
+        jf_network_destroyChain(&ls_pjncNtsChain);
+    
     JF_THREAD_RETURN(u32Ret);
 }
 
@@ -231,12 +220,15 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32RetCode = 0;
     jf_jiukun_init_param_t jjip;
 
-    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = NETWORK_TEST_SERVER;
     jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_u8TraceLevel = 3;
 
-    u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+    u32Ret = _parseNetworkTestServerCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_process_registerSignalHandlers(_terminate);
 
@@ -244,16 +236,13 @@ olint_t main(olint_t argc, olchar_t ** argv)
     {
         jf_logger_init(&jlipParam);
 
-        ol_bzero(&jjip, sizeof(jjip));
-        jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
-
         u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = jf_process_initSocket();
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                u32Ret = jf_thread_create(&threadid, NULL, _ntccThread, NULL);
+                u32Ret = jf_thread_create(&threadid, NULL, _networkTestServerThread, NULL);
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     while (! ls_bToTerminateNts)
@@ -271,9 +260,6 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
         jf_logger_fini();
     }
-
-    if (ls_pjncNtsChain != NULL)
-        jf_network_destroyChain(&ls_pjncNtsChain);
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {

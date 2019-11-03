@@ -29,7 +29,8 @@ static olchar_t * ls_pstrSource = NULL;
 static boolean_t ls_bVerbose = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+
+static void _printCghashTestUsage(void)
 {
     ol_printf("\
 Usage: cghash-test [-m] [-s] [-a string] [-h] \n\
@@ -40,13 +41,12 @@ Usage: cghash-test [-m] [-s] [-a string] [-h] \n\
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parseCghashTestCmdLineParam(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv,
-        "va:msh?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "va:msh?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -58,7 +58,8 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
             ls_pstrSource = optarg;
             break;
         case 'h':
-            _printUsage();
+            _printCghashTestUsage();
+            exit(0);
             break;
         case 'm':
             ls_bMd5 = TRUE;
@@ -92,8 +93,7 @@ static u32 _testMd5(void)
 
     str[JF_CGHASH_MD5_DIGEST_LEN * 2] = '\0';
 
-    if (strncmp(
-            str, "0f71e3c00b7b8162c6d7ef6edc738aa0", JF_CGHASH_MD5_DIGEST_LEN * 2) == 0)
+    if (strncmp(str, "0f71e3c00b7b8162c6d7ef6edc738aa0", JF_CGHASH_MD5_DIGEST_LEN * 2) == 0)
         ol_printf("MD5 succeeds\n");
     else
         ol_printf("MD5 fails\n");
@@ -130,7 +130,8 @@ static u32 _testSha1(void)
 
         str[JF_CGHASH_SHA1_DIGEST_LEN * 2] = '\0';
 
-        if (strncmp(str, "cb5551f403fac5fd3d6d1b6329993c3848c468ce",
+        if (strncmp(
+                str, "cb5551f403fac5fd3d6d1b6329993c3848c468ce",
                 JF_CGHASH_SHA1_DIGEST_LEN * 2) == 0)
             ol_printf("SHA1 succeeds\n");
         else
@@ -146,7 +147,8 @@ static u32 _testSha1(void)
 
         str[JF_CGHASH_SHA1_DIGEST_LEN * 2] = '\0';
 
-        if (strncmp(str, "b8b264042b227b11618aa65dd1dbe1bf807f3059",
+        if (strncmp(
+                str, "b8b264042b227b11618aa65dd1dbe1bf807f3059",
                 JF_CGHASH_SHA1_DIGEST_LEN * 2) == 0)
             ol_printf("SHA1 succeeds\n");
         else
@@ -184,19 +186,25 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
-    u32Ret = _parseCmdLineParam(argc, argv);
+    u32Ret = _parseCghashTestCmdLineParam(argc, argv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_pstrSource != NULL)
+        {
             u32Ret = _sha1Str(ls_pstrSource);
+        }
         else if (ls_bMd5)
+        {
             u32Ret = _testMd5();
+        }
         else if (ls_bSha1)
+        {
             u32Ret = _testSha1();
+        }
         else
         {
             ol_printf("No operation is specified !!!!\n\n");
-            _printUsage();
+            _printCghashTestUsage();
         }
     }
 

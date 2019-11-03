@@ -251,6 +251,18 @@ static u32 _addAndRemoveUtUtimerItem()
         jf_network_dumpUtimerItem(ls_pjnuUtUtimer);
 
     }
+
+    if (pData1 != NULL)
+    {
+        jf_network_removeUtimerItem(ls_pjnuUtUtimer, (void *)pData1);
+        jf_jiukun_freeMemory((void **)&pData1);
+    }
+
+    if (pData2 != NULL)
+    {
+        jf_network_removeUtimerItem(ls_pjnuUtUtimer, (void *)pData2);
+        jf_jiukun_freeMemory((void **)&pData2);
+    }
     
     return u32Ret;
 }
@@ -264,44 +276,55 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_logger_init_param_t jlipParam;
     jf_thread_id_t threadid;
     u32 u32RetCode = 0;
+    jf_jiukun_init_param_t jjip;
 
-    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    ol_bzero(&jlipParam, sizeof(jlipParam));
+    jlipParam.jlip_pstrCallerName = "UTIMER-TEST";
     jlipParam.jlip_bLogToStdout = TRUE;
-    jlipParam.jlip_u8TraceLevel = 3;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
+
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
 
     jf_logger_init(&jlipParam);
 
-    u32Ret = jf_process_initSocket();
+    u32Ret = jf_jiukun_init(&jjip);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_process_registerSignalHandlers(_terminate);
+        u32Ret = jf_process_initSocket();
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = jf_thread_create(&threadid, NULL, _utThread, NULL);
-        }
+            u32Ret = jf_process_registerSignalHandlers(_terminate);
+            if (u32Ret == JF_ERR_NO_ERROR)
+            {
+                u32Ret = jf_thread_create(&threadid, NULL, _utThread, NULL);
+            }
 
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            jf_time_sleep(3);
-
-            u32Ret = _addUtUtimerItem();
-        }
-
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            u32Ret = _addAndRemoveUtUtimerItem();
-        }
-
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            while (! ls_bToTerminateUt)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 jf_time_sleep(3);
+
+                u32Ret = _addUtUtimerItem();
             }
+
+            if (u32Ret == JF_ERR_NO_ERROR)
+            {
+                u32Ret = _addAndRemoveUtUtimerItem();
+            }
+
+            if (u32Ret == JF_ERR_NO_ERROR)
+            {
+                while (! ls_bToTerminateUt)
+                {
+                    jf_time_sleep(3);
+                }
+            }
+
+            jf_process_finiSocket();
+            jf_thread_waitForThreadTermination(threadid, &u32RetCode);
         }
 
-        jf_process_finiSocket();
-        jf_thread_waitForThreadTermination(threadid, &u32RetCode);
+        jf_jiukun_fini();
     }
 
     jf_logger_fini();

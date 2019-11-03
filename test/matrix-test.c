@@ -19,31 +19,31 @@
 #include "jf_limit.h"
 #include "jf_matrix.h"
 #include "jf_jiukun.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static void _printUsage(void)
+static void _printMatrixTestUsage(void)
 {
     ol_printf("\
 Usage: matrix-test [-h] [logger options]\n\
     -h show this usage.\n\
 logger options:\n\
-    -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug,\n\
-       4: data.\n\
+    -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug, 4: data.\n\
     -F <log file> the log file.\n\
     -S <trace file size> the size of log file. No limit if not specified.\n");
 
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
+static u32 _parseMatrixTestCmdLineParam(
+    olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
-    u32 u32Value;
 
     while (((nOpt = getopt(argc, argv, "tsOT:F:S:h")) != -1) &&
            (u32Ret == JF_ERR_NO_ERROR))
@@ -52,24 +52,18 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printMatrixTestUsage();
             exit(u32Ret);
             break;
         case 'T':
-            if (sscanf(optarg, "%d", &u32Value) == 1)
-                pjlip->jlip_u8TraceLevel = (u8)u32Value;
-            else
-                u32Ret = JF_ERR_INVALID_PARAM;
+            u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
             pjlip->jlip_pstrLogFilePath = optarg;
             break;
         case 'S':
-            if (sscanf(optarg, "%d", &u32Value) == 1)
-                pjlip->jlip_sLogFile = u32Value;
-            else
-                u32Ret = JF_ERR_INVALID_PARAM;
+            u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
             break;
         case 'O':
             pjlip->jlip_bLogToStdout = TRUE;
@@ -126,11 +120,11 @@ static u32 _testMulMatrix(void)
     }
 
 
-    if (pma == NULL)
+    if (pma != NULL)
         jf_matrix_free(&pma);
-    if (pmb == NULL)
+    if (pmb != NULL)
         jf_matrix_free(&pmb);
-    if (pmc == NULL)
+    if (pmc != NULL)
         jf_matrix_free(&pmc);
 
     return u32Ret;
@@ -186,10 +180,9 @@ static u32 _testAddSubMatrix(void)
         jf_matrix_print(pma);
     }
 
-
-    if (pma == NULL)
+    if (pma != NULL)
         jf_matrix_free(&pma);
-    if (pmb == NULL)
+    if (pmb != NULL)
         jf_matrix_free(&pmb);
 
     return u32Ret;
@@ -224,9 +217,9 @@ static u32 _testTransposeMatrix(void)
         jf_matrix_print(pmb);
     }
 
-    if (pma == NULL)
+    if (pma != NULL)
         jf_matrix_free(&pma);
-    if (pmb == NULL)
+    if (pmb != NULL)
         jf_matrix_free(&pmb);
 
     return u32Ret;
@@ -285,9 +278,9 @@ static u32 _testInverseMatrix(void)
         }
     }
 
-    if (pmb == NULL)
+    if (pmb != NULL)
         jf_matrix_free(&pmb);
-    if (pmc == NULL)
+    if (pmc != NULL)
         jf_matrix_free(&pmc);
 
     return u32Ret;
@@ -330,7 +323,7 @@ static u32 _testHatMatrix(void)
         jf_matrix_print(pmb);
     }
 
-    if (pmb == NULL)
+    if (pmb != NULL)
         jf_matrix_free(&pmb);
 
     return u32Ret;
@@ -362,18 +355,21 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
-    jf_logger_init_param_t lp;
+    jf_logger_init_param_t jlipParam;
     jf_jiukun_init_param_t jjip;
 
-    ol_memset(&lp, 0, sizeof(lp));
+    ol_bzero(&jlipParam, sizeof(jlipParam));
+    jlipParam.jlip_pstrCallerName = "MATRIX-TEST";
+    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
 
-    u32Ret = _parseCmdLineParam(argc, argv, &lp);
-    if (u32Ret != JF_ERR_NO_ERROR)
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+    u32Ret = _parseMatrixTestCmdLineParam(argc, argv, &jlipParam);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_logger_init(&lp);
-
-        ol_bzero(&jjip, sizeof(jjip));
-        jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+        jf_logger_init(&jlipParam);
 
         u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == JF_ERR_NO_ERROR)

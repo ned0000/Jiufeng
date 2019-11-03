@@ -49,8 +49,7 @@ static inline void jf_listhead_init(jf_listhead_t * list)
  *  This is only for internal list manipulation where we know
  *  the prev/next entries already!
  */
-static inline void _listAdd(
-    jf_listhead_t * new, jf_listhead_t * prev, jf_listhead_t * next)
+static inline void _listAdd(jf_listhead_t * new, jf_listhead_t * prev, jf_listhead_t * next)
 {
     next->jl_pjlPrev = new;
     new->jl_pjlNext = next;
@@ -162,8 +161,7 @@ static inline void jf_listhead_moveTail(jf_listhead_t * head, jf_listhead_t * li
  *  @param head [in] the head of the list
  *  @param list [in] the entry to test
  */
-static inline boolean_t jf_listhead_isLast(
-    const jf_listhead_t * head, const jf_listhead_t * list)
+static inline boolean_t jf_listhead_isLast(const jf_listhead_t * head, const jf_listhead_t * list)
 {
     return list->jl_pjlNext == head;
 }
@@ -173,8 +171,7 @@ static inline boolean_t jf_listhead_isLast(
  *  @param head [in] the head of the list
  *  @param list [in] the entry to test
  */
-static inline boolean_t jf_listhead_isFirst(
-    const jf_listhead_t * head, const jf_listhead_t * list)
+static inline boolean_t jf_listhead_isFirst(const jf_listhead_t * head, const jf_listhead_t * list)
 {
     return list->jl_pjlPrev == head;
 }
@@ -206,8 +203,7 @@ static inline void _listSplice(jf_listhead_t * head, jf_listhead_t * list)
  *  @param head [in] the place to add it in the first list.
  *  @param list [in] the new list to add.
  */
-static inline void jf_listhead_splice(
-    jf_listhead_t * head, jf_listhead_t * list)
+static inline void jf_listhead_splice(jf_listhead_t * head, jf_listhead_t * list)
 {
     if (! jf_listhead_isEmpty(list))
     {
@@ -234,8 +230,7 @@ static inline void _listSpliceTail(jf_listhead_t * head, jf_listhead_t * list)
  *  @param head [in] the place to add it in the first list.
  *  @param list [in] the new list to add.
  */
-static inline void jf_listhead_spliceTail(
-    jf_listhead_t * head, jf_listhead_t * list)
+static inline void jf_listhead_spliceTail(jf_listhead_t * head, jf_listhead_t * list)
 {
     if (! jf_listhead_isEmpty(list))
     {
@@ -251,8 +246,7 @@ static inline void jf_listhead_spliceTail(
  *
  *  @note the list at 'list' is reinitialised
  */
-static inline void jf_listhead_spliceInit(
-    jf_listhead_t * head, jf_listhead_t * list)
+static inline void jf_listhead_spliceInit(jf_listhead_t * head, jf_listhead_t * list)
 {
     if (! jf_listhead_isEmpty(list))
     {

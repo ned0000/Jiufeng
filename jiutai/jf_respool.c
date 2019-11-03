@@ -33,6 +33,8 @@ typedef enum
     IRS_BUSY,      /**< the resource is busy */
 } internal_resource_state_t;
 
+struct internal_resource_pool;
+
 /**
  *  Internal resource data structure
  */
@@ -41,13 +43,15 @@ typedef struct
     /** fulltime resource or not */
     boolean_t ir_bFulltime;
     u8 ir_u8Reserved[7];
+    /** pointer to the resource pool */
+    struct internal_resource_pool * ir_pirpPool;
     /** the resource state */
     internal_resource_state_t ir_irsResourceState;
     /** the data of the resource */
     jf_respool_resource_data_t * ir_pjrrdData;
 } internal_resource_t;
 
-typedef struct
+typedef struct internal_resource_pool
 {
     /** null-terminated string. It should be no longer than 15 characters */
     olchar_t irp_strName[16];
@@ -144,23 +148,86 @@ static u32 _unlockResourcePool(internal_resource_pool_t * pirp)
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-static u32 _destroyResourceInPool(
-    internal_resource_pool_t * pirp, internal_resource_t ** ppir)
+static u32 _destroyResourceInPool(internal_resource_pool_t * pirp, internal_resource_t ** ppir)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_resource_t * pir = NULL;
+    internal_resource_t * pir = (internal_resource_t *)*ppir;
 
-    pir = (internal_resource_t *)*ppir;
-
-    jf_logger_logInfoMsg("destroy resource");
-
-    *ppir = NULL;
+    jf_logger_logDebugMsg("destroy resource");
 
     u32Ret = pirp->irp_fnDestroyResource((jf_respool_resource_t *)pir, &pir->ir_pjrrdData);
     
-    jf_jiukun_freeMemory((void **)&pir);
+    jf_jiukun_freeMemory((void **)ppir);
 
     return u32Ret;
+}
+
+static u32 _destroyArrayResource(jf_array_element_t ** ppjae)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_resource_t * pir = (internal_resource_t *) *ppjae;
+    internal_resource_pool_t * pirp = pir->ir_pirpPool;
+
+    jf_logger_logDebugMsg("destroy array resource");
+
+    u32Ret = _destroyResourceInPool(pirp, (internal_resource_t **)ppjae);
+
+    return u32Ret;
+}
+
+/** Check whether the resource is free
+ *
+ *  @param pir [in] the pointer to the resource. 
+ *
+ *  @return the free state of the resource
+ *  @retval TRUE the resource is free
+ *  @retval FALSE the resource is not free
+ */
+static boolean_t _isPoolResourceFree(internal_resource_t * pir)
+{
+    boolean_t bFree = FALSE;
+
+    if (pir->ir_irsResourceState == IRS_FREE)
+        bFree = TRUE;
+
+    return bFree;
+}
+
+/** Set the state of the resource
+ *
+ *  @param pir [in] the pointer to the resource.
+ *  @param irs [in] the new state to be set.
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ */
+static u32 _setPoolResourceState(
+    internal_resource_t * pir, internal_resource_state_t irs)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    pir->ir_irsResourceState = irs;
+
+    return u32Ret;
+}
+
+static boolean_t _findArrayResource(jf_array_element_t * pjae, void * pKey)
+{
+    boolean_t bFound = FALSE, bFree = FALSE;
+    internal_resource_t * pir = (internal_resource_t *) pjae;
+
+    jf_logger_logDebugMsg("find array resource");
+
+    bFree = _isPoolResourceFree(pir);
+    if (bFree)
+    {
+        jf_logger_logDebugMsg(
+            "find free resource from %s array", (pir->ir_bFulltime ? "fulltime" : "parttime"));
+        _setPoolResourceState(pir, IRS_BUSY);
+        bFound = TRUE;
+    }
+
+    return bFound;
 }
 
 /** Check whether the maximum resources are reached in array
@@ -196,24 +263,6 @@ static u32 _isMaxPoolResourcesReached(
             u32Ret = JF_ERR_REACH_MAX_RESOURCES;
         }
     }
-
-    return u32Ret;
-}
-
-/** Set the state of the resource
- *
- *  @param pir [in] the pointer to the resource.
- *  @param irs [in] the new state to be set.
- *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
- */
-static u32 _setPoolResourceState(
-    internal_resource_t * pir, internal_resource_state_t irs)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-
-    pir->ir_irsResourceState = irs;
 
     return u32Ret;
 }
@@ -256,9 +305,10 @@ static u32 _createResourceInPoolArray(
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            ol_memset(pir, 0, sizeof(internal_resource_t));
+            ol_bzero(pir, sizeof(internal_resource_t));
 
             pir->ir_bFulltime = bFulltime;
+            pir->ir_pirpPool = pirp;
             _setPoolResourceState(pir, state);
 
             u32Ret = pirp->irp_fnCreateResource(pir, &pir->ir_pjrrdData);
@@ -313,31 +363,14 @@ static u32 _createResourceInPool(
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-static u32 _destroyResourceArray(
-    internal_resource_pool_t * pirp, jf_array_t ** ppja)
+static u32 _destroyResourceArray(internal_resource_pool_t * pirp, jf_array_t ** ppja)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Size, u32Index;
-    jf_array_t * pja = *ppja;
-    internal_resource_t * pir;
 
     u32Ret = _lockResourcePool(pirp);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Size = jf_array_getSize(pja);
-        u32Index = 0;
-        while ((u32Index < u32Size) && (u32Ret == JF_ERR_NO_ERROR))
-        {
-            u32Ret = jf_array_getElementAt(pja, 0, (jf_array_element_t **)&pir);
-            if (u32Ret == JF_ERR_NO_ERROR)
-            {
-                jf_array_removeElementAt(pja, 0);
-                _destroyResourceInPool(pirp, &pir);
-            }
-            u32Index ++;
-        }
-
-        jf_array_destroy(ppja);
+        jf_array_destroyArrayAndElements(ppja, _destroyArrayResource);
 
         _unlockResourcePool(pirp);
     }
@@ -361,8 +394,8 @@ static u32 _destroyAllResources(internal_resource_pool_t * pirp)
     u32Ret = _destroyResourceArray(pirp, &pirp->irp_pjaFulltimeResources);
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        jf_logger_logErrMsg(u32Ret,
-            "failed to destroy full time resource array of resource pool %s",
+        jf_logger_logErrMsg(
+            u32Ret, "failed to destroy full time resource array of resource pool %s",
             pirp->irp_strName);
     }
 
@@ -371,8 +404,8 @@ static u32 _destroyAllResources(internal_resource_pool_t * pirp)
     u32Ret = _destroyResourceArray(pirp, &pirp->irp_pjaParttimeResources);
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        jf_logger_logErrMsg(u32Ret,
-            "failed to destroy part time resource array of resource pool %s",
+        jf_logger_logErrMsg(
+            u32Ret, "failed to destroy part time resource array of resource pool %s",
             pirp->irp_strName);
     }
 
@@ -399,7 +432,7 @@ static u32 _createResourcePool(
     u32Ret = jf_jiukun_allocMemory((void **)&pirp, sizeof(internal_resource_pool_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(pirp, 0, sizeof(internal_resource_pool_t));
+        ol_bzero(pirp, sizeof(internal_resource_pool_t));
 
         u32Ret = jf_mutex_init(&(pirp->irp_jmLock));
     }
@@ -422,7 +455,7 @@ static u32 _createResourcePool(
         pirp->irp_u32MaxResources = pjrcp->jrcp_u32MaxResources;
         pirp->irp_u32MinResources = pjrcp->jrcp_u32MinResources;
 
-        pirp->irp_bImmediateRelease = pjrcp->jrcp_bImmediateRelease;
+        pirp->irp_bImmediateRelease = TRUE;
         
         ol_strcpy(pirp->irp_strName, pjrcp->jrcp_pstrName);
     }
@@ -433,24 +466,6 @@ static u32 _createResourcePool(
         jf_respool_destroy((jf_respool_t **)&pirp);
 
     return u32Ret;
-}
-
-/** Check whether the resource is free
- *
- *  @param pir [in] the pointer to the resource. 
- *
- *  @return the free state of the resource
- *  @retval TRUE the resource is free
- *  @retval FALSE the resource is not free
- */
-static boolean_t _isPoolResourceFree(internal_resource_t * pir)
-{
-    boolean_t bFree = FALSE;
-
-    if (pir->ir_irsResourceState == IRS_FREE)
-        bFree = TRUE;
-
-    return bFree;
 }
 
 /** Get resource from array in resource pool.
@@ -466,43 +481,17 @@ static u32 _getResourceFromPoolArray(
     internal_resource_pool_t * pirp, jf_array_t * pja, jf_respool_resource_t ** ppRes)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_resource_t * pir;
-    u32 u32Index, u32Size;
-    boolean_t bFree;
 
     *ppRes = NULL;
 
     u32Ret = _lockResourcePool(pirp);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Size = jf_array_getSize(pja);
-        u32Index = 0;
-        while ((u32Index < u32Size) && (u32Ret == JF_ERR_NO_ERROR))
-        {
-            u32Ret = jf_array_getElementAt(pja, u32Index, (jf_array_element_t **)&pir);
-            if (u32Ret == JF_ERR_NO_ERROR)
-            {
-                bFree = _isPoolResourceFree(pir);
-                if (bFree)
-                {
-                    jf_logger_logDebugMsg(
-                        "find free resource from %s array",
-                        (pir->ir_bFulltime ? "fulltime" : "parttime"));
-                    _setPoolResourceState(pir, IRS_BUSY);
-                    *ppRes = pir;
-                    u32Ret = JF_ERR_NO_ERROR;
-                    break;
-                }
-            }
-            u32Index ++;
-        }
+        u32Ret = jf_array_findElement(pja, (jf_array_element_t **)ppRes, _findArrayResource, NULL);
 
         _unlockResourcePool(pirp);
     }
 
-    if (*ppRes == NULL)
-        u32Ret = JF_ERR_NOT_FOUND;
-    
     return u32Ret;
 }
 
@@ -560,9 +549,10 @@ static u32 _putResourceInPool(
         }
         else if (pirp->irp_bImmediateRelease)
         {
-            jf_array_removeElement(
+            u32Ret = jf_array_removeElement(
                 pirp->irp_pjaParttimeResources, (jf_array_element_t *)pir);
-            _destroyResourceInPool(pirp, &pir);
+            if (u32Ret == JF_ERR_NO_ERROR)
+                _destroyResourceInPool(pirp, &pir);
         }
 
         _unlockResourcePool(pirp);
@@ -623,8 +613,7 @@ static u32 _reapResourceInPool(internal_resource_pool_t * pirp)
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 jf_respool_create(
-    jf_respool_t ** ppjr, jf_respool_create_param_t * pjrcp)
+u32 jf_respool_create(jf_respool_t ** ppjr, jf_respool_create_param_t * pjrcp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_resource_pool_t * pirp = NULL;
@@ -661,7 +650,7 @@ u32 jf_respool_destroy(jf_respool_t ** ppjr)
     _destroyAllResources(pirp);
 
     /* destroy the mutex */
-    u32Ret = jf_mutex_fini(&(pirp->irp_jmLock));
+    jf_mutex_fini(&(pirp->irp_jmLock));
 
     /* free the resource pool */
     jf_jiukun_freeMemory((void **)&pirp);

@@ -6,8 +6,7 @@
  *  @author Min Zhang
  *
  *  @note Create DB with command: sqlite3 env.db
- *  @note Create table with sql statement: CREATE TABLE env(key TEXT PRIMARY
- *   KEY, value TEXT);
+ *  @note Create table with sql statement: CREATE TABLE env(key TEXT PRIMARY KEY, value TEXT);
  *
  */
 
@@ -28,7 +27,7 @@
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static void _printUsage(void)
+static void _printSqliteTestUsage(void)
 {
     ol_printf("\
 Usage: sqlite-test [-h] \n\
@@ -38,19 +37,18 @@ Usage: sqlite-test [-h] \n\
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parseSqliteTestCmdLineParam(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv,
-        "?h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "?h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printSqliteTestUsage();
             exit(0);
         default:
             u32Ret = JF_ERR_INVALID_OPTION;
@@ -74,9 +72,7 @@ static u32 _setJtSqliteValue(
     {
         /*update or insert the value into the DB*/
         ol_snprintf(
-            pstrSql, nsize,
-            "REPLACE INTO env(key, value) VALUES ('%s', '%s');",
-            pKey, pValue);
+            pstrSql, nsize, "REPLACE INTO env(key, value) VALUES ('%s', '%s');", pKey, pValue);
         u32Ret = jf_sqlite_execSql(pjs, pstrSql, strRet, sizeof(strRet));
     }
     
@@ -92,8 +88,7 @@ static u32 _getJtSqliteValue(
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strSql[512];
 
-    ol_snprintf(
-        strSql, sizeof(strSql), "SELECT value FROM env WHERE key='%s';", pKey);
+    ol_snprintf(strSql, sizeof(strSql), "SELECT value FROM env WHERE key='%s';", pKey);
     u32Ret = jf_sqlite_execSql(pjs, strSql, pValue, sValue);
 
     return u32Ret;
@@ -185,7 +180,7 @@ static u32 _testJtSqlite(void)
     jf_sqlite_t js;
     jf_sqlite_init_param_t config;
 
-    ol_memset(&config, 0, sizeof(jf_sqlite_init_param_t));
+    ol_bzero(&config, sizeof(jf_sqlite_init_param_t));
     config.jsip_pstrDbName = "env.db";
 
     u32Ret = jf_sqlite_init(&js, &config);
@@ -213,19 +208,19 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (argc < 1)
     {
-        _printUsage();
+        _printSqliteTestUsage();
         u32Ret = JF_ERR_MISSING_PARAM;
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
-        jlipParam.jlip_pstrCallerName = "JTSQLITE";
+        jlipParam.jlip_pstrCallerName = "SQLITE-TEST";
         jlipParam.jlip_bLogToFile = FALSE;
         jlipParam.jlip_bLogToStdout = TRUE;
         jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
 
-        u32Ret = _parseCmdLineParam(argc, argv);
+        u32Ret = _parseSqliteTestCmdLineParam(argc, argv);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

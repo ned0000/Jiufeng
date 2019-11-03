@@ -21,6 +21,7 @@
 #include "jf_encrypt.h"
 #include "jf_hex.h"
 #include "jf_string.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 static boolean_t ls_bTestEncryptString = FALSE;
@@ -28,7 +29,7 @@ static boolean_t ls_bTestEncryptFile = FALSE;
 static olchar_t * ls_pstrSrcFile = NULL;
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+static void _printEncryptTestUsage(void)
 {
     ol_printf("\
 Usage: encrypt-test [-s] [-f file] [-h] \n\
@@ -38,19 +39,19 @@ Usage: encrypt-test [-s] [-f file] [-h] \n\
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parseEncryptTestCmdLineParam(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv,
-        "sf:h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "sf:h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printEncryptTestUsage();
+            exit(0);
             break;
         case 's':
             ls_bTestEncryptString = TRUE;
@@ -143,18 +144,32 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
+    jf_jiukun_init_param_t jjip;
 
-    u32Ret = _parseCmdLineParam(argc, argv);
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+    u32Ret = _parseEncryptTestCmdLineParam(argc, argv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (ls_bTestEncryptString)
-            u32Ret = _testEncryptString();
-        else if (ls_bTestEncryptFile)
-            u32Ret = _testEncryptFile();
-        else
+        u32Ret = jf_jiukun_init(&jjip);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            ol_printf("No operation is specified !!!!\n\n");
-            _printUsage();
+            if (ls_bTestEncryptString)
+            {
+                u32Ret = _testEncryptString();
+            }
+            else if (ls_bTestEncryptFile)
+            {
+                u32Ret = _testEncryptFile();
+            }
+            else
+            {
+                ol_printf("No operation is specified !!!!\n\n");
+                _printEncryptTestUsage();
+            }
+
+            jf_jiukun_fini();
         }
     }
 

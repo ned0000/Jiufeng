@@ -268,12 +268,13 @@ u32 jf_matrix_transpose(matrix_t * pmt, matrix_t * pmo)
     _clearMatrixData(pmt);
 
     for (i = 0; i < pmt->m_nRow; i ++)
+    {
         for (j = 0; j < pmt->m_nCol; j ++)
         {
-            pmt->m_pdbData[i * pmt->m_nCol + j] =
-                    pmo->m_pdbData[j * pmo->m_nCol + i];
+            pmt->m_pdbData[i * pmt->m_nCol + j] = pmo->m_pdbData[j * pmo->m_nCol + i];
 
         }
+    }
 
     return u32Ret;
 }

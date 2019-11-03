@@ -145,6 +145,8 @@ static void _clearPendingSendOfAsocket(internal_asocket_t * pia)
     {
         pasd = jf_listhead_getEntry(pos, asocket_send_data_t, asd_jlList);
 
+        jf_listhead_del(&pasd->asd_jlList);
+
         pia->ia_fnOnSendData(
             pia, pia->ia_u32Status, pasd->asd_pu8Buffer, pasd->asd_sBuf, pia->ia_pUser);
 

@@ -67,8 +67,9 @@ typedef u32 (* jf_respool_fnCreateResource_t)(
 typedef u32 (* jf_respool_fnDestroyResource_t)(
     jf_respool_resource_t * pjrr, jf_respool_resource_data_t ** ppData);
 
-/**
- *  The parameter for creating the resource 
+/** The parameter for creating the resource. The minimum number of resources is full time resources
+ *  which are not released after use. Other resources are part time resource which are released 
+ *  after use
  */
 typedef struct
 {
@@ -78,9 +79,7 @@ typedef struct
     u32 jrcp_u32MinResources;
     /** maximum number of resources that can co-exist at the same time */
     u32 jrcp_u32MaxResources;
-    /** if immediate release is set to true, resource is released after use*/
-    boolean_t jrcp_bImmediateRelease;
-    u8 jrcp_u8Reserved[7];
+    u8 jrcp_u8Reserved[8];
     /** the callback function is to creat resource */
     jf_respool_fnCreateResource_t jrcp_fnCreateResource;
     /** the callback function is to destroy resource */
@@ -136,15 +135,6 @@ u32 jf_respool_getResource(jf_respool_t * pjr, jf_respool_resource_t ** ppRes);
  *  @note getResourceFromPool must be called successfully before this func is called.
  */
 u32 jf_respool_putResource(jf_respool_t * pjr, jf_respool_resource_t ** ppRes);
-
-/** Find the free parttime resources, and release them.
- *
- *  @param pjr [in] the pointer to the resource pool. 
- *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
- */
-u32 jf_respool_reapResource(jf_respool_t * pjr);
 
 #endif /*JIUTAI_RESPOOL_H*/
 

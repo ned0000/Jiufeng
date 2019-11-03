@@ -19,6 +19,8 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_xmlparser.h"
+#include "jf_option.h"
+#include "jf_jiukun.h"
 
 /* An example of XML file for testing purpose:
 
@@ -52,15 +54,14 @@
 static olchar_t * ls_pstrXmlFileName = NULL;
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+static void _printXmlparserTestUsage(void)
 {
     ol_printf("\
 Usage: xmlparser-test [-f xml-file] [-h] [logger options] \n\
     -f specify the XML file.\n\
     -h print the usage.\n\
 logger options:\n\
-    -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug,\n\
-       4: data.\n\
+    -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug, 4: data.\n\
     -F <log file> the log file.\n\
     -S <log file size> the size of log file. No limit if not specified.\n\
     ");
@@ -68,12 +69,11 @@ logger options:\n\
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(
+static u32 _parseXmlparserTestCmdLineParam(
     olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
-    u32 u32Value;
 
     while (((nOpt = getopt(argc, argv, "f:T:F:S:h")) != -1) &&
            (u32Ret == JF_ERR_NO_ERROR))
@@ -82,35 +82,21 @@ static u32 _parseCmdLineParam(
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printXmlparserTestUsage();
             exit(0);
             break;
         case 'f':
             ls_pstrXmlFileName = optarg;
             break;
         case 'T':
-            if (ol_sscanf(optarg, "%d", &u32Value) == 1)
-            {
-                pjlip->jlip_u8TraceLevel = (u8)u32Value;
-            }
-            else
-            {
-                u32Ret = JF_ERR_INVALID_PARAM;
-            }
+            u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
             pjlip->jlip_pstrLogFilePath = optarg;
             break;
         case 'S':
-            if (ol_sscanf(optarg, "%d", &u32Value) == 1)
-            {
-                pjlip->jlip_sLogFile = u32Value;
-            }
-            else
-            {
-                u32Ret = JF_ERR_INVALID_PARAM;
-            }
+            u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;
@@ -344,24 +330,34 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_logger_init_param_t jlipParam;
 	char strErrMsg[300];
-    
-    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    jf_jiukun_init_param_t jjip;
+
+    ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "XMLPARSER";
-//    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
 
-    u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+    u32Ret = _parseXmlparserTestCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
 
-        if (ls_pstrXmlFileName != NULL)
+        u32Ret = jf_jiukun_init(&jjip);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = _testXmlParser_2(ls_pstrXmlFileName);
-        }
-        else
-        {
-            u32Ret = _testXmlParser_1();
+            if (ls_pstrXmlFileName != NULL)
+            {
+                u32Ret = _testXmlParser_2(ls_pstrXmlFileName);
+            }
+            else
+            {
+                u32Ret = _testXmlParser_1();
+            }
+
+            jf_jiukun_fini();
         }
 
         jf_logger_fini();

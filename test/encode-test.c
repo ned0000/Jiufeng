@@ -32,7 +32,7 @@ static boolean_t ls_bCanonicalHuffman = FALSE;
 static olchar_t * ls_pstrFile = NULL;
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+static void _printEncodeTestUsage(void)
 {
     ol_printf("\
 Usage: encode-test [-b] [-m filename] [-c] \n\
@@ -44,7 +44,7 @@ Usage: encode-test [-b] [-m filename] [-c] \n\
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parseEncodeTestCmdLineParam(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
@@ -56,7 +56,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printEncodeTestUsage();
             exit(0);
             break;
         case 'm':
@@ -329,7 +329,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     olchar_t strErrMsg[300];
     jf_jiukun_init_param_t jjip;
 
-    u32Ret = _parseCmdLineParam(argc, argv);
+    u32Ret = _parseEncodeTestCmdLineParam(argc, argv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(&jjip, sizeof(jjip));
@@ -339,13 +339,17 @@ olint_t main(olint_t argc, olchar_t ** argv)
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (ls_bBase64)
+            {
                 u32Ret = _testBase64();
+            }
             else if (ls_bHuffman)
+            {
                 u32Ret = _testHuffman();
+            }
             else
             {
                 ol_printf("No operation is specified !!!!\n\n");
-                _printUsage();
+                _printEncodeTestUsage();
             }
 
             jf_jiukun_fini();

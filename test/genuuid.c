@@ -23,6 +23,7 @@
 #include "jf_prng.h"
 #include "jf_jiukun.h"
 #include "jf_logger.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 static jf_uuid_ver_t ls_juvVersion = JF_UUID_VER_1;
@@ -60,17 +61,14 @@ static u32 _parseGenUuidOptv(olchar_t * pstrOpt)
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Value;
 
-    if (sscanf(optarg, "%d", &u32Value) == 1)
+    u32Ret = jf_option_getU32FromString(optarg, &u32Value);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         if ((u32Value != JF_UUID_VER_1) && (u32Value != JF_UUID_VER_3) &&
             (u32Value != JF_UUID_VER_4) && (u32Value != JF_UUID_VER_5))
             u32Ret = JF_ERR_INVALID_PARAM;
         else
             ls_juvVersion = (jf_uuid_ver_t)u32Value;
-    }
-    else
-    {
-        u32Ret = JF_ERR_INVALID_PARAM;
     }
 
     if (u32Ret != JF_ERR_NO_ERROR)
@@ -83,14 +81,22 @@ static u32 _parseGenUuidOptf(olchar_t * pstrOpt)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    if (strncmp(pstrOpt, "binary", 6) == 0)
+    if (ol_strncmp(pstrOpt, "binary", 6) == 0)
+    {
         ls_jufFormat = JF_UUID_FMT_BIN;
-    else if (strncmp(pstrOpt, "string", 6) == 0)
+    }
+    else if (ol_strncmp(pstrOpt, "string", 6) == 0)
+    {
         ls_jufFormat = JF_UUID_FMT_STR;
-    else if (strncmp(pstrOpt, "hexadecimal", 11) == 0)
+    }
+    else if (ol_strncmp(pstrOpt, "hexadecimal", 11) == 0)
+    {
         ls_jufFormat = JF_UUID_FMT_HEX;
-    else if (strncmp(pstrOpt, "siv", 3) == 0)
+    }
+    else if (ol_strncmp(pstrOpt, "siv", 3) == 0)
+    {
         ls_jufFormat = JF_UUID_FMT_SIV;
+    }
     else
     {
         ol_printf("Invalid format (string(default)|binary|hexadecimal|siv)\n");
@@ -118,7 +124,8 @@ static u32 _parseGenUuidCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_i
             ls_pstrName = (char *)optarg;
             break;
         case 'c':
-            u32Ret = jf_string_getU32FromString(optarg, ol_strlen(optarg), &ls_u32NumOfUuid);
+            u32Ret = jf_option_getU32FromString(optarg, &ls_u32NumOfUuid);
+            break;
         case 'v':
             u32Ret = _parseGenUuidOptv(optarg);
             break;

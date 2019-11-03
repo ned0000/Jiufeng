@@ -27,26 +27,26 @@
 boolean_t ls_bMd5 = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+static void _printPrngTestUsage(void)
 {
     ol_printf("\
 Usage: prng-test \n");
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parsePrngTestCmdLineParam(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv,
-        "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printPrngTestUsage();
+            exit(0);
             break;
         case ':':
             u32Ret = JF_ERR_MISSING_PARAM;
@@ -134,11 +134,21 @@ olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
+    jf_jiukun_init_param_t jjip;
 
-    u32Ret = _parseCmdLineParam(argc, argv);
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+    u32Ret = _parsePrngTestCmdLineParam(argc, argv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _testPrng();
+        u32Ret = jf_jiukun_init(&jjip);
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            u32Ret = _testPrng();
+
+            jf_jiukun_fini();
+        }
     }
 
     if (u32Ret != JF_ERR_NO_ERROR)

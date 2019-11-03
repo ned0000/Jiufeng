@@ -35,8 +35,7 @@ typedef struct
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _getElementAt(
-    internal_jf_array_t * pija, u32 u32Index, jf_array_element_t ** ppjae)
+static u32 _getElementAt(internal_jf_array_t * pija, u32 u32Index, jf_array_element_t ** ppjae)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jf_array_node_t *pijan;
@@ -59,15 +58,12 @@ static u32 _getElementAt(
 }
 
 static u32 _removeElementAt(
-    internal_jf_array_t * pija, u32 u32Index,
-    jf_array_fnDestroyElement_t fnDestoryElement)
+    internal_jf_array_t * pija, u32 u32Index, jf_array_fnDestroyElement_t fnDestoryElement)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_jf_array_node_t * pijanPrevious, * pijan;
-    u32 u32Pos;
+    internal_jf_array_node_t * pijanPrevious = NULL, * pijan = NULL;
+    u32 u32Pos = 0;
 
-    u32Pos = 0;
-    pijanPrevious = NULL;
     pijan = pija->ija_pijanElements;
     while ((u32Pos < u32Index) && (pijan != NULL))
     {
@@ -77,7 +73,9 @@ static u32 _removeElementAt(
     }
 
     if ((u32Pos != u32Index) || (pijan == NULL))
+    {
         u32Ret = JF_ERR_OUT_OF_RANGE;
+    }
     else
     {
         if (fnDestoryElement != NULL)
@@ -97,8 +95,7 @@ static u32 _removeElementAt(
     return u32Ret;
 }
 
-static u32 _insertElementAt(
-    internal_jf_array_t * pija, u32 u32Index, jf_array_element_t * pjae)
+static u32 _insertElementAt(internal_jf_array_t * pija, u32 u32Index, jf_array_element_t * pjae)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jf_array_node_t *pijanPrevious, *pijan, *pijanNew;
@@ -179,8 +176,7 @@ u32 jf_array_getSize(jf_array_t * pja)
     return pija->ija_u32ArraySize;
 }
 
-u32 jf_array_getElementAt(
-    jf_array_t * pja, u32 u32Index, jf_array_element_t ** ppjae)
+u32 jf_array_getElementAt(jf_array_t * pja, u32 u32Index, jf_array_element_t ** ppjae)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jf_array_t *pija;
@@ -281,8 +277,7 @@ u32 jf_array_removeAllElements(jf_array_t * pja)
     return u32Ret;
 }
 
-u32 jf_array_insertElementAt(
-    jf_array_t * pja, u32 u32Index, jf_array_element_t * pjae)
+u32 jf_array_insertElementAt(jf_array_t * pja, u32 u32Index, jf_array_element_t * pjae)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jf_array_t *pija;
@@ -308,17 +303,15 @@ u32 jf_array_appendElementTo(jf_array_t * pja, jf_array_element_t * pjae)
     return u32Ret;
 }
 
-u32 jf_array_destroyAllElements(
-    jf_array_t * pja, jf_array_fnDestroyElement_t fnDestroyElement)
+u32 jf_array_destroyAllElements(jf_array_t * pja, jf_array_fnDestroyElement_t fnDestroyElement)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Index, u32Size;
-    internal_jf_array_t * pija;
+    u32 u32Index = 0, u32Size = 0;
+    internal_jf_array_t * pija = NULL;
 
     assert(pja != NULL);
 
     pija = (internal_jf_array_t *) pja;
-    u32Index = 0;
     u32Size = pija->ija_u32ArraySize;
     while (u32Index < u32Size)
     {
@@ -346,8 +339,8 @@ u32 jf_array_destroyArrayAndElements(
 }
 
 u32 jf_array_findElement(
-    jf_array_t * pja, jf_array_element_t ** ppElement,
-    jf_array_fnFindElement_t fnFindElement, void * pKey)
+    jf_array_t * pja, jf_array_element_t ** ppElement, jf_array_fnFindElement_t fnFindElement,
+    void * pKey)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
     u32 u32Index, u32Size;

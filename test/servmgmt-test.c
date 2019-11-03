@@ -21,6 +21,8 @@
 #include "jf_sem.h"
 #include "jf_mem.h"
 #include "jf_serv.h"
+#include "jf_jiukun.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 static boolean_t ls_bList = FALSE;
@@ -48,37 +50,35 @@ logger options:\n\
     -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug, 4: data.\n\
     -F <log file> the log file.\n\
     -S <log file size> the size of log file. No limit if not specified.\n",
-           ls_pstrProgramName);
+              ls_pstrProgramName);
 
     ol_printf("\n");
 
-    exit(0);
 }
 
 static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
-    u32 u32Value;
 
-    while (((nOpt = getopt(argc, argv,
-        "ln:u:stVOT:F:S:h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "ln:u:stVOT:F:S:h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case '?':
         case 'h':
             _printUsage();
+            exit(0);
             break;
         case 'u':
             ls_bStartupType = TRUE;
-            u32Ret = jf_serv_getServStartupTypeFromString(
-                optarg, &ls_u8StartupType);
+            u32Ret = jf_serv_getServStartupTypeFromString(optarg, &ls_u8StartupType);
             break;
         case 'l':
             ls_bList = TRUE;
             break;
         case 'n':
+            ls_bList = TRUE;
             ls_pstrServName = optarg;
             break;
         case 's':
@@ -94,10 +94,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
             ol_printf("%s %s\n", ls_pstrProgramName, ls_pstrVersion);
             exit(0);
         case 'T':
-            if (sscanf(optarg, "%d", &u32Value) == 1)
-                pjlip->jlip_u8TraceLevel = (u8)u32Value;
-            else
-                u32Ret = JF_ERR_INVALID_PARAM;
+            u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
@@ -107,10 +104,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
             pjlip->jlip_bLogToStdout = TRUE;
             break;
         case 'S':
-            if (sscanf(optarg, "%d", &u32Value) == 1)
-                pjlip->jlip_sLogFile = u32Value;
-            else
-                u32Ret = JF_ERR_INVALID_PARAM;
+            u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;
@@ -237,49 +231,58 @@ olint_t main(olint_t argc, olchar_t ** argv)
     olchar_t strErrMsg[300];
     jf_logger_init_param_t jlipParam;
     jf_serv_init_param_t jsip;
+    jf_jiukun_init_param_t jjip;
 
-    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
-
+    ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "JF_SERV";
     jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_u8TraceLevel = 3;
+
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
 
     u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
 
-        ol_memset(&jsip, 0, sizeof(jsip));
-
-        u32Ret = jf_serv_init(&jsip);
+        u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            if (ls_bStop)
+            ol_bzero(&jsip, sizeof(jsip));
+
+            u32Ret = jf_serv_init(&jsip);
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
-                u32Ret = _stopService(ls_pstrServName);
-            }
-            else if (ls_bStart)
-            {
-                u32Ret = _startService(ls_pstrServName);
-            }
-            else if (ls_bStartupType)
-            {
-                u32Ret = _changeServiceStartupType(ls_pstrServName, ls_u8StartupType);
-            }
-            else if (ls_bList)
-            {
-                if (ls_pstrServName != NULL)
-                    u32Ret = _listService(ls_pstrServName);                
+                if (ls_bStop)
+                {
+                    u32Ret = _stopService(ls_pstrServName);
+                }
+                else if (ls_bStart)
+                {
+                    u32Ret = _startService(ls_pstrServName);
+                }
+                else if (ls_bStartupType)
+                {
+                    u32Ret = _changeServiceStartupType(ls_pstrServName, ls_u8StartupType);
+                }
+                else if (ls_bList)
+                {
+                    if (ls_pstrServName != NULL)
+                        u32Ret = _listService(ls_pstrServName);                
+                    else
+                        u32Ret = _listAllServices();
+                }
                 else
-                    u32Ret = _listAllServices();
-            }
-            else
-            {
-                ol_printf("Operation is not specified!\n");
-                u32Ret = JF_ERR_INVALID_PARAM;
+                {
+                    ol_printf("Operation is not specified!\n");
+                    u32Ret = JF_ERR_INVALID_PARAM;
+                }
+
+                jf_serv_fini();
             }
 
-            jf_serv_fini();
+            jf_jiukun_fini();
         }
 
         jf_logger_fini();

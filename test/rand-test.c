@@ -26,7 +26,7 @@
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static void _printUsage(void)
+static void _printRandTestUsage(void)
 {
     ol_printf("\
 Usage: randnum-test [-h] \n\
@@ -34,19 +34,18 @@ Usage: randnum-test [-h] \n\
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parseRandTestCmdLineParam(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv,
-        "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printRandTestUsage();
             exit(0);
             break;
         case ':':
@@ -91,7 +90,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
-    u32Ret = _parseCmdLineParam(argc, argv);
+    u32Ret = _parseRandTestCmdLineParam(argc, argv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = testRandomNumberInRange();

@@ -6,8 +6,7 @@
  *  @author Min Zhang
  *  
  *  @note Create DB with command: sqlite3 env.db
- *  @note Create table with sql statement: CREATE TABLE env(key TEXT PRIMARY
- *   KEY, value TEXT);
+ *  @note Create table with sql statement: CREATE TABLE env(key TEXT PRIMARY KEY, value TEXT);
  *
  */
 
@@ -28,7 +27,7 @@
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static void _printUsage(void)
+static void _printPersistencyTestUsage(void)
 {
     ol_printf("\
 Usage: persistency-test [-h] \n\
@@ -38,7 +37,7 @@ Usage: persistency-test [-h] \n\
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parsePersistencyTestCmdLineParam(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
@@ -50,7 +49,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printPersistencyTestUsage();
             exit(0);
         default:
             u32Ret = JF_ERR_INVALID_OPTION;
@@ -176,19 +175,18 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (argc < 1)
     {
-        _printUsage();
+        _printPersistencyTestUsage();
         u32Ret = JF_ERR_MISSING_PARAM;
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+        ol_bzero(&jlipParam, sizeof(jf_logger_init_param_t));
         jlipParam.jlip_pstrCallerName = "PERSISTENCY";
-        jlipParam.jlip_bLogToFile = FALSE;
         jlipParam.jlip_bLogToStdout = TRUE;
         jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
 
-        u32Ret = _parseCmdLineParam(argc, argv);
+        u32Ret = _parsePersistencyTestCmdLineParam(argc, argv);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

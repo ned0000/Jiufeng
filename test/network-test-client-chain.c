@@ -23,6 +23,7 @@
 #include "jf_process.h"
 #include "jf_thread.h"
 #include "jf_time.h"
+#include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -31,6 +32,8 @@ static jf_network_chain_t * ls_pjncNtccChain = NULL;
 static jf_network_acsocket_t * ls_pjnaNtccAcsocket = NULL;
 
 static boolean_t ls_bToTerminateNtcc = FALSE;
+
+#define NETWORK_TEST_CLIENT_CHAIN  "NT-CLIENT-CHAIN"
 
 #define SERVER_PORT          (51200)
 
@@ -108,12 +111,12 @@ static u32 _ntccOnSendData(
     return u32Ret;
 }
 
-JF_THREAD_RETURN_VALUE _ntccThread(void * pArg)
+JF_THREAD_RETURN_VALUE _networkTestClientChainThread(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_network_acsocket_create_param_t jnacp;
 
-    ol_printf("_ntccThread starts\n");
+    ol_printf("_networkTestClientChainThread starts\n");
 
     u32Ret = jf_network_createChain(&ls_pjncNtccChain);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -134,6 +137,11 @@ JF_THREAD_RETURN_VALUE _ntccThread(void * pArg)
         u32Ret = jf_network_startChain(ls_pjncNtccChain);
     }
 
+    if (ls_pjnaNtccAcsocket != NULL)
+        jf_network_destroyAcsocket(&ls_pjnaNtccAcsocket);
+    if (ls_pjncNtccChain != NULL)
+        jf_network_destroyChain(&ls_pjncNtccChain);
+
     JF_THREAD_RETURN(u32Ret);
 }
 
@@ -147,40 +155,52 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_ipaddr_t serveraddr;
     jf_thread_id_t threadid;
     u32 u32RetCode = 0;
+    jf_jiukun_init_param_t jjip;
 
-    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    ol_bzero(&jlipParam, sizeof(jlipParam));
+    jlipParam.jlip_pstrCallerName = NETWORK_TEST_CLIENT_CHAIN;
     jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_u8TraceLevel = 3;
 
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
     jf_logger_init(&jlipParam);
 
-    u32Ret = jf_process_initSocket();
+    u32Ret = jf_jiukun_init(&jjip);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_process_registerSignalHandlers(_terminate);
+        u32Ret = jf_process_initSocket();
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = jf_thread_create(&threadid, NULL, _ntccThread, NULL);
-        }
+            u32Ret = jf_process_registerSignalHandlers(_terminate);
+            if (u32Ret == JF_ERR_NO_ERROR)
+            {
+                u32Ret = jf_thread_create(&threadid, NULL, _networkTestClientChainThread, NULL);
+            }
 
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            jf_time_sleep(3);
-            jf_ipaddr_getIpAddrFromString("127.0.0.1", JF_IPADDR_TYPE_V4, &serveraddr);
-
-            u32Ret = jf_network_connectAcsocketTo(ls_pjnaNtccAcsocket, &serveraddr, SERVER_PORT, NULL);
-        }
-
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            while (! ls_bToTerminateNtcc)
+            if (u32Ret == JF_ERR_NO_ERROR)
             {
                 jf_time_sleep(3);
+                jf_ipaddr_getIpAddrFromString("127.0.0.1", JF_IPADDR_TYPE_V4, &serveraddr);
+
+                u32Ret = jf_network_connectAcsocketTo(
+                    ls_pjnaNtccAcsocket, &serveraddr, SERVER_PORT, NULL);
             }
+
+            if (u32Ret == JF_ERR_NO_ERROR)
+            {
+                while (! ls_bToTerminateNtcc)
+                {
+                    jf_time_sleep(3);
+                }
+            }
+
+            jf_process_finiSocket();
+            jf_thread_waitForThreadTermination(threadid, &u32RetCode);
         }
 
-        jf_process_finiSocket();
-        jf_thread_waitForThreadTermination(threadid, &u32RetCode);
+        jf_jiukun_fini();
     }
 
     jf_logger_fini();
