@@ -202,8 +202,8 @@ static u32 _testWebclient(olint_t argc, olchar_t ** argv)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(&jwcp, 0, sizeof(jwcp));
-        jwcp.jwcp_nPoolSize = 5;
+        ol_bzero(&jwcp, sizeof(jwcp));
+        jwcp.jwcp_u32PoolSize = 5;
         jwcp.jwcp_sBuffer = 1024 * 8;
 
         u32Ret = jf_webclient_create(ls_pjncChain, &ls_pwWebclient, &jwcp);
@@ -231,11 +231,10 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_jiukun_init_param_t jjip;
 
     ol_bzero(&jlipParam, sizeof(jlipParam));
-    jlipParam.jlip_pstrCallerName = "wc-test";
+    jlipParam.jlip_pstrCallerName = "WEBCLIENT-TEST";
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
     jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_bLogToFile = TRUE;
-    jlipParam.jlip_pstrLogFilePath = "webclient-test.log";
 
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;

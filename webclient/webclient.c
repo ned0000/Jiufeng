@@ -29,32 +29,35 @@
 #include "jf_queue.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
-/** Keep a table of all the connections. This is the maximum number allowed
- *  to be idle. Since we have in the constructor a pool size, this feature may
- *  be depracted. ToDo: Look into depracating this
+/** Keep a table of all the connections. This is the maximum number allowed to be idle. Since we
+ *  have in the constructor a pool size, this feature may be depracted.
+ *  ToDo: Look into depracating this
  */
-#define MAX_IDLE_SESSIONS             (20)
+#define MAX_WEBCLIENT_IDLE_SESSIONS           (20)
 
 /** This is the number of seconds that a connection must be idle for, before
  *  it will be automatically closed. Idle means there are no pending requests
  */
-#define WC_HTTP_SESSION_IDLE_TIMEOUT  (20)
+#define WEBCLIENT_SESSION_IDLE_TIMEOUT        (20)
 
 /** This is the number of times, an HTTP connection will be attempted,
  *  before it fails. This module utilizes an exponential backoff algorithm.
  *  That is, it will retry immediately, then it will retry after 1 second,
  *  then 2, then 4, etc.
  */
-#define HTTP_CONNECT_RETRY_COUNT      (4)
+#define WEBCLIENT_CONNECT_RETRY_COUNT         (4)
 
 /** This initial size of the receive buffer
  */
-#define INITIAL_BUFFER_SIZE           (2048)
+#define WEBCLIENT_INITIAL_BUFFER_SIZE         (2048)
+
+/** Maximum connection for the webclient
+ */
+#define MAX_WEBCLIENT_CONNECTION              (100)
 
 enum pipeline_type
 {
-    PIPELINE_UNKNOWN = 0, /**< doesn't know yet if the server supports
-                             persistent connections */
+    PIPELINE_UNKNOWN = 0, /**< doesn't know yet if the server supports persistent connections */
     PIPELINE_YES, /**< The server does indeed support persistent connections */
     PIPELINE_NO, /**< The server does not support persistent connections*/
 };
@@ -90,18 +93,18 @@ typedef struct internal_webclient
 
     jf_network_acsocket_t * iw_pjnaAcsocket;
     u32 iw_u32PoolSize;
+    u32 iw_u32Reserved;
 
     jf_hashtree_t iw_jhData;
-    /**The web data object is put to idle hash tree when no more
-       request in the queue of the web data object*/
+    /**The web data object is put to idle hash tree when no more request in the queue of the
+       web data object*/
     jf_hashtree_t iw_jhIdle;
-    /**The web data object is put the backlog queue when the object doesn't
-       connected to remote server*/
+    /**The web data object is put the backlog queue when the object doesn't connected to
+       remote server*/
     jf_queue_t iw_jqBacklog;
 
     jf_network_utimer_t * iw_pjnuUtimer;
     u32 iw_u32IdleCount;
-
     olsize_t iw_sBuffer;
 
     jf_network_chain_t *iw_pjncChain;
@@ -110,11 +113,10 @@ typedef struct internal_webclient
 
 typedef struct internal_web_chunkdata
 {
-    u32 iwc_u32Flags;
     u8 * iwc_pu8Buffer;
+    u32 iwc_u32Flags;
     u32 iwc_u32Offset;
     u32 iwc_u32MallocSize;
-
     olint_t iwc_nBytesLeft;
 } internal_web_chunkdata_t;
 
@@ -128,21 +130,20 @@ typedef struct internal_web_dataobject
     u16 iwd_u16Reserved[3];
 
     internal_webclient_t * iwd_piwParent;
-    /*we've got the HTTP header*/
+    /**we've got the HTTP header*/
     boolean_t iwd_bFinHeader;
-    /*the data in HTTP body is chunked*/
+    /**the data in HTTP body is chunked*/
     boolean_t iwd_bChunked;
-    /*set to true when we get response*/
+    /**set to true when we get response*/
     boolean_t iwd_bWaitForClose;
     boolean_t iwd_bInitialRequestAnswered;
     u8 iwd_u8Reserved[4];
 
-    /*if the asocket buffer is not big enough to hold HTTP body, use this buffer
-     for the data*/
+    /**if the asocket buffer is not big enough to hold HTTP body, use this buffer for the data*/
     u8 * iwd_pu8BodyBuf;
     u32 iwd_u32BodyOffset;
 
-    /*0, start connecting,
+    /**0, start connecting,
       < 0, the connection is being closed
       > 0, connected*/
     olint_t iwd_nClosing;
@@ -200,14 +201,14 @@ static u32 _destroyWebRequest(internal_web_request_t ** ppRequest)
 static u32 _newWebRequest(internal_web_request_t ** ppRequest, u32 u32Num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_web_request_t * piwr;
+    internal_web_request_t * piwr = NULL;
 
     jf_logger_logInfoMsg("new web req");
 
     u32Ret = jf_jiukun_allocMemory((void **)&piwr, sizeof(internal_web_request_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(piwr, 0, sizeof(internal_web_request_t));
+        ol_bzero(piwr, sizeof(internal_web_request_t));
 
         piwr->iwr_u32NumOfBuffers = u32Num;
 
@@ -424,8 +425,7 @@ static u32 _preWebclientProcess(
     internal_webclient_t * piw = (internal_webclient_t *) pWebclient;
     internal_web_dataobject_t * piwd;
 
-    /*Try and satisfy as many things as we can. If we have resources
-      grab a socket and go*/
+    /*Try and satisfy as many things as we can. If we have resources grab a socket and go*/
 //    jf_mutex_acquire(&(piw->iw_jmLock));
     while (! jf_queue_isEmpty(&piw->iw_jqBacklog))
     {
@@ -453,7 +453,7 @@ static u32 _webclientTimerInterruptSink(void ** object)
 
 /** The timed callback is used to close idle sockets. A socket is considered
  *  idle if after a request is answered, another request isn't received 
- *  within the time specified by WC_HTTP_SESSION_IDLE_TIMEOUT
+ *  within the time specified by WEBCLIENT_SESSION_IDLE_TIMEOUT
  *
  *  @param object [in] the web data object
  */
@@ -485,7 +485,7 @@ static u32 _webclientTimerSink(void * object)
             piwd->iwd_pjnaSock = NULL;
         }
 
-        if (piwd->iwd_piwParent->iw_u32IdleCount > MAX_IDLE_SESSIONS)
+        if (piwd->iwd_piwParent->iw_u32IdleCount > MAX_WEBCLIENT_IDLE_SESSIONS)
         {
             /*Remove an entry from iw_jhIdle, if there are too many entries in it*/
             -- piwd->iwd_piwParent->iw_u32IdleCount;
@@ -562,7 +562,7 @@ static u32 _webclientFinishedResponse(internal_web_dataobject_t * piwd)
           idle. Set a timed callback, so we can free this resource if
           neccessary*/
         jf_network_addUtimerItem(
-            piwd->iwd_piwParent->iw_pjnuUtimer, piwd, WC_HTTP_SESSION_IDLE_TIMEOUT,
+            piwd->iwd_piwParent->iw_pjnuUtimer, piwd, WEBCLIENT_SESSION_IDLE_TIMEOUT,
             _webclientTimerSink, _webclientTimerInterruptSink);
     }
     else
@@ -645,7 +645,7 @@ static u32 _processChunk(
             jf_jiukun_freeMemory((void **)&piwd->iwd_piwcChunk);
             return u32Ret;
         }
-        piwd->iwd_piwcChunk->iwc_u32MallocSize = INITIAL_BUFFER_SIZE;
+        piwd->iwd_piwcChunk->iwc_u32MallocSize = WEBCLIENT_INITIAL_BUFFER_SIZE;
     }
 
     while (*psBeginPointer < endPointer)
@@ -780,7 +780,7 @@ static u32 _processChunk(
 /** Internal method dispatched by the utimer, to retry refused connections
  *
  *  @note The module does an exponential backoff, when retrying connections. The
- *  number of retries is determined by the value of HTTP_CONNECT_RETRY_COUNT
+ *  number of retries is determined by the value of WEBCLIENT_CONNECT_RETRY_COUNT
  *
  *  @param object [in] the associated web data object
  */
@@ -800,7 +800,7 @@ static u32 _retrySink(void * object)
     jf_logger_logInfoMsg("retry sink, %s, eb %u", key, piwd->iwd_u32ExponentialBackoff);
 
     if (piwd->iwd_u32ExponentialBackoff >=
-        (olint_t) pow((oldouble_t) 2, (oldouble_t) HTTP_CONNECT_RETRY_COUNT))
+        (olint_t) pow((oldouble_t) 2, (oldouble_t) WEBCLIENT_CONNECT_RETRY_COUNT))
     {
         /*Retried enough times, give up*/
         jf_logger_logInfoMsg("retry sink, give up");
@@ -1257,21 +1257,21 @@ u32 jf_webclient_destroy(jf_webclient_t ** ppWebclient)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_t * piw = (internal_webclient_t *) *ppWebclient;
-    jf_hashtree_enumerator_t en;
-    jf_webclient_dataobject_t * piwd;
+    jf_hashtree_enumerator_t jhe;
+    jf_webclient_dataobject_t * piwd = NULL;
     olchar_t * pstrKey;
     olsize_t u32KeyLen;
 
     /*Iterate through all the web data objects*/
-    jf_hashtree_initEnumerator(&piw->iw_jhData, &en);
-    while (! jf_hashtree_isEnumeratorEmptyNode(&en))
+    jf_hashtree_initEnumerator(&piw->iw_jhData, &jhe);
+    while (! jf_hashtree_isEnumeratorEmptyNode(&jhe))
     {
         /*Free the web data object*/
-        jf_hashtree_getEnumeratorValue(&en, &pstrKey, &u32KeyLen, &piwd);
+        jf_hashtree_getEnumeratorValue(&jhe, &pstrKey, &u32KeyLen, &piwd);
         _destroyWebDataobject(&piwd);
-        jf_hashtree_moveEnumeratorNext(&en);
+        jf_hashtree_moveEnumeratorNext(&jhe);
     }
-    jf_hashtree_finiEnumerator(&en);
+    jf_hashtree_finiEnumerator(&jhe);
 
     if (piw->iw_pjnaAcsocket != NULL)
     {
@@ -1284,8 +1284,7 @@ u32 jf_webclient_destroy(jf_webclient_t ** ppWebclient)
     jf_hashtree_fini(&piw->iw_jhData);
     jf_mutex_fini(&piw->iw_jmLock);
 
-    if (piw->iw_pjnaAcsocket != NULL)
-        jf_jiukun_freeMemory((void **)&(piw->iw_pjnaAcsocket));
+    jf_jiukun_freeMemory((void **)ppWebclient);
 
     return u32Ret;
 }
@@ -1298,7 +1297,8 @@ u32 jf_webclient_create(
     internal_webclient_t * piw = NULL;
 
     assert((pjnc != NULL) && (ppWebclient != NULL));
-    assert((pjwcp != NULL) && (pjwcp->jwcp_nPoolSize > 0) && (pjwcp->jwcp_nPoolSize < 100));
+    assert((pjwcp != NULL) &&
+           (pjwcp->jwcp_u32PoolSize > 0) && (pjwcp->jwcp_u32PoolSize < MAX_WEBCLIENT_CONNECTION));
 
     u32Ret = jf_jiukun_allocMemory((void **)&piw, sizeof(internal_webclient_t));
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -1306,8 +1306,8 @@ u32 jf_webclient_create(
         ol_bzero(piw, sizeof(internal_webclient_t));
         piw->iw_jncohHeader.jncoh_fnPreSelect = _preWebclientProcess;
         piw->iw_pjncChain = pjnc;
-        piw->iw_sBuffer = pjwcp->jwcp_sBuffer ? pjwcp->jwcp_sBuffer : INITIAL_BUFFER_SIZE;
-        piw->iw_u32PoolSize = (u32)pjwcp->jwcp_nPoolSize;
+        piw->iw_sBuffer = pjwcp->jwcp_sBuffer ? pjwcp->jwcp_sBuffer : WEBCLIENT_INITIAL_BUFFER_SIZE;
+        piw->iw_u32PoolSize = pjwcp->jwcp_u32PoolSize;
 
         jf_hashtree_init(&piw->iw_jhIdle);
         jf_queue_init(&piw->iw_jqBacklog);
@@ -1355,14 +1355,13 @@ u32 jf_webclient_pipelineWebRequest(
     internal_webclient_t * piw = (internal_webclient_t *) pWebClient;
     internal_web_request_t * request = NULL;
 
-    jf_logger_logInfoMsg("pipeline web req");
+    jf_logger_logDebugMsg("pipeline web req");
 
     u32Ret = _newWebRequest(&request, 1);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_httpparser_getRawPacket(
-            packet, (olchar_t **)&request->iwr_pu8Buffer[0],
-            &request->iwr_sBuffer[0]);
+            packet, (olchar_t **)&request->iwr_pu8Buffer[0], &request->iwr_sBuffer[0]);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -1393,7 +1392,7 @@ u32 jf_webclient_pipelineWebRequestEx(
     if (pstrBody != NULL)
         jf_logger_logDataMsgWithAscii((u8 *)pstrBody, sBody, "HTTP request body:");
 
-    u32NumOfBuffers = pstrBody != NULL ? 2 : 1;
+    u32NumOfBuffers = (pstrBody != NULL) ? 2 : 1;
     u32Ret = _newWebRequest(&request, u32NumOfBuffers);
     if (u32Ret == JF_ERR_NO_ERROR)
     {

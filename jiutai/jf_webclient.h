@@ -49,13 +49,15 @@ enum jf_webclient_event
 /* --- data structures -------------------------------------------------------------------------- */
 typedef struct
 {
-    olint_t jwcp_nPoolSize;
+    /** number of connection in pool */
+    u32 jwcp_u32PoolSize;
+    /** buffer size of the session */
     olsize_t jwcp_sBuffer;
 } jf_webclient_create_param_t;
 
 typedef u32 (* jf_webclient_fnOnResponse_t)(
-    jf_network_asocket_t * pAsocket, olint_t nEvent,
-    jf_httpparser_packet_header_t * header, void * pUser);
+    jf_network_asocket_t * pAsocket, olint_t nEvent, jf_httpparser_packet_header_t * header,
+    void * pUser);
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
@@ -68,8 +70,7 @@ typedef u32 (* jf_webclient_fnOnResponse_t)(
  *  @return the error code
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_create(
-    jf_network_chain_t * pjnc, jf_webclient_t ** ppWebclient,
-    jf_webclient_create_param_t * pjwcp);
+    jf_network_chain_t * pjnc, jf_webclient_t ** ppWebclient, jf_webclient_create_param_t * pjwcp);
 
 /** Queues a new web request
  *
@@ -87,8 +88,7 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_create(
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequest(
     jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port,
-    jf_httpparser_packet_header_t * pjhph, jf_webclient_fnOnResponse_t fnOnResponse,
-    void * pUser);
+    jf_httpparser_packet_header_t * pjhph, jf_webclient_fnOnResponse_t fnOnResponse, void * pUser);
 
 /** Queues a new web request
  *
@@ -108,8 +108,8 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequest(
  *  @return the error code
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequestEx(
-    jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port,
-    olchar_t * pstrHeader, olsize_t sHeader, olchar_t * pstrBody, olsize_t sBody,
+    jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port, olchar_t * pstrHeader,
+    olsize_t sHeader, olchar_t * pstrBody, olsize_t sBody,
     jf_webclient_fnOnResponse_t fnOnResponse, void * pUser);
 
 /** Deletes all pending requests to a specific IP/Port combination
@@ -127,8 +127,7 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_deleteWebRequests(
  *
  *  @param ppWebclient [in/out] the webclient to free
  */
-WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_destroy(
-    jf_webclient_t ** ppWebclient);
+WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_destroy(jf_webclient_t ** ppWebclient);
 
 #endif /*JIUFENG_WEBCLIENT_H*/
 
