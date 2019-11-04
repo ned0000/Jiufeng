@@ -193,6 +193,10 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_CORRUPTED_XML_FILE, "Corrupted XML file."},
 /* httpparser error */
     {JF_ERR_HTTP_STATUS_NOT_OK, "HTTP status is not OK."},
+    {JF_ERR_CORRUPTED_HTTP_MSG, "Corrupted HTTP message."},
+    {JF_ERR_INVALID_HTTP_URI, "Invalid HTTP URI."},
+    {JF_ERR_INVALID_HTTP_HEADER_LINE, "Invalid line in HTTP header."},
+    {JF_ERR_INVALID_HTTP_HEADER_START_LINE, "Invalid start line in HTTP header."},
 /* webclient error */
 
 /* cghash error */

@@ -97,8 +97,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyPacketHeader(
  *  @return the error code
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parsePacketHeader(
-    jf_httpparser_packet_header_t ** ppHeader, olchar_t * pstrBuf,
-    olsize_t sOffset, olsize_t sBuf);
+    jf_httpparser_packet_header_t ** ppHeader, olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf);
 
 /** Clones a packet header. Because parsePacketHeader does not copy any data,
  *  the data will become invalid once the data is flushed. This method is used
@@ -110,8 +109,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parsePacketHeader(
  *  @return the error code
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_clonePacketHeader(
-    jf_httpparser_packet_header_t ** ppDest,
-    jf_httpparser_packet_header_t * pHeader);
+    jf_httpparser_packet_header_t ** ppDest, jf_httpparser_packet_header_t * pHeader);
 
 /** Sets the version of a packet header structure. The Default version is 1.0
  *
@@ -122,8 +120,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_clonePacketHeader(
  *  @return the error code
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setVersion(
-    jf_httpparser_packet_header_t * pHeader, olchar_t * pstrVersion,
-    olsize_t sVersion);
+    jf_httpparser_packet_header_t * pHeader, olchar_t * pstrVersion, olsize_t sVersion);
 
 /** Sets the status code of a packetheader structure. There is no default
  *
@@ -135,8 +132,8 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setVersion(
  *  @return the error code
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setStatusCode(
-    jf_httpparser_packet_header_t * pHeader, olint_t nStatusCode,
-    olchar_t * pstrStatus, olsize_t sStatus);
+    jf_httpparser_packet_header_t * pHeader, olint_t nStatusCode, olchar_t * pstrStatus,
+    olsize_t sStatus);
 
 /** Sets the directive of a packet header structure. There is no default.
  *
@@ -150,12 +147,11 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setStatusCode(
  *  @return the error code
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setDirective(
-    jf_httpparser_packet_header_t * pHeader, olchar_t * pstrDirective,
-    olsize_t sDirective, olchar_t * pstrDirectiveObj, olsize_t sDirectiveObj);
+    jf_httpparser_packet_header_t * pHeader, olchar_t * pstrDirective, olsize_t sDirective,
+    olchar_t * pstrDirectiveObj, olsize_t sDirectiveObj);
 
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setBody(
-    jf_httpparser_packet_header_t * pHeader, u8 * pu8Body, olsize_t sBody,
-    boolean_t bAlloc);
+    jf_httpparser_packet_header_t * pHeader, u8 * pu8Body, olsize_t sBody, boolean_t bAlloc);
 
 /** Add a header entry into a packet header structure
  *
@@ -174,7 +170,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_addHeaderLine(
 
 /** Converts a packet header structure into a raw buffer
  *
- *  @note The returned buffer must be freed by user
+ *  @note The returned buffer must be freed by jf_jiukun_freeMemory()
  *
  *  @param pHeader [in] the packet header struture to convert
  *  @param ppstrBuf [out] The output buffer
@@ -183,8 +179,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_addHeaderLine(
  *  @return the error code
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getRawPacket(
-    jf_httpparser_packet_header_t * pHeader, olchar_t ** ppstrBuf,
-    olsize_t * psBuf);
+    jf_httpparser_packet_header_t * pHeader, olchar_t ** ppstrBuf, olsize_t * psBuf);
 
 /** Creates an empty packetheader structure
  *  
@@ -207,8 +202,8 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_createEmptyPacketHeader(
  *  @return the error code
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getHeaderLine(
-    jf_httpparser_packet_header_t * pHeader, olchar_t * pstrName,
-    olsize_t sName, jf_httpparser_packet_header_field_t ** ppField);
+    jf_httpparser_packet_header_t * pHeader, olchar_t * pstrName, olsize_t sName,
+    jf_httpparser_packet_header_field_t ** ppField);
 
 /** Parses a URI string into its IP address, port number and path components
  *
@@ -222,8 +217,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getHeaderLine(
  *  @return void
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parseUri(
-    olchar_t * pstrUri, olchar_t ** ppstrIp, u16 * pu16Port,
-    olchar_t ** ppstrPath);
+    olchar_t * pstrUri, olchar_t ** ppstrIp, u16 * pu16Port, olchar_t ** ppstrPath);
 
 #endif /*JIUFENG_HTTPPARSER_H*/
 

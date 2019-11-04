@@ -104,7 +104,7 @@ static void _terminate(olint_t signal)
 }
 
 static u32 _wcTestOnResponse(
-    jf_network_asocket_t * pAsocket, olint_t nEvent,
+    jf_network_asocket_t * pAsocket, jf_webclient_event_t event,
     jf_httpparser_packet_header_t * header, void * user)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -112,9 +112,9 @@ static u32 _wcTestOnResponse(
     olsize_t size;
     jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
 
-    jf_logger_logInfoMsg("wc test response, nEvent %d", nEvent);
+    jf_logger_logInfoMsg("wc test response, event %d", event);
 
-    if (nEvent == JF_WEBCLIENT_EVENT_DATAOBJECT_DESTROYED)
+    if (event == JF_WEBCLIENT_EVENT_DATAOBJECT_DESTROYED)
     {
         jf_logger_logInfoMsg("wc test response, web data obj is destroyed");
         return u32Ret;

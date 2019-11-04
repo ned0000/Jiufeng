@@ -39,9 +39,10 @@ typedef void  jf_webclient_t;
 
 /** The possible value for nEvent in function jf_webclient_fnOnResponse_t
  */
-enum jf_webclient_event
+typedef enum jf_webclient_event
 {
-    JF_WEBCLIENT_EVENT_DATA = 0,
+    JF_WEBCLIENT_EVENT_UNKNOWN = 0,
+    JF_WEBCLIENT_EVENT_INCOMING_DATA,
     JF_WEBCLIENT_EVENT_DATAOBJECT_DESTROYED,
     JF_WEBCLIENT_EVENT_WEB_REQUEST_DELETED,
 } jf_webclient_event_t;
@@ -56,8 +57,8 @@ typedef struct
 } jf_webclient_create_param_t;
 
 typedef u32 (* jf_webclient_fnOnResponse_t)(
-    jf_network_asocket_t * pAsocket, olint_t nEvent, jf_httpparser_packet_header_t * header,
-    void * pUser);
+    jf_network_asocket_t * pAsocket, jf_webclient_event_t event,
+    jf_httpparser_packet_header_t * header, void * pUser);
 
 /* --- functional routines ---------------------------------------------------------------------- */
 

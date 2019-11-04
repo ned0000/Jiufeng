@@ -30,7 +30,7 @@ static boolean_t ls_bParseUri = FALSE;
 static boolean_t ls_bGenerateHttpMsg = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+static void _printHttpparserTestUsage(void)
 {
     ol_printf("\
 Usage: httpparser-test [-p] [-u] [-g] [-h] [logger options] \n\
@@ -47,7 +47,7 @@ logger options:\n\
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(
+static u32 _parseHttpparserTestCmdLineParam(
     olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -60,7 +60,7 @@ static u32 _parseCmdLineParam(
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printHttpparserTestUsage();
             exit(0);
             break;
         case 'p':
@@ -246,6 +246,40 @@ Accept-Language: en, mi\r\n\
 \r\n\
 "
 
+#define HTTP_MSG_2 "\
+GET /hello.txt HTTP/1.1\r\n\
+User-Agent: curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3\r\n\
+Host: www.example.com\r\n\
+Accept-Language: en, mi\r\n\
+\r\n\
+"
+
+#define HTTP_MSG_3 "\
+GET HTTP/1.1\r\n\
+User-Agent: curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3\r\n\
+Host: www.example.com\r\n\
+Accept-Language: en, mi\r\n\
+\r\n\
+"
+
+#define HTTP_MSG_4 "\
+GET /hello.txt HTTP/1.1\r\n\
+User-Agent: curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3\r\n\
+Host: www.example.com\r\n\
+Accept-Language: en, mi\r\n\
+invalid-content\r\n\
+\r\n\
+"
+
+#define HTTP_MSG_5 "\
+GET /hello.txt HTTP/1.1\r\n\
+User-Agent: curl/7.16.3 libcurl/7.16.3 OpenSSL/0.9.7l zlib/1.2.3\r\n\
+Host: www.example.com\r\n\
+Accept-Language: en, mi\r\n\
+: invalid-content\r\n\
+\r\n\
+"
+
 typedef struct
 {
     olchar_t * pstrHttp;
@@ -259,6 +293,9 @@ static u32 _testParseHttp(void)
     test_http_parser_t thp[] = {
         {HTTP_MSG_1, JF_ERR_NO_ERROR},
         {HTTP_MSG_2, JF_ERR_NO_ERROR},
+        {HTTP_MSG_3, JF_ERR_INVALID_HTTP_HEADER_START_LINE},
+        {HTTP_MSG_4, JF_ERR_INVALID_HTTP_HEADER_LINE},
+        {HTTP_MSG_5, JF_ERR_INVALID_HTTP_HEADER_LINE},
     };
     u32 u32NumOfCase = sizeof(thp) / sizeof(test_http_parser_t);
     u32 u32Index;
@@ -267,33 +304,31 @@ static u32 _testParseHttp(void)
     for (u32Index = 0; u32Index < u32NumOfCase; u32Index ++)
     {
         ol_printf("---------------------------------------------------\n");
-        ol_printf("Parse http message:\n%s\n\n", thp[u32Index].pstrHttp);
+        ol_printf("Parse http message:\n%s\n", thp[u32Index].pstrHttp);
 
         u32Ret = jf_httpparser_parsePacketHeader(
             &pjhph, thp[u32Index].pstrHttp, 0, strlen(thp[u32Index].pstrHttp));
-        if (u32Ret == JF_ERR_NO_ERROR)
+
+        if (u32Ret != thp[u32Index].u32ErrCode)
         {
-            if (u32Ret == JF_ERR_NO_ERROR)
-            {
-                ol_printf("Parse result:\n");            
-                _printHttpPacketHeader(pjhph);
-            }
-            else if (u32Ret != thp[u32Index].u32ErrCode)
-            {
-                u32Ret = JF_ERR_PROGRAM_ERROR;
-                break;
-            }
-            else
-            {
-                ol_printf("Parse result:\n");
-                jf_err_getMsg(u32Ret, strErrMsg, 300);
-                ol_printf("%s\n", strErrMsg);
-            }
-            
+            u32Ret = JF_ERR_PROGRAM_ERROR;
+            break;
+        }
+        else if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            ol_printf("Parse result:\n");            
+            _printHttpPacketHeader(pjhph);
             jf_httpparser_destroyPacketHeader(&pjhph);
+        }
+        else
+        {
+            ol_printf("Parse result:\n");
+            jf_err_getMsg(u32Ret, strErrMsg, 300);
+            ol_printf("%s\n", strErrMsg);
         }
 
         ol_printf("\n");
+        ol_printf("Http message after parse:\n%s\n", thp[u32Index].pstrHttp);
     }
 
     return u32Ret;
@@ -356,14 +391,15 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_jiukun_init_param_t jjip;
 
     ol_bzero(&jlipParam, sizeof(jlipParam));
-    jlipParam.jlip_pstrCallerName = "HTTPPARSER";
-    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_pstrCallerName = "HTTPPARSER-TEST";
+    jlipParam.jlip_bLogToStdout = FALSE;
+    jlipParam.jlip_bLogToFile = TRUE;
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
 
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
 
-    u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
+    u32Ret = _parseHttpparserTestCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
@@ -372,11 +408,22 @@ olint_t main(olint_t argc, olchar_t ** argv)
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (ls_bParseHttp)
+            {
                 u32Ret = _testParseHttp();
+            }
             else if (ls_bParseUri)
+            {
                 u32Ret = _testParseUri();
+            }
             else if (ls_bGenerateHttpMsg)
+            {
                 u32Ret = _testHttpMsg();
+            }
+            else 
+            {
+                ol_printf("No operation is specified !!!!\n\n");
+                _printHttpparserTestUsage();
+            }
 
             jf_jiukun_fini();
         }

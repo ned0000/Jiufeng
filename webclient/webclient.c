@@ -35,15 +35,14 @@
  */
 #define MAX_WEBCLIENT_IDLE_SESSIONS           (20)
 
-/** This is the number of seconds that a connection must be idle for, before
- *  it will be automatically closed. Idle means there are no pending requests
+/** This is the number of seconds that a connection must be idle for, before it will be
+ *  automatically closed. Idle means there are no pending requests
  */
 #define WEBCLIENT_SESSION_IDLE_TIMEOUT        (20)
 
-/** This is the number of times, an HTTP connection will be attempted,
- *  before it fails. This module utilizes an exponential backoff algorithm.
- *  That is, it will retry immediately, then it will retry after 1 second,
- *  then 2, then 4, etc.
+/** This is the number of times, an HTTP connection will be attempted, before it fails. This module
+ *  utilizes an exponential backoff algorithm. That is, it will retry immediately, then it will
+ *  retry after 1 second, then 2, then 4, etc.
  */
 #define WEBCLIENT_CONNECT_RETRY_COUNT         (4)
 
@@ -74,12 +73,9 @@ typedef void  jf_webclient_dataobject_t;
 typedef struct internal_web_request
 {
 #define IWR_MAX_NUM_OF_BUF  8
-    olint_t iwr_u32NumOfBuffers;
+    u32 iwr_u32NumOfBuffers;
     u8 * iwr_pu8Buffer[IWR_MAX_NUM_OF_BUF];
     olsize_t iwr_sBuffer[IWR_MAX_NUM_OF_BUF];
-    /**If UserFree is TRUE, webclient will not free the buffer
-       If UserFree is FALSE, webclient will free the buffer*/
-    boolean_t iwr_bUserFree[IWR_MAX_NUM_OF_BUF];
 
     u16 iwr_u16Reserved[4];
 
@@ -95,9 +91,11 @@ typedef struct internal_webclient
     u32 iw_u32PoolSize;
     u32 iw_u32Reserved;
 
+    /**The web data object is put to data hash tree when the connection is established and there
+       are web request*/
     jf_hashtree_t iw_jhData;
     /**The web data object is put to idle hash tree when no more request in the queue of the
-       web data object*/
+       web data object. NOTE: the data object IS NOT REMOVED from data hash tree*/
     jf_hashtree_t iw_jhIdle;
     /**The web data object is put the backlog queue when the object doesn't connected to
        remote server*/
@@ -157,7 +155,7 @@ typedef struct internal_web_dataobject
     jf_httpparser_packet_header_t * iwd_pjhphHeader;
 
     jf_queue_t iwd_jqRequest;
-    jf_network_asocket_t * iwd_pjnaSock;
+    jf_network_asocket_t * iwd_pjnaConn;
 
     jf_ipaddr_t iwd_jiLocal;
 
@@ -179,18 +177,18 @@ static olint_t _getStringHashKey(olchar_t * key, jf_ipaddr_t * addr, u16 port)
 static u32 _destroyWebRequest(internal_web_request_t ** ppRequest)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_web_request_t * piwr;
-    olint_t i;
+    internal_web_request_t * piwr = NULL;
+    u32 u32Index = 0;
 
     jf_logger_logInfoMsg("destroy web req");
 
     piwr = (internal_web_request_t *) *ppRequest;
 
-    for (i = 0; i < piwr->iwr_u32NumOfBuffers; ++i)
+    for (u32Index = 0; u32Index < piwr->iwr_u32NumOfBuffers; ++ u32Index)
     {
-        /*If we own the memory, we need to free it*/
-        if (! piwr->iwr_bUserFree[i])
-            jf_jiukun_freeMemory((void **)&piwr->iwr_pu8Buffer[i]);
+        /* free the memory */
+        if (piwr->iwr_pu8Buffer[u32Index] != NULL)
+            jf_jiukun_freeMemory((void **)&piwr->iwr_pu8Buffer[u32Index]);
     }
 
     jf_jiukun_freeMemory((void **)ppRequest);
@@ -198,10 +196,12 @@ static u32 _destroyWebRequest(internal_web_request_t ** ppRequest)
     return u32Ret;
 }
 
-static u32 _newWebRequest(internal_web_request_t ** ppRequest, u32 u32Num)
+static u32 _newWebRequest(
+    internal_web_request_t ** ppRequest, u8 ** ppu8Buffer, olsize_t * psBuf, u32 u32Num)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_web_request_t * piwr = NULL;
+    u32 u32Index = 0;
 
     jf_logger_logInfoMsg("new web req");
 
@@ -212,7 +212,12 @@ static u32 _newWebRequest(internal_web_request_t ** ppRequest, u32 u32Num)
 
         piwr->iwr_u32NumOfBuffers = u32Num;
 
-
+        for (u32Index = 0; (u32Index < u32Num) && (u32Ret == JF_ERR_NO_ERROR); ++ u32Index)
+        {
+            piwr->iwr_sBuffer[u32Index] = psBuf[u32Index];
+            u32Ret = jf_jiukun_cloneMemory(
+                (void **)&piwr->iwr_pu8Buffer[u32Index], ppu8Buffer[u32Index], psBuf[u32Index]);
+        }
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -225,26 +230,33 @@ static u32 _newWebRequest(internal_web_request_t ** ppRequest, u32 u32Num)
 
 /** Free resources associated with a web data object
  *
+ *  @note The connection should be disconnected before. This function is not responsible for closing
+ *   the connection
+ *
  *  @param ppDataobject [in/out] The web data object to free
  */
 static u32 _destroyWebDataobject(jf_webclient_dataobject_t ** ppDataobject)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_web_dataobject_t * piwd = (internal_web_dataobject_t *) *ppDataobject;
-    internal_web_request_t * wr;
+    internal_web_request_t * piwr = NULL;
     internal_webclient_t * piw = piwd->iwd_piwParent;
     olchar_t addr[64];
-//    olint_t addrlen;
+    olint_t addrlen;
 
-    _getStringHashKey(addr, &piwd->iwd_jiRemote, piwd->iwd_u16Port);
+    addrlen = _getStringHashKey(addr, &piwd->iwd_jiRemote, piwd->iwd_u16Port);
     jf_logger_logInfoMsg("destroy web data obj %s", addr);
 
-    if ((piwd->iwd_pjnaSock != NULL) &&
-        (! jf_network_isAcsocketFree(piw->iw_pjnaAcsocket, piwd->iwd_pjnaSock)))
+    assert(piwd->iwd_pjnaConn == NULL);
+
+#if 0
+    if ((piwd->iwd_pjnaConn != NULL) &&
+        (! jf_network_isAcsocketFree(piw->iw_pjnaAcsocket, piwd->iwd_pjnaConn)))
     {
         /*This connection needs to be disconnected first*/
-        jf_network_disconnectAcsocket(piw->iw_pjnaAcsocket, piwd->iwd_pjnaSock);
+        jf_network_disconnectAcsocket(piw->iw_pjnaAcsocket, piwd->iwd_pjnaConn);
     }
+#endif
 
     if (piwd->iwd_pjhphHeader != NULL)
     {
@@ -264,18 +276,19 @@ static u32 _destroyWebDataobject(jf_webclient_dataobject_t ** ppDataobject)
         jf_jiukun_freeMemory((void **)&piwd->iwd_pu8BodyBuf);
 
     /*Iterate through all the pending requests*/
-    wr = jf_queue_dequeue(&piwd->iwd_jqRequest);
-    while (wr != NULL)
+    piwr = jf_queue_dequeue(&piwd->iwd_jqRequest);
+    while (piwr != NULL)
     {
-        /*If this is a client request, then we need to signal
-          that this request is being aborted*/
-        wr->iwr_fnOnResponse(
-            NULL, JF_WEBCLIENT_EVENT_WEB_REQUEST_DELETED, NULL, wr->iwr_pUser);
-        _destroyWebRequest(&wr);
+        /*If this is a client request, then we need to signal that this request is being aborted*/
+        piwr->iwr_fnOnResponse(
+            NULL, JF_WEBCLIENT_EVENT_WEB_REQUEST_DELETED, NULL, piwr->iwr_pUser);
+        _destroyWebRequest(&piwr);
 
-        wr = jf_queue_dequeue(&piwd->iwd_jqRequest);
+        piwr = jf_queue_dequeue(&piwd->iwd_jqRequest);
     }
     jf_queue_fini(&piwd->iwd_jqRequest);
+
+    jf_hashtree_deleteEntry(&piw->iw_jhData, addr, addrlen);
 
     jf_jiukun_freeMemory((void **)ppDataobject);
 
@@ -297,10 +310,11 @@ static u32 _createWebDataobject(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(piwd, sizeof(internal_web_dataobject_t));
+
         jf_queue_init(&piwd->iwd_jqRequest);
-        piwd->iwd_pjnaSock = pAsocket;
+        piwd->iwd_pjnaConn = pAsocket;
         piwd->iwd_piwParent = piw;
-        memcpy(&piwd->iwd_jiRemote, pjiRemote, sizeof(jf_ipaddr_t));
+        ol_memcpy(&piwd->iwd_jiRemote, pjiRemote, sizeof(jf_ipaddr_t));
         piwd->iwd_u16Port = u16Port;
 
         addrlen = _getStringHashKey(addr, pjiRemote, u16Port);
@@ -323,7 +337,7 @@ static u32 _processWebRequest(
     boolean_t bForceUnBlock = FALSE;
     olchar_t addr[64];
     olint_t addrlen;
-    internal_web_dataobject_t *piwd;
+    internal_web_dataobject_t * piwd = NULL;
     olint_t i;
     boolean_t bHashEntry = FALSE, bQueueEmpty = FALSE;
 
@@ -336,8 +350,7 @@ static u32 _processWebRequest(
     {
         jf_logger_logInfoMsg("process web req, has entry");
         /*It does*/
-        jf_hashtree_getEntry(
-            &piw->iw_jhData, addr, addrlen, (void **)&piwd);
+        jf_hashtree_getEntry(&piw->iw_jhData, addr, addrlen, (void **)&piwd);
     }
     else
     {
@@ -345,10 +358,10 @@ static u32 _processWebRequest(
         u32Ret = _createWebDataobject(&piwd, NULL, piw, pjiRemote, u16Port);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            /*Queue it up in our Backlog, because we don't want to burden
-              ourselves, so we need to see if we have the resources for it.
-              The Pool will grab one when it can. The chain doesn't know
-              about us, so we need to force it to unblock, to process this*/
+            /*Queue it up in our Backlog, because we don't want to burden ourselves, so we need to
+              see if we have the resources for it.
+              The Pool will grab one when it can. The chain doesn't know about us, so we need to
+              force it to unblock, to process this*/
             bForceUnBlock = TRUE;
             u32Ret = jf_queue_enqueue(&piw->iw_jqBacklog, piwd);
         }
@@ -367,15 +380,12 @@ static u32 _processWebRequest(
     if ((u32Ret == JF_ERR_NO_ERROR) && bHashEntry && bQueueEmpty)
     {
         /*the web dataobject is already there*/
-        /*There are no pending requests however, so we can try to
-          send this right away*/
-        /*Take out of Idle State*/
-        piw->iw_u32IdleCount =
-            piw->iw_u32IdleCount == 0 ? 0 : piw->iw_u32IdleCount - 1;
+        /*There are no pending requests however, so we can try to send this right away*/
+        piw->iw_u32IdleCount = piw->iw_u32IdleCount == 0 ? 0 : piw->iw_u32IdleCount - 1;
         jf_hashtree_deleteEntry(&piw->iw_jhIdle, addr, addrlen);
         jf_network_removeUtimerItem(piw->iw_pjnuUtimer, piwd);
-        if ((piwd->iwd_pjnaSock == NULL) ||
-            jf_network_isAcsocketFree(piw->iw_pjnaAcsocket, piwd->iwd_pjnaSock))
+        if ((piwd->iwd_pjnaConn == NULL) ||
+            jf_network_isAcsocketFree(piw->iw_pjnaAcsocket, piwd->iwd_pjnaConn))
         {
             /*If this was in our iw_jhIdle, then most likely the select
               doesn't know about it, so we need to force it to unblock*/
@@ -383,7 +393,7 @@ static u32 _processWebRequest(
             bForceUnBlock = TRUE;
             u32Ret = jf_queue_enqueue(&piw->iw_jqBacklog, piwd);
         }
-        else if (piwd->iwd_pjnaSock != NULL)
+        else if (piwd->iwd_pjnaConn != NULL)
         {
             /*Socket is still there*/
             if (! piwd->iwd_bWaitForClose)
@@ -392,7 +402,7 @@ static u32 _processWebRequest(
                 for (i = 0; i < request->iwr_u32NumOfBuffers; ++i)
                 {
                     jf_network_sendAcsocketData(
-                        piw->iw_pjnaAcsocket, piwd->iwd_pjnaSock, request->iwr_pu8Buffer[i],
+                        piw->iw_pjnaAcsocket, piwd->iwd_pjnaConn, request->iwr_pu8Buffer[i],
                         request->iwr_sBuffer[i]);
                 }
             }
@@ -476,13 +486,13 @@ static u32 _webclientTimerSink(void * object)
     {
         jf_logger_logInfoMsg("web client timer sink, queue is empty");
         /*This connection is idle, because there are no pending requests */
-        if ((piwd->iwd_pjnaSock != NULL) &&
-            (! jf_network_isAcsocketFree(piwd->iwd_piwParent->iw_pjnaAcsocket, piwd->iwd_pjnaSock)))
+        if ((piwd->iwd_pjnaConn != NULL) &&
+            (! jf_network_isAcsocketFree(piwd->iwd_piwParent->iw_pjnaAcsocket, piwd->iwd_pjnaConn)))
         {
             /*We need to close this socket*/
             jf_logger_logInfoMsg("web client timer sink, close the connection");
-            DisconnectSocket = piwd->iwd_pjnaSock;
-            piwd->iwd_pjnaSock = NULL;
+            DisconnectSocket = piwd->iwd_pjnaConn;
+            piwd->iwd_pjnaConn = NULL;
         }
 
         if (piwd->iwd_piwParent->iw_u32IdleCount > MAX_WEBCLIENT_IDLE_SESSIONS)
@@ -581,8 +591,8 @@ static u32 _webclientFinishedResponse(internal_web_dataobject_t * piwd)
             jf_logger_logInfoMsg(
                 "wc finish response, pipeline is no, disconnect and add web"
                 " data object to backlog");
-            jf_network_disconnectAcsocket(piwd->iwd_piwParent->iw_pjnaAcsocket, piwd->iwd_pjnaSock);
-            piwd->iwd_pjnaSock = NULL;
+            jf_network_disconnectAcsocket(piwd->iwd_piwParent->iw_pjnaAcsocket, piwd->iwd_pjnaConn);
+            piwd->iwd_pjnaConn = NULL;
             u32Ret = jf_queue_enqueue(&piwd->iwd_piwParent->iw_jqBacklog, piwd);
         }
         else
@@ -597,7 +607,7 @@ static u32 _webclientFinishedResponse(internal_web_dataobject_t * piwd)
             {
                 /*Try to send the request*/
                 jf_network_sendAcsocketData(
-                    piwd->iwd_piwParent->iw_pjnaAcsocket, piwd->iwd_pjnaSock, wr->iwr_pu8Buffer[i],
+                    piwd->iwd_piwParent->iw_pjnaAcsocket, piwd->iwd_pjnaConn, wr->iwr_pu8Buffer[i],
                     wr->iwr_sBuffer[i]);
             }
         }
@@ -622,11 +632,11 @@ static u32 _processChunk(
     olchar_t *hex;
     olint_t i;
     olsize_t sBeginPointer = *psBeginPointer;
-    internal_web_request_t * wr;
+    internal_web_request_t * piwr;
 
     jf_logger_logInfoMsg("process chunk %d:%d", *psBeginPointer, endPointer);
 
-    wr = jf_queue_peek(&piwd->iwd_jqRequest);
+    piwr = jf_queue_peek(&piwd->iwd_jqRequest);
 
     if (piwd->iwd_piwcChunk == NULL)
     {
@@ -748,9 +758,9 @@ static u32 _processChunk(
                             piwd->iwd_pjhphHeader->jhph_sBody =
                                 piwd->iwd_piwcChunk->iwc_u32Offset;
 
-                            wr->iwr_fnOnResponse(
-                                piwd->iwd_pjnaSock, 0, piwd->iwd_pjhphHeader,
-                                wr->iwr_pUser);
+                            piwr->iwr_fnOnResponse(
+                                piwd->iwd_pjnaConn, 0, piwd->iwd_pjhphHeader,
+                                piwr->iwr_pUser);
                             _webclientFinishedResponse(piwd);
                             *psBeginPointer = 2;
 
@@ -789,8 +799,7 @@ static u32 _retrySink(void * object)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t key[64];
     olint_t keyLength;
-    internal_web_dataobject_t * piwd =
-        (internal_web_dataobject_t *)object;
+    internal_web_dataobject_t * piwd = (internal_web_dataobject_t *)object;
 //    internal_webclient_t *wcm = piwd->iwd_piwParent;
 
     piwd->iwd_u32ExponentialBackoff = (piwd->iwd_u32ExponentialBackoff == 0) ?
@@ -827,15 +836,14 @@ static u32 _retrySink(void * object)
  *  @param pUser [in] the associated web data object
  */
 static u32 _webclientOnConnect(
-    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
-    u32 u32Status, void * pUser)
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u32 u32Status, void * pUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_web_dataobject_t * piwd = (internal_web_dataobject_t *) pUser;
-    internal_web_request_t *r = NULL;
+    internal_web_request_t * piwr = NULL;
     olint_t i;
 
-    piwd->iwd_pjnaSock = pAsocket;
+    piwd->iwd_pjnaConn = pAsocket;
     piwd->iwd_bInitialRequestAnswered = FALSE;
 
     if (u32Status == JF_ERR_NO_ERROR)
@@ -844,12 +852,12 @@ static u32 _webclientOnConnect(
         //Success: Send First Request
         jf_network_getLocalInterfaceOfAcsocket(
             piwd->iwd_piwParent->iw_pjnaAcsocket, pAsocket, &piwd->iwd_jiLocal);
-        r = jf_queue_peek(&piwd->iwd_jqRequest);
-        for (i = 0; i < r->iwr_u32NumOfBuffers; ++i)
+        piwr = jf_queue_peek(&piwd->iwd_jqRequest);
+        for (i = 0; i < piwr->iwr_u32NumOfBuffers; ++i)
         {
             jf_network_sendAcsocketData(
-                piwd->iwd_piwParent->iw_pjnaAcsocket, pAsocket, r->iwr_pu8Buffer[i],
-                r->iwr_sBuffer[i]);
+                piwd->iwd_piwParent->iw_pjnaAcsocket, pAsocket, piwr->iwr_pu8Buffer[i],
+                piwr->iwr_sBuffer[i]);
         }
     }
     else
@@ -865,8 +873,9 @@ static u32 _webclientOnConnect(
     return u32Ret;
 }               
 
-/** Internal method dispatched by the disconnect event of the underlying asocket
+/** Internal method dispatched by the disconnect event of the underlying acsocket
  *
+ *  @param pAcsocket [in] the underlying async client socket
  *  @param pAsocket [in] the underlying async socket
  *  @param u32Status [in] the status of the disconnection
  *  @param pUser [in] the associated web data object
@@ -874,12 +883,11 @@ static u32 _webclientOnConnect(
  *  @return the error code
  */
 static u32 _webclientOnDisconnect(
-    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
-    u32 u32Status, void * pUser)
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u32 u32Status, void * pUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_web_dataobject_t * piwd = (internal_web_dataobject_t *)pUser;
-    internal_web_request_t * iwr = NULL;
+    internal_web_request_t * piwr = NULL;
 //    u8 * buffer;
 //    olsize_t BeginPointer, EndPointer;
 //    jf_httpparser_packet_header_t * h;
@@ -888,44 +896,39 @@ static u32 _webclientOnDisconnect(
         "web client disconnect, WaitForClose %d, PipelineFlags %d",
         piwd->iwd_bWaitForClose, piwd->iwd_u32PipelineFlags);
 
-    if (jf_queue_peek(&piwd->iwd_jqRequest) != NULL)
+    if (! jf_queue_isEmpty(&piwd->iwd_jqRequest))
     {
-        /*If there are still pending requests, than obviously this server
-          doesn't do persistent connections*/
+        /*If there are still pending requests, then obviously this server doesn't do persistent
+          connections*/
         jf_logger_logInfoMsg("web client disconnect, pipeline is no");
         piwd->iwd_u32PipelineFlags = PIPELINE_NO;
     }
 
     if (piwd->iwd_bWaitForClose)
     {
-        /*Since we had to read until the socket closes, we finally have
-          all the data we need*/
-//        getBufferOfAsocket(pAsocket, &buffer, &BeginPointer, &EndPointer);
-
+        /*Since we had to read until the socket closes, we finally have all the data we need*/
         piwd->iwd_bInitialRequestAnswered = TRUE;
         piwd->iwd_u32PipelineFlags = PIPELINE_NO;
         piwd->iwd_bFinHeader = FALSE;
 
-        iwr = jf_queue_dequeue(&piwd->iwd_jqRequest);
-        if (iwr != NULL)
+        piwr = jf_queue_dequeue(&piwd->iwd_jqRequest);
+        if (piwr != NULL)
         {
-            iwr->iwr_fnOnResponse(
-                pAsocket, 0, piwd->iwd_pjhphHeader, iwr->iwr_pUser);
+            piwr->iwr_fnOnResponse(pAsocket, 0, piwd->iwd_pjhphHeader, piwr->iwr_pUser);
             //_webclientFinishedResponse(piwd);        
-            _destroyWebRequest(&iwr);
+            _destroyWebRequest(&piwr);
         }
 
         if (piwd->iwd_pjhphHeader != NULL)
             jf_httpparser_destroyPacketHeader(&piwd->iwd_pjhphHeader);
     }
 
-    piwd->iwd_pjnaSock = NULL;
+    piwd->iwd_pjnaConn = NULL;
 
-    iwr = jf_queue_peek(&piwd->iwd_jqRequest);
-    if (iwr != NULL)
+    piwr = jf_queue_peek(&piwd->iwd_jqRequest);
+    if (piwr != NULL)
     {
-        /*Still Requests to be made
-          Make Another Connection and Continue*/
+        /*There are still requests to be made, make another connection and continue*/
         jf_logger_logInfoMsg("web client disconnect, retry later");
         jf_network_addUtimerItem(
             piwd->iwd_piwParent->iw_pjnuUtimer, piwd,
@@ -971,8 +974,8 @@ static u32 _parseHttpHeader(
     piwd->iwd_nBytesLeft = -1;
     piwd->iwd_bFinHeader = TRUE;
     u32Ret = jf_httpparser_parsePacketHeader(
-        &piwd->iwd_pjhphHeader, (olchar_t *)pu8Buffer,
-        *psBeginPointer, sEndPointer - (*psBeginPointer));
+        &piwd->iwd_pjhphHeader, (olchar_t *)pu8Buffer, *psBeginPointer,
+        sEndPointer - (*psBeginPointer));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Introspect Request, to see what to do next*/
@@ -988,20 +991,18 @@ static u32 _parseHttpHeader(
                     /*This packet was chunk encoded*/
                     piwd->iwd_bWaitForClose = FALSE;
                     piwd->iwd_bChunked = TRUE;
-                    jf_logger_logInfoMsg(
-                        "parse http header, chunk");
+                    jf_logger_logInfoMsg("parse http header, chunk");
                 }
             }
-            if (pjhphf->jhphf_sName == 14 &&
-                ol_strncasecmp(pjhphf->jhphf_pstrName, "content-length", 14) == 0)
+            else if (pjhphf->jhphf_sName == 14 &&
+                     ol_strncasecmp(pjhphf->jhphf_pstrName, "content-length", 14) == 0)
             {
                 /*This packet has a Content-Length*/
                 piwd->iwd_bWaitForClose = FALSE;
                 pjhphf->jhphf_pstrData[pjhphf->jhphf_sData] = '\0';
                 piwd->iwd_nBytesLeft = atoi(pjhphf->jhphf_pstrData);
                 jf_logger_logInfoMsg(
-                    "parse http header, content-length %d",
-                    piwd->iwd_nBytesLeft);
+                    "parse http header, content-length %d", piwd->iwd_nBytesLeft);
             }
             pjhphf = pjhphf->jhphf_pjhphfNext;
         }
@@ -1014,7 +1015,7 @@ static u32 _parseHttpHeader(
         {
             /*We already have the complete Response Packet*/
             wr->iwr_fnOnResponse(
-                pAsocket, 0, piwd->iwd_pjhphHeader, wr->iwr_pUser);
+                pAsocket, JF_WEBCLIENT_EVENT_INCOMING_DATA, piwd->iwd_pjhphHeader, wr->iwr_pUser);
             *psBeginPointer = *psBeginPointer + sHeader + 4;
             _webclientFinishedResponse(piwd);
         }
@@ -1110,7 +1111,7 @@ static u32 _webclientOnData(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_web_dataobject_t * piwd = (internal_web_dataobject_t *) pUser;
-    internal_web_request_t * wr = NULL;
+    internal_web_request_t * piwr = NULL;
     olint_t i = 0;
     olint_t Fini;
 
@@ -1122,8 +1123,8 @@ static u32 _webclientOnData(
         pu8Buffer + *psBeginPointer, sEndPointer - *psBeginPointer,
         "web client data");
 */
-    wr = (internal_web_request_t *)jf_queue_peek(&piwd->iwd_jqRequest);
-    if (wr == NULL)
+    piwr = (internal_web_request_t *)jf_queue_peek(&piwd->iwd_jqRequest);
+    if (piwr == NULL)
     {
         jf_logger_logInfoMsg("web client data, ignore");
         /*There are no pending requests, so we have no idea what we are
@@ -1147,8 +1148,7 @@ static u32 _webclientOnData(
                     pu8Buffer[*psBeginPointer + i + 3] == '\n')
                 {
                     u32Ret = _parseHttpHeader(
-                        pAsocket, piwd, wr, pu8Buffer,
-                        psBeginPointer, sEndPointer, i);
+                        pAsocket, piwd, piwr, pu8Buffer, psBeginPointer, sEndPointer, i);
                     break;
                 }
 
@@ -1174,8 +1174,8 @@ static u32 _webclientOnData(
                     jf_httpparser_setBody(
                         piwd->iwd_pjhphHeader, pu8Buffer + *psBeginPointer,
                         piwd->iwd_nBytesLeft, FALSE);
-                    wr->iwr_fnOnResponse(
-                        pAsocket, 0, piwd->iwd_pjhphHeader, wr->iwr_pUser);
+                    piwr->iwr_fnOnResponse(
+                        pAsocket, 0, piwd->iwd_pjhphHeader, piwr->iwr_pUser);
                     *psBeginPointer = *psBeginPointer + piwd->iwd_nBytesLeft;
                     _webclientFinishedResponse(piwd);
                 }
@@ -1195,8 +1195,8 @@ static u32 _webclientOnData(
                     jf_httpparser_setBody(
                         piwd->iwd_pjhphHeader, piwd->iwd_pu8BodyBuf,
                         piwd->iwd_nBytesLeft, FALSE);
-                    wr->iwr_fnOnResponse(
-                        pAsocket, 0, piwd->iwd_pjhphHeader, wr->iwr_pUser);
+                    piwr->iwr_fnOnResponse(
+                        pAsocket, 0, piwd->iwd_pjhphHeader, piwr->iwr_pUser);
                     *psBeginPointer = *psBeginPointer + Fini;
                     _webclientFinishedResponse(piwd);
 
@@ -1221,28 +1221,8 @@ static u32 _webclientOnData(
     return u32Ret;
 }
 
-static u32 _webRequestStaticMemory(internal_web_request_t * request)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    olint_t i;
-    u8 * pu8Buffer;
-
-    for (i = 0; i < request->iwr_u32NumOfBuffers; ++ i)
-    {
-        u32Ret = jf_jiukun_cloneMemory(
-            (void **)&pu8Buffer, request->iwr_pu8Buffer[i], request->iwr_sBuffer[i]);
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            request->iwr_pu8Buffer[i] = pu8Buffer;
-            request->iwr_bUserFree[1] = FALSE;
-        }
-    }
-
-    return u32Ret;
-}
-
 static u32 _internalWebclientOnResponse(
-    jf_network_asocket_t * pAsocket, olint_t nEvent,
+    jf_network_asocket_t * pAsocket, jf_webclient_event_t event,
     jf_httpparser_packet_header_t * header, void * user)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -1310,8 +1290,8 @@ u32 jf_webclient_create(
         piw->iw_u32PoolSize = pjwcp->jwcp_u32PoolSize;
 
         jf_hashtree_init(&piw->iw_jhIdle);
-        jf_queue_init(&piw->iw_jqBacklog);
         jf_hashtree_init(&piw->iw_jhData);
+        jf_queue_init(&piw->iw_jqBacklog);
 
         u32Ret = jf_mutex_init(&piw->iw_jmLock);
     }
@@ -1328,7 +1308,7 @@ u32 jf_webclient_create(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(&jnacp, 0, sizeof(jnacp));
+        ol_bzero(&jnacp, sizeof(jnacp));
         jnacp.jnacp_sInitialBuf = piw->iw_sBuffer;
         jnacp.jnacp_u32MaxConn = piw->iw_u32PoolSize;
         jnacp.jnacp_fnOnData = _webclientOnData;
@@ -1357,7 +1337,7 @@ u32 jf_webclient_pipelineWebRequest(
 
     jf_logger_logDebugMsg("pipeline web req");
 
-    u32Ret = _newWebRequest(&request, 1);
+    u32Ret = _newWebRequest(&request, NULL, NULL, 0);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_httpparser_getRawPacket(
@@ -1366,7 +1346,7 @@ u32 jf_webclient_pipelineWebRequest(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        request->iwr_bUserFree[0] = FALSE;
+        request->iwr_u32NumOfBuffers = 1;
         request->iwr_fnOnResponse =
             (fnOnResponse == NULL) ? _internalWebclientOnResponse : fnOnResponse;
         request->iwr_pUser = user;
@@ -1384,8 +1364,10 @@ u32 jf_webclient_pipelineWebRequestEx(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_t * piw = (internal_webclient_t *) pWebclient;
-    internal_web_request_t * request;
+    internal_web_request_t * piwr = NULL;
     u32 u32NumOfBuffers;
+    u8 * pu8Buffer[2];
+    olsize_t sBuffer[2];
 
     jf_logger_logInfoMsg("pipeline web req ex");
     jf_logger_logDataMsgWithAscii((u8 *)pstrHeader, sHeader, "HTTP request header:");
@@ -1393,29 +1375,25 @@ u32 jf_webclient_pipelineWebRequestEx(
         jf_logger_logDataMsgWithAscii((u8 *)pstrBody, sBody, "HTTP request body:");
 
     u32NumOfBuffers = (pstrBody != NULL) ? 2 : 1;
-    u32Ret = _newWebRequest(&request, u32NumOfBuffers);
-    if (u32Ret == JF_ERR_NO_ERROR)
+
+    pu8Buffer[0] = (u8 *)pstrHeader;
+    sBuffer[0] = sHeader;
+
+    if (pstrBody != NULL)
     {
-        request->iwr_pu8Buffer[0] = (u8 *)pstrHeader;
-        request->iwr_sBuffer[0] = sHeader;
-        request->iwr_bUserFree[0] = TRUE;
-
-        if (pstrBody != NULL)
-        {
-            request->iwr_pu8Buffer[1] = (u8 *)pstrBody;
-            request->iwr_sBuffer[1] = sBody;
-            request->iwr_bUserFree[1] = TRUE;
-        }
-
-        request->iwr_fnOnResponse =
-            (fnOnResponse == NULL) ? _internalWebclientOnResponse : fnOnResponse;
-        request->iwr_pUser = user;
-
-        u32Ret = _webRequestStaticMemory(request);
+        pu8Buffer[1] = (u8 *)pstrBody;
+        sBuffer[1] = sBody;
     }
 
+    u32Ret = _newWebRequest(&piwr, pu8Buffer, sBuffer, u32NumOfBuffers);
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = _processWebRequest(piw, pjiRemote, u16Port, request);
+    {
+        piwr->iwr_fnOnResponse =
+            (fnOnResponse == NULL) ? _internalWebclientOnResponse : fnOnResponse;
+        piwr->iwr_pUser = user;
+
+        u32Ret = _processWebRequest(piw, pjiRemote, u16Port, piwr);
+    }
 
     return u32Ret;
 }

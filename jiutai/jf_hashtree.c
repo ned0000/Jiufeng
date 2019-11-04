@@ -128,9 +128,6 @@ static u32 _findHashtreeEntry(
     jf_hashtree_node_t * current = pHashtree->jh_pjhnRoot;
     olint_t value = _getHashValue(pKey, sKey);
 
-    if (sKey == 0)
-        return u32Ret;
-
     *ppNode = NULL;
     /*Iterate through our tree to see if we can find this key entry*/
     while (current != NULL)
@@ -153,7 +150,7 @@ static u32 _findHashtreeEntry(
     if (*ppNode == NULL)
     {
         if (bCreate)
-            return _newHashtreeEntry(pHashtree, pKey, sKey, value, ppNode);
+            u32Ret = _newHashtreeEntry(pHashtree, pKey, sKey, value, ppNode);
     }
 
     return u32Ret;
@@ -231,6 +228,8 @@ u32 jf_hashtree_addEntry(
     u32 u32Ret = JF_ERR_NO_ERROR;
     /*This can be duplicated by calling FindEntry, and setting create to true*/
     jf_hashtree_node_t * pjhn;
+
+    assert(sKey > 0);
 
     u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, TRUE, &pjhn);
     if (u32Ret == JF_ERR_NO_ERROR)

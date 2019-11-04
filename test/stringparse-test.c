@@ -86,7 +86,7 @@ static void _printParseResult(jf_string_parse_result_t * result)
     field = result->jspr_pjsprfFirst;
     for (u32Index = 0; u32Index < result->jspr_u32NumOfResult; u32Index ++)
     {
-        ol_printf("%u, size: %d, data: ", u32Index, field->jsprf_sData);
+        ol_printf("index: %u, size: %d, data: ", u32Index, field->jsprf_sData);
         if (field->jsprf_sData != 0)
         {
             strncpy(str, field->jsprf_pstrData, field->jsprf_sData);
@@ -99,8 +99,7 @@ static void _printParseResult(jf_string_parse_result_t * result)
 
 }
 
-static u32 _testParseStringWithDelimiter(
-    olchar_t * pstr, olchar_t * pdelimiter)
+static u32 _testParseStringWithDelimiter(olchar_t * pstr, olchar_t * pdelimiter)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t * xml = NULL;
@@ -115,14 +114,15 @@ static u32 _testParseStringWithDelimiter(
         _printParseResult(xml);
 
         jf_string_destroyParseResult(&xml);
+
+        ol_printf("String after parse: %s\n", pstr);
         ol_printf("\n");
     }
     
     return u32Ret;
 }
 
-static u32 _testParseStringAdvWithDelimiter(
-    olchar_t * pstr, olchar_t * pdelimiter)
+static u32 _testParseStringAdvWithDelimiter(olchar_t * pstr, olchar_t * pdelimiter)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t * xml = NULL;

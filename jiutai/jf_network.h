@@ -231,11 +231,9 @@ typedef struct
  */
 
 NETWORKAPI u32 NETWORKCALL jf_network_createSocket(
-    olint_t domain, olint_t type, olint_t protocol,
-    jf_network_socket_t ** ppSocket);
+    olint_t domain, olint_t type, olint_t protocol, jf_network_socket_t ** ppSocket);
 
-NETWORKAPI u32 NETWORKCALL jf_network_destroySocket(
-    jf_network_socket_t ** ppSocket);
+NETWORKAPI u32 NETWORKCALL jf_network_destroySocket(jf_network_socket_t ** ppSocket);
 
 /** Allocates a UDP socket for a given interface, choosing a random port number
  *  from 55000 to 65000
@@ -274,18 +272,14 @@ NETWORKAPI u32 NETWORKCALL jf_network_createTypeDgramSocket(
 NETWORKAPI u32 NETWORKCALL jf_network_ioctlSocket(
     jf_network_socket_t * pSocket, olint_t req, void * pArg);
 
-NETWORKAPI u32 NETWORKCALL jf_network_setSocketBlock(
-    jf_network_socket_t * pSocket);
+NETWORKAPI u32 NETWORKCALL jf_network_setSocketBlock(jf_network_socket_t * pSocket);
 
-NETWORKAPI u32 NETWORKCALL jf_network_setSocketNonblock(
-    jf_network_socket_t * pSocket);
+NETWORKAPI u32 NETWORKCALL jf_network_setSocketNonblock(jf_network_socket_t * pSocket);
 
 NETWORKAPI u32 NETWORKCALL jf_network_joinMulticastGroup(
-    jf_network_socket_t * pSocket, jf_ipaddr_t * pjiAddr,
-    jf_ipaddr_t * pjiMulticaseAddr);
+    jf_network_socket_t * pSocket, jf_ipaddr_t * pjiAddr, jf_ipaddr_t * pjiMulticaseAddr);
 
-NETWORKAPI u32 NETWORKCALL jf_network_enableBroadcast(
-    jf_network_socket_t * pSocket);
+NETWORKAPI u32 NETWORKCALL jf_network_enableBroadcast(jf_network_socket_t * pSocket);
 
 /** Try to send all data but only send once, the actual sent size is in psSend
  */
@@ -309,8 +303,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_sendn(
  *  or timeout, the actual sent size is in psSend
  */
 NETWORKAPI u32 NETWORKCALL jf_network_sendnWithTimeout(
-    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend,
-    u32 u32Timeout);
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend, u32 u32Timeout);
 
 /** Try to receive all data but only receive once, the actual received size is
  *  in psRecv
@@ -322,8 +315,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_recv(
  *  received size is in psRecv
  */
 NETWORKAPI u32 NETWORKCALL jf_network_recvWithTimeout(
-    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
-    u32 u32Timeout);
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv, u32 u32Timeout);
 
 /** Try to recveive all data with possible several round, until an error occurs,
  *  the actual recveived size is in psRecv
@@ -335,8 +327,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_recvn(
  *  or timeout, the actual recveived size is in psRecv
  */
 NETWORKAPI u32 NETWORKCALL jf_network_recvnWithTimeout(
-    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
-    u32 u32Timeout);
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv, u32 u32Timeout);
 
 /** Try to receive all data but only receive once, unless timeout the actual
  *  received size is in psRecv
@@ -349,37 +340,33 @@ NETWORKAPI u32 NETWORKCALL jf_network_connect(
     jf_network_socket_t * pSocket, const jf_ipaddr_t * pji, u16 u16Port);
 
 NETWORKAPI u32 NETWORKCALL jf_network_connectWithTimeout(
-    jf_network_socket_t * pSocket, const jf_ipaddr_t * pji, u16 u16Port,
-    u32 u32Timeout);
+    jf_network_socket_t * pSocket, const jf_ipaddr_t * pji, u16 u16Port, u32 u32Timeout);
 
-NETWORKAPI u32 NETWORKCALL jf_network_listen(
-    jf_network_socket_t * pSocket, olint_t backlog);
+NETWORKAPI u32 NETWORKCALL jf_network_listen(jf_network_socket_t * pSocket, olint_t backlog);
 
 NETWORKAPI u32 NETWORKCALL jf_network_accept(
     jf_network_socket_t * pListen, jf_ipaddr_t * pji, u16 * pu16Port,
     jf_network_socket_t ** ppSocket);
 
 NETWORKAPI u32 NETWORKCALL jf_network_sendto(
-    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend,
-    const jf_ipaddr_t * pjiTo, u16 u16Port);
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend, const jf_ipaddr_t * pjiTo,
+    u16 u16Port);
 
 NETWORKAPI u32 NETWORKCALL jf_network_recvfrom(
-    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv,
-    jf_ipaddr_t * pjiTo, u16 * pu16Port);
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv, jf_ipaddr_t * pjiTo,
+    u16 * pu16Port);
 
 NETWORKAPI u32 NETWORKCALL jf_network_createSocketPair(
     olint_t domain, olint_t type, jf_network_socket_t * psPair[2]);
 
-NETWORKAPI u32 NETWORKCALL jf_network_destroySocketPair(
-    jf_network_socket_t * sPair[2]);
+NETWORKAPI u32 NETWORKCALL jf_network_destroySocketPair(jf_network_socket_t * sPair[2]);
 
 NETWORKAPI u32 NETWORKCALL jf_network_select(
-    fd_set * readfds, fd_set * writefds, fd_set * exceptfds,
-    struct timeval * timeout, u32 * pu32Ready);
+    fd_set * readfds, fd_set * writefds, fd_set * exceptfds, struct timeval * timeout,
+    u32 * pu32Ready);
 
 NETWORKAPI u32 NETWORKCALL jf_network_getSocketName(
-    jf_network_socket_t * pSocket, struct sockaddr * pName,
-    olint_t * pnNameLen);
+    jf_network_socket_t * pSocket, struct sockaddr * pName, olint_t * pnNameLen);
 
 NETWORKAPI void NETWORKCALL jf_network_clearSocketFromFdSet(
     jf_network_socket_t * pSocket, fd_set * set);
@@ -479,8 +466,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_wakeupChain(jf_network_chain_t * pChain);
  */
 NETWORKAPI u32 NETWORKCALL jf_network_addUtimerItem(
     jf_network_utimer_t * pUtimer, void * pData, u32 u32Seconds,
-    jf_network_fnCallbackOfUtimerItem_t fnCallback,
-    jf_network_fnDestroyUtimerItemData_t fnDestroy);
+    jf_network_fnCallbackOfUtimerItem_t fnCallback, jf_network_fnDestroyUtimerItemData_t fnDestroy);
 
 /** Removes timed callback(s) specified by pData from an utimer
  *
@@ -493,8 +479,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_addUtimerItem(
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL jf_network_removeUtimerItem(
-    jf_network_utimer_t * pUtimer, void * pData);
+NETWORKAPI u32 NETWORKCALL jf_network_removeUtimerItem(jf_network_utimer_t * pUtimer, void * pData);
 
 /** Destroy a timer
  *
@@ -540,8 +525,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_createAssocket(
 /** Destroy async server socket.
  *
  */
-NETWORKAPI u32 NETWORKCALL jf_network_destroyAssocket(
-    jf_network_assocket_t ** ppAssocket);
+NETWORKAPI u32 NETWORKCALL jf_network_destroyAssocket(jf_network_assocket_t ** ppAssocket);
 
 /** Returns the port number the server is bound to
  *
@@ -549,8 +533,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_destroyAssocket(
  *
  *  @return the listening port number
  */
-NETWORKAPI u16 NETWORKCALL jf_network_getPortNumberOfAssocket(
-    jf_network_assocket_t * pAssocket);
+NETWORKAPI u16 NETWORKCALL jf_network_getPortNumberOfAssocket(jf_network_assocket_t * pAssocket);
 
 /** Returns the user's Tag associated with the assocket
  *
@@ -558,8 +541,7 @@ NETWORKAPI u16 NETWORKCALL jf_network_getPortNumberOfAssocket(
  *
  *  @return the user tag
  */
-NETWORKAPI void * NETWORKCALL jf_network_getTagOfAssocket(
-    jf_network_assocket_t * pAssocket);
+NETWORKAPI void * NETWORKCALL jf_network_getTagOfAssocket(jf_network_assocket_t * pAssocket);
 
 /** Sets the user's tag associated with the assocket
  *
@@ -573,8 +555,8 @@ NETWORKAPI u32 NETWORKCALL jf_network_disconnectAssocket(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket);
 
 NETWORKAPI u32 NETWORKCALL jf_network_sendAssocketData(
-    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t sBuf);
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket, u8 * pu8Buffer,
+    olsize_t sBuf);
 
 /** async client socket
  */
@@ -589,8 +571,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_createAcsocket(
  *
  *  @return the error code
  */
-NETWORKAPI u32 NETWORKCALL jf_network_destroyAcsocket(
-    jf_network_acsocket_t ** ppAcsocket);
+NETWORKAPI u32 NETWORKCALL jf_network_destroyAcsocket(jf_network_acsocket_t ** ppAcsocket);
 
 /** Returns the user's tag associated with the acsocket
  *
@@ -598,8 +579,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_destroyAcsocket(
  *
  *  @return the user Tag
  */
-NETWORKAPI void * NETWORKCALL jf_network_getTagOfAcsocket(
-    jf_network_acsocket_t * pAcsocket);
+NETWORKAPI void * NETWORKCALL jf_network_getTagOfAcsocket(jf_network_acsocket_t * pAcsocket);
 
 /** Sets the user's tag associated with the acsocket
  *

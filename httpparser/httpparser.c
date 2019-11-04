@@ -43,7 +43,7 @@ static u32 _parseHttpStartLine(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (startline->jspr_u32NumOfResult < 3)
-            u32Ret = JF_ERR_CORRUPTED_HTTP_MSG;
+            u32Ret = JF_ERR_INVALID_HTTP_HEADER_START_LINE;
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -135,8 +135,7 @@ static u32 _parseHttpHeaderLine(
     olint_t FLNWS = -1;
     olint_t FTNWS = -1;
 
-    /* Headerline starts with the second token. Then we iterate through
-       the rest of the tokens*/
+    /* Headerline starts with the second token. Then we iterate through the rest of the tokens*/
     while (headerline != NULL)
     {
         if (headerline->jsprf_sData == 0)
@@ -162,14 +161,14 @@ static u32 _parseHttpHeaderLine(
                     break;
                 }
             }
-            if (node->jhphf_pstrName == NULL)
+            if ((node->jhphf_pstrName == NULL) || (node->jhphf_sName == 0))
             {
                 jf_jiukun_freeMemory((void **)&node);
+                u32Ret = JF_ERR_INVALID_HTTP_HEADER_LINE;
                 break;
             }
 
-            /*We need to do white space processing, because we need to
-              ignore them in the headers*/
+            /*We need to do white space processing, because we need to ignore them in the headers*/
             FLNWS = 0;
             FTNWS = node->jhphf_sData - 1;
             for (i = 0; i < node->jhphf_sData; ++i)
@@ -195,8 +194,8 @@ static u32 _parseHttpHeaderLine(
             node->jhphf_pstrData += FLNWS;
             node->jhphf_sData = (FTNWS - FLNWS) + 1;
 
-            /*Since we are parsing an existing string, we set this flag to
-              zero, so that it doesn't get freed*/
+            /*Since we are parsing an existing string, we set this flag to zero, so that it doesn't
+              get freed*/
             node->jhphf_pjhphfNext = NULL;
 
             if (retval->jhph_pjhphfFirst == NULL)
@@ -406,8 +405,7 @@ olint_t jf_httpparser_unescapeHttpData(olchar_t * data)
 }
 
 u32 jf_httpparser_parsePacketHeader(
-    jf_httpparser_packet_header_t ** ppHeader, olchar_t * pstrBuf,
-    olsize_t sOffset, olsize_t sBuf)
+    jf_httpparser_packet_header_t ** ppHeader, olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_httpparser_packet_header_t * retval = NULL;

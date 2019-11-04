@@ -79,16 +79,17 @@ typedef struct jf_string_parse_result
  *  @retval JF_ERR_NO_ERROR success
  *  @retval JF_ERR_OUT_OF_MEMORY out of memeory
  *
- *  @note differs from parseStringAdv, this method does not ignore
- *   characters contained within quotation marks, whereas parseStringAdv does.
+ *  @note Differs from parseStringAdv, this method does not ignore characters contained within
+ *   quotation marks, whereas parseStringAdv does.
+ *  @note After parse, the buffer is kept unchanged
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_parse(
     jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
     olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter);
 
 
-/** Parses a string into a linked list of tokens. Ignore characters contained
- *  within quotation marks. The quotation is " or '.
+/** Parses a string into a linked list of tokens. Ignore characters contained within quotation
+ *  marks. The quotation is " or '.
  *
  *  @param ppResult [out] the parse result returned
  *  @param pstrBuf [in] The buffer to parse 
@@ -101,8 +102,9 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_parse(
  *  @retval JF_ERR_NO_ERROR success
  *  @retval JF_ERR_OUT_OF_MEMORY out of memeory
  *
- *  @note differs from parseString, this method ignores characters
- *   contained within quotation marks, whereas parseString does not.
+ *  @note differs from parseString, this method ignores characters contained within quotation marks,
+ *   whereas parseString does not.
+ *  @note After parse, the buffer is kept unchanged
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_parseAdv(
     jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
@@ -163,8 +165,7 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_removeTailingSpace(olchar_t * pstr
  */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_trimBlank(olchar_t * pstr);
 
-/** break string to line with width, the line terminator is at the best
- *  suitable position. 
+/** Break string to line with width, the line terminator is at the best suitable position. 
  *
  *  @param pstr [in/out] the string that should be wrapped.
  *  @param sWidth [in] the maximal column count of the wrapped string.
@@ -172,19 +173,24 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_trimBlank(olchar_t * pstr);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_breakToLine(
-    olchar_t * pstr, olsize_t sWidth);
+STRINGPARSEAPI u32 STRINGPARSECALL jf_string_breakToLine(olchar_t * pstr, olsize_t sWidth);
 
-/** ppstrLoc is a pointer to the beginning of the substring, or NULL if
- *  the substring is not found
- **/
+/** Locate sub string.
+ *
+ *  @param pstr [in] The string to be located
+ *  @param pstrSub [in] The sub string
+ *  @param ppstrLoc [out] Pointer to the beginning of the substring, or NULL if the substring is
+ *   not found
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_locateSubString(
     const olchar_t * pstr, const olchar_t * pstrSub, olchar_t ** ppstrLoc);
 
-/** Replaces the first occurence of needle in the string src with the string
- *  subst. If no occurence of needle could be found in src, NULL is returned,
- *  otherwise the starting index of needle inside src. src needs to be
- *  big enough to store the resulting string.
+/** Replaces the first occurence of needle in the string src with the string subst. If no occurence
+ *  of needle could be found in src, NULL is returned, otherwise the starting index of needle inside
+ *  src. src needs to be big enough to store the resulting string.
  *
  *  @param pstrSrc [in] the string that should be modified.
  *  @param sBuf [in] the size of the buffer containing the source string
@@ -240,8 +246,8 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_getStringWWN(
  *  @parame u8BuildNo [in] the build number;
  */
 void getStringVersion(
-    olchar_t * pstrVersion, const u8 u8Major,
-    const u8 u8Minor, const u32 u32OEMCode, const u8 u8BuildNo);
+    olchar_t * pstrVersion, const u8 u8Major, const u8 u8Minor, const u32 u32OEMCode,
+    const u8 u8BuildNo);
 
 /** Get string of u64 integer
  *
@@ -301,8 +307,7 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_getStringMACAddress(
  *  @param pstrSize [out] the size string to be returned;
  *  @param u64Size [in] the size in bytes
  */
-STRINGPARSEAPI void STRINGPARSECALL jf_string_getStringSize(
-    olchar_t * pstrSize, const u64 u64Size);
+STRINGPARSEAPI void STRINGPARSECALL jf_string_getStringSize(olchar_t * pstrSize, const u64 u64Size);
 
 /** Get the size string in GB, MB, KB and B. The size string will be the format
  *  of "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>"
@@ -332,11 +337,9 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_getStringSize1000Based(
 
 /*string validation*/
 
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateStringAlias(
-    const olchar_t * pstrAlias);
+STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateStringAlias(const olchar_t * pstrAlias);
 
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateStringUsername(
-    const olchar_t * pstrUserName);
+STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateStringUsername(const olchar_t * pstrUserName);
 
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateHexString(
     const olchar_t * pstrHex, const olsize_t sHex);
@@ -485,8 +488,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateSettings(
     olchar_t * pstrNameArray[], olsize_t sNameArray,
     olchar_t * pstrArray[], olsize_t sArray, olindex_t * piArray);
 
-/** Break down the strings pointed by pstrSettings to an array pointing to 
- *  each setting.                                                  \n
+/** Break down the strings pointed by pstrSettings to an array pointing to each setting.                                              *\n
  *  Eg. pstrSetting = "tag1=value1\0tag2 = value2\0tag3=value3"    \n
  *   After processing,                                             \n
  *      pstrArray[0] = "tag1=value1"                               \n
@@ -512,8 +514,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processKeywordSettings(
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processSettingString(
     olchar_t * pstrSetting, olchar_t ** ppstrName, olchar_t ** ppstrValue);
 
-/** Break down the strings pointed by pstrSettings to an array pointing to 
- *  each setting.                                                    \n
+/** Break down the strings pointed by pstrSettings to an array pointing to each setting.                                              *\n
  *  Eg. pstrSetting = "tag1=value1, tag2 = value2, tag3=value3"      \n
  *   After processing,                                               \n
  *      pstrArray[0] = "tag1=value1"                                 \n
