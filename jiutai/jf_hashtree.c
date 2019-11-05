@@ -121,8 +121,8 @@ static u32 _newHashtreeEntry(
  *  @return the error code
  */
 static u32 _findHashtreeEntry(
-    jf_hashtree_t * pHashtree, void * pKey,
-    olsize_t sKey, boolean_t bCreate, jf_hashtree_node_t ** ppNode)
+    jf_hashtree_t * pHashtree, void * pKey, olsize_t sKey, boolean_t bCreate,
+    jf_hashtree_node_t ** ppNode)
 {
     u32 u32Ret = JF_ERR_HASHTREE_ENTRY_NOT_FOUND;
     jf_hashtree_node_t * current = pHashtree->jh_pjhnRoot;
@@ -244,7 +244,7 @@ u32 jf_hashtree_getEntry(
     u32 u32Ret = JF_ERR_NO_ERROR;
     /*This can be duplicated by calling FindEntry and setting create to false.
       If a match is found, just return the data*/
-    jf_hashtree_node_t * pjhn;
+    jf_hashtree_node_t * pjhn = NULL;
 
     u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, FALSE, &pjhn);
     if (u32Ret == JF_ERR_NO_ERROR)

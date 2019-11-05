@@ -346,16 +346,13 @@ u32 jf_network_createAcsocket(
              ((u32Index < pjnacp->jnacp_u32MaxConn) && (u32Ret == JF_ERR_NO_ERROR));
              u32Index ++)
         {
-            u32Ret = createAsocket(
-                pChain, &pia->ia_pjnaAsockets[u32Index], &jnacp);
+            u32Ret = createAsocket(pChain, &pia->ia_pjnaAsockets[u32Index], &jnacp);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
 #if defined(JIUFENG_64BIT)
-                setTagOfAsocket(
-                    pia->ia_pjnaAsockets[u32Index], (void *)(u64)u32Index);
+                setTagOfAsocket(pia->ia_pjnaAsockets[u32Index], (void *)(u64)u32Index);
 #else
-                setTagOfAsocket(
-                    pia->ia_pjnaAsockets[u32Index], (void *)u32Index);
+                setTagOfAsocket(pia->ia_pjnaAsockets[u32Index], (void *)u32Index);
 #endif
             }
         }
@@ -412,8 +409,8 @@ boolean_t jf_network_isAcsocketFree(
 }
 
 u32 jf_network_sendAcsocketData(
-    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t sBuf)
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u8 * pu8Buffer,
+    olsize_t sBuf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index = _acsGetTagOfAsocket(pAsocket);

@@ -82,13 +82,13 @@ typedef struct
     fnAsocketOnDisconnect_t ia_fnOnDisconnect;
     fnAsocketOnSendData_t ia_fnOnSendData;
 
-    /*accessed by outside, asocket should not touch it*/
+    /**Accessed by outside, asocket should not touch it*/
     void * ia_pTag;
 
     /*start of lock protected section*/
-    /**mutex lock*/
+    /**Mutex lock*/
     jf_mutex_t ia_jmLock;
-    /**wait data list*/
+    /**Wait data list*/
     jf_listhead_t ia_jlWaitData;
     /**If the asocket is free or not*/
     boolean_t ia_bFree;

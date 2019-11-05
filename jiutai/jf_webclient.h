@@ -37,13 +37,12 @@
 /* --- constant definitions --------------------------------------------------------------------- */
 typedef void  jf_webclient_t;
 
-/** The possible value for nEvent in function jf_webclient_fnOnResponse_t
+/** The possible value for nEvent in function jf_webclient_fnOnEvent_t
  */
 typedef enum jf_webclient_event
 {
     JF_WEBCLIENT_EVENT_UNKNOWN = 0,
     JF_WEBCLIENT_EVENT_INCOMING_DATA,
-    JF_WEBCLIENT_EVENT_DATAOBJECT_DESTROYED,
     JF_WEBCLIENT_EVENT_WEB_REQUEST_DELETED,
 } jf_webclient_event_t;
 
@@ -56,7 +55,7 @@ typedef struct
     olsize_t jwcp_sBuffer;
 } jf_webclient_create_param_t;
 
-typedef u32 (* jf_webclient_fnOnResponse_t)(
+typedef u32 (* jf_webclient_fnOnEvent_t)(
     jf_network_asocket_t * pAsocket, jf_webclient_event_t event,
     jf_httpparser_packet_header_t * header, void * pUser);
 
@@ -82,14 +81,14 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_create(
  *  @param pjiRemote [in] the address of remote server
  *  @param u16Port [in] the port of remote server
  *  @param pjhph [in] the header of the message
- *  @param fnOnResponse [in] data reception handler
+ *  @param fnOnEvent [in] data reception handler
  *  @param pUser [in] the user
  *
  *  @return the error code
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequest(
     jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port,
-    jf_httpparser_packet_header_t * pjhph, jf_webclient_fnOnResponse_t fnOnResponse, void * pUser);
+    jf_httpparser_packet_header_t * pjhph, jf_webclient_fnOnEvent_t fnOnEvent, void * pUser);
 
 /** Queues a new web request
  *
@@ -103,7 +102,7 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequest(
  *  @param sHeader [in] the length of the headers
  *  @param pstrBody [in] the buffer containing the HTTP body
  *  @param sBody [in] the length of the buffer
- *  @param fnOnResponse [in] data reception handler
+ *  @param fnOnEvent [in] data reception handler
  *  @param pUser [in] the user
  *
  *  @return the error code
@@ -111,7 +110,7 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequest(
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequestEx(
     jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port, olchar_t * pstrHeader,
     olsize_t sHeader, olchar_t * pstrBody, olsize_t sBody,
-    jf_webclient_fnOnResponse_t fnOnResponse, void * pUser);
+    jf_webclient_fnOnEvent_t fnOnEvent, void * pUser);
 
 /** Deletes all pending requests to a specific IP/Port combination
  *
