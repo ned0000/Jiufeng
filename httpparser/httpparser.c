@@ -24,6 +24,42 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+/** Http packet with chuned data.
+ *
+ *  chunk-size\r\n
+ *  chunk-data\r\n
+ *  chunk-size\r\n
+ *  chunk-data\r\n
+ *  0\r\n
+ *  \r\n
+ *
+ *  chunk-size is a hexadecimal string
+ */
+
+#define HTTP_HEADER_TRANSFER_ENCODING    "transfer-encoding"
+
+#define HTTP_HEADER_CONTENT_LENGTH       "content-length"
+
+/** Chunk processing flags
+ */
+typedef enum httpparser_chunk_flag
+{
+    HTTPPARSER_CHUNK_FLAG_START = 0,
+    HTTPPARSER_CHUNK_FLAG_END,
+    HTTPPARSER_CHUNK_FLAG_DATA,
+    HTTPPARSER_CHUNK_FLAG_FOOTER,
+} httpparser_chunk_flag_t;
+
+typedef struct internal_httpparser_chunk_processor
+{
+    u8 * ihcp_pu8Buffer;
+    u8 ihcp_u8Flags;
+    u8 ihcp_u8Reserved[7];
+    u32 ihcp_u32Offset;
+    u32 ihcp_u32MallocSize;
+    olint_t ihcp_nBytesLeft;
+} internal_httpparser_chunk_processor_t;
+
 /* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _parseHttpStartLine(
@@ -91,8 +127,7 @@ static u32 _parseHttpStartLine(
         }
         else
         {
-            /* If the packet didn't start with HTTP/ then we know it's a request
-               packet
+            /* If the packet didn't start with HTTP/ then we know it's a request packet
                eg: GET /index.html HTTP/1.1
                The method (or directive), is the first token, and the Path
                (or jhph_pstrDirectiveObj) is the second, and version in the 3rd. */
@@ -213,6 +248,27 @@ static u32 _parseHttpHeaderLine(
 
             headerline = headerline->jsprf_pjsprfNext;
         }
+    }
+
+    return u32Ret;
+}
+
+static u32 _reallocHttpParserChunMemory(
+    internal_httpparser_chunk_processor_t * pihcp, u32 u32MallocSize)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    u8 * pu8Buffer = pihcp->ihcp_pu8Buffer; 
+
+    assert(pihcp->ihcp_u32MallocSize < u32MallocSize);
+
+    u32Ret = jf_jiukun_allocMemory((void **)&pu8Buffer, u32MallocSize);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_memcpy(pu8Buffer, pihcp->ihcp_pu8Buffer, pihcp->ihcp_u32Offset);
+
+        jf_jiukun_freeMemory((void **)&pihcp->ihcp_pu8Buffer);
+        pihcp->ihcp_pu8Buffer = pu8Buffer;
+        pihcp->ihcp_u32MallocSize = u32MallocSize;
     }
 
     return u32Ret;
@@ -410,8 +466,7 @@ u32 jf_httpparser_parsePacketHeader(
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_httpparser_packet_header_t * retval = NULL;
     jf_string_parse_result_t * pPacket = NULL;
-    jf_string_parse_result_field_t * headerline;
-    jf_string_parse_result_field_t * field;
+    jf_string_parse_result_field_t * headerline = NULL, * field = NULL;
 
     u32Ret = jf_jiukun_allocMemory((void **)&retval, sizeof(jf_httpparser_packet_header_t));
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -460,8 +515,7 @@ u32 jf_httpparser_getRawPacket(
     if (pjhph->jhph_nStatusCode != -1)
     {
         /* HTTP/1.1 200 OK\r\n
-           12 is the total number of literal characters. Just add Version and
-           StatusData */
+           12 is the total number of literal characters. Just add Version and StatusData */
         sBuffer = 12 + pjhph->jhph_sVersion + pjhph->jhph_sStatusData;
     }
     else
@@ -568,8 +622,7 @@ u32 jf_httpparser_parseUri(
     *ppstrIp = NULL;
     *ppstrPath = NULL;
 
-    /* A scheme has the format xxx://yyy , so if we parse on ://, we can extract
-       the path info */
+    /* A scheme has the format xxx://yyy , so if we parse on ://, we can extract the path info */
     u32Ret = jf_string_parse(&result, pstrUri, 0, (olint_t) ol_strlen(pstrUri), "://", 3);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -582,8 +635,7 @@ u32 jf_httpparser_parseUri(
         str1 = result->jspr_pjsprfLast->jsprf_pstrData;
         len1 = result->jspr_pjsprfLast->jsprf_sData;
 
-        /* Parse path. The first '/' will occur after the IPAddress:port
-           combination*/
+        /* Parse path. The first '/' will occur after the IPAddress:port combination*/
         u32Ret = jf_string_parse(&result2, str1, 0, len1, "/", 1);
     }
 
@@ -606,8 +658,7 @@ u32 jf_httpparser_parseUri(
     {
         if (result3->jspr_u32NumOfResult == 1)
         {
-            /* The default port is 80, if non is specified, because we are
-               assuming an HTTP scheme*/
+            /* The default port is 80, if non is specified, because we are assuming an HTTP scheme*/
             *pu16Port = 80;
         }
         else
@@ -874,18 +925,18 @@ u32 jf_httpparser_addHeaderLine(
 
 u32 jf_httpparser_getHeaderLine(
     jf_httpparser_packet_header_t * pjhph, olchar_t * pstrName, olsize_t sName,
-    jf_httpparser_packet_header_field_t ** ppHeader)
+    jf_httpparser_packet_header_field_t ** ppField)
 {
     jf_httpparser_packet_header_field_t * node = pjhph->jhph_pjhphfFirst;
 
-    *ppHeader = NULL;
+    *ppField = NULL;
     
     /*Iterate through the headers, until we find the one we're interested in*/
     while (node != NULL)
     {
-        if (strncasecmp(pstrName, node->jhphf_pstrName, sName) == 0)
+        if (ol_strncasecmp(pstrName, node->jhphf_pstrName, sName) == 0)
         {
-            *ppHeader = node;
+            *ppField = node;
 
             return JF_ERR_NO_ERROR;
         }
@@ -893,6 +944,237 @@ u32 jf_httpparser_getHeaderLine(
     }
     
     return JF_ERR_NOT_FOUND;
+}
+
+u32 jf_httpparser_parseHeaderTransferEncoding(
+    jf_httpparser_packet_header_t * pjhph, u8 * pu8Encoding)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_httpparser_packet_header_field_t * pjhphf = NULL;
+
+    *pu8Encoding = JF_HTTPPARSER_TRANSFER_ENCODING_UNKNOWN;
+
+    u32Ret = jf_httpparser_getHeaderLine(
+        pjhph, HTTP_HEADER_TRANSFER_ENCODING, ol_strlen(HTTP_HEADER_TRANSFER_ENCODING), &pjhphf);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        if (pjhphf->jhphf_sData == 7 && ol_strncasecmp(pjhphf->jhphf_pstrData, "chunked", 7) == 0)
+        {
+            *pu8Encoding = JF_HTTPPARSER_TRANSFER_ENCODING_CHUNKED;
+        }
+    }
+
+    return u32Ret;
+}
+
+u32 jf_httpparser_parseHeaderContentLength(
+    jf_httpparser_packet_header_t * pjhph, olint_t * pnLength)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_httpparser_packet_header_field_t * pjhphf = NULL;
+
+    *pnLength = -1;
+
+    u32Ret = jf_httpparser_getHeaderLine(
+        pjhph, HTTP_HEADER_CONTENT_LENGTH, ol_strlen(HTTP_HEADER_CONTENT_LENGTH), &pjhphf);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = jf_string_getS32FromString(pjhphf->jhphf_pstrData, pjhphf->jhphf_sData, pnLength);
+    }
+
+    return u32Ret;
+}
+
+u32 jf_httpparser_findHeader(u8 * pu8Buffer, olsize_t sOffset, olsize_t sEnd, olsize_t * psHeader)
+{
+    u32 u32Ret = JF_ERR_HTTP_HEADER_NOT_FOUND;
+    olsize_t sHeader = 0;
+
+    if ((sEnd - sOffset) >= 4)
+    {
+        while (sHeader <= (sEnd - sOffset - 4))
+        {
+            if (pu8Buffer[sOffset + sHeader] == '\r' &&
+                pu8Buffer[sOffset + sHeader + 1] == '\n' &&
+                pu8Buffer[sOffset + sHeader + 2] == '\r' &&
+                pu8Buffer[sOffset + sHeader + 3] == '\n')
+            {
+                u32Ret = JF_ERR_NO_ERROR;
+                break;
+            }
+
+            ++ sHeader;
+        }
+    }
+
+    *psHeader = sHeader;
+
+    return u32Ret;
+}
+
+u32 jf_httpparser_destroyChunkProcessor(jf_httpparser_chunk_processor_t ** ppProcessor)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_httpparser_chunk_processor_t * pihcp = NULL;
+
+    pihcp = (internal_httpparser_chunk_processor_t *)*ppProcessor;
+
+    if (pihcp->ihcp_pu8Buffer != NULL)
+        jf_jiukun_freeMemory((void **)&pihcp->ihcp_pu8Buffer);
+
+    jf_jiukun_freeMemory((void **)ppProcessor);
+
+    return u32Ret;
+}
+
+u32 jf_httpparser_createChunkProcessor(
+    jf_httpparser_chunk_processor_t ** ppProcessor, u32 u32MallocSize)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_httpparser_chunk_processor_t * pihcp = NULL;
+
+    u32Ret = jf_jiukun_allocMemory((void **)pihcp, sizeof(*pihcp));
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_bzero(pihcp, sizeof(*pihcp));
+        pihcp->ihcp_u32MallocSize = u32MallocSize;
+        pihcp->ihcp_u8Flags = HTTPPARSER_CHUNK_FLAG_START;
+
+        u32Ret = jf_jiukun_allocMemory((void **)&pihcp->ihcp_pu8Buffer, u32MallocSize);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        *ppProcessor = pihcp;
+    else if (pihcp != NULL)
+        jf_httpparser_destroyChunkProcessor((jf_httpparser_chunk_processor_t **)&pihcp);
+
+    return u32Ret;
+}
+
+u32 jf_httpparser_processChunk(
+    jf_httpparser_chunk_processor_t * pProcessor, jf_httpparser_packet_header_t * pjhph,
+    u8 * buffer, olsize_t * psBeginPointer, olsize_t endPointer)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olsize_t index = 0;
+    olsize_t sBeginPointer = *psBeginPointer;
+    internal_httpparser_chunk_processor_t * pihcp = NULL;
+
+    pihcp = (internal_httpparser_chunk_processor_t *)pProcessor;
+
+    jf_logger_logInfoMsg("process chunk %d:%d", *psBeginPointer, endPointer);
+
+    while ((u32Ret == JF_ERR_NO_ERROR) && (*psBeginPointer < endPointer))
+    {
+        switch (pihcp->ihcp_u8Flags)
+        {
+            /*Based on the Chunk Flag, we can figure out how to parse this thing*/
+        case HTTPPARSER_CHUNK_FLAG_START:
+            jf_logger_logInfoMsg("process chunk, STARTCHUNK");
+            /*Reading Chunk Header*/
+            if (endPointer < 3)
+            {
+                return u32Ret;
+            }
+            for (index = 3; index < endPointer; ++ index)
+            {
+                if (buffer[index - 2] == '\r' && buffer[index - 1] == '\n')
+                {
+                    /*The chunk header is terminated with a CRLF. The part before the CRLF is the
+                      hex number representing the length of the chunk*/
+                    u32Ret = jf_string_getS32FromHexString(
+                        (olchar_t *)buffer, index - 2, &pihcp->ihcp_nBytesLeft);
+                    if (u32Ret == JF_ERR_NO_ERROR)
+                    {
+                        jf_logger_logInfoMsg(
+                            "process chunk, chunk size %d", pihcp->ihcp_nBytesLeft);
+                        *psBeginPointer = index;
+                        pihcp->ihcp_u8Flags = (pihcp->ihcp_nBytesLeft == 0) ?
+                            HTTPPARSER_CHUNK_FLAG_FOOTER : HTTPPARSER_CHUNK_FLAG_DATA;
+                    }
+                    break;
+                }
+            }
+            break;
+        case HTTPPARSER_CHUNK_FLAG_END:
+            jf_logger_logInfoMsg("process chunk, ENDCHUNK");
+            if (endPointer >= 2)
+            {
+                /*There is more chunks to come*/
+                *psBeginPointer = 2;
+                pihcp->ihcp_u8Flags = HTTPPARSER_CHUNK_FLAG_START;
+            }
+            break;
+        case HTTPPARSER_CHUNK_FLAG_DATA:
+            jf_logger_logInfoMsg("process chunk, DATACHUNK");
+            if (endPointer >= pihcp->ihcp_nBytesLeft)
+            {
+                /*Only consume what we need*/
+                pihcp->ihcp_u8Flags = HTTPPARSER_CHUNK_FLAG_END;
+                index = pihcp->ihcp_nBytesLeft;
+            }
+            else
+            {
+                /*Consume all of the data*/
+                index = endPointer;
+            }
+
+            if (pihcp->ihcp_u32Offset + endPointer > pihcp->ihcp_u32MallocSize)
+            {
+                jf_logger_logInfoMsg("process chunk, realloc memory");
+                /*The buffer is too small, we need to make it bigger
+                  ToDo: Add code to enforce a max buffer size if specified */
+                u32Ret = _reallocHttpParserChunMemory(
+                    pihcp, pihcp->ihcp_u32MallocSize + endPointer);
+            }
+
+            /*Write the decoded chunk blob into the buffer*/
+            ol_memcpy(pihcp->ihcp_pu8Buffer + pihcp->ihcp_u32Offset, buffer, index);
+            assert(pihcp->ihcp_u32Offset + index <= pihcp->ihcp_u32MallocSize);
+
+            /*Adjust our counters*/
+            pihcp->ihcp_nBytesLeft -= index;
+            pihcp->ihcp_u32Offset += index;
+
+            *psBeginPointer = index;
+            break;
+        case HTTPPARSER_CHUNK_FLAG_FOOTER:
+            jf_logger_logInfoMsg("process chunk, FOOTERCHUNK");
+            if (endPointer >= 2)
+            {
+                for (index = 2; index <= endPointer; ++ index)
+                {
+                    if (buffer[index - 2] == '\r' && buffer[index - 1] == '\n')
+                    {
+                        /*An empty line means the chunk is finished*/
+                        if (index == 2)
+                        {
+                            /*FINISHED*/
+                            jf_httpparser_setBody(
+                                pjhph, pihcp->ihcp_pu8Buffer, pihcp->ihcp_u32Offset, FALSE);
+
+                            *psBeginPointer = 2;
+                            break;
+                        }
+                        else
+                        {
+                            u32Ret = JF_ERR_CORRUPTED_HTTP_CHUNK_DATA;
+                        }
+                    }
+                }
+            }
+            break;
+        }
+
+        endPointer -= *psBeginPointer;
+        buffer += *psBeginPointer;
+        sBeginPointer += *psBeginPointer;
+        *psBeginPointer = 0;
+    }
+
+    *psBeginPointer = sBeginPointer;
+
+    return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/

@@ -38,18 +38,16 @@
 
 /* --- private routine section ------------------------------------------------------------------ */
 static u32 _writeVec(
-    jf_filestream_t * pjf, olsize_t vecoffset, jf_datavec_t * pjdData,
-    olsize_t * psData)
+    jf_filestream_t * pjf, olsize_t vecoffset, jf_datavec_t * pjdData, olsize_t * psData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t total = *psData, ndata = 0, size;
     jf_datavec_entry_t * entry;
     olint_t index = 0;
 
-    while (total > 0 && u32Ret == JF_ERR_NO_ERROR &&
-           index <= pjdData->jd_u16CurEntry)
+    while ((total > 0) && (u32Ret == JF_ERR_NO_ERROR) && (index <= pjdData->jd_u16CurEntry))
     {
-        entry = &pjdData->jd_pjdeEntry[index ++];
+        entry = &pjdData->jd_jdeEntry[index ++];
 
         if (entry->jde_sOffset == 0)
             break;
@@ -76,17 +74,15 @@ static u32 _writeVec(
     return u32Ret;
 }
 
-static u32 _readVec(
-    jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t * psData)
+static u32 _readVec(jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t * psData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t total = *psData, ndata = 0, size;
     jf_datavec_entry_t * entry;
 
-    while ((total > 0) && (! jf_filestream_isEndOfFile(pjf)) &&
-           (u32Ret == JF_ERR_NO_ERROR))
+    while ((total > 0) && (! jf_filestream_isEndOfFile(pjf)) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        entry = &pjdData->jd_pjdeEntry[pjdData->jd_u16CurEntry];
+        entry = &pjdData->jd_jdeEntry[pjdData->jd_u16CurEntry];
 
         size = entry->jde_sBuf - entry->jde_sOffset;
         if (size > total)
@@ -281,8 +277,8 @@ u32 jf_file_create(const olchar_t * pstrFilename, jf_file_mode_t mode)
 
 #elif defined(WINDOWS)
     fd = CreateFile(
-        pstrFilename, GENERIC_WRITE, FILE_SHARE_WRITE, NULL,
-        CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+        pstrFilename, GENERIC_WRITE, FILE_SHARE_WRITE, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL,
+        NULL);
     if (fd == INVALID_HANDLE_VALUE)
         u32Ret = JF_ERR_FAIL_CREATE_FILE;
     else
@@ -329,8 +325,8 @@ u32 jf_file_open(const olchar_t * pstrFilename, olint_t flags, jf_file_t * pFile
     else
         u32CreateFlags = OPEN_EXISTING;
 
-    *pFile = CreateFile(pstrFilename, u32Flags, u32ShareMode, NULL,
-        u32CreateFlags, FILE_ATTRIBUTE_NORMAL, NULL);
+    *pFile = CreateFile(
+        pstrFilename, u32Flags, u32ShareMode, NULL, u32CreateFlags, FILE_ATTRIBUTE_NORMAL, NULL);
     if (*pFile == INVALID_HANDLE_VALUE)
         u32Ret = JF_ERR_FAIL_OPEN_FILE;
 #endif
@@ -621,7 +617,9 @@ u32 jf_file_writen(jf_file_t fd, const void * pBuffer, olsize_t sWrite)
             u32Ret = JF_ERR_FAIL_WRITE_FILE;
     }
     else
+    {
         u32Ret = JF_ERR_FAIL_WRITE_FILE;
+    }
 #endif
     return u32Ret;
 }
@@ -741,8 +739,7 @@ boolean_t jf_filestream_isEndOfFile(jf_filestream_t * pjf)
 }
 
 /* Read "n" bytes from a file */
-u32 jf_filestream_readn(
-    jf_filestream_t * pjf, void * pBuffer, olsize_t * psRead)
+u32 jf_filestream_readn(jf_filestream_t * pjf, void * pBuffer, olsize_t * psRead)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t nread;
@@ -766,20 +763,18 @@ u32 jf_filestream_readn(
     return u32Ret;
 }
 
-u32 jf_filestream_readVec(
-    jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t * psRead)
+u32 jf_filestream_readVec(jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t * psRead)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_datavec_init(pjdData);
+    jf_datavec_reinit(pjdData);
 
     u32Ret = _readVec(pjf, pjdData, psRead);
 
     return u32Ret;
 }
 
-u32 jf_filestream_writeVec(
-    jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t sWrite)
+u32 jf_filestream_writeVec(jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t sWrite)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t size = sWrite;
@@ -790,8 +785,7 @@ u32 jf_filestream_writeVec(
 }
 
 u32 jf_filestream_readVecOffset(
-    jf_filestream_t * pjf, jf_datavec_t * pjdData,
-    olsize_t sVecOffset, olsize_t * psRead)
+    jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t sVecOffset, olsize_t * psRead)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -803,8 +797,7 @@ u32 jf_filestream_readVecOffset(
 }
 
 u32 jf_filestream_writeVecOffset(
-    jf_filestream_t * pjf, jf_datavec_t * pjdData,
-    olsize_t sVecOffset, olsize_t sWrite)
+    jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t sVecOffset, olsize_t sWrite)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t size = sWrite;
@@ -815,8 +808,7 @@ u32 jf_filestream_writeVecOffset(
 }
 
 /* Write "n" bytes to a file */
-u32 jf_filestream_writen(
-    jf_filestream_t * pjf, const void * pBuffer, olsize_t sWrite)
+u32 jf_filestream_writen(jf_filestream_t * pjf, const void * pBuffer, olsize_t sWrite)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t nwritten;
@@ -830,8 +822,7 @@ u32 jf_filestream_writen(
     return u32Ret;
 }
 
-u32 jf_filestream_readLine(
-    jf_filestream_t * pjf, void * pBuffer, olsize_t * psRead)
+u32 jf_filestream_readLine(jf_filestream_t * pjf, void * pBuffer, olsize_t * psRead)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 n, maxlen;
@@ -872,8 +863,7 @@ u32 jf_filestream_readLine(
 /*copy file content from pstrSourceFile to fpDest, pu8Buffer is a buffer
  provided by caller for the function*/
 u32 jf_filestream_copyFile(
-    jf_filestream_t * pjfDest, const olchar_t * pstrSourceFile,
-    u8 * pu8Buffer, olsize_t sBuf)
+    jf_filestream_t * pjfDest, const olchar_t * pstrSourceFile, u8 * pu8Buffer, olsize_t sBuf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_filestream_t * sourcejf = NULL;

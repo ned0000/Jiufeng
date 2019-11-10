@@ -130,8 +130,7 @@ static u32 _acsOnData(
     if (pia->ia_fnOnData != NULL)
     {
         pia->ia_fnOnData(
-            pad->ad_iaAcsocket, pAsocket, pu8Buffer,
-            psBeginPointer, sEndPointer, pad->ad_pUser);
+            pad->ad_iaAcsocket, pAsocket, pu8Buffer, psBeginPointer, sEndPointer, pad->ad_pUser);
     }
 
     return u32Ret;

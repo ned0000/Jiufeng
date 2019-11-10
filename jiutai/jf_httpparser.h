@@ -36,6 +36,14 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
+typedef enum jf_httpparser_transfer_encoding
+{
+    JF_HTTPPARSER_TRANSFER_ENCODING_UNKNOWN = 0,
+    JF_HTTPPARSER_TRANSFER_ENCODING_CHUNKED,
+} jf_httpparser_transfer_encoding_t;
+
+typedef void  jf_httpparser_chunk_processor_t;
+
 /* --- data structures -------------------------------------------------------------------------- */
 typedef struct jf_httpparser_packet_header_field
 {
@@ -218,6 +226,35 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getHeaderLine(
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parseUri(
     olchar_t * pstrUri, olchar_t ** ppstrIp, u16 * pu16Port, olchar_t ** ppstrPath);
+
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parseHeaderTransferEncoding(
+    jf_httpparser_packet_header_t * pHeader, u8 * pu8Encoding);
+
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parseHeaderContentLength(
+    jf_httpparser_packet_header_t * pHeader, olint_t * pnLength);
+
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_findHeader(
+    u8 * pu8Buffer, olsize_t sOffset, olsize_t sEnd, olsize_t * psHeader);
+
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyChunkProcessor(
+    jf_httpparser_chunk_processor_t ** ppProcessor);
+
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_createChunkProcessor(
+    jf_httpparser_chunk_processor_t ** ppProcessor, u32 u32MallocSize);
+
+/** Process the chunked data
+ *
+ *  @param pProcessor [in] the chunk processor
+ *  @param pjhph [in] the http packet header
+ *  @param buffer [in] the receive buffer
+ *  @param psBeginPointer [out] the buffer start pointer
+ *  @param endPointer [in] the length of the buffer
+ *
+ *  @return the error code
+ */
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_processChunk(
+    jf_httpparser_chunk_processor_t * pProcessor, jf_httpparser_packet_header_t * pjhph,
+    u8 * buffer, olsize_t * psBeginPointer, olsize_t endPointer);
 
 #endif /*JIUFENG_HTTPPARSER_H*/
 

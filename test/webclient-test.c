@@ -113,13 +113,13 @@ static u32 _wcTestOnResponse(
     jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
 
     jf_logger_logInfoMsg("wc test response, event %d", event);
-
+#if 0
     if (event == JF_WEBCLIENT_EVENT_DATAOBJECT_DESTROYED)
     {
         jf_logger_logInfoMsg("wc test response, web data obj is destroyed");
         return u32Ret;
     }
-
+#endif
     jf_httpparser_getRawPacket(header, &buf, &size);
     jf_logger_logDataMsgWithAscii(
         (u8 *)buf, size, "Wc test on response, body %d", header->jhph_sBody);
