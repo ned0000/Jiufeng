@@ -567,6 +567,7 @@ static u32 _asUtimerDisconnect(void * pData)
     internal_asocket_t * pia = (internal_asocket_t *)pData;
 
     jf_logger_logInfoMsg("as utimer trigger, disconnect");
+    pia->ia_u32Status = JF_ERR_SOCKET_LOCAL_CLOSED;
 
     u32Ret = _asDisconnect(pia);
 
