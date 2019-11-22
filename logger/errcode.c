@@ -102,9 +102,7 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
 
 /* date error */
 
-/* resouce error */
-
-/* syncsem error */
+/* sem error */
     {JF_ERR_FAIL_CREATE_SEM, "Failed to create semaphore."},
     {JF_ERR_FAIL_DESTROY_SEM, "Failed to destroy semaphore."},
     {JF_ERR_FAIL_ACQUIRE_SEM, "Failed to acquire semaphore."},

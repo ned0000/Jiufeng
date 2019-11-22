@@ -130,7 +130,7 @@ $(BIN_DIR)/files-test: files-test.o $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_
        -ljf_string
 
 $(BIN_DIR)/hsm-test: hsm-test.o $(JIUTAI_DIR)/jf_hsm.o
-	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun
 
 $(BIN_DIR)/host-test: host-test.o $(JIUTAI_DIR)/jf_host.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_ifmgmt -ljf_string \
