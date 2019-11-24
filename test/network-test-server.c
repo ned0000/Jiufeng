@@ -188,7 +188,7 @@ JF_THREAD_RETURN_VALUE _networkTestServerThread(void * pArg)
 
         jnacp.jnacp_sInitialBuf = 2048;
         jnacp.jnacp_u32MaxConn = 10;
-        jnacp.jnacp_u16PortNumber = SERVER_PORT;
+        jnacp.jnacp_u16ServerPort = SERVER_PORT;
         jnacp.jnacp_fnOnConnect = _onNtsConnect;
         jnacp.jnacp_fnOnDisconnect = _onNtsDisconnect;
         jnacp.jnacp_fnOnSendData = _onNtsSendData;

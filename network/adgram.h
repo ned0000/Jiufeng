@@ -37,12 +37,13 @@ typedef u32 (* fnAdgramOnSendData_t)(
 
 typedef struct
 {
-    olsize_t jnacp_sInitialBuf;
-    u32 jnacp_u32Reserved;
-    fnAdgramOnData_t jnacp_fnOnData;
-    fnAdgramOnSendData_t jnacp_fnOnSendData;
-    u8 jnacp_u8Reserved[16];
-    void * jnacp_pUser;
+    olsize_t acp_sInitialBuf;
+    u32 acp_u32Reserved;
+    fnAdgramOnData_t acp_fnOnData;
+    fnAdgramOnSendData_t acp_fnOnSendData;
+    u8 acp_u8Reserved[16];
+    void * acp_pUser;
+    olchar_t * acp_pstrName;
 } adgram_create_param_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
@@ -54,12 +55,12 @@ typedef struct
  *
  *  @param pChain [in] the chain object to add the adgram object
  *  @param ppAdgram [out] the adgram object created
- *  @param pjnacp [in] the parameter for creating the adgram
+ *  @param pacp [in] the parameter for creating the adgram
  *
  *  @return the error code
  */
 u32 createAdgram(
-    jf_network_chain_t * pChain, jf_network_adgram_t ** ppAdgram, adgram_create_param_t * pjnacp);
+    jf_network_chain_t * pChain, jf_network_adgram_t ** ppAdgram, adgram_create_param_t * pacp);
 
 /** Destroy async dgram object
  *

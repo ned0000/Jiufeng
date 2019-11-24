@@ -44,6 +44,8 @@ typedef struct
     jf_network_chain_object_header_t ia_jncohHeader;
     jf_network_chain_t * ia_pjncChain;
 
+    olchar_t ia_strName[JF_NETWORK_MAX_NAME_LEN];
+
     olsize_t ia_sTotalSendData;
     olsize_t ia_sTotalBytesSent;
 
@@ -527,23 +529,23 @@ static u32 _asocketOnSendData(
 {
     return JF_ERR_NO_ERROR;
 }
-    
+
 static void _setInternalCallbackFunction(
-    internal_asocket_t * pia, asocket_create_param_t * pjnacp)
+    internal_asocket_t * pia, asocket_create_param_t * pacp)
 {
-    pia->ia_fnOnData = pjnacp->jnacp_fnOnData;
+    pia->ia_fnOnData = pacp->acp_fnOnData;
     if (pia->ia_fnOnData == NULL)
         pia->ia_fnOnData = _asocketOnData;
 
-    pia->ia_fnOnConnect = pjnacp->jnacp_fnOnConnect;
+    pia->ia_fnOnConnect = pacp->acp_fnOnConnect;
     if (pia->ia_fnOnConnect == NULL)
         pia->ia_fnOnConnect = _asocketOnConnect;
 
-    pia->ia_fnOnDisconnect = pjnacp->jnacp_fnOnDisconnect;
+    pia->ia_fnOnDisconnect = pacp->acp_fnOnDisconnect;
     if (pia->ia_fnOnDisconnect == NULL)
         pia->ia_fnOnDisconnect = _asocketOnDisconnect;
 
-    pia->ia_fnOnSendData = pjnacp->jnacp_fnOnSendData;
+    pia->ia_fnOnSendData = pacp->acp_fnOnSendData;
     if (pia->ia_fnOnSendData == NULL)
         pia->ia_fnOnSendData = _asocketOnSendData;
 
@@ -612,16 +614,15 @@ u32 destroyAsocket(jf_network_asocket_t ** ppAsocket)
 }
 
 u32 createAsocket(
-    jf_network_chain_t * pChain, jf_network_asocket_t ** ppAsocket,
-    asocket_create_param_t * pjnacp)
+    jf_network_chain_t * pChain, jf_network_asocket_t ** ppAsocket, asocket_create_param_t * pacp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_asocket_t * pia = NULL;
 
-    assert((pChain != NULL) && (pjnacp != NULL) && (ppAsocket != NULL));
-    assert((pjnacp->jnacp_fnOnData != NULL));
+    assert((pChain != NULL) && (pacp != NULL) && (ppAsocket != NULL));
+    assert((pacp->acp_fnOnData != NULL));
 
-    jf_logger_logInfoMsg("create as");
+    jf_logger_logInfoMsg("create as %s", pacp->acp_pstrName);
 
     u32Ret = jf_jiukun_allocMemory((void **)&pia, sizeof(internal_asocket_t));
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -634,18 +635,19 @@ u32 createAsocket(
         pia->ia_pjnsSocket = NULL;
         jf_listhead_init(&pia->ia_jlSendData);
         jf_listhead_init(&pia->ia_jlWaitData);
-        _setInternalCallbackFunction(pia, pjnacp);
-        pia->ia_sMalloc = pjnacp->jnacp_sInitialBuf;
+        _setInternalCallbackFunction(pia, pacp);
+        pia->ia_sMalloc = pacp->acp_sInitialBuf;
+        ol_strncpy(pia->ia_strName, pacp->acp_pstrName, JF_NETWORK_MAX_NAME_LEN - 1);
 
         u32Ret = jf_jiukun_allocMemory(
-            (void **)&pia->ia_pu8Buffer, pjnacp->jnacp_sInitialBuf);
+            (void **)&pia->ia_pu8Buffer, pacp->acp_sInitialBuf);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_mutex_init(&pia->ia_jmLock);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_network_createUtimer(pChain, &(pia->ia_pjnuUtimer));
+        u32Ret = jf_network_createUtimer(pChain, &pia->ia_pjnuUtimer, pia->ia_strName);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_network_appendToChain(pChain, pia);

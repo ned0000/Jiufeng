@@ -47,6 +47,8 @@ typedef struct internal_assocket
     u8 ia_u8Reserved[3];
     jf_ipaddr_t ia_jiAddr;
 
+    olchar_t ia_strName[JF_NETWORK_MAX_NAME_LEN];
+
     jf_network_socket_t * ia_pjnsListenSocket;
 
     jf_network_fnAssocketOnData_t ia_fnOnData;
@@ -77,13 +79,12 @@ static u32 _preSelectAssocket(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_assocket_t * pia = (internal_assocket_t *) pAssocket;
 
-    /*The socket isn't put in listening mode, until the chain is started.
-      If this variable is TRUE, that means we need to do that.*/
+    /*The socket isn't put in listening mode, until the chain is started. If this variable is TRUE,
+      that means we need to do that.*/
     if (! pia->ia_bListening)
     {
         jf_logger_logInfoMsg("pre sel ass, listening on the socket");
-        /*Set the socket to non-block mode, so we can play nice and share the
-          thread*/
+        /*Set the socket to non-block mode, so we can play nice and share the thread*/
         jf_network_setSocketNonblock(pia->ia_pjnsListenSocket);
 
         /*Put the socket in listen, and add it to the fdset for the select*/
@@ -93,8 +94,7 @@ static u32 _preSelectAssocket(
     }
     else
     {
-        /*Only put the ia_pjnsListenSocket in the readset, if we are able to
-          handle a new socket*/
+        /*Only put the ia_pjnsListenSocket in the readset, if we are able to handle a new socket*/
         if (! jf_listarray_isEnd(pia->ia_pjlAsocket))
             jf_network_setSocketToFdSet(pia->ia_pjnsListenSocket, readset);
         else
@@ -309,8 +309,9 @@ u32 jf_network_createAssocket(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_assocket_t * pia = NULL;
-    asocket_create_param_t jnacp;
+    asocket_create_param_t acp;
     u32 u32Index;
+    olchar_t strName[JF_NETWORK_MAX_NAME_LEN];
 
     assert((pChain != NULL) && (ppAssocket != NULL) && (pjnacp != NULL));
     assert((pjnacp->jnacp_u32MaxConn != 0) &&
@@ -318,7 +319,8 @@ u32 jf_network_createAssocket(
     assert((pjnacp->jnacp_fnOnConnect != NULL) && (pjnacp->jnacp_fnOnDisconnect != NULL) &&
            (pjnacp->jnacp_fnOnData != NULL));
 
-    jf_logger_logInfoMsg("create assocket, max conn %u", pjnacp->jnacp_u32MaxConn);
+    jf_logger_logInfoMsg(
+        "create assocket %s, max conn %u", pjnacp->jnacp_pstrName, pjnacp->jnacp_u32MaxConn);
 
     /*create a new assocket*/
     u32Ret = jf_jiukun_allocMemory((void **)&pia, sizeof(internal_assocket_t));
@@ -338,8 +340,8 @@ u32 jf_network_createAssocket(
 
         pia->ia_pjnsListenSocket = NULL;
         pia->ia_u32MaxConn = pjnacp->jnacp_u32MaxConn;
-        pia->ia_u16PortNumber = pjnacp->jnacp_u16PortNumber;
-        ol_memcpy(&(pia->ia_jiAddr), &(pjnacp->jnacp_jiAddr), sizeof(jf_ipaddr_t));
+        pia->ia_u16PortNumber = pjnacp->jnacp_u16ServerPort;
+        ol_memcpy(&(pia->ia_jiAddr), &(pjnacp->jnacp_jiServer), sizeof(jf_ipaddr_t));
 
         u32Ret = jf_jiukun_allocMemory(
             (void **)&pia->ia_pjnaAsockets,
@@ -372,20 +374,24 @@ u32 jf_network_createAssocket(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(&jnacp, 0, sizeof(jnacp));
+        ol_bzero(&acp, sizeof(acp));
 
-        jnacp.jnacp_sInitialBuf = pjnacp->jnacp_sInitialBuf;
-        jnacp.jnacp_fnOnData = _assOnData;
-        jnacp.jnacp_fnOnDisconnect = _assOnDisconnect;
-        jnacp.jnacp_fnOnSendData = _assOnSendData;
+        acp.acp_sInitialBuf = pjnacp->jnacp_sInitialBuf;
+        acp.acp_fnOnData = _assOnData;
+        acp.acp_fnOnDisconnect = _assOnDisconnect;
+        acp.acp_fnOnSendData = _assOnSendData;
+        strName[JF_NETWORK_MAX_NAME_LEN - 1] = '\0';
+        acp.acp_pstrName = strName;
 
         /*create our socket pool*/
         for (u32Index = 0; 
              ((u32Index < pjnacp->jnacp_u32MaxConn) && (u32Ret == JF_ERR_NO_ERROR));
              u32Index ++)
         {
-            u32Ret = createAsocket(
-                pChain, &pia->ia_pjnaAsockets[u32Index], &jnacp);
+            ol_snprintf(
+                strName, JF_NETWORK_MAX_NAME_LEN - 1, "%s-%d", pjnacp->jnacp_pstrName, u32Index);
+
+            u32Ret = createAsocket(pChain, &pia->ia_pjnaAsockets[u32Index], &acp);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
 #if defined(JIUFENG_64BIT)

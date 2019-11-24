@@ -37,18 +37,22 @@
  *  the timer is started. When the timer is triggered, the connection for the data object is closed
  *  and the data object state is set to FREE.
  */
-#define WEBCLIENT_DATA_OBJECT_IDLE_TIMEOUT    (30)
+#define WEBCLIENT_DATAOBJECT_IDLE_TIMEOUT     (30)
 
 /** This is the number of seconds for FREE state of data object. When the data object enter FREE
  *  state, the timer is started. When the timer is triggered, the data object is destroyed
  */
-#define WEBCLIENT_DATA_OBJECT_FREE_TIMEOUT    (30)
+#define WEBCLIENT_DATAOBJECT_FREE_TIMEOUT     (30)
 
 /** This is the number of times, an HTTP connection will be attempted, before it fails. This module
  *  utilizes an exponential backoff algorithm. That is, it will retry immediately, then it will
  *  retry after 1 second, then 2, then 4, etc.
  */
 #define WEBCLIENT_CONNECT_RETRY_COUNT         (3)
+
+/** The name for acsocket and utimer
+ */
+#define WEBCLIENT_DATAOBJECT_NETWORK_OBJECT_NAME    "webclient-dataobject"
 
 enum pipeline_type
 {
@@ -374,7 +378,7 @@ static u32 _processWebclientRequestDeleteRequest(
 
 /** The timed callback is used to close idle sockets. A socket is considered idle if after a request
  *  is answered, another request isn't received within the time specified by
- *  WEBCLIENT_DATA_OBJECT_IDLE_TIMEOUT
+ *  WEBCLIENT_DATAOBJECT_IDLE_TIMEOUT
  *
  *  @param object [in] the web data object
  */
@@ -462,7 +466,7 @@ static u32 _finishWebclientDataobjectResponse(internal_webclient_dataobject_t * 
         piwd->iwd_u8State = WEBCLIENT_DATAOBJECT_STATE_IDLE;
 
         jf_network_addUtimerItem(
-            piwd->iwd_piwdpPool->iwdp_pjnuUtimer, piwd, WEBCLIENT_DATA_OBJECT_IDLE_TIMEOUT,
+            piwd->iwd_piwdpPool->iwdp_pjnuUtimer, piwd, WEBCLIENT_DATAOBJECT_IDLE_TIMEOUT,
             _webclientDataobjectIdleTimerHandler, NULL);
     }
     else
@@ -894,7 +898,7 @@ static u32 _webclientDataobjectOnDisconnect(
     {
         /*no pending request, set a timer to destroy webclient data object*/
         jf_network_addUtimerItem(
-            piwd->iwd_piwdpPool->iwdp_pjnuUtimer, piwd, WEBCLIENT_DATA_OBJECT_FREE_TIMEOUT,
+            piwd->iwd_piwdpPool->iwdp_pjnuUtimer, piwd, WEBCLIENT_DATAOBJECT_FREE_TIMEOUT,
             _webclientDataOjectFreeTimerHandler, NULL);
     }
 
@@ -1053,6 +1057,8 @@ u32 createWebclientDataobjectPool(
     jf_network_acsocket_create_param_t jnacp;
     internal_webclient_dataobject_pool_t * piwdp = NULL;
 
+    jf_logger_logDebugMsg("create webclient dataobject pool");
+
     u32Ret = jf_jiukun_allocMemory((void **)&piwdp, sizeof(*piwdp));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -1063,12 +1069,8 @@ u32 createWebclientDataobjectPool(
         piwdp->iwdp_u32PoolSize = pwdpcp->wdpcp_u32PoolSize;
         jf_hashtree_init(&piwdp->iwdp_jhDataobject);
 
-        u32Ret = jf_network_createUtimer(pjnc, &piwdp->iwdp_pjnuUtimer);
-    }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        u32Ret = jf_network_appendToChain(pjnc, piwdp);
+        u32Ret = jf_network_createUtimer(
+            pjnc, &piwdp->iwdp_pjnuUtimer, WEBCLIENT_DATAOBJECT_NETWORK_OBJECT_NAME);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -1080,6 +1082,7 @@ u32 createWebclientDataobjectPool(
         jnacp.jnacp_fnOnConnect = _webclientDataobjectOnConnect;
         jnacp.jnacp_fnOnDisconnect = _webclientDataobjectOnDisconnect;
         jnacp.jnacp_fnOnSendData = _webclientDataobjectOnSendData;
+        jnacp.jnacp_pstrName = WEBCLIENT_DATAOBJECT_NETWORK_OBJECT_NAME;
 
         u32Ret = jf_network_createAcsocket(pjnc, &piwdp->iwdp_pjnaAcsocket, &jnacp);
     }

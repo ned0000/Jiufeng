@@ -54,7 +54,7 @@ JF_THREAD_RETURN_VALUE _utThread(void * pArg)
     u32Ret = jf_network_createChain(&ls_pjncUtChain);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_network_createUtimer(ls_pjncUtChain, &ls_pjnuUtUtimer);
+        u32Ret = jf_network_createUtimer(ls_pjncUtChain, &ls_pjnuUtUtimer, "utimer-test");
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

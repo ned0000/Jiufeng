@@ -342,7 +342,7 @@ static u32 _createDongyuanAssocket(internal_dongyuan_t * pid, dongyuan_param_t *
 
     jnacp.jnacp_sInitialBuf = MAX_DONGYUAN_ASSOCKET_BUF_SIZE;
     jnacp.jnacp_u32MaxConn = MAX_DONGYUAN_ASSOCKET_CONN;
-    jf_ipaddr_setUdsAddr(&jnacp.jnacp_jiAddr, SERVMGMT_SERVER_ADDR);
+    jf_ipaddr_setUdsAddr(&jnacp.jnacp_jiServer, SERVMGMT_SERVER_ADDR);
     jnacp.jnacp_fnOnConnect = _onDongyuanConnect;
     jnacp.jnacp_fnOnDisconnect = _onDongyuanDisconnect;
     jnacp.jnacp_fnOnSendData = _onDongyuanSendData;

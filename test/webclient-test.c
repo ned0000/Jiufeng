@@ -198,7 +198,7 @@ static u32 _testWebclient(olint_t argc, olchar_t ** argv)
         u32Ret = jf_process_registerSignalHandlers(_terminate);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_network_createUtimer(ls_pjncChain, &ls_pjnuUtimer);
+        u32Ret = jf_network_createUtimer(ls_pjncChain, &ls_pjnuUtimer, "webclient-test");
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {

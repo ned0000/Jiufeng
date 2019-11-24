@@ -272,8 +272,9 @@ u32 jf_network_createAcsocket(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_acsocket_t * pia = (internal_acsocket_t *) *ppAcsocket;
-    asocket_create_param_t jnacp;
+    asocket_create_param_t acp;
     u32 u32Index;
+    olchar_t strName[JF_NETWORK_MAX_NAME_LEN];
 
     assert((pChain != NULL) && (ppAcsocket != NULL) && (pjnacp != NULL));
     assert((pjnacp->jnacp_sInitialBuf != 0) && (pjnacp->jnacp_u32MaxConn != 0) &&
@@ -281,7 +282,7 @@ u32 jf_network_createAcsocket(
     assert((pjnacp->jnacp_fnOnConnect != NULL) && (pjnacp->jnacp_fnOnData != NULL) &&
            (pjnacp->jnacp_fnOnDisconnect != NULL));
 
-    jf_logger_logInfoMsg("create acsocket");
+    jf_logger_logInfoMsg("create acsocket %s", pjnacp->jnacp_pstrName);
 
     /*create a new acsocket*/
     u32Ret = jf_jiukun_allocMemory((void **)&pia, sizeof(internal_acsocket_t));
@@ -332,20 +333,25 @@ u32 jf_network_createAcsocket(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(&jnacp, 0, sizeof(jnacp));
+        ol_memset(&acp, 0, sizeof(acp));
 
-        jnacp.jnacp_sInitialBuf = pjnacp->jnacp_sInitialBuf;
-        jnacp.jnacp_fnOnData = _acsOnData;
-        jnacp.jnacp_fnOnConnect = _acsOnConnect;
-        jnacp.jnacp_fnOnDisconnect = _acsOnDisconnect;
-        jnacp.jnacp_fnOnSendData = _acsOnSendData;
+        acp.acp_sInitialBuf = pjnacp->jnacp_sInitialBuf;
+        acp.acp_fnOnData = _acsOnData;
+        acp.acp_fnOnConnect = _acsOnConnect;
+        acp.acp_fnOnDisconnect = _acsOnDisconnect;
+        acp.acp_fnOnSendData = _acsOnSendData;
+        strName[JF_NETWORK_MAX_NAME_LEN - 1] = '\0';
+        acp.acp_pstrName = strName;
 
         /*Create our socket pool*/
         for (u32Index = 0; 
              ((u32Index < pjnacp->jnacp_u32MaxConn) && (u32Ret == JF_ERR_NO_ERROR));
              u32Index ++)
         {
-            u32Ret = createAsocket(pChain, &pia->ia_pjnaAsockets[u32Index], &jnacp);
+            ol_snprintf(
+                strName, JF_NETWORK_MAX_NAME_LEN - 1, "%s-%d", pjnacp->jnacp_pstrName, u32Index);
+
+            u32Ret = createAsocket(pChain, &pia->ia_pjnaAsockets[u32Index], &acp);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
 #if defined(JIUFENG_64BIT)
@@ -429,8 +435,7 @@ u32 jf_network_connectAcsocketTo(
     acsocket_data_t * pad;
     u32 u32Index;
 
-    /*Check to see if we have available resources to handle this connection
-      request*/
+    /*Check to see if we have available resources to handle this connection request*/
     jf_mutex_acquire(&pia->ia_jmAsocket);
     u32Index = jf_listarray_getNode(pia->ia_pjlAsocket);
     jf_mutex_release(&pia->ia_jmAsocket);
@@ -442,8 +447,7 @@ u32 jf_network_connectAcsocketTo(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /*Instantiate a acsocket_data_t to contain all the data about this
-          connection*/
+        /*Instantiate a acsocket_data_t to contain all the data about this connection*/
         pad = &pia->ia_padData[u32Index];
         pad->ad_iaAcsocket = pAcsocket;
         pad->ad_pUser = pUser;

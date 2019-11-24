@@ -52,6 +52,9 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
+/** Maximum name length for socket and utimer
+ */
+#define JF_NETWORK_MAX_NAME_LEN     (32)
 
 /* --- data structures -------------------------------------------------------------------------- */
 #if defined(LINUX)
@@ -136,11 +139,10 @@ typedef u32 (* jf_network_fnAssocketOnConnect_t)(
 
 /** The function is to notify upper layer a connection is closed.
  *
- *  @note The access to the asocket being closed is not recommended.
- *  @note DO NOT use asDisconnect in this callback function as asocket can
- *   handle it by itself.
+ *  @note The access to the asocket being closed is not allowed.
+ *  @note DO NOT use asDisconnect in this callback function as the connection is closed already
  *
- *  @param u32Status [in] the reason why the connection is closed
+ *  @param u32Status [out] the reason why the connection is closed
  */
 typedef u32 (* jf_network_fnAssocketOnDisconnect_t)(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
@@ -158,10 +160,11 @@ typedef struct
     olsize_t jnacp_sInitialBuf;
     /**The max number of simultaneous connections that will be allowed*/
     u32 jnacp_u32MaxConn;
-    u8 jnacp_u8Reserved[2];
+    u32 jnacp_u32Reserved;
+    jf_ipaddr_t jnacp_jiServer;
     /**The port number to bind to. 0 will select a random port*/
-    u16 jnacp_u16PortNumber;
-    jf_ipaddr_t jnacp_jiAddr;
+    u16 jnacp_u16ServerPort;
+    u16 jnacp_u16Reserved[3];
     /**Function that triggers when a connection is established*/
     jf_network_fnAssocketOnConnect_t jnacp_fnOnConnect;
     /**Function that triggers when a connection is closed*/
@@ -170,7 +173,7 @@ typedef struct
     jf_network_fnAssocketOnData_t jnacp_fnOnData;
     /**Function that triggers when pending sends are complete*/
     jf_network_fnAssocketOnSendData_t jnacp_fnOnSendData;
-    u32 jnacp_u32Reserved2[4];
+    olchar_t * jnacp_pstrName;
 } jf_network_assocket_create_param_t;
 
 /** async client socket
@@ -222,6 +225,7 @@ typedef struct
     jf_network_fnAcsocketOnData_t jnacp_fnOnData;
     /**Function that triggers when pending sends are complete*/
     jf_network_fnAcsocketOnSendData_t jnacp_fnOnSendData;
+    olchar_t * jnacp_pstrName;
 } jf_network_acsocket_create_param_t;
 
 
@@ -499,11 +503,12 @@ NETWORKAPI u32 NETWORKCALL jf_network_destroyUtimer(jf_network_utimer_t ** ppUti
  *
  *  @param pChain [in] the chain to add the utimer to 
  *  @param ppUtimer [out] the utimer
+ *  @param pstrName [in] the name of the utimer object
  *
  *  @return the error code
  */
 NETWORKAPI u32 NETWORKCALL jf_network_createUtimer(
-    jf_network_chain_t * pChain, jf_network_utimer_t ** ppUtimer);
+    jf_network_chain_t * pChain, jf_network_utimer_t ** ppUtimer, const olchar_t * pstrName);
 
 NETWORKAPI void NETWORKCALL jf_network_dumpUtimerItem(jf_network_utimer_t * pUtimer);
 

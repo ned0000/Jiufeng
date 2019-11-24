@@ -387,7 +387,7 @@ static u32 _initServMgmt(internal_serv_mgmt_t * pism, serv_mgmt_init_param_t * p
         u32Ret = jf_mutex_init(&pism->ism_jmLock);
     
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_network_createUtimer(psmip->smip_pjncChain, &pism->ism_pjnuUtimer);
+        u32Ret = jf_network_createUtimer(psmip->smip_pjncChain, &pism->ism_pjnuUtimer, "dongyuan");
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _startAllServices(pism);

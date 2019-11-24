@@ -54,13 +54,13 @@ typedef u32 (* fnAsocketOnSendData_t)(
 
 typedef struct
 {
-    olsize_t jnacp_sInitialBuf;
-    u32 jnacp_u32Reserved;
-    fnAsocketOnData_t jnacp_fnOnData;
-    fnAsocketOnConnect_t jnacp_fnOnConnect;
-    fnAsocketOnDisconnect_t jnacp_fnOnDisconnect;
-    fnAsocketOnSendData_t jnacp_fnOnSendData;
-    /*do not read data*/
+    olsize_t acp_sInitialBuf;
+    u32 acp_u32Reserved;
+    fnAsocketOnData_t acp_fnOnData;
+    fnAsocketOnConnect_t acp_fnOnConnect;
+    fnAsocketOnDisconnect_t acp_fnOnDisconnect;
+    fnAsocketOnSendData_t acp_fnOnSendData;
+    olchar_t * acp_pstrName;
     u8 jnacp_u8Reserved[16];
 } asocket_create_param_t;
 
@@ -74,13 +74,12 @@ typedef struct
  *
  *  @param pChain [in] the chain object to add the asocket
  *  @param ppAsocket [in/out] the asocket object created
- *  @param pjnacp [in] the parameter for creating the asocket
+ *  @param pacp [in] the parameter for creating the asocket
  *
  *  @return the error code
  */
 u32 createAsocket(
-    jf_network_chain_t * pChain, jf_network_asocket_t ** ppAsocket,
-    asocket_create_param_t * pjnacp);
+    jf_network_chain_t * pChain, jf_network_asocket_t ** ppAsocket, asocket_create_param_t * pacp);
 
 /** Destroy asocket object
  *

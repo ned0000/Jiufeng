@@ -47,6 +47,8 @@ typedef struct
 
     jf_network_socket_t * ia_pjnsSocket;
 
+    olchar_t ia_strName[JF_NETWORK_MAX_NAME_LEN];
+
     jf_ipaddr_t ia_iaRemote;
     u16 ia_u16RemotePort;
     u16 is_u16Reserved3;
@@ -364,14 +366,15 @@ u32 destroyAdgram(jf_network_adgram_t ** ppAdgram)
 }
 
 u32 createAdgram(
-    jf_network_chain_t * pChain, jf_network_adgram_t ** ppAdgram,
-    adgram_create_param_t * pjnacp)
+    jf_network_chain_t * pChain, jf_network_adgram_t ** ppAdgram, adgram_create_param_t * pacp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_adgram_t * pia = NULL;
 
-    assert((pChain != NULL) && (pjnacp != NULL) && (ppAdgram != NULL));
-    assert((pjnacp->jnacp_fnOnData != NULL));
+    assert((pChain != NULL) && (pacp != NULL) && (ppAdgram != NULL));
+    assert((pacp->acp_fnOnData != NULL));
+
+    jf_logger_logDebugMsg("create adgram %s", pacp->acp_pstrName);
 
     u32Ret = jf_jiukun_allocMemory((void **)&pia, sizeof(internal_adgram_t));
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -381,22 +384,23 @@ u32 createAdgram(
         pia->ia_jncohHeader.jncoh_fnPostSelect = _postSelectAdgram;
         pia->ia_pjnsSocket = NULL;
         pia->ia_pjncChain = pChain;
-        pia->ia_sMalloc = pjnacp->jnacp_sInitialBuf;
-        pia->ia_pUser = pjnacp->jnacp_pUser;
-        pia->ia_fnOnData = pjnacp->jnacp_fnOnData;
-        pia->ia_fnOnSendData = pjnacp->jnacp_fnOnSendData;
+        pia->ia_sMalloc = pacp->acp_sInitialBuf;
+        pia->ia_pUser = pacp->acp_pUser;
+        pia->ia_fnOnData = pacp->acp_fnOnData;
+        pia->ia_fnOnSendData = pacp->acp_fnOnSendData;
         if (pia->ia_fnOnSendData == NULL)
             pia->ia_fnOnSendData = _onAdgramSendData;
         jf_listhead_init(&pia->ia_jlSendData);
         jf_listhead_init(&pia->ia_jlWaitData);
+        ol_strncpy(pia->ia_strName, pacp->acp_pstrName, JF_NETWORK_MAX_NAME_LEN - 1);
 
         u32Ret = jf_jiukun_allocMemory(
-            (void **)&(pia->ia_pu8Buffer), pjnacp->jnacp_sInitialBuf);
+            (void **)&(pia->ia_pu8Buffer), pacp->acp_sInitialBuf);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_network_createUtimer(pChain, &(pia->ia_pjnuUtimer));
+        u32Ret = jf_network_createUtimer(pChain, &pia->ia_pjnuUtimer, pia->ia_strName);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
