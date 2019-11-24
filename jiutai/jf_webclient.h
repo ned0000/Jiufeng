@@ -43,10 +43,11 @@ typedef enum jf_webclient_event
 {
     JF_WEBCLIENT_EVENT_UNKNOWN = 0,
     JF_WEBCLIENT_EVENT_INCOMING_DATA,
-    JF_WEBCLIENT_EVENT_WEB_REQUEST_DELETED,
+    JF_WEBCLIENT_EVENT_HTTP_REQ_DELETED,
 } jf_webclient_event_t;
 
 /* --- data structures -------------------------------------------------------------------------- */
+
 typedef struct
 {
     /** number of connection in pool */
@@ -72,7 +73,7 @@ typedef u32 (* jf_webclient_fnOnEvent_t)(
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_create(
     jf_network_chain_t * pjnc, jf_webclient_t ** ppWebclient, jf_webclient_create_param_t * pjwcp);
 
-/** Queues a new web request
+/** Send a http message in packet format
  *
  *  This method differs from pipelineWebRequest, in that this method
  *  allows you to directly specify the buffers, rather than a packet structure
@@ -86,11 +87,11 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_create(
  *
  *  @return the error code
  */
-WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequest(
+WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_sendHttpPacket(
     jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port,
     jf_httpparser_packet_header_t * pjhph, jf_webclient_fnOnEvent_t fnOnEvent, void * pUser);
 
-/** Queues a new web request
+/** Send a http message with header and body
  *
  *  This method differs from pipelineWebRequest, in that this method
  *  allows you to directly specify the buffers, rather than a packet structure
@@ -107,7 +108,7 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequest(
  *
  *  @return the error code
  */
-WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequestEx(
+WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_sendHttpHeaderAndBody(
     jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port, olchar_t * pstrHeader,
     olsize_t sHeader, olchar_t * pstrBody, olsize_t sBody,
     jf_webclient_fnOnEvent_t fnOnEvent, void * pUser);
@@ -120,7 +121,7 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_pipelineWebRequestEx(
  *
  *  @return the error code
  */
-WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_deleteWebRequests(
+WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_deleteRequest(
     jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port);
 
 /** Destory webclient object

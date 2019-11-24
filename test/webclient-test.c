@@ -171,7 +171,7 @@ static u32 _getSinaQuotation(void * object)
         "\r\n", ls_pstrQuotationServer);
 
 #endif
-    u32Ret = jf_webclient_pipelineWebRequestEx(
+    u32Ret = jf_webclient_sendHttpHeaderAndBody(
         ls_pwWebclient, &ls_jiServerAddr, 80, buffer, len, NULL, 0, _wcTestOnResponse, NULL);
 
 //    jf_network_addUtimerItem(ls_pjnuUtimer, NULL, 30, _getSinaQuotation, NULL);
@@ -211,7 +211,7 @@ static u32 _testWebclient(olint_t argc, olchar_t ** argv)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_network_addUtimerItem(ls_pjnuUtimer, NULL, 5, _getSinaQuotation, NULL);
+        jf_network_addUtimerItem(ls_pjnuUtimer, ls_pjncChain, 5, _getSinaQuotation, NULL);
 
         jf_network_startChain(ls_pjncChain);
 

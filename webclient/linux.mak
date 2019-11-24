@@ -12,7 +12,7 @@
 
 SONAME = jf_webclient
 
-SOURCES = webclient.c
+SOURCES = common.c dataobject.c webclient.c
 
 JIUTAI_SRCS = jf_hashtree.c jf_queue.c jf_mutex.c jf_hex.c
 
