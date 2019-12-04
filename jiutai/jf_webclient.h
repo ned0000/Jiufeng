@@ -35,6 +35,7 @@
 #endif
 
 /* --- constant definitions --------------------------------------------------------------------- */
+
 typedef void  jf_webclient_t;
 
 /** The possible value for nEvent in function jf_webclient_fnOnEvent_t

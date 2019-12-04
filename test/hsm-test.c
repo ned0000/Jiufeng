@@ -214,7 +214,7 @@ static void _printEvent(jf_hsm_event_t * pEvent)
     }
 }
 
-static u32 _hsmTestOnEntry(jf_hsm_state_id_t stateId)
+static u32 _hsmTestOnEntry(jf_hsm_state_id_t stateId, jf_hsm_event_t * pEvent)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t buffer[64];
@@ -226,7 +226,7 @@ static u32 _hsmTestOnEntry(jf_hsm_state_id_t stateId)
     return u32Ret;
 }
 
-static u32 _hsmTestOnExit(jf_hsm_state_id_t stateId)
+static u32 _hsmTestOnExit(jf_hsm_state_id_t stateId, jf_hsm_event_t * pEvent)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t buffer[64];

@@ -12,9 +12,9 @@
 
 SONAME = jf_webclient
 
-SOURCES = common.c dataobject.c webclient.c
+SOURCES = common.c webclientrequest.c dataobjectpool.c webclient.c
 
-JIUTAI_SRCS = jf_hashtree.c jf_queue.c jf_mutex.c jf_hex.c
+JIUTAI_SRCS = jf_hashtree.c jf_queue.c jf_mutex.c jf_hex.c jf_hsm.c
 
 EXTRA_LIBS = -ljf_httpparser -ljf_network -ljf_string -ljf_jiukun -ljf_logger
 

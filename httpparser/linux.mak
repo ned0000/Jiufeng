@@ -12,7 +12,7 @@
 
 SONAME = jf_httpparser
 
-SOURCES = httpparser.c
+SOURCES = httpparser.c chunkprocessor.c dataobject.c
 
 EXTRA_LIBS = -ljf_string -ljf_jiukun
 

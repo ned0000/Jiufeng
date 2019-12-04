@@ -1,8 +1,7 @@
 /**
  *  @file jf_httpparser.h
  *
- *  @brief http parser header file, provide some functional routine to parse
- *   http packet
+ *  @brief Http parser header file, provide some functional routine to parse http packet
  *
  *  @author Min Zhang
  *
@@ -44,7 +43,10 @@ typedef enum jf_httpparser_transfer_encoding
 
 typedef void  jf_httpparser_chunk_processor_t;
 
+typedef void  jf_httpparser_dataobject_t;
+
 /* --- data structures -------------------------------------------------------------------------- */
+
 typedef struct jf_httpparser_packet_header_field
 {
     olchar_t * jhphf_pstrName;
@@ -81,7 +83,6 @@ typedef struct jf_httpparser_packet_header
     jf_httpparser_packet_header_field_t * jhph_pjhphfFirst;
     jf_httpparser_packet_header_field_t * jhph_pjhphfLast;
 } jf_httpparser_packet_header_t;
-
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
@@ -255,6 +256,36 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_createChunkProcessor(
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_processChunk(
     jf_httpparser_chunk_processor_t * pProcessor, jf_httpparser_packet_header_t * pjhph,
     u8 * buffer, olsize_t * psBeginPointer, olsize_t endPointer);
+
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_createtDataobject(
+    jf_httpparser_dataobject_t ** ppDataobject, olsize_t sBuffer);
+
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyDataobject(
+    jf_httpparser_dataobject_t ** ppDataobject);
+
+/** Process data for data object
+ *
+ *  @param pDataobject [in] the data object
+ *  @param pu8Buffer [in] the receive buffer
+ *  @param psBeginPointer [in/out] the start pointer pointing to the data in buffer
+ *  @param sEndPointer [in] the end pointer of the data
+ *
+ *  @return the error code
+ */
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_processDataobject(
+    jf_httpparser_dataobject_t * pDataobject, u8 * pu8Buffer, olsize_t * psBeginPointer,
+    olsize_t sEndPointer);
+
+/** Reinit the data object so it can handle data again
+ *
+ *  @param pDataobject [in] the httparser data object
+ */
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_reinitDataobject(
+    jf_httpparser_dataobject_t * pDataobject);
+
+HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getDataobjectFullPacket(
+    jf_httpparser_dataobject_t * pDataobject, boolean_t * bFullPacket,
+    jf_httpparser_packet_header_t ** ppPacket);
 
 #endif /*JIUFENG_HTTPPARSER_H*/
 

@@ -1,21 +1,22 @@
 /**
- *  @file webclient/dataobject.h
+ *  @file webclient/dataobjectpool.h
  *
- *  @brief Header file for webclient data object
+ *  @brief Header file for webclient data object pool
  *
  *  @author Min Zhang
  *
  *  @note
  */
 
-#ifndef WEBCLIENT_DATAOBJECT_H
-#define WEBCLIENT_DATAOBJECT_H
+#ifndef WEBCLIENT_DATAOBJECT_POOL_H
+#define WEBCLIENT_DATAOBJECT_POOL_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_network.h"
+#include "webclientrequest.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
@@ -24,8 +25,6 @@
 typedef void  webclient_dataobject_pool_t;
 
 typedef void  webclient_dataobject_t;
-
-typedef void  webclient_request_t;
 
 typedef struct
 {
@@ -37,18 +36,8 @@ typedef struct
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-u32 createWebclientRequestSendData(
-    webclient_dataobject_pool_t * pPool, webclient_request_t ** ppRequest, u8 ** ppu8Data,
-    olsize_t * psData, u16 u16Num, jf_ipaddr_t * pjiRemote, u16 u16Port,
-    jf_webclient_fnOnEvent_t fnOnEvent, void * user);
-
-u32 createWebclientRequestDeleteRequest(
-    webclient_dataobject_pool_t * pPool, webclient_request_t ** ppRequest, jf_ipaddr_t * pjiRemote,
-    u16 u16Port);
-
-u32 processWebclientRequest(webclient_dataobject_pool_t * pPool, webclient_request_t * request);
-
-u32 destroyWebclientRequest(webclient_request_t ** ppRequest);
+u32 processWebclientRequest(
+    webclient_dataobject_pool_t * pPool, internal_webclient_request_t * piwr);
 
 u32 destroyWebclientDataobjectPool(webclient_dataobject_pool_t ** ppPool);
 
@@ -56,7 +45,7 @@ u32 createWebclientDataobjectPool(
     jf_network_chain_t * pjnc, webclient_dataobject_pool_t ** ppPool,
     webclient_dataobject_pool_create_param_t * pwdpcp);
 
-#endif /*WEBCLIENT_DATAOBJECT_H*/
+#endif /*WEBCLIENT_DATAOBJECT_POOL_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

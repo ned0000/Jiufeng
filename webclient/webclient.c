@@ -28,7 +28,8 @@
 #include "jf_hashtree.h"
 #include "jf_queue.h"
 #include "jf_datavec.h"
-#include "dataobject.h"
+#include "dataobjectpool.h"
+#include "webclientrequest.h"
 #include "common.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -58,26 +59,27 @@ typedef struct internal_webclient
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _enqueueWebclientRequestToQueue(internal_webclient_t * piw, webclient_request_t * pwr)
+static u32 _enqueueWebclientRequestToQueue(
+    internal_webclient_t * piw, internal_webclient_request_t * piwr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     jf_mutex_acquire(&piw->iw_jmReqeustQueueLock);
-    jf_queue_enqueue(&piw->iw_jqReqeustQueue, pwr);
+    jf_queue_enqueue(&piw->iw_jqReqeustQueue, piwr);
     jf_mutex_release(&piw->iw_jmReqeustQueueLock);
 
     return u32Ret;
 }
 
-static webclient_request_t * _dequeueWebclientRequestFromQueue(internal_webclient_t * piw)
+static internal_webclient_request_t * _dequeueWebclientRequestFromQueue(internal_webclient_t * piw)
 {
-    webclient_request_t * pwr = NULL;
+    internal_webclient_request_t * piwr = NULL;
 
     jf_mutex_acquire(&piw->iw_jmReqeustQueueLock);
-    pwr = jf_queue_dequeue(&piw->iw_jqReqeustQueue);
+    piwr = jf_queue_dequeue(&piw->iw_jqReqeustQueue);
     jf_mutex_release(&piw->iw_jmReqeustQueueLock);
 
-    return pwr;
+    return piwr;
 }
 
 static boolean_t _isEmptyWebclientRequestQueue(internal_webclient_t * piw)
@@ -106,16 +108,16 @@ static u32 _preWebclientProcess(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_t * piw = (internal_webclient_t *) pWebclient;
-    webclient_request_t * pwr = NULL;
+    internal_webclient_request_t * piwr = NULL;
 
     jf_logger_logDebugMsg("pre webclient");
 
-    pwr = _dequeueWebclientRequestFromQueue(piw);
-    while ((pwr != NULL) && (u32Ret == JF_ERR_NO_ERROR))
+    piwr = _dequeueWebclientRequestFromQueue(piw);
+    while ((piwr != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        u32Ret = processWebclientRequest(piw->iw_pwdpPool, pwr);
+        u32Ret = processWebclientRequest(piw->iw_pwdpPool, piwr);
         if (u32Ret == JF_ERR_NO_ERROR)
-            pwr = _dequeueWebclientRequestFromQueue(piw);
+            piwr = _dequeueWebclientRequestFromQueue(piw);
     }
 
     return u32Ret;
@@ -132,6 +134,15 @@ static boolean_t _isWakeupChainRequired(internal_webclient_t * piw)
     return bWakeup;
 }
 
+static u32 _fnCallbackDestroyWebclientRequest(void ** ppData)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    u32Ret = destroyWebclientRequest((internal_webclient_request_t **)ppData);
+
+    return u32Ret;
+}
+
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_webclient_destroy(jf_webclient_t ** ppWebclient)
@@ -142,7 +153,7 @@ u32 jf_webclient_destroy(jf_webclient_t ** ppWebclient)
     if (piw->iw_pwdpPool != NULL)
         destroyWebclientDataobjectPool(&piw->iw_pwdpPool);
 
-    jf_queue_finiQueueAndData(&piw->iw_jqReqeustQueue, destroyWebclientRequest);
+    jf_queue_finiQueueAndData(&piw->iw_jqReqeustQueue, _fnCallbackDestroyWebclientRequest);
     jf_mutex_fini(&piw->iw_jmReqeustQueueLock);
 
     jf_jiukun_freeMemory((void **)ppWebclient);
@@ -199,7 +210,7 @@ u32 jf_webclient_sendHttpPacket(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_t * piw = (internal_webclient_t *) pWebClient;
-    webclient_request_t * pwr = NULL;
+    internal_webclient_request_t * piwr = NULL;
     u8 * pu8Data[1] = {NULL};
     olsize_t sData[1];
     boolean_t bWakeup = FALSE;
@@ -210,14 +221,14 @@ u32 jf_webclient_sendHttpPacket(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = createWebclientRequestSendData(
-            piw->iw_pwdpPool, &pwr, pu8Data, sData, 1, pjiRemote, u16Port, fnOnEvent, user);
+            &piwr, pu8Data, sData, 1, pjiRemote, u16Port, fnOnEvent, user);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         bWakeup = _isWakeupChainRequired(piw);
 
-        u32Ret = _enqueueWebclientRequestToQueue(piw, pwr);
+        u32Ret = _enqueueWebclientRequestToQueue(piw, piwr);
     }
 
     if ((u32Ret == JF_ERR_NO_ERROR) && bWakeup)
@@ -238,7 +249,7 @@ u32 jf_webclient_sendHttpHeaderAndBody(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_t * piw = (internal_webclient_t *) pWebclient;
-    webclient_request_t * pwr = NULL;
+    internal_webclient_request_t * piwr = NULL;
     u16 u16NumOfData;
     u8 * pu8Data[2];
     olsize_t sData[2];
@@ -261,13 +272,13 @@ u32 jf_webclient_sendHttpHeaderAndBody(
     }
 
     u32Ret = createWebclientRequestSendData(
-        piw->iw_pwdpPool, &pwr, pu8Data, sData, u16NumOfData, pjiRemote, u16Port, fnOnEvent, user);
+        &piwr, pu8Data, sData, u16NumOfData, pjiRemote, u16Port, fnOnEvent, user);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         bWakeup = _isWakeupChainRequired(piw);
 
-        u32Ret = _enqueueWebclientRequestToQueue(piw, pwr);
+        u32Ret = _enqueueWebclientRequestToQueue(piw, piwr);
     }
 
     if ((u32Ret == JF_ERR_NO_ERROR) && bWakeup)
@@ -283,15 +294,15 @@ u32 jf_webclient_deleteRequest(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_t * piw = (internal_webclient_t *) pWebclient;
-    webclient_request_t * pwr = NULL;
+    internal_webclient_request_t * piwr = NULL;
     boolean_t bWakeup = FALSE;
 
-    u32Ret = createWebclientRequestDeleteRequest(piw->iw_pwdpPool, &pwr, pjiRemote, u16Port);
+    u32Ret = createWebclientRequestDeleteRequest(&piwr, pjiRemote, u16Port);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         bWakeup = _isWakeupChainRequired(piw);
 
-        u32Ret = _enqueueWebclientRequestToQueue(piw, pwr);
+        u32Ret = _enqueueWebclientRequestToQueue(piw, piwr);
     }
 
     if ((u32Ret == JF_ERR_NO_ERROR) && bWakeup)

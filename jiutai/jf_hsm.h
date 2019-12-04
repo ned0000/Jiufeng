@@ -7,14 +7,8 @@
  *
  *  @note Link with jf_jiukun library for memory allocation
  *  @note This object is not thread safe
- *  @note The procedure for state transition \n
- *   if ((fnEventGuard == NULL) || fnEventGuard())         \n
- *   {                           \n
- *       fnEventAction()         \n
- *       fnOnExit(old-state)     \n
- *       state = new-state       \n
- *       fnOnEntry(new-state)    \n
- *   }                           \n
+ *  @note Refer to manual in doc/hsm.txt for the usage
+ *
  */
 
 #ifndef JIUTAI_HSM_H
@@ -48,13 +42,16 @@ typedef struct jf_hsm_event
 {
     jf_hsm_event_id_t jhe_jheiEventId;
     void * jhe_pData;
+    void * jhe_pDataEx;
 } jf_hsm_event_t;
 
 typedef boolean_t (* jf_hsm_fnEventGuard_t)(jf_hsm_event_t * pEvent);
 typedef u32 (* jf_hsm_fnEventAction_t)(jf_hsm_event_t * pEvent);
-typedef u32 (*jf_hsm_fnOnEntry)(jf_hsm_state_id_t stateId);
-typedef u32 (*jf_hsm_fnOnExit)(jf_hsm_state_id_t stateId);
+typedef u32 (*jf_hsm_fnOnEntry)(jf_hsm_state_id_t stateId, jf_hsm_event_t * pEvent);
+typedef u32 (*jf_hsm_fnOnExit)(jf_hsm_state_id_t stateId, jf_hsm_event_t * pEvent);
 
+/** The state transition data structure. 
+ */
 typedef struct jf_hsm_transition
 {
     /**Current state id*/
@@ -65,7 +62,8 @@ typedef struct jf_hsm_transition
     jf_hsm_fnEventGuard_t jht_fnGuard;
     /**Action function*/
     jf_hsm_fnEventAction_t jht_fnAction;
-    /**Next state id*/
+    /**Next state id, if next state id is JF_HSM_LAST_EVENT_ID, no state transition and the
+       callback function fnOnEntry and fnOnExit are not called*/
     jf_hsm_state_id_t jht_jhsiNextStateId;
 } jf_hsm_transition_t;
 
@@ -78,7 +76,7 @@ u32 jf_hsm_create(
 
 u32 jf_hsm_destroy(jf_hsm_t ** ppHsm);
 
-/** Set the transition table for the state
+/** Set the transition table for the specified state
  *
  *  @param pHsm [in] the pointer to hsm object
  *  @param stateId [in] the state id for the transition table
@@ -88,7 +86,6 @@ u32 jf_hsm_destroy(jf_hsm_t ** ppHsm);
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  *
- *  @note getResourceFromPool must be called successfully before this func is called.
  */
 u32 jf_hsm_addStateTransition(
     jf_hsm_t * pHsm, jf_hsm_state_id_t stateId, jf_hsm_transition_t * pTransition,
@@ -101,6 +98,15 @@ u32 jf_hsm_addStateCallback(
 jf_hsm_state_id_t jf_hsm_getCurrentStateId(jf_hsm_t * pjh);
 
 u32 jf_hsm_processEvent(jf_hsm_t * pjh, jf_hsm_event_t * pEvent);
+
+static inline void jf_hsm_initEvent(
+    jf_hsm_event_t * pEvent, jf_hsm_event_id_t eventId, void * pData, void * pDataEx)
+{
+    pEvent->jhe_jheiEventId = eventId;
+    pEvent->jhe_pData = pData;
+    pEvent->jhe_pDataEx = pDataEx;
+}
+
 
 #endif /*JIUTAI_HSM_H*/
 

@@ -209,14 +209,55 @@ static u32 _getInternalHsmStateCallback(
     return u32Ret;
 }
 
+inline static u32 _executeHsmStateAction(jf_hsm_transition_t * pjht, jf_hsm_event_t * pEvent)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    if (pjht->jht_fnAction != NULL)
+        u32Ret = pjht->jht_fnAction(pEvent);
+
+    return u32Ret;
+}
+
+inline static u32 _postHsmStateTransition(
+    internal_hsm_t * pih, internal_hsm_state_transition_table_t * pihstt,
+    jf_hsm_event_t * pEvent, jf_hsm_transition_t * pjht)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_hsm_state_callback_t * pihsc = NULL;
+    internal_hsm_state_transition_table_t * pihsttNew = NULL;
+
+    if ((pjht->jht_jhsiNextStateId != JF_HSM_LAST_EVENT_ID) &&
+        (pjht->jht_jhsiNextStateId != pjht->jht_jhsiCurrentStateId))
+    {
+        /*execute the callback function for exiting the old state*/
+        _getInternalHsmStateCallback(pih, pihstt->ihstt_jhsiCurrentStateId, &pihsc);
+        if (pihsc != NULL)
+            pihsc->ihsc_fnOnExit(pihsc->ihsc_jhsiStateId, pEvent);
+
+        /*transit to next state*/
+        pihstt->ihstt_jhsiCurrentStateId = pjht->jht_jhsiNextStateId;
+
+        /*execute the callback function for entering the new state*/
+        _getInternalHsmStateCallback(pih, pihstt->ihstt_jhsiCurrentStateId, &pihsc);
+        if (pihsc != NULL)
+            pihsc->ihsc_fnOnEntry(pihsc->ihsc_jhsiStateId, pEvent);
+
+        /*set current state to initial state if the new state has lower level state transition table*/
+        _getInternalHsmStateTransitionTable(pih, pihstt->ihstt_jhsiCurrentStateId, &pihsttNew);
+        if (pihsttNew != NULL)
+            pihsttNew->ihstt_jhsiCurrentStateId = pihsttNew->ihstt_jhsiInitialStateId;
+    }
+
+    return u32Ret;
+}
+
 static u32 _processHsmEvent(
     internal_hsm_t * pih, internal_hsm_state_transition_table_t * pihstt,
     jf_hsm_event_t * pEvent, boolean_t * pbHit)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_hsm_transition_t * pjht = NULL;
-    internal_hsm_state_callback_t * pihsc = NULL;
-    internal_hsm_state_transition_table_t * pihsttNew = NULL;
 
     pjht = pihstt->ihstt_jhtTransition;
     while (pjht->jht_jheiEventId != JF_HSM_LAST_EVENT_ID)
@@ -229,25 +270,9 @@ static u32 _processHsmEvent(
             if ((pjht->jht_fnGuard == NULL) || pjht->jht_fnGuard(pEvent))
             {
                 /*execute the callback action function*/
-                u32Ret = pjht->jht_fnAction(pEvent);
+                u32Ret = _executeHsmStateAction(pjht, pEvent);
 
-                /*execute the callback function for exiting the old state*/
-                _getInternalHsmStateCallback(pih, pihstt->ihstt_jhsiCurrentStateId, &pihsc);
-                if (pihsc != NULL)
-                    pihsc->ihsc_fnOnExit(pihsc->ihsc_jhsiStateId);
-
-                /*transit to next state*/
-                pihstt->ihstt_jhsiCurrentStateId = pjht->jht_jhsiNextStateId;
-
-                /*execute the callback function for entering the new state*/
-                _getInternalHsmStateCallback(pih, pihstt->ihstt_jhsiCurrentStateId, &pihsc);
-                if (pihsc != NULL)
-                    pihsc->ihsc_fnOnEntry(pihsc->ihsc_jhsiStateId);
-                /*set current state to initial state if the new state has lower level state
-                  transition table*/
-                _getInternalHsmStateTransitionTable(pih, pihstt->ihstt_jhsiCurrentStateId, &pihsttNew);
-                if (pihsttNew != NULL)
-                    pihsttNew->ihstt_jhsiCurrentStateId = pihsttNew->ihstt_jhsiInitialStateId;
+                _postHsmStateTransition(pih, pihstt, pEvent, pjht);
 
                 break;
             }
@@ -417,6 +442,8 @@ u32 jf_hsm_addStateCallback(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_hsm_t * pih = (internal_hsm_t *)pHsm;
     internal_hsm_state_callback_t * pihsc = NULL;
+
+    assert((fnOnEntry != NULL) && (fnOnEntry != NULL));
 
     u32Ret = _getInternalHsmStateCallback(pih, stateId, &pihsc);
     if (u32Ret == JF_ERR_NO_ERROR)
