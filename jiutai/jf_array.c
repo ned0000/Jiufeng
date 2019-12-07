@@ -1,7 +1,7 @@
 /**
  *  @file jf_array.c
  *
- *  @brief basic array implementation
+ *  @brief Implementation for array object.
  *
  *  @author Min Zhang
  *

@@ -38,11 +38,11 @@ u32 jf_archive_create(
     jf_linklist_t * pMemberFile, olchar_t * pstrArchiveName, jf_archive_create_param_t * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u8 * pu8Fullpath;
-    u8 * pu8Buffer;
+    u8 * pu8Fullpath = NULL;
+    u8 * pu8Buffer = NULL;
     ar_file_param_t afp;
     ar_file_t * paf = NULL;
-	jf_linklist_node_t * pNode;
+	jf_linklist_node_t * pNode = NULL;
 
     assert((pMemberFile != NULL) && (pstrArchiveName != NULL) && (pParam != NULL));
 

@@ -1,14 +1,15 @@
 /**
  *  @file jf_array.h
  *
- *  @brief Basic array header file. The array element can be the pointer to any type of data
+ *  @brief Array header file which declares routines for array operation.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_array object
- *  @note It is NOT thread safe. The caller should provide synchronization for the array if
- *   necessary
- *  @note Link with jf_jiukun library
+ *  @note
+ *  -# Routines declared in this file are included in jf_array object.
+ *  -# It is NOT thread safe. The caller should provide synchronization for the array if necessary.
+ *  -# Link with jf_jiukun library for memory allocation.
+ *  -# The array element can be the pointer to any type of data.
  */
 
 #ifndef JIUTAI_ARRAY_H
@@ -23,44 +24,166 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
+/** Define the array element data type.
+ */
 typedef void jf_array_element_t;
+
+/** Define the array data type.
+ */
 typedef void jf_array_t;;
 
+/** Define the function data type which is used to destroy element.
+ */
 typedef u32 (* jf_array_fnDestroyElement_t)(jf_array_element_t ** ppjae);
 
+/** Define the function data type which is used to find element. If the return value is TRUE, the
+ *  element is found.
+ */
 typedef boolean_t (* jf_array_fnFindElement_t)(jf_array_element_t * pjae, void * pKey);
 
+/** Define the function data type which is used to do operation on element.
+ */
 typedef u32 (* jf_array_fnOpOnElement_t)(jf_array_element_t * pjae, void * pData);
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+/** Create array.
+ *
+ *  @param ppja [out] the pointer to the array
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY out of memory
+ */
 u32 jf_array_create(jf_array_t ** ppja);
 
+/** Destroy array.
+ *
+ *  @param ppja [in/out] the pointer to the array
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ */
 u32 jf_array_destroy(jf_array_t ** ppja);
 
+/** Get array size.
+ *
+ *  @param pja [in] the pointer to the array
+ *
+ *  @return the array size
+ */
 u32 jf_array_getSize(jf_array_t * pja);
 
+/** Get element of array at specified position.
+ *
+ *  @param pja [in] the pointer to the array
+ *  @param u32Index [in] the position of the element
+ *  @param ppjae [out] the pointer to the array element
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_OUT_OF_RANGE the index is out of range
+ */
 u32 jf_array_getElementAt(jf_array_t * pja, u32 u32Index, jf_array_element_t ** ppjae);
 
+/** Remove element from array at specified position.
+ *
+ *  @param pja [in] the pointer to the array
+ *  @param u32Index [in] the position of the element
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_OUT_OF_RANGE the index is out of range
+ */
 u32 jf_array_removeElementAt(jf_array_t * pja, u32 u32Index);
 
+/** Remove element from array with specified element.
+ *
+ *  @param pja [in] the pointer to the array
+ *  @param pjae [in] the element to be removed
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_NOT_FOUND the element is not found
+ */
 u32 jf_array_removeElement(jf_array_t * pja, jf_array_element_t * pjae);
 
+/** Remove all elements from array.
+ *
+ *  @param pja [in] the pointer to the array
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ */
 u32 jf_array_removeAllElements(jf_array_t * pja);
 
+/** Insert element to array at specified position.
+ *
+ *  @param pja [in] the pointer to the array
+ *  @param u32Index [in] the position of the element
+ *  @param pjae [in] the element to be inserted
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY out of memory
+ */
 u32 jf_array_insertElementAt(jf_array_t * pja, u32 u32Index, jf_array_element_t * pjae);
 
+/** Append element to array.
+ *
+ *  @param pja [in] the pointer to the array
+ *  @param pjae [in] the element to be appended
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY out of memory
+ */
 u32 jf_array_appendElementTo(jf_array_t * pja, jf_array_element_t * pjae);
 
+/** Destroy all elements in array.
+ *
+ *  @param pja [in] the pointer to the array
+ *  @param fnDestroyElement [in] the callback function to destroy elements
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ */
 u32 jf_array_destroyAllElements(jf_array_t * pja, jf_array_fnDestroyElement_t fnDestroyElement);
 
+/** Destroy the array and all elements in array.
+ *
+ *  @param ppja [in/out] the pointer to the array
+ *  @param fnDestroyElement [in] the callback function to destroy elements
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ */
 u32 jf_array_destroyArrayAndElements(
     jf_array_t ** ppja, jf_array_fnDestroyElement_t fnDestroyElement);
 
+/** Find element in array.
+ *
+ *  @param pja [in] the pointer to the array
+ *  @param ppElement [out] the pointer to the element found
+ *  @param fnFindElement [in] the callback function to find elements, if TRUE, the element is found
+ *  @param pKey [in] the argument for the callback function
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ */
 u32 jf_array_findElement(
     jf_array_t * pja, jf_array_element_t ** ppElement, jf_array_fnFindElement_t fnFindElement,
     void * pKey);
 
+/** Traverse array and do operation to each elements.
+ *
+ *  @param pja [in] the pointer to the array
+ *  @param fnOpOnElement [out] the callback operation function
+ *  @param pData [in] the argument for the callback function
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ */
 u32 jf_array_traverse(jf_array_t * pja, jf_array_fnOpOnElement_t fnOpOnElement, void * pData);
 
 #endif /*JIUTAI_ARRAY_H*/

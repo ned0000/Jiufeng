@@ -1,11 +1,12 @@
 /**
  *  @file jf_archive.h
  *
- *  @brief archive library header file
+ *  @brief Archive library header file, provides routines to create and extract archive.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_archive library
+ *  @note
+ *  -# Routines declared in this file are included in jf_archive library.
  *  
  */
 
@@ -41,28 +42,60 @@
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+/** Parameters for creating archive with files.
+ */
 typedef struct
 {
+    /**Compress the data if it's TRUE.*/
     boolean_t jacp_bCompress;
+    /**Use fastest compression method if it's TRUE.*/
     boolean_t jacp_bFastest;
+    /**Use slowest compression and best compression method if it's TRUE.*/
     boolean_t jacp_bBestCompress;
+    /**Print verbose debug information if it's TRUE.*/
     boolean_t jacp_bVerbose;
     u8 jacp_u8Reserved[4];
     u8 jacp_u8Reserved2[28];
 } jf_archive_create_param_t;
 
+/** Parameters for extracting files from archive.
+ */
 typedef struct
 {
+    /**List contents of archive and files are not created if it's TRUE.*/
     boolean_t jaep_bListArchive;
+    /**Print verbose debug information if it's TRUE.*/
     boolean_t jaep_bVerbose;
     u8 jaep_u8Reserved[6];
     u8 jaep_u8Reserved2[28];
 } jf_archive_extract_param_t;
 
+/** Create an archive with member files.
+ *
+ *  @param pMemberFile [in] the linked list containing member files
+ *  @param pstrArchiveName [in] the archive name
+ *  @param pParam [in] parameters for creating archive
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY out of memory
+ *  @retval JF_ERR_FAIL_STAT_FILE cannot get file status
+ *
+ */
 ARCHIVEAPI u32 ARCHIVECALL jf_archive_create(
-    jf_linklist_t * pMemberFile,
-    olchar_t * pstrArchiveName, jf_archive_create_param_t * pParam);
+    jf_linklist_t * pMemberFile, olchar_t * pstrArchiveName, jf_archive_create_param_t * pParam);
 
+/** Extract member files from an archive.
+ *
+ *  @param pstrArchiveName [in] the archive name
+ *  @param pParam [in] parameters for extracting archive
+ *
+ *  @return the error code
+ *  @retval JF_ERR_NO_ERROR success
+ *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY out of memory
+ *  @retval JF_ERR_FAIL_STAT_FILE cannot get file status
+ *
+ */
 ARCHIVEAPI u32 ARCHIVECALL jf_archive_extract(
     olchar_t * pstrArchiveName, jf_archive_extract_param_t * pParam);
 
