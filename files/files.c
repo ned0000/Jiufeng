@@ -335,8 +335,7 @@ u32 jf_file_open(const olchar_t * pstrFilename, olint_t flags, jf_file_t * pFile
 }
 
 u32 jf_file_openWithMode(
-    const olchar_t * pstrFilename, olint_t flags, jf_file_mode_t mode,
-    jf_file_t * pFile)
+    const olchar_t * pstrFilename, olint_t flags, jf_file_mode_t mode, jf_file_t * pFile)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)

@@ -79,7 +79,7 @@ typedef struct
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY Out of memory.
- *  @retval JF_ERR_FAIL_STAT_FILE cannot get file status.
+ *  @retval JF_ERR_FAIL_STAT_FILE Cannot get file status.
  *
  */
 ARCHIVEAPI u32 ARCHIVECALL jf_archive_create(
