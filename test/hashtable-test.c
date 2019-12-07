@@ -1,7 +1,7 @@
 /**
  *  @file hashtable-test.c
  *
- *  @brief test file for hashtable common object file
+ *  @brief Test file for hashtable object.
  *
  *  @author Min Zhang
  *
@@ -23,15 +23,19 @@
 #include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
-static olint_t terminate_flag;
+
+static boolean_t ls_bTerminateFlag = FALSE;
 static boolean_t ls_bHashU32 = FALSE;
 static boolean_t ls_bHashTable = FALSE;
+
+#define TEST_HASHTABLE_HASHU32_BITS       (8)
+#define TEST_HASHTABLE_HASHU32_HIT_COUNT  (1 << TEST_HASHTABLE_HASHU32_BITS)
 
 /* --- private routine section ------------------------------------------------------------------ */
 static void _printHashTableTestUsage(void)
 {
     ol_printf("\
-Usage: hash-test [-u] [-t] [-h]\n\
+Usage: hashtable-test [-u] [-t] [-h]\n\
     -u hash u32\n\
     -t hash table\n\
     -h print the usage\n");
@@ -76,31 +80,44 @@ static void _terminate(olint_t signal)
 {
     ol_printf("get signal\n");
 
-    terminate_flag = 1;
+    ls_bTerminateFlag = TRUE;
 }
 
 static u32 _hashU32(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 rand;
-    olint_t bits = 8;
+    olint_t bits = TEST_HASHTABLE_HASHU32_BITS;
+    u32 count[TEST_HASHTABLE_HASHU32_HIT_COUNT];
+    u32 index = 0, result = 0, total = 0;
+
+    ol_bzero(count, sizeof(u32) * TEST_HASHTABLE_HASHU32_HIT_COUNT);
 
     u32Ret = jf_process_registerSignalHandlers(_terminate);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         srandom(time(NULL));
 
-        terminate_flag = 0;
+        ls_bTerminateFlag = FALSE;
 
-        while (! terminate_flag)
+        while (! ls_bTerminateFlag)
         {
             rand = random();
-            ol_printf(
-                "hash random number %u to %d\n",
-                rand, jf_hashtable_hashU32(rand, bits));
 
-            sleep(1);
+            result = jf_hashtable_hashU32(rand, bits);
+            ol_printf("hash random number %u to %d\n", rand, result);
+            count[result] ++;
+
+            total ++;
+//            sleep(1);
         }
+
+        for (index = 0; index < TEST_HASHTABLE_HASHU32_HIT_COUNT; index ++)
+        {
+            ol_printf("count[%03u] = %u\n", index, count[index]);
+        }
+        ol_printf("Total: %u\n", total);
+        ol_printf("Average: %u\n", total / TEST_HASHTABLE_HASHU32_HIT_COUNT);
     }
 
     return u32Ret;
@@ -186,7 +203,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_jiukun_init_param_t jjip;
 
     ol_bzero(&jlipParam, sizeof(jlipParam));
-    jlipParam.jlip_pstrCallerName = "ARCHIVE";
+    jlipParam.jlip_pstrCallerName = "HASHTABLE-TEST";
     jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
 
