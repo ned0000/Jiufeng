@@ -72,14 +72,14 @@ typedef struct
 
 /** Create an archive with member files.
  *
- *  @param pMemberFile [in] the linked list containing member files
- *  @param pstrArchiveName [in] the archive name
- *  @param pParam [in] parameters for creating archive
+ *  @param pMemberFile [in] The linked list containing member files.
+ *  @param pstrArchiveName [in] The archive name.
+ *  @param pParam [in] Parameters for creating archive.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
- *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY out of memory
- *  @retval JF_ERR_FAIL_STAT_FILE cannot get file status
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY Out of memory.
+ *  @retval JF_ERR_FAIL_STAT_FILE cannot get file status.
  *
  */
 ARCHIVEAPI u32 ARCHIVECALL jf_archive_create(
@@ -87,13 +87,13 @@ ARCHIVEAPI u32 ARCHIVECALL jf_archive_create(
 
 /** Extract member files from an archive.
  *
- *  @param pstrArchiveName [in] the archive name
- *  @param pParam [in] parameters for extracting archive
+ *  @param pstrArchiveName [in] The archive name.
+ *  @param pParam [in] Parameters for extracting archive.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
- *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY out of memory
- *  @retval JF_ERR_FAIL_STAT_FILE cannot get file status
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY Out of memory.
+ *  @retval JF_ERR_FAIL_STAT_FILE cannot get file status.
  *
  */
 ARCHIVEAPI u32 ARCHIVECALL jf_archive_extract(

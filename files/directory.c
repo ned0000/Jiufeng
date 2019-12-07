@@ -53,13 +53,14 @@ static u32 _getFirstDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
 
     pdirent = readdir(pDir);
     if (pdirent == NULL)
+    {
         u32Ret = JF_ERR_DIR_ENTRY_NOT_FOUND;
+    }
     else
     {
-        memset(pEntry, 0, sizeof(jf_dir_entry_t));
+        ol_memset(pEntry, 0, sizeof(jf_dir_entry_t));
         pEntry->jde_sName = (olsize_t)pdirent->d_reclen;
-        ol_strncpy(
-            pEntry->jde_strName, pdirent->d_name, JF_LIMIT_MAX_PATH_LEN - 1);
+        ol_strncpy(pEntry->jde_strName, pdirent->d_name, JF_LIMIT_MAX_PATH_LEN - 1);
     }
 #elif defined(WINDOWS)
     internal_dir_t * pid = (internal_dir_t *)pDir;
@@ -69,18 +70,16 @@ static u32 _getFirstDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
 
     memset(strDirName, 0, JF_LIMIT_MAX_PATH_LEN);
     ol_snprintf(
-        strDirName, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c*", pid->id_strDirName,
-        PATH_SEPARATOR);
+        strDirName, JF_LIMIT_MAX_PATH_LEN - 1, "%s%c*", pid->id_strDirName, PATH_SEPARATOR);
     pid->id_hFind = FindFirstFile(strDirName, &FindFileData);
     if (pid->id_hFind == INVALID_HANDLE_VALUE) 
         u32Ret = JF_ERR_DIR_ENTRY_NOT_FOUND;
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(pEntry, 0, sizeof(jf_dir_entry_t));
+        ol_memset(pEntry, 0, sizeof(jf_dir_entry_t));
         pEntry->jde_sName = ol_strlen(FindFileData.cFileName);
-        ol_strncpy(
-            pEntry->jde_strName, FindFileData.cFileName, JF_LIMIT_MAX_PATH_LEN - 1);
+        ol_strncpy(pEntry->jde_strName, FindFileData.cFileName, JF_LIMIT_MAX_PATH_LEN - 1);
     }
 #endif
 
@@ -95,13 +94,14 @@ static u32 _getNextDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
 
     pdirent = readdir(pDir);
     if (pdirent == NULL)
+    {
         u32Ret = JF_ERR_DIR_ENTRY_NOT_FOUND;
+    }
     else
     {
-        memset(pEntry, 0, sizeof(jf_dir_entry_t));
+        ol_memset(pEntry, 0, sizeof(jf_dir_entry_t));
         pEntry->jde_sName = (olsize_t)pdirent->d_reclen;
-        ol_strncpy(
-            pEntry->jde_strName, pdirent->d_name, JF_LIMIT_MAX_PATH_LEN - 1);
+        ol_strncpy(pEntry->jde_strName, pdirent->d_name, JF_LIMIT_MAX_PATH_LEN - 1);
     }
 #elif defined(WINDOWS)
     internal_dir_t * pid = (internal_dir_t *)pDir;
@@ -111,10 +111,9 @@ static u32 _getNextDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
     bRet = FindNextFile(pid->id_hFind, &FindFileData);
     if (bRet)
     {
-        memset(pEntry, 0, sizeof(jf_dir_entry_t));
+        ol_memset(pEntry, 0, sizeof(jf_dir_entry_t));
         pEntry->jde_sName = ol_strlen(FindFileData.cFileName);
-        ol_strncpy(
-            pEntry->jde_strName, FindFileData.cFileName, JF_LIMIT_MAX_PATH_LEN - 1);
+        ol_strncpy(pEntry->jde_strName, FindFileData.cFileName, JF_LIMIT_MAX_PATH_LEN - 1);
     }
     else
     {
@@ -132,8 +131,7 @@ static boolean_t _isIgnoreEntry(olchar_t * pstrEntryName)
 {
     boolean_t bRet = FALSE;
 
-    if ((strcmp(pstrEntryName, ".") == 0) ||
-        (strcmp(pstrEntryName, "..") == 0))
+    if ((strcmp(pstrEntryName, ".") == 0) || (strcmp(pstrEntryName, "..") == 0))
         bRet = TRUE;
 
     return bRet;
@@ -156,7 +154,7 @@ static u32 _traversalDirectory(
         {
             if (! _isIgnoreEntry(direntry.jde_strName))
             {
-                memset(strFullname, 0, sizeof(strFullname));
+                ol_memset(strFullname, 0, sizeof(strFullname));
                 ol_snprintf(
                     strFullname, sizeof(strFullname) - 1, "%s%c%s", pstrDirName,
                     PATH_SEPARATOR, direntry.jde_strName);
@@ -369,7 +367,7 @@ u32 jf_dir_parse(
     return u32Ret;
 }
 
-FILESAPI u32 FILESCALL jf_dir_scan(
+u32 jf_dir_scan(
     const olchar_t * pstrDirName, jf_dir_entry_t * entry, olint_t * numofentry,
     jf_dir_fnFilterDirEntry_t fnFilter, jf_dir_fnCompareDirEntry_t fnCompare)
 {
@@ -387,7 +385,7 @@ FILESAPI u32 FILESCALL jf_dir_scan(
             if ((! _isIgnoreEntry(direntry.jde_strName)) &&
 				((fnFilter == NULL) || (! fnFilter(&direntry))))
 			{
-				memcpy(start, &direntry, sizeof(jf_dir_entry_t));
+				ol_memcpy(start, &direntry, sizeof(jf_dir_entry_t));
 				start ++;
 				num++;
 
@@ -423,7 +421,7 @@ olint_t jf_dir_compareDirEntry(const void * a, const void * b)
     jf_dir_entry_t * e1 = (jf_dir_entry_t *)a;
     jf_dir_entry_t * e2 = (jf_dir_entry_t *)b;
 
-	return strcmp(e1->jde_strName, e2->jde_strName);
+	return ol_strcmp(e1->jde_strName, e2->jde_strName);
 }
 /*------------------------------------------------------------------------------------------------*/
 
