@@ -1,7 +1,7 @@
 /**
  *  @file jf_option.h
  *
- *  @brief option header file, provide some functional routine for option manipulation
+ *  @brief Option header file, provide some functional routine for option manipulation
  *
  *  @author Min Zhang
  *
@@ -47,7 +47,6 @@ u32 jf_option_getU32FromString(const olchar_t * pstrInteger, u32 * pu32Value);
 /** Reads a long value from a string
  *
  *  @param pstrInteger [in] the string to read from 
- *  @param size [in] the length of the string 
  *  @param numeric [in] the long value extracted from the string 
  *
  *  @return the error code
@@ -58,7 +57,6 @@ u32 jf_option_getLongFromString(const olchar_t * pstrInteger, slong * numeric);
 /** Reads an unsigned long value from a string
  *
  *  @param pstrInteger [in] the string to read from 
- *  @param size [in] the length of the string 
  *  @param numeric [in] the unsigned long value extracted from the string 
  *
  *  @return the error code

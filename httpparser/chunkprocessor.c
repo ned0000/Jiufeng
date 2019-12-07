@@ -1,11 +1,19 @@
 /**
  *  @file chunkprocessor.c
  *
- *  @brief The chunk processor is to process chunked body data
+ *  @brief The chunk processor is to process chunked data in HTTP body
  *
  *  @author Min Zhang
  *
- *  @note
+ *  @par HTTP packet with chuned data
+ *   chunk-size\\r\\n        \n
+ *   chunk-data\\r\\n        \n
+ *   chunk-size\\r\\n        \n
+ *   chunk-data\\r\\n        \n
+ *   0\\r\\n                 \n
+ *   \\r\\n                  \n
+ *                           \n
+ *   chunk-size is a hexadecimal string
  *  
  */
 
@@ -23,18 +31,6 @@
 #include "jf_string.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
-
-/** Http packet with chuned data.
- *
- *  chunk-size\r\n
- *  chunk-data\r\n
- *  chunk-size\r\n
- *  chunk-data\r\n
- *  0\r\n
- *  \r\n
- *
- *  chunk-size is a hexadecimal string
- */
 
 /** Chunk processing flags
  */

@@ -1,7 +1,7 @@
 /**
- *  @file crc32c-test.c
+ *  @file crc-test.c
  *
- *  @brief test file for testing crc32c common object
+ *  @brief Test file for testing crc common object
  *
  *  @author Min Zhang
  *

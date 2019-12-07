@@ -236,6 +236,9 @@ static u32 _assOnDisconnect(jf_network_asocket_t * pAsocket, u32 u32Status, void
 /** Internal method dispatched by the OnSendOK event of the underlying asocket
  *
  *  @param pAsocket [in] the async socket 
+ *  @param u32Status [in] the status of the data transmission
+ *  @param pu8Buffer [in] the buffer containing the sent data
+ *  @param sBuf [in] the size of the buffer
  *  @param pUser [in] the user
  *
  *  @return the error code

@@ -114,13 +114,11 @@ static u32 _postSelectAcsocket(
  *  @param psBeginPointer [in/out] the beging pointer of the data 
  *  @param sEndPointer [in] the end pointer of the data 
  *  @param pUser [in] the user
- *  @param bPause [in] the pause flag
  *
  *  @return the error code
  */
 static u32 _acsOnData(
-    void * pAsocket, u8 * pu8Buffer, olsize_t * psBeginPointer,
-    olsize_t sEndPointer, void * pUser)
+    void * pAsocket, u8 * pu8Buffer, olsize_t * psBeginPointer, olsize_t sEndPointer, void * pUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     acsocket_data_t * pad = (acsocket_data_t *) pUser;
@@ -141,7 +139,7 @@ static u32 _acsOnData(
 /** Internal method dispatched by the connect event of the underlying asocket
  *
  *  @param pAsocket [in] the async socket 
- *  @param bOK [in] the connection status
+ *  @param u32Status [in] the connection status
  *  @param pUser [in] the user
  *
  *  @return the error code
@@ -203,8 +201,11 @@ static u32 _acsOnDisconnect(jf_network_asocket_t * pAsocket, u32 u32Status, void
 
 /** Internal method dispatched by the send ok event of the underlying asocket
  *
- *  @param pAsocket [in] the async socket 
- *  @param pUser [in] the user
+ *  @param pAsocket [in] the async socket
+ *  @param u32Status [in] the status of data transmission
+ *  @param pu8Buffer [in] the receive buffer
+ *  @param sBuf [in] the size of the buffer
+ *  @param pUser [in] the associated webclient data object
  *
  *  @return the error code
  */

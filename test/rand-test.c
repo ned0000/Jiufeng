@@ -1,7 +1,7 @@
 /**
- *  @file randnum-test.c
+ *  @file rand-test.c
  *
- *  @brief test file for random number common object
+ *  @brief Test file for jf_rand common object
  *
  *  @author Min Zhang
  *

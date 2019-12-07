@@ -185,9 +185,9 @@ static u32 _freeAsocket(internal_asocket_t * pia)
     return u32Ret;
 }
 
-/** Disconnects an asocket
+/** Disconnect the asocket
  *
- *  @param pAsocket [in] the asocket to disconnect
+ *  @param pia [in] the asocket to disconnect
  */
 static u32 _asDisconnect(internal_asocket_t * pia)
 {
@@ -195,8 +195,7 @@ static u32 _asDisconnect(internal_asocket_t * pia)
 
     jf_logger_logDebugMsg("as %s disconn", pia->ia_strName);
 
-    /*Since the socket is closing, we need to clear the data that is pending to
-      be sent*/
+    /*Since the socket is closing, we need to clear the data that is pending to be sent*/
     _clearPendingSendOfAsocket(pia);
 
     if (pia->ia_pjnsSocket != NULL)

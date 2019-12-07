@@ -1,7 +1,7 @@
 /**
- *  @file jf_hashtree.h
+ *  @file jf_hashtree.c
  *
- *  @brief The basic hash tree data structure
+ *  @brief The implementation file for hash tree.
  *
  *  @author Min Zhang
  *  

@@ -1,8 +1,7 @@
 /**
- *  @file process.c
+ *  @file jf_process.c
  *
- *  @brief process implementation file
- *   provide some functional routine for managing process
+ *  @brief Implementation file provide some functional routine for managing process
  *
  *  @author Min Zhang
  *  

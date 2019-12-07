@@ -239,11 +239,11 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_getStringWWN(
  *  @note This function does not check the size of the string buffer. Please make
  *   sure it is big enough to avoid memory access violation.
  *
- *  @parame pstrVersion [out] the size string to be returned;
- *  @parame u8Major [in] the major version number;
- *  @parame u8Minor [in] the minor version number;
- *  @parame u32OEMCode [in] the OEM code;
- *  @parame u8BuildNo [in] the build number;
+ *  @param pstrVersion [out] the size string to be returned
+ *  @param u8Major [in] the major version number
+ *  @param u8Minor [in] the minor version number
+ *  @param u32OEMCode [in] the OEM code
+ *  @param u8BuildNo [in] the build number
  */
 void getStringVersion(
     olchar_t * pstrVersion, const u8 u8Major, const u8 u8Minor, const u32 u32OEMCode,

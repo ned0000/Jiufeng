@@ -1,18 +1,17 @@
 /**
  *  @file jf_conffile.h
  *
- *  @brief configuration file header file
+ *  @brief Configuration file header file
  *
  *  @author Min Zhang
  *
  *  @note Routines declared in this file are included in jf_files library
- *  @note The implementation is very simple, reads the options in a
- *   configuration file.
+ *  @note The implementation is very simple, reads the options in a configuration file.
  *  @note An example of the configuration file is as below:    \n
- *   # this is an exmaple of the configuration file            \n
+ *   \# this is an exmaple of the configuration file            \n
  *   optiontagname1=value1 # this is an example of option      \n
  *   optiontagname2=value2                                     \n
- *   # the end of the configuration file
+ *   \# the end of the configuration file
  *
  */
 

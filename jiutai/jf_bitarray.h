@@ -1,24 +1,30 @@
 /**
  *  @file jf_bitarray.h
  *
- *  @brief bit array header file, arrays of arbitrary bit length
+ *  @brief Header file for bit array. Provides functions for creation and manipulation of arbitrary
+ *  length arrays of bits.
  *
  *  @author Min Zhang
  *
- *  @note provides functions for creation and manipulation of arbitrary
- *   length arrays of bits.
- *  @note bit arrays are implemented as arrays of unsigned chars.  Bit 0 is the
- *   MSB of char 0, and the last bit is the least significant (non-spare)
- *   bit of the last unsigned char.
- *  @note example: array of 20 bits (0 through 19) with 8 bit unsigned chars
- *   requires 3 unsigned chars (0 through 2) to store all the bits.
- *           u8         0       1         2          \n
- *                  +--------+--------+--------+     \n
- *                  |        |        |        |     \n
- *                  +--------+--------+--------+     \n
- *           bit     01234567 89111111 11112XXX      \n
- *                              012345 67890         \n
+ *  @note
+ *  -# Bit arrays are implemented as arrays of unsigned chars.  Bit 0 is the MSB of char 0,
+ *   and the last bit is the least significant (non-spare) bit of the last unsigned char.
  *
+ *  <HR>
+ *
+ *  @par Example
+ *  -# Array of 20 bits (0 through 19) with 8 bit unsigned chars requires 3 unsigned chars
+ *  (0 through 2) to store all the bits.
+ *  @code
+ *           u8         0       1         2
+ *                  +--------+--------+--------+
+ *                  |        |        |        |
+ *                  +--------+--------+--------+
+ *           bit     01234567 89111111 11112XXX
+ *                              012345 67890
+ *  @endcode
+ *
+ *  <HR>
  */
 
 #ifndef JIUTAI_BITARRAY_H
@@ -37,56 +43,66 @@ typedef u8  jf_bitarray_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/* number of bit in bit array unit */
+/** Return number of bits in bit array unit.
+ */
 #define JF_BITARRAY_BITS_PER_UNIT  (BITS_PER_U8)
 
-/* number of u8 in bit array */
+/** Return number of char in bit array.
+ */
 #define JF_BITARRAY_CHARS(ba)  (sizeof(ba))
 
-/* number of bit in bit array */
+/** Return number of bits in bit array.
+ */
 #define JF_BITARRAY_BITS(ba)  (JF_BITARRAY_CHARS(ba) * JF_BITARRAY_BITS_PER_UNIT)
 
-/* position of bit within character */
+/** Return position of bit within char.
+ */
 #define JF_BITARRAY_BIT_CHAR(bit)  ((bit) / JF_BITARRAY_BITS_PER_UNIT)
 
-/* array index for character containing bit */
+/** Return array index for char containing bit.
+ */
 #define JF_BITARRAY_BIT_IN_CHAR(bit)  \
     (1 << (JF_BITARRAY_BITS_PER_UNIT - 1 - ((bit) % JF_BITARRAY_BITS_PER_UNIT)))
 
-/* number of characters required to contain number of bits */
+/** Return number of char required to contain number of bits.
+ */
 #define JF_BITARRAY_BITS_TO_CHARS(bits)   ((((bits) - 1) / JF_BITARRAY_BITS_PER_UNIT) + 1)
 
-#define JF_BITARRAY_INIT(ba)  \
-    memset((ba), 0, JF_BITARRAY_CHARS(ba))
+/** Initialize the bit array.
+ */
+#define JF_BITARRAY_INIT(ba)  ol_memset((ba), 0, JF_BITARRAY_CHARS(ba))
 
-/*dump bit array*/
+/** Dump bit array. If the bit is set, print "1", otherwise print "0".
+ */
 #define JF_BITARRAY_DUMP(ba)  \
-{                           \
-    olint_t i, j;           \
-                            \
+{                             \
+    olint_t i, j;             \
+                              \
     for (i = 0; i < JF_BITARRAY_CHARS(ba); i ++)         \
     {                                                    \
         for (j = 0; j < JF_BITARRAY_BITS_PER_UNIT; j ++) \
         {                                                \
             if ((ba)[i] & (1 << (JF_BITARRAY_BITS_PER_UNIT - j - 1)))  \
-                printf("1");                             \
+                ol_printf("1");                          \
             else                                         \
-                printf("0");                             \
+                ol_printf("0");                          \
         }                                                \
     }                                                    \
                                                          \
-    printf("\n");                                        \
+    ol_printf("\n");                                     \
 }
 
-/*set bit array to all 1*/
-#define JF_BITARRAY_SET(ba)      \
-    memset((ba), 0xFF, JF_BITARRAY_CHARS(ba))
+/** Set bit array to all 1.
+ */
+#define JF_BITARRAY_SET(ba)  ol_memset((ba), 0xFF, JF_BITARRAY_CHARS(ba))
 
-/*left shift bit array*/
+/** Left shift bit array "ba" with "shift" bits.
+ */
 #define JF_BITARRAY_LSHIFT(ba, shift)        \
 {                                            \
     olint_t index;                           \
-    olint_t chars = (shift) / JF_BITARRAY_BITS_PER_UNIT;  /* number of whole byte shift */ \
+    /* number of whole byte shift */         \
+    olint_t chars = (shift) / JF_BITARRAY_BITS_PER_UNIT; \
     olint_t remain;                          \
                                              \
     assert((shift) > 0);                     \
@@ -98,7 +114,8 @@ typedef u8  jf_bitarray_t;
     }                                        \
     else                                     \
     {                                        \
-        remain = (shift) % JF_BITARRAY_BITS_PER_UNIT;  /* number of bit remaining */ \
+        /* number of bit remaining */        \
+        remain = (shift) % JF_BITARRAY_BITS_PER_UNIT;    \
                                              \
         /* handle big jumps of bytes */      \
         if (chars > 0)                       \
@@ -129,23 +146,26 @@ typedef u8  jf_bitarray_t;
     }                                                         \
 }
 
-/*right shift bit array*/
+/** Right shift bit array "ba" with "shift" bits.
+ */
 #define JF_BITARRAY_RSHIFT(ba, shift)            \
 {                                                \
     olint_t index;                               \
-    olint_t chars = (shift) / JF_BITARRAY_BITS_PER_UNIT;  /* number of whole byte shift */ \
+    /* number of whole byte shift */             \
+    olint_t chars = (shift) / JF_BITARRAY_BITS_PER_UNIT;  \
     olint_t remain;                              \
                                                  \
     assert((shift) > 0);                         \
                                                  \
-    if ((shift) >= JF_BITARRAY_BITS(ba))                  \
+    if ((shift) >= JF_BITARRAY_BITS(ba))         \
     {                                            \
         /* all bits have been shifted off */     \
         JF_BITARRAY_INIT(ba);                    \
     }                                            \
     else                                         \
     {                                            \
-        remain = (shift) % JF_BITARRAY_BITS_PER_UNIT;  /* number of bit remaining */  \
+        /* number of bit remaining */            \
+        remain = (shift) % JF_BITARRAY_BITS_PER_UNIT;   \
                                                  \
         /* first handle big jumps of bytes */    \
         if (chars > 0)                           \
@@ -168,7 +188,7 @@ typedef u8  jf_bitarray_t;
             for (index = JF_BITARRAY_CHARS(ba) - 1; index - 1 >= 0; index --)  \
             {                                                  \
                 (ba)[index] = ((ba)[index] >> remain) |        \
-                    ((ba)[index - 1] << (JF_BITARRAY_BITS_PER_UNIT - remain));      \
+                    ((ba)[index - 1] << (JF_BITARRAY_BITS_PER_UNIT - remain)); \
             }                                                  \
                                                                \
             (ba)[0] >>= remain;                                \
@@ -176,6 +196,8 @@ typedef u8  jf_bitarray_t;
     }                                                          \
 }
 
+/** And the bitarray "src1" with "src2", the result saves to "dest".
+ */
 #define JF_BITARRAY_AND(dest, src1, src2)               \
 {                                                       \
     olint_t index;                                      \
@@ -190,6 +212,8 @@ typedef u8  jf_bitarray_t;
     }                                                   \
 }
 
+/** Or the bitarray "src1" with "src2", the result saves to "dest".
+ */
 #define JF_BITARRAY_OR(dest, src1, src2)                \
 {                                                       \
     olint_t index;                                      \
@@ -197,13 +221,15 @@ typedef u8  jf_bitarray_t;
     assert(JF_BITARRAY_CHARS(dest) == JF_BITARRAY_CHARS(src1));  \
     assert(JF_BITARRAY_CHARS(dest) == JF_BITARRAY_CHARS(src2));  \
                                                         \
-    /* OR array one u8 at a time */                     \
+    /* OR array one char at a time */                   \
     for (index = 0; index < JF_BITARRAY_CHARS(dest); index++)    \
     {                                                   \
         (dest)[index] = (src1)[index] | (src2)[index];  \
     }                                                   \
 }
 
+/** Xor the bitarray "src1" with "src2", the result saves to "dest".
+ */
 #define JF_BITARRAY_XOR(dest, src1, src2)               \
 {                                                       \
     olint_t index;                                      \
@@ -211,27 +237,30 @@ typedef u8  jf_bitarray_t;
     assert(JF_BITARRAY_CHARS(dest) == JF_BITARRAY_CHARS(src1));  \
     assert(JF_BITARRAY_CHARS(dest) == JF_BITARRAY_CHARS(src2));  \
                                                         \
-    /* XOR array one u8 at a time */                    \
+    /* XOR array one char at a time */                  \
     for (index = 0; index < JF_BITARRAY_CHARS(dest); index++)    \
     {                                                   \
         (dest)[index] = (src1)[index] ^ (src2)[index];  \
     }                                                   \
 }
 
+/** Complement the bitarray "src", the result saves to "dest".
+ */
 #define JF_BITARRAY_NOT(dest, src)                      \
 {                                                       \
     olint_t index;                                      \
                                                         \
     assert(JF_BITARRAY_CHARS(dest) == JF_BITARRAY_CHARS(src));   \
                                                         \
-    /* NOT array one u8 at a time */                    \
+    /* NOT array one char at a time */                  \
     for (index = 0; index < JF_BITARRAY_CHARS(dest); index++)    \
     {                                                   \
         (dest)[index] = ~((src)[index]);                \
     }                                                   \
 }
 
-/*duplicate bit array*/
+/** Duplicate bit array "src" to "dest".
+ */
 #define JF_BITARRAY_COPY(dest, src)                     \
 {                                                       \
     assert(JF_BITARRAY_CHARS(dest) == JF_BITARRAY_CHARS(src));   \
@@ -239,8 +268,8 @@ typedef u8  jf_bitarray_t;
     memcpy((dest), (src), JF_BITARRAY_CHARS(dest));     \
 }
 
-/*increment and decrement apply to the MSB bit*/
-/*increment bit array*/
+/** Increment bit array, apply to the MSB bit.
+ */
 #define JF_BITARRAY_INCREMENT(ba)                       \
 {                                                       \
     olint_t index;                                      \
@@ -260,7 +289,8 @@ typedef u8  jf_bitarray_t;
     }                                                   \
 }
 
-/*decrement bit array*/
+/** Decrement bit array, apply to the MSB bit.
+ */
 #define JF_BITARRAY_DECREMENT(ba)                       \
 {                                                       \
     olint_t index;                                      \
@@ -279,20 +309,32 @@ typedef u8  jf_bitarray_t;
     }                                                   \
 }
 
-/* The following macros don't use JF_BITARRAY_CHARS(), so the 'ba' can be
- * a parameter passed by a function as a pointer
+/** Set bit specified by "pos" to 1.
+ *  
+ *  @param ba [in] the bit array
+ *  @param pos [in] the position
+ *
+ *  @return void
  */
-
-/*set bit specified by pos to 1*/
 static inline void jf_bitarray_setBit(jf_bitarray_t * ba, u32 pos)
 {
+    assert(JF_BITARRAY_BITS(ba) > pos);
+
     (ba)[JF_BITARRAY_BIT_CHAR(pos)] |= JF_BITARRAY_BIT_IN_CHAR(pos);
 }
 
-/*clear bit specified by pos to 0*/
+/** Clear bit specified by "pos" to 0.
+ *
+ *  @param ba [in] the bit array
+ *  @param pos [in] the position
+ *
+ *  @return void
+ */
 static inline void jf_bitarray_clearBit(jf_bitarray_t * ba, u32 pos)
 {
-    u8 mask;
+    u8 mask = 0;
+
+    assert(JF_BITARRAY_BITS(ba) > pos);
 
     /* create a mask to zero out desired bit */
     mask = JF_BITARRAY_BIT_IN_CHAR(pos);
@@ -301,13 +343,31 @@ static inline void jf_bitarray_clearBit(jf_bitarray_t * ba, u32 pos)
     (ba)[JF_BITARRAY_BIT_CHAR(pos)] &= mask;
 }
 
-/*test the bit specified by pos*/
+/** Test the bit specified by "pos".
+ *
+ *  @param ba [in] the bit array
+ *  @param pos [in] the position
+ *
+ *  @return the bit status
+ *  @retval TRUE the bit is set
+ *  @retval FALSE the bit is cleared
+ */
 static inline boolean_t jf_bitarray_testBit(jf_bitarray_t * ba, u32 pos)
 {
+    assert(JF_BITARRAY_BITS(ba) > pos);
+
     return (((ba)[JF_BITARRAY_BIT_CHAR(pos)] & JF_BITARRAY_BIT_IN_CHAR(pos)) != 0);
 }
 
-/*set a bit and return it's old value*/
+/** Set a bit specified by "pos" and return it's old value.
+ *
+ *  @param ba [in] the bit array
+ *  @param pos [in] the position
+ *
+ *  @return the bit status
+ *  @retval TRUE the bit is set
+ *  @retval FALSE the bit is cleared
+ */
 static inline boolean_t jf_bitarray_testSetBit(jf_bitarray_t * ba, u32 pos)
 {
     boolean_t oldbit = jf_bitarray_testBit(ba, pos);
@@ -317,7 +377,15 @@ static inline boolean_t jf_bitarray_testSetBit(jf_bitarray_t * ba, u32 pos)
     return oldbit;
 }
 
-/*clear a bit and return it's old value*/
+/** Clear a bit specified by "pos" and return it's old value
+ *
+ *  @param ba [in] the bit array
+ *  @param pos [in] the position
+ *
+ *  @return the bit status
+ *  @retval TRUE the bit is set
+ *  @retval FALSE the bit is cleared
+ */
 static inline boolean_t jf_bitarray_testClearBit(jf_bitarray_t * ba, u32 pos)
 {
     boolean_t oldbit = jf_bitarray_testBit(ba, pos);

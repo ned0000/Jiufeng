@@ -643,11 +643,12 @@ static u32 _finishWebclientDataobjectResponse(internal_webclient_dataobject_t * 
 
 /** Internal method dispatched by the OnData event of the underlying asocket
  *
- *  @param pAsocket [in] the underlying asocket
+ *  @param pAcsocket [in] the async client socket
+ *  @param pAsocket [in] the async socket
  *  @param pu8Buffer [in] the receive buffer
  *  @param psBeginPointer [in] start pointer in the buffer
- *  @param sEndPointer [in] the length of the buffer
- *  @param pUser [in] User data that can be set/received
+ *  @param sEndPointer [in] the end pointer of the buffer
+ *  @param pUser [in] the associated webclient data object
  *
  *  @return the error code
  */
@@ -701,8 +702,9 @@ static u32 _webclientDataobjectOnData(
 
 /** Internal method dispatched by the connect event of the underlying asocket
  *
- *  @param pAsocket [in] the underlying asocket
- *  @param u32Status [in] connection status
+ *  @param pAcsocket [in] the async client socket
+ *  @param pAsocket [in] the async socket
+ *  @param u32Status [in] the connection status
  *  @param pUser [in] the associated web data object
  */
 static u32 _webclientDataobjectOnConnect(
@@ -768,10 +770,14 @@ static u32 _webclientDataobjectOnDisconnect(
 
 /** Internal method dispatched by the send ok event of the underlying asocket
  *
- *  @param pAsocket [in] The underlying asocket
- *  @param user [in] the associated web data object
+ *  @param pAcsocket [in] the async client socket
+ *  @param pAsocket [in] the async socket
+ *  @param u32Status [in] the status of data transmission
+ *  @param pu8Buffer [in] the receive buffer
+ *  @param sBuf [in] the size of the buffer
+ *  @param pUser [in] the associated webclient data object
  *
- *  @return the erro code
+ *  @return the error code
  */
 static u32 _webclientDataobjectOnSendData(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u32 u32Status,

@@ -1,13 +1,42 @@
 /**
  *  @file jf_hsm.h
  *
- *  @brief HSM header file. Interfaces for hierarchical state machine
+ *  @brief HSM header file which defines interfaces of hierarchical state machine common object.
  *
  *  @author Min Zhang
  *
- *  @note Link with jf_jiukun library for memory allocation
- *  @note This object is not thread safe
- *  @note Refer to manual in doc/hsm.txt for the usage
+ *  @note
+ *  -# Link with jf_jiukun library for memory allocation.
+ *  -# This object is NOT thread safe.
+ *  -# Do not call jf_hsm_processEvent() to transit state in fnEventAction() as jf_hsm_processEvent()
+ *     cannot be called recursively.
+ *
+ *  <HR>
+ *
+ *  @par Procedure for State Transition
+ *  -# The procedure when state transition happens:
+ *  @code
+ *  if ((fnEventGuard == NULL) || fnEventGuard())
+ *  {
+ *      if (fnEventAction != NULL)
+ *          fnEventAction()
+ *      if ((new-state != old-state) &&
+ *          (new-state != JF_HSM_LAST_STATE_ID))
+ *      {
+ *          fnOnExit(old-state)
+ *          state = new-state
+ *          fnOnEntry(new-state)
+ *      }
+ *  }
+ *  @endcode
+ *
+ *  @par Rules for State Transition Table
+ *  -# The transition table must be ended by following line:
+ *  @code
+ *  {JF_HSM_LAST_STATE_ID, JF_HSM_LAST_EVENT_ID, NULL, NULL, JF_HSM_LAST_STATE_ID},
+ *  @endcode
+ *
+ *  <HR>
  *
  */
 
@@ -21,27 +50,33 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-/** Last state ID
+/** Last state ID.
  */
 #define JF_HSM_LAST_STATE_ID     (U32_MAX)
 
-/** Last event ID
+/** Last event ID.
  */
 #define JF_HSM_LAST_EVENT_ID     (U32_MAX)
 
-/** Maximum state name length
- */
-#define JF_HSM_MAX_STATE_NAME_LEN    (32)
-
 /* --- data structures -------------------------------------------------------------------------- */
 
+/** The HSM state ID.
+ */
 typedef u32  jf_hsm_state_id_t;
+
+/** The HSM event ID.
+ */
 typedef u32  jf_hsm_event_id_t;
 
+/** The HSM event data structure.
+ */
 typedef struct jf_hsm_event
 {
+    /**The event id.*/
     jf_hsm_event_id_t jhe_jheiEventId;
+    /**The data associated with the event id.*/
     void * jhe_pData;
+    /**The second data associated with the event id.*/
     void * jhe_pDataEx;
 } jf_hsm_event_t;
 

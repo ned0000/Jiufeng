@@ -1,8 +1,7 @@
 /**
- *  @file jf_addr.h
+ *  @file jf_ipaddr.h
  *
- *  @brief Header file of network interface management library. Routines for
- *   IP address
+ *  @brief Header file contains data structure and  routines for IP address manipulation
  *
  *  @author Min Zhang
  *
@@ -103,20 +102,19 @@ IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_setIpV4AddrToInaddrAny(jf_ipaddr_t * pji);
 
 IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_setIpV6AddrToInaddrAny(jf_ipaddr_t * pji);
 
-/** Get the string of IP Address according to the IP address type
+/** Get the string of IP address according to the IP address type
  *
- *  the function does not check the size of the string buffer.
- *  please make sure it is big enough to avoid memory access violation.
+ *  @note The function does not check the size of the string buffer. Please make sure it is big
+ *   enough to avoid memory access violation.
  *
- *  @param pstrIpAddr [in] the string buffer where the IP address string will return
+ *  @param pstrIp [in] the string buffer where the IP address string will return
  *  @param pji [out] the ip address
  *
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
  *  @retval JF_ERR_INVALID_IP_ADDR_TYPE invalid address type
  */
-IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getStringIpAddr(
-    olchar_t * pstrIp, const jf_ipaddr_t * pji);
+IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getStringIpAddr(olchar_t * pstrIp, const jf_ipaddr_t * pji);
 
 IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getIpAddrFromString(
     const olchar_t * pstrIp, u8 u8AddrType, jf_ipaddr_t * pji);

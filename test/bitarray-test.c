@@ -1,7 +1,7 @@
 /**
  *  @file bitarray-test.c
  *
- *  @brief test file for bit array object file
+ *  @brief Test file for bit array object defined in jf_bitarray.h
  *
  *  @author Min Zhang
  *
@@ -16,9 +16,7 @@
 
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_err.h"
-#include "jf_hex.h"
 #include "jf_bitarray.h"
 #include "jf_string.h"
 
@@ -40,8 +38,7 @@ static u32 _parseBitarrayTestCmdLineParam(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv,
-        "th?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "th?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -117,15 +114,15 @@ static u32 _testBitArrayLogical(void)
     ol_printf("jb3:        ");
     JF_BITARRAY_DUMP(jb3);
 
-    ol_printf("jb1 & jb2: ");
+    ol_printf("jb1 & jb2:  ");
     JF_BITARRAY_AND(jb3, jb1, jb2);
     JF_BITARRAY_DUMP(jb3);
 
-    ol_printf("jb1 | jb2: ");
+    ol_printf("jb1 | jb2:  ");
     JF_BITARRAY_OR(jb3, jb1, jb2);
     JF_BITARRAY_DUMP(jb3);
 
-    ol_printf("jb1 ^ jb2: ");
+    ol_printf("jb1 ^ jb2:  ");
     JF_BITARRAY_XOR(jb3, jb1, jb2);
     JF_BITARRAY_DUMP(jb3);
 
@@ -145,9 +142,9 @@ static u32 _testBitArray(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_bitarray_t jb[8];
     u32 u32SetPos[] = {2, 3, 6, 8, 10, 13, 16, 18, 20, 23, 24, 27, 31, 32,
-                       35, 37, 39, 40, 42, 43, 44, 47, 48, 50, 55, 57, 60, 64, 65, 66, 70};
+                       35, 37, 39, 40, 42, 43, 44, 47, 48, 50, 55, 57, 60};
     u32 u32NumOfSetPos = sizeof(u32SetPos) / sizeof(u32);
-    u32 u32TestPos[] = {2, 3, 7, 8, 14, 20, 40, 65, 90};
+    u32 u32TestPos[] = {2, 3, 7, 8, 14, 20, 40};
     u32 u32NumOfTestPos = sizeof(u32TestPos) / sizeof(u32);
     u32 u32ClearPos[] = {2, 3, 8, 20, 48, 55, 57, 60};
     u32 u32NumOfClearPos = sizeof(u32ClearPos) / sizeof(u32);
@@ -164,12 +161,10 @@ static u32 _testBitArray(void)
 
     ol_printf("set bit array\n");
     JF_BITARRAY_SET(jb);
-
     JF_BITARRAY_DUMP(jb);
 
     ol_printf("clear bit array\n");
     JF_BITARRAY_INIT(jb);
-
     JF_BITARRAY_DUMP(jb);
 
     for (u32Index = 0; u32Index < u32NumOfSetPos; u32Index ++)
@@ -229,7 +224,7 @@ static u32 _testBitArray(void)
 
     for (u32Index = 0; u32Index < 19; u32Index ++)
     {
-        ol_printf("increment bit array\n");
+        ol_printf("%u, increment bit array\n", u32Index + 1);
         JF_BITARRAY_INCREMENT(jb);
 
         JF_BITARRAY_DUMP(jb);
@@ -237,7 +232,7 @@ static u32 _testBitArray(void)
 
     for (u32Index = 0; u32Index < 20; u32Index ++)
     {
-        ol_printf("decrement bit array\n");
+        ol_printf("%u, decrement bit array\n", u32Index + 1);
         JF_BITARRAY_DECREMENT(jb);
 
         JF_BITARRAY_DUMP(jb);

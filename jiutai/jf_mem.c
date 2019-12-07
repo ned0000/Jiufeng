@@ -1,7 +1,7 @@
 /**
- *  @file xmalloc.c
+ *  @file jf_mem.c
  *
- *  @brief The memory allocation routine
+ *  @brief Implementation file for memory allocation routines
  *
  *  @author Min Zhang
  *

@@ -1,7 +1,7 @@
 /**
- *  @file syncsem-test.c
+ *  @file sem-test.c
  *
- *  @brief test file for syncsem common object
+ *  @brief Test file for jf_sem common object
  *
  *  @author Min Zhang
  *
