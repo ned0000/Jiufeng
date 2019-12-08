@@ -1,7 +1,7 @@
 /**
  *  @file xmlparser.c
  *
- *  @brief The xml parser library
+ *  @brief Implementation file for XML parse routines.
  *
  *  @author Min Zhang
  *
@@ -30,7 +30,7 @@
 
 /** Frees resources from an XML node list that was returned from parseXML
  *
- *  @param ppNode [in/out] the XML tree to clean up
+ *  @param ppNode [in/out] The XML node to clean up.
  */
 static u32 _destroyXMLNodeList(jf_xmlparser_xml_node_t ** ppNode)
 {
@@ -52,7 +52,7 @@ static u32 _destroyXMLNodeList(jf_xmlparser_xml_node_t ** ppNode)
     return u32Ret;
 }
 
-/** The pjsprfContent is the content between 2 '<'
+/** The pjsprfContent is the content between 2 '<'.
  */
 static u32 _newXMLNode(
     jf_xmlparser_xml_node_t ** ppRoot, jf_xmlparser_xml_node_t ** ppCurrent,
@@ -77,8 +77,8 @@ static u32 _newXMLNode(
 
         if (! bStartTag)
         {
-            /* The jxxn_pReserved field of end elements point to the
-               first character before the '<' */
+            /* The jxxn_pReserved field of end elements point to the first character before the
+               '<' */
             jxxnNew->jxxn_pReserved = pjsprfContent->jsprf_pstrData;
             do
             {
@@ -89,8 +89,8 @@ static u32 _newXMLNode(
         }
         else
         {
-            /* The jxxn_pReserved field of start elements point to the
-               end of the element (the data segment) */
+            /* The jxxn_pReserved field of start elements point to the end of the element (the
+               data segment) */
             jxxnNew->jxxn_pReserved = pElem->jspr_pjsprfLast->jsprf_pstrData;
         }
 
@@ -105,10 +105,8 @@ static u32 _newXMLNode(
         *ppCurrent = jxxnNew;
         if (bEmptyTag)
         {
-            /* If this was an empty element, we need to create
-               a bogus EndElement, 
-               just so the tree is consistent. No point in 
-               introducing unnecessary complexity */
+            /* If this was an empty element, we need to create a bogus EndElement, 
+               just so the tree is consistent. No point in introducing unnecessary complexity */
             u32Ret = jf_jiukun_allocMemory((void **)&jxxnNew, sizeof(jf_xmlparser_xml_node_t));
             if (u32Ret == JF_ERR_NO_ERROR)
             {
@@ -130,10 +128,11 @@ static u32 _newXMLNode(
 }
 
 static u32 _parseXmlDeclaration(
-    jf_string_parse_result_t * xml, jf_string_parse_result_field_t ** ppDoc)
+    jf_xmlparser_xml_doc_t * pjxxd, jf_string_parse_result_t * xml,
+    jf_string_parse_result_field_t ** ppField)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_string_parse_result_field_t * field;
+    jf_string_parse_result_field_t * field = NULL;
 
     if (xml->jspr_u32NumOfResult < 2)
         u32Ret = JF_ERR_CORRUPTED_XML_FILE;
@@ -153,7 +152,7 @@ static u32 _parseXmlDeclaration(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (memcmp(field->jsprf_pstrData, "?", 1) != 0)
+        if (ol_memcmp(field->jsprf_pstrData, "?", 1) != 0)
             u32Ret = JF_ERR_INVALID_XML_DECLARATION;
     }
     
@@ -165,7 +164,7 @@ static u32 _parseXmlDeclaration(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        *ppDoc = field->jsprf_pjsprfNext;
+        *ppField = field->jsprf_pjsprfNext;
     }
 
     return u32Ret;
@@ -178,10 +177,9 @@ static u32 _parseXmlElement(
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     *pbEmptyTag = FALSE;
-    if (memcmp(field->jsprf_pstrData, "/", 1) == 0)
+    if (ol_memcmp(field->jsprf_pstrData, "/", 1) == 0)
     {
-        /* The first character after the '<' was a '/', so it is the end
-           element */
+        /* The first character after the '<' was a '/', so it is the end element */
         *pbStartTag = FALSE;
         field->jsprf_pstrData ++;
         field->jsprf_sData --;
@@ -192,8 +190,7 @@ static u32 _parseXmlElement(
     }
     else
     {
-        /* The first character after the '<' was not a '/', so this is a start
-           element */
+        /* The first character after the '<' was not a '/', so this is a start element */
         *pbStartTag = TRUE;
 
         /* If we look for the '>' we can find the end of this element */
@@ -218,11 +215,11 @@ static u32 _parseXmlAttribute(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    /* Parsing on the ' ', isolate the element name from the attributes.
-       The first token is the element name */
+    /* Parsing on the ' ', isolate the element name from the attributes. The first token is the
+       element name */
     u32Ret = jf_string_parse(
-        ppAttr, pElem->jspr_pjsprfFirst->jsprf_pstrData, 0,
-        pElem->jspr_pjsprfFirst->jsprf_sData, " ", 1);
+        ppAttr, pElem->jspr_pjsprfFirst->jsprf_pstrData, 0, pElem->jspr_pjsprfFirst->jsprf_sData,
+        " ", 1);
 
     return u32Ret;
 }
@@ -234,18 +231,17 @@ static u32 _parseXmlElementName(
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t * pTag = NULL;
 
-    /* Now that we have the token that contains the element name,
-       we need to parse on the ":" because we need to figure out
-       what the namespace qualifiers are */
+    /* Now that we have the token that contains the element name, we need to parse on the ":"
+       because we need to figure out what the namespace qualifiers are */
     u32Ret = jf_string_parse(
-        &pTag, pAttr->jspr_pjsprfFirst->jsprf_pstrData, 0,
-        pAttr->jspr_pjsprfFirst->jsprf_sData, ":", 1);
+        &pTag, pAttr->jspr_pjsprfFirst->jsprf_pstrData, 0, pAttr->jspr_pjsprfFirst->jsprf_sData,
+        ":", 1);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pTag->jspr_u32NumOfResult == 1)
         {
-            /* If there is only one token, there was no namespace prefix. 
-               The whole token is the attribute name */
+            /* If there is only one token, there was no namespace prefix. The whole token is the
+               attribute name */
             *ppNs = NULL;
             *psNs = 0;
             *ppName = pTag->jspr_pjsprfFirst->jsprf_pstrData;
@@ -253,8 +249,7 @@ static u32 _parseXmlElementName(
         }
         else
         {
-            /* The first token is the namespace prefix, the second is
-               the attribute name */
+            /* The first token is the namespace prefix, the second is the attribute name */
             *ppNs = pTag->jspr_pjsprfFirst->jsprf_pstrData;
             *psNs = pTag->jspr_pjsprfFirst->jsprf_sData;
             *ppName = pTag->jspr_pjsprfFirst->jsprf_pjsprfNext->jsprf_pstrData;
@@ -267,37 +262,30 @@ static u32 _parseXmlElementName(
     return u32Ret;
 }
 
-/* Element: <name>content</name>
- * Empty element: <name/>
- * Declaration: <?xml version="1.0"?>
- * Comment: <!-- comment -->
- */
-
-/** Parse the XML document
+/** Parse the XML document.
  */
 static u32 _parseXML(
-    olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf,
-    jf_xmlparser_xml_node_t ** ppNode)
+    olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf, jf_xmlparser_xml_doc_t * pjxxd)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t * xml = NULL;
-    jf_string_parse_result_field_t * field;
+    jf_string_parse_result_field_t * field = NULL;
     jf_string_parse_result_t * pAttr = NULL;
     jf_string_parse_result_t * pElem = NULL;
-    olchar_t * tagName;
-    olsize_t sTagName;
-    boolean_t bStartTag;
-    boolean_t bEmptyTag;
+    olchar_t * tagName = NULL;
+    olsize_t sTagName = 0;
+    boolean_t bStartTag = FALSE;
+    boolean_t bEmptyTag = FALSE;
     jf_xmlparser_xml_node_t * retval = NULL;
     jf_xmlparser_xml_node_t * current = NULL;
-    olchar_t * nsTag;
-    olsize_t sNsTag;
+    olchar_t * nsTag = NULL;
+    olsize_t sNsTag = 0;
 
     /* All XML elements start with a '<' character */
     u32Ret = jf_string_parse(&xml, pstrBuf, sOffset, sBuf, "<", 1);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _parseXmlDeclaration(xml, &field);
+        u32Ret = _parseXmlDeclaration(pjxxd, xml, &field);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -326,8 +314,8 @@ static u32 _parseXML(
             if (sTagName != 0)
             {
                 u32Ret = _newXMLNode(
-                    &retval, &current, tagName, sTagName, bStartTag,
-                    bEmptyTag, nsTag, sNsTag, field, pElem);
+                    &retval, &current, tagName, sTagName, bStartTag, bEmptyTag, nsTag, sNsTag,
+                    field, pElem);
             }
         }
 
@@ -345,7 +333,7 @@ static u32 _parseXML(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        *ppNode = retval;
+        pjxxd->jxxd_pjxxnRoot = retval;
     }
     else if (retval != NULL)
     {
@@ -355,11 +343,11 @@ static u32 _parseXML(
     return u32Ret;
 }
 
-/** Checks XML for validity, while at the same time populate helper properties
- *  on each node This method call will populate various helper properties such
- *  as Parent, Peer, etc, to aid in XML parsing.
+/** Checks XML for validity, while at the same time populate helper properties on each node.
+ *  This method call will populate various helper properties such as Parent, Peer, etc, to aid in
+ *  XML parsing.
  *
- *  @param pjxxd [in] the XML Tree to process
+ *  @param pjxxd [in] The XML tree to process.
  *
  *  @return the error code
  */
@@ -371,9 +359,8 @@ static u32 _processXMLNodeList(jf_xmlparser_xml_doc_t * pjxxd)
     void * TagStack = NULL;
 
     jf_stack_init(&TagStack);
-    /* Iterate through the node list, and setup all the pointers
-       such that all StartElements have pointers to EndElements,
-       And all StartElements have pointers to siblings and parents. */
+    /* Iterate through the node list, and setup all the pointers such that all StartElements have
+       pointers to EndElements, And all StartElements have pointers to siblings and parents. */
     while (current != NULL)
     {
         if (current->jxxn_bStartTag)
@@ -398,8 +385,7 @@ static u32 _processXMLNodeList(jf_xmlparser_xml_doc_t * pjxxd)
                         temp->jxxn_pstrName, current->jxxn_pstrName,
                         current->jxxn_sName) == 0))
                 {
-                    /* The end element is correct, set the peer pointers of the
-                       previous sibling */
+                    /* The end element is correct, set the peer pointers of the previous sibling */
                     if (current->jxxn_pjxxnNext != NULL)
                     {
                         if (current->jxxn_pjxxnNext->jxxn_bStartTag)
@@ -429,9 +415,8 @@ static u32 _processXMLNodeList(jf_xmlparser_xml_doc_t * pjxxd)
         current = current->jxxn_pjxxnNext;
     }
 
-    /* If there are still elements in the stack, that means not all the
-       start elements have associated end elements, which means this XML
-       is not valid XML */
+    /* If there are still elements in the stack, that means not all the start elements have
+       associated end elements, which means this XML is not valid XML */
     if (TagStack != NULL)
     {
         /* Incomplete XML */
@@ -449,8 +434,8 @@ static u32 _getXmlAttribute(
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_xmlparser_xml_attribute_t * retval = NULL;
     jf_xmlparser_xml_attribute_t * current = NULL;
-    jf_string_parse_result_t * pAttr;
-    jf_string_parse_result_t * pValue;
+    jf_string_parse_result_t * pAttr = NULL;
+    jf_string_parse_result_t * pValue = NULL;
 
     /* Iterate through all the other tokens, as these are all attributes */
     while ((field != NULL) && (u32Ret == JF_ERR_NO_ERROR))
@@ -464,8 +449,8 @@ static u32 _getXmlAttribute(
         else
         {
             ol_bzero(retval, sizeof(jf_xmlparser_xml_attribute_t));
-            /* We already created an attribute node, so simply create a new one,
-               and attach it on the beginning of the old one. */
+            /* We already created an attribute node, so simply create a new one, and attach it on
+               the beginning of the old one. */
             u32Ret = jf_jiukun_allocMemory((void **)&current, sizeof(jf_xmlparser_xml_attribute_t));
             if (u32Ret == JF_ERR_NO_ERROR)
             {
@@ -478,9 +463,8 @@ static u32 _getXmlAttribute(
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            /* Parse each token by the ':'. If this results is more than one
-               token, we can figure that the first token is the namespace
-               prefix */
+            /* Parse each token by the ':'. If this results is more than one token, we can figure
+               that the first token is the namespace prefix */
             u32Ret = jf_string_parseAdv(
                 &pAttr, field->jsprf_pstrData, 0, field->jsprf_sData, ":", 1);
         }
@@ -489,8 +473,8 @@ static u32 _getXmlAttribute(
         {
             if (pAttr->jspr_u32NumOfResult == 1)
             {
-                /* This attribute has no prefix, so just parse on the '='. The
-                   first token is the attribute name, the other is the value */
+                /* This attribute has no prefix, so just parse on the '='. The first token is the
+                   attribute name, the other is the value */
                 retval->jxxa_pstrPrefix = NULL;
                 retval->jxxa_sPrefix = 0;
                 u32Ret = jf_string_parseAdv(
@@ -498,9 +482,8 @@ static u32 _getXmlAttribute(
             }
             else
             {
-                /* Since there is a namespace prefix, seperate that out, and
-                   parse the remainder on the '=' to figure out what the
-                   attribute name and value are */
+                /* Since there is a namespace prefix, seperate that out, and parse the remainder on
+                   the '=' to figure out what the attribute name and value are */
                 retval->jxxa_pstrPrefix = pAttr->jspr_pjsprfFirst->jsprf_pstrData;
                 retval->jxxa_sPrefix = pAttr->jspr_pjsprfFirst->jsprf_sData;
                 u32Ret = jf_string_parseAdv(
@@ -552,7 +535,7 @@ u32 jf_xmlparser_destroyXMLAttributeList(jf_xmlparser_xml_attribute_t ** ppAttri
     return u32Ret;
 }
 
-/** Resolves a namespace prefix from the scope of the given node
+/** Resolves a namespace prefix from the scope of the given node.
  *
  *  @param node [in] the node used to start the resolve
  *  @param prefix [in] the namespace prefix to resolve
@@ -562,14 +545,13 @@ u32 jf_xmlparser_destroyXMLAttributeList(jf_xmlparser_xml_attribute_t ** ppAttri
  *  @return the error code
  */
 u32 jf_xmlparser_lookupXMLNamespace(
-    jf_xmlparser_xml_node_t * node, olchar_t * prefix, olsize_t sPrefix,
-    olchar_t ** ppstr)
+    jf_xmlparser_xml_node_t * node, olchar_t * prefix, olsize_t sPrefix, olchar_t ** ppstr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_xmlparser_xml_node_t * temp = node;
 
-    /*If the specified prefix is zero length, we interpret that to mean
-      they want to lookup the default namespace*/
+    /*If the specified prefix is zero length, we interpret that to mean they want to lookup the
+      default namespace*/
     if (sPrefix == 0)
     {
         /*This is the default namespace prefix*/
@@ -577,14 +559,14 @@ u32 jf_xmlparser_lookupXMLNamespace(
         sPrefix = 5;
     }
 
-    /*From the current node, keep traversing up the parents, until we find
-      a match. Each step we go up, is a step wider in scope.*/
+    /*From the current node, keep traversing up the parents, until we find a match. Each step we go
+      up, is a step wider in scope.*/
     do
     {
         if (jf_hashtree_hasEntry(&temp->jxxn_jhNameSpace, prefix, sPrefix))
         {
-            /*As soon as we find the namespace declaration, stop
-              iterating the tree, as it would be a waste of time*/
+            /*As soon as we find the namespace declaration, stop iterating the tree, as it would be
+              a waste of time*/
             jf_hashtree_getEntry(
                 &temp->jxxn_jhNameSpace, prefix, sPrefix, (void **)ppstr);
             break;
@@ -596,9 +578,9 @@ u32 jf_xmlparser_lookupXMLNamespace(
     return u32Ret;
 }
 
-/** Builds the lookup table used by lookupXMLNamespace
+/** Builds the lookup table used by lookupXMLNamespace.
  *
- *  @param node [in] This node will be the highest scoped
+ *  @param node [in] This node will be the highest scoped.
  *
  *  @return the error code
  */
@@ -608,8 +590,7 @@ u32 jf_xmlparser_buildXMLNamespaceLookupTable(jf_xmlparser_xml_node_t * node)
     jf_xmlparser_xml_attribute_t *attr, *currentAttr;
     jf_xmlparser_xml_node_t *current = node;
 
-    /*Iterate through all the start elements, and build a table of the
-      declared namespaces*/
+    /*Iterate through all the start elements, and build a table of the declared namespaces*/
     while (current != NULL)
     {
         if (! current->jxxn_bStartTag)
@@ -618,16 +599,15 @@ u32 jf_xmlparser_buildXMLNamespaceLookupTable(jf_xmlparser_xml_node_t * node)
             continue;
         }
 
-        /*jxxn_jhNameSpace is the hash table containing the fully qualified
-          namespace keyed by the namespace prefix*/
+        /*jxxn_jhNameSpace is the hash table containing the fully qualified namespace keyed by the
+          namespace prefix*/
         jf_hashtree_init(&current->jxxn_jhNameSpace);
 
         u32Ret = jf_xmlparser_getXMLAttributes(current, &attr);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             currentAttr = attr;
-            /*Iterate through all the attributes to find namespace
-              declarations*/
+            /*Iterate through all the attributes to find namespace declarations*/
             while (currentAttr != NULL)
             {
                 if (currentAttr->jxxa_sName == 5 &&
@@ -667,8 +647,8 @@ u32 jf_xmlparser_readInnerXML(
     olsize_t sBuf = 0;
     jf_stack_t *tagStack;
 
-    /*Starting with the current start element, we use this stack to find
-      the matching end element, so we can figure out what we need to return*/
+    /*Starting with the current start element, we use this stack to find the matching end element,
+      so we can figure out what we need to return*/
     jf_stack_init(&tagStack);
     do
     {
@@ -687,10 +667,9 @@ u32 jf_xmlparser_readInnerXML(
 
     jf_stack_clear(&tagStack);
 
-    /*The jxxn_pReserved fields of the start element and end element are used as
-      pointers representing the data segment of the XML*/
-    sBuf = (olsize_t)
-        ((olchar_t *)x->jxxn_pReserved - (olchar_t *)node->jxxn_pReserved - 1);
+    /*The jxxn_pReserved fields of the start element and end element are used as pointers
+      representing the data segment of the XML*/
+    sBuf = (olsize_t)((olchar_t *)x->jxxn_pReserved - (olchar_t *)node->jxxn_pReserved - 1);
     if (sBuf < 0)
     {
         sBuf = 0;
@@ -710,30 +689,28 @@ u32 jf_xmlparser_getXMLAttributes(
     jf_string_parse_result_t * xml;
     jf_string_parse_result_field_t * field;
 
-    /* The reserved field is used to show where the data segments start and
-       stop. We can also use them to figure out where the attributes start
-       and stop */
+    /* The reserved field is used to show where the data segments start and stop. We can also use
+       them to figure out where the attributes start and stop */
     c = (olchar_t *) node->jxxn_pReserved - 1;
     while (*c != '<')
     {
-        /* The jxxn_pReserved field of the start element points to the first
-           character after the '>' of the start element. Just work our way
-           backwards to find the start of the start element */
+        /* The jxxn_pReserved field of the start element points to the first character after the
+           '>' of the start element. Just work our way backwards to find the start of the start
+           element */
         c = c - 1;
     }
     c = c + 1;
 
-    /* Now that we isolated the string between the '<' and the '>', we can parse
-       the string as delimited by ' '. Use jf_string_parseAdv because these
-       attributes can be within quotation marks */
+    /* Now that we isolated the string between the '<' and the '>', we can parse the string as
+       delimited by ' '. Use jf_string_parseAdv because these attributes can be within quotation
+       marks */
     u32Ret = jf_string_parseAdv(
-        &xml, c, 0, ((olchar_t *) node->jxxn_pReserved - c - nEndReserved),
-        " ", 1);
+        &xml, c, 0, ((olchar_t *) node->jxxn_pReserved - c - nEndReserved), " ", 1);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         field = xml->jspr_pjsprfFirst;
 
-        /* We skip the first token, because the first token, is the Element name */
+        /* Skip the first token, because the first token is the Element name */
         if (field != NULL)
         {
             field = field->jsprf_pjsprfNext;
@@ -752,7 +729,7 @@ u32 jf_xmlparser_parseXML(
 
     ol_bzero(pjxxd, sizeof(jf_xmlparser_xml_doc_t));
 
-    u32Ret = _parseXML(pstrBuf, sOffset, sBuf, &(pjxxd->jxxd_pjxxnRoot));
+    u32Ret = _parseXML(pstrBuf, sOffset, sBuf, pjxxd);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _processXMLNodeList(pjxxd);
@@ -775,23 +752,23 @@ u32 jf_xmlparser_parseXMLFile(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     FILE * fp = NULL;
-    olsize_t u32Size;
+    olsize_t sSize;
     jf_file_stat_t filestat;
-    jf_xmlparser_xml_file_t * pjxxf;
+    jf_xmlparser_xml_file_t * pjxxf = NULL;
 
     assert((pstrFilename != NULL) && (ppFile != NULL));
 
     u32Ret = jf_jiukun_allocMemory((void **)&pjxxf, sizeof(*pjxxf));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(pjxxf, 0, sizeof(*pjxxf));
+        ol_bzero(pjxxf, sizeof(*pjxxf));
         u32Ret = jf_file_getStat(pstrFilename, &filestat);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Size = (olsize_t)filestat.jfs_u64Size;
-        u32Ret = jf_jiukun_allocMemory((void **)&(pjxxf->jxxf_pstrBuf), u32Size);
+        sSize = (olsize_t)filestat.jfs_u64Size;
+        u32Ret = jf_jiukun_allocMemory((void **)&(pjxxf->jxxf_pstrBuf), sSize);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -801,8 +778,8 @@ u32 jf_xmlparser_parseXMLFile(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_filestream_readn(fp, pjxxf->jxxf_pstrBuf, &u32Size);
-        if (u32Size != (u32)filestat.jfs_u64Size)
+        u32Ret = jf_filestream_readn(fp, pjxxf->jxxf_pstrBuf, &sSize);
+        if (sSize != (u32)filestat.jfs_u64Size)
             u32Ret = JF_ERR_CORRUPTED_XML_FILE;
     }
 
@@ -811,8 +788,7 @@ u32 jf_xmlparser_parseXMLFile(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_xmlparser_parseXML(
-            pjxxf->jxxf_pstrBuf, 0, u32Size, &(pjxxf->jxxf_jxxdDoc));
+        u32Ret = jf_xmlparser_parseXML(pjxxf->jxxf_pstrBuf, 0, sSize, &(pjxxf->jxxf_jxxdDoc));
     }
 
     if (pjxxf != NULL)
@@ -842,12 +818,12 @@ u32 jf_xmlparser_destroyXMLFile(jf_xmlparser_xml_file_t ** ppFile)
 void jf_xmlparser_printXMLNodeList(jf_xmlparser_xml_node_t * pjxxn, u8 u8Indent)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t tagname[50];
-    olchar_t value[50];
-    olchar_t * pstrValue;
-    olsize_t sBuf;
-    jf_xmlparser_xml_node_t * temp;
-    u8 u8Index;
+    olchar_t tagname[128];
+    olchar_t value[128];
+    olchar_t * pstrValue = NULL;
+    olsize_t sBuf = 0;
+    jf_xmlparser_xml_node_t * temp = NULL;
+    u8 u8Index = 0;
 
     temp = pjxxn;
     while (temp != NULL)

@@ -1,7 +1,7 @@
 /**
  *  @file xmlparser-test.c
  *
- *  @brief test file for xmlparser library
+ *  @brief Test file for jf_xmlparser library.
  *
  *  @author Min Zhang
  *
@@ -163,12 +163,13 @@ static u32 _testXmlParser_1()
 
     for (u32Index = 0; u32Index < u32NumOfCase; u32Index ++)
     {
+        ol_printf("----------------------------------------------------------------\n");
         ol_printf("Parse following XML document:\n%s\n", txp[u32Index].pstrXml);
         u32Ret = jf_xmlparser_parseXML(
             txp[u32Index].pstrXml, 0, strlen(txp[u32Index].pstrXml), &xmldoc);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            ol_printf("Parse result:\n");            
+            ol_printf("\nParse result:\n");            
             jf_xmlparser_printXMLNodeList(xmldoc.jxxd_pjxxnRoot, 4);
         }
         else if (u32Ret != txp[u32Index].u32ErrCode)
@@ -178,17 +179,20 @@ static u32 _testXmlParser_1()
         }
         else
         {
-            ol_printf("Parse result:\n");
+            ol_printf("\nParse result:\n");
             jf_err_getMsg(u32Ret, strErrMsg, 300);
             ol_printf("%s\n", strErrMsg);
             if (xmldoc.jxxd_pjxxnError != NULL)
             {
                 strErrMsg[0] = '\0';
                 if (xmldoc.jxxd_pjxxnError->jxxn_pstrNs != NULL)
+                {
                     ol_strncat(
                         strErrMsg, xmldoc.jxxd_pjxxnError->jxxn_pstrNs,
                         xmldoc.jxxd_pjxxnError->jxxn_sNs);
-                ol_strcat(strErrMsg, ":");
+                    ol_strcat(strErrMsg, ":");
+                }
+
                 ol_strncat(
                     strErrMsg, xmldoc.jxxd_pjxxnError->jxxn_pstrName,
                     xmldoc.jxxd_pjxxnError->jxxn_sName);

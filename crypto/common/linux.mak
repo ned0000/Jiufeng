@@ -1,5 +1,5 @@
 #
-#  @file Makefile
+#  @file linux.mak
 #
 #  @brief The Makefile for common object file of crypto library
 #

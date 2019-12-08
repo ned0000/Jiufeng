@@ -187,8 +187,9 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
 /* xml parser error */
     {JF_ERR_INCOMPLETE_XML, "Incomplete XML file."},
     {JF_ERR_ILLEGAL_CLOSE_TAG, "Illegal close tag."},
-    {JF_ERR_UNMATCHED_CLOSE_TAG, "Unmatched close tag found."},
+    {JF_ERR_UNMATCHED_CLOSE_TAG, "Unmatched close tag is found."},
     {JF_ERR_CORRUPTED_XML_FILE, "Corrupted XML file."},
+    {JF_ERR_INVALID_XML_DECLARATION, "Invalid XML declaration."},
 /* httpparser error */
     {JF_ERR_HTTP_STATUS_NOT_OK, "HTTP status is not OK."},
     {JF_ERR_CORRUPTED_HTTP_MSG, "Corrupted HTTP message."},

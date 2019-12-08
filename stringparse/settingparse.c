@@ -73,8 +73,7 @@ static u32 _trimSetting(olchar_t * pstrSetting, olchar_t * pstrValue, olsize_t s
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 jf_string_processIdList(
-    const olchar_t * pstrIdList, olid_t * pids, olsize_t * psId)
+u32 jf_string_processIdList(const olchar_t * pstrIdList, olid_t * pids, olsize_t * psId)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strId[(2 * MAX_ID_LENGTH) + 1 + 1];  /* "####", or "####~####" */
@@ -614,8 +613,7 @@ u32 getSettingsSize(olchar_t * pstrArray[], olsize_t sArray,
     return u32Ret;
 }
 
-/** Pcoesss setting string with format "name=value", the string is
- *  null-terminated
+/** Process setting string with format "name=value", the string is null-terminated.
  *
  */
 u32 jf_string_processSettingString(

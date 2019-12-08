@@ -81,15 +81,15 @@ static boolean_t _isblank(olchar_t c)
 /* String Parsing Methods */
 
 u32 jf_string_parseAdv(
-    jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
-    olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
+    jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf,
+    olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_string_parse_result_t * ppr;
+    jf_string_parse_result_t * ppr = NULL;
     olint_t i = 0;
     olchar_t * token = NULL;
     olint_t tokenlength = 0;
-    jf_string_parse_result_field_t *pjsprf;
+    jf_string_parse_result_field_t * pjsprf = NULL;
     olint_t ignore = 0;
     olchar_t cDelimiter = 0;
 
@@ -210,8 +210,8 @@ u32 jf_string_parseAdv(
 }
 
 u32 jf_string_parse(
-    jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
-    olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
+    jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf,
+    olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t * ppr;
@@ -225,9 +225,8 @@ u32 jf_string_parse(
     {
         ol_memset(ppr, 0, sizeof(jf_string_parse_result_t));
 
-        /*By default we will always return at least one token, which will be the
-          entire string if the delimiter is not found.
-          Iterate through the string to find delimiters*/
+        /*By default we will always return at least one token, which will be the entire string if
+          the delimiter is not found. Iterate through the string to find delimiters*/
         token = pstrBuf + sOffset;
         for (i = sOffset; (i < sBuf) && (u32Ret == JF_ERR_NO_ERROR); ++i)
         {
@@ -271,9 +270,8 @@ u32 jf_string_parse(
 
     if ((u32Ret == JF_ERR_NO_ERROR) && (tokenlength >= 0))
     {
-        /* Create a result for the last token, since it won't be caught in the
-           above loop because if there are no more delimiters. The last token
-           is counted in even the length is 0 */
+        /*Create a result for the last token, since it won't be caught in the above loop because
+          if there are no more delimiters. The last token is counted in even the length is 0 */
         u32Ret = jf_jiukun_allocMemory((void **)&pjsprf, sizeof(*pjsprf));
         if (u32Ret == JF_ERR_NO_ERROR)
         {
@@ -311,10 +309,10 @@ u32 jf_string_parse(
 u32 jf_string_destroyParseResult(jf_string_parse_result_t ** ppResult)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    /* all of these nodes only contain pointers
-       so we just need to iterate through all the nodes and free them */
-    jf_string_parse_result_field_t *node = (*ppResult)->jspr_pjsprfFirst;
-    jf_string_parse_result_field_t *temp;
+    /* all of these nodes only contain pointers, so we just need to iterate through all the nodes
+       and free them */
+    jf_string_parse_result_field_t * node = (*ppResult)->jspr_pjsprfFirst;
+    jf_string_parse_result_field_t * temp = NULL;
 
     while (node != NULL)
     {
@@ -427,12 +425,13 @@ u32 jf_string_duplicate(olchar_t ** ppstrDest, const olchar_t * pstrSource)
 
 void jf_string_filterComment(olchar_t * pstrDest, const olchar_t * pstrComment)
 {
-    olchar_t *p;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t * p = NULL;
 
     assert((pstrDest != NULL) && (pstrComment != NULL));
 
-    p = strstr(pstrDest, pstrComment);
-    if (p != NULL)
+    u32Ret = jf_string_locateSubString(pstrDest, pstrComment, &p);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         *p = '\0';
     }
@@ -488,7 +487,7 @@ void jf_string_removeLeadingSpace(olchar_t * pstr)
 
     if (u32Index != 0)
     {
-        memmove(pstr, pstr + u32Index, sBuf - u32Index + 1);
+        ol_memmove(pstr, pstr + u32Index, sBuf - u32Index + 1);
     }
 }
 
@@ -589,7 +588,9 @@ u32 jf_string_locateSubString(
 
     pstrLoc = strstr(pstr, pstrSubStr);
     if (pstrLoc == NULL)
+    {
         u32Ret = JF_ERR_SUBSTRING_NOT_FOUND;
+    }
     else
     {
         if (ppstrLoc != NULL)
@@ -601,9 +602,10 @@ u32 jf_string_locateSubString(
 
 olchar_t * jf_string_replace(
     olchar_t * pstrSrc, olsize_t sBuf, olchar_t * pstrNeedle, olchar_t * pstrSubst)
-{    /* "The string NEEDLE will be substituted"
-      *                   ^- beg
-      */
+{
+    /* "The string NEEDLE will be substituted"
+     *                   ^- beg
+     */
     olchar_t * beg = NULL;
     /* "The string SUBST will be substituted"
      *                  ^- end

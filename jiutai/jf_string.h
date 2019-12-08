@@ -1,12 +1,14 @@
 /**
  *  @file jf_string.h
  *
- *  @brief String parse header file, provide some functional routine for string manipulation
+ *  @brief String parse header file, provide some functional routine for string manipulation.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_string library
- *  @note Link with jf_jiukun library for memory allocation
+ *  @note 
+ *  -# Routines declared in this file are included in jf_string library.
+ *  -# Link with jf_jiukun library for memory allocation.
+ *
  */
 
 #ifndef JIUFENG_STRING_H
@@ -38,27 +40,28 @@
 
 
 /* --- data structures -------------------------------------------------------------------------- */
-/** Parse result field
+
+/** Define the string parse result field data type.
  */
 typedef struct jf_string_parse_result_field
 {
-    /** Token */
+    /**The string token.*/
     olchar_t * jsprf_pstrData;
-    /** Length of the token */
+    /**Length of the token.*/
     olsize_t jsprf_sData;
-    /** Next field */
+    /**Next parse result field.*/
     struct jf_string_parse_result_field * jsprf_pjsprfNext;
 } jf_string_parse_result_field_t;
 
-/** Parse result
+/** Define the string parse result data type.
  */
 typedef struct jf_string_parse_result
 {
-    /** First result */
+    /**First result.*/
     jf_string_parse_result_field_t * jspr_pjsprfFirst;
-    /** Last result */
+    /**Last result.*/
     jf_string_parse_result_field_t * jspr_pjsprfLast;
-    /** Numbers of results */
+    /**Numbers of results.*/
     u32 jspr_u32NumOfResult;
 } jf_string_parse_result_t;
 
@@ -68,119 +71,244 @@ typedef struct jf_string_parse_result
 
 /** Parse a string into a linked list of tokens.
  *
- *  @param ppResult [out] the parse result returned
- *  @param pstrBuf [in] The buffer to parse 
- *  @param sOffset [in] The offset of the buffer to start parsing 
- *  @param sBuf [in] The length of the buffer to parse 
- *  @param pstrDelimiter [in] The delimiter 
- *  @param sDelimiter [in] The length of the delimiter 
- * 
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
- *  @retval JF_ERR_OUT_OF_MEMORY out of memeory
+ *  @note
+ *  -# Differs from parseStringAdv, this method does not ignore characters contained within
+ *     quotation marks, whereas parseStringAdv does.
+ *  -# After parse, the buffer is kept unchanged.
  *
- *  @note Differs from parseStringAdv, this method does not ignore characters contained within
- *   quotation marks, whereas parseStringAdv does.
- *  @note After parse, the buffer is kept unchanged
+ *  @par Example
+ *  <table>
+ *  <tr><th>Source String      <th>delimiter   <th>Number of Fields <th>Fields               </tr>
+ *  <tr><td>"<name>"           <td>"<"         <td>2   <td>"", "name>"                       </tr>
+ *  <tr><td>"<name>"           <td>"="         <td>1   <td>"name>"                           </tr>
+ *  <tr><td>"<name>"           <td>">"         <td>2   <td>"<name", ""                       </tr>
+ *  <tr><td>"<name>"           <td>"m"         <td>2   <td>"<na", "e>"                       </tr>
+ *  <tr><td>"<My name is">" adv>" <td>">"      <td>3   <td>"<My name is"", "" adv>", ""      </tr>
+ *  </table>
+ *
+ *  @param ppResult [out] the parse result returned.
+ *  @param pstrBuf [in] The buffer to parse.
+ *  @param sOffset [in] The offset of the buffer to start parsing.
+ *  @param sBuf [in] The length of the buffer to parse.
+ *  @param pstrDelimiter [in] The delimiter.
+ *  @param sDelimiter [in] The length of the delimiter. 
+ * 
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_OUT_OF_MEMORY Out of meory.
+ *
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_parse(
-    jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
-    olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter);
+    jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf,
+    olchar_t * pstrDelimiter, olsize_t sDelimiter);
 
 
 /** Parses a string into a linked list of tokens. Ignore characters contained within quotation
- *  marks. The quotation is " or '.
+ *  marks.
  *
- *  @param ppResult [out] the parse result returned
- *  @param pstrBuf [in] The buffer to parse 
- *  @param sOffset [in] The offset of the buffer to start parsing 
- *  @param sBuf [in] The size of the buffer to parse 
- *  @param pstrDelimiter [in] The delimiter 
- *  @param sDelimiter [in] The length of the delimiter 
+ *  @note
+ *  -# The quotation mark is " or '.
+ *  -# Differs from parseString, this method ignores characters contained within quotation marks,
+ *     whereas parseString does not.
+ *  -# After parse, the buffer is kept unchanged.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
- *  @retval JF_ERR_OUT_OF_MEMORY out of memeory
+ *  @par Example
+ *  <table>
+ *  <tr><th>Source String      <th>Delimiter   <th>Number of Fields <th>Fields               </tr>
+ *  <tr><td>"<My name is">" adv>"    <td>">"   <td>2   <td>"<My name is">" adv", ""         </tr>
+ *  <tr><td>"<My name is'>' adv>"    <td>">"   <td>2   <td>"<My name is'>' adv", ""         </tr>
+ *  <tr><td>">My name is'>' adv>"    <td>">"   <td>3   <td>"", "My name is'>' adv", ""     </tr>
+ *  </table>
  *
- *  @note differs from parseString, this method ignores characters contained within quotation marks,
- *   whereas parseString does not.
- *  @note After parse, the buffer is kept unchanged
+ *  @param ppResult [out] The parse result returned.
+ *  @param pstrBuf [in] The buffer to parse.
+ *  @param sOffset [in] The offset of the buffer to start parsing.
+ *  @param sBuf [in] The size of the buffer to parse.
+ *  @param pstrDelimiter [in] The delimiter.
+ *  @param sDelimiter [in] The length of the delimiter. 
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_OUT_OF_MEMORY Out of memeory.
+ *
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_parseAdv(
     jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
     olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter);
 
-/** Frees resources associated with the list of tokens returned from parseString
- *  and parseStringAdv.
+/** Frees resources associated with the list of tokens returned from jf_string_parse() and
+ *  jf_string_parseAdv().
  *
- *  @param ppResult [in] The list of tokens to free 
+ *  @param ppResult [in] The list of tokens to free.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_destroyParseResult(
     jf_string_parse_result_t ** ppResult);
 
-/** Remove the blank space(s) from the left and the right of the string
+/** Remove the blank space(s) from the left and the right of the string.
  *
- *  @param pstrDest [out] the output string after removing the blank space(s)
- *  @param pstrSource [in] the input string to be removed the blank space(s)
+ *  @param pstrDest [out] The output string after removing the blank space(s).
+ *  @param pstrSource [in] The input string to be removed the blank space(s).
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_skipBlank(
     olchar_t * pstrDest, const olchar_t * pstrSource);
 
+/** Check if the line is blank.
+ *
+ *  @param pstrLine [in] The line to be checked.
+ *
+ *  @return The status of blank line.
+ *  @retval TRUE It's a blank line.
+ *  @retval FALSE It's not a blank line.
+ */
 STRINGPARSEAPI boolean_t STRINGPARSECALL jf_string_isBlankLine(const olchar_t * pstrLine);
 
+/** Duplicate the source string.
+ *
+ *  @param ppstrDest [out] The destination string.
+ *  @param pstrSource [in] The source string.
+ *
+ *  @return The error status.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_duplicate(
     olchar_t ** ppstrDest, const olchar_t * pstrSource);
 
+/** Duplicate the source string with length.
+ *
+ *  @param ppstrDest [out] The destination string.
+ *  @param pstrSource [in] The source string.
+ *  @param sSource [in] The length of the source string.
+ *
+ *  @return The error status.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_duplicateWithLen(
-    olchar_t ** ppstrDest, const olchar_t * pu8Source, const olsize_t sSource);
+    olchar_t ** ppstrDest, const olchar_t * pstrSource, const olsize_t sSource);
 
+/** Free the string duplicated.
+ *
+ *  @param ppstrStr [in/out] The string to be freed.
+ *
+ *  @return The error status.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_free(olchar_t ** ppstrStr);
 
+/** Filter the string with comment.
+ *
+ *  @par Example
+ *  @code
+ *   pstrDest = "hello # comend", pstrComment = "#"
+ *   after processing:
+ *   pstrDest = "hello "
+ *  @endcode
+ *
+ *  @param pstrDest [in/out] The string to be filtered.
+ *  @param pstrComment [in] The string of comment.
+ *
+ *  @return Void.
+ */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_filterComment(
     olchar_t * pstrDest, const olchar_t * pstrComment);
 
+/** Lower the string.
+ *
+ *  @par Example
+ *  @code
+ *   pstrDest = "Hello"
+ *   after processing:
+ *   pstrDest = "hello"
+ *  @endcode
+ *
+ *  @param pstr [in/out] The string to be lowered.
+ *
+ *  @return Void.
+ */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_lower(olchar_t * pstr);
 
+/** Upper the string.
+ *
+ *  @par Example
+ *  @code
+ *   pstrDest = "Hello"
+ *   after processing:
+ *   pstrDest = "HELLO"
+ *  @endcode
+ *
+ *  @param pstr [in/out] The string to be uppered.
+ *
+ *  @return Void.
+ */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_upper(olchar_t * pstr);
 
+/** Remove the leading space of the string.
+ *
+ *  @par Example
+ *  @code
+ *   pstrDest = "  hello "
+ *   after processing:
+ *   pstrDest = "hello "
+ *  @endcode
+ *
+ *  @param pstr [in/out] The string to be operated.
+ *
+ *  @return Void.
+ */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_removeLeadingSpace(olchar_t * pstr);
 
+/** Remove the traling space of the string.
+ *
+ *  @par Example
+ *  @code
+ *   pstrDest = "  hello "
+ *   after processing:
+ *   pstrDest = "  hello"
+ *  @endcode
+ *
+ *  @param pstr [in/out] The string to be operated.
+ *
+ *  @return Void.
+ */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_removeTailingSpace(olchar_t * pstr);
 
-/** Removes all leading and tailing blankspaces, and replaces all multiple
- *  occurences of blank spaces with a single one.       \n
- *  eg:                                                 \n
- *      "  this   is  a   test string"                  \n
- *  =>    "this is a test string"                       \n
+/** Removes all leading and tailing blankspaces, and replaces all multiple occurences of blank
+ *  spaces with a single one.
  *
- *  @param pstr [in/out] the string that should be trimmed.
+ *  @par Example
+ *  @code
+ *   pstr = "  this   is  a   test string"
+ *   after processing:
+ *   pstrDest = "this is a test string"
+ *  @endcode
  *
- *  @return void
+ *  @param pstr [in/out] The string that should be trimmed.
+ *
+ *  @return Void.
  */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_trimBlank(olchar_t * pstr);
 
 /** Break string to line with width, the line terminator is at the best suitable position. 
  *
- *  @param pstr [in/out] the string that should be wrapped.
- *  @param sWidth [in] the maximal column count of the wrapped string.
+ *  @param pstr [in/out] The string that should be wrapped.
+ *  @param sWidth [in] The maximal column count of the wrapped string.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_breakToLine(olchar_t * pstr, olsize_t sWidth);
 
 /** Locate sub string.
  *
- *  @param pstr [in] The string to be located
- *  @param pstrSub [in] The sub string
+ *  @param pstr [in] The string to be located.
+ *  @param pstrSub [in] The sub string.
  *  @param ppstrLoc [out] Pointer to the beginning of the substring, or NULL if the substring is
- *   not found
+ *   not found.
  *
  *  @return the error code
  *  @retval JF_ERR_NO_ERROR success
@@ -188,149 +316,174 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_breakToLine(olchar_t * pstr, olsize
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_locateSubString(
     const olchar_t * pstr, const olchar_t * pstrSub, olchar_t ** ppstrLoc);
 
-/** Replaces the first occurence of needle in the string src with the string subst. If no occurence
- *  of needle could be found in src, NULL is returned, otherwise the starting index of needle inside
- *  src. src needs to be big enough to store the resulting string.
+/** Replaces the first occurence of needle in the source string with the substitute string. If no
+ *  occurence of needle could be found in source string, NULL is returned, otherwise return the
+ *  starting index of needle inside source string.
  *
- *  @param pstrSrc [in] the string that should be modified.
- *  @param sBuf [in] the size of the buffer containing the source string
+ *  @note
+ *  -# Source string needs to be big enough to store the resulting string.
+ *
+ *  @param pstrSrc [in] The string that should be modified.
+ *  @param sBuf [in] The size of the buffer containing the source string.
  *  @param pstrNeedle [in] the pattern that should be replaced.
  *  @param pstrSubst [in] the pattern that should be used for replacing.
  *
- *  @return the occurence of needle
- *  @retval NULL if no occurence of needle could be found in src
+ *  @return The occurence of needle.
+ *  @retval NULL If no occurence of needle could be found in source string.
  */
 STRINGPARSEAPI olchar_t * STRINGPARSECALL jf_string_replace(
     olchar_t * pstrSrc, olsize_t sBuf, olchar_t * pstrNeedle, olchar_t * pstrSubst);
 
 /*string print*/
 
-/** Get the string of positive
+/** Get the string of positive.
  *
- *  @param bPositive [in] the positive status
-
- *  @return the string of the positive. Either "Yes" or "No".
+ *  @param bPositive [in] The positive status.
+ *
+ *  @return The string of the positive.
+ *  @retval Yes Positive.
+ *  @retval No Negative.
  */
 STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringPositive(
     const boolean_t bPositive);
 
-/** Get the enable/disable status
+/** Get the enable/disable status.
  *
- *  @param bEnable [in] the enable status
+ *  @param bEnable [in] The enable status.
  *
- *  @return the string of the status. Either "Enabled" or "Disabled".
+ *  @return The string of the status.
+ *  @retval Enabled Enabled.
+ *  @retval Disabled Disabled.
  */
 STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringEnable(
     const boolean_t bEnable);
 
-/** Get WWN(world wide name)
+/** Get WWN(world wide name).
  *
- *  @note This function does not check the size of the string buffer. Please make
- *   sure it is big enough to avoid memory access violation.
+ *  @note
+ *  -# This function does not check the size of the string buffer. Please make sure it is big
+ *     enough to avoid memory access violation.
  *
- *  @param pstrWwn [out] the string to return
- *  @param u64WWN [in] the u64 WWN 
+ *  @param pstrWwn [out] The string to return.
+ *  @param u64WWN [in] The u64 WWN.
  */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_getStringWWN(
     olchar_t * pstrWwn, const u64 u64WWN);
 
 /** Get the version string in the format of "v.vv.vvvv.vv".
  *
- *  @note This function does not check the size of the string buffer. Please make
- *   sure it is big enough to avoid memory access violation.
+ *  @note
+ *  -# This function does not check the size of the string buffer. Please make sure it is big
+ *     enough to avoid memory access violation.
  *
- *  @param pstrVersion [out] the size string to be returned
- *  @param u8Major [in] the major version number
- *  @param u8Minor [in] the minor version number
- *  @param u32OEMCode [in] the OEM code
- *  @param u8BuildNo [in] the build number
+ *  @param pstrVersion [out] The size string to be returned.
+ *  @param u8Major [in] The major version number.
+ *  @param u8Minor [in] The minor version number.
+ *  @param u32OEMCode [in] The OEM code.
+ *  @param u8BuildNo [in] The build number.
+ *
+ *  @return Void.
  */
 void getStringVersion(
     olchar_t * pstrVersion, const u8 u8Major, const u8 u8Minor, const u32 u32OEMCode,
     const u8 u8BuildNo);
 
-/** Get string of u64 integer
+/** Get string of u64 integer.
  *
- *  @note This function does not check the size of the string buffer. Please make
- *   sure it is big enough to avoid memory access violation.
+ *  @note This function does not check the size of the string buffer. Please make sure it is big
+ *   enough to avoid memory access violation.
  *
- *  @param pstrInteger [out] the u64 string to be returned
- *  @param u64Integer [in] the u64 integer
+ *  @param pstrInteger [out] The u64 string to be returned.
+ *  @param u64Integer [in] The u64 integer.
+ *
+ *  @return Void.
  */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_getStringU64Integer(
     olchar_t * pstrInteger, const u64 u64Integer);
 
-/** Get the string of true/false
+/** Get the string of true/false.
  *
- *  @param bTrue [in] the true status
+ *  @param bTrue [in] The true status.
  *
- *  @return the string of the status, either "TRUE" or "FALSE".
+ *  @return The string of the status.
+ *  @retval TRUE True.
+ *  @retval FALSE False.
  */
 STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringTrue(
     const boolean_t bTrue);
 
-/** Get the string of unknown
+/** Get the string of unknown.
  *
- *  @return the string "unknown"
+ *  @return The string "Unknown".
  */
 STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringUnknown(void);
 
 /** Get the string of not applicable "N/A".
  *
- *  @return the string of not applicable.
+ *  @return The string "N/A".
  */
 STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringNotApplicable(void);
 
-/** Get the string of not supported
+/** Get the string of not supported.
  *
- *  @return the string of not supported
+ *  @return The string "Not Supported".
  */
 STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringNotSupported(void);
 
-/** Get the string of MAC Address
+/** Get the string of MAC Address.
  *
- *  @note This function does not check the size of the string buffer. Please make
- *   sure it is big enough to avoid memory access violation.
+ *  @note
+ *  -# This function does not check the size of the string buffer. Please make sure it is big enough
+ *     to avoid memory access violation.
  *
- *  @param pstrMACAddr [out] the string buffer where the MAC address string will return
- *  @param pu8MAC [in] the MAC addr info
+ *  @param pstrMACAddr [out] The string buffer where the MAC address string will return.
+ *  @param pu8MAC [in] The MAC addr information.
+ *
+ *  @return Void.
  */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_getStringMACAddress(
     olchar_t * pstrMACAddr, const u8 * pu8MAC);
 
-/** Get the size string in GB, MB, KB and B. The size string will be the format
- *  of "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>"
+/** Get the size string in GB, MB, KB and B. The size string will be the format of
+ *  "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>".
  *
- *  @note This function does not check the size of the string buffer. Please make
- *   sure it is big enough to avoid memory access violation.
+ *  @note
+ *  -# This function does not check the size of the string buffer. Please make sure it is big enough
+ *     to avoid memory access violation.
  *
- *  @param pstrSize [out] the size string to be returned;
- *  @param u64Size [in] the size in bytes
+ *  @param pstrSize [out] The size string to be returned.
+ *  @param u64Size [in] The size in bytes.
+ *
+ *  @return Void.
  */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_getStringSize(olchar_t * pstrSize, const u64 u64Size);
 
-/** Get the size string in GB, MB, KB and B. The size string will be the format
- *  of "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>"
+/** Get the size string in GB, MB, KB and B. The size string will be the format of
+ *  "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>"
  *
- *  @note This function does not check the size of the string buffer. Please make
- *   sure it is big enough to avoid memory access violation.
+ *  @note
+ *  -# This function does not check the size of the string buffer. Please make sure it is big enough
+ *     to avoid memory access violation.
  *
- *  @param pstrSize [out] the size string to be returned
- *  @param u64Size [in] the size in bytes
+ *  @param pstrSize [out] The size string to be returned.
+ *  @param u64Size [in] The size in bytes.
  *
+ *  @return Void.
  */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_getStringSizeMax(
     olchar_t * pstrSize, const u64 u64Size);
 
-/** Get the size string based 1000 in GB, MB, KB and B. The size string will
- *  be the format of "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>"
+/** Get the size string based 1000 in GB, MB, KB and B. The size string will be the format of
+ *  "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>".
  *
- *  @note This function does not check the size of the string buffer. Please make
- *   sure it is big enough to avoid memory access violation.
+ *  @note
+ *  -# This function does not check the size of the string buffer. Please make sure it is big
+ *     enough to avoid memory access violation.
  *
- *  @param pstrSize [out] the size string to be returned;
- *  @param u64Size [in] the size in bytes
+ *  @param pstrSize [out] The size string to be returned.
+ *  @param u64Size [in] The size in bytes.
  *
+ *  @return Void.
  */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_getStringSize1000Based(
     olchar_t * pstrSize, const u64 u64Size);
@@ -352,73 +505,142 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateFloatString(
 
 /*string scan*/
 
+/** Read unsigned char from string.
+ *
+ *  @param pstrInteger [out] The integer string.
+ *  @param size [in] The size of the string.
+ *  @param pu8Value [out] The unsigned char returned.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getU8FromString(
     const olchar_t * pstrInteger, const olsize_t size, u8 * pu8Value);
 
+/** Read unsigned shor from string.
+ *
+ *  @param pstrInteger [out] The integer string.
+ *  @param size [in] The size of the string.
+ *  @param pu16Value [out] The unsigned short returned.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getU16FromString(
     const olchar_t * pstrInteger, const olsize_t size, u16 * pu16Value);
 
+/** Read signed integer from string.
+ *
+ *  @param pstrInteger [out] The integer string.
+ *  @param size [in] The size of the string.
+ *  @param ps32Value [out] The signed integer returned.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getS32FromString(
     const olchar_t * pstrInteger, const olsize_t size, s32 * ps32Value);
 
+/** Read signed integer from hex string.
+ *
+ *  @par Example
+ *  @code
+ *   pstrHex = "ab12"
+ *   after processing:
+ *   *ps32Value = 43794
+ *  @endcode
+ *
+ *  @param pstrHex [out] The integer hex string.
+ *  @param size [in] The size of the string.
+ *  @param ps32Value [out] The signed integer returned.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getS32FromHexString(
     const olchar_t * pstrHex, const olsize_t size, s32 * ps32Value);
 
+/** Read unsigned integer from string.
+ *
+ *  @param pstrInteger [out] The integer string.
+ *  @param size [in] The size of the string.
+ *  @param pu32Value [out] The unsigned integer returned.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getU32FromString(
     const olchar_t * pstrInteger, const olsize_t size, u32 * pu32Value);
 
-/** Reads a long value from a string
+/** Reads a long value from a string.
  *
- *  @param pstrInteger [in] the string to read from 
- *  @param size [in] the length of the string 
- *  @param numeric [in] the long value extracted from the string 
+ *  @param pstrInteger [in] The string to read from.
+ *  @param size [in] The length of the string.
+ *  @param numeric [in] The long value extracted from the string.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getLongFromString(
     const olchar_t * pstrInteger, const olsize_t size, long * numeric);
 
-/** Reads an unsigned long value from a string
+/** Reads an unsigned long value from a string.
  *
- *  @param pstrInteger [in] the string to read from 
- *  @param size [in] the length of the string 
- *  @param numeric [in] the unsigned long value extracted from the string 
+ *  @param pstrInteger [in] The string to read from.
+ *  @param size [in] The length of the string.
+ *  @param numeric [in] The unsigned long value extracted from the string.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getUlongFromString(
     const olchar_t * pstrInteger, const olsize_t size, unsigned long * numeric);
 
+/** Read unsigned long long integer from string.
+ *
+ *  @param pstrInteger [out] The integer string.
+ *  @param size [in] The size of the string.
+ *  @param pu64Value [out] The unsigned long long integer returned.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getU64FromString(
     const olchar_t * pstrInteger, const olsize_t size, u64 * pu64Value);
 
+/** Read signed long long integer from string.
+ *
+ *  @param pstrInteger [out] The integer string.
+ *  @param size [in] The size of the string.
+ *  @param ps64Value [out] The signed long long integer returned.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getS64FromString(
     const olchar_t * pstrInteger, const olsize_t size, s64 * ps64Value);
 
-/** Read binary from string
+/** Read binary from string.
  *
- *  @param pstr [in] the string to read from 
- *  @param size [in] the length of the string 
- *  @param pu8Binary [out] the buffer for the binary
- *  @param psBinary [in/out] the length of the buffer and the length of binary
- *   is returned
+ *  @param pstr [in] The string to read from.
+ *  @param size [in] The length of the string.
+ *  @param pu8Binary [out] The buffer for the binary.
+ *  @param psBinary [in/out] The length of the buffer and the length of binary is returned.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getBinaryFromString(
     const olchar_t * pstr, const olsize_t size, u8 * pu8Binary, olsize_t * psBinary);
 
-/** Get the size accordign to the size stirng. The size string will be the
- *  format of "xxxx.xxGB|MB|KB|B"
+/** Get the size accordign to the size stirng. The size string will be the format of
+ *  "xxxx.xxGB|MB|KB|B".
  *
- *  @param pstrSize [in] the size string;
- *  @param pu64Size [out] the size in bytes to be returned
+ *  @param pstrSize [in] The size string.
+ *  @param pu64Size [out] The size in bytes to be returned.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSizeFromString(
     const olchar_t * pstrSize, u64 * pu64Size);
@@ -436,77 +658,92 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getDoubleFromString(
 
 /** Process the command line id list to form a unary array of ids.
  * 
- *  @param pstrIdList [in] a id list form command line, ended with '\0'.
- *  @param pids [out] the id array to be returned
- *  @param psId [in/out] as in param, the expected count of ids;
- *   as out param, the actually inputed count of ids from the command line.
+ *  @note
+ *  -# The id buffer will only save specified number of id, other id are discarded.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @par Example
+ *  @code
+ *   pstrIdList = "2,5,9~11"
+ *   after processing:
+ *   pids[5] = {2,5,9,10,11}, *psId = 5.
+ *  @endcode
  *
- *  @note pids is a buffer can at least hold *psId ids.
- *  @note if pstrIdList = "2,5,9~11", after processing
- *  @note pu32Ids[5] = {2,5,9,10,11}, * psId = 5
+ *  @param pstrIdList [in] An id list form command line, ended with '\0'.
+ *  @param pids [out] The id array to be returned
+ *  @param psId [in/out] As in parameter, the expected count of ids; As out parameter, the actually
+ *   inputed count of ids from the command line.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processIdList(
     const olchar_t * pstrIdList, olid_t * pids, olsize_t * psId);
 
-/** Retrive settings from the string array
+/** Retrive settings from the string array.
  * 
- *  @param pstrArray [in] the string array returned by processSetting()
- *  @param sArray [in] number of element in the string array
- *  @param pstrName [in] setting name
- *  @param pstrValue [out] setting value
- *  @param sValue [in] length of value string
+ *  @note jf_string_processSettings() should be called before.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @param pstrArray [in] The string array returned by jf_string_processSettings().
+ *  @param sArray [in] Number of element in the string array.
+ *  @param pstrName [in] Setting name.
+ *  @param pstrValue [out] Setting value.
+ *  @param sValue [in] Length of value string.
  *
- *  @note processSettings() should be called before
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_retrieveSettings(
-    olchar_t * pstrArray[], olsize_t sArray,
-    const olchar_t * pstrName, olchar_t * pstrValue, olsize_t sValue);
+    olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrName, olchar_t * pstrValue,
+    olsize_t sValue);
 
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_retrieveSettingsEnable(
     olchar_t * pstrValue, boolean_t * pbEnable);
 
 /** Validate the setting.
  * 
- *  @param pstrNameArray [in] the tag name array
- *  @param sNameArray [in] number of element in the tag name array
- *  @param pstrArray [in] the string array returned by processSetting()
- *  @param sArray [in] number of element in the string array
- *  @param piArray [out] the index of the invalid setting
+ *  @note
+ *  -# jf_string_processSettings() should be called before.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @param pstrNameArray [in] The tag name array.
+ *  @param sNameArray [in] Number of element in the tag name array.
+ *  @param pstrArray [in] The string array returned by jf_string_processSettings().
+ *  @param sArray [in] Number of element in the string array.
+ *  @param piArray [out] The index of the invalid setting.
  *
- *  @note processSettings() should be called before
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateSettings(
-    olchar_t * pstrNameArray[], olsize_t sNameArray,
-    olchar_t * pstrArray[], olsize_t sArray, olindex_t * piArray);
+    olchar_t * pstrNameArray[], olsize_t sNameArray, olchar_t * pstrArray[], olsize_t sArray,
+    olindex_t * piArray);
 
-/** Break down the strings pointed by pstrSettings to an array pointing to each setting.                                              *\n
- *  Eg. pstrSetting = "tag1=value1\0tag2 = value2\0tag3=value3"    \n
- *   After processing,                                             \n
- *      pstrArray[0] = "tag1=value1"                               \n
- *      pstrArray[1] = "tag2 = value2"                             \n
- *      pstrArray[2] = "tag3=value3"                               \n
- *      *psArray = 3                                               \n
+/** Break down the strings to an array pointing to each setting.
  *
- *  @param pu8Settings [in] the setting string
- *  @param sSettings [in] the size of the string
- *  @param pstrStrArray [out] the string array
- *  @param psArray [in/out] number of element in the string array
+ *  @note
+ *  -# For iSCSI keywords process, the tag is seperated by '\0'.
+ *  -# psArray specifies the array size. If numbers of tags are more
+ *     than array size, only those tags are returned.
+ *
+ *  @par Example
+ *  @code
+ *  pstrSettings = "tag1=value1\0tag2 = value2\0tag3=value3"
+ *  After processing:
+ *      pstrArray[0] = "tag1=value1"
+ *      pstrArray[1] = "tag2 = value2"
+ *      pstrArray[2] = "tag3=value3"
+ *      *psArray = 3
+ *  @endcode
+ *
+ *  @param pu8Settings [in] The setting string.
+ *  @param sSettings [in] The size of the string.
+ *  @param pstrStrArray [out] The string array.
+ *  @param psArray [in/out] Number of element in the string array.
  * 
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  *
- *  @note for iSCSI keywords process, the tag is seperated by '\0'
- *  @note psArray specifies the array size. If numbers of tags are more
- *   than array size, only those tags are returned.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processKeywordSettings(
     u8 * pu8Settings, olsize_t sSettings, olchar_t * pstrStrArray[], olsize_t * psArray);
@@ -514,22 +751,27 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processKeywordSettings(
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processSettingString(
     olchar_t * pstrSetting, olchar_t ** ppstrName, olchar_t ** ppstrValue);
 
-/** Break down the strings pointed by pstrSettings to an array pointing to each setting.                                              *\n
- *  Eg. pstrSetting = "tag1=value1, tag2 = value2, tag3=value3"      \n
- *   After processing,                                               \n
- *      pstrArray[0] = "tag1=value1"                                 \n
- *      pstrArray[1] = "tag2 = value2"                               \n
- *      pstrArray[2] = "tag3=value3"                                 \n
- *      *psArray = 3                                                 \n
+/** Break down the strings to an array pointing to each setting.
  *
- *  @param pstrSettings [in] the setting string
- *  @param pstrArray [out] the string array
- *  @param psArray [out] number of element in the string array
+ *  @note
+ *  -# The tag is seperated by ','.
+ *
+ *  @par Example
+ *  @code
+ *   pstrSetting = "tag1=value1, tag2 = value2, tag3=value3"
+ *   After processing:
+ *      pstrArray[0] = "tag1=value1"
+ *      pstrArray[1] = "tag2 = value2"
+ *      pstrArray[2] = "tag3=value3"
+ *      *psArray = 3
+ *  @endcode
+ *
+ *  @param pstrSettings [in] The setting string.
+ *  @param pstrArray [out] The string array.
+ *  @param psArray [out] Number of element in the string array.
  * 
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
- *
- *  @note the tag is seperated by ',' 
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processSettings(
     olchar_t * pstrSettings, olchar_t * pstrArray[], olsize_t * psArray);
