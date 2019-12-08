@@ -1,22 +1,17 @@
 #
 #  @file linux.mak
 #
-#  @brief The makefile for Jiufeng
+#  @brief The Makefile for messaging library and dispatcher daemon
 #
 #  @author Min Zhang
 #
 #  @note
+#
 #  
 
 #---------------------------------------------------------------------------------------------------
 
-TOPDIR := $(shell /bin/pwd)
-
-export TOPDIR
-
-SUBDIRS = jiutai logger jiukun stringparse files ifmgmt crypto encode uuid \
-    persistency archive xmlparser httpparser network webclient clieng  \
-    matrix servmgmt dispatcher cli test
+SUBDIRS = common
 
 include $(TOPDIR)/mak/lnxsubdirs.mak
 
