@@ -185,11 +185,13 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
 /* uuid error */
     {JF_ERR_INVALID_UUID_FORMAT, "Invalid uuid format."},
 /* xml parser error */
-    {JF_ERR_INCOMPLETE_XML, "Incomplete XML file."},
-    {JF_ERR_ILLEGAL_CLOSE_TAG, "Illegal close tag."},
-    {JF_ERR_UNMATCHED_CLOSE_TAG, "Unmatched close tag is found."},
-    {JF_ERR_CORRUPTED_XML_FILE, "Corrupted XML file."},
+    {JF_ERR_INCOMPLETE_XML_DOCUMENT, "Incomplete XML document."},
+    {JF_ERR_ILLEGAL_XML_CLOSE_TAG, "Illegal XML close tag."},
+    {JF_ERR_UNMATCHED_XML_CLOSE_TAG, "Unmatched XML close tag."},
+    {JF_ERR_CORRUPTED_XML_DOCUMENT, "Corrupted XML document."},
     {JF_ERR_INVALID_XML_DECLARATION, "Invalid XML declaration."},
+    {JF_ERR_INVALID_XML_FILE, "Invalid XML file."},
+    {JF_ERR_NOT_UNIQUE_XML_ROOT_ELEMENT, "Not unique XML root element."},
 /* httpparser error */
     {JF_ERR_HTTP_STATUS_NOT_OK, "HTTP status is not OK."},
     {JF_ERR_CORRUPTED_HTTP_MSG, "Corrupted HTTP message."},

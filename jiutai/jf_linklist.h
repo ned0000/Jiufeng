@@ -1,13 +1,14 @@
 /**
  *  @file jf_linklist.h
  *
- *  @brief The linked list data structure
+ *  @brief Header file defines the linked list data structure.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_linklist object
- *  @note Link with jiukun library for memory allocation
- *  @note This object is not thread safe
+ *  @note
+ *  -# Routines declared in this file are included in jf_linklist object.
+ *  -# Link with jiukun library for memory allocation.
+ *  -# This object is not thread safe.
  *  
  */
 
@@ -64,8 +65,7 @@ void jf_linklist_fini(jf_linklist_t * pList);
  *
  *  @return void
  */
-void jf_linklist_finiListAndData(
-    jf_linklist_t * pList, jf_linklist_fnFreeNodeData_t fnFreeData);
+void jf_linklist_finiListAndData(jf_linklist_t * pList, jf_linklist_fnFreeNodeData_t fnFreeData);
 
 /** Append to the tail of the linked list
  *
@@ -92,26 +92,24 @@ static inline boolean_t jf_linklist_isEmpty(jf_linklist_t * pList)
     return FALSE;
 }
 
-/**
- *  Get the first node of linked list
+/** Get the first node of linked list.
+ *
  */
-static inline jf_linklist_node_t * jf_linklist_getFirstNode(
-    jf_linklist_t * pList)
+static inline jf_linklist_node_t * jf_linklist_getFirstNode(jf_linklist_t * pList)
 {
 	return pList->jl_pjlnHead;
 }
 
-/**
- *  Get the next node of the specified node
+/** Get the next node of the specified node.
+ *
  */
-static inline jf_linklist_node_t * jf_linklist_getNextNode(
-    jf_linklist_node_t * pNode)
+static inline jf_linklist_node_t * jf_linklist_getNextNode(jf_linklist_node_t * pNode)
 {
 	return pNode->jln_pjlnNext;
 }
 
-/**
- *  Get data from the linked node
+/** Get data from the linked node.
+ *
  */
 static inline void * jf_linklist_getDataFromNode(jf_linklist_node_t * pNode)
 {

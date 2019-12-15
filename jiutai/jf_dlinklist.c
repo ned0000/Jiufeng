@@ -298,9 +298,6 @@ u32 jf_dlinklist_findPrevNode(
     return u32Ret;
 }
 
-/** Append the data to the double linked list
- *
- */
 u32 jf_dlinklist_appendTo(jf_dlinklist_t * pList, void * pData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;

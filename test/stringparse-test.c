@@ -162,7 +162,10 @@ static u32 _testParseString(void)
         u32Ret = _testParseStringWithDelimiter(pstrXml, ">");
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = _testParseStringWithDelimiter(pstrXml, "m");
+        u32Ret = _testParseStringWithDelimiter(pstrXml, "me");
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = _testParseStringWithDelimiter(pstrXml, "no");
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _testParseStringWithDelimiter(pstrAdv, ">");

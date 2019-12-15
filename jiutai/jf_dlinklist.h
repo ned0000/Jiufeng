@@ -1,13 +1,14 @@
 /**
  *  @file jf_dlinklist.h
  *
- *  @brief The double linked list data structure
+ *  @brief Header file define double linked list data structure.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_dlinklist object
- *  @note Link with jiukun library for memory allocation
- *  @note This object is not thread safe
+ *  @note
+ *  -# Routines declared in this file are included in jf_dlinklist object.
+ *  -# Link with jiukun library for memory allocation.
+ *  -# This object is not thread safe.
  *  
  */
 
@@ -77,42 +78,49 @@ u32 jf_dlinklist_findPrevNode(
     jf_dlinklist_node_t * pNode, jf_dlinklist_node_t ** ppNode,
     jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey);
 
+/** Append the data to the double linked list.
+ *
+ *  @param pList [in] The double linked list to append data to.
+ *  @param pData [in] The data to be appended.
+ *
+ *  @return The error code.
+ */
 u32 jf_dlinklist_appendTo(jf_dlinklist_t * pList, void * pData);
 
-/**
- *  Get data from the linked node
+/** Get data from the linked node
+ *
  */
 static inline void * jf_dlinklist_getDataFromNode(jf_dlinklist_node_t * pNode)
 {
     return pNode->jdn_pData;
 }
 
-/**
- *  Get the first node of double linked list
+/** Get the first node of double linked list
+ *
  */
 static inline jf_dlinklist_node_t * jf_dlinklist_getFirstNode(jf_dlinklist_t * pList)
 {
     return pList->jd_pjdnHead;
 }
 
-/**
- *  Get the last node of the double linked list
+/** Get the last node of the double linked list
+ *
  */
 static inline jf_dlinklist_node_t * jf_dlinklist_getLastNode(jf_dlinklist_t * pList)
 {
     return pList->jd_pjdnTail;
 }
 
-/**
- *  Get the next node of the specified node
+/** Get the next node of the specified node
+ *
  */
 static inline jf_dlinklist_node_t * jf_dlinklist_getNextNode(jf_dlinklist_node_t * pNode)
 {
     return pNode->jdn_pjdnNext;
 }
 
-/**
- *  Get the previous node of the specified node
+/** Get the previous node of the specified node
+ *
  */
 static inline jf_dlinklist_node_t * jf_dlinklist_getPrevNode(jf_dlinklist_node_t * pNode)
 {

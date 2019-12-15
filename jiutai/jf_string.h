@@ -82,7 +82,8 @@ typedef struct jf_string_parse_result
  *  <tr><td>"<name>"           <td>"<"         <td>2   <td>"", "name>"                       </tr>
  *  <tr><td>"<name>"           <td>"="         <td>1   <td>"name>"                           </tr>
  *  <tr><td>"<name>"           <td>">"         <td>2   <td>"<name", ""                       </tr>
- *  <tr><td>"<name>"           <td>"m"         <td>2   <td>"<na", "e>"                       </tr>
+ *  <tr><td>"<name>"           <td>"me"        <td>2   <td>"<na", ">"                        </tr>
+ *  <tr><td>"<name>"           <td>"no"        <td>1   <td>"<name>"                          </tr>
  *  <tr><td>"<My name is">" adv>" <td>">"      <td>3   <td>"<My name is"", "" adv>", ""      </tr>
  *  </table>
  *
