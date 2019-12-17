@@ -1,15 +1,16 @@
 /**
  *  @file jf_hashtree.h
  *
- *  @brief The basic hash tree data structure
+ *  @brief Header file which define the basic hash tree object.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_hashtree object
- *  @note Link with jiukun library for memory allocation
- *  @note The simple hash tree, suitable for items less than 50. For large amount of items, uses
- *   hash table in jf_hashtable.h
- *  @note This object is not thread safe
+ *  @note
+ *  -# Routines declared in this file are included in jf_hashtree object.
+ *  -# Link with jiukun library for memory allocation.
+ *  -# The simple hash tree, suitable for items less than 50. For large amount of items, uses
+ *   hash table in jf_hashtable.h.
+ *  -# This object is not thread safe.
  *  
  */
 
@@ -27,7 +28,8 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-/*hash tree*/
+/** The hash tree node data type.
+ */
 typedef struct jf_hashtree_node
 {
     struct jf_hashtree_node * jhn_pjhnNext;
@@ -52,122 +54,119 @@ typedef u32 (* jf_hashtree_fnFreeData_t)(void ** ppData);
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/** Creates an empty hash tree
+/** Creates an empty hash tree.
  *  
- *  @param pHashtree [in] the hashtree to free
+ *  @param pHashtree [in] The hash tree to free.
  *
- *  @return void
+ *  @return Void.
  */
 static inline void jf_hashtree_init(jf_hashtree_t * pHashtree)
 {
     pHashtree->jh_pjhnRoot = NULL;
 }
 
-/** Free resources associated with a hashtree
+/** Free resources associated with a hash tree.
  *
- *  @param pHashtree [in] the hashtree to free
+ *  @param pHashtree [in] The hash tree to free.
  *
- *  @return void
+ *  @return Void.
  */
 void jf_hashtree_fini(jf_hashtree_t * pHashtree);
 
-/** Free resources associated with a hashtree
+/** Free resources associated with a hash tree.
  *
- *  @param pHashtree [in] the hashtree to free
- *  @param fnFreeData [in] the function to free data
+ *  @param pHashtree [in] The hash tree to free.
+ *  @param fnFreeData [in] The function to free data.
  *
- *  @return void
+ *  @return Void.
  */
 void jf_hashtree_finiHashtreeAndData(
     jf_hashtree_t * pHashtree, jf_hashtree_fnFreeData_t fnFreeData);
 
-/** Determine if the hash tree is empty
+/** Determine if the hash tree is empty.
  *
- *  @param pHashtree [in] the hashtree to free
+ *  @param pHashtree [in] The hash tree to free.
  *
- *  @return the empty is of the hashtree
- *  @retval TRUE the hashtree is empty
- *  @retval FALSE the hash tree is not empty
+ *  @return Void.
  */
 static inline boolean_t jf_hashtree_isEmpty(jf_hashtree_t * pHashtree)
 {
     return ((pHashtree->jh_pjhnRoot == NULL) ? TRUE : FALSE);
 }
 
-/** Determines if a key entry exists in a hashtree
+/** Determines if a key entry exists in a hash tree.
  *
- *  @param pHashtree [in] the hashtree to operate on 
- *  @param pstrKey [in] the key 
- *  @param sKey [in] the length of the key 
+ *  @param pHashtree [in] The hash tree to operate on.
+ *  @param pstrKey [in] The key.
+ *  @param sKey [in] The length of the key.
  * 
- *  @return the existing state of the entry
- *  @retval TRUE the entry is existing
- *  @retval FALSE the entry is not existing
+ *  @return the existing state of the entry.
+ *  @retval TRUE the entry is existing.
+ *  @retval FALSE the entry is not existing.
  */
 boolean_t jf_hashtree_hasEntry(
     jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey);
 
-/** Adds an item to the hashtree
+/** Adds an item to the hash tree.
  * 
- *  @param pHashtree [in] the hashtree to operate on
- *  @param pstrKey [in] the key
- *  @param sKey [in] the length of the key
- *  @param pValue [in] the data to add into the hashtree
+ *  @param pHashtree [in] The hash tree to operate on.
+ *  @param pstrKey [in] The key.
+ *  @param sKey [in] The length of the key.
+ *  @param pValue [in] The data to add into the hash tree.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
- *  @retval JF_ERR_OUT_OF_MEMORY out of memory
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_OUT_OF_MEMORY Out of memory.
  *
  */
 u32 jf_hashtree_addEntry(
     jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void * pValue);
 
-/** Gets an item from a hashtree
+/** Gets an item from a hash tree
  *
- *  @param pHashtree [in] the hashtree to operate on 
- *  @param pstrKey [in] the key 
- *  @param sKey [in] the length of the key 
- *  @param ppData [in/out] the pointer to the entry returned 
+ *  @param pHashtree [in] The hash tree to operate on.
+ *  @param pstrKey [in] The key.
+ *  @param sKey [in] The length of the key.
+ *  @param ppData [in/out] The pointer to the entry returned.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
- *  @retval JF_ERR_HASHTREE_ENTRY_NOT_FOUND entry not found
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_HASHTREE_ENTRY_NOT_FOUND Entry not found.
  */
 u32 jf_hashtree_getEntry(
     jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void ** ppData);
 
-/** Deletes a keyed item from the hashtree
+/** Deletes a keyed item from the hash tree.
  *
- *  @param pHashtree [in] the hashtree to operate on 
- *  @param pstrKey [in] the key 
- *  @param sKey [in] the length of the key 
+ *  @param pHashtree [in] The hash tree to operate on.
+ *  @param pstrKey [in] The key.
+ *  @param sKey [in] The length of the key.
  *
- *  @return the error code
+ *  @return The error code.
  */
 u32 jf_hashtree_deleteEntry(
     jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey);
 
-/** Return an Enumerator for a hash tree
+/** Return an Enumerator for a hash tree.
  *
- *  @param pHashtree [in] the hashtree to get an enumerator for 
- *  @param pEnumerator [in/out] the enumerator
+ *  @param pHashtree [in] The hash tree to get an enumerator for.
+ *  @param pEnumerator [in/out] The enumerator.
  *
- *  @return void
+ *  @return Void.
  */
 static inline void jf_hashtree_initEnumerator(
     jf_hashtree_t * pHashtree, jf_hashtree_enumerator_t * pEnumerator)
 {
-    /*the enumerator is basically a state machine that keeps track of 
-      which node we are at in the tree. So initialize it to the root.*/
+    /*The enumerator is basically a state machine that keeps track of which node we are at in the
+      tree. So initialize it to the root.*/
     pEnumerator->jhe_pjhnNode = pHashtree->jh_pjhnRoot;
 }
 
-/** Free resources associated with an Enumerator created by 
- *  initHashtreeEnumerator
+/** Free resources associated with an Enumerator created by jf_hashtree_initEnumerator().
  *
- *  @param pEnumerator [in] the enumerator to free 
+ *  @param pEnumerator [in] The enumerator to free.
  *
- *  @return void
+ *  @return Void.
  */
 static inline void jf_hashtree_finiEnumerator(
     jf_hashtree_enumerator_t * pEnumerator)
@@ -181,14 +180,13 @@ static inline boolean_t jf_hashtree_isEnumeratorEmptyNode(
     return ((pEnumerator->jhe_pjhnNode == NULL) ? TRUE : FALSE);
 }
 
-/** Advance an enumerator to the next item
+/** Advance an enumerator to the next item.
+ 
+ *  @param pEnumerator [in] The enumerator to advance.
  *
- *  @param pEnumerator [in] the enumerator to advance 
- *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
- *  @retval JF_ERR_END_OF_HASHTREE end of hashtree
- *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_END_OF_HASHTREE End of hash tree.
  */
 static inline u32 jf_hashtree_moveEnumeratorNext(
     jf_hashtree_enumerator_t * pEnumerator)
@@ -210,14 +208,14 @@ static inline u32 jf_hashtree_moveEnumeratorNext(
     return u32Ret;
 }
 
-/** Read from the current item of an enumerator
+/** Read from the current item of an enumerator.
  *
- *  @param pEnumerator [in] the enumerator to read from 
- *  @param ppstrKey [out] the key of the current item 
- *  @param psKey [out] the length of the key of the current item 
- *  @param ppData [out] the data of the current item 
+ *  @param pEnumerator [in] The enumerator to read from.
+ *  @param ppstrKey [out] The key of the current item. 
+ *  @param psKey [out] The length of the key of the current item. 
+ *  @param ppData [out] The data of the current item.
  *
- *  @return void
+ *  @return Void.
  */
 static inline void jf_hashtree_getEnumeratorValue(
     jf_hashtree_enumerator_t * pEnumerator,

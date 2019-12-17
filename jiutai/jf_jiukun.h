@@ -1,12 +1,13 @@
 /**
  *  @file jf_jiukun.h
  *
- *  @brief Jiukun header file. Provide some functional routine for jiukun library
+ *  @brief Jiukun header file which provide some functional routine for jiukun library.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_jiukun library
- *  @note If DEBUG_JIUFENG is equal to "yes", the debug function of jiukun library is enabled.
+ *  @note Routines declared in this file are included in jf_jiukun library.
+ *  @note
+ *  -# If DEBUG_JIUFENG is equal to "yes", the debug function of jiukun library is enabled.
  *   When enabled, double free jiukun memory and free unallocated jiukun memory can be detected and
  *   the library will abort. If jiukun memory is allocated but not freed, an error mesage will be
  *   logged when the cache or page is destroyed.
@@ -46,17 +47,16 @@
 #define JF_JIUKUN_PAGE_SIZE          (1 << JF_JIUKUN_PAGE_SHIFT)
 #define JF_JIUKUN_PAGE_MASK          (~(JF_JIUKUN_PAGE_SIZE - 1))
 
-/** maximum order for page allocation, maximum pages in one pool is
- *  (1 << JF_JIUKUN_MAX_PAGE_ORDER)
+/** Maximum order for page allocation, maximum pages in one pool is (1 << JF_JIUKUN_MAX_PAGE_ORDER).
  */
 #define JF_JIUKUN_MAX_PAGE_ORDER     (14)
 
-/** the maximum memory size allocMemory() can allocate
+/** The maximum memory size allocMemory() can allocate.
  */
 #define JF_JIUKUN_MAX_MEMORY_ORDER   (23)
 #define JF_JIUKUN_MAX_MEMORY_SIZE    (1 << JF_JIUKUN_MAX_MEMORY_ORDER)
 
-/** the maximum object size createJiukunCache() can specify
+/** The maximum object size createJiukunCache() can specify
  */
 #define JF_JIUKUN_MAX_OBJECT_ORDER   (20)
 #define JF_JIUKUN_MAX_OBJECT_SIZE    (1 << JF_JIUKUN_MAX_OBJECT_ORDER)
@@ -65,7 +65,7 @@
 
 typedef struct
 {
-    /** the memory pool size in byte, when the pool is full, jiukun will
+    /** The memory pool size in byte, when the pool is full, jiukun will
         create another pool with the size if the grow of jiukun is allowed.*/
 #define JF_JIUKUN_MAX_POOL_SIZE  ((1 << JF_JIUKUN_MAX_PAGE_ORDER) * JF_JIUKUN_PAGE_SIZE)
     olsize_t jjip_sPool;
@@ -75,7 +75,7 @@ typedef struct
     u32 jjip_u32Reserved[7];
 } jf_jiukun_init_param_t;
 
-/** Jiukun cache data structure
+/** Jiukun cache data structure.
  */
 typedef void  jf_jiukun_cache_t;
 
@@ -84,14 +84,14 @@ typedef void  jf_jiukun_cache_t;
  */
 typedef enum jf_jiukun_cache_create_flag
 {
-    JF_JIUKUN_CACHE_CREATE_FLAG_DEBUG_FREE = 0, /**< Perform (expensive) checks on
-                                                   free, available when DEBUG_JIUKUN is true */
-    JF_JIUKUN_CACHE_CREATE_FLAG_NOREAP,  /**< never reap from the cache */
-    JF_JIUKUN_CACHE_CREATE_FLAG_NOGROW,  /**< don't grow a cache */
-    JF_JIUKUN_CACHE_CREATE_FLAG_RECLAIM_ACCOUNT,/**< track pages allocated to
-                                                   indicate what is reclaimable later*/
-    JF_JIUKUN_CACHE_CREATE_FLAG_ZERO,    /**< zero the allocated object */
-    JF_JIUKUN_CACHE_CREATE_FLAG_WAIT,    /**< wait if memory fails to be allocated*/
+    JF_JIUKUN_CACHE_CREATE_FLAG_DEBUG_FREE = 0, /**<Perform (expensive) checks on
+                                                   free, available when DEBUG_JIUKUN is true.*/
+    JF_JIUKUN_CACHE_CREATE_FLAG_NOREAP,  /**<Never reap from the cache.*/
+    JF_JIUKUN_CACHE_CREATE_FLAG_NOGROW,  /**<Don't grow a cache.*/
+    JF_JIUKUN_CACHE_CREATE_FLAG_RECLAIM_ACCOUNT,/**<Track pages allocated to
+                                                   indicate what is reclaimable later.*/
+    JF_JIUKUN_CACHE_CREATE_FLAG_ZERO,    /**<Zero the allocated object.*/
+    JF_JIUKUN_CACHE_CREATE_FLAG_WAIT,    /**<Wait if memory fails to be allocated.*/
 } jf_jiukun_cache_create_flag_t;
 
 typedef struct
@@ -108,7 +108,7 @@ typedef struct
  */
 typedef enum jf_jiukun_page_alloc_flag
 {
-    JF_JIUKUN_PAGE_ALLOC_FLAG_WAIT = 0, /**< wait if the page fails to be allocated*/
+    JF_JIUKUN_PAGE_ALLOC_FLAG_WAIT = 0, /**<Wait if the page fails to be allocated.*/
 } jf_jiukun_page_alloc_flag_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
@@ -117,14 +117,14 @@ JIUKUNAPI u32 JIUKUNCALL jf_jiukun_init(jf_jiukun_init_param_t * pjjip);
 
 JIUKUNAPI u32 JIUKUNCALL jf_jiukun_fini(void);
 
-/** Jiukun page allocator
+/** Jiukun page allocator.
  */
 
-/** Get memory from jiukun page allocator
+/** Get memory from jiukun page allocator.
  */
 JIUKUNAPI u32 JIUKUNCALL jf_jiukun_allocPage(void ** pptr, u32 u32Order, jf_flag_t flag);
 
-/** Free memory to jiukun page allocator
+/** Free memory to jiukun page allocator.
  */
 JIUKUNAPI void JIUKUNCALL jf_jiukun_freePage(void ** pptr);
 
@@ -133,45 +133,45 @@ JIUKUNAPI void JIUKUNCALL jf_jiukun_freePage(void ** pptr);
 
 /** Create a jiukun cache.
  *  
- *  @param ppCache [out] a pointer to the cache on success, NULL on failure.
- *  @param pjjccp [in] the parameters for creating a cache
+ *  @param ppCache [out] A pointer to the cache on success, NULL on failure.
+ *  @param pjjccp [in] The parameters for creating a cache.
  *
- *  @return the error code
+ *  @return The error code.
  */
 JIUKUNAPI u32 JIUKUNCALL jf_jiukun_createCache(
     jf_jiukun_cache_t ** ppCache, jf_jiukun_cache_create_param_t * pjjccp);
 
 /** Delete a jiukun cache.
  *
- *  @param ppCache [in/out] the cache to destroy
+ *  @param ppCache [in/out] The cache to destroy.
  * 
- *  @return the error coce
+ *  @return The error code.
  */
 JIUKUNAPI u32 JIUKUNCALL jf_jiukun_destroyCache(jf_jiukun_cache_t ** ppCache);
 
 /** Allocate an object from this cache.
  *
- *  @param pCache [in] the cache to allocate from.
- *  @param ppObj [out] the pointer to object
+ *  @param pCache [in] The cache to allocate from.
+ *  @param ppObj [out] The pointer to object.
  *
- *  @return the error code
+ *  @return The error code.
  */
 JIUKUNAPI u32 JIUKUNCALL jf_jiukun_allocObject(jf_jiukun_cache_t * pCache, void ** ppObj);
 
 JIUKUNAPI void JIUKUNCALL jf_jiukun_freeObject(jf_jiukun_cache_t * pCache, void ** ppObj);
 
-/** Allocate memory
+/** Allocate memory.
  * 
- *  @param pptr [out] the pointer to the allocated memory
- *  @param size [in] bytes of memory are required
+ *  @param pptr [out] The pointer to the allocated memory.
+ *  @param size [in] Bytes of memory are required.
  *
- *  @return the error code
+ *  @return The error code.
  */
 JIUKUNAPI u32 JIUKUNCALL jf_jiukun_allocMemory(void ** pptr, olsize_t size);
 
-/** Free previously allocated memory
+/** Free previously allocated memory.
  *
- *  @param pptr [out] pointer to memory
+ *  @param pptr [out] Pointer to memory.
  */
 JIUKUNAPI void JIUKUNCALL jf_jiukun_freeMemory(void ** pptr);
 

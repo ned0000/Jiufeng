@@ -1,14 +1,14 @@
 /**
  *  @file jf_process.h
  *
- *  @brief Process header file. Provide some functional routine for
- *   process manipulation
+ *  @brief Process header file which provide some functional routine for process manipulation
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_process object
- *  @note For linux, link with stringparse library
- *  @note For Windows, link with psapi.lib
+ *  @note
+ *  -# Routines declared in this file are included in jf_process object.
+ *  -# For linux, link with stringparse library.
+ *  -# For Windows, link with psapi.lib.
  *  
  */
 
@@ -57,15 +57,16 @@ u32 jf_process_switchToDaemon(olchar_t * pstrDaemonName);
 
 /** Test if the process is already running.
  *  
- *  @note Check the pid file in /var/run directory, the name of the pid file is daemon-name.pid
- *  @note If the pid file is existing and the name is the same as the daemon name, another process
+ *  @note
+ *  -# Check the pid file in /var/run directory, the name of the pid file is daemon-name.pid
+ *  -#If the pid file is existing and the name is the same as the daemon name, another process
  *   is already running, current process will quit
- *  @note If the no pid file is found or the name is not the same as the daemon name, this function
+ *  -#If the no pid file is found or the name is not the same as the daemon name, this function
  *   will create the pid file
  *
- *  @param pstrDaemonName [in] the daemon name
+ *  @param pstrDaemonName [in] The daemon name.
  *  
- *  @return the status of the daemon 
+ *  @return The status of the daemon. 
  *
  */
 boolean_t jf_process_isAlreadyRunning(olchar_t * pstrDaemonName);
@@ -77,25 +78,31 @@ boolean_t jf_process_isValidId(jf_process_id_t * pProcessId);
 u32 jf_process_create(
     jf_process_id_t * pProcessId, jf_process_attr_t * pAttr, olchar_t * pstrCommandLine);
 
-/** Send SIGKILL to process to kill the process, SIGKILL cannot be caught by process
+/** Send SIGKILL to process to kill the process, SIGKILL cannot be caught by process.
  */
 u32 jf_process_kill(jf_process_id_t * pProcessId);
 
-/** Send SIGTERM to process to terminate the process, SIGKILL can be caught by process
+/** Send SIGTERM to process to terminate the process, SIGKILL can be caught by process.
  */
 u32 jf_process_terminate(jf_process_id_t * pProcessId);
 
-/*unknown reason*/
+/** Unknown reason.
+ */
 #define JF_PROCESS_TERMINATION_REASON_UNKNOWN           (0)
-/*normal exit*/
+/** Normal exit.
+ */
 #define JF_PROCESS_TERMINATION_REASON_EXITED            (1)
-/*Signaled*/
+/** Signaled.
+ */
 #define JF_PROCESS_TERMINATION_REASON_SIGNALED          (10)
-/*Signaled, access violation or segmentation fault*/
+/** Signaled, access violation or segmentation fault.
+ */
 #define JF_PROCESS_TERMINATION_REASON_ACCESS_VIOLATION  (11)
-/*Signaled, terminated, SIGTERM*/
+/** Signaled, terminated, SIGTERM
+ */
 #define JF_PROCESS_TERMINATION_REASON_TERMINATED        (12)
-/*Signaled, terminated, SIGKILL*/
+/** Signaled, terminated, SIGKILL
+ */
 #define JF_PROCESS_TERMINATION_REASON_KILLED            (13)
 
 u32 jf_process_waitForChildProcessTermination(

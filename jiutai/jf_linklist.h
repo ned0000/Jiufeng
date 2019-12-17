@@ -26,13 +26,16 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-/*linked list*/
+/** The linked list node.
+ */
 typedef struct jf_linklist_node
 {
     struct jf_linklist_node * jln_pjlnNext;
     void * jln_pData;
 } jf_linklist_node_t;
 
+/** The linked list data type.
+ */
 typedef struct jf_linklist
 {
 	jf_linklist_node_t * jl_pjlnHead;
@@ -42,46 +45,46 @@ typedef u32 (* jf_linklist_fnFreeNodeData_t)(void ** ppData);
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/** Initialize an empty linklist
+/** Initialize an empty linked list.
  *
- *  @param pList [in] the linklist to be initialized
+ *  @param pList [in] The linklist to be initialized.
  *
- *  @return void
+ *  @return Void.
  */
 void jf_linklist_init(jf_linklist_t * pList);
 
-/** Finalize the linklist
+/** Finalize the linked list.
  *
- *  @param pList [in] The linklist to finalize
+ *  @param pList [in] The linklist to finalize.
  *  
- *  @return void
+ *  @return Void.
  */
 void jf_linklist_fini(jf_linklist_t * pList);
 
-/** Finalize the linklist and data
+/** Finalize the linked list and data
  *
- *  @param pList [in] The linklist to finalize
+ *  @param pList [in] The linked list to finalize
  *  @param fnFreeData [in] The call back function to free data
  *
- *  @return void
+ *  @return Void.
  */
 void jf_linklist_finiListAndData(jf_linklist_t * pList, jf_linklist_fnFreeNodeData_t fnFreeData);
 
-/** Append to the tail of the linked list
+/** Append to the tail of the linked list.
  *
- *  @param pList [in] The linklist to append data
- *  @param pData [in] The data to be appended
+ *  @param pList [in] The linked list to append data.
+ *  @param pData [in] The data to be appended.
  *
- *  @return the error code
+ *  @return The error code.
  */
 u32 jf_linklist_appendTo(jf_linklist_t * pList, void * pData);
 
-/** Intert to the head of the linked list
+/** Intert to the head of the linked list.
  *
- *  @param pList [in] The linklist to insert data
- *  @param pData [in] The data to be inserted
+ *  @param pList [in] The linked list to insert data.
+ *  @param pData [in] The data to be inserted.
  *
- *  @return the error code
+ *  @return The error code.
  */
 u32 jf_linklist_insertTo(jf_linklist_t * pList, void * pData);
 

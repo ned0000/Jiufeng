@@ -1,14 +1,14 @@
 /**
  *  @file jf_thread.h
  *
- *  @brief Process header file. Provide some functional routine for
- *   thread manipulation
+ *  @brief Header file which provide some functional routine for thread manipulation.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_thread object
- *  @note For linux, link with stringparse library
- *  @note For Windows, link with psapi.lib
+ *  @note
+ *  -# Routines declared in this file are included in jf_thread object.
+ *  -# For linux, link with stringparse library.
+ *  -# For Windows, link with psapi.lib.
  *  
  */
 

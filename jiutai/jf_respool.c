@@ -1,7 +1,7 @@
 /**
  *  @file jf_respool.c
  *
- *  @brief resource pool implementation file
+ *  @brief Resource pool implementation file.
  *
  *  @author Min Zhang
  *
@@ -23,67 +23,65 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/**
- *  Internal resource state
+/** Internal resource state data type.
  */
 typedef enum
 {
-    IRS_FREE = 0,  /**< the resource is free */
-    IRS_RESERVED,  /**< the resource is reserved */
-    IRS_BUSY,      /**< the resource is busy */
+    IRS_FREE = 0,  /**<The resource is free.*/
+    IRS_RESERVED,  /**<The resource is reserved.*/
+    IRS_BUSY,      /**<The resource is busy.*/
 } internal_resource_state_t;
 
 struct internal_resource_pool;
 
-/**
- *  Internal resource data structure
+/** Internal resource data type.
  */
 typedef struct
 {
-    /** fulltime resource or not */
+    /**Fulltime resource or not.*/
     boolean_t ir_bFulltime;
     u8 ir_u8Reserved[7];
-    /** pointer to the resource pool */
+    /**Pointer to the resource pool.*/
     struct internal_resource_pool * ir_pirpPool;
-    /** the resource state */
+    /**The resource state.*/
     internal_resource_state_t ir_irsResourceState;
-    /** the data of the resource */
+    /**The data of the resource.*/
     jf_respool_resource_data_t * ir_pjrrdData;
 } internal_resource_t;
 
 typedef struct internal_resource_pool
 {
-    /** null-terminated string. It should be no longer than 15 characters */
+    /**Null-terminated string. It should be no longer than 15 characters.*/
     olchar_t irp_strName[16];
-    /** minimum number of resources that should be allocated all the time */
+    /**Minimum number of resources that should be allocated all the time.*/
     u32 irp_u32MinResources;
-    /** maximum number of resources that can co-exist at the same time */
+    /**Maximum number of resources that can co-exist at the same time.*/
     u32 irp_u32MaxResources;
-    /** release the parttime resource immediately after use */
+    /**Release the parttime resource immediately after use.*/
     boolean_t irp_bImmediateRelease;
-    /** synchronize the access to the resources */
+    /**Synchronize the access to the resources.*/
     jf_mutex_t irp_jmLock;
-    /** array contains fulltime resources */
+    /**Array contains fulltime resources.*/
     jf_array_t * irp_pjaFulltimeResources;
-    /** array contains parttime resources */    
+    /**Array contains parttime resources.*/    
     jf_array_t * irp_pjaParttimeResources;
 
-    /** the callback function to create resource*/
+    /**The callback function to create resource.*/
     jf_respool_fnCreateResource_t irp_fnCreateResource;
-    /** the callback function to destroy resource*/
+    /**The callback function to destroy resource.*/
     jf_respool_fnDestroyResource_t irp_fnDestroyResource;
 
 } internal_resource_pool_t;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-/** Validate resource pool parameter
+/** Validate resource pool parameter.
  *
- *  @param pjrcp [in] the pointer to the parameter
+ *  @param pjrcp [in] The pointer to the parameter.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
- *  @retval JF_ERR_INVALID_PARAM invalid parameter
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_INVALID_PARAM Invalid parameter.
  */
 static u32 _validateParam(jf_respool_create_param_t * pjrcp)
 {
@@ -105,10 +103,10 @@ static u32 _validateParam(jf_respool_create_param_t * pjrcp)
 
 /** Lock resource pool.
  *
- *  @param pirp [in] the pointer to the resource pool 
+ *  @param pirp [in] The pointer to the resource pool. 
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _lockResourcePool(internal_resource_pool_t * pirp)
 {
@@ -123,10 +121,10 @@ static u32 _lockResourcePool(internal_resource_pool_t * pirp)
 
 /** Unlock resource pool.
  *
- *  @param pirp [in] the pointer to the resource pool 
+ *  @param pirp [in] The pointer to the resource pool. 
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _unlockResourcePool(internal_resource_pool_t * pirp)
 {
@@ -141,12 +139,12 @@ static u32 _unlockResourcePool(internal_resource_pool_t * pirp)
 
 /** Destroy a resource.
  *
- *  @param pirp [in] the pointer to the resource pool 
- *  @param ppir [in/out] the pointer to the resource to be destroyed. 
+ *  @param pirp [in] The pointer to the resource pool. 
+ *  @param ppir [in/out] The pointer to the resource to be destroyed. 
  *   After destruction, it will be set to NULL.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _destroyResourceInPool(internal_resource_pool_t * pirp, internal_resource_t ** ppir)
 {
@@ -175,13 +173,13 @@ static u32 _destroyArrayResource(jf_array_element_t ** ppjae)
     return u32Ret;
 }
 
-/** Check whether the resource is free
+/** Check whether the resource is free.
  *
- *  @param pir [in] the pointer to the resource. 
+ *  @param pir [in] The pointer to the resource. 
  *
- *  @return the free state of the resource
- *  @retval TRUE the resource is free
- *  @retval FALSE the resource is not free
+ *  @return The free state of the resource.
+ *  @retval TRUE the resource is free.
+ *  @retval FALSE the resource is not free.
  */
 static boolean_t _isPoolResourceFree(internal_resource_t * pir)
 {
@@ -193,13 +191,13 @@ static boolean_t _isPoolResourceFree(internal_resource_t * pir)
     return bFree;
 }
 
-/** Set the state of the resource
+/** Set the state of the resource.
  *
- *  @param pir [in] the pointer to the resource.
- *  @param irs [in] the new state to be set.
+ *  @param pir [in] The pointer to the resource.
+ *  @param irs [in] The new state to be set.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _setPoolResourceState(
     internal_resource_t * pir, internal_resource_state_t irs)
@@ -230,14 +228,14 @@ static boolean_t _findArrayResource(jf_array_element_t * pjae, void * pKey)
     return bFound;
 }
 
-/** Check whether the maximum resources are reached in array
+/** Check whether the maximum resources are reached in array.
  *
- *  @param pirp [in] the pointer to the resource pool
- *  @param bFulltime [in] specify which array should be checked
+ *  @param pirp [in] The pointer to the resource pool.
+ *  @param bFulltime [in] specify which array should be checked.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
- *  @retval JF_ERR_REACH_MAX_RESOURCES reach maximum resources
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_REACH_MAX_RESOURCES Reach maximum resources.
  */
 static u32 _isMaxPoolResourcesReached(
     internal_resource_pool_t * pirp, boolean_t bFulltime)
@@ -267,15 +265,15 @@ static u32 _isMaxPoolResourcesReached(
     return u32Ret;
 }
 
-/** Create a resource and add it to the array
+/** Create a resource and add it to the array.
  *
- *  @param pirp [in] the pointer to the resource pool
- *  @param bFulltime [in] specify if the resource is fulltime or parttime
- *  @param state [in] the resource state
- *  @param ppjrr [in/out] the pointer to the resource to be created and returned.
+ *  @param pirp [in] The pointer to the resource pool.
+ *  @param bFulltime [in] specify if the resource is fulltime or parttime.
+ *  @param state [in] The resource state.
+ *  @param ppjrr [in/out] The pointer to the resource to be created and returned.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _createResourceInPoolArray(
     internal_resource_pool_t * pirp, boolean_t bFulltime,
@@ -331,15 +329,15 @@ static u32 _createResourceInPoolArray(
     return u32Ret;
 }
 
-/** Create resource
+/** Create resource.
  *
- *  @param pirp [in] the pointer to the resource pool
- *  @param ppjrr [in/out] the pointer to the resource to be created
+ *  @param pirp [in] The pointer to the resource pool.
+ *  @param ppjrr [in/out] The pointer to the resource to be created.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
- *  @retval JF_ERR_OUT_OF_MEMORY out of memeory
- *  @retval JF_ERR_INVALID_PARAM invalid parameter
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_OUT_OF_MEMORY Out of memeory.
+ *  @retval JF_ERR_INVALID_PARAM Invalid parameter.
  */
 static u32 _createResourceInPool(
     internal_resource_pool_t * pirp, jf_respool_resource_t ** ppjrr)
@@ -357,11 +355,11 @@ static u32 _createResourceInPool(
 
 /** Destroy all resources in array
  *
- *  @param pirp [in] the pointer to the resource pool to be destroyed. 
- *  @param ppja [in/out] the pointer to the array to be destroyed. 
+ *  @param pirp [in] The pointer to the resource pool to be destroyed. 
+ *  @param ppja [in/out] The pointer to the array to be destroyed. 
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _destroyResourceArray(internal_resource_pool_t * pirp, jf_array_t ** ppja)
 {
@@ -380,10 +378,10 @@ static u32 _destroyResourceArray(internal_resource_pool_t * pirp, jf_array_t ** 
 
 /** Destroy all resources in pool.
  *
- *  @param pirp [in] the pointer to the resource pool to be destroyed. 
+ *  @param pirp [in] The pointer to the resource pool to be destroyed. 
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _destroyAllResources(internal_resource_pool_t * pirp)
 {
@@ -414,13 +412,13 @@ static u32 _destroyAllResources(internal_resource_pool_t * pirp)
 
 /** Create a resource pool according to the parameters.
  *
- *  @param ppirp [in/out] the pointer to the resource pool to be created and returned.
- *  @param pjrcp [in] the parameters for creating the resource pool.
+ *  @param ppirp [in/out] The pointer to the resource pool to be created and returned.
+ *  @param pjrcp [in] The parameters for creating the resource pool.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
- *  @retval JF_ERR_OUT_OF_MEMORY out of memeory
- *  @retval JF_ERR_INVALID_PARAM invalid parameter
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_OUT_OF_MEMORY Out of memeory.
+ *  @retval JF_ERR_INVALID_PARAM Invalid parameter.
  *
  */
 static u32 _createResourcePool(
@@ -470,12 +468,12 @@ static u32 _createResourcePool(
 
 /** Get resource from array in resource pool.
  *
- *  @param pirp [in] the pointer to internal resource pool
- *  @param pja [in] the array contains resources
- *  @param ppRes [in/out] the pointer to the resource. 
+ *  @param pirp [in] The pointer to internal resource pool.
+ *  @param pja [in] The array contains resources.
+ *  @param ppRes [in/out] The pointer to the resource. 
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _getResourceFromPoolArray(
     internal_resource_pool_t * pirp, jf_array_t * pja, jf_respool_resource_t ** ppRes)
@@ -497,11 +495,11 @@ static u32 _getResourceFromPoolArray(
 
 /** Get resource from resource pool.
  *
- *  @param pirp [in] the pointer to internal resource pool
- *  @param ppRes [in/out] the pointer to the resource. 
+ *  @param pirp [in] The pointer to internal resource pool.
+ *  @param ppRes [in/out] The pointer to the resource. 
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _getResourceFromPool(
     internal_resource_pool_t * pirp, jf_respool_resource_t ** ppRes)
@@ -527,11 +525,11 @@ static u32 _getResourceFromPool(
 
 /** Put resource in resource pool.
  *
- *  @param pirp [in] the pointer to internal resource pool
- *  @param ppjrr [in/out] the pointer to the resource. 
+ *  @param pirp [in] The pointer to internal resource pool.
+ *  @param ppjrr [in/out] The pointer to the resource. 
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  *
  */
 static u32 _putResourceInPool(
@@ -565,10 +563,10 @@ static u32 _putResourceInPool(
 
 /** Find the free parttime resources, and release them.
  *
- *  @param pirp [in] the pointer to the internal resource pool. 
+ *  @param pirp [in] The pointer to the internal resource pool. 
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _reapResourceInPool(internal_resource_pool_t * pirp)
 {
@@ -646,13 +644,13 @@ u32 jf_respool_destroy(jf_respool_t ** ppjr)
 
     jf_logger_logInfoMsg("destroy resource pool");
 
-    /* destroy the resource list */
+    /*Destroy the resource list.*/
     _destroyAllResources(pirp);
 
-    /* destroy the mutex */
+    /*Destroy the mutex.*/
     jf_mutex_fini(&(pirp->irp_jmLock));
 
-    /* free the resource pool */
+    /*Free the resource pool.*/
     jf_jiukun_freeMemory((void **)&pirp);
 
     return u32Ret;
@@ -667,7 +665,7 @@ u32 jf_respool_getResource(jf_respool_t * pjr, jf_respool_resource_t ** ppRes)
 
     jf_logger_logDebugMsg("get resource from pool");
     
-    /* get resource from pool */
+    /*Get resource from pool.*/
     u32Ret = _getResourceFromPool(pirp, ppRes);
     if (u32Ret != JF_ERR_NO_ERROR)
     {
