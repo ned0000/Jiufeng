@@ -208,11 +208,6 @@ static u32 _testXmlParser_1()
         {
             ol_printf("\nParse result:\n");
             pstrErrMsg = jf_xmlparser_getErrMsg();
-            if (pstrErrMsg == NULL)
-            {
-                jf_err_getMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
-                pstrErrMsg = strErrMsg;
-            }
 
             ol_printf("%s\n", pstrErrMsg);
 
@@ -226,93 +221,50 @@ static u32 _testXmlParser_1()
 
     return u32Ret;
 }
-#if 0
-static u32 _printXmlNodeAttr(jf_xmlparser_xml_node_t * node)
+
+static u32 _modifyXmlDocument(jf_xmlparser_xml_doc_t * pjxxd)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_xmlparser_xml_node_t * temp, * child;
-    olchar_t tagname[64];
-    olchar_t value[64];
-    olchar_t * pData;
-    olsize_t sData;
-    jf_xmlparser_xml_attribute_t * pAttr;
+    jf_xmlparser_xml_node_t * node = NULL;
+    olchar_t * pstr = NULL;
+    olchar_t * nodename = "servMgmtSetting.version";
 
-    ol_printf("\n----------------------------------------------------\n");
-
-    temp = node;
-    while (temp != NULL)
+    u32Ret = jf_xmlparser_getXmlNode(pjxxd, nodename, &node);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memcpy(tagname, temp->jxxn_pstrName, temp->jxxn_sName);
-        tagname[temp->jxxn_sName] = '\0';
+        u32Ret = jf_xmlparser_getContentOfNode(node, &pstr);
+    }
 
-        ol_printf("%s", tagname);
-        ol_printf("\n");
-
-        child = temp->jxxn_pjxxnChildren;
-        if (child != NULL)
-        {
-            memcpy(tagname, child->jxxn_pstrName, child->jxxn_sName);
-            tagname[child->jxxn_sName] = '\0';
-
-            u32Ret = jf_xmlparser_readInnerXml(child, &pData, &sData);
-            if (u32Ret == JF_ERR_NO_ERROR)
-            {
-                ol_memcpy(value, pData, sData);
-                value[sData] = '\0';
-            }
-            
-            ol_printf("%s: %s\n", tagname, value);
-
-            if (u32Ret == JF_ERR_NO_ERROR)
-            {
-                u32Ret = jf_xmlparser_getXmlAttribute(child, &pAttr);
-                if (u32Ret == JF_ERR_NO_ERROR)
-                {
-                    jf_xmlparser_printXmlAttribute(pAttr);
-                    jf_xmlparser_destroyXmlAttribute(&pAttr);
-                }
-            }
-
-            ol_printf("\n");
-        }
-        
-        temp = temp->jxxn_pjxxnSibling;
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_printf("%s: %s\n", nodename, pstr);
     }
 
     return u32Ret;
 }
-#endif
+
 static u32 _testXmlParser_2(olchar_t * pstrXmlFile)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-#if 0
-	char strErrMsg[300];
-    olchar_t strTagName[100];
-    jf_xmlparser_xml_file_t * pjxxf = NULL;
+	const char * pstrErrMsg;
+    jf_xmlparser_xml_doc_t * pjxxd = NULL;
 
-    u32Ret = jf_xmlparser_parseXmlFile(pstrXmlFile, &pjxxf);
+    u32Ret = jf_xmlparser_parseXmlFile(pstrXmlFile, &pjxxd);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_xmlparser_printXmlDoc(&pjxxf->jxxf_jxxdDoc);
-        _printXmlNodeAttr(pjxxf->jxxf_jxxdDoc.jxxd_pjxxnRoot);
+        jf_xmlparser_printXmlDoc(pjxxd);
+
+        u32Ret = _modifyXmlDocument(pjxxd);
     }
     else
 	{
-		jf_err_getMsg(u32Ret, strErrMsg, 300);
-        printf("%s\n", strErrMsg);
-		if ((pjxxf != NULL) && (pjxxf->jxxf_jxxdDoc.jxxd_pjxxnError == NULL))
-		{
-            ol_strncpy(
-                strTagName, pjxxf->jxxf_jxxdDoc.jxxd_pjxxnError->jxxn_pstrName,
-                pjxxf->jxxf_jxxdDoc.jxxd_pjxxnError->jxxn_sName);
-            strTagName[pjxxf->jxxf_jxxdDoc.jxxd_pjxxnError->jxxn_sName] = '\0';
-            ol_printf("%s, %s\n", strErrMsg, strTagName);
-		}
+		pstrErrMsg = jf_xmlparser_getErrMsg();
+        printf("%s\n", pstrErrMsg);
 	}
 
-    if (pjxxf != NULL)
-        jf_xmlparser_destroyXmlFile(&pjxxf);
-#endif
+    if (pjxxd != NULL)
+        jf_xmlparser_destroyXmlDoc(&pjxxd);
+
     return u32Ret;
 }
 

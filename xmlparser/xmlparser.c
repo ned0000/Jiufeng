@@ -28,24 +28,9 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-static olchar_t ls_strXmlErrMsg[256];
+
 
 /* --- private routine section ------------------------------------------------------------------ */
-
-static void _genXmlErrMsg(u32 u32Err, olchar_t * pData, olsize_t sData)
-{
-    olchar_t str[64];
-    olsize_t size = sizeof(str) - 1;
-
-    if (size > sData)
-        size = sData;
-
-    ol_strncpy(str, pData, size);
-
-    ol_snprintf(
-        ls_strXmlErrMsg, sizeof(ls_strXmlErrMsg) - 1, "%s \"%s\".",
-        jf_err_getDescription(u32Err), str);
-}
 
 static u32 _destroyXmlNode(internal_xmlparser_xml_node_t ** ppNode)
 {
@@ -61,6 +46,9 @@ static u32 _destroyXmlNode(internal_xmlparser_xml_node_t ** ppNode)
 
     if (pixxn->ixxn_pstrNs != NULL)
         jf_string_free(&pixxn->ixxn_pstrNs);
+
+    if (pixxn->ixxn_pstrContent != NULL)
+        jf_string_free(&pixxn->ixxn_pstrContent);
 
     jf_jiukun_freeMemory((void **)ppNode);
     
@@ -363,7 +351,7 @@ static u32 _parseXmlDeclaration(
         if (ol_memcmp(field->jsprf_pstrData, "?xml", 4) != 0)
         {
             u32Ret = JF_ERR_INVALID_XML_DECLARATION;
-            _genXmlErrMsg(u32Ret, field->jsprf_pstrData, field->jsprf_sData);
+            genXmlErrMsg(u32Ret, field->jsprf_pstrData, field->jsprf_sData);
         }
     }
     
@@ -526,7 +514,7 @@ static u32 _processXmlNodeList(internal_xmlparser_xml_doc_t * pixxd)
                 {
                     /*The start element is not correct, unmatched close tag.*/
                     u32Ret = JF_ERR_UNMATCHED_XML_CLOSE_TAG;
-                    _genXmlErrMsg(u32Ret, temp->ixxn_pstrName, temp->ixxn_sName);
+                    genXmlErrMsg(u32Ret, temp->ixxn_pstrName, temp->ixxn_sName);
                     break;
                 }
             }
@@ -572,7 +560,7 @@ static u32 _readXmlNodeContent(internal_xmlparser_xml_node_t * pixxn)
     internal_xmlparser_xml_node_t * temp = NULL;
 
     temp = pixxn;
-    while (temp != NULL)
+    while ((temp != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
         if (temp->ixxn_pixxnChildren != NULL)
         {
@@ -585,8 +573,9 @@ static u32 _readXmlNodeContent(internal_xmlparser_xml_node_t * pixxn)
             sBuf = temp->ixxn_pixxnPairTag->ixxn_pstrSegment - temp->ixxn_pstrSegment + 1;
             if (sBuf > 0)
             {
-                temp->ixxn_pstrContent = temp->ixxn_pstrSegment;
                 temp->ixxn_sContent = sBuf;
+                u32Ret = jf_string_duplicateWithLen(
+                    &temp->ixxn_pstrContent, temp->ixxn_pstrSegment, temp->ixxn_sContent);
             }
         }
 
@@ -653,6 +642,69 @@ static u32 _buildXmlNamespaceTable(internal_xmlparser_xml_node_t * root)
     return u32Ret;
 }
 
+static u32 _findXmlNode(
+    internal_xmlparser_xml_node_t * pixxn, olchar_t * pstrName, olsize_t sName,
+    internal_xmlparser_xml_node_t ** ppNode)
+{
+    u32 u32Ret = JF_ERR_XML_NODE_NOT_FOUND;
+
+    *ppNode = NULL;
+    while (pixxn != NULL)
+    {
+        if ((pixxn->ixxn_sName == sName) && (ol_memcmp(pixxn->ixxn_pstrName, pstrName, sName) == 0))
+        {
+            *ppNode = pixxn;
+            u32Ret = JF_ERR_NO_ERROR;
+            break;
+        }
+
+        pixxn = pixxn->ixxn_pixxnSibling;
+    }
+
+    return u32Ret;
+}
+
+static u32 _locateXmlNode(
+    internal_xmlparser_xml_doc_t * pixxd, olchar_t * pstrNodeName,
+    jf_xmlparser_xml_node_t ** ppNode)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_string_parse_result_t * pName = NULL;
+    jf_string_parse_result_field_t * field = NULL;
+    u32 u32Index = 0;
+    internal_xmlparser_xml_node_t * pixxn = pixxd->ixxd_pixxnRoot, * pNode = NULL;
+
+    *ppNode = NULL;
+
+    u32Ret = jf_string_parse(&pName, pstrNodeName, 0, ol_strlen(pstrNodeName), ".", 1);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        field = pName->jspr_pjsprfFirst;
+        for (u32Index = 0; (u32Index < pName->jspr_u32NumOfResult) && (pixxn != NULL); u32Index ++)
+        {
+            u32Ret = _findXmlNode(pixxn, field->jsprf_pstrData, field->jsprf_sData, &pNode);
+            if (u32Ret == JF_ERR_NO_ERROR)
+            {
+                pixxn = pNode->ixxn_pixxnChildren;
+
+                field = field->jsprf_pjsprfNext;
+            }
+            else
+            {
+                break;
+            }
+        }
+    }
+
+    if ((u32Ret == JF_ERR_NO_ERROR) && (u32Index == pName->jspr_u32NumOfResult))
+        *ppNode = pNode;
+
+    if (pName != NULL)
+        jf_string_destroyParseResult(&pName);
+
+    return u32Ret;
+}
+
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_xmlparser_lookupXmlNamespace(
@@ -695,7 +747,8 @@ u32 jf_xmlparser_parseXmlDoc(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_xmlparser_xml_doc_t * pixxd = NULL;
 
-    ol_bzero(ls_strXmlErrMsg, sizeof(ls_strXmlErrMsg));
+    *ppDoc = NULL;
+    initXmlErrMsg();
 
     u32Ret = jf_jiukun_allocMemory((void **)&pixxd, sizeof(*pixxd));
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -726,6 +779,9 @@ u32 jf_xmlparser_parseXmlDoc(
         u32Ret = _buildXmlNamespaceTable(pixxd->ixxd_pixxnRoot);
     }
 
+    if (u32Ret != JF_ERR_NO_ERROR)
+        tryGenXmlErrMsg(u32Ret, NULL, 0);
+
     if (u32Ret == JF_ERR_NO_ERROR)
         *ppDoc = pixxd;
     else if (pixxd != NULL)
@@ -749,14 +805,25 @@ u32 jf_xmlparser_destroyXmlDoc(jf_xmlparser_xml_doc_t ** ppDoc)
     return u32Ret;
 }
 
-const olchar_t * jf_xmlparser_getErrMsg(void)
+u32 jf_xmlparser_getXmlNode(
+    jf_xmlparser_xml_doc_t * pjxxd, olchar_t * pstrNodeName, jf_xmlparser_xml_node_t ** ppNode)
 {
-    olchar_t * pStrErr = ls_strXmlErrMsg;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_xmlparser_xml_doc_t * pixxd = (internal_xmlparser_xml_doc_t *) pjxxd;
 
-    if (pStrErr[0] == '\0')
-        return NULL;
+    u32Ret = _locateXmlNode(pixxd, pstrNodeName, ppNode);
+    
+    return u32Ret;
+}
 
-    return pStrErr;
+u32 jf_xmlparser_getContentOfNode(jf_xmlparser_xml_node_t * pNode, olchar_t ** ppStr)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_xmlparser_xml_node_t * pixxn = (internal_xmlparser_xml_node_t *) pNode;
+
+    *ppStr = pixxn->ixxn_pstrContent;
+
+    return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/

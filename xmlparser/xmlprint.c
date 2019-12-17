@@ -60,6 +60,10 @@ static void _printXmlNodeList(internal_xmlparser_xml_node_t * pixxn, u16 u16Inde
             value[temp->ixxn_sContent] = '\0';
             ol_printf("%s\n", value);
         }
+        else
+        {
+            ol_printf("\n");
+        }
 
         temp = temp->ixxn_pixxnSibling;
     }

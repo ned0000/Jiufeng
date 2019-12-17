@@ -7,6 +7,7 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_xmlparser library.
+ *  -# The library is NOT thread safe.
  *
  *  <HR>
  *
@@ -74,10 +75,6 @@ typedef void  jf_xmlparser_xml_node_t;
  */
 typedef void  jf_xmlparser_xml_doc_t;
 
-/** Define XML file data type.
- */
-typedef void  jf_xmlparser_xml_file_t;
-
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Parse xml document in memory, start from offset.
@@ -127,7 +124,8 @@ XMLPARSERAPI void XMLPARSERCALL jf_xmlparser_printXmlDoc(jf_xmlparser_xml_doc_t 
 /** Get XML error message in case there are error during parse.
  *
  *  @note
- *  -# The error message is in static memory, so it's NOT thread safe.
+ *  -# The error message is in static memory which might be overwritten by subsequent calls to
+ *  parse XML.
  *
  *  @return The error message.
  */
@@ -136,20 +134,19 @@ XMLPARSERAPI const olchar_t * XMLPARSERCALL jf_xmlparser_getErrMsg(void);
 /** Parse XML file.
  *
  *  @param pstrFilename [in] The XML file to be parsed.
- *  @param ppFile [in/out] The XML file data type.
+ *  @param ppDoc [in/out] The XML document returned.
  *
  *  @return the error code
  */
 XMLPARSERAPI u32 XMLPARSERCALL jf_xmlparser_parseXmlFile(
-    const olchar_t * pstrFilename, jf_xmlparser_xml_file_t ** ppFile);
+    const olchar_t * pstrFilename, jf_xmlparser_xml_doc_t ** ppDoc);
 
-/** Destroy XML file data type.
- *
- *  @param ppFile [in/out] The file data type to be destroyed.
- *
- *  @return the error code
- */
-XMLPARSERAPI u32 XMLPARSERCALL jf_xmlparser_destroyXmlFile(jf_xmlparser_xml_file_t ** ppFile);
+
+u32 jf_xmlparser_getXmlNode(
+    jf_xmlparser_xml_doc_t * pjxxd, olchar_t * pstrNodeName, jf_xmlparser_xml_node_t ** ppNode);
+
+u32 jf_xmlparser_getContentOfNode(jf_xmlparser_xml_node_t * pNode, olchar_t ** ppStr);
+
 
 #endif /*JIUFENG_XMLPARSER_H*/
 

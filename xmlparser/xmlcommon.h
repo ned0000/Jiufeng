@@ -98,6 +98,15 @@ typedef struct internal_xmlparser_xml_file
 
 boolean_t isAllSpaceInXmlBuffer(olchar_t * pstr, olsize_t size);
 
+void initXmlErrMsg(void);
+
+/** Generate error message.
+ */
+void genXmlErrMsg(u32 u32Err, const olchar_t * pData, olsize_t sData);
+
+/** Try to generate error message in case the erro message is not set.
+ */
+void tryGenXmlErrMsg(u32 u32Err, const olchar_t * pData, olsize_t sData);
 
 #endif /*XMLPARSER_XMLCOMMON_H*/
 

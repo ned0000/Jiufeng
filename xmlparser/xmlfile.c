@@ -32,27 +32,22 @@
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_xmlparser_parseXmlFile(
-    const olchar_t * pstrFilename, jf_xmlparser_xml_file_t ** ppFile)
+    const olchar_t * pstrFilename, jf_xmlparser_xml_doc_t ** ppDoc)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     FILE * fp = NULL;
     olsize_t sSize;
     jf_file_stat_t filestat;
-    internal_xmlparser_xml_file_t * pixxf = NULL;
+    olchar_t * pstrBuf = NULL;
 
-    assert((pstrFilename != NULL) && (ppFile != NULL));
+    assert((pstrFilename != NULL) && (ppDoc != NULL));
 
-    u32Ret = jf_jiukun_allocMemory((void **)&pixxf, sizeof(*pixxf));
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        ol_bzero(pixxf, sizeof(*pixxf));
-        u32Ret = jf_file_getStat(pstrFilename, &filestat);
-    }
+    u32Ret = jf_file_getStat(pstrFilename, &filestat);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         sSize = (olsize_t)filestat.jfs_u64Size;
-        u32Ret = jf_jiukun_allocMemory((void **)&(pixxf->ixxf_pstrBuf), sSize);
+        u32Ret = jf_jiukun_allocMemory((void **)&pstrBuf, sSize);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -62,7 +57,7 @@ u32 jf_xmlparser_parseXmlFile(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_filestream_readn(fp, pixxf->ixxf_pstrBuf, &sSize);
+        u32Ret = jf_filestream_readn(fp, pstrBuf, &sSize);
         if (sSize != (u32)filestat.jfs_u64Size)
             u32Ret = JF_ERR_INVALID_XML_FILE;
     }
@@ -72,36 +67,19 @@ u32 jf_xmlparser_parseXmlFile(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_xmlparser_parseXmlDoc(pixxf->ixxf_pstrBuf, 0, sSize, &(pixxf->ixxf_pjxxdDoc));
+        u32Ret = jf_xmlparser_parseXmlDoc(pstrBuf, 0, sSize, ppDoc);
     }
 
-    if (u32Ret == JF_ERR_NO_ERROR)
-        *ppFile = pixxf;
-    else if (pixxf != NULL)
-        jf_xmlparser_destroyXmlFile((jf_xmlparser_xml_file_t **)&pixxf);
+    if (pstrBuf != NULL)
+        jf_jiukun_freeMemory((void **)&pstrBuf);
+
+    if (u32Ret != JF_ERR_NO_ERROR)
+        tryGenXmlErrMsg(u32Ret, pstrFilename, ol_strlen(pstrFilename));
 
     return u32Ret;
 }
 
-u32 jf_xmlparser_destroyXmlFile(jf_xmlparser_xml_file_t ** ppFile)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_xmlparser_xml_file_t * pixxf = NULL;
 
-    assert((ppFile != NULL) && (*ppFile != NULL));
-
-    pixxf = (internal_xmlparser_xml_file_t *)*ppFile;
-
-    if (pixxf->ixxf_pjxxdDoc != NULL)
-        jf_xmlparser_destroyXmlDoc(&pixxf->ixxf_pjxxdDoc);
-
-    if (pixxf->ixxf_pstrBuf != NULL)
-        jf_jiukun_freeMemory((void **)&(pixxf->ixxf_pstrBuf));
-
-    jf_jiukun_freeMemory((void **)ppFile);
-
-    return u32Ret;
-}
 
 /*------------------------------------------------------------------------------------------------*/
 
