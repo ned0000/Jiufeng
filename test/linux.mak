@@ -17,7 +17,7 @@ PROGRAMS = xmalloc-test hashtree-test listhead-test hlisthead-test              
     rwlock-test sem-test date-test time-test stringparse-test                         \
     bitarray-test conffile-test menu-test crc-test dynlib-test                        \
     ifmgmt-test sharedmemory-test-consumer sharedmemory-test-worker                   \
-    files-test hsm-test host-test respool-test bitop-test                             \
+    files-test hsm-test host-test respool-test bitop-test ptree-test                  \
     jiukun-test cghash-test cgmac-test jf_genuuid encrypt-test                        \
     prng-test encode-test xmlparser-test rand-test persistency-test                   \
     archive-test user-test httpparser-test network-test                               \
@@ -30,7 +30,7 @@ SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c hlisthead-test.c       
     rwlock-test.c sem-test.c date-test.c time-test.c stringparse-test.c               \
     bitarray-test.c conffile-test.c menu-test.c crc-test.c dynlib-test.c              \
     ifmgmt-test.c sharedmemory-test-consumer.c sharedmemory-test-worker.c             \
-    files-test.c hsm-test.c host-test.c respool-test.c bitop-test.c                   \
+    files-test.c hsm-test.c host-test.c respool-test.c bitop-test.c ptree-test.c      \
     jiukun-test.c cghash-test.c cgmac-test.c genuuid.c encrypt-test.c                 \
     prng-test.c encode-test.c xmlparser-test.c rand-test.c persistency-test.c         \
     archive-test.c user-test.c httpparser-test.c network-test.c                       \
@@ -145,6 +145,11 @@ $(BIN_DIR)/respool-test: respool-test.o $(JIUTAI_DIR)/jf_respool.o $(JIUTAI_DIR)
 
 $(BIN_DIR)/bitop-test: bitop-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) 
+
+$(BIN_DIR)/ptree-test: ptree-test.o $(JIUTAI_DIR)/jf_ptree.o $(JIUTAI_DIR)/jf_option.o \
+       $(JIUTAI_DIR)/jf_linklist.o $(JIUTAI_DIR)/jf_hashtree.o $(JIUTAI_DIR)/jf_stack.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun \
+       -ljf_string
 
 $(BIN_DIR)/jiukun-test: jiukun-test.o $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_mutex.o \
        $(JIUTAI_DIR)/jf_thread.o
