@@ -1,7 +1,7 @@
 /**
  *  @file jf_mem.c
  *
- *  @brief Implementation file for memory allocation routines
+ *  @brief Implementation file for memory allocation routines.
  *
  *  @author Min Zhang
  *

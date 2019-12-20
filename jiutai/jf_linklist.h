@@ -7,7 +7,7 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_linklist object.
- *  -# Link with jiukun library for memory allocation.
+ *  -# Link with jf_jiukun library for memory allocation.
  *  -# This object is not thread safe.
  *  
  */
@@ -41,6 +41,8 @@ typedef struct jf_linklist
 	jf_linklist_node_t * jl_pjlnHead;
 } jf_linklist_t;
 
+/** The callback function for freeing the node data.
+ */
 typedef u32 (* jf_linklist_fnFreeNodeData_t)(void ** ppData);
 
 /* --- functional routines ---------------------------------------------------------------------- */
@@ -61,10 +63,10 @@ void jf_linklist_init(jf_linklist_t * pList);
  */
 void jf_linklist_fini(jf_linklist_t * pList);
 
-/** Finalize the linked list and data
+/** Finalize the linked list and data.
  *
- *  @param pList [in] The linked list to finalize
- *  @param fnFreeData [in] The call back function to free data
+ *  @param pList [in] The linked list to finalize.
+ *  @param fnFreeData [in] The call back function to free data.
  *
  *  @return Void.
  */

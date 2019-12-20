@@ -7,7 +7,7 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_dlinklist object.
- *  -# Link with jiukun library for memory allocation.
+ *  -# Link with jf_jiukun library for memory allocation.
  *  -# This object is not thread safe.
  *  
  */
@@ -26,7 +26,8 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-/*double linked list*/
+/** Define the double linked list node data type.
+ */
 typedef struct jf_dlinklist_node
 {
     struct jf_dlinklist_node * jdn_pjdnNext;
@@ -34,14 +35,20 @@ typedef struct jf_dlinklist_node
     void * jdn_pData;
 } jf_dlinklist_node_t;
 
+/** Define the double linked list data type.
+ */
 typedef struct jf_dlinklist
 {
     jf_dlinklist_node_t * jd_pjdnHead;
     jf_dlinklist_node_t * jd_pjdnTail;
 } jf_dlinklist_t;
 
+/** Callback function for freeing the node data.
+ */
 typedef u32 (* jf_dlinklist_fnFreeNodeData_t)(void ** ppData);
 
+/** Callback function for finding the node.
+ */
 typedef boolean_t (* jf_dlinklist_fnFindNodeData_t)(void * pData, void * pKey);
 
 /* --- functional routines ---------------------------------------------------------------------- */
@@ -87,7 +94,7 @@ u32 jf_dlinklist_findPrevNode(
  */
 u32 jf_dlinklist_appendTo(jf_dlinklist_t * pList, void * pData);
 
-/** Get data from the linked node
+/** Get data from the linked node.
  *
  */
 static inline void * jf_dlinklist_getDataFromNode(jf_dlinklist_node_t * pNode)
@@ -95,7 +102,7 @@ static inline void * jf_dlinklist_getDataFromNode(jf_dlinklist_node_t * pNode)
     return pNode->jdn_pData;
 }
 
-/** Get the first node of double linked list
+/** Get the first node of double linked list.
  *
  */
 static inline jf_dlinklist_node_t * jf_dlinklist_getFirstNode(jf_dlinklist_t * pList)
@@ -103,7 +110,7 @@ static inline jf_dlinklist_node_t * jf_dlinklist_getFirstNode(jf_dlinklist_t * p
     return pList->jd_pjdnHead;
 }
 
-/** Get the last node of the double linked list
+/** Get the last node of the double linked list.
  *
  */
 static inline jf_dlinklist_node_t * jf_dlinklist_getLastNode(jf_dlinklist_t * pList)
@@ -111,7 +118,7 @@ static inline jf_dlinklist_node_t * jf_dlinklist_getLastNode(jf_dlinklist_t * pL
     return pList->jd_pjdnTail;
 }
 
-/** Get the next node of the specified node
+/** Get the next node of the specified node.
  *
  */
 static inline jf_dlinklist_node_t * jf_dlinklist_getNextNode(jf_dlinklist_node_t * pNode)
@@ -119,7 +126,7 @@ static inline jf_dlinklist_node_t * jf_dlinklist_getNextNode(jf_dlinklist_node_t
     return pNode->jdn_pjdnNext;
 }
 
-/** Get the previous node of the specified node
+/** Get the previous node of the specified node.
  *
  */
 static inline jf_dlinklist_node_t * jf_dlinklist_getPrevNode(jf_dlinklist_node_t * pNode)

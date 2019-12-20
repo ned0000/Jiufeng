@@ -1,14 +1,14 @@
 /**
  *  @file jf_sharedmemory.h
  *
- *  @brief Shared memory header file. Provide some functional routine for
- *   shared memory
+ *  @brief Shared memory header file which provide some functional routine for shared memory
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_sharedmemory library
- *  @note Link with xmalloc common object
- *  @note Link with oluuid.lib on Windows platform
+ *  @note
+ *  -# Routines declared in this file are included in jf_sharedmemory object.
+ *  -# Link with jf_jiukun library for memory allocation.
+ *  -# Link with oluuid.lib on Windows platform.
  *  
  */
 
@@ -25,11 +25,11 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-/** the shared memory id length
+/** The shared memory id length.
  */
 #define JF_SHAREDMEMORY_ID_LEN     (40)
 
-/** the shared memory identifier is a string with NULL-terminated
+/** The shared memory identifier is a string with NULL-terminated.
  */
 typedef olchar_t  jf_sharedmemory_id_t;
 

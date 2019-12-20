@@ -5,7 +5,8 @@
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_files library
+ *  @note
+ *  -# Routines declared in this file are included in jf_files library.
  */
 
 #ifndef JIUFENG_FILESTREAM_H
@@ -30,7 +31,7 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-typedef FILE     jf_filestream_t;
+typedef FILE  jf_filestream_t;
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -69,11 +70,10 @@ FILESAPI u32 FILESCALL jf_filestream_writeVecOffset(
 FILESAPI u32 FILESCALL jf_filestream_readLine(
     jf_filestream_t * pjf, void * ptr, olsize_t * psRead);
 
-/*copy file content from pstrSourceFile to fpDest, pu8Buffer is a buffer
- provided by caller for the function*/
+/** Copy file content from source file to destination file, the buffer is provided by caller.
+ */
 FILESAPI u32 FILESCALL jf_filestream_copyFile(
-    jf_filestream_t * fpDest, const olchar_t * pstrSourceFile,
-    u8 * u8Buffer, olsize_t sBuf);
+    jf_filestream_t * fpDest, const olchar_t * pstrSourceFile, u8 * u8Buffer, olsize_t sBuf);
 
 FILESAPI u32 FILESCALL jf_filestream_flush(jf_filestream_t * pjf);
 

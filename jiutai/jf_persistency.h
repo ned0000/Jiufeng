@@ -1,14 +1,14 @@
 /**
  *  @file jf_persistency.h
  *
- *  @brief persistency library header file
+ *  @brief Header file defines interfaces of persistency library.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_persistency library
- *  @note If fails to set persistency value, user should rollback transaction if
- *   transaction started.
- *  @note Link with sqlite3 library
+ *  @note
+ *  -# Routines declared in this file are included in jf_persistency library.
+ *  -# If fails to set persistency value, user should rollback transaction if transaction started.
+ *  -# Link with sqlite3 library as sqlite3 is used as backend database.
  */
  
 #ifndef JIUFENG_PERSISTENCY_H
@@ -25,19 +25,19 @@
 
 typedef enum jf_persistency_type
 {
-	JF_PERSISTENCY_TYPE_SQLITE = 0, /**< sqlite persistency */ 
+	JF_PERSISTENCY_TYPE_SQLITE = 0, /**<Sqlite persistency.*/ 
 } jf_persistency_type_t;
 
 typedef struct jf_persistency_config_sqlite
 {
 #define JF_PERSISTENCY_MAX_NAME_LEN    (64)
-    /** The sqlite DB name */
+    /**The sqlite DB name.*/
     olchar_t jpcs_strDbName[JF_PERSISTENCY_MAX_NAME_LEN];
-    /** The sqlite DB table name */
+    /**The sqlite DB table name.*/
     olchar_t jpcs_strTableName[JF_PERSISTENCY_MAX_NAME_LEN];
-    /** The name of the table column containing the keys */
+    /**The name of the table column containing the keys.*/
     olchar_t jpcs_strKeyColumnName[JF_PERSISTENCY_MAX_NAME_LEN];
-    /** The name of the table column containing the values */ 
+    /**The name of the table column containing the values.*/ 
     olchar_t jpcs_strValueColumnName[JF_PERSISTENCY_MAX_NAME_LEN];
 } jf_persistency_config_sqlite_t;
 

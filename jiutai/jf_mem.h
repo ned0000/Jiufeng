@@ -1,12 +1,12 @@
 /**
  *  @file jf_mem.h
  *
- *  @brief Memory allocation header file. Provide some functional routine to
- *   allocate memeory
+ *  @brief Memory allocation header file which provide some functional routine to allocate memeory.
  *
  *  @author Min Zhang
  *  
- *  @note Routines declared in this file are included in jf_mem object
+ *  @note
+ *  -# Routines declared in this file are included in jf_mem object.
  *
  */
 
@@ -23,9 +23,11 @@
 /* --- data structures -------------------------------------------------------------------------- */
 
 /* --- functional routines ---------------------------------------------------------------------- */
+
 u32 jf_mem_alloc(void ** pptr, olsize_t size);
 
-/*allocate the memory and clear to 0*/
+/** Allocate the memory and clear the memory to all 0.
+ */
 u32 jf_mem_calloc(void ** pptr, olsize_t size);
 
 u32 jf_mem_realloc(void ** pptr, olsize_t size);

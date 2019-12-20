@@ -1,7 +1,7 @@
 /**
  *  @file jf_sharedmemory.c
  *
- *  @brief The implementation of share memory common object
+ *  @brief The implementation of share memory common object.
  *
  *  @author Min Zhang
  *
