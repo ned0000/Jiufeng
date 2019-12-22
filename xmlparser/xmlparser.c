@@ -41,15 +41,6 @@ static u32 _destroyXmlNode(internal_xmlparser_xml_node_t ** ppNode)
     jf_hashtree_fini(&pixxn->ixxn_jhNameSpace);
     destroyXmlAttributeList(&pixxn->ixxn_jlAttribute);
 
-    if (pixxn->ixxn_pstrName != NULL)
-        jf_string_free(&pixxn->ixxn_pstrName);
-
-    if (pixxn->ixxn_pstrNs != NULL)
-        jf_string_free(&pixxn->ixxn_pstrNs);
-
-    if (pixxn->ixxn_pstrContent != NULL)
-        jf_string_free(&pixxn->ixxn_pstrContent);
-
     jf_jiukun_freeMemory((void **)ppNode);
     
     return u32Ret;
@@ -73,14 +64,10 @@ static u32 _createXmlNode(
         jf_hashtree_init(&pixxn->ixxn_jhNameSpace);
         jf_linklist_init(&pixxn->ixxn_jlAttribute);
         pixxn->ixxn_sNs = sNsTag;
+        pixxn->ixxn_pstrNs = pstrNsTag;
         pixxn->ixxn_sName = sTagName;
-
-        if (sTagName > 0)
-            u32Ret = jf_string_duplicateWithLen(&pixxn->ixxn_pstrName, pstrTagName, sTagName);
+        pixxn->ixxn_pstrName = pstrTagName;
     }
-
-    if ((u32Ret == JF_ERR_NO_ERROR) && (sNsTag > 0))
-        u32Ret = jf_string_duplicateWithLen(&pixxn->ixxn_pstrNs, pstrNsTag, sNsTag);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         *ppNode = pixxn;
@@ -149,8 +136,8 @@ static u32 _newXmlNode(
         {
             /*Start element.*/
             ol_memcpy(&pixxn->ixxn_jlAttribute, pLinklist, sizeof(*pLinklist));
-            /*The segment field of start element point to the end of the element (the
-              first character after ">").*/
+            /*The segment field of start element point to the end of the element (the first
+              character after ">").*/
             pixxn->ixxn_pstrSegment = pElem->jspr_pjsprfLast->jsprf_pstrData;
         }
 
@@ -574,8 +561,7 @@ static u32 _readXmlNodeContent(internal_xmlparser_xml_node_t * pixxn)
             if (sBuf > 0)
             {
                 temp->ixxn_sContent = sBuf;
-                u32Ret = jf_string_duplicateWithLen(
-                    &temp->ixxn_pstrContent, temp->ixxn_pstrSegment, temp->ixxn_sContent);
+                temp->ixxn_pstrContent = temp->ixxn_pstrSegment;
             }
         }
 
@@ -585,77 +571,34 @@ static u32 _readXmlNodeContent(internal_xmlparser_xml_node_t * pixxn)
     return u32Ret;
 }
 
-/** Builds the namespace hash table.
- *
- *  @param root [in] This root node of the XML tree.
- *
- *  @return The error code.
- */
-static u32 _buildXmlNamespaceTable(internal_xmlparser_xml_node_t * root)
+static u32 _copyXmlTreeNodeToPtree(
+    internal_xmlparser_xml_node_t * pixxn, jf_ptree_t * pjpXml, jf_ptree_node_t * pjpn)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-#if 0
-    internal_xmlparser_xml_attribute_t * attr = NULL;
-    internal_xmlparser_xml_node_t * current = root;
-    jf_linklist_node_t * pNode = NULL;
+    jf_ptree_node_t * pChild = NULL;
 
-    /*Iterate through all the start elements, and build a table of the declared namespaces.*/
-    while (current != NULL)
+    while ((pixxn != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        /*Ignore the end element.*/
-        if (! current->ixxn_bStartTag)
+        u32Ret = jf_ptree_addChildNode(
+            pjpXml, pjpn, pixxn->ixxn_pstrNs, pixxn->ixxn_sNs, pixxn->ixxn_pstrName,
+            pixxn->ixxn_sName, pixxn->ixxn_pstrContent, pixxn->ixxn_sContent, &pChild);
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            current = current->ixxn_pixxnNext;
-            continue;
+            /*Copy node attribute.*/
+            if (pjpn == NULL)
+                /*Root node, use pChild.*/
+                u32Ret = copyXmlAttributeToPtree(&pixxn->ixxn_jlAttribute, pChild);
+            else
+                u32Ret = copyXmlAttributeToPtree(&pixxn->ixxn_jlAttribute, pjpn);
         }
 
-        /*Iterate through all the attributes to find namespace declarations.*/
-        pNode = jf_linklist_getFirstNode(&current->ixxn_jlAttribute);
-        while (pNode != NULL)
+        if (u32Ret == JF_ERR_NO_ERROR)
         {
-            attr = jf_linklist_getDataFromNode(pNode);
-
-            if (attr->ixxa_sName == 5 &&
-                ol_memcmp(attr->ixxa_pstrName, "xmlns", 5) == 0)
+            if (pixxn->ixxn_pixxnChildren != NULL)
             {
-                /*Default namespace declaration.*/
-                attr->ixxa_pstrValue[attr->ixxa_sValue] = 0;
-                jf_hashtree_addEntry(
-                    &current->ixxn_jhNameSpace, "xmlns", 5, attr->ixxa_pstrValue);
+                /*Enter the lower level tree.*/
+                _copyXmlTreeNodeToPtree(pixxn->ixxn_pixxnChildren, pjpXml, pChild);
             }
-            else if (attr->ixxa_sPrefix == 5 &&
-                     ol_memcmp(attr->ixxa_pstrPrefix, "xmlns", 5) == 0)
-            {
-                /*Other namespace declaration.*/
-                attr->ixxa_pstrValue[attr->ixxa_sValue] = 0;
-                jf_hashtree_addEntry(
-                    &current->ixxn_jhNameSpace, attr->ixxa_pstrName, attr->ixxa_sName,
-                    attr->ixxa_pstrValue);
-            }
-
-            pNode = jf_linklist_getNextNode(pNode);
-        }
-
-        current = current->ixxn_pixxnNext;
-    }
-#endif
-    return u32Ret;
-}
-
-static u32 _findXmlNode(
-    internal_xmlparser_xml_node_t * pixxn, olchar_t * pstrName, olsize_t sName,
-    internal_xmlparser_xml_node_t ** ppNode)
-{
-    u32 u32Ret = JF_ERR_XML_NODE_NOT_FOUND;
-
-    *ppNode = NULL;
-    while (pixxn != NULL)
-    {
-        if ((pixxn->ixxn_sName == sName) && (ol_memcmp(pixxn->ixxn_pstrName, pstrName, sName) == 0))
-        {
-            *ppNode = pixxn;
-            u32Ret = JF_ERR_NO_ERROR;
-            break;
         }
 
         pixxn = pixxn->ixxn_pixxnSibling;
@@ -664,91 +607,39 @@ static u32 _findXmlNode(
     return u32Ret;
 }
 
-static u32 _locateXmlNode(
-    internal_xmlparser_xml_doc_t * pixxd, olchar_t * pstrNodeName,
-    jf_xmlparser_xml_node_t ** ppNode)
+static u32 _copyXmlTreeToPtree(internal_xmlparser_xml_doc_t * pixxd, jf_ptree_t * pjpXml)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_string_parse_result_t * pName = NULL;
-    jf_string_parse_result_field_t * field = NULL;
-    u32 u32Index = 0;
-    internal_xmlparser_xml_node_t * pixxn = pixxd->ixxd_pixxnRoot, * pNode = NULL;
 
-    *ppNode = NULL;
+    u32Ret = copyXmlDeclarationToPtree(&pixxd->ixxd_jlDeclarationAttribute, pjpXml);
 
-    u32Ret = jf_string_parse(&pName, pstrNodeName, 0, ol_strlen(pstrNodeName), ".", 1);
     if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        field = pName->jspr_pjsprfFirst;
-        for (u32Index = 0; (u32Index < pName->jspr_u32NumOfResult) && (pixxn != NULL); u32Index ++)
-        {
-            u32Ret = _findXmlNode(pixxn, field->jsprf_pstrData, field->jsprf_sData, &pNode);
-            if (u32Ret == JF_ERR_NO_ERROR)
-            {
-                pixxn = pNode->ixxn_pixxnChildren;
-
-                field = field->jsprf_pjsprfNext;
-            }
-            else
-            {
-                break;
-            }
-        }
-    }
-
-    if ((u32Ret == JF_ERR_NO_ERROR) && (u32Index == pName->jspr_u32NumOfResult))
-        *ppNode = pNode;
-
-    if (pName != NULL)
-        jf_string_destroyParseResult(&pName);
+        u32Ret = _copyXmlTreeNodeToPtree(pixxd->ixxd_pixxnRoot, pjpXml, NULL);
 
     return u32Ret;
 }
 
-/* --- public routine section ------------------------------------------------------------------- */
-
-u32 jf_xmlparser_lookupXmlNamespace(
-    jf_xmlparser_xml_node_t * pNode, olchar_t * pstrPrefix, olsize_t sPrefix, olchar_t ** ppstr)
+static u32 _destroyXmlDoc(internal_xmlparser_xml_doc_t ** ppDoc)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_xmlparser_xml_node_t * temp = (internal_xmlparser_xml_node_t *)pNode;
+    internal_xmlparser_xml_doc_t * pixxd = (internal_xmlparser_xml_doc_t *) *ppDoc;
+    
+    destroyXmlAttributeList(&pixxd->ixxd_jlDeclarationAttribute);
 
-    /*If the specified prefix is zero length, we interpret that to mean they want to lookup the
-      default namespace.*/
-    if (sPrefix == 0)
-    {
-        /*This is the default namespace prefix.*/
-        pstrPrefix = "xmlns";
-        sPrefix = 5;
-    }
+    if (pixxd->ixxd_pixxnRoot != NULL)
+        _destroyXmlNodeList(&pixxd->ixxd_pixxnRoot);
 
-    /*From the current node, keep traversing up the parents, until we find a match. Each step we go
-      up, is a step wider in scope.*/
-    do
-    {
-        if (jf_hashtree_hasEntry(&temp->ixxn_jhNameSpace, pstrPrefix, sPrefix))
-        {
-            /*As soon as we find the namespace declaration, stop iterating the tree, as it would be
-              a waste of time.*/
-            jf_hashtree_getEntry(
-                &temp->ixxn_jhNameSpace, pstrPrefix, sPrefix, (void **)ppstr);
-            break;
-        }
-
-        temp = temp->ixxn_pixxnParent;
-    } while ((temp != NULL) && (u32Ret == JF_ERR_NO_ERROR));
+    jf_jiukun_freeMemory((void **)ppDoc);
 
     return u32Ret;
 }
 
-u32 jf_xmlparser_parseXmlDoc(
-    olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf, jf_xmlparser_xml_doc_t ** ppDoc)
+static u32 _createXmlDoc(internal_xmlparser_xml_doc_t ** ppDoc)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_xmlparser_xml_doc_t * pixxd = NULL;
-
+    
     *ppDoc = NULL;
-    initXmlErrMsg();
 
     u32Ret = jf_jiukun_allocMemory((void **)&pixxd, sizeof(*pixxd));
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -756,72 +647,85 @@ u32 jf_xmlparser_parseXmlDoc(
         ol_bzero(pixxd, sizeof(*pixxd));
         jf_linklist_init(&pixxd->ixxd_jlDeclarationAttribute);
 
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        *ppDoc = pixxd;
+    else if (pixxd != NULL)
+        _destroyXmlDoc(&pixxd);
+
+    return u32Ret;
+}
+
+/* --- public routine section ------------------------------------------------------------------- */
+
+u32 jf_xmlparser_parseXmlDoc(
+    olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf, jf_ptree_t ** ppPtree)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_xmlparser_xml_doc_t * pixxd = NULL;
+    jf_ptree_t * pjpXml = NULL;
+
+    *ppPtree = NULL;
+    initXmlErrMsg();
+
+    u32Ret = _createXmlDoc(&pixxd);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        /*Create the property tree.*/
+        u32Ret = jf_ptree_create(&pjpXml);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        /*Parse the XML data buffer.*/
         u32Ret = _parseXml(pstrBuf, sOffset, sBuf, pixxd);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Process XML node list and build the XML tree.*/
         u32Ret = _processXmlNodeList(pixxd);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Validate the XML document.*/
         u32Ret = _validateXmlDoc(pixxd);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Read the content of xml node.*/
         u32Ret = _readXmlNodeContent(pixxd->ixxd_pixxnRoot);
     }
     
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _buildXmlNamespaceTable(pixxd->ixxd_pixxnRoot);
+        /*Copy xml tree to property tree.*/
+        u32Ret = _copyXmlTreeToPtree(pixxd, pjpXml);
+    }
+
+    if (pixxd != NULL)
+    {
+        /*Free xml tree.*/
+        _destroyXmlDoc(&pixxd);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        /*Build XML name space table.*/
+        u32Ret = jf_ptree_buildXmlNamespaceTable(pjpXml);
     }
 
     if (u32Ret != JF_ERR_NO_ERROR)
         tryGenXmlErrMsg(u32Ret, NULL, 0);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        *ppDoc = pixxd;
-    else if (pixxd != NULL)
-        jf_xmlparser_destroyXmlDoc((jf_xmlparser_xml_doc_t **)&pixxd);
-
-    return u32Ret;
-}
-
-u32 jf_xmlparser_destroyXmlDoc(jf_xmlparser_xml_doc_t ** ppDoc)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_xmlparser_xml_doc_t * pixxd = (internal_xmlparser_xml_doc_t *)*ppDoc;
-
-    destroyXmlAttributeList(&pixxd->ixxd_jlDeclarationAttribute);
-
-    if (pixxd->ixxd_pixxnRoot != NULL)
-        u32Ret = _destroyXmlNodeList(&pixxd->ixxd_pixxnRoot);
-
-    jf_jiukun_freeMemory(ppDoc);
-
-    return u32Ret;
-}
-
-u32 jf_xmlparser_getXmlNode(
-    jf_xmlparser_xml_doc_t * pjxxd, olchar_t * pstrNodeName, jf_xmlparser_xml_node_t ** ppNode)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_xmlparser_xml_doc_t * pixxd = (internal_xmlparser_xml_doc_t *) pjxxd;
-
-    u32Ret = _locateXmlNode(pixxd, pstrNodeName, ppNode);
-    
-    return u32Ret;
-}
-
-u32 jf_xmlparser_getContentOfNode(jf_xmlparser_xml_node_t * pNode, olchar_t ** ppStr)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_xmlparser_xml_node_t * pixxn = (internal_xmlparser_xml_node_t *) pNode;
-
-    *ppStr = pixxn->ixxn_pstrContent;
+        *ppPtree = pjpXml;
+    else if (pjpXml != NULL)
+        jf_ptree_destroy(&pjpXml);
 
     return u32Ret;
 }

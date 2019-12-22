@@ -51,6 +51,15 @@ typedef u32 (* jf_dlinklist_fnFreeNodeData_t)(void ** ppData);
  */
 typedef boolean_t (* jf_dlinklist_fnFindNodeData_t)(void * pData, void * pKey);
 
+/** Callback function to operation on the node when iterating the double linked list node.
+ *
+ *  @note
+ *  -# The iteration will stop if the return code is not JF_ERR_NO_ERROR.
+ *
+ *  @return The error code.
+ */
+typedef u32 (* jf_dlinklist_fnOpNode_t)(jf_dlinklist_node_t * pNode, void * pArg);
+
 /* --- functional routines ---------------------------------------------------------------------- */
 
 void jf_dlinklist_init(jf_dlinklist_t * pList);
@@ -93,6 +102,16 @@ u32 jf_dlinklist_findPrevNode(
  *  @return The error code.
  */
 u32 jf_dlinklist_appendTo(jf_dlinklist_t * pList, void * pData);
+
+/** Iterate the double linked list and call the callback function.
+ *
+ *  @param pList [in] The linked list to iterate.
+ *  @param fnOpNode [in] The callback function to operate on the data.
+ *  @param pArg [in] The argument for the callback function.
+ *
+ *  @return The error code.
+ */
+u32 jf_dlinklist_iterate(jf_dlinklist_t * pList, jf_dlinklist_fnOpNode_t fnOpNode, void * pArg);
 
 /** Get data from the linked node.
  *

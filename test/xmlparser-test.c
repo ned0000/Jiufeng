@@ -21,6 +21,7 @@
 #include "jf_xmlparser.h"
 #include "jf_option.h"
 #include "jf_jiukun.h"
+#include "jf_ptree.h"
 
 /* An example of XML file for testing purpose:
 
@@ -168,7 +169,7 @@ typedef struct
 static u32 _testXmlParser_1()
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_xmlparser_xml_doc_t * pxmldoc = NULL;
+    jf_ptree_t * pjpXml = NULL;
     const olchar_t * pstrErrMsg = NULL;
     olchar_t strErrMsg[300];
     test_xml_parser_t txp[] = {
@@ -190,11 +191,11 @@ static u32 _testXmlParser_1()
         ol_printf("----------------------------------------------------------------\n");
         ol_printf("Parse following XML document:\n%s\n", txp[u32Index].pstrXml);
         u32Ret = jf_xmlparser_parseXmlDoc(
-            txp[u32Index].pstrXml, 0, strlen(txp[u32Index].pstrXml), &pxmldoc);
+            txp[u32Index].pstrXml, 0, strlen(txp[u32Index].pstrXml), &pjpXml);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            ol_printf("\nParse result:\n");            
-            jf_xmlparser_printXmlDoc(pxmldoc);
+            ol_printf("\nParse result:\n");
+            jf_ptree_dump(pjpXml);
         }
         else if (u32Ret != txp[u32Index].u32ErrCode)
         {
@@ -215,46 +216,87 @@ static u32 _testXmlParser_1()
         }
         ol_printf("\n");
 
-        if (pxmldoc != NULL)
-            jf_xmlparser_destroyXmlDoc(&pxmldoc);
+        if (pjpXml != NULL)
+            jf_ptree_destroy(&pjpXml);
     }
 
     return u32Ret;
 }
 
-static u32 _modifyXmlDocument(jf_xmlparser_xml_doc_t * pjxxd)
+static boolean_t _isSpecifiedService(jf_ptree_node_t * pNode, olchar_t * pstrService)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_xmlparser_xml_node_t * node = NULL;
+    boolean_t bRet = FALSE;
+    jf_ptree_node_t * temp = NULL;
     olchar_t * pstr = NULL;
-    olchar_t * nodename = "servMgmtSetting.version";
 
-    u32Ret = jf_xmlparser_getXmlNode(pjxxd, nodename, &node);
+    u32Ret = jf_ptree_findChildNode(pNode, NULL, "name", &temp);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_xmlparser_getContentOfNode(node, &pstr);
+        u32Ret = jf_ptree_getNodeValue(temp, &pstr);
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            if (ol_strcmp(pstr, pstrService) == 0)
+                bRet = TRUE;
+        }
     }
 
+    return bRet;
+}
+
+static u32 _changeStartupType(jf_ptree_node_t * pNode)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_ptree_node_t * temp = NULL;
+
+    u32Ret = jf_ptree_findChildNode(pNode, NULL, "startupType", &temp);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_printf("%s: %s\n", nodename, pstr);
+        u32Ret = jf_ptree_changeNode(temp, NULL, NULL, "manual");
     }
 
     return u32Ret;
 }
 
-static u32 _testXmlParser_2(olchar_t * pstrXmlFile)
+static u32 _modifyXmlDocument(jf_ptree_t * pjpXml)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t * nodename = "servMgmtSetting.serviceSetting.service";
+    jf_ptree_node_t * pNode[10];
+    u16 u16Num = 10, u16Index = 0;
+
+    u32Ret = jf_ptree_findAllNode(pjpXml, nodename, pNode, &u16Num);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        for (u16Index = 0; u16Index < u16Num; u16Index ++)
+        {
+            if (_isSpecifiedService(pNode[u16Index], "bio"))
+                u32Ret = _changeStartupType(pNode[u16Index]);
+        }
+    }
+    else if (u32Ret == JF_ERR_PTREE_NODE_NOT_FOUND)
+    {
+        u32Ret = JF_ERR_NO_ERROR;
+    }
+
+    jf_ptree_dump(pjpXml);
+
+    return u32Ret;
+}
+
+static u32 _testXmlParserFile(olchar_t * pstrXmlFile)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 	const char * pstrErrMsg;
-    jf_xmlparser_xml_doc_t * pjxxd = NULL;
+    jf_ptree_t * pjpXml = NULL;
 
-    u32Ret = jf_xmlparser_parseXmlFile(pstrXmlFile, &pjxxd);
+    u32Ret = jf_xmlparser_parseXmlFile(pstrXmlFile, &pjpXml);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_xmlparser_printXmlDoc(pjxxd);
+        jf_ptree_dump(pjpXml);
 
-        u32Ret = _modifyXmlDocument(pjxxd);
+        u32Ret = _modifyXmlDocument(pjpXml);
     }
     else
 	{
@@ -262,8 +304,8 @@ static u32 _testXmlParser_2(olchar_t * pstrXmlFile)
         printf("%s\n", pstrErrMsg);
 	}
 
-    if (pjxxd != NULL)
-        jf_xmlparser_destroyXmlDoc(&pjxxd);
+    if (pjpXml != NULL)
+        jf_ptree_destroy(&pjpXml);
 
     return u32Ret;
 }
@@ -296,7 +338,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         {
             if (ls_pstrXmlFileName != NULL)
             {
-                u32Ret = _testXmlParser_2(ls_pstrXmlFileName);
+                u32Ret = _testXmlParserFile(ls_pstrXmlFileName);
             }
             else
             {

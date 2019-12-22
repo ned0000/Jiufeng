@@ -144,5 +144,25 @@ u32 jf_linklist_insertTo(jf_linklist_t * pList, void * pData)
     return u32Ret;
 }
 
+u32 jf_linklist_iterate(jf_linklist_t * pList, jf_linklist_fnOpNode_t fnOpNode, void * pArg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_linklist_node_t * pjln = NULL, * pNode = NULL;
+
+    assert(pList != NULL);
+
+	pjln = pList->jl_pjlnHead;
+    while ((pjln != NULL) && (u32Ret == JF_ERR_NO_ERROR))
+    {
+		pNode = pjln->jln_pjlnNext;
+
+        u32Ret = fnOpNode(pjln, pArg);
+        if (u32Ret == JF_ERR_NO_ERROR)
+            pjln = pNode;
+    }
+
+    return u32Ret;
+}
+
 /*------------------------------------------------------------------------------------------------*/
 

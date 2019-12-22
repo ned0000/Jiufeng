@@ -45,7 +45,10 @@ static void _printXmlNodeList(internal_xmlparser_xml_node_t * pixxn, u16 u16Inde
     {
         _printXmlNodeIndentSpace(u16Indent);
 
-        ol_printf("%s", temp->ixxn_pstrName);
+        ol_memcpy(value, temp->ixxn_pstrName, temp->ixxn_sName);
+        value[temp->ixxn_sName] = '\0';
+        ol_printf("%s", value);
+
         printXmlAttributeList(&temp->ixxn_jlAttribute);
         ol_printf(": ");
 
@@ -70,17 +73,9 @@ static void _printXmlNodeList(internal_xmlparser_xml_node_t * pixxn, u16 u16Inde
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
-#if 0
-void jf_xmlparser_printXmlAttribute(jf_xmlparser_xml_attribute_t * pAttribute)
-{
-    internal_xmlparser_xml_attribute_t * pixxa;
 
-    _printXmlNodeAttributes(pixxa);
-}
-#endif
-void jf_xmlparser_printXmlDoc(jf_xmlparser_xml_doc_t * pDoc)
+void printXmlDoc(internal_xmlparser_xml_doc_t * pixxd)
 {
-    internal_xmlparser_xml_doc_t * pixxd = (internal_xmlparser_xml_doc_t *)pDoc;
 
     printXmlAttributeList(&pixxd->ixxd_jlDeclarationAttribute);
     ol_printf("\n");

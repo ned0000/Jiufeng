@@ -45,6 +45,15 @@ typedef struct jf_linklist
  */
 typedef u32 (* jf_linklist_fnFreeNodeData_t)(void ** ppData);
 
+/** Callback function to operation on the node when iterating the linked list node.
+ *
+ *  @note
+ *  -# The iteration will stop if the return code is not JF_ERR_NO_ERROR.
+ *
+ *  @return The error code.
+ */
+typedef u32 (* jf_linklist_fnOpNode_t)(jf_linklist_node_t * pNode, void * pArg);
+
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Initialize an empty linked list.
@@ -71,6 +80,16 @@ void jf_linklist_fini(jf_linklist_t * pList);
  *  @return Void.
  */
 void jf_linklist_finiListAndData(jf_linklist_t * pList, jf_linklist_fnFreeNodeData_t fnFreeData);
+
+/** Iterate the linked list and call the callback function.
+ *
+ *  @param pList [in] The linked list to iterate.
+ *  @param fnOpNode [in] The callback function to operate on the data.
+ *  @param pArg [in] The argument for the callback function.
+ *
+ *  @return The error code.
+ */
+u32 jf_linklist_iterate(jf_linklist_t * pList, jf_linklist_fnOpNode_t fnOpNode, void * pArg);
 
 /** Append to the tail of the linked list.
  *

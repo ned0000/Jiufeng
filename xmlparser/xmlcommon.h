@@ -17,6 +17,7 @@
 #include "jf_hashtree.h"
 #include "jf_xmlparser.h"
 #include "jf_linklist.h"
+#include "jf_ptree.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
@@ -79,20 +80,8 @@ typedef struct internal_xmlparser_xml_doc
     jf_linklist_t ixxd_jlDeclarationAttribute;
     /**The root of the XML node list.*/
     internal_xmlparser_xml_node_t * ixxd_pixxnRoot;
-    /**The error message in case there are error during parse.*/
-    olchar_t ixxd_strErr[128];
     u8 ixxd_u8Reserved[32];
 } internal_xmlparser_xml_doc_t;
-
-/** Define XML file data type.
- */
-typedef struct internal_xmlparser_xml_file
-{
-    /**The buffer containing XML file content.*/
-    olchar_t * ixxf_pstrBuf;
-    /**The XML document data type.*/
-    jf_xmlparser_xml_doc_t * ixxf_pjxxdDoc;
-} internal_xmlparser_xml_file_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
 

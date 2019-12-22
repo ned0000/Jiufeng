@@ -31,16 +31,15 @@
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 jf_xmlparser_parseXmlFile(
-    const olchar_t * pstrFilename, jf_xmlparser_xml_doc_t ** ppDoc)
+u32 jf_xmlparser_parseXmlFile(const olchar_t * pstrFilename, jf_ptree_t ** ppPtree)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     FILE * fp = NULL;
-    olsize_t sSize;
+    olsize_t sSize = 0;
     jf_file_stat_t filestat;
     olchar_t * pstrBuf = NULL;
 
-    assert((pstrFilename != NULL) && (ppDoc != NULL));
+    assert((pstrFilename != NULL) && (ppPtree != NULL));
 
     u32Ret = jf_file_getStat(pstrFilename, &filestat);
 
@@ -67,7 +66,7 @@ u32 jf_xmlparser_parseXmlFile(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_xmlparser_parseXmlDoc(pstrBuf, 0, sSize, ppDoc);
+        u32Ret = jf_xmlparser_parseXmlDoc(pstrBuf, 0, sSize, ppPtree);
     }
 
     if (pstrBuf != NULL)
@@ -79,7 +78,28 @@ u32 jf_xmlparser_parseXmlFile(
     return u32Ret;
 }
 
+u32 jf_xmlparser_saveXmlFile(const olchar_t * pstrFilename, jf_ptree_t * pPtree)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    FILE * fp = NULL;
 
+    assert((pstrFilename != NULL) && (pPtree != NULL));
+
+    u32Ret = jf_filestream_open(pstrFilename, "w", &fp);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+
+    }
+
+    if (fp != NULL)
+        jf_filestream_close(&fp);
+
+    if (u32Ret != JF_ERR_NO_ERROR)
+        tryGenXmlErrMsg(u32Ret, pstrFilename, ol_strlen(pstrFilename));
+
+    return u32Ret;
+}
 
 /*------------------------------------------------------------------------------------------------*/
 

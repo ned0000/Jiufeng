@@ -18,24 +18,24 @@ PROGRAMS = xmalloc-test hashtree-test listhead-test hlisthead-test              
     bitarray-test conffile-test menu-test crc-test dynlib-test                        \
     ifmgmt-test sharedmemory-test-consumer sharedmemory-test-worker                   \
     files-test hsm-test host-test respool-test bitop-test ptree-test                  \
-    jiukun-test cghash-test cgmac-test jf_genuuid encrypt-test                        \
+    jiukun-test cghash-test cgmac-test jf_genuuid encrypt-test dlinklist-test         \
     prng-test encode-test xmlparser-test rand-test persistency-test                   \
-    archive-test user-test httpparser-test network-test                               \
+    archive-test user-test httpparser-test network-test linklist-test                 \
     network-test-server network-test-client network-test-client-chain                 \
     matrix-test webclient-test jf_service sqlite-test hex-test                        \
     utimer-test
 
-SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c hlisthead-test.c             \
-    listarray-test.c logger-test.c process-test.c hashtable-test.c mutex-test.c       \
-    rwlock-test.c sem-test.c date-test.c time-test.c stringparse-test.c               \
-    bitarray-test.c conffile-test.c menu-test.c crc-test.c dynlib-test.c              \
-    ifmgmt-test.c sharedmemory-test-consumer.c sharedmemory-test-worker.c             \
-    files-test.c hsm-test.c host-test.c respool-test.c bitop-test.c ptree-test.c      \
-    jiukun-test.c cghash-test.c cgmac-test.c genuuid.c encrypt-test.c                 \
-    prng-test.c encode-test.c xmlparser-test.c rand-test.c persistency-test.c         \
-    archive-test.c user-test.c httpparser-test.c network-test.c                       \
-    network-test-server.c network-test-client.c network-test-client-chain.c           \
-    matrix-test.c webclient-test.c servmgmt-test.c sqlite-test.c hex-test.c           \
+SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c hlisthead-test.c                       \
+    listarray-test.c logger-test.c process-test.c hashtable-test.c mutex-test.c                 \
+    rwlock-test.c sem-test.c date-test.c time-test.c stringparse-test.c                         \
+    bitarray-test.c conffile-test.c menu-test.c crc-test.c dynlib-test.c                        \
+    ifmgmt-test.c sharedmemory-test-consumer.c sharedmemory-test-worker.c                       \
+    files-test.c hsm-test.c host-test.c respool-test.c bitop-test.c ptree-test.c                \
+    jiukun-test.c cghash-test.c cgmac-test.c genuuid.c encrypt-test.c dlinklist-test.c          \
+    prng-test.c encode-test.c xmlparser-test.c rand-test.c persistency-test.c                   \
+    archive-test.c user-test.c httpparser-test.c network-test.c linklist-test.c                 \
+    network-test-server.c network-test-client.c network-test-client-chain.c                     \
+    matrix-test.c webclient-test.c servmgmt-test.c sqlite-test.c hex-test.c                     \
     utimer-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
@@ -190,9 +190,9 @@ $(BIN_DIR)/archive-test: archive-test.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_archive \
        -ljf_jiukun -ljf_string
 
-$(BIN_DIR)/xmlparser-test: xmlparser-test.o $(JIUTAI_DIR)/jf_option.o
+$(BIN_DIR)/xmlparser-test: xmlparser-test.o $(JIUTAI_DIR)/jf_option.o $(JIUTAI_DIR)/jf_ptree.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -lm -ljf_xmlparser \
-       -ljf_logger -ljf_jiukun
+       -ljf_logger -ljf_jiukun -ljf_string
 
 $(BIN_DIR)/httpparser-test: httpparser-test.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -lm -ljf_httpparser \
@@ -201,6 +201,12 @@ $(BIN_DIR)/httpparser-test: httpparser-test.o $(JIUTAI_DIR)/jf_option.o
 $(BIN_DIR)/network-test: network-test.o $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_network -ljf_string \
        -ljf_logger -ljf_ifmgmt -ljf_jiukun
+
+$(BIN_DIR)/linklist-test: linklist-test.o $(JIUTAI_DIR)/jf_linklist.o $(JIUTAI_DIR)/jf_option.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun
+
+$(BIN_DIR)/dlinklist-test: dlinklist-test.o $(JIUTAI_DIR)/jf_dlinklist.o $(JIUTAI_DIR)/jf_option.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun
 
 $(BIN_DIR)/network-test-server: network-test-server.o $(JIUTAI_DIR)/jf_process.o \
        $(JIUTAI_DIR)/jf_thread.o $(JIUTAI_DIR)/jf_option.o

@@ -17,6 +17,7 @@
 #include "jf_hashtree.h"
 #include "jf_string.h"
 #include "jf_linklist.h"
+#include "jf_ptree.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
@@ -42,6 +43,10 @@ u32 parseXmlAttributeList(jf_string_parse_result_t * pElem, jf_linklist_t * pLin
 u32 destroyXmlAttributeList(jf_linklist_t * pLinklist);
 
 void printXmlAttributeList(jf_linklist_t * pLinklist);
+
+u32 copyXmlDeclarationToPtree(jf_linklist_t * pLinklist, jf_ptree_t * pjpXml);
+
+u32 copyXmlAttributeToPtree(jf_linklist_t * pLinklist, jf_ptree_node_t * pjpn);
 
 #endif /*XMLPARSER_XMLATTR_H*/
 

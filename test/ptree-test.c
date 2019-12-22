@@ -1,7 +1,7 @@
 /**
  *  @file ptree-test.c
  *
- *  @brief Test file for jf_ptree common object.
+ *  @brief Test file for property tree defined in jf_ptree object.
  *
  *  @author Min Zhang
  *
@@ -21,7 +21,6 @@
 #include "jf_ptree.h"
 #include "jf_option.h"
 #include "jf_jiukun.h"
-
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -86,7 +85,12 @@ static u32 _testPtreeNode(void)
     olchar_t * pstrVerValue = "1.0";
     olchar_t * pstrService = "service";
 
-    u32Ret = jf_ptree_create(&pPtree, NULL, 0, pstrName, ol_strlen(pstrName), NULL, 0, &pNode);
+    u32Ret = jf_ptree_create(&pPtree);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = jf_ptree_addChildNode(pPtree, NULL, NULL, 0, pstrName, ol_strlen(pstrName), NULL, 0, &pNode);
+    }
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_ptree_dump(pPtree);
@@ -99,8 +103,8 @@ static u32 _testPtreeNode(void)
         jf_ptree_dump(pPtree);
 
         u32Ret = jf_ptree_addChildNode(
-            pNode, NULL, 0, pstrVer, ol_strlen(pstrVer), pstrVerValue, ol_strlen(pstrVerValue),
-            &pTemp);
+            pPtree, pNode, NULL, 0, pstrVer, ol_strlen(pstrVer), pstrVerValue,
+            ol_strlen(pstrVerValue), &pTemp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -108,31 +112,31 @@ static u32 _testPtreeNode(void)
         jf_ptree_dump(pPtree);
 
         u32Ret = jf_ptree_addChildNode(
-            pNode, NULL, 0, pstrService, ol_strlen(pstrService), NULL, 0, &pService);
+            pPtree, pNode, NULL, 0, pstrService, ol_strlen(pstrService), NULL, 0, &pService);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_ptree_addChildNode(
-            pService, NULL, 0, "name", 4, "a-service", 9, &pTemp);
+            pPtree, pService, NULL, 0, "name", 4, "a-service", 9, &pTemp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_ptree_addChildNode(
-            pService, NULL, 0, "path", 4, "/bin/aserv", 10, &pTemp);
+            pPtree, pService, NULL, 0, "path", 4, "/bin/aserv", 10, &pTemp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_ptree_addChildNode(
-            pService, NULL, 0, "startup", 7, "auto", 4, &pTemp);
+            pPtree, pService, NULL, 0, "startup", 7, "auto", 4, &pTemp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_ptree_addChildNode(
-            pService, NULL, 0, "messaging", 9, "a-in", 4, &pTemp);
+            pPtree, pService, NULL, 0, "messaging", 9, "a-in", 4, &pTemp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -140,31 +144,31 @@ static u32 _testPtreeNode(void)
         jf_ptree_dump(pPtree);
 
         u32Ret = jf_ptree_addChildNode(
-            pNode, NULL, 0, pstrService, ol_strlen(pstrService), NULL, 0, &pService);
+            pPtree, pNode, NULL, 0, pstrService, ol_strlen(pstrService), NULL, 0, &pService);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_ptree_addChildNode(
-            pService, NULL, 0, "name", 4, "b-serv", 6, &pTemp);
+            pPtree, pService, NULL, 0, "name", 4, "b-serv", 6, &pTemp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_ptree_addChildNode(
-            pService, NULL, 0, "path", 4, "/bin/bserv", 10, &pTemp);
+            pPtree, pService, NULL, 0, "path", 4, "/bin/bserv", 10, &pTemp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_ptree_addChildNode(
-            pService, NULL, 0, "startup", 7, "manual", 6, &pTemp);
+            pPtree, pService, NULL, 0, "startup", 7, "manual", 6, &pTemp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_ptree_addChildNode(
-            pService, NULL, 0, "messaging", 9, "b-in", 4, &pTemp);
+            pPtree, pService, NULL, 0, "messaging", 9, "b-in", 4, &pTemp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

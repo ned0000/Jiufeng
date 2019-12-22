@@ -51,16 +51,6 @@ typedef struct internal_xmlparser_xml_attribute
 static u32 _destroyXmlAttribute(internal_xmlparser_xml_attribute_t ** ppAttribute)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_xmlparser_xml_attribute_t * pixxa = *ppAttribute;
-
-    if (pixxa->ixxa_pstrName != NULL)
-        jf_jiukun_freeMemory((void **)&pixxa->ixxa_pstrName);
-
-    if (pixxa->ixxa_pstrPrefix != NULL)
-        jf_jiukun_freeMemory((void **)&pixxa->ixxa_pstrPrefix);
-
-    if (pixxa->ixxa_pstrValue != NULL)
-        jf_jiukun_freeMemory((void **)&pixxa->ixxa_pstrValue);
 
     jf_jiukun_freeMemory((void **)ppAttribute);
 
@@ -126,19 +116,10 @@ static u32 _parseNameAndValueOfOneXmlAttribute(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         retval->ixxa_sName = pValue->jspr_pjsprfFirst->jsprf_sData;
+        retval->ixxa_pstrName = pValue->jspr_pjsprfFirst->jsprf_pstrData;
 
-        u32Ret = jf_string_duplicateWithLen(
-            &retval->ixxa_pstrName, pValue->jspr_pjsprfFirst->jsprf_pstrData,
-            pValue->jspr_pjsprfFirst->jsprf_sData);
-    }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
         retval->ixxa_sValue = pValue->jspr_pjsprfLast->jsprf_sData;
-
-        u32Ret = jf_string_duplicateWithLen(
-            &retval->ixxa_pstrValue, pValue->jspr_pjsprfLast->jsprf_pstrData,
-            pValue->jspr_pjsprfLast->jsprf_sData);
+        retval->ixxa_pstrValue = pValue->jspr_pjsprfLast->jsprf_pstrData;
     }
 
     if (pValue != NULL)
@@ -169,9 +150,7 @@ static u32 _parseOneXmlAttribute(jf_string_parse_result_field_t * field, jf_link
         {
             /*There is a namespace prefix, duplicate the string.*/
             retval->ixxa_sPrefix = pAttr->jspr_pjsprfFirst->jsprf_sData;
-            u32Ret = jf_string_duplicateWithLen(
-                &retval->ixxa_pstrPrefix, pAttr->jspr_pjsprfFirst->jsprf_pstrData,
-                pAttr->jspr_pjsprfFirst->jsprf_sData);
+            retval->ixxa_pstrPrefix = pAttr->jspr_pjsprfFirst->jsprf_pstrData;
         }
     }
 
@@ -212,6 +191,36 @@ static u32 _parseXmlAttribute(jf_string_parse_result_field_t * field, jf_linklis
         field = field->jsprf_pjsprfNext;
     }
 
+    return u32Ret;
+}
+
+static u32 _fnCopyXmlDeclarationToPtree(jf_linklist_node_t * pNode, void * pArg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_ptree_t * pjpXml = (jf_ptree_t *)pArg;
+    internal_xmlparser_xml_attribute_t * pixxa = NULL;
+
+    pixxa = (internal_xmlparser_xml_attribute_t *)pNode->jln_pData;
+
+    u32Ret = jf_ptree_addDeclaration(
+        pjpXml, pixxa->ixxa_pstrPrefix, pixxa->ixxa_sPrefix, pixxa->ixxa_pstrName,
+        pixxa->ixxa_sName, pixxa->ixxa_pstrValue, pixxa->ixxa_sValue);
+    
+    return u32Ret;
+}
+
+static u32 _fnCopyXmlAttributeToPtree(jf_linklist_node_t * pNode, void * pArg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_ptree_node_t * pjpn = (jf_ptree_node_t *)pArg;
+    internal_xmlparser_xml_attribute_t * pixxa = NULL;
+
+    pixxa = (internal_xmlparser_xml_attribute_t *)pNode->jln_pData;
+
+    u32Ret = jf_ptree_addNodeAttribute(
+        pjpn, pixxa->ixxa_pstrPrefix, pixxa->ixxa_sPrefix, pixxa->ixxa_pstrName,
+        pixxa->ixxa_sName, pixxa->ixxa_pstrValue, pixxa->ixxa_sValue);
+    
     return u32Ret;
 }
 
@@ -311,6 +320,24 @@ void printXmlAttributeList(jf_linklist_t * pLinklist)
         pNode = jf_linklist_getNextNode(pNode);
     }
     ol_printf(")");
+}
+
+u32 copyXmlDeclarationToPtree(jf_linklist_t * pLinklist, jf_ptree_t * pjpXml)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    u32Ret = jf_linklist_iterate(pLinklist, _fnCopyXmlDeclarationToPtree, pjpXml);
+
+    return u32Ret;
+}
+
+u32 copyXmlAttributeToPtree(jf_linklist_t * pLinklist, jf_ptree_node_t * pjpn)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    u32Ret = jf_linklist_iterate(pLinklist, _fnCopyXmlAttributeToPtree, pjpn);
+
+    return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/

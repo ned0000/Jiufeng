@@ -327,5 +327,25 @@ u32 jf_dlinklist_appendTo(jf_dlinklist_t * pList, void * pData)
     return u32Ret;
 }
 
+u32 jf_dlinklist_iterate(jf_dlinklist_t * pList, jf_dlinklist_fnOpNode_t fnOpNode, void * pArg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_dlinklist_node_t * pjdn = NULL, * pNode = NULL;
+
+    assert(pList != NULL);
+
+    pjdn = pList->jd_pjdnHead;
+    while ((pjdn != NULL) && (u32Ret == JF_ERR_NO_ERROR))
+    {
+        pNode = pjdn->jdn_pjdnNext;
+
+        u32Ret = fnOpNode(pjdn, pArg);
+        if (u32Ret == JF_ERR_NO_ERROR)
+            pjdn = pNode;
+    }
+
+    return u32Ret;
+}
+
 /*------------------------------------------------------------------------------------------------*/
 
