@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration version="1.0">
+<serviceInfo>
+  <serviceName>bgad</serviceName>
+  <userName>minz</userName>
+  <messagingIn>bgad_message_in</messagingIn>
+  <messagingOut>bgad_message_out</messagingOut>
+  <maxNumMsg>100</maxNumMsg>
+  <maxMsgSize>512</maxMsgSize>
+</serviceInfo>
+<publishedMessage>
+  <message id="2000">activity_info</message>
+</publishedMessage>
+<subscribedMessage>
+  <message id="1000">start_activity</message>
+  <message id="1001">stop_activity</message>
+</subscribedMessage>
+</configuration>
