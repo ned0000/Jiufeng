@@ -81,6 +81,88 @@ static void _setProcessTerminationReason(olint_t nStatus, u32 * pu32Reason)
 }
 #endif
 
+#if defined(LINUX)
+/** Get the process name by PID.
+ *
+ *  @note
+ *  -# The name of the process is retrieved from proc file at "/proc/PID/status". The first line
+ *   of the file is like "Name:\tPROCESS-NAME".
+ */
+static boolean_t _getProcessNameByPid(pid_t pid, olchar_t * pstrName, olsize_t sName)
+{
+    boolean_t bFound = FALSE;
+    olchar_t strBuf[128];
+    olint_t fdStatus = 0;
+    olint_t nRet;
+
+    /*Check if the given process id is matched by current process ID.*/
+    if (pid != jf_process_getCurrentId())
+    {
+        /*Open the proc file.*/
+        ol_sprintf(strBuf, "/proc/%d/status", pid);
+        fdStatus = ol_open(strBuf, O_RDONLY);
+
+        if (fdStatus > 0)
+        {
+            /*Read the proc file.*/
+            ol_bzero(strBuf, sizeof(strBuf));
+            nRet = ol_read(fdStatus, strBuf, sizeof(strBuf) - 1);
+            if (nRet > 0)
+            {
+                strBuf[nRet] = '\0';
+                /*Scan the buffer to get the name.*/
+                nRet = ol_sscanf(strBuf, "Name:\t%s", pstrName);
+                if (nRet == 1)
+                {
+                    bFound = TRUE;
+                }
+            }
+
+            ol_close(fdStatus);
+        }
+    }
+
+    return bFound;
+}
+
+static boolean_t _isProcessAlreadyRunning(olchar_t * pstrPidFile, olchar_t * pstrDaemonName)
+{
+    boolean_t bRunning = FALSE;
+    olint_t fd = 0;
+    olchar_t strBuf[128];
+    pid_t pid = 0;
+    olint_t nRet = 0;
+
+    /*Open the PID file.*/
+    fd = ol_open(pstrPidFile, O_RDONLY);
+    if (fd > 0)
+    {
+        /*Read the PID file.*/
+        ol_bzero(strBuf, sizeof(strBuf));
+
+        nRet = ol_read(fd, strBuf, sizeof(strBuf) - 1);
+        if (nRet > 0)
+        {
+            /*Scan the PID file to get the PID.*/
+            strBuf[nRet] = 0;
+            ol_sscanf(strBuf, "%d\n", &pid);
+
+            /*Get the process name by PID.*/
+            if (_getProcessNameByPid(pid, strBuf, sizeof(strBuf)))
+            {
+                /*Compare the daemon name.*/
+                if (ol_strcmp(strBuf, pstrDaemonName) == 0)
+                    bRunning = TRUE;
+            }
+        }
+
+        ol_close(fd);
+    }
+
+    return bRunning;
+}
+#endif
+
 /* --- public routine section ------------------------------------------------------------------- */
 
 #if defined(LINUX)
@@ -101,19 +183,18 @@ u32 jf_process_formCmdLineArguments(
     u32 u32Length = 0, u32Index = 0, u32Position = 0;
     olsize_t argc = 0;
 
-    memset(argv, 0, sizeof(olchar_t **) * (*psArgc));
+    ol_bzero(argv, sizeof(olchar_t **) * (*psArgc));
 
     u32Length = (u32)ol_strlen(pstrCmd);
 
     while ((u32Index < u32Length) && (argc < *psArgc))
     {
-        /* the start quote */
+        /*The start quote.*/
         if (pstrCmd[u32Index] == cQuote)
         {
-            while ((pstrCmd[u32Index + 1] != cQuote) &&
-                   ((u32Index + 1) < u32Length))
+            while ((pstrCmd[u32Index + 1] != cQuote) && ((u32Index + 1) < u32Length))
             {
-                /* search for the end quote */
+                /*Search for the end quote.*/
                 u32Index ++;
             }
             if (pstrCmd[u32Index + 1] != cQuote)
@@ -125,7 +206,7 @@ u32 jf_process_formCmdLineArguments(
                 u32Index ++;
                 if (pstrCmd[u32Index + 1] == 0)
                 {
-                    /* end of comamnd */
+                    /*End of comamnd.*/
                     argv[argc ++] = pstrCmd + u32Position;
                     u32Position = u32Index + 1;
                 }
@@ -133,41 +214,37 @@ u32 jf_process_formCmdLineArguments(
         }
         else if (pstrCmd[u32Index] == cDelimiter)
         {
-            /* space */
+            /*Space.*/
             pstrCmd[u32Index] = '\0';
             argv[argc ++] = pstrCmd + u32Position;
             u32Position = u32Index + 1;
 
             while (pstrCmd[u32Index + 1] == cDelimiter)
             {
-                /* extra spaces */
+                /*Extra spaces.*/
                 u32Position ++;
                 u32Index ++;
             }
         }
         else if (pstrCmd[u32Index + 1] == '\0')
         {
-            /* end of comamnd */
+            /*End of comamnd.*/
             argv[argc ++] = pstrCmd + u32Position;
             u32Position = u32Index + 1;
         }
 
         u32Index ++;
-    } /* while loop */
+    } /*While loop.*/
 
     *psArgc = argc;
 
     return u32Ret;
 }
 
-u32 jf_process_switchToDaemon(olchar_t * pstrDaemonName)
+u32 jf_process_switchToDaemon(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     pid_t pid;
-    olchar_t strPidFile[JF_LIMIT_MAX_PATH_LEN];
-    FILE * fp;
-
-    assert(pstrDaemonName != NULL);
 
 #if defined(LINUX)
     pid = fork();
@@ -177,28 +254,23 @@ u32 jf_process_switchToDaemon(olchar_t * pstrDaemonName)
     }
     else if (pid != 0)
     {
-        /*parent process*/
-        jf_process_getPidFilename(
-            strPidFile, JF_LIMIT_MAX_PATH_LEN, pstrDaemonName); 
-        fp = fopen(strPidFile, "w");
-        if (fp == NULL)
-        {
-            u32Ret = JF_ERR_FILE_NOT_FOUND;
-        }
-        else
-        {
-            u32Ret = JF_ERR_PROCESS_CREATED;
-            fprintf(fp, "%d\n", pid);
-            fclose(fp);
-        }
+        /*Parent process, quit.*/
+        exit(0);
     }
     else
     {
-        /*child process*/
+        /*Child process, run it in a new session and close the stdin stdout and stderr.*/
         setsid();
         close(0);
         close(1);
         close(2);
+        /*Attach file descriptors 0, 1 and 2 to "/dev/null". This is necessary, the 0, 1 and 2 may
+          be assigned later for socket or file if they are not attached to "/dev/null". When the
+          program is trying to print something into the stdout, the data is actually written to
+          socket or file.*/
+        open("/dev/null", O_RDWR);
+        dup(0);
+        dup(0);
     }
 #elif defined(WINDOWS)
 
@@ -212,68 +284,30 @@ boolean_t jf_process_isAlreadyRunning(olchar_t * pstrDaemonName)
 {
     boolean_t bRunning = FALSE;
 #if defined(LINUX)
-    olint_t nRet = 0;
     olint_t fd = 0;
-    pid_t pid = 0;
     olchar_t strPidFile[JF_LIMIT_MAX_PATH_LEN];
     olchar_t strBuf[128];
-    olchar_t strBuf2[128];
-    olint_t fdCmdLine = 0;
 
+    /*Get the pid file name for the daemon.*/
     jf_process_getPidFilename(strPidFile, JF_LIMIT_MAX_PATH_LEN, pstrDaemonName);
-    fd = open(strPidFile, O_RDONLY);
-    if (fd > 0)
-    {
-        nRet = read(fd, strBuf, 31);
-        if (nRet > 0)
-        {
-            strBuf[nRet] = 0;
-            sscanf(strBuf, "%d\n", &pid);
 
-            if (pid != getpid())
-            {
-                ol_sprintf(strBuf2, "/proc/%d/status", pid);
-                fdCmdLine = open(strBuf2, O_RDONLY);
-
-                if (fdCmdLine > 0)
-                {
-                    memset(strBuf2, 0, 128);
-                    nRet = read(fdCmdLine, strBuf2, 127);
-                    close(fdCmdLine);
-                    if (nRet > 0)
-                    {
-                        strBuf2[nRet] = 0;
-
-                        nRet = sscanf(strBuf2, "Name:\t%s", strBuf);
-                        if (nRet == 1)
-                        {
-                            if (strcmp(strBuf, pstrDaemonName) == 0)
-                                bRunning = TRUE;
-                        }
-                    }
-                }
-            }
-        }
-        close(fd);
-
-        if (! bRunning)
-        {
-            unlink(strPidFile);
-        }
-    }
-
+    bRunning = _isProcessAlreadyRunning(strPidFile, pstrDaemonName);
     if (! bRunning)
     {
+        /*Delete the PID file.*/
+        ol_unlink(strPidFile);
+
+        /*Open the PID file for write.*/
         fd = open(strPidFile, O_WRONLY|O_CREAT|O_TRUNC|O_EXCL, 0644);
         if (fd > 0)
         {
-            ol_sprintf(strBuf, "%d\n", getpid());
-            write(fd, strBuf, ol_strlen(strBuf));
-            close(fd);
+            ol_sprintf(strBuf, "%d\n", jf_process_getCurrentId());
+            ol_write(fd, strBuf, ol_strlen(strBuf));
+            ol_close(fd);
         }
         else
         {
-            fprintf(stderr, "Failed to open file %s, %s\n", strPidFile, strerror(errno));
+            ol_fprintf(stderr, "Failed to open file %s, %s\n", strPidFile, ol_strerror(errno));
         }
     }
 #elif defined(WINDOWS)
@@ -342,8 +376,7 @@ boolean_t jf_process_isValidId(jf_process_id_t * pProcessId)
 }
 
 u32 jf_process_create(
-    jf_process_id_t * pProcessId, jf_process_attr_t * pAttr,
-    olchar_t * pstrCommandLine)
+    jf_process_id_t * pProcessId, jf_process_attr_t * pAttr, olchar_t * pstrCommandLine)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
@@ -351,15 +384,17 @@ u32 jf_process_create(
 
     pid = fork();
     if (pid == -1)
+    {
         u32Ret = JF_ERR_FAIL_CREATE_PROCESS;
+    }
     else if (pid > 0)
     {
-        /* parent process */
+        /*Parent process.*/
         pProcessId->jpi_pId = pid;
     }
     else
     {
-        /* child process */
+        /*Child process.*/
         u32Ret = _runCommandLine(pstrCommandLine);
     }
 #elif defined(WINDOWS)
@@ -367,12 +402,12 @@ u32 jf_process_create(
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
 
-    memset(&si, 0, sizeof(si));
+    ol_memset(&si, 0, sizeof(si));
     si.cb = sizeof(si);
-    memset(&pi, 0, sizeof(pi));
+    ol_memset(&pi, 0, sizeof(pi));
 
-    bRet = CreateProcess(NULL, pstrCommandLine, NULL,
-        NULL, FALSE, 0, NULL, NULL, &si, &pi);
+    bRet = CreateProcess(
+        NULL, pstrCommandLine, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
     if (! bRet)
         u32Ret = JF_ERR_FAIL_CREATE_PROCESS;
 
@@ -432,8 +467,6 @@ u32 jf_process_terminate(jf_process_id_t * pProcessId)
     return u32Ret;
 }
 
-/*it returns if a child process terminates*/
-/*u32BlockTime is in millisecond*/
 u32 jf_process_waitForChildProcessTermination(
     jf_process_id_t pidChild[], u32 u32Count, u32 u32BlockTime, u32 * pu32Index, u32 * pu32Reason)
 {
@@ -675,15 +708,13 @@ u32 jf_process_initSocket(void)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /* Confirm that the WinSock DLL supports 2.0.*/
-        /* Note that if the DLL supports versions greater    */
-        /* than 2.0 in addition to 2.0, it will still return */
-        /* 2.0 in wVersion since that is the version we      */
-        /* requested.                                        */
+        /*Confirm that the WinSock DLL supports 2.0.*/
+        /*Note that if the DLL supports versions greater than 2.0 in addition to 2.0, it will still
+          return. 2.0 in wVersion since that is the version we requested.*/
         if (LOBYTE(wsaData.wVersion ) != 2 ||
             HIBYTE(wsaData.wVersion ) != 0)
         {
-            /* Tell the user that we could not find a usable WinSock DLL.*/
+            /*Tell the user that we could not find a usable WinSock DLL.*/
             WSACleanup();
             u32Ret = JF_ERR_FAIL_INIT_NET_LIB;
         }

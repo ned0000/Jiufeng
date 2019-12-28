@@ -1,7 +1,7 @@
 /**
  *  @file jf_date.c
  *
- *  @brief The date common object.
+ *  @brief The implementation file for date object.
  *
  *  @author Min Zhang
  *  
@@ -48,8 +48,7 @@ static boolean_t _isDayInRange(olint_t year, olint_t month, olint_t day)
     return TRUE;
 }
 
-/** Get date from the string with the format yyyy%mm%dd where '%' is the
- *  seperator
+/** Get date from the string with the format yyyy%mm%dd where '%' is the seperator.
  */
 static u32 _getDateFromString(
     const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay,
@@ -65,7 +64,7 @@ static u32 _getDateFromString(
     ol_strncpy(u8Data, pstrDate, 99);
     firstChar = u8Data;
 
-    /* year */
+    /*Year.*/
     psubStr = ol_strchr(firstChar, sep);
     if(psubStr != NULL)
     {
@@ -86,7 +85,7 @@ static u32 _getDateFromString(
         return u32Ret;
     }
 
-    /* Month */
+    /*Month.*/
     u32Ret = JF_ERR_INVALID_DATE;
     psubStr = ol_strchr(firstChar, sep);
     if(psubStr != NULL)
@@ -109,7 +108,7 @@ static u32 _getDateFromString(
         return u32Ret;
     }
 
-    /* Day */
+    /*Day.*/
     u32Ret = JF_ERR_INVALID_DATE;
     if (ol_sscanf(firstChar, "%02d", &u32Value) == 1)
     {
@@ -366,8 +365,6 @@ u32 jf_date_getStringLocalTime(olchar_t * pstrTime, const time_t tTime)
     return u32Ret;
 }
 
-/** Get date from the string with the format year/month/date like 2005/10/20
- */
 u32 jf_date_getDateFromString(
     const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay)
 {
@@ -379,8 +376,6 @@ u32 jf_date_getDateFromString(
     return u32Ret;
 }
 
-/** Get date from the string with the format year-month-date like 2005-10-20
- */
 u32 jf_date_getDate2FromString(
     const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay)
 {

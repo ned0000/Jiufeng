@@ -7,7 +7,7 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_thread object.
- *  -# For linux, link with stringparse library.
+ *  -# For linux, link with jf_string library.
  *  -# For Windows, link with psapi.lib.
  *  
  */
@@ -32,12 +32,16 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
+/** Define the thread attribute data type.
+ */
 typedef struct
 {
     boolean_t jta_bDetached;
     u8 jta_u8Reserved[31];
 } jf_thread_attr_t;
 
+/** Define the thread id data type.
+ */
 typedef struct
 {
 #if defined(LINUX)
@@ -67,18 +71,39 @@ typedef void (* jf_thread_fnSignalHandler_t)(olint_t signal);
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+/** Initialize the thread id.
+ */
 void jf_thread_initId(jf_thread_id_t * pThreadId);
 
+/** Check if it's a valid thread id.
+ */
 boolean_t jf_thread_isValidId(jf_thread_id_t * pThreadId);
 
+/** Create thread and run the specified routine.
+ */
 u32 jf_thread_create(
-    jf_thread_id_t * pThreadId, jf_thread_attr_t * pAttr,
-    jf_thread_fnRoutine_t fnRoutine, void * pArg);
+    jf_thread_id_t * pThreadId, jf_thread_attr_t * pAttr, jf_thread_fnRoutine_t fnRoutine,
+    void * pArg);
 
+/** Terminate the thread.
+ */
 u32 jf_thread_terminate(jf_thread_id_t * pThreadId);
 
+/** Wait for thread termination.
+ *
+ *  @note
+ *  -# The thread must be joinable.
+ *  -# If the thread has already terminated, the function returns immediately.
+ */
 u32 jf_thread_waitForThreadTermination(jf_thread_id_t threadId, u32 * pu32RetCode);
 
+/** Register signal handler for thread.
+ *
+ *  @note
+ *  -# The function will create a dedicated thread to handle the signal. Different from traditional
+ *   signal handler scheme, this scheme will handle the signal asynchronously. So other threads
+ *   won't be interrupted by signal.
+ */
 u32 jf_thread_registerSignalHandlers(jf_thread_fnSignalHandler_t fnSignalHandler);
 
 #endif /*JIUTAI_THREAD_H*/

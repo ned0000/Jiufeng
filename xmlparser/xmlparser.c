@@ -105,8 +105,16 @@ static u32 _destroyXmlNodeList(internal_xmlparser_xml_node_t ** ppNode)
  *  -# A xml element is a node. All the XML node are linked with ixxn_pixxnNext. 
  *
  *  @param ppRoot [out] The root of the XML document, it's also the first XML node created.
- *  @param ppCurrent [in/out] The current XML node.  
- *  @param field [in] The content between 2 "<".
+ *  @param ppCurrent [in/out] The current XML node.
+ *  @param pstrNsTag [in] The element name space tag.
+ *  @param sNsTag [in] The size of the element name space tag.
+ *  @param pstrTagName [in] The element name tag.
+ *  @param sTagName [in] The size of the element name space tag.
+ *  @param bStartTag [in] It's a start tag if it's TRUE, otherwise it's a end tag.
+ *  @param bEmptyTag [in] It's an empty tag if it's TRUE.
+ *  @param pLinklist [in] The element attribute.
+ *  @param field [in] The parse result with delimiter "<".
+ *  @param pElem [in] The parse result with delimiter ">".
  *
  *  @return The error code.
  */
@@ -585,20 +593,13 @@ static u32 _copyXmlTreeNodeToPtree(
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             /*Copy node attribute.*/
-            if (pjpn == NULL)
-                /*Root node, use pChild.*/
-                u32Ret = copyXmlAttributeToPtree(&pixxn->ixxn_jlAttribute, pChild);
-            else
-                u32Ret = copyXmlAttributeToPtree(&pixxn->ixxn_jlAttribute, pjpn);
+            u32Ret = copyXmlAttributeToPtree(&pixxn->ixxn_jlAttribute, pChild);
         }
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            if (pixxn->ixxn_pixxnChildren != NULL)
-            {
-                /*Enter the lower level tree.*/
-                _copyXmlTreeNodeToPtree(pixxn->ixxn_pixxnChildren, pjpXml, pChild);
-            }
+            /*Enter the lower level tree.*/
+            u32Ret = _copyXmlTreeNodeToPtree(pixxn->ixxn_pixxnChildren, pjpXml, pChild);
         }
 
         pixxn = pixxn->ixxn_pixxnSibling;
@@ -709,6 +710,9 @@ u32 jf_xmlparser_parseXmlDoc(
 
     if (pixxd != NULL)
     {
+#if defined(DEBUG_XML_DOC)
+        dumpXmlDoc(pixxd);
+#endif
         /*Free xml tree.*/
         _destroyXmlDoc(&pixxd);
     }
@@ -716,7 +720,7 @@ u32 jf_xmlparser_parseXmlDoc(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Build XML name space table.*/
-        u32Ret = jf_ptree_buildXmlNamespaceTable(pjpXml);
+        u32Ret = jf_ptree_buildNamespaceTable(pjpXml);
     }
 
     if (u32Ret != JF_ERR_NO_ERROR)

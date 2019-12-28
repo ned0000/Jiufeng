@@ -32,20 +32,12 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/**
- *  Retry service start delay in second. After failing to start service, wait for seconds to retry
- *  starting service 
- */
-#define RETRY_START_SERV_DELAY   (3)
-
-/**
- *  Default setting file name
+/** Default setting file name.
  */
 #define SERV_MGMT_SETTING_FILE   "../config/servmgmt.setting"
 
 typedef struct
 {
-    /*the shared memory contains the status of all services*/
     boolean_t ism_bInitialized;
     u8 ism_u8Reserved[7];
 
@@ -79,26 +71,23 @@ static u32 _readServMgmtSetting(internal_serv_mgmt_setting_t * pisms)
     return u32Ret;
 }
 
-static u32 _writeServMgmtSetting(internal_serv_mgmt_setting_t * pisms)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-
-    jf_logger_logInfoMsg("write serv setting, %s", pisms->isms_strSettingFile);
-
-    u32Ret = writeServMgmtSetting(pisms);
-
-    return u32Ret;
-}
-
 static u32 _startServMgmtServ(internal_serv_mgmt_t * pism, internal_service_info_t * pisi)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strCmdLine[2 * JF_LIMIT_MAX_PATH_LEN + 128];
 
-    ol_memset(strCmdLine, 0, sizeof(strCmdLine));
+    ol_bzero(strCmdLine, sizeof(strCmdLine));
 
-    ol_snprintf(
-        strCmdLine, sizeof(strCmdLine) - 1, "%s %s", pisi->isi_strCmdPath, pisi->isi_strCmdParam);
+    if (pisi->isi_pstrCmdParam == NULL)
+    {
+        ol_snprintf(strCmdLine, sizeof(strCmdLine) - 1, "%s", pisi->isi_pstrCmdPath);
+    }
+    else
+    {
+        ol_snprintf(
+            strCmdLine, sizeof(strCmdLine) - 1, "%s %s", pisi->isi_pstrCmdPath,
+            pisi->isi_pstrCmdParam);
+    }
 
     jf_logger_logInfoMsg("start serv, %s", strCmdLine);
     
@@ -157,7 +146,7 @@ static u32 _utimerStartService(void * pData)
     pisi = psmu->smu_pisiServInfo;
 
     jf_logger_logInfoMsg(
-        "utimer start serv %s, status: %s", pisi->isi_strName,
+        "utimer start serv %s, status: %s", pisi->isi_pstrName,
         getStringServStatus(pisi->isi_u8Status));
 
     if (pisi->isi_u8Status == JF_SERV_STATUS_RUNNING)
@@ -174,20 +163,22 @@ static u32 _tryStartServMgmtServ(internal_serv_mgmt_t * pism, internal_service_i
     serv_mgmt_utimer_t * psmu = NULL;
 
     jf_logger_logInfoMsg(
-        "try to start service %s, restart count: %d", pisi->isi_strName,
+        "try to start service %s, restart count: %d", pisi->isi_pstrName,
         pisi->isi_u8RestartCount);
 
     if (pisi->isi_u8RestartCount < pisms->isms_u8FailureRetryCount)
     {
         u32Delay = pisi->isi_u8RestartCount;
         pisi->isi_u8RestartCount ++;
-
+        /*Check the configured delay time in second.*/
         if (u32Delay == 0)
         {
+            /*No delay, start the service now.*/
             u32Ret = _startServMgmtServ(pism, pisi);
         }
         else
         {
+            /*Delay, start a timer to start the service.*/
             u32Ret = _newServMgmtUtimerItem(&psmu, pism, pisi);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
@@ -199,7 +190,7 @@ static u32 _tryStartServMgmtServ(internal_serv_mgmt_t * pism, internal_service_i
     }
     else
     {
-        /*several retry fails, set the status to error */
+        /*Several retry fails, set the status to error.*/
         pisi->isi_u8Status = JF_SERV_STATUS_ERROR;
     }
 
@@ -235,7 +226,7 @@ static u32 _stopServMgmtServ(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logInfoMsg("stop serv %s", pisi->isi_strName);
+    jf_logger_logInfoMsg("stop serv %s", pisi->isi_pstrName);
 
     u32Ret = jf_process_terminate(&(pisi->isi_jpiProcessId));
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -272,7 +263,7 @@ static void _dumpServMgmtInfo(internal_service_info_t * pisi)
 {
     jf_logger_logInfoMsg(
         "serv: %s, startuptype: %s, status: %s",
-        pisi->isi_strName, getStringServStartupType(pisi->isi_u8StartupType),
+        pisi->isi_pstrName, getStringServStartupType(pisi->isi_u8StartupType),
         getStringServStatus(pisi->isi_u8Status));
 }
 
@@ -372,14 +363,19 @@ static u32 _initServMgmt(internal_serv_mgmt_t * pism, serv_mgmt_init_param_t * p
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
 
-    ol_memset(pism, 0, sizeof(*pism));
+    ol_bzero(pism, sizeof(*pism));
 
+    /*Save the setting file for writting operation.*/
     if (psmip->smip_pstrSettingFile != NULL)
+    {
         ol_strncpy(
             pisms->isms_strSettingFile, psmip->smip_pstrSettingFile, JF_LIMIT_MAX_PATH_LEN - 1);
+    }
     else
+    {
         ol_strncpy(
             pisms->isms_strSettingFile, SERV_MGMT_SETTING_FILE, JF_LIMIT_MAX_PATH_LEN - 1);
+    }
 
     u32Ret = _readServMgmtSetting(pisms);
 
@@ -407,7 +403,7 @@ static u32 _findServMgmtServ(
     {
         pisi = &pisms->isms_isiService[u32ServIndex];
 
-        if (ol_strcmp(pisi->isi_strName, pstrName) == 0)
+        if (ol_strcmp(pisi->isi_pstrName, pstrName) == 0)
         {
             *ppServ = pisi;
             break;
@@ -454,8 +450,11 @@ u32 finiServMgmt(void)
     /*ignore SIGCHLD before stopping daemon*/
     jf_process_ignoreSignal(SIGCHLD);
     
-    u32Ret = _stopAllServices(pism);
+    _stopAllServices(pism);
 
+    if (pism->ism_ismsSetting.isms_pjpService != NULL)
+        jf_ptree_destroy(&pism->ism_ismsSetting.isms_pjpService);
+    
     jf_mutex_fini(&pism->ism_jmLock);
 
     pism->ism_bInitialized = FALSE;
@@ -486,14 +485,14 @@ u32 getServMgmtServInfo(const olchar_t * pstrName, jf_serv_info_t * pjsi)
     internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
     internal_service_info_t * pisi = NULL;
 
-    ol_memset(pjsi, 0, sizeof(*pjsi));
+    ol_bzero(pjsi, sizeof(*pjsi));
 
     jf_mutex_acquire(&pism->ism_jmLock);
 
     u32Ret = _findServMgmtServ(pstrName, pisms, &pisi);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_strcpy(pjsi->jsi_strName, pisi->isi_strName);
+        ol_strcpy(pjsi->jsi_strName, pisi->isi_pstrName);
         pjsi->jsi_u8Status = pisi->isi_u8Status;
         pjsi->jsi_u8StartupType = pisi->isi_u8StartupType;
 
@@ -513,7 +512,7 @@ u32 getServMgmtServInfoList(jf_serv_info_list_t * pjsil)
     internal_service_info_t * pisi = NULL;
     jf_serv_info_t * pjsi = NULL;
 
-    ol_memset(pjsil, 0, sizeof(*pjsil));
+    ol_bzero(pjsil, sizeof(*pjsil));
     
     jf_mutex_acquire(&pism->ism_jmLock);
     
@@ -523,8 +522,8 @@ u32 getServMgmtServInfoList(jf_serv_info_list_t * pjsil)
 
         pjsi = &pjsil->jsil_jsiService[pjsil->jsil_u16NumOfService];
 
-        ol_memset(pjsi, 0, sizeof(*pjsi));
-        ol_strcpy(pjsi->jsi_strName, pisi->isi_strName);
+        ol_bzero(pjsi, sizeof(*pjsi));
+        ol_strcpy(pjsi->jsi_strName, pisi->isi_pstrName);
         pjsi->jsi_u8Status = pisi->isi_u8Status;
         pjsi->jsi_u8StartupType = pisi->isi_u8StartupType;
 
@@ -596,14 +595,15 @@ u32 setServMgmtServStartupType(const olchar_t * pstrName, const u8 u8StartupType
     jf_mutex_acquire(&pism->ism_jmLock);
 
     u32Ret = _findServMgmtServ(pstrName, pisms, &pisi);
-
-    if (pisi->isi_u8StartupType != u8StartupType)
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        pisi->isi_u8StartupType = u8StartupType;
+        if (pisi->isi_u8StartupType != u8StartupType)
+        {
+            pisi->isi_u8StartupType = u8StartupType;
 
-        u32Ret = _writeServMgmtSetting(pisms);
+            u32Ret = modifyServiceStartupType(pisms, pisi);
+        }
     }
-
     jf_mutex_release(&pism->ism_jmLock);
 
     return u32Ret;

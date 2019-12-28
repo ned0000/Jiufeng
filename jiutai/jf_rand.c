@@ -1,7 +1,7 @@
 /**
  *  @file jf_rand.c
  *
- *  @brief The random number common object implementation file
+ *  @brief The implementation file for random number object.
  *
  *  @author Min Zhang
  *  

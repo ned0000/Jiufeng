@@ -1,11 +1,12 @@
 /**
  *  @file jf_mutex.h
  *
- *  @brief synchronization mutex object header file
+ *  @brief Header file which defines synchronization mutex object.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_mutex object
+ *  @note
+ *  -# Routines declared in this file are included in jf_mutex object.
  *
  */
 
@@ -20,6 +21,9 @@
 /* --- constant definitions --------------------------------------------------------------------- */
 
 /* --- data structures -------------------------------------------------------------------------- */
+
+/** Define the mutex data type.
+ */
 typedef struct
 {
 #if defined(LINUX)
@@ -31,65 +35,66 @@ typedef struct
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/** Initialize the mutex
+/** Initialize the mutex.
  *
- *  @param pMutex [in] the mutex to be initialized
+ *  @param pMutex [in] The mutex to be initialized.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_mutex_init(jf_mutex_t * pMutex);
 
-/** Finalize a mutex
+/** Finalize a mutex.
  *
- *  @param pMutex [in] the mutex to be finalized
+ *  @param pMutex [in] The mutex to be finalized.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_mutex_fini(jf_mutex_t * pMutex);
 
-/** Acquire a mutex
+/** Acquire a mutex.
  *
- *  @note If the mutex is already locked by another thread, this routine
- *   suspends the calling thread until the mutex is unlocked.
+ *  @note
+ *  -# If the mutex is already locked by another thread, this routine suspends the calling thread
+ *   until the mutex is unlocked.
  *
- *  @param pMutex [in] the mutex to be acquired
+ *  @param pMutex [in] The mutex to be acquired.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_mutex_acquire(jf_mutex_t * pMutex);
 
-/** Try to acquire a mutex
+/** Try to acquire a mutex.
  *
- *  @note It does not block the calling thread if the mutex is already
- *   locked by another thread
+ *  @note
+ *  -# It does not block the calling thread if the mutex is already locked by another thread.
  *
- *  @param pMutex [in] the mutex to be acquired
+ *  @param pMutex [in] The mutex to be acquired.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_mutex_tryAcquire(jf_mutex_t * pMutex);
 
-/** Acquire a mutex with time out
+/** Acquire a mutex with time out.
  *
- *  @param pMutex [in] the mutex to be acquired
- *  @param u32Timeout [in] the maximum waiting period if the mutex has been
- *   acquired by another thread in milliseconds.
+ *  @param pMutex [in] The mutex to be acquired.
+ *  @param u32Timeout [in] The maximum waiting period if the mutex has been acquired by another
+ *   thread in milliseconds.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_mutex_acquireWithTimeout(jf_mutex_t * pMutex, u32 u32Timeout);
 
 /** Release a mutex.
  *
- *  @param pMutex [in] the mutex to be released
+ *  @param pMutex [in] The mutex to be released.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_mutex_release(jf_mutex_t * pMutex);
 

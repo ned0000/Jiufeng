@@ -159,9 +159,23 @@ static u32 _testHListHead(void)
     for (index = 0; index < MAX_HLIST_ARRRY_SIZE; index++)
     {
         _showHlistheadEntry(&hlistarray[index], index);
-
     }    
-    
+
+    for (index = 0; index < MAX_HLIST_ARRRY_SIZE; index++)
+    {
+        jf_hlisthead_node_t * pjhn = NULL, * temp = NULL;
+        test_hlisthead_t * pth = NULL;
+
+        jf_hlisthead_forEachSafe(&hlistarray[index], pjhn, temp)
+        {
+            pth = jf_hlisthead_getEntry(pjhn, test_hlisthead_t, th_jhnList);
+
+            jf_hlisthead_del(pjhn);
+
+            jf_jiukun_freeMemory((void **)&pth);
+        }
+    }
+
     return u32Ret;
 }
 

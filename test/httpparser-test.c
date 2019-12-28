@@ -30,6 +30,7 @@ static boolean_t ls_bParseUri = FALSE;
 static boolean_t ls_bGenerateHttpMsg = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
+
 static void _printHttpparserTestUsage(void)
 {
     ol_printf("\
@@ -104,12 +105,10 @@ static u32 _getRawHeader(jf_httpparser_packet_header_t ** ppHeader)
     {
         u32Ret = jf_httpparser_setDirective(pjhph, "POST", 4, "/login", 6);
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = jf_httpparser_addHeaderLine(
-                pjhph, "Accept", 6, "*/*", 3, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(pjhph, "Accept", 6, "*/*", 3, TRUE);
 
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = jf_httpparser_addHeaderLine(
-                pjhph, "Accept-Language", 15, "zh-CN", 5, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(pjhph, "Accept-Language", 15, "zh-CN", 5, TRUE);
 
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = jf_httpparser_addHeaderLine(
@@ -122,8 +121,7 @@ static u32 _getRawHeader(jf_httpparser_packet_header_t ** ppHeader)
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             len = ol_snprintf(str, sizeof(str) - 1, "%u", (u32)sizeof(u8Body));
-            u32Ret = jf_httpparser_addHeaderLine(
-                pjhph, "Content-Length", 14, str, len, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(pjhph, "Content-Length", 14, str, len, TRUE);
         }
 
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -131,20 +129,16 @@ static u32 _getRawHeader(jf_httpparser_packet_header_t ** ppHeader)
                 pjhph, "Accept-Encoding", 15, "gzip, deflate", 13, TRUE);
 
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = jf_httpparser_addHeaderLine(
-                pjhph, "User-Agent", 10, "greaty", 6, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(pjhph, "User-Agent", 10, "greaty", 6, TRUE);
 
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = jf_httpparser_addHeaderLine(
-                pjhph, "Host", 4, "192.168.88.3:8080", 17, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(pjhph, "Host", 4, "192.168.88.3:8080", 17, TRUE);
 
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = jf_httpparser_addHeaderLine(
-                pjhph, "Connection", 10, "Keep-Alive", 10, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(pjhph, "Connection", 10, "Keep-Alive", 10, TRUE);
 
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = jf_httpparser_addHeaderLine(
-                pjhph, "Cache-Control", 13, "no-cache", 8, TRUE);
+            u32Ret = jf_httpparser_addHeaderLine(pjhph, "Cache-Control", 13, "no-cache", 8, TRUE);
 
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = jf_httpparser_setBody(pjhph, u8Body, sizeof(u8Body), TRUE);

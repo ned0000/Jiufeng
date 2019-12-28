@@ -41,14 +41,14 @@ static u32 _createUnixSocketPair(olint_t type, jf_network_socket_t * psPair[2])
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = newIsocketWithSocket(
-            (internal_socket_t **)&(psPair[0]), isPair[0]);
+        jf_logger_logDebugMsg("create unix sock pair: %d, %d", isPair[0], isPair[1]);
+
+        u32Ret = newIsocketWithSocket((internal_socket_t **)&(psPair[0]), isPair[0]);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = newIsocketWithSocket(
-            (internal_socket_t **)&(psPair[1]), isPair[1]);
+        u32Ret = newIsocketWithSocket((internal_socket_t **)&(psPair[1]), isPair[1]);
     }
 
     return u32Ret;
@@ -83,8 +83,7 @@ static u32 _createInetSocketPair(olint_t domain, olint_t type, jf_network_socket
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_network_accept(pListener, &clientaddr,
-            &u16ClientPort, &(psPair[0]));
+        u32Ret = jf_network_accept(pListener, &clientaddr, &u16ClientPort, &(psPair[0]));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

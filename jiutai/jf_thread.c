@@ -59,9 +59,12 @@ static u32 _setThreadAttr(jf_thread_attr_t * pjta, pthread_attr_t * ppa)
     return u32Ret;
 }
 
-/** Note: if the signal(not real signal) is sent to this process more than once at the same time,
- *  there is possibility that only 1 signal is received and other signals are missed.
- *  for SIGCHLD, this problem will cause the defunct process cannot be handled by parent process.
+/** The thread to handle signal.
+ *
+ *  @note
+ *  -# If the signal(not real signal) is sent to this process more than once at the same time,
+ *   there is possibility that only 1 signal is received and others are missed.
+ *   for SIGCHLD, this problem will cause the defunct process cannot be handled by parent process.
  */
 JF_THREAD_RETURN_VALUE _signalHandlerThread(void * pArg)
 {
@@ -214,6 +217,7 @@ u32 jf_thread_registerSignalHandlers(jf_thread_fnSignalHandler_t fnSignalHandler
         sigaddset(&ssSignalSet, nSignals[nIndex]);
     }
 
+    /*Block all the signals in this thread.*/
     nRet = pthread_sigmask(SIG_BLOCK, &ssSignalSet, NULL);
     if (nRet != 0)
         u32Ret = JF_ERR_OPERATION_FAIL;
@@ -223,6 +227,7 @@ u32 jf_thread_registerSignalHandlers(jf_thread_fnSignalHandler_t fnSignalHandler
         ls_shaSignalArg.sha_ssSet = ssSignalSet;
         ls_shaSignalArg.sha_fnHandler = fnSignalHandler;
 
+        /*Create a thread, the new thread inherits the signal handle.*/
         u32Ret = jf_thread_create(NULL, NULL, _signalHandlerThread, (void *)&ls_shaSignalArg);
     }
 

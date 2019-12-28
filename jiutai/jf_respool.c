@@ -27,9 +27,12 @@
  */
 typedef enum
 {
-    IRS_FREE = 0,  /**<The resource is free.*/
-    IRS_RESERVED,  /**<The resource is reserved.*/
-    IRS_BUSY,      /**<The resource is busy.*/
+    /**The resource is free.*/
+    IRS_FREE = 0,
+    /**The resource is reserved.*/
+    IRS_RESERVED,
+    /**The resource is busy.*/
+    IRS_BUSY,
 } internal_resource_state_t;
 
 struct internal_resource_pool;
@@ -387,7 +390,7 @@ static u32 _destroyAllResources(internal_resource_pool_t * pirp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    /* full time */
+    /*Destroy the full time resource.*/
     jf_logger_logDebugMsg("destroy resource in fulltime array");
     u32Ret = _destroyResourceArray(pirp, &pirp->irp_pjaFulltimeResources);
     if (u32Ret != JF_ERR_NO_ERROR)
@@ -397,7 +400,7 @@ static u32 _destroyAllResources(internal_resource_pool_t * pirp)
             pirp->irp_strName);
     }
 
-    /* part time */
+    /*Destroy the part time resource.*/
     jf_logger_logDebugMsg("destroy resource in parttime array");
     u32Ret = _destroyResourceArray(pirp, &pirp->irp_pjaParttimeResources);
     if (u32Ret != JF_ERR_NO_ERROR)
@@ -506,7 +509,7 @@ static u32 _getResourceFromPool(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    /* get resource from fulltime array */
+    /*Get resource from fulltime array*/
     jf_logger_logDebugMsg("get resource from fulltime pool array");
     u32Ret = _getResourceFromPoolArray(pirp, pirp->irp_pjaFulltimeResources, ppRes);
     if (u32Ret != JF_ERR_NO_ERROR)
@@ -579,7 +582,7 @@ static u32 _reapResourceInPool(internal_resource_pool_t * pirp)
     u32Ret = _lockResourcePool(pirp);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /* the resource can be timed out */
+        /*The resource can be timed out.*/
         pja = pirp->irp_pjaParttimeResources;
         u32Index = 0;
         u32Size = jf_array_getSize(pja);
@@ -588,7 +591,7 @@ static u32 _reapResourceInPool(internal_resource_pool_t * pirp)
             u32Ret = jf_array_getElementAt(pja, u32Index, (jf_array_element_t **)&pir);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                /* try to destroy it if it free */
+                /*Try to destroy it if it free.*/
                 bFree = _isPoolResourceFree(pir);
                 if (bFree)
                 {

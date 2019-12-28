@@ -1,11 +1,13 @@
 /**
  *  @file servmgmt/daemon/main.c
  *
- *  @brief The main file of dongyuan service
+ *  @brief The main file of dongyuan service.
  *
  *  @author Min Zhang
  *
  *  @note
+ *  -# The service needs to be started with root privilege otherwise the PID file will fail to be
+ *   created in directory "/var/run".
  *  
  */
 
@@ -105,7 +107,7 @@ static u32 _parseDongyuanCmdLineParam(
     return u32Ret;
 }
 
-static u32 _startDongyuan(dongyuan_param_t * pdp)
+static u32 _initAndStartDongyuan(dongyuan_param_t * pdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -127,10 +129,11 @@ static u32 _serviceDongyuan(olint_t argc, char** argv)
 
     jf_file_getFileName(ls_strProgramName, sizeof(ls_strProgramName), argv[0]);
 
-    ol_memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "DONGYUAN";
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
     jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_bLogToFile = TRUE;
 
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
@@ -139,30 +142,36 @@ static u32 _serviceDongyuan(olint_t argc, char** argv)
     dp.dp_pstrCmdLine = argv[0];
 
     u32Ret = _parseDongyuanCmdLineParam(argc, argv, &dp, &jlipParam);
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        if (! ls_bForeground)
+            u32Ret = jf_process_switchToDaemon();
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        if (jf_process_isAlreadyRunning(ls_strProgramName))
+        {
+            ol_fprintf(stderr, "Another %s is running\n", ls_strProgramName);
+            u32Ret = JF_ERR_ALREADY_RUNNING;
+        }
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        /*Init the logger.*/
         jf_logger_init(&jlipParam);
 
+        /*Init jiukun library for memory allocation.*/
         u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
+            /*Init socket library.*/
             u32Ret = jf_process_initSocket();
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                if (! ls_bForeground)
-                    u32Ret = jf_process_switchToDaemon(ls_strProgramName);
-
-                if (u32Ret == JF_ERR_NO_ERROR)
-                {
-                    if (jf_process_isAlreadyRunning(ls_strProgramName))
-                    {
-                        fprintf(stderr, "Another %s is running\n", ls_strProgramName);
-                        u32Ret = JF_ERR_ALREADY_RUNNING;
-                    }
-                }
-
-                if (u32Ret == JF_ERR_NO_ERROR)
-                    u32Ret = _startDongyuan(&dp);
+                u32Ret = _initAndStartDongyuan(&dp);
 
                 jf_process_finiSocket();
             }

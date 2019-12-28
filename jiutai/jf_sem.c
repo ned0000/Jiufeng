@@ -1,7 +1,7 @@
 /**
  *  @file jf_sem.c
  *
- *  @brief synchronization semaphore object implementation file
+ *  @brief The implementation file for synchronization semaphore object.
  *
  *  @author Min Zhang
  *

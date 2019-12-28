@@ -299,7 +299,7 @@ olchar_t * jf_err_getDescription(u32 u32ErrCode)
     u32Begin = 0;
     u32End = ls_u32NumberOfErrorCodes - 1;
     
-    /*binary search*/
+    /*Binary search.*/
     while (u32Begin <= u32End)
     {
         u32Index = (u32Begin + u32End) / 2;

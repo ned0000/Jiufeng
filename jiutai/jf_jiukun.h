@@ -5,8 +5,8 @@
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_jiukun library.
  *  @note
+ *  -# Routines declared in this file are included in jf_jiukun library.
  *  -# If DEBUG_JIUFENG is equal to "yes", the debug function of jiukun library is enabled.
  *   When enabled, double free jiukun memory and free unallocated jiukun memory can be detected and
  *   the library will abort. If jiukun memory is allocated but not freed, an error mesage will be
@@ -56,7 +56,7 @@
 #define JF_JIUKUN_MAX_MEMORY_ORDER   (23)
 #define JF_JIUKUN_MAX_MEMORY_SIZE    (1 << JF_JIUKUN_MAX_MEMORY_ORDER)
 
-/** The maximum object size createJiukunCache() can specify
+/** The maximum object size createJiukunCache() can specify.
  */
 #define JF_JIUKUN_MAX_OBJECT_ORDER   (20)
 #define JF_JIUKUN_MAX_OBJECT_SIZE    (1 << JF_JIUKUN_MAX_OBJECT_ORDER)
@@ -65,11 +65,11 @@
 
 typedef struct
 {
-    /** The memory pool size in byte, when the pool is full, jiukun will
-        create another pool with the size if the grow of jiukun is allowed.*/
+    /**The memory pool size in byte, when the pool is full, jiukun will create another pool with the
+       size if the grow of jiukun is allowed.*/
 #define JF_JIUKUN_MAX_POOL_SIZE  ((1 << JF_JIUKUN_MAX_PAGE_ORDER) * JF_JIUKUN_PAGE_SIZE)
     olsize_t jjip_sPool;
-    /** no grow when the initial pool is full */
+    /**No grow when the initial pool is full.*/
     boolean_t jjip_bNoGrow;
     u8 jjip_u8Reserved[3];
     u32 jjip_u32Reserved[7];

@@ -27,6 +27,8 @@
     #include <unistd.h>
     #include <getopt.h>
     #include <arpa/inet.h>
+#else
+    #error "Unsupported platform."
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
@@ -35,6 +37,8 @@
     #define optarg getoptarg()
 #elif defined(LINUX)
 
+#else
+    #error "Unsupported platform."
 #endif
 
 /* --- constants & data structures -------------------------------------------------------------- */
@@ -155,16 +159,24 @@ typedef time_t                       oltime_t;
     #define ol_snprintf              _snprintf
     #define ol_vsnprintf             _vsnprintf
     #define ol_printf                _printf
+    #define ol_fprintf               _fprintf
     #define ol_sscanf                _sscanf
     #define ol_strcpy                _strcpy
     #define ol_strncpy               _strncpy
     #define ol_strcat                _strcat
     #define ol_strncat               _strncat
     #define ol_strlen                _strlen
+    #define ol_strchr                _strchr
+    #define ol_strerror              _strerror
     #define ol_random()              rand()
     #define ol_srand                 srand
     #define ol_time                  time
     #define ol_strchr                strchr
+    #define ol_unlink                unlink
+    #define ol_open                  open
+    #define ol_close                 close
+    #define ol_read                  read
+    #define ol_write                 write
     #define __attribute__(__X__)
 #elif defined(LINUX)
     #define ol_memset                memset
@@ -186,19 +198,28 @@ typedef time_t                       oltime_t;
     #define ol_vsnprintf             vsnprintf
     #define ol_vsprintf              vsprintf
     #define ol_printf                printf
+    #define ol_fprintf               fprintf
     #define ol_sscanf                sscanf
     #define ol_strcpy                strcpy
     #define ol_strncpy               strncpy
     #define ol_strcat                strcat
     #define ol_strncat               strncat
     #define ol_strlen                strlen
+    #define ol_strchr                strchr
+    #define ol_strerror              strerror
     #define ol_random()              random()
     #define ol_srand                 srand
     #define ol_htonl                 htonl
     #define ol_ntohl                 ntohl
     #define ol_time                  time
-    #define ol_strchr                strchr
     #define ol_qsort                 qsort
+    #define ol_unlink                unlink
+    #define ol_open                  open
+    #define ol_close                 close
+    #define ol_read                  read
+    #define ol_write                 write
+#else
+    #error "Unsupported platform."
 #endif
 
 #if defined(WINDOWS)
@@ -207,6 +228,8 @@ typedef time_t                       oltime_t;
 #elif defined(LINUX)
     #define PATH_SEPARATOR           '/'
     #define LINE_TERMINATOR          "\n"
+#else
+    #error "Unsupported platform."
 #endif
 
 #if defined(WINDOWS)

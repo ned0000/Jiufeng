@@ -1,7 +1,7 @@
 /**
  *  @file jf_sharedmemory.h
  *
- *  @brief Shared memory header file which provide some functional routine for shared memory
+ *  @brief Shared memory header file which provide some functional routine for shared memory.
  *
  *  @author Min Zhang
  *
@@ -35,12 +35,20 @@ typedef olchar_t  jf_sharedmemory_id_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+/** Create the shared memory.
+ */
 u32 jf_sharedmemory_create(jf_sharedmemory_id_t ** ppShmId, u32 u32MemorySize);
 
+/** Attach the shared memory to the address space of the calling process.
+ */
 u32 jf_sharedmemory_attach(jf_sharedmemory_id_t * pShmId, void ** ppMapAddress);
 
+/** Detach the shared memory from the address space of the calling process.
+ */
 u32 jf_sharedmemory_detach(void ** ppMapAddress);
 
+/** Destroy the shared memory.
+ */
 u32 jf_sharedmemory_destroy(jf_sharedmemory_id_t ** ppShmId);
 
 #endif /*JIUTAI_SHAREDMEMORY_H*/

@@ -7,7 +7,6 @@
  *
  *  @note Create the setting and status files. The location of those files are in current working
  *   directory.
- *  @note User libxml2-dev as the XML parser to parse setting file
  */
 
 #ifndef DONGYUAN_SERVMGMT_H

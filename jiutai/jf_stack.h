@@ -1,13 +1,14 @@
 /**
  *  @file jf_stack.h
  *
- *  @brief The basic stack data structure
+ *  @brief The header file defines the interface for the stack.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_stack object
- *  @note Link with jf_jiukun library for memory allocation
- *  @note This object is not thread safe
+ *  @note
+ *  -# Routines declared in this file are included in jf_stack object.
+ *  -# Link with jf_jiukun library for memory allocation.
+ *  -# This object is not thread safe.
  *  
  */
 
@@ -25,63 +26,71 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-/*basic stack*/
+/** Define the stack node data type.
+ */
 typedef struct jf_stack_node
 {
+    /**The data.*/
     void * jsn_pData;
+    /**The next node of the stack.*/
     struct jf_stack_node * jsn_pjsnNext;
 } jf_stack_node_t;
 
+/** Define the stack data type.
+ */
 typedef void  jf_stack_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/** Init an empty Stack
+/** Init an empty Stack.
  *
- *  @param ppStack [in/out] the stack to be initialize
+ *  @par Example
+ *  @code
+ *     void *stack = NULL;
+ *     jf_stack_init(&stack);
+ *  @endcode
  *
- *  @return void
+ *  @param ppStack [in/out] The stack to be initialize.
  *
- *  @note This module uses a void* that is preinitialized to NULL, eg:
- *   void *stack = NULL;
- *   jf_stack_init(&stack);
+ *  @return Void.
  */
 void jf_stack_init(jf_stack_t ** ppStack);
 
-/** Pushe an item onto the stack
+/** Push an item onto the stack.
  *
- *  @param ppStack [in/out] The stack to push to 
- *  @param pData [in] The data to push onto the stack 
+ *  @param ppStack [in/out] The stack to push to. 
+ *  @param pData [in] The data to push onto the stack. 
  *
- *  @return the error code
+ *  @return The error code.
  */
 u32 jf_stack_push(jf_stack_t ** ppStack, void * pData);
 
-/** Pop an item from the stack
+/** Pop an item from the stack.
  *
- *  @param ppStack [in/out] The stack to pop from 
+ *  @note
+ *  -# After peek, the item is removed from stack.
  *
- *  @return the item that was popped from the stack   
+ *  @param ppStack [in/out] The stack to pop from.
  *
- *  @note after peek, the item is removed from stack
+ *  @return The item that was popped from the stack.
  */
 void * jf_stack_pop(jf_stack_t ** ppStack);
 
-/** Peeks at the item on the top of the stack
+/** Peek at the item on the top of the stack.
  *
- *  @param ppStack [in/out] The stack to peek from 
+ *  @note After peek, the item is still in stack.
  *
- *  @return the item that is currently on the top of the stack   
+ *  @param ppStack [in/out] The stack to peek from.
  *
- *  @note after peek, the item is still in stack
+ *  @return The item that is currently on the top of the stack.
  */
 void * jf_stack_peek(jf_stack_t ** ppStack);
 
-/** Clears all the items from the stack
+/** Clears all the items from the stack.
  *
- *  @param ppStack [in/out] The stack to clear 
+ *  @param ppStack [in/out] The stack to clear.
  *
- *  @return void
+ *  @return Void.
  */
 void jf_stack_clear(jf_stack_t ** ppStack);
 

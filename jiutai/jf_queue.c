@@ -1,7 +1,7 @@
 /**
  *  @file jf_queue.c
  *
- *  @brief Provide basic queue data structure
+ *  @brief The implementation file for queue data structure.
  *
  *  @author Min Zhang
  *  
@@ -95,14 +95,14 @@ u32 jf_queue_enqueue(jf_queue_t * pQueue, void * data)
 
         if (pQueue->jq_pjqnHead == NULL)
         {
-            /*If there is no head, this new entry is the head*/
+            /*If there is no head, this new entry is the head.*/
             pQueue->jq_pjqnHead = pjqn;
             pQueue->jq_pjqnTail = pjqn;
         }
         else
         {
-            /*Since there is already a head, just attach this entry 
-              to the tail, andcall this the new tail*/
+            /*Since there is already a head, just attach this entry to the tail, and call this
+              the new tail.*/
             pQueue->jq_pjqnTail->jqn_pjqnNext = pjqn;
             pQueue->jq_pjqnTail = pjqn;
         }

@@ -1,7 +1,7 @@
 /**
  *  @file jf_menu.c
  *
- *  @brief implementation of menu
+ *  @brief Implementation file for menu object.
  *
  *  @author Min Zhang
  *
@@ -23,7 +23,9 @@
 #include "jf_string.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
 struct internal_menu;
+
 struct internal_menu_entry;
 
 typedef enum 
@@ -39,81 +41,81 @@ typedef enum
  */
 typedef struct internal_menu_entry
 {
-    /** Name of the entry */
+    /**Name of the entry.*/
     olchar_t * ime_pstrName;
-    /** Description of the entry */
+    /**Description of the entry.*/
     olchar_t * ime_pstrDesc;
-    /** Attribute of the entry */
+    /**Attribute of the entry.*/
     u32 ime_u32Attribute;
 
-    /** Type of the entry */
+    /**Type of the entry.*/
     entry_type_t ime_etType;
-    /** Value of the entry, determined by the type of the entry */
+    /**Value of the entry, determined by the type of the entry.*/
     union
     {
-        /** A routine for the "command" entry */
+        /**A routine for the "command" entry.*/
         struct
         {
             jf_menu_fnHandler_t is_fnHandler;
             void * is_pArg;
         } iu_stCommand;
-        /** The entry is a menu */
+        /**The entry is a menu.*/
         struct internal_menu *iu_imMenu;
     } ime_uContent;
 
-    /** The parent menu containing this entry */
+    /**The parent menu containing this entry.*/
     struct internal_menu *ime_imParent;
 
-    /** The next entry in this menu */
+    /**The next entry in this menu.*/
     struct internal_menu_entry *ime_imeNext;
 } internal_menu_entry_t;
 
-/** name Attribute of entry, up-one-level entry
+/** Name attribute of entry, up-one-level entry.
  */
 #define  MENU_ENTRY_ATTR_UP_ONE_LEVEL        (0x1)
 
-/** name Attribute of entry, quit entry
+/** Name attribute of entry, quit entry.
  */
 #define  MENU_ENTRY_ATTR_QUIT                (0x2)
 
 
-/** The entry is an up-one-level entry
+/** The entry is an up-one-level entry.
  */
 #define  set_uponelevel_menu_entry(entry)   \
     (entry->ime_u32Attribute |= MENU_ENTRY_ATTR_UP_ONE_LEVEL)
 
-/** The entry is a quit entry
+/** The entry is a quit entry.
  */
 #define  set_quit_menu_entry(entry)   \
     (entry->ime_u32Attribute |= MENU_ENTRY_ATTR_QUIT)
 
-/** Verify up-one-level entry
+/** Verify up-one-level entry.
  */
 #define  is_uponelevel_menu_entry(entry)    \
     (entry->ime_u32Attribute & MENU_ENTRY_ATTR_UP_ONE_LEVEL)
 
-/** Verify quit entry
+/** Verify quit entry.
  */
 #define  is_quit_menu_entry(entry) \
     (entry->ime_u32Attribute & MENU_ENTRY_ATTR_QUIT)
 
-/** The menu definition
+/** The menu definition.
  */
 typedef struct internal_menu
 {
-    /** Entries of this menu */
+    /**Entries of this menu.*/
     internal_menu_entry_t *im_imeEntries;
-    /** The flag indicates the quit of menu, that is available for top menu */
+    /**The flag indicates the quit of menu, that is available for top menu.*/
     boolean_t im_bQuit;
 
-    /** The up level menu */
+    /**The up level menu.*/
     struct internal_menu *im_imParent;
 
-    /** Before showing the menu, the handler is invoked */
+    /**Before showing the menu, the handler is invoked.*/
     jf_menu_fnPreShow_t im_fnPreShow;
-    /** After showing the menu, the handler is invoked */
+    /**After showing the menu, the handler is invoked.*/
     jf_menu_fnPostShow_t im_fnPostShow;
-    /** Argument of the functions above */
+    /**Argument of the functions above.*/
     void * im_pArg;
 } internal_menu_t;
 
@@ -279,11 +281,11 @@ static u32 _newMenu(
     return u32Ret;
 }
 
-/** Print menu and wait for user's selection and execute corresponding routines
+/** Print menu and wait for user's selection and execute corresponding routines.
  *
- *  @param pMenu [in] the internal menu data structure
+ *  @param pMenu [in] The internal menu data structure.
  *
- *  @return internal menu data structure
+ *  @return Internal menu data structure.
  */
 static internal_menu_t * _showMenu(internal_menu_t * pMenu)
 {
@@ -301,7 +303,7 @@ static internal_menu_t * _showMenu(internal_menu_t * pMenu)
     pEntry = pMenu->im_imeEntries;
     while (pEntry != NULL)
     {
-        // The display for sub-menu is a little different from the command
+        /*The display for sub-menu is a little different from the command.*/
         if (pEntry->ime_etType == ENTRY_TYPE_MENU)
             ol_printf("[%d] %s ->\n", i++, pEntry->ime_pstrName);
         else
@@ -309,8 +311,8 @@ static internal_menu_t * _showMenu(internal_menu_t * pMenu)
         pEntry = pEntry->ime_imeNext;
     }
 
-    // Receive user's input. user doesn't need to input the name of the menu
-    //  but rather select the index of the entry
+    /*Receive user's input. user doesn't need to input the name of the menu but rather select the
+      index of the entry.*/
     bValid = TRUE;
     do
     {
@@ -333,7 +335,7 @@ static internal_menu_t * _showMenu(internal_menu_t * pMenu)
         choice = atoi(buf);
     } while (choice < 0 || choice > i - 1);
 
-    // Get the entry according to user's selection
+    /*Get the entry according to user's selection.*/
     i = 0;
     pEntry = pMenu->im_imeEntries;
     while (pEntry != NULL)
@@ -343,7 +345,7 @@ static internal_menu_t * _showMenu(internal_menu_t * pMenu)
         pEntry = pEntry->ime_imeNext;
     }
 
-    // process the selection 
+    /*Process the selection.*/
     switch (pEntry->ime_etType)
     {
     case ENTRY_TYPE_COMMAND:
@@ -352,7 +354,7 @@ static internal_menu_t * _showMenu(internal_menu_t * pMenu)
         break;
     case ENTRY_TYPE_MENU:
         ret = pEntry->ime_uContent.iu_imMenu;
-        // before entering the menu, do the initializing stuff
+        /*Before entering the menu, do the initializing stuff.*/
         if (ret->im_fnPreShow != NULL)
             ret->im_fnPreShow(ret->im_pArg);
         break;
@@ -360,10 +362,10 @@ static internal_menu_t * _showMenu(internal_menu_t * pMenu)
         _quitMenu(pEntry->ime_imParent);
         break;
     case ENTRY_TYPE_UPONELEVEL:
-        // before upping one level, make clean
+        /*Before upping one level, make clean.*/
         if (ret->im_fnPostShow != NULL)
             ret->im_fnPostShow(ret->im_pArg);
-        // if the uponelevel menu is NULL, then this is the top menu
+        /*If the uponelevel menu is NULL, then this is the top menu.*/
         ret = (pEntry->ime_imParent->im_imParent == NULL) ?
             pEntry->ime_imParent : pEntry->ime_imParent->im_imParent;
         break;

@@ -1,7 +1,7 @@
 /**
  *  @file network-test.c
  *
- *  @brief test file for network library
+ *  @brief Test file for network library.
  *
  *  @author Min Zhang
  *
@@ -44,7 +44,6 @@ Usage: network-test [-o] [-s server ip] [-p port]\n\
     -p specify the server port.\n");
     ol_printf("\n");
 
-    exit(0);
 }
 
 static u32 _parseNetworkTestCmdLineParam(
@@ -155,11 +154,9 @@ static u32 _testSocketPair(void)
         jf_thread_initId(&tiread);
         jf_thread_initId(&tiwrite);
 
-        u32Ret = jf_thread_create(
-            &tiread, NULL, _socketPairRead, (void *)psPair[0]);
+        u32Ret = jf_thread_create(&tiread, NULL, _socketPairRead, (void *)psPair[0]);
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = jf_thread_create(
-                &tiwrite, NULL, _socketPairWrite, (void *)psPair[1]);
+            u32Ret = jf_thread_create(&tiwrite, NULL, _socketPairWrite, (void *)psPair[1]);
 
         sleep(100);
 

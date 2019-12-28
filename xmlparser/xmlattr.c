@@ -202,7 +202,7 @@ static u32 _fnCopyXmlDeclarationToPtree(jf_linklist_node_t * pNode, void * pArg)
 
     pixxa = (internal_xmlparser_xml_attribute_t *)pNode->jln_pData;
 
-    u32Ret = jf_ptree_addDeclaration(
+    u32Ret = jf_ptree_addDeclarationAttribute(
         pjpXml, pixxa->ixxa_pstrPrefix, pixxa->ixxa_sPrefix, pixxa->ixxa_pstrName,
         pixxa->ixxa_sName, pixxa->ixxa_pstrValue, pixxa->ixxa_sValue);
     

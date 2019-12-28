@@ -338,7 +338,7 @@ static u32 _createDongyuanAssocket(internal_dongyuan_t * pid, dongyuan_param_t *
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_network_assocket_create_param_t jnacp;
 
-    ol_memset(&jnacp, 0, sizeof(jnacp));
+    ol_bzero(&jnacp, sizeof(jnacp));
 
     jnacp.jnacp_sInitialBuf = MAX_DONGYUAN_ASSOCKET_BUF_SIZE;
     jnacp.jnacp_u32MaxConn = MAX_DONGYUAN_ASSOCKET_CONN;
@@ -347,6 +347,7 @@ static u32 _createDongyuanAssocket(internal_dongyuan_t * pid, dongyuan_param_t *
     jnacp.jnacp_fnOnDisconnect = _onDongyuanDisconnect;
     jnacp.jnacp_fnOnSendData = _onDongyuanSendData;
     jnacp.jnacp_fnOnData = _onDongyuanData;
+    jnacp.jnacp_pstrName = "dongyuan";
 
     u32Ret = jf_network_createAssocket(
         pid->id_pjncDongyuanChain, &pid->id_pjnaDongyuanAssocket, &jnacp);
@@ -382,17 +383,18 @@ u32 initDongyuan(dongyuan_param_t * pdp)
 
     pid->id_pstrSettingFile = pdp->dp_pstrSettingFile;
 
-    /*change the working directory*/
+    /*Change the working directory.*/
     jf_file_getDirectoryName(
         strExecutablePath, JF_LIMIT_MAX_PATH_LEN, pdp->dp_pstrCmdLine);
     if (strlen(strExecutablePath) > 0)
         u32Ret = jf_process_setCurrentWorkingDirectory(strExecutablePath);
 
+    /*Create the basic chain.*/
     u32Ret = jf_network_createChain(&pid->id_pjncDongyuanChain);
     
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(&smip, 0, sizeof(smip));
+        ol_bzero(&smip, sizeof(smip));
 
         smip.smip_pstrSettingFile = pid->id_pstrSettingFile;
         smip.smip_pjncChain = pid->id_pjncDongyuanChain;
@@ -400,13 +402,13 @@ u32 initDongyuan(dongyuan_param_t * pdp)
         u32Ret = initServMgmt(&smip);
     }
 
+    /*Register the signal handlers.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_thread_registerSignalHandlers(_dongyuanSignalHandler);
 
+    /*Create the async server socket.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-    {
         u32Ret = _createDongyuanAssocket(pid, pdp);
-    }
     
     if (u32Ret == JF_ERR_NO_ERROR)
         pid->id_bInitialized = TRUE;

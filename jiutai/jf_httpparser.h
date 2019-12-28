@@ -7,7 +7,8 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_httpparser library.
- *
+ *  -# Link with jf_jiukun library for memory allocation.
+ *  -# Link with jf_string library for string parse.
  */
 
 #ifndef JIUFENG_HTTPPARSER_H
@@ -56,40 +57,65 @@ typedef void  jf_httpparser_dataobject_t;
 
 /* --- data structures -------------------------------------------------------------------------- */
 
+/** Define the http packet header field data type.
+ */
 typedef struct jf_httpparser_packet_header_field
 {
+    /**The name of the field.*/
     olchar_t * jhphf_pstrName;
+    /**The length of the name string.*/
     olsize_t jhphf_sName;
+    /**The data of the field.*/
     olchar_t * jhphf_pstrData;
+    /**The length of the data string.*/
     olsize_t jhphf_sData;
-
+    /**The string is allocated if it's TRUE.*/
     boolean_t jhphf_bAlloc;
     u8 jhphf_u8Reserved[7];
-
+    /**The next field.*/
     struct jf_httpparser_packet_header_field * jhphf_pjhphfNext;
 } jf_httpparser_packet_header_field_t;
 
+/** Define the http packet header data type.
+ */
 typedef struct jf_httpparser_packet_header
 {
+    /**The http directive for http request. Eg. GET, PUT, POST.*/
     olchar_t * jhph_pstrDirective;
+    /**The size of the http directive string.*/
     olsize_t jhph_sDirective;
+    /**The http directive object for http requesst. Eg. /index.html.*/
     olchar_t * jhph_pstrDirectiveObj;
+    /**The size of the http directive object string.*/
     olsize_t jhph_sDirectiveObj;
+    /**The status code for http response. It's -1 for http response.*/
     olint_t jhph_nStatusCode;
+    /**The status data for http response, Eg. OK.*/
     olchar_t * jhph_pstrStatusData;
+    /**The size of the http status data string.*/
     olsize_t jhph_sStatusData;
+    /**The version string for both http request and response. Eg. 1.0, 1.1.*/
     olchar_t * jhph_pstrVersion;
+    /**The size of the version string.*/
     olsize_t jhph_sVersion;
+    /**The http body.*/
     u8 * jhph_pu8Body;
+    /**The size of the http body.*/
     olsize_t jhph_sBody;
 
+    /**The directive string is allocated if it's TRUE.*/
     boolean_t jhph_bAllocDirective;
+    /**The status string is allocated if it's TRUE.*/
     boolean_t jhph_bAllocStatus;
+    /**The version string is allocated if it's TRUE.*/
     boolean_t jhph_bAllocVersion;
+    /**The body buffer is allocated if it's TRUE.*/
     boolean_t jhph_bAllocBody;
     u8 jhph_bReserved[4];
 
+    /**The first field of the http packet header.*/
     jf_httpparser_packet_header_field_t * jhph_pjhphfFirst;
+    /**The last field of the http packet header.*/
     jf_httpparser_packet_header_field_t * jhph_pjhphfLast;
 } jf_httpparser_packet_header_t;
 
@@ -163,7 +189,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setStatusCode(
  *  @param pstrDirective [in] The directive to write, eg: GET.
  *  @param sDirective [in] The length of the directive.
  *  @param pstrDirectiveObj [in] The path component of the directive, eg: /index.html.
- *  @param sDirectiveObj [in] The length of the path component
+ *  @param sDirectiveObj [in] The length of the path component.
  *
  *  @return The error code.
  */
@@ -171,6 +197,8 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setDirective(
     jf_httpparser_packet_header_t * pHeader, olchar_t * pstrDirective, olsize_t sDirective,
     olchar_t * pstrDirectiveObj, olsize_t sDirectiveObj);
 
+/** Set the http body for a http packet.
+ */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setBody(
     jf_httpparser_packet_header_t * pHeader, u8 * pu8Body, olsize_t sBody, boolean_t bAlloc);
 
@@ -241,18 +269,28 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getHeaderLine(
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parseUri(
     olchar_t * pstrUri, olchar_t ** ppstrIp, u16 * pu16Port, olchar_t ** ppstrPath);
 
+/** Get the http transfer encoding stated in header field.
+ */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parseHeaderTransferEncoding(
     jf_httpparser_packet_header_t * pHeader, u8 * pu8Encoding);
 
+/** Get the http content length stated in header field.
+ */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parseHeaderContentLength(
     jf_httpparser_packet_header_t * pHeader, olint_t * pnLength);
 
+/** Find the http header.
+ */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_findHeader(
     u8 * pu8Buffer, olsize_t sOffset, olsize_t sEnd, olsize_t * psHeader);
 
+/** Destroy the chunk processor.
+ */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyChunkProcessor(
     jf_httpparser_chunk_processor_t ** ppProcessor);
 
+/** Create the chunk processor for chunked data in http body.
+ */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_createChunkProcessor(
     jf_httpparser_chunk_processor_t ** ppProcessor, u32 u32MallocSize);
 
@@ -270,9 +308,13 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_processChunk(
     jf_httpparser_chunk_processor_t * pProcessor, jf_httpparser_packet_header_t * pjhph,
     u8 * buffer, olsize_t * psBeginPointer, olsize_t endPointer);
 
+/** Create the http data object.
+ */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_createtDataobject(
     jf_httpparser_dataobject_t ** ppDataobject, olsize_t sBuffer);
 
+/** Destroy the http data object.
+ */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyDataobject(
     jf_httpparser_dataobject_t ** ppDataobject);
 
@@ -296,6 +338,18 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_processDataobject(
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_reinitDataobject(
     jf_httpparser_dataobject_t * pDataobject);
 
+/** Get the http packet of the data object.
+ *
+ *  @note
+ *  -# The packet may be partial as data is still being received. Application should check the
+ *   returned parameter to know the complete status of the packet.
+ *
+ *  @param pDataobject [in] The data object.
+ *  @param bFullPacket [out] Full packet is received if it's TRUE.
+ *  @param ppPacket [in/out] The http packet parsed from received data.
+ *
+ *  @return The error code.
+ */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getDataobjectFullPacket(
     jf_httpparser_dataobject_t * pDataobject, boolean_t * bFullPacket,
     jf_httpparser_packet_header_t ** ppPacket);

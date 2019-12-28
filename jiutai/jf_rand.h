@@ -1,12 +1,12 @@
 /**
  *  @file jf_rand.h
  *
- *  @brief The random number common object header file.
+ *  @brief The header file which defines interface for random number.
  *
  *  @author Min Zhang
  *  
- *  @note Routines declared in this file are included in jf_rand object
- *
+ *  @note
+ *  -# Routines declared in this file are included in jf_rand object.
  */
 
 #ifndef JIUTAI_RAND_H
@@ -24,12 +24,12 @@
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/** Get random u32 number in range
+/** Get random unsigned integer in range.
  *  
- *  @param u32Lower [in] the lower edge of the range
- *  @param u32Upper [in] the upper edge of the range
+ *  @param u32Lower [in] The lower edge of the range.
+ *  @param u32Upper [in] The upper edge of the range.
  *
- *  @return the random u32 number
+ *  @return The random unsigned integer.
  */
 u32 jf_rand_getU32InRange(u32 u32Lower, u32 u32Upper);
 

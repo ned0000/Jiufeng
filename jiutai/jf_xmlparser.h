@@ -100,10 +100,10 @@ XMLPARSERAPI u32 XMLPARSERCALL jf_xmlparser_parseXmlDoc(
  */
 XMLPARSERAPI const olchar_t * XMLPARSERCALL jf_xmlparser_getErrMsg(void);
 
-/** Parse XML file.
+/** Parse XML file and return the property tree.
  *
  *  @param pstrFilename [in] The XML file to be parsed.
- *  @param ppDoc [in/out] The XML document returned.
+ *  @param ppPtree [in/out] The property tree returned.
  *
  *  @return the error code
  */
@@ -113,7 +113,7 @@ XMLPARSERAPI u32 XMLPARSERCALL jf_xmlparser_parseXmlFile(
 /** Save the property tree to XML file.
  */
 XMLPARSERAPI u32 XMLPARSERCALL jf_xmlparser_saveXmlFile(
-    const olchar_t * pstrFilename, jf_ptree_t * pPtree);
+    jf_ptree_t * pPtree, const olchar_t * pstrFilename);
 
 #endif /*JIUFENG_XMLPARSER_H*/
 

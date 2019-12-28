@@ -1,7 +1,7 @@
 /**
  *  @file jf_crc.c
  *
- *  @brief The object implements CRC-32C
+ *  @brief The implmentation file for crc calculation object.
  *
  *  @author Min Zhang
  *

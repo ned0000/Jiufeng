@@ -86,6 +86,8 @@ typedef struct internal_ptree_node
     /**The sibling ptree node.*/
     struct internal_ptree_node * ipn_pipnSibling;
 
+    /**The private data for application.*/
+    void * ipn_pPrivate;
 } internal_ptree_node_t;
 
 /** Define the internal property tree data type.
@@ -120,7 +122,7 @@ typedef struct
     olsize_t fpnap_sPrefix;
     const olchar_t * fpnap_pstrName;
     olsize_t fpnap_sName;
-    olchar_t ** fpnap_ppstrValue;
+    jf_ptree_node_attribute_t ** fpnap_ppjpnaAttr;
 } find_ptree_node_attribute_param_t;
 
 /* --- private routine section ------------------------------------------------------------------ */
@@ -352,31 +354,11 @@ static u32 _destroyPtreeNodeList(internal_ptree_node_t ** ppNode)
     return u32Ret;
 }
 
-static u32 _changePtreeNode(
-    internal_ptree_node_t * pipn, const olchar_t * pstrNs, const olchar_t * pstrName,
-    const olchar_t * pstrValue)
+static u32 _changePtreeNodeValue(internal_ptree_node_t * pipn, const olchar_t * pstrValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    if (pstrNs != NULL)
-    {
-        if (pipn->ipn_pstrNs != NULL)
-            jf_string_free(&pipn->ipn_pstrNs);
-
-        pipn->ipn_sNs = ol_strlen(pstrNs);
-        u32Ret = jf_string_duplicate(&pipn->ipn_pstrNs, pstrNs);
-    }
-
-    if ((u32Ret == JF_ERR_NO_ERROR) && (pstrName != NULL))
-    {
-        if (pipn->ipn_pstrName != NULL)
-            jf_string_free(&pipn->ipn_pstrName);
-
-        pipn->ipn_sName = ol_strlen(pstrName);
-        u32Ret = jf_string_duplicate(&pipn->ipn_pstrName, pstrName);
-    }
-
-    if ((u32Ret == JF_ERR_NO_ERROR) && (pstrValue != NULL))
+    if (pstrValue != NULL)
     {
         if (pipn->ipn_pstrValue != NULL)
             jf_string_free(&pipn->ipn_pstrValue);
@@ -390,7 +372,9 @@ static u32 _changePtreeNode(
 
 /** Traverse property tree.
  *
- *  @param pipn [in] The root of the property tree.
+ *  @param pipn [in] The node of the property tree.
+ *  @param fnOpNode [in] The callback function to operate on the node.
+ *  @param pArg [in] The argument for the callback function.
  */
 static u32 _traversePtree(
     internal_ptree_node_t * pipn, jf_ptree_fnOpNode_t fnOpNode, void * pArg)
@@ -399,11 +383,11 @@ static u32 _traversePtree(
 
     while ((pipn != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        if (pipn->ipn_pipnChildren != NULL)
-            u32Ret = _traversePtree(pipn->ipn_pipnChildren, fnOpNode, pArg);
-
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = fnOpNode(pipn, pArg);
+
+        if (pipn->ipn_pipnChildren != NULL)
+            u32Ret = _traversePtree(pipn->ipn_pipnChildren, fnOpNode, pArg);
 
         if (u32Ret == JF_ERR_NO_ERROR)
             pipn = pipn->ipn_pipnSibling;
@@ -471,7 +455,7 @@ static u32 _deletePtreeNode(internal_ptree_node_t * pipn)
     return u32Ret;
 }
 
-static u32 _fnGetNodeAttribute(jf_linklist_node_t * pNode, void * pArg)
+static u32 _fnFindNodeAttribute(jf_linklist_node_t * pNode, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     find_ptree_node_attribute_param_t * pfpnap = (find_ptree_node_attribute_param_t *)pArg;
@@ -490,14 +474,14 @@ static u32 _fnGetNodeAttribute(jf_linklist_node_t * pNode, void * pArg)
     if (ol_memcpy(pipna->ipna_pstrName, pfpnap->fpnap_pstrName, pipna->ipna_sName) != 0)
         return u32Ret;
 
-    *pfpnap->fpnap_ppstrValue = pipna->ipna_pstrValue;
+    *pfpnap->fpnap_ppjpnaAttr = pipna;
 
     return JF_ERR_TERMINATED;
 }
 
 static u32 _findPtreeNodeAttribute(
     jf_linklist_t * pjl, const olchar_t * pstrPrefix, const olsize_t sPrefix,
-    const olchar_t * pstrName, const olsize_t sName, olchar_t ** ppstrValue)
+    const olchar_t * pstrName, const olsize_t sName, jf_ptree_node_attribute_t ** ppAttr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     find_ptree_node_attribute_param_t fpnap;
@@ -509,9 +493,9 @@ static u32 _findPtreeNodeAttribute(
     fpnap.fpnap_sPrefix = sPrefix;
     fpnap.fpnap_pstrName = pstrName;
     fpnap.fpnap_sName = sName;
-    fpnap.fpnap_ppstrValue = ppstrValue;
+    fpnap.fpnap_ppjpnaAttr = ppAttr;
 
-    u32Ret = jf_linklist_iterate(pjl, _fnGetNodeAttribute, &fpnap);
+    u32Ret = jf_linklist_iterate(pjl, _fnFindNodeAttribute, &fpnap);
     if (u32Ret == JF_ERR_TERMINATED)
         u32Ret = JF_ERR_NO_ERROR;
     else
@@ -613,9 +597,10 @@ static u32 _matchPtreeNode(jf_ptree_node_t * pNode, void * pArg)
     return JF_ERR_NO_ERROR;
 }
 
-/** Builds the namespace hash table.
+/** Builds the namespace hash tree.
  *
- *  @param root [in] This root node of the XML tree.
+ *  @param pNode [in] This node to build hash tree.
+ *  @param pArg [in] The argument.
  *
  *  @return The error code.
  */
@@ -678,6 +663,29 @@ static boolean_t _compareChildNode(
         return bRet;
 
     return TRUE;
+}
+
+static u32 _iterateNodeAttribute(
+    jf_linklist_t * pjl, jf_ptree_fnOpAttribute_t fnOpAttribute, void * pArg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_linklist_node_t * pNode = NULL;
+    internal_ptree_node_attribute_t * pipna = NULL;
+
+    pNode = jf_linklist_getFirstNode(pjl);
+    while ((pNode != NULL) && (u32Ret == JF_ERR_NO_ERROR))
+    {
+        pipna = jf_linklist_getDataFromNode(pNode);
+
+        u32Ret = fnOpAttribute(pipna, pArg);
+
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            pNode = jf_linklist_getNextNode(pNode);
+        }
+    }
+
+    return u32Ret;
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
@@ -799,6 +807,19 @@ u32 jf_ptree_findAllNode(
 u32 jf_ptree_iterateNode(jf_ptree_node_t * pNode, jf_ptree_fnOpNode_t fnOpNode, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_ptree_node_t * pipn = (internal_ptree_node_t *)pNode;
+
+    assert(pNode != NULL);
+
+    pipn = pipn->ipn_pipnChildren;
+    while ((pipn != NULL) && (u32Ret == JF_ERR_NO_ERROR))
+    {
+        u32Ret = fnOpNode(pipn, pArg);
+
+        if (u32Ret == JF_ERR_NO_ERROR)
+            pipn = pipn->ipn_pipnSibling;
+    }
+
     return u32Ret;
 }
 
@@ -837,14 +858,12 @@ u32 jf_ptree_addChildNode(
     return u32Ret;
 }
 
-u32 jf_ptree_changeNode(
-    jf_ptree_node_t * pNode, const olchar_t * pstrNs, const olchar_t * pstrName,
-    const olchar_t * pstrValue)
+u32 jf_ptree_changeNodeValue(jf_ptree_node_t * pNode, const olchar_t * pstrValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ptree_node_t * pipn = (internal_ptree_node_t *)pNode;
 
-    u32Ret = _changePtreeNode(pipn, pstrNs, pstrName, pstrValue);
+    u32Ret = _changePtreeNodeValue(pipn, pstrValue);
 
     return u32Ret;
 }
@@ -872,14 +891,64 @@ u32 jf_ptree_deleteNode(jf_ptree_node_t ** ppNode)
 
 u32 jf_ptree_findNodeAttribute(
     jf_ptree_node_t * pNode, const olchar_t * pstrPrefix, const olchar_t * pstrName,
-    olchar_t ** pstrValue)
+    jf_ptree_node_attribute_t ** ppAttr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ptree_node_t * pipn = (internal_ptree_node_t *)pNode;
 
     u32Ret = _findPtreeNodeAttribute(
         &pipn->ipn_jlAttribute, pstrPrefix, ol_strlen(pstrPrefix), pstrName, ol_strlen(pstrName),
-        pstrValue);
+        ppAttr);
+
+    return u32Ret;
+}
+
+u32 jf_ptree_getNodeAttributePrefix(
+    jf_ptree_node_attribute_t * pAttr, olchar_t ** ppstrPrefix, olsize_t * psPrefix)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_ptree_node_attribute_t * pipna = (internal_ptree_node_attribute_t *)pAttr;
+
+    *ppstrPrefix = pipna->ipna_pstrPrefix;
+    if (psPrefix != NULL)
+        *psPrefix = pipna->ipna_sPrefix;
+
+    return u32Ret;
+}
+
+u32 jf_ptree_getNodeAttributeName(
+    jf_ptree_node_attribute_t * pAttr, olchar_t ** ppstrName, olsize_t * psName)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_ptree_node_attribute_t * pipna = (internal_ptree_node_attribute_t *)pAttr;
+
+    *ppstrName = pipna->ipna_pstrName;
+    if (psName != NULL)
+        *psName = pipna->ipna_sName;
+
+    return u32Ret;
+}
+
+u32 jf_ptree_getNodeAttributeValue(
+    jf_ptree_node_attribute_t * pAttr, olchar_t ** ppstrValue, olsize_t * psValue)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_ptree_node_attribute_t * pipna = (internal_ptree_node_attribute_t *)pAttr;
+
+    *ppstrValue = pipna->ipna_pstrValue;
+    if (psValue != NULL)
+        *psValue = pipna->ipna_sValue;
+
+    return u32Ret;
+}
+
+u32 jf_ptree_iterateNodeAttribute(
+    jf_ptree_node_t * pNode, jf_ptree_fnOpAttribute_t fnOpAttribute, void * pArg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_ptree_node_t * pipn = (internal_ptree_node_t *)pNode;
+
+    u32Ret = _iterateNodeAttribute(&pipn->ipn_jlAttribute, fnOpAttribute, pArg);
 
     return u32Ret;
 }
@@ -900,10 +969,10 @@ u32 jf_ptree_addNodeAttribute(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ptree_node_t * pipn = (internal_ptree_node_t *)pNode;
     internal_ptree_node_attribute_t * pipna = NULL;
-    olchar_t * pstr = NULL;
+    jf_ptree_node_attribute_t * pAttr = NULL;
 
     u32Ret = _findPtreeNodeAttribute(
-        &pipn->ipn_jlAttribute, pstrPrefix, sPrefix, pstrName, sName, &pstr);
+        &pipn->ipn_jlAttribute, pstrPrefix, sPrefix, pstrName, sName, &pAttr);
     if (u32Ret == JF_ERR_PTREE_NODE_ATTR_NOT_FOUND)
     {
         u32Ret = _createPtreeNodeAttribute(
@@ -954,7 +1023,7 @@ u32 jf_ptree_dump(jf_ptree_t * pPtree)
     return u32Ret;
 }
 
-u32 jf_ptree_lookupXmlNamespace(
+u32 jf_ptree_lookupNamespace(
     jf_ptree_node_t * pNode, olchar_t * pstrPrefix, olsize_t sPrefix, olchar_t ** ppstr)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -987,7 +1056,7 @@ u32 jf_ptree_lookupXmlNamespace(
     return u32Ret;
 }
 
-u32 jf_ptree_buildXmlNamespaceTable(jf_ptree_t * pPtree)
+u32 jf_ptree_buildNamespaceTable(jf_ptree_t * pPtree)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ptree_t * pip = (internal_ptree_t *)pPtree;
@@ -997,7 +1066,7 @@ u32 jf_ptree_buildXmlNamespaceTable(jf_ptree_t * pPtree)
     return u32Ret;
 }
 
-u32 jf_ptree_addDeclaration(
+u32 jf_ptree_addDeclarationAttribute(
     jf_ptree_t * pPtree, const olchar_t * pstrPrefix, const olsize_t sPrefix,
     const olchar_t * pstrName, const olsize_t sName, const olchar_t * pstrValue,
     const olsize_t sValue)
@@ -1005,10 +1074,10 @@ u32 jf_ptree_addDeclaration(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ptree_t * pip = (internal_ptree_t *)pPtree;
     internal_ptree_node_attribute_t * pipna = NULL;
-    olchar_t * pstr = NULL;
+    jf_ptree_node_attribute_t * pAttr = NULL;
 
     u32Ret = _findPtreeNodeAttribute(
-        &pip->ip_jlDeclaration, pstrPrefix, sPrefix, pstrName, sName, &pstr);
+        &pip->ip_jlDeclaration, pstrPrefix, sPrefix, pstrName, sName, &pAttr);
     if (u32Ret == JF_ERR_PTREE_NODE_ATTR_NOT_FOUND)
     {
         u32Ret = _createPtreeNodeAttribute(
@@ -1050,14 +1119,110 @@ u32 jf_ptree_findChildNode(
     return u32Ret;
 }
 
-u32 jf_ptree_getNodeValue(jf_ptree_node_t * pNode, olchar_t ** ppstrValue)
+u32 jf_ptree_getNodeNs(jf_ptree_node_t * pNode, olchar_t ** ppstrNs, olsize_t * psNs)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_ptree_node_t * temp = (internal_ptree_node_t *)pNode;
+
+    *ppstrNs = temp->ipn_pstrNs;
+    if (psNs != NULL)
+        *psNs = temp->ipn_sNs;
+
+    return u32Ret;
+}
+
+u32 jf_ptree_getNodeName(jf_ptree_node_t * pNode, olchar_t ** ppstrName, olsize_t * psName)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_ptree_node_t * temp = (internal_ptree_node_t *)pNode;
+
+    *ppstrName = temp->ipn_pstrName;
+    if (psName != NULL)
+        *psName = temp->ipn_sName;
+
+    return u32Ret;
+}
+
+u32 jf_ptree_getNodeValue(jf_ptree_node_t * pNode, olchar_t ** ppstrValue, olsize_t * psValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ptree_node_t * temp = (internal_ptree_node_t *)pNode;
 
     *ppstrValue = temp->ipn_pstrValue;
+    if (psValue != NULL)
+        *psValue = temp->ipn_sValue;
 
     return u32Ret;
+}
+
+boolean_t jf_ptree_isLeafNode(jf_ptree_node_t * pNode)
+{
+    boolean_t bRet = FALSE;
+    internal_ptree_node_t * pipn = (internal_ptree_node_t *)pNode;
+
+    if (pipn->ipn_pipnChildren == NULL)
+        bRet = TRUE;
+
+    return bRet;
+}
+
+jf_ptree_node_t * jf_ptree_getRootNode(jf_ptree_t * pPtree)
+{
+    internal_ptree_t * pip = (internal_ptree_t *)pPtree;
+
+    return pip->ip_pipnRoot;
+}
+
+jf_ptree_node_t * jf_ptree_getChildNode(jf_ptree_node_t * pNode)
+{
+    internal_ptree_node_t * pipn = (internal_ptree_node_t *)pNode;
+
+    return pipn->ipn_pipnChildren;
+}
+
+jf_ptree_node_t * jf_ptree_getSiblingNode(jf_ptree_node_t * pNode)
+{
+    internal_ptree_node_t * pipn = (internal_ptree_node_t *)pNode;
+
+    return pipn->ipn_pipnSibling;
+}
+
+u32 jf_ptree_iterateDeclarationAttribute(
+    jf_ptree_t * pPtree, jf_ptree_fnOpAttribute_t fnOpAttribute, void * pArg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_ptree_t * pip = (internal_ptree_t *)pPtree;
+
+    u32Ret = _iterateNodeAttribute(&pip->ip_jlDeclaration, fnOpAttribute, pArg);
+
+    return u32Ret;
+}
+
+u32 jf_ptree_attachPrivate(jf_ptree_node_t * pNode, void * pPrivate)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_ptree_node_t * pipn = (internal_ptree_node_t *)pNode;
+
+    pipn->ipn_pPrivate = pPrivate;
+
+    return u32Ret;
+}
+
+u32 jf_ptree_detachPrivate(jf_ptree_node_t * pNode)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_ptree_node_t * pipn = (internal_ptree_node_t *)pNode;
+
+    pipn->ipn_pPrivate = NULL;
+
+    return u32Ret;
+}
+
+void * jf_ptree_getPrivate(jf_ptree_node_t * pNode)
+{
+    internal_ptree_node_t * pipn = (internal_ptree_node_t *)pNode;
+
+    return pipn->ipn_pPrivate;
 }
 
 /*------------------------------------------------------------------------------------------------*/

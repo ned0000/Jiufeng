@@ -16,10 +16,10 @@
  *  @par Procedure for State Transition
  *  -# The procedure when state transition happens:
  *  @code
- *  if ((fnEventGuard == NULL) || fnEventGuard())
+ *  if ((fnGuard == NULL) || fnGuard())
  *  {
- *      if (fnEventAction != NULL)
- *          fnEventAction()
+ *      if (fnAction != NULL)
+ *          fnAction()
  *      if ((new-state != old-state) &&
  *          (new-state != JF_HSM_LAST_STATE_ID))
  *      {
@@ -60,15 +60,15 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-/** The HSM state ID.
+/** Define the HSM state ID data type.
  */
 typedef u32  jf_hsm_state_id_t;
 
-/** The HSM event ID.
+/** Define the HSM event ID data type.
  */
 typedef u32  jf_hsm_event_id_t;
 
-/** The HSM event data structure.
+/** Define the HSM event data type.
  */
 typedef struct jf_hsm_event
 {
@@ -80,25 +80,36 @@ typedef struct jf_hsm_event
     void * jhe_pDataEx;
 } jf_hsm_event_t;
 
-typedef boolean_t (* jf_hsm_fnEventGuard_t)(jf_hsm_event_t * pEvent);
-typedef u32 (* jf_hsm_fnEventAction_t)(jf_hsm_event_t * pEvent);
+/** The callback function to guard the state.
+ */
+typedef boolean_t (* jf_hsm_fnGuard_t)(jf_hsm_event_t * pEvent);
+
+/** The callback function is executed when the guard function returns TRUE.
+ */
+typedef u32 (* jf_hsm_fnAction_t)(jf_hsm_event_t * pEvent);
+
+/** The callback function when entering the state.
+ */
 typedef u32 (*jf_hsm_fnOnEntry)(jf_hsm_state_id_t stateId, jf_hsm_event_t * pEvent);
+
+/** The callback function when existing the state.
+ */
 typedef u32 (*jf_hsm_fnOnExit)(jf_hsm_state_id_t stateId, jf_hsm_event_t * pEvent);
 
 /** The state transition data structure. 
  */
 typedef struct jf_hsm_transition
 {
-    /**Current state id*/
+    /**Current state id.*/
     jf_hsm_state_id_t jht_jhsiCurrentStateId;
-    /**The event triggers the transition*/
+    /**The event triggers the transition.*/
     jf_hsm_event_id_t jht_jheiEventId;
-    /**The guard function, if TRUE is returned, fnAction is executed and transit to next state*/
-    jf_hsm_fnEventGuard_t jht_fnGuard;
-    /**Action function*/
-    jf_hsm_fnEventAction_t jht_fnAction;
+    /**The guard function, if TRUE is returned, fnAction is executed and transit to next state.*/
+    jf_hsm_fnGuard_t jht_fnGuard;
+    /**The action function.*/
+    jf_hsm_fnAction_t jht_fnAction;
     /**Next state id, if next state id is JF_HSM_LAST_EVENT_ID, no state transition and the
-       callback function fnOnEntry and fnOnExit are not called*/
+       callback function fnOnEntry and fnOnExit are not called.*/
     jf_hsm_state_id_t jht_jhsiNextStateId;
 } jf_hsm_transition_t;
 
@@ -106,34 +117,53 @@ typedef void  jf_hsm_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+/** Create the state machine.
+ *
+ *  @param ppHsm [out] The state machine to be created and returned.
+ *  @param pTransition [out] The transition table.
+ *  @param initialStateId [out] The initial state id for the transition table.
+ */
 u32 jf_hsm_create(
     jf_hsm_t ** ppHsm, jf_hsm_transition_t * pTransition, jf_hsm_event_id_t initialStateId);
 
+/** Destroy the state machine.
+ */
 u32 jf_hsm_destroy(jf_hsm_t ** ppHsm);
 
-/** Set the transition table for the specified state
+/** Set the transition table for the specified state.
  *
- *  @param pHsm [in] the pointer to hsm object
- *  @param stateId [in] the state id for the transition table
- *  @param pTransition [in] the state transition table
- *  @param initialStateId [in] the initial state id when entering the state
+ *  @param pHsm [in] The pointer to hsm object.
+ *  @param stateId [in] The state id for the transition table.
+ *  @param pTransition [in] The state transition table.
+ *  @param initialStateId [in] The initial state id when entering the state.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  *
  */
 u32 jf_hsm_addStateTransition(
     jf_hsm_t * pHsm, jf_hsm_state_id_t stateId, jf_hsm_transition_t * pTransition,
     jf_hsm_event_id_t initialStateId);
 
+/** Add callback function for state.
+ *
+ *  @note
+ *  -# The callback function is called when entering and exiting the state.
+ */
 u32 jf_hsm_addStateCallback(
     jf_hsm_t * pHsm, jf_hsm_state_id_t stateId, jf_hsm_fnOnEntry fnOnEntry,
     jf_hsm_fnOnExit fnOnExit);
 
+/** Get current state id.
+ */
 jf_hsm_state_id_t jf_hsm_getCurrentStateId(jf_hsm_t * pjh);
 
+/** Process event.
+ */
 u32 jf_hsm_processEvent(jf_hsm_t * pjh, jf_hsm_event_t * pEvent);
 
+/** Init the event data type.
+ */
 static inline void jf_hsm_initEvent(
     jf_hsm_event_t * pEvent, jf_hsm_event_id_t eventId, void * pData, void * pDataEx)
 {

@@ -1,7 +1,7 @@
 /**
  *  @file servmgmtsetting.h
  *
- *  @brief Setting header file, provide some functional routine to read service setting
+ *  @brief Setting header file, provide some functional routine to read service setting.
  *
  *  @author Min Zhang
  *
@@ -20,36 +20,52 @@
 #include "jf_process.h"
 #include "jf_limit.h"
 #include "jf_serv.h"
+#include "jf_ptree.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
+/** Maximum service command parameter length.
+ */
 #define MAX_SERVICE_CMD_PARAM_LEN    (512)
 
 /* --- data structures -------------------------------------------------------------------------- */
+
+/** Define the internal service information data type.
+ */
 typedef struct
 {
-    olchar_t isi_strName[JF_SERV_MAX_SERV_NAME_LEN];
-    u8 isi_u8Status;
+    olchar_t * isi_pstrName;
+    olchar_t * isi_pstrDescription;
+    olchar_t * isi_pstrCmdPath;
+    olchar_t * isi_pstrCmdParam;
     u8 isi_u8StartupType;
-    u8 isi_u8Reserved[5];
-    olchar_t isi_strCmdPath[JF_LIMIT_MAX_PATH_LEN];
-    olchar_t isi_strCmdParam[MAX_SERVICE_CMD_PARAM_LEN];
+    u8 isi_u8Reserved[7];
+
+    /**The property tree node for startup type.*/
+    jf_ptree_node_t * isi_pjpnStartupType;
 
     u8 isi_u8Reserved2[32];
 
-    jf_process_id_t isi_jpiProcessId;
+    u8 isi_u8Status;
     u8 isi_u8RestartCount;
-    u8 isi_u8Reserved3[7];
+    u8 isi_u8Reserved3[6];
+
+    jf_process_id_t isi_jpiProcessId;
+
 } internal_service_info_t;
 
+/** Define the internal service management setting data type.
+ */
 typedef struct
 {
     olchar_t isms_strSettingFile[JF_LIMIT_MAX_PATH_LEN];
-    olchar_t isms_strVersion[8];
     u16 isms_u16NumOfService;
     u16 isms_u16Reserved[3];
     u8 isms_u8FailureRetryCount;
     u8 isms_u8Reserved2[15];
+    /**The property tree representing the setting file.*/
+    jf_ptree_t * isms_pjpService;
+    olchar_t * isms_pstrVersion;
 
     internal_service_info_t isms_isiService[JF_SERV_MAX_NUM_OF_SERV];
 
@@ -57,12 +73,13 @@ typedef struct
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+/** Read service management setting file.
+ */
 u32 readServMgmtSetting(internal_serv_mgmt_setting_t * pisms);
 
-u32 writeServMgmtSetting(internal_serv_mgmt_setting_t * pisms);
-
-u32 modifyServiceStartupType(
-    const olchar_t * pu8SettingFile, olchar_t * pstrServName, jf_serv_startup_type_t startupType);
+/** Modify the startup type of the service and save the new setting.
+ */
+u32 modifyServiceStartupType(internal_serv_mgmt_setting_t * pisms, internal_service_info_t * pisi);
 
 #endif /*DONGYUAN_SERVMGMT_SETTING_H*/
 

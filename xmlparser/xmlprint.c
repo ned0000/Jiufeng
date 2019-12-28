@@ -74,8 +74,10 @@ static void _printXmlNodeList(internal_xmlparser_xml_node_t * pixxn, u16 u16Inde
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-void printXmlDoc(internal_xmlparser_xml_doc_t * pixxd)
+void dumpXmlDoc(internal_xmlparser_xml_doc_t * pixxd)
 {
+    ol_printf("------------------------------------------------------------------------\n");
+    ol_printf("Dump XML document:\n\n");
 
     printXmlAttributeList(&pixxd->ixxd_jlDeclarationAttribute);
     ol_printf("\n");

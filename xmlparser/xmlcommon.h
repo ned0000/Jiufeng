@@ -97,6 +97,8 @@ void genXmlErrMsg(u32 u32Err, const olchar_t * pData, olsize_t sData);
  */
 void tryGenXmlErrMsg(u32 u32Err, const olchar_t * pData, olsize_t sData);
 
+void dumpXmlDoc(internal_xmlparser_xml_doc_t * pixxd);
+
 #endif /*XMLPARSER_XMLCOMMON_H*/
 
 /*------------------------------------------------------------------------------------------------*/

@@ -1,19 +1,22 @@
 /**
  *  @file jf_err.h
  *
- *  @brief Error code header file. It provides the definitions of error codes
- *   and the related external routines.
+ *  @brief Error code header file which defines the interface of error codes and the related
+ *   external routines.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_logger library
- *  @note the error code is in following format
- *  @note     3                   2                   1                 
- *  @note   1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
- *  @note  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  @note  |      module   |S|   reserved  |     code 1    |   code 2      |
- *  @note  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  
+ *  @note
+ *  -# Routines declared in this file are included in jf_logger library.
+ *
+ *  @par Error Code Format
+ *  @code
+ *       3                   2                   1
+ *     1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0 9 8 7 6 5 4 3 2 1 0
+ *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *    |      module   |S|   reserved  |     code 1    |   code 2      |
+ *    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  @endcode
  */
 
 #ifndef JIUFENG_ERR_H
@@ -27,7 +30,8 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-/* Sys error code */
+/** System error code if this flag is set.
+ */
 #define JF_ERR_CODE_FLAG_SYSTEM       (0x800000)
 
 #define JF_ERR_CODE_MODULE_MASK       (0xFF000000)
@@ -35,7 +39,8 @@
 #define JF_ERR_CODE_CODE_MASK         (0xFFFF)
 
 /* error code definition */
-/* no error */
+/** No error.
+ */
 #define JF_ERR_NO_ERROR            (0x0)
 
 /* module definition */
@@ -440,11 +445,10 @@
 #define JF_ERR_UNMATCHED_XML_CLOSE_TAG (JF_ERR_XMLPARSER_ERROR_START + 0x2)
 #define JF_ERR_CORRUPTED_XML_DOCUMENT (JF_ERR_XMLPARSER_ERROR_START + 0x3)
 #define JF_ERR_INVALID_XML_DECLARATION (JF_ERR_XMLPARSER_ERROR_START + 0x4)
-#define JF_ERR_LIBXML_PARSE_ERROR (JF_ERR_XMLPARSER_ERROR_START + 0x5)
+#define JF_ERR_XML_PTREE_NOT_BUILT (JF_ERR_XMLPARSER_ERROR_START + 0x5)
 #define JF_ERR_INVALID_XML_FILE (JF_ERR_XMLPARSER_ERROR_START + 0x6)
 #define JF_ERR_NOT_UNIQUE_XML_ROOT_ELEMENT (JF_ERR_XMLPARSER_ERROR_START + 0x7)
 #define JF_ERR_XML_NODE_NOT_FOUND (JF_ERR_XMLPARSER_ERROR_START + 0x8)
-#define JF_ERR_XML_PTREE_NOT_BUILT (JF_ERR_XMLPARSER_ERROR_START + 0x9)
 
 /* httpparser error */
 #define JF_ERR_HTTPPARSER_ERROR_START (JF_ERR_HTTPPARSER_ERROR << JF_ERR_CODE_MODULE_SHIFT)
@@ -533,28 +537,31 @@
 #define JF_ERR_ACTION_NOT_APPLY (JF_ERR_CLI_ERROR_START + 0x11)
 #define JF_ERR_INVALID_OPTION (JF_ERR_CLI_ERROR_START + 0x12)
 
-/* vendor specific error */
+/** Vendor specific error.
+ */
 #define JF_ERR_VENDOR_SPEC_ERROR_START (JF_ERR_VENDOR_SPEC_ERROR << JF_ERR_CODE_MODULE_SHIFT)
 
-/* maximum vendor specific error code,
-   tune this value if more error codes are required*/
+/** Maximum vendor specific error code, tune this value if more error codes are required.
+ */
 #define JF_ERR_MAX_VENDOR_SPEC_ERROR    (200)
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Get the description of the specified error code.
  *
- *  @param u32ErrCode [in] the specified error code
+ *  @param u32ErrCode [in] The specified error code.
  *
- *  @return the error message.
+ *  @return The error message.
  */
 LOGGERAPI olchar_t * LOGGERCALL jf_err_getDescription(u32 u32ErrCode);
 
-LOGGERAPI void LOGGERCALL jf_err_getMsg(
-    u32 u32Err, olchar_t * pstrBuf, olsize_t sBuf);
+/** Get the description of the specified error code, the description is returned in argument..
+ */
+LOGGERAPI void LOGGERCALL jf_err_getMsg(u32 u32Err, olchar_t * pstrBuf, olsize_t sBuf);
 
+/** Add description for the vendor specific error code.
+ */
 LOGGERAPI u32 LOGGERCALL jf_err_addCode(u32 u32Err, olchar_t * pstrDesc);
-
 
 
 #endif /*JIUFENG_ERR_H*/

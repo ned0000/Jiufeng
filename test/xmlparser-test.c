@@ -29,20 +29,20 @@
 <servMgmtSetting>
   <version xmlns:h="http://www.w3.org/" class="am" language="en">1.0</version>
   <serviceSetting>
-    <service>
+    <service type="bg">
       <!-- zeus service -->
-      <name>zeus</name>
-      <startupType>automatic</startupType>
+      <name type="bin" format="elf">zeus</name>
+      <startupType nochange="yes">automatic</startupType>
       <role>external</role>
       <cmdPath>olzeus</cmdPath>
-      <cmdParam></cmdParam>
+      <cmdParam path="/usr/bin"></cmdParam>
     </service>
-    <service>
+    <service type="fg">
       <name>bio</name>
-      <startupType>automatic</startupType>
+      <startupType nochange="no">automatic</startupType>
       <role>wakeup</role>
       <cmdPath>olbio</cmdPath>
-      <cmdParam></cmdParam>
+      <cmdParam path="/usr/bin"></cmdParam>
     </service>
   </serviceSetting>
 </servMgmtSetting>
@@ -233,7 +233,7 @@ static boolean_t _isSpecifiedService(jf_ptree_node_t * pNode, olchar_t * pstrSer
     u32Ret = jf_ptree_findChildNode(pNode, NULL, "name", &temp);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_ptree_getNodeValue(temp, &pstr);
+        u32Ret = jf_ptree_getNodeValue(temp, &pstr, NULL);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (ol_strcmp(pstr, pstrService) == 0)
@@ -252,7 +252,7 @@ static u32 _changeStartupType(jf_ptree_node_t * pNode)
     u32Ret = jf_ptree_findChildNode(pNode, NULL, "startupType", &temp);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_ptree_changeNode(temp, NULL, NULL, "manual");
+        u32Ret = jf_ptree_changeNodeValue(temp, "manual");
     }
 
     return u32Ret;
@@ -280,8 +280,6 @@ static u32 _modifyXmlDocument(jf_ptree_t * pjpXml)
         u32Ret = JF_ERR_NO_ERROR;
     }
 
-    jf_ptree_dump(pjpXml);
-
     return u32Ret;
 }
 
@@ -298,7 +296,15 @@ static u32 _testXmlParserFile(olchar_t * pstrXmlFile)
 
         u32Ret = _modifyXmlDocument(pjpXml);
     }
-    else
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        jf_ptree_dump(pjpXml);
+
+        u32Ret = jf_xmlparser_saveXmlFile(pjpXml, "temp.xml");
+    }
+    
+    if (u32Ret != JF_ERR_NO_ERROR)
 	{
 		pstrErrMsg = jf_xmlparser_getErrMsg();
         printf("%s\n", pstrErrMsg);

@@ -1,7 +1,7 @@
 /**
  *  @file jf_time.c
  *
- *  @brief The time common object. 
+ *  @brief The implementation file for time object. 
  *
  *  @author Min Zhang
  *  
@@ -34,11 +34,11 @@ u32 jf_time_fileTimeToSecondsSince1970(FILETIME * pTime)
 {
 	u64 u64Time;
 
-    /* in 100-nanosecond since January 1, 1601 */
+    /*In 100-nanosecond since January 1, 1601*/
     u64Time = ((u64)pTime->dwHighDateTime << 32) + pTime->dwLowDateTime;
-    /* in 100-nanosecond since January 1, 1970 */
+    /*In 100-nanosecond since January 1, 1970*/
     u64Time -= 116444736000000000;
-    /* in second since January 1, 1970 */
+    /*In second since January 1, 1970*/
     u64Time /= 10000000;
 
 	return (u32)u64Time;
@@ -60,11 +60,11 @@ u32 jf_time_getTimeOfDay(struct timeval * tv)
 
     GetSystemTimeAsFileTime(&systime);
 
-    /* in 100-nanosecond since January 1, 1601 */
+    /*In 100-nanosecond since January 1, 1601*/
     u64Time = ((u64)systime.dwHighDateTime << 32) + systime.dwLowDateTime;
-    /* in 100-nanosecond since January 1, 1970 */
+    /*In 100-nanosecond since January 1, 1970*/
     u64Time -= 116444736000000000;
-    /* in macrosecond since January 1, 1970 */
+    /*In macrosecond since January 1, 1970*/
     u64Time /= 10;
 
     tv->tv_sec = (long)(u64Time / 1000000);
@@ -198,9 +198,6 @@ void jf_time_getStringTimePeriod(olchar_t * pstrTime, const u32 u32Period)
     }
 }
 
-/** Get the time from the string with the format hour:minute:second
- *
- */
 u32 jf_time_getTimeFromString(
     const olchar_t * pstrTime, olint_t * pHour, olint_t * pMin, olint_t * pSec)
 {
@@ -214,7 +211,7 @@ u32 jf_time_getTimeFromString(
     ol_strncpy(strTime, pstrTime, sizeof(strTime) - 1);
     firstChar = strTime;
 
-    /* hour */
+    /*Hour.*/
     psubStr = ol_strchr(firstChar, cCol);
     if(psubStr != NULL)
     {
@@ -239,7 +236,7 @@ u32 jf_time_getTimeFromString(
         return JF_ERR_INVALID_TIME;
     }
 
-    /* Minute */
+    /*Minute.*/
     psubStr = ol_strchr(firstChar, cCol);
     if(psubStr != NULL)
     {
@@ -264,7 +261,7 @@ u32 jf_time_getTimeFromString(
         return JF_ERR_INVALID_TIME;
     }
 
-    /* Second */
+    /*Second.*/
     if (ol_sscanf(firstChar, "%02d", &u32Value) != 1)
     {
         return JF_ERR_INVALID_TIME;

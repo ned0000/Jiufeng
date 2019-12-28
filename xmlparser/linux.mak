@@ -21,6 +21,10 @@ EXTRA_LIBS = -ljf_string -ljf_files -ljf_jiukun
 
 EXTRA_INC_DIR = -I../kinc
 
+ifeq ("$(DEBUG_JIUFENG)", "yes")
+#    EXTRA_CFLAGS += -DDEBUG_XML_DOC
+endif
+
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------

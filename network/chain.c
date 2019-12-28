@@ -87,7 +87,7 @@ u32 jf_network_createChain(jf_network_chain_t ** ppChain)
     u32Ret = jf_jiukun_allocMemory((void **)&pibc, sizeof(internal_basic_chain_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(pibc, 0, sizeof(internal_basic_chain_t));
+        ol_bzero(pibc, sizeof(internal_basic_chain_t));
 
         u32Ret = jf_network_createSocketPair(AF_INET, SOCK_STREAM, pibc->ibc_pjnsWakeup);
     }
@@ -188,8 +188,7 @@ u32 jf_network_startChain(jf_network_chain_t * pChain)
 
     pibc = (internal_basic_chain_t *)pChain;
 
-    /* Use this thread as if it's our own. Keep looping until we are signaled to
-       stop*/
+    /*Use this thread as if it's our own. Keep looping until we are signaled to stop.*/
     while (! pibc->ibc_bToTerminate)
     {
         slct = 0;
@@ -201,7 +200,7 @@ u32 jf_network_startChain(jf_network_chain_t * pChain)
 
         jf_network_setSocketToFdSet(pibc->ibc_pjnsWakeup[0], &readset);
 
-        /*Iterate through all the pre_select function pointers in the chain*/
+        /*Iterate through all the pre_select function pointers in the chain.*/
         pBasicChain = (internal_basic_chain_t *) pibc;
         while ((pBasicChain != NULL) && (pBasicChain->ibc_pbcoObject != NULL))
         {
@@ -210,8 +209,7 @@ u32 jf_network_startChain(jf_network_chain_t * pChain)
             {
                 u32Time = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
                 pjncoh->jncoh_fnPreSelect(
-                    pBasicChain->ibc_pbcoObject, &readset, &writeset, &errorset,
-                    &u32Time);
+                    pBasicChain->ibc_pbcoObject, &readset, &writeset, &errorset, &u32Time);
                 tv.tv_sec = u32Time / 1000;
                 tv.tv_usec = 1000 * (u32Time % 1000);
             }
@@ -228,7 +226,7 @@ u32 jf_network_startChain(jf_network_chain_t * pChain)
 #endif
         if (slct == -1)
         {
-            /*If the select error, clear these sets*/
+            /*If the select error, clear these sets.*/
             FD_ZERO(&readset);
             FD_ZERO(&writeset);
             FD_ZERO(&errorset);
@@ -237,15 +235,14 @@ u32 jf_network_startChain(jf_network_chain_t * pChain)
         {
             if (slct > 0)
             {
-                if (jf_network_isSocketSetInFdSet(
-                        pibc->ibc_pjnsWakeup[0], &readset) != 0)
+                if (jf_network_isSocketSetInFdSet(pibc->ibc_pjnsWakeup[0], &readset) != 0)
                 {
                     _readWakeupSocket(pibc);
                     slct --;
                 }
             }
 
-            /*Iterate through all of the post_select in the chain*/
+            /*Iterate through all of the post_select in the chain.*/
             pBasicChain = pibc;
             while ((pBasicChain != NULL) && (pBasicChain->ibc_pbcoObject != NULL))
             {
@@ -253,13 +250,14 @@ u32 jf_network_startChain(jf_network_chain_t * pChain)
                 if (pjncoh->jncoh_fnPostSelect != NULL)
                 {
                     pjncoh->jncoh_fnPostSelect(
-                        pBasicChain->ibc_pbcoObject, slct, &readset, &writeset,
-                        &errorset);
+                        pBasicChain->ibc_pbcoObject, slct, &readset, &writeset, &errorset);
                 }
                 pBasicChain = pBasicChain->ibc_pibcNext;
             }
         }
     }
+
+    jf_logger_logInfoMsg("exit chain loop");
 
     return u32Ret;
 }
@@ -270,9 +268,7 @@ u32 jf_network_stopChain(jf_network_chain_t * pChain)
     internal_basic_chain_t * pibc = (internal_basic_chain_t *) pChain;
     olsize_t u32Count;
 
-#if defined(DEBUG_CHAIN)
     jf_logger_logInfoMsg("stop chain");
-#endif
 
     u32Count = 1;
     u32Ret = jf_network_send(pibc->ibc_pjnsWakeup[1], "S", &u32Count);
