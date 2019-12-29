@@ -105,7 +105,7 @@ static u32 _fnParseServMsg(jf_ptree_node_t * pNode, void * pArg)
 
     /*Convert the string to integer.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_string_getU32FromString(pstrId + 1, sId - 1, &pMsg->dmc_u32MsgId);
+        u32Ret = jf_string_getU32FromString(pstrId + 1, sId - 2, &pMsg->dmc_u32MsgId);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _validateMsgConfig(ppsm, pMsg);
@@ -141,9 +141,8 @@ static u32 _parseDispatcherMessage(
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-    {
         pdsc->dsc_u16NumOfPublishedMsg = psmArg.psm_u16NumOfMsg;
-    }
+
     /*Parse the subscribed message list.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_SUBSCRIBED_MSG, &pNode);
@@ -158,9 +157,7 @@ static u32 _parseDispatcherMessage(
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-    {
         pdsc->dsc_u16NumOfSubscribedMsg = psmArg.psm_u16NumOfMsg;
-    }
 
     return u32Ret;
 }
@@ -283,7 +280,7 @@ static u32 _parseDispatcherServConfigFile(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        psdcdp->sdcdp_u16NumOfServ ++;
+        psdcdp->sdcdp_u16NumOfServConfig ++;
 
         jf_logger_logInfoMsg(
             "service version: %s, name: %s, msgin: %s, msgout: %s, maxnummsg: %u, maxmsgsize: %u",

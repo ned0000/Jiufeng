@@ -471,7 +471,7 @@ static u32 _fnFindNodeAttribute(jf_linklist_node_t * pNode, void * pArg)
         (ol_memcmp(pipna->ipna_pstrPrefix, pfpnap->fpnap_pstrPrefix, pipna->ipna_sPrefix) != 0))
         return u32Ret;
 
-    if (ol_memcpy(pipna->ipna_pstrName, pfpnap->fpnap_pstrName, pipna->ipna_sName) != 0)
+    if (ol_memcmp(pipna->ipna_pstrName, pfpnap->fpnap_pstrName, pipna->ipna_sName) != 0)
         return u32Ret;
 
     *pfpnap->fpnap_ppjpnaAttr = pipna;

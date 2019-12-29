@@ -76,7 +76,7 @@ typedef struct
     olchar_t * sdcdp_pstrConfigDir;
 
     jf_queue_t * sdcdp_pjqServConfig;
-    u16 sdcdp_u16NumOfServ;
+    u16 sdcdp_u16NumOfServConfig;
     u16 sdcdp_u16Reserved[3];
 
     jf_jiukun_cache_t * sdcdp_pjjcMsgConfig;

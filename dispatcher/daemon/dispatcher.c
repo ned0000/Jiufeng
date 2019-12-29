@@ -52,6 +52,8 @@
 
 #define DISPATCHER_MSG_CACHE   "dispatcher_msg_config"
 
+/** Define the internal dispather data type.
+ */
 typedef struct
 {
     boolean_t id_bInitialized;
@@ -65,16 +67,24 @@ typedef struct
 
     jf_listhead_t id_jlServConfig;
 
-    u16 id_u16NumOfServ;
-    u16 id_u16Reserved[3];
-
-    jf_queue_t id_jqServConfig;
-    
-    jf_jiukun_cache_t * id_pjjcMsgConfig;
-
 } internal_dispatcher_t;
 
+/** The internal dispatcher.
+ */
 static internal_dispatcher_t ls_idDispatcher;
+
+/** The jiukun cache for message config data type.
+ */
+static jf_jiukun_cache_t * ls_pjjcMsgConfig = NULL;
+
+/** Number of service config found in config directory.
+ */
+static u16 ls_u16NumOfServConfig = 0;
+
+/** Service config queue.
+ */
+static jf_queue_t ls_jqServConfig;
+
 
 /* --- private routine section ------------------------------------------------------------------ */
 
@@ -194,10 +204,25 @@ static void _dispatcherSignalHandler(olint_t signal)
     stopDispatcher();
 }
 
-static u32 _fnFreeServConfig(void ** ppData)
+static u32 _fnFreeDispatcherMsgConfig(void ** ppData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
+    jf_jiukun_freeObject(ls_pjjcMsgConfig, (void **)&ppData);
+
+    return u32Ret;
+}
+
+static u32 _fnFreeDispatcherServConfig(void ** pData)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    dispatcher_serv_config_t * pdsc = (dispatcher_serv_config_t *) *pData;
+
+    jf_queue_finiQueueAndData(&pdsc->dsc_jqPublishedMsg, _fnFreeDispatcherMsgConfig);
+
+    jf_queue_finiQueueAndData(&pdsc->dsc_jqSubscribedMsg, _fnFreeDispatcherMsgConfig);
+
+    jf_jiukun_freeMemory(pData);
 
     return u32Ret;
 }
@@ -221,7 +246,7 @@ u32 initDispatcher(dispatcher_param_t * pdp)
 
     pid->id_pstrConfigDir = pdp->dp_pstrConfigDir;
     jf_listhead_init(&pid->id_jlServConfig);
-    jf_queue_init(&pid->id_jqServConfig);
+    jf_queue_init(&ls_jqServConfig);
 
     /*Change the working directory.*/
     jf_file_getDirectoryName(
@@ -236,23 +261,22 @@ u32 initDispatcher(dispatcher_param_t * pdp)
         jjccp.jjccp_sObj = sizeof(dispatcher_msg_config_t);
         JF_FLAG_SET(jjccp.jjccp_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO);
 
-        u32Ret = jf_jiukun_createCache(&pid->id_pjjcMsgConfig, &jjccp);
+        u32Ret = jf_jiukun_createCache(&ls_pjjcMsgConfig, &jjccp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(&sdcdp, sizeof(sdcdp));
         sdcdp.sdcdp_pstrConfigDir = pid->id_pstrConfigDir;
-        sdcdp.sdcdp_pjqServConfig = &pid->id_jqServConfig;
-        sdcdp.sdcdp_pjjcMsgConfig = pid->id_pjjcMsgConfig;
+        sdcdp.sdcdp_pjqServConfig = &ls_jqServConfig;
+        sdcdp.sdcdp_pjjcMsgConfig = ls_pjjcMsgConfig;
 
         u32Ret = scanDispatcherConfigDir(&sdcdp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        pid->id_u16NumOfServ = sdcdp.sdcdp_u16NumOfServ;
-
+        ls_u16NumOfServConfig = sdcdp.sdcdp_u16NumOfServConfig;
 
     }
 
@@ -280,7 +304,10 @@ u32 finiDispatcher(void)
 
     jf_logger_logDebugMsg("fini dispatcher");
 
-    jf_queue_finiQueueAndData(&pid->id_jqServConfig, _fnFreeServConfig);
+    jf_queue_finiQueueAndData(&ls_jqServConfig, _fnFreeDispatcherServConfig);
+
+    if (ls_pjjcMsgConfig != NULL)
+        jf_jiukun_destroyCache(&ls_pjjcMsgConfig);
 
     if (pid->id_pjnaDispatcherAssocket != NULL)
         u32Ret = jf_network_destroyAssocket(&pid->id_pjnaDispatcherAssocket);
