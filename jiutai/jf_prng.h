@@ -1,14 +1,15 @@
 /**
  *  @file jf_prng.h
  *
- *  @brief Header file for pseudo random number generator
+ *  @brief Header file which defines the interface of pseudo random number generator.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_prng library
- *  @note The prng library is thread safe
- *  @note Link with jf_files library
- *  @note The library is written based on openssl rand function
+ *  @note
+ *  -# Routines declared in this file are included in jf_prng library.
+ *  -# The prng library is thread safe.
+ *  -# Link with jf_files library.
+ *  -# The library is written based on openssl rand function.
  */
 
 #ifndef JIUFENG_PRNG_H
@@ -42,13 +43,22 @@
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+/** Initialize the prng library.
+ */
 PRNGAPI u32 PRNGCALL jf_prng_init(void);
 
+/** Finalize the prng library.
+ */
 PRNGAPI u32 PRNGCALL jf_prng_fini(void);
 
+/** Get random data.
+ */
 PRNGAPI u32 PRNGCALL jf_prng_getData(u8 * pu8Data, u32 u32Len);
 
-/** Pseudo-random bytes that are guaranteed to be unique but not unpredictable
+/** Get pseudo random data.
+ *
+ *  @note
+ *  -# Pseudo-random bytes that are guaranteed to be unique but not unpredictable.
  */
 PRNGAPI u32 PRNGCALL jf_prng_getPseudoData(u8 * pu8Data, u32 u32Len);
 

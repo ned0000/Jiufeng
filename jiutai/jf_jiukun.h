@@ -84,14 +84,18 @@ typedef void  jf_jiukun_cache_t;
  */
 typedef enum jf_jiukun_cache_create_flag
 {
-    JF_JIUKUN_CACHE_CREATE_FLAG_DEBUG_FREE = 0, /**<Perform (expensive) checks on
-                                                   free, available when DEBUG_JIUKUN is true.*/
-    JF_JIUKUN_CACHE_CREATE_FLAG_NOREAP,  /**<Never reap from the cache.*/
-    JF_JIUKUN_CACHE_CREATE_FLAG_NOGROW,  /**<Don't grow a cache.*/
-    JF_JIUKUN_CACHE_CREATE_FLAG_RECLAIM_ACCOUNT,/**<Track pages allocated to
-                                                   indicate what is reclaimable later.*/
-    JF_JIUKUN_CACHE_CREATE_FLAG_ZERO,    /**<Zero the allocated object.*/
-    JF_JIUKUN_CACHE_CREATE_FLAG_WAIT,    /**<Wait if memory fails to be allocated.*/
+    /**Perform (expensive) checks on free, available when DEBUG_JIUKUN is true.*/
+    JF_JIUKUN_CACHE_CREATE_FLAG_DEBUG_FREE = 0,
+    /**Never reap from the cache.*/
+    JF_JIUKUN_CACHE_CREATE_FLAG_NOREAP,
+    /**Don't grow a cache.*/
+    JF_JIUKUN_CACHE_CREATE_FLAG_NOGROW,
+    /**Track pages allocated to indicate what is reclaimable later.*/
+    JF_JIUKUN_CACHE_CREATE_FLAG_RECLAIM_ACCOUNT,
+    /**Zero the allocated object.*/
+    JF_JIUKUN_CACHE_CREATE_FLAG_ZERO,
+    /**Wait if memory fails to be allocated.*/
+    JF_JIUKUN_CACHE_CREATE_FLAG_WAIT,
 } jf_jiukun_cache_create_flag_t;
 
 typedef struct
@@ -104,11 +108,12 @@ typedef struct
     u32 jjccp_u32Reserved2[4];
 } jf_jiukun_cache_create_param_t;
 
-/** Flags for allocating jiukun page memory used by jf_jiukun_allocPage.
+/** Flags for allocating jiukun page memory used by jf_jiukun_allocPage().
  */
 typedef enum jf_jiukun_page_alloc_flag
 {
-    JF_JIUKUN_PAGE_ALLOC_FLAG_WAIT = 0, /**<Wait if the page fails to be allocated.*/
+    /**<Wait if the page fails to be allocated.*/
+    JF_JIUKUN_PAGE_ALLOC_FLAG_WAIT = 0,
 } jf_jiukun_page_alloc_flag_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
@@ -117,8 +122,7 @@ JIUKUNAPI u32 JIUKUNCALL jf_jiukun_init(jf_jiukun_init_param_t * pjjip);
 
 JIUKUNAPI u32 JIUKUNCALL jf_jiukun_fini(void);
 
-/** Jiukun page allocator.
- */
+/* Jiukun page allocator. */
 
 /** Get memory from jiukun page allocator.
  */

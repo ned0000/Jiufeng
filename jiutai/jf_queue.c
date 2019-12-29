@@ -1,7 +1,7 @@
 /**
  *  @file jf_queue.c
  *
- *  @brief The implementation file for queue data structure.
+ *  @brief The implementation file for queue data type.
  *
  *  @author Min Zhang
  *  
@@ -58,8 +58,7 @@ void jf_queue_fini(jf_queue_t * pQueue)
     }
 }
 
-void jf_queue_finiQueueAndData(
-    jf_queue_t * pQueue, jf_queue_fnFreeData_t fnFreeData)
+void jf_queue_finiQueueAndData(jf_queue_t * pQueue, jf_queue_fnFreeData_t fnFreeData)
 {
     jf_queue_node_t * pjqn, * temp;
 

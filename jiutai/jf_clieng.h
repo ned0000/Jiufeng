@@ -1,13 +1,12 @@
 /**
  *  @file jf_clieng.h
  *
- *  @brief CLI Engine header file. Define the interfaces and data structures
- *   exposed by the CLI engine
+ *  @brief Header file defines the interface of CLI Engine.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_clieng library
- *  
+ *  @note
+ *  -# Routines declared in this file are included in jf_clieng library.
  */
 
 #ifndef JIUFENG_CLIENG_H
@@ -58,17 +57,17 @@ typedef u32 (* jf_clieng_fnPostExitLoop_t)(void * pMaster);
 
 typedef struct
 {
-    /** Max number of characters for one command */
+    /**Max number of characters for one command.*/
     olsize_t jcip_sMaxCmdLine;
-    /** Number of commands in command history buffer */
+    /**Number of commands in command history buffer.*/
     olsize_t jcip_sCmdHistroyBuf;
-    /** cli name */
+    /**CLI name.*/
     olchar_t jcip_strCliName[JF_CLIENG_MAX_CLI_NAME_LEN];
     jf_clieng_fnPrintGreeting_t jcip_fnPrintGreeting;
     jf_clieng_fnPreEnterLoop_t jcip_fnPreEnterLoop;
     jf_clieng_fnPostExitLoop_t jcip_fnPostExitLoop;
     void * jcip_pMaster;
-    /** New line string. e.g. "\n" or "\r\n" */
+    /**New line string. e.g. "\n" or "\r\n".*/
     olchar_t * jcip_pstrNewLine;
     u32 jcip_u32MaxCmdSet;
     boolean_t jcip_bEnableScriptEngine;
@@ -79,7 +78,7 @@ typedef struct
 
 typedef struct
 {
-    /* the length of cc_pstrCaption must be smaller than cc_u32Length */
+    /*The length of caption must be smaller than the length.*/
     olchar_t * jcc_pstrCaption;
     u32 jcc_u32Len;
 } jf_clieng_caption_t;
@@ -98,13 +97,13 @@ CLIENGAPI u32 CLIENGCALL jf_clieng_init(jf_clieng_init_param_t * pParam);
 
 /** Run CLI engine.
  *
- *  @return the error code
+ *  @return The error code.
  */
 CLIENGAPI u32 CLIENGCALL jf_clieng_run(void);
 
-/** Stop CLI engine
+/** Stop CLI engine.
  *
- *  @return the error code
+ *  @return The error code.
  */
 CLIENGAPI u32 CLIENGCALL jf_clieng_stop(void);
 
@@ -125,7 +124,7 @@ CLIENGAPI u32 CLIENGCALL jf_clieng_outputLine(const olchar_t * fmt, ...);
 
 CLIENGAPI u32 CLIENGCALL jf_clieng_outputRawLine(const olchar_t * line);
 
-/** Output "line" with new line 
+/** Output "line" with new line.
  */
 CLIENGAPI u32 CLIENGCALL jf_clieng_outputRawLine2(const olchar_t * line);
 
@@ -137,9 +136,9 @@ CLIENGAPI u32 CLIENGCALL jf_clieng_setPrompt(const olchar_t * pstrPrompt);
 
 /** Print the banner of the header bar for brief printing.
  *
- *  @param u32Len [in] the desired length of the banner in characters.
+ *  @param u32Len [in] The desired length of the banner in characters.
  *
- *  @return the error code
+ *  @return The error code.
  */
 CLIENGAPI u32 CLIENGCALL jf_clieng_printBanner(u32 u32Len);
 
@@ -147,28 +146,28 @@ CLIENGAPI u32 CLIENGCALL jf_clieng_printBannerShift4(u32 u32Len);
 
 /** Print the devider between two manageable elements for verbose printing.
  *
- *  @return the error code
+ *  @return The error code.
  */
 CLIENGAPI u32 CLIENGCALL jf_clieng_printDivider(void);
 
 CLIENGAPI u32 CLIENGCALL jf_clieng_printDividerShift2(void);
 
-/** Print the hex dump of a data buffer byte by byte
+/** Print the hex dump of a data buffer byte by byte.
  *
- *  @param pu8Buffer [in] the pointer to the data buffer
- *  @param u32Len [in] the length of the data buffer in bytes
+ *  @param pu8Buffer [in] The pointer to the data buffer.
+ *  @param u32Len [in] The length of the data buffer in bytes.
  *
- *  @return the error code
+ *  @return The error code.
  */
 CLIENGAPI u32 CLIENGCALL jf_clieng_printHexDumpInByte(
     u8 * pu8Buffer, u32 u32Len);
 
-/** Print the header bar according to the caption list for brief printing
+/** Print the header bar according to the caption list for brief printing.
  *
- *  @param pjcc [in] the pointer to the caption list
- *  @param u32Count [in] the count of the captions in the caption list
+ *  @param pjcc [in] The pointer to the caption list.
+ *  @param u32Count [in] The count of the captions in the caption list.
  *
- *  @return the error code
+ *  @return The error code.
  */
 CLIENGAPI u32 CLIENGCALL jf_clieng_printHeader(
     const jf_clieng_caption_t * pjcc, u32 u32Count);
@@ -176,33 +175,33 @@ CLIENGAPI u32 CLIENGCALL jf_clieng_printHeader(
 CLIENGAPI u32 CLIENGCALL jf_clieng_printHeaderShift4(
     const jf_clieng_caption_t * pjcc, u32 u32Count);
 
-/** Print one attribute in a line for verbose printing
+/** Print one attribute in a line for verbose printing.
  *
- *  @param pjcc [in] the pointer to the caption of the attribute
- *  @param pstrValue [in] the value of the attribute
+ *  @param pjcc [in] The pointer to the caption of the attribute.
+ *  @param pstrValue [in] The value of the attribute.
  *
- *  @return the error code
+ *  @return The error code.
  */
 CLIENGAPI u32 CLIENGCALL jf_clieng_printOneFullLine(
     const jf_clieng_caption_t * pjcc, const olchar_t * pstrValue);
 
-/** Print two attributes in a line for verbose printing
+/** Print two attributes in a line for verbose printing.
  *
- *  @param pjcc [in] the pointer to the captions of the two attributes
- *  @param pstrLeft [in] the value of the attribute to be printed at the left
- *  @param pstrRight [in] the value of the attribute at the right
+ *  @param pjcc [in] The pointer to the captions of the two attributes.
+ *  @param pstrLeft [in] The value of the attribute to be printed at the left.
+ *  @param pstrRight [in] The value of the attribute at the right.
  *
- *  @return the error code
+ *  @return The error code.
  */
 CLIENGAPI u32 CLIENGCALL jf_clieng_printTwoHalfLine(
     const jf_clieng_caption_t * pjcc, const olchar_t * pstrLeft,
     const olchar_t *pstrRight);
 
-/** Append brief column to the line
+/** Append brief column to the line.
  *
- *  @param pjcc [in] the pointer to the caption of the column
- *  @param pstrLine [in/out] the line to append to
- *  @param pstrColumn [in] the value of the column
+ *  @param pjcc [in] The pointer to the caption of the column.
+ *  @param pstrLine [in/out] The line to append to.
+ *  @param pstrColumn [in] The value of the column.
  */
 CLIENGAPI void CLIENGCALL jf_clieng_appendBriefColumn(
     const jf_clieng_caption_t * pjcc, olchar_t * pstrLine,

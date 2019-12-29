@@ -895,10 +895,16 @@ u32 jf_ptree_findNodeAttribute(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ptree_node_t * pipn = (internal_ptree_node_t *)pNode;
+    olsize_t sPrefix = 0;
+
+    assert(pstrName != NULL);
+
+    /*Prefix string may be NULL.*/
+    if (pstrPrefix != NULL)
+        sPrefix = ol_strlen(pstrPrefix);
 
     u32Ret = _findPtreeNodeAttribute(
-        &pipn->ipn_jlAttribute, pstrPrefix, ol_strlen(pstrPrefix), pstrName, ol_strlen(pstrName),
-        ppAttr);
+        &pipn->ipn_jlAttribute, pstrPrefix, sPrefix, pstrName, ol_strlen(pstrName), ppAttr);
 
     return u32Ret;
 }

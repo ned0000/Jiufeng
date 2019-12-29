@@ -1,12 +1,13 @@
 /**
  *  @file jf_stack.h
  *
- *  @brief The header file defines the interface for the stack.
+ *  @brief The header file defines the stack data type.
  *
  *  @author Min Zhang
  *
  *  @note
  *  -# Routines declared in this file are included in jf_stack object.
+ *  -# The item is first in, last out.
  *  -# Link with jf_jiukun library for memory allocation.
  *  -# This object is not thread safe.
  *  
@@ -42,7 +43,7 @@ typedef void  jf_stack_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/** Init an empty Stack.
+/** Initialize an empty Stack.
  *
  *  @par Example
  *  @code
@@ -56,7 +57,7 @@ typedef void  jf_stack_t;
  */
 void jf_stack_init(jf_stack_t ** ppStack);
 
-/** Push an item onto the stack.
+/** Push an item into the stack.
  *
  *  @param ppStack [in/out] The stack to push to. 
  *  @param pData [in] The data to push onto the stack. 
@@ -76,9 +77,10 @@ u32 jf_stack_push(jf_stack_t ** ppStack, void * pData);
  */
 void * jf_stack_pop(jf_stack_t ** ppStack);
 
-/** Peek at the item on the top of the stack.
+/** Peek the item on the top of the stack.
  *
- *  @note After peek, the item is still in stack.
+ *  @note
+ *  -# After peek, the item is still in stack.
  *
  *  @param ppStack [in/out] The stack to peek from.
  *
@@ -86,7 +88,7 @@ void * jf_stack_pop(jf_stack_t ** ppStack);
  */
 void * jf_stack_peek(jf_stack_t ** ppStack);
 
-/** Clears all the items from the stack.
+/** Clear all the items from the stack.
  *
  *  @param ppStack [in/out] The stack to clear.
  *

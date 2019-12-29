@@ -21,7 +21,7 @@ JIUTAI_SRCS = jf_process.c jf_mutex.c jf_attask.c jf_thread.c jf_sharedmemory.c 
 
 EXTRA_LIBS = -ljf_string -ljf_files -ljf_logger -ljf_ifmgmt -ljf_network -ljf_jiukun -ljf_xmlparser
 
-EXTRA_INC_DIR = -I/usr/include/libxml2 -I../common
+EXTRA_INC_DIR = -I../common
 
 include $(TOPDIR)/mak/lnxexe.mak
 

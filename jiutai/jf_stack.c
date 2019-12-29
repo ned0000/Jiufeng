@@ -1,7 +1,7 @@
 /**
  *  @file jf_stack.c
  *
- *  @brief Implementation file for stack data structure.
+ *  @brief Implementation file for the stack data type.
  *
  *  @author Min Zhang
  *  

@@ -1,12 +1,13 @@
 /**
  *  @file jf_queue.h
  *
- *  @brief The base queue data structure.
+ *  @brief Header file which defines the queue data type.
  *
  *  @author Min Zhang
  *
  *  @note
  *  -# Routines declared in this file are included in jf_queue object.
+ *  -# The item is first in, first out.
  *  -# Link with jf_jiukun library for memory allocation.
  *  -# The object is not thread safe.
  *  
@@ -89,6 +90,9 @@ boolean_t jf_queue_isEmpty(jf_queue_t * pQueue);
 
 /** Add an item to the queue.
  *
+ *  @note
+ *  -# The item is added to the end of the queue.
+ *
  *  @param pQueue [in] The queue to add.
  *  @param data [in] The data to add to the queue.
  *
@@ -98,6 +102,9 @@ u32 jf_queue_enqueue(jf_queue_t * pQueue, void * data);
 
 /** Remove an item from the queue.
  *
+ *  @note
+ *  -# The item is removed from the head of the queue.
+ *
  *  @param pQueue [in] The queue to remove an item from.
  *
  *  @return The queue entry.
@@ -105,6 +112,9 @@ u32 jf_queue_enqueue(jf_queue_t * pQueue, void * data);
 void * jf_queue_dequeue(jf_queue_t * pQueue);
 
 /** Peek an item from the queue.
+ *
+ *  @note
+ *  -# After peek, the item is still in the queue.
  *
  *  @param pQueue [in] The queue to peek an item from.
  *
