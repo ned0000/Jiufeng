@@ -10,6 +10,7 @@
 </serviceInfo>
 <publishedMessage>
   <message id="2000">activity_info</message>
+  <message id="2001">activity_status</message>
 </publishedMessage>
 <subscribedMessage>
   <message id="1000">start_activity</message>

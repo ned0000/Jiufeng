@@ -11,7 +11,7 @@
 
 #---------------------------------------------------------------------------------------------------
 
-SUBDIRS = common
+SUBDIRS = common daemon messaging
 
 include $(TOPDIR)/mak/lnxsubdirs.mak
 
