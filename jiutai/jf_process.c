@@ -355,20 +355,20 @@ boolean_t jf_process_isAlreadyRunning(olchar_t * pstrDaemonName)
     return bRunning;
 }
 
-void jf_process_initId(jf_process_id_t * pProcessId)
+void jf_process_initHandle(jf_process_handle_t * pHandle)
 {
-    ol_memset(pProcessId, 0, sizeof(jf_process_id_t));
+    ol_bzero(pHandle, sizeof(jf_process_handle_t));
 }
 
-boolean_t jf_process_isValidId(jf_process_id_t * pProcessId)
+boolean_t jf_process_isValidHandle(jf_process_handle_t * pHandle)
 {
     boolean_t bRet = FALSE;
 
 #if defined(LINUX)
-    if (pProcessId->jpi_pId > 0)
+    if (pHandle->jpi_pId > 0)
         bRet = TRUE;
 #elif defined(WINDOWS)
-    if (pProcessId->jpi_hProcess != NULL)
+    if (pHandle->jpi_hProcess != NULL)
         bRet = TRUE;
 #endif
 
@@ -376,7 +376,7 @@ boolean_t jf_process_isValidId(jf_process_id_t * pProcessId)
 }
 
 u32 jf_process_create(
-    jf_process_id_t * pProcessId, jf_process_attr_t * pAttr, olchar_t * pstrCommandLine)
+    jf_process_handle_t * pHandle, jf_process_attr_t * pAttr, olchar_t * pstrCommandLine)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
@@ -390,7 +390,7 @@ u32 jf_process_create(
     else if (pid > 0)
     {
         /*Parent process.*/
-        pProcessId->jpi_pId = pid;
+        pHandle->jpi_pId = pid;
     }
     else
     {
@@ -413,24 +413,24 @@ u32 jf_process_create(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        pProcessId->jpi_hProcess = pi.hProcess;
+        pHandle->jpi_hProcess = pi.hProcess;
     }
 #endif
 
     return u32Ret;
 }
 
-u32 jf_process_kill(jf_process_id_t * pProcessId)
+u32 jf_process_kill(jf_process_handle_t * pHandle)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olint_t nRet;
 
-    nRet = kill(pProcessId->jpi_pId, SIGKILL);
+    nRet = kill(pHandle->jpi_pId, SIGKILL);
     if (nRet != 0)
         u32Ret = JF_ERR_FAIL_TERMINATE_PROCESS;
     else
-        jf_process_initId(pProcessId);
+        jf_process_initHandle(pHandle);
 #elif defined(WINDOWS)
     u32Ret = JF_ERR_NOT_IMPLEMENTED;
 #endif
@@ -438,29 +438,29 @@ u32 jf_process_kill(jf_process_id_t * pProcessId)
     return u32Ret;
 }
 
-u32 jf_process_terminate(jf_process_id_t * pProcessId)
+u32 jf_process_terminate(jf_process_handle_t * pHandle)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     olint_t nRet;
 
-    nRet = kill(pProcessId->jpi_pId, SIGTERM);
+    nRet = kill(pHandle->jpi_pId, SIGTERM);
     if (nRet != 0)
         u32Ret = JF_ERR_FAIL_TERMINATE_PROCESS;
     else
-        jf_process_initId(pProcessId);
+        jf_process_initHandle(pHandle);
 #elif defined(WINDOWS)
     boolean_t bRet;
     u32 u32ExitCode = 0;
 
-    bRet = TerminateProcess(pProcessId->jpi_hProcess, u32ExitCode);
+    bRet = TerminateProcess(pHandle->jpi_hProcess, u32ExitCode);
     if (! bRet)
         u32Ret = JF_ERR_FAIL_TERMINATE_PROCESS;
     else
     {
-        CloseHandle(pProcessId->jpi_hProcess);
+        CloseHandle(pHandle->jpi_hProcess);
 
-        jf_process_initId(pProcessId);
+        jf_process_initId(pHandle);
     }
 #endif
 
@@ -468,7 +468,7 @@ u32 jf_process_terminate(jf_process_id_t * pProcessId)
 }
 
 u32 jf_process_waitForChildProcessTermination(
-    jf_process_id_t pidChild[], u32 u32Count, u32 u32BlockTime, u32 * pu32Index, u32 * pu32Reason)
+    jf_process_handle_t pidChild[], u32 u32Count, u32 u32BlockTime, u32 * pu32Index, u32 * pu32Reason)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)

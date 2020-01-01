@@ -40,11 +40,11 @@
 
 #define SERVMGMT_SETTING_SERVICE              SERVMGMT_SETTING_SERVICESETTING ".service"
 
-#define SERVICE_INFO_NAME           "name"
-#define SERVICE_INFO_DESCRIPTION    "description"
-#define SERVICE_INFO_STARTUPTYPE    "startupType"
-#define SERVICE_INFO_CMDPATH        "cmdPath"
-#define SERVICE_INFO_CMDPARAM       "cmdParam"
+#define SERVICE_INFO_NAME                     "name"
+#define SERVICE_INFO_DESCRIPTION              "description"
+#define SERVICE_INFO_STARTUPTYPE              "startupType"
+#define SERVICE_INFO_CMDPATH                  "cmdPath"
+#define SERVICE_INFO_CMDPARAM                 "cmdParam"
 
 /* --- private routine section ------------------------------------------------------------------ */
 

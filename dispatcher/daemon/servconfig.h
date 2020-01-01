@@ -22,9 +22,7 @@
 #include "jf_limit.h"
 #include "jf_messaging.h"
 #include "jf_user.h"
-#include "jf_queue.h"
-#include "jf_hlisthead.h"
-#include "jf_jiukun.h"
+#include "jf_linklist.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
@@ -57,8 +55,8 @@ typedef struct
     u16 dsc_u16NumOfPublishedMsg;
     u16 dsc_u16NumOfSubscribedMsg;
     u16 dsc_u16Reserved[2];
-    jf_queue_t dsc_jqPublishedMsg;
-    jf_queue_t dsc_jqSubscribedMsg;
+    jf_linklist_t dsc_jlPublishedMsg;
+    jf_linklist_t dsc_jlSubscribedMsg;
     
 } dispatcher_serv_config_t;
 
@@ -75,11 +73,9 @@ typedef struct
 {
     olchar_t * sdcdp_pstrConfigDir;
 
-    jf_queue_t * sdcdp_pjqServConfig;
+    jf_linklist_t * sdcdp_pjlServConfig;
     u16 sdcdp_u16NumOfServConfig;
     u16 sdcdp_u16Reserved[3];
-
-    jf_jiukun_cache_t * sdcdp_pjjcMsgConfig;
 
 } scan_dispatcher_config_dir_param_t;
 
@@ -88,6 +84,7 @@ typedef struct
 
 u32 scanDispatcherConfigDir(scan_dispatcher_config_dir_param_t * pParam);
 
+u32 destroyDispatcherServConfigList(jf_linklist_t * pjlServConfig);
 
 #endif /*DISPATCHER_SERV_CONFIG_H*/
 

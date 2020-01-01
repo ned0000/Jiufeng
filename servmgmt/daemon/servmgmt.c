@@ -91,7 +91,7 @@ static u32 _startServMgmtServ(internal_serv_mgmt_t * pism, internal_service_info
 
     jf_logger_logInfoMsg("start serv, %s", strCmdLine);
     
-    u32Ret = jf_process_create(&(pisi->isi_jpiProcessId), NULL, strCmdLine);
+    u32Ret = jf_process_create(&pisi->isi_jphHandle, NULL, strCmdLine);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pisi->isi_u8Status = JF_SERV_STATUS_RUNNING;
@@ -228,7 +228,7 @@ static u32 _stopServMgmtServ(
 
     jf_logger_logInfoMsg("stop serv %s", pisi->isi_pstrName);
 
-    u32Ret = jf_process_terminate(&(pisi->isi_jpiProcessId));
+    u32Ret = jf_process_terminate(&pisi->isi_jphHandle);
     if (u32Ret == JF_ERR_NO_ERROR)
         pisi->isi_u8Status = JF_SERV_STATUS_STOPPED;
 
@@ -268,7 +268,7 @@ static void _dumpServMgmtInfo(internal_service_info_t * pisi)
 }
 
 static u32 _waitForChildProcess(
-    internal_serv_mgmt_t * pism, jf_process_id_t pid[], u32 u32Count, boolean_t * pbRetry)
+    internal_serv_mgmt_t * pism, jf_process_handle_t pid[], u32 u32Count, boolean_t * pbRetry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32ServIndex, u32Index, u32Reason;
@@ -278,8 +278,7 @@ static u32 _waitForChildProcess(
 
     jf_logger_logInfoMsg("wait for child");
 
-    u32Ret = jf_process_waitForChildProcessTermination(
-        pid, u32Count, 0, &u32Index, &u32Reason);
+    u32Ret = jf_process_waitForChildProcessTermination(pid, u32Count, 0, &u32Index, &u32Reason);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_logInfoMsg("wait for child, terminated by %u", u32Reason);
@@ -290,7 +289,7 @@ static u32 _waitForChildProcess(
         {
             pisi = &(pisms->isms_isiService[u32ServIndex]);
 
-            ret = ol_memcmp(&(pid[u32Index]), &pisi->isi_jpiProcessId, sizeof(jf_process_id_t));
+            ret = ol_memcmp(&(pid[u32Index]), &pisi->isi_jphHandle, sizeof(jf_process_handle_t));
             if ((pisi->isi_u8Status == JF_SERV_STATUS_RUNNING) && (ret == 0))
             {
                 _dumpServMgmtInfo(pisi);
@@ -311,7 +310,7 @@ static u32 _handleChildProcess(boolean_t * pbRetry)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_serv_mgmt_t * pism = &ls_ismServMgmt;
     internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
-    jf_process_id_t pid[JF_SERV_MAX_NUM_OF_SERV];
+    jf_process_handle_t pid[JF_SERV_MAX_NUM_OF_SERV];
     u32 u32ServIndex, u32Count;
     internal_service_info_t * pisi = NULL;
 
@@ -325,9 +324,9 @@ static u32 _handleChildProcess(boolean_t * pbRetry)
         pisi = &(pisms->isms_isiService[u32ServIndex]);
 
         if ((pisi->isi_u8Status == JF_SERV_STATUS_RUNNING) &&
-            jf_process_isValidId(&pisi->isi_jpiProcessId))
+            jf_process_isValidHandle(&pisi->isi_jphHandle))
         {
-            ol_memcpy(&pid[u32Count], &pisi->isi_jpiProcessId, sizeof(jf_process_id_t));
+            ol_memcpy(&pid[u32Count], &pisi->isi_jphHandle, sizeof(jf_process_handle_t));
             u32Count ++;
         }
     }

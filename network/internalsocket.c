@@ -65,7 +65,11 @@ static u32 _bindUdsSocket(
 
     nRet = bind(pis->is_isSocket, psa, nAddr);
     if (nRet == -1)
+    {
         u32Ret = JF_ERR_FAIL_BIND_SOCKET;
+
+        jf_logger_logErrMsg(u32Ret, "bind uds socket, %s", pjiLocal->ji_uAddr.ju_strPath);
+    }
 
     return u32Ret;
 }
@@ -273,8 +277,7 @@ u32 createStreamIsocket(
 }
 
 u32 createIsocket(
-    olint_t domain, olint_t type, olint_t protocol,
-    internal_socket_t ** ppIsocket)
+    olint_t domain, olint_t type, olint_t protocol, internal_socket_t ** ppIsocket)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_socket_t * pis = NULL;
@@ -288,6 +291,9 @@ u32 createIsocket(
         if (pis->is_isSocket == INVALID_ISOCKET)
         {
             u32Ret = JF_ERR_FAIL_CREATE_SOCKET;
+            jf_logger_logErrMsg(
+                u32Ret, "create socket, domain: %d, type: %d, protocol: %d",
+                domain, type, protocol);
         }
     }
 

@@ -1,7 +1,7 @@
 /**
  *  @file dispatcher/daemon/main.c
  *
- *  @brief The main file of dispatcher service
+ *  @brief The main file of dispatcher service.
  *
  *  @author Min Zhang
  *
@@ -97,11 +97,22 @@ static u32 _parseDispatcherCmdLineParam(
     return u32Ret;
 }
 
+static void _dispatcherSignalHandler(olint_t signal)
+{
+    ol_printf("get signal %d\n", signal);
+
+    stopDispatcher();
+}
+
 static u32 _initAndStartDispatcher(dispatcher_param_t * pdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = initDispatcher(pdp);
+    u32Ret = jf_process_registerSignalHandlers(_dispatcherSignalHandler);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = initDispatcher(pdp);
+
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = startDispatcher();
 

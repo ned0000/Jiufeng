@@ -32,6 +32,14 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+/** Maximum number of message for service.
+ */
+#define MAX_NUM_OF_SERV_MSG       (100)
+
+/** Maximum service message size.
+ */
+#define MAX_SERV_MSG_SIZE         (128 * 1024)
+
 #define DISPATCHER_CONFIG_FILE_EXT                 ".xml"
 
 #define DISPATCHER_SERV_CONFIG_ROOT                "configuration"
@@ -54,13 +62,21 @@
 #define DISPATCHER_SERV_CONFIG_MESSAGE             "message"
 #define DISPATCHER_SERV_CONFIG_MESSAGE_ID          "id"
 
+/** The name of message config cache.
+ */
+#define DISPATCHER_MSG_CACHE                       "dispatcher_msg_config"
+
 typedef struct
 {
     jf_jiukun_cache_t * psm_pjjcMsgConfig;
-    jf_queue_t * psm_pjqMsg;
+    jf_linklist_t * psm_pjlMsg;
     u16 psm_u16NumOfMsg;
     u16 psm_u16Reserved;
 } parse_serv_msg_t;
+
+/** The jiukun cache for message config data type.
+ */
+static jf_jiukun_cache_t * ls_pjjcMsgConfig = NULL;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
@@ -111,7 +127,7 @@ static u32 _fnParseServMsg(jf_ptree_node_t * pNode, void * pArg)
         u32Ret = _validateMsgConfig(ppsm, pMsg);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_queue_enqueue(ppsm->psm_pjqMsg, pMsg);
+        u32Ret = jf_linklist_appendTo(ppsm->psm_pjlMsg, pMsg);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         ppsm->psm_u16NumOfMsg ++;
@@ -134,8 +150,8 @@ static u32 _parseDispatcherMessage(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(&psmArg, sizeof(psmArg));
-        psmArg.psm_pjjcMsgConfig = psdcdp->sdcdp_pjjcMsgConfig;
-        psmArg.psm_pjqMsg = &pdsc->dsc_jqPublishedMsg;
+        psmArg.psm_pjjcMsgConfig = ls_pjjcMsgConfig;
+        psmArg.psm_pjlMsg = &pdsc->dsc_jlPublishedMsg;
 
         u32Ret = jf_ptree_iterateNode(pNode, _fnParseServMsg, &psmArg);
     }
@@ -150,8 +166,8 @@ static u32 _parseDispatcherMessage(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(&psmArg, sizeof(psmArg));
-        psmArg.psm_pjjcMsgConfig = psdcdp->sdcdp_pjjcMsgConfig;
-        psmArg.psm_pjqMsg = &pdsc->dsc_jqSubscribedMsg;
+        psmArg.psm_pjjcMsgConfig = ls_pjjcMsgConfig;
+        psmArg.psm_pjlMsg = &pdsc->dsc_jlSubscribedMsg;
 
         u32Ret = jf_ptree_iterateNode(pNode, _fnParseServMsg, &psmArg);
     }
@@ -245,6 +261,19 @@ static u32 _getDispatcherServConfigVersion(jf_ptree_t * pPtree, dispatcher_serv_
     return u32Ret;
 }
 
+static u32 _validateDispatcherServConfig(dispatcher_serv_config_t * pdsc)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    if ((pdsc->dsc_u32MaxNumMsg == 0) || (pdsc->dsc_u32MaxNumMsg > MAX_NUM_OF_SERV_MSG))
+        return JF_ERR_INVALID_DISPATCHER_SERV_CONFIG;
+
+    if ((pdsc->dsc_u32MaxMsgSize == 0) || (pdsc->dsc_u32MaxMsgSize > MAX_SERV_MSG_SIZE))
+        return JF_ERR_INVALID_DISPATCHER_SERV_CONFIG;
+
+    return u32Ret;
+}
+
 static u32 _parseDispatcherServConfigFile(
     const olchar_t * pstrFullpath, jf_file_stat_t * pStat,
     scan_dispatcher_config_dir_param_t * psdcdp)
@@ -274,9 +303,13 @@ static u32 _parseDispatcherServConfigFile(
     
     if (pPtree != NULL)
         jf_ptree_destroy(&pPtree);
-    
+
+    /*Validate the config.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_queue_enqueue(psdcdp->sdcdp_pjqServConfig, pdsc);
+        u32Ret = _validateDispatcherServConfig(pdsc);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_linklist_appendTo(psdcdp->sdcdp_pjlServConfig, pdsc);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -304,8 +337,32 @@ static u32 _handleDispatcherConfigDirEntry(
     if (jf_file_isRegFile(pStat->jfs_u32Mode) &&
         jf_file_isTypedFile(pstrFullpath, NULL, DISPATCHER_CONFIG_FILE_EXT))
     {
-        u32Ret = _parseDispatcherServConfigFile(pstrFullpath, pStat, psdcdp);
+        /*Do not return error for one corrupted config file, continue to parse other config file.*/
+        _parseDispatcherServConfigFile(pstrFullpath, pStat, psdcdp);
     }
+
+    return u32Ret;
+}
+
+static u32 _fnFreeDispatcherMsgConfig(void ** ppData)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    jf_jiukun_freeObject(ls_pjjcMsgConfig, (void **)ppData);
+
+    return u32Ret;
+}
+
+static u32 _fnFreeDispatcherServConfig(void ** pData)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    dispatcher_serv_config_t * pdsc = (dispatcher_serv_config_t *) *pData;
+
+    jf_linklist_finiListAndData(&pdsc->dsc_jlPublishedMsg, _fnFreeDispatcherMsgConfig);
+
+    jf_linklist_finiListAndData(&pdsc->dsc_jlSubscribedMsg, _fnFreeDispatcherMsgConfig);
+
+    jf_jiukun_freeMemory(pData);
 
     return u32Ret;
 }
@@ -315,11 +372,32 @@ static u32 _handleDispatcherConfigDirEntry(
 u32 scanDispatcherConfigDir(scan_dispatcher_config_dir_param_t * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_jiukun_cache_create_param_t jjccp;
 
     jf_logger_logInfoMsg("scan dir: %s", pParam->sdcdp_pstrConfigDir);
 
-    u32Ret = jf_dir_parse(
-        pParam->sdcdp_pstrConfigDir, _handleDispatcherConfigDirEntry, (void *)pParam);
+    ol_bzero(&jjccp, sizeof(jjccp));
+    jjccp.jjccp_pstrName = DISPATCHER_MSG_CACHE;
+    jjccp.jjccp_sObj = sizeof(dispatcher_msg_config_t);
+    JF_FLAG_SET(jjccp.jjccp_jfCache, JF_JIUKUN_CACHE_CREATE_FLAG_ZERO);
+
+    u32Ret = jf_jiukun_createCache(&ls_pjjcMsgConfig, &jjccp);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_dir_parse(
+            pParam->sdcdp_pstrConfigDir, _handleDispatcherConfigDirEntry, (void *)pParam);
+
+    return u32Ret;
+}
+
+u32 destroyDispatcherServConfigList(jf_linklist_t * pjlServConfig)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    jf_linklist_finiListAndData(pjlServConfig, _fnFreeDispatcherServConfig);
+
+    if (ls_pjjcMsgConfig != NULL)
+        jf_jiukun_destroyCache(&ls_pjjcMsgConfig);
 
     return u32Ret;
 }

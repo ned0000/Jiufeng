@@ -54,7 +54,7 @@ u32 jf_messaging_init(jf_messaging_init_param_t * pjsip)
 
     jf_logger_logInfoMsg("init messaging");
 
-    jf_ipaddr_setUdsAddr(&pim->im_jiServer, DISPATCHER_SERVER_ADDR);
+    jf_ipaddr_setUdsAddr(&pim->im_jiServer, DISPATCHER_UDS_DIR);
 
     u32Ret = jf_mutex_init(&pim->im_jmLock);
 

@@ -64,6 +64,7 @@ void jf_queue_finiQueueAndData(jf_queue_t * pQueue, jf_queue_fnFreeData_t fnFree
 
 	assert(pQueue != NULL);
 
+    /*Free the item in the queue one by one.*/
 	temp = pQueue->jq_pjqnHead;
     while (temp != NULL)
     {
@@ -74,6 +75,9 @@ void jf_queue_finiQueueAndData(jf_queue_t * pQueue, jf_queue_fnFreeData_t fnFree
         jf_jiukun_freeMemory((void **)&temp);
         temp = pjqn;
     }
+
+    /*Initialize the queue.*/
+    jf_queue_init(pQueue);
 }
 
 boolean_t jf_queue_isEmpty(jf_queue_t * pQueue)

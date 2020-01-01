@@ -479,26 +479,25 @@ void jf_network_clearFdSet(fd_set * set)
     clearIsocketFdSet(set);
 }
 
-u32 jf_network_getSocketOpt(
-    jf_network_socket_t * pSocket, olint_t level, olint_t optname,
-    void * optval, olsize_t * optlen)
+u32 jf_network_getSocketOption(
+    jf_network_socket_t * pSocket, olint_t level, olint_t optname, void * pOptval,
+    olsize_t * psOptval)
 {
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
 
-    return isGetSockOpt(pis, level, optname, optval, optlen);
+    return isGetSockOpt(pis, level, optname, pOptval, psOptval);
 }
 
-u32 jf_network_setSocketOpt(
-    jf_network_socket_t * pSocket, olint_t level, olint_t optname,
-    void * optval, olsize_t optlen)
+u32 jf_network_setSocketOption(
+    jf_network_socket_t * pSocket, olint_t level, olint_t optname, void * pOptval, olsize_t sOptval)
 {
     internal_socket_t * pis = (internal_socket_t *)pSocket;
 
     assert(pSocket != NULL);
 
-    return isSetSockOpt(pis, level, optname, optval, optlen);
+    return isSetSockOpt(pis, level, optname, pOptval, sOptval);
 }
 
 /*------------------------------------------------------------------------------------------------*/

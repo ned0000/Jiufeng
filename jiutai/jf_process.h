@@ -39,7 +39,7 @@ typedef struct
     u8 jpa_u8Reserved[32];
 } jf_process_attr_t;
 
-/** Define the process ID data type.
+/** Define the process handle data type.
  */
 typedef struct
 {
@@ -48,7 +48,7 @@ typedef struct
 #elif defined(WINDOWS)
     HANDLE jpi_hProcess;
 #endif
-} jf_process_id_t;
+} jf_process_handle_t;
 
 /** The callback function to handle signal.
  */
@@ -105,26 +105,26 @@ u32 jf_process_switchToDaemon(void);
  */
 boolean_t jf_process_isAlreadyRunning(olchar_t * pstrDaemonName);
 
-/** Initialize the process ID.
+/** Initialize the process handle.
  */
-void jf_process_initId(jf_process_id_t * pProcessId);
+void jf_process_initHandle(jf_process_handle_t * pProcessId);
 
-/** Check if the process ID is valid or not.
+/** Check if the process handle is valid or not.
  */
-boolean_t jf_process_isValidId(jf_process_id_t * pProcessId);
+boolean_t jf_process_isValidHandle(jf_process_handle_t * pHandle);
 
 /** Create a process.
  */
 u32 jf_process_create(
-    jf_process_id_t * pProcessId, jf_process_attr_t * pAttr, olchar_t * pstrCommandLine);
+    jf_process_handle_t * pHandle, jf_process_attr_t * pAttr, olchar_t * pstrCommandLine);
 
 /** Send SIGKILL to process to kill the process, SIGKILL cannot be caught by process.
  */
-u32 jf_process_kill(jf_process_id_t * pProcessId);
+u32 jf_process_kill(jf_process_handle_t * pHandle);
 
 /** Send SIGTERM to process to terminate the process, SIGKILL can be caught by process.
  */
-u32 jf_process_terminate(jf_process_id_t * pProcessId);
+u32 jf_process_terminate(jf_process_handle_t * pHandle);
 
 /** Wait for child process's termination.
  *
@@ -138,7 +138,7 @@ u32 jf_process_terminate(jf_process_id_t * pProcessId);
  *  @param pu32Reason [out] The termination reason defined as jf_process_termination_reason_t.
  */
 u32 jf_process_waitForChildProcessTermination(
-    jf_process_id_t pidChild[], u32 u32Count, u32 u32BlockTime, u32 * pu32Index, u32 * pu32Reason);
+    jf_process_handle_t pidChild[], u32 u32Count, u32 u32BlockTime, u32 * pu32Index, u32 * pu32Reason);
 
 /** Get current working directory of the process. 
  */

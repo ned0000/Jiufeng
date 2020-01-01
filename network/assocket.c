@@ -386,7 +386,7 @@ u32 jf_network_createAssocket(
         strName[JF_NETWORK_MAX_NAME_LEN - 1] = '\0';
         acp.acp_pstrName = strName;
 
-        /*create our socket pool*/
+        /*Create async socket pool.*/
         for (u32Index = 0; 
              ((u32Index < pjnacp->jnacp_u32MaxConn) && (u32Ret == JF_ERR_NO_ERROR));
              u32Index ++)
@@ -410,9 +410,12 @@ u32 jf_network_createAssocket(
         u32Ret = jf_network_appendToChain(pChain, pia);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        /*Get our listening socket*/
+    {
+        jf_logger_logDebugMsg("create listening socket for assocket %s", pjnacp->jnacp_pstrName);
+        /*Create listening socket.*/
         u32Ret = jf_network_createStreamSocket(
             &pia->ia_jiAddr, &pia->ia_u16PortNumber, &pia->ia_pjnsListenSocket);
+    }
 
     if (u32Ret == JF_ERR_NO_ERROR)
         *ppAssocket = pia;

@@ -18,13 +18,17 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-#define DISPATCHER_SERVER_ADDR  "/tmp/dispatcher_server"
+/** The directory containing the uds socket file.
+ */
+#define DISPATCHER_UDS_DIR  "/tmp/jf_dispatcher"
 
 /* --- data structures -------------------------------------------------------------------------- */
 
 
 
 /* --- functional routines ---------------------------------------------------------------------- */
+
+olsize_t getDispatcherMsgSize(u8 * pu8Msg);
 
 
 

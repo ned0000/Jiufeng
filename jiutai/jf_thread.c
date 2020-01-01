@@ -114,8 +114,8 @@ boolean_t jf_thread_isValidId(jf_thread_id_t * pThreadId)
 }
 
 u32 jf_thread_create(
-    jf_thread_id_t * pThreadId, jf_thread_attr_t * pAttr,
-    jf_thread_fnRoutine_t fnRoutine, void * pArg)
+    jf_thread_id_t * pThreadId, jf_thread_attr_t * pAttr, jf_thread_fnRoutine_t fnRoutine,
+    void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_thread_id_t jti;

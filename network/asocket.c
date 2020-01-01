@@ -65,7 +65,7 @@ typedef struct
 
     jf_listhead_t ia_jlSendData;
 
-    /**Connection is established*/
+    /**Connection is established.*/
     boolean_t ia_bFinConnect;
     u8 ia_u8Reserved2[7];
 
@@ -838,6 +838,30 @@ void setTagOfAsocket(jf_network_asocket_t * pAsocket, void * pTag)
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
     pia->ia_pTag = pTag;
+}
+
+u32 jf_network_getAsocketOption(
+    jf_network_asocket_t * pAsocket, olint_t level, olint_t optname, void * pOptval,
+    olsize_t * psOptval)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
+
+    u32Ret = jf_network_getSocketOption(pia->ia_pjnsSocket, level, optname, pOptval, psOptval);
+
+    return u32Ret;
+}
+
+u32 jf_network_setAsocketOption(
+    jf_network_asocket_t * pAsocket, olint_t level, olint_t optname, void * pOptval,
+    olsize_t sOptval)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
+
+    u32Ret = jf_network_setSocketOption(pia->ia_pjnsSocket, level, optname, pOptval, sOptval);
+
+    return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/

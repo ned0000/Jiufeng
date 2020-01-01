@@ -47,6 +47,15 @@ typedef struct
     u8 jmip_u8Reserved[32];
 } jf_messaging_init_param_t;
 
+/** Define the message priority level.
+ */
+typedef enum
+{
+    JF_MESSAGING_PRIO_LOW = 0,
+    JF_MESSAGING_PRIO_MID,
+    JF_MESSAGING_PRIO_HIGH,
+} jf_messaging_prio_t;
+
 /** Define the messaging header data type.
  */
 typedef struct

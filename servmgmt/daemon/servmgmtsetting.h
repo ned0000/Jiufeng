@@ -50,7 +50,7 @@ typedef struct
     u8 isi_u8RestartCount;
     u8 isi_u8Reserved3[6];
 
-    jf_process_id_t isi_jpiProcessId;
+    jf_process_handle_t isi_jphHandle;
 
 } internal_service_info_t;
 

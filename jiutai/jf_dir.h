@@ -160,6 +160,7 @@ FILESAPI u32 FILESCALL jf_dir_traversal(
  *
  *  @note
  *  -# The function parse the directory, the sub-directory are not parsed.
+ *  -# If the callback function returns error, the parse will stop.
  *
  *  @param pstrDirName [in] The directory name.
  *  @param fnHandleFile [in] The callback function for each entry in directory.
