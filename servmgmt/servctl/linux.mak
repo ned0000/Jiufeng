@@ -1,19 +1,24 @@
 #
-#  @file linux.mak
+#  @file servmgmt/servctl/linux.mak
 #
-#  @brief The Makefile for servmgmt library and daemon
+#  @brief The Makefile for service control utility.
 #
 #  @author Min Zhang
 #
 #  @note
-#
 #  
 
 #---------------------------------------------------------------------------------------------------
 
-SUBDIRS = serv daemon servctl
+EXE = jf_servctl
 
-include $(TOPDIR)/mak/lnxsubdirs.mak
+SOURCES = servctl.c
+
+JIUTAI_SRCS = jf_option.c
+
+EXTRA_LIBS = -ljf_jiukun -ljf_serv -ljf_logger
+
+include $(TOPDIR)/mak/lnxexe.mak
 
 #---------------------------------------------------------------------------------------------------
 

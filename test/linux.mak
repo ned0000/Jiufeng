@@ -22,7 +22,7 @@ PROGRAMS = xmalloc-test hashtree-test listhead-test hlisthead-test              
     prng-test encode-test xmlparser-test rand-test persistency-test                   \
     archive-test user-test httpparser-test network-test linklist-test                 \
     network-test-server network-test-client network-test-client-chain                 \
-    matrix-test webclient-test jf_service sqlite-test hex-test                        \
+    matrix-test webclient-test sqlite-test hex-test                                   \
     utimer-test
 
 SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c hlisthead-test.c                       \
@@ -35,7 +35,7 @@ SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c hlisthead-test.c       
     prng-test.c encode-test.c xmlparser-test.c rand-test.c persistency-test.c                   \
     archive-test.c user-test.c httpparser-test.c network-test.c linklist-test.c                 \
     network-test-server.c network-test-client.c network-test-client-chain.c                     \
-    matrix-test.c webclient-test.c servmgmt-test.c sqlite-test.c hex-test.c                     \
+    matrix-test.c webclient-test.c sqlite-test.c hex-test.c                                     \
     utimer-test.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
@@ -226,10 +226,6 @@ $(BIN_DIR)/network-test-client-chain: network-test-client-chain.o $(JIUTAI_DIR)/
 $(BIN_DIR)/webclient-test: webclient-test.o $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_httpparser \
        -ljf_network -ljf_webclient -ljf_logger -ljf_files -ljf_ifmgmt -ljf_jiukun
-
-$(BIN_DIR)/jf_service: servmgmt-test.o $(JIUTAI_DIR)/jf_option.o
-	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_serv \
-       -ljf_jiukun
 
 $(BIN_DIR)/matrix-test: matrix-test.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_matrix -ljf_logger \

@@ -1,7 +1,7 @@
 /**
- *  @file servmgmt-test.c
+ *  @file servctl.c
  *
- *  @brief test file for servmgmt library
+ *  @brief Utility for service control.
  *
  *  @author Min Zhang
  *
@@ -32,11 +32,11 @@ static boolean_t ls_bStartupType = FALSE;
 static olchar_t * ls_pstrServName = NULL;
 static u8 ls_u8StartupType = JF_SERV_STARTUP_TYPE_UNKNOWN;
 
-static const olchar_t * ls_pstrProgramName = "jf_serv";
+static const olchar_t * ls_pstrProgramName = "jf_servctl";
 static const olchar_t * ls_pstrVersion = "1.0.0";
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+static void _printServCtlUsage(void)
 {
     ol_printf("\
 Usage: %s [-l] [-s] [-t] [-u automatic|manual] [-n service name] [-V] [logger options]\n\
@@ -56,18 +56,19 @@ logger options:\n\
 
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
+static u32 _parseServCtlCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "ln:u:stVOT:F:S:h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "ln:u:stVOT:F:S:h?")) != -1) &&
+           (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printServCtlUsage();
             exit(0);
             break;
         case 'u':
@@ -241,7 +242,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
 
-    u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
+    u32Ret = _parseServCtlCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
