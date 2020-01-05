@@ -1,7 +1,7 @@
 /**
  *  @file webclient/common.h
  *
- *  @brief Header file for common data structure and routines
+ *  @brief Header file for common data structure and routines.
  *
  *  @author Min Zhang
  *

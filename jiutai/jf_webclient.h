@@ -53,9 +53,9 @@ typedef enum jf_webclient_event
  */
 typedef struct
 {
-    /** number of connection in pool */
+    /**Number of connection in pool.*/
     u32 jwcp_u32PoolSize;
-    /** buffer size of the session */
+    /**Buffer size of the session.*/
     olsize_t jwcp_sBuffer;
 } jf_webclient_create_param_t;
 
@@ -67,30 +67,27 @@ typedef u32 (* jf_webclient_fnOnEvent_t)(
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/** Create a new webclient
+/** Create a new webclient.
  *
- *  @param pjnc [in] the chain to add this module to
- *  @param ppWebclient [out] the created web client
- *  @param pjwcp [in] the parameters for creating web client
+ *  @param pjnc [in] The chain to add this module to.
+ *  @param ppWebclient [out] The created web client.
+ *  @param pjwcp [in] The parameters for creating web client.
  *
- *  @return the error code
+ *  @return The error code.
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_create(
     jf_network_chain_t * pjnc, jf_webclient_t ** ppWebclient, jf_webclient_create_param_t * pjwcp);
 
-/** Send a http message in packet format
+/** Send a http message in packet format.
  *
- *  This method differs from pipelineWebRequest, in that this method
- *  allows you to directly specify the buffers, rather than a packet structure
+ *  @param pWebclient [in] The webclient to queue the requests to.
+ *  @param pjiRemote [in] The address of remote server.
+ *  @param u16Port [in] The port of remote server.
+ *  @param pjhph [in] The header of the message.
+ *  @param fnOnEvent [in] Data reception handler.
+ *  @param pUser [in] The user.
  *
- *  @param pWebclient [in] the webclient to queue the requests to
- *  @param pjiRemote [in] the address of remote server
- *  @param u16Port [in] the port of remote server
- *  @param pjhph [in] the header of the message
- *  @param fnOnEvent [in] data reception handler
- *  @param pUser [in] the user
- *
- *  @return the error code
+ *  @return The error code.
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_sendHttpPacket(
     jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port,
@@ -98,40 +95,41 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_sendHttpPacket(
 
 /** Send a http message with header and body
  *
- *  This method differs from pipelineWebRequest, in that this method
- *  allows you to directly specify the buffers, rather than a packet structure
+ *  @note
+ *  -# This method differs from jf_webclient_sendHttpPacket(), it directly specify the buffers,
+ *   rather than a packet structure.
  *
- *  @param pWebclient [in] the webclient to queue the requests to
- *  @param pjiRemote [in] the address of remote server
- *  @param u16Port [in] the port of remote server
- *  @param pstrHeader [in] the buffer containing the headers
- *  @param sHeader [in] the length of the headers
- *  @param pstrBody [in] the buffer containing the HTTP body
- *  @param sBody [in] the length of the buffer
- *  @param fnOnEvent [in] data reception handler
- *  @param pUser [in] the user
+ *  @param pWebclient [in] The webclient to queue the requests to.
+ *  @param pjiRemote [in] The address of remote server.
+ *  @param u16Port [in] The port of remote server.
+ *  @param pstrHeader [in] The buffer containing the headers.
+ *  @param sHeader [in] The length of the headers.
+ *  @param pstrBody [in] The buffer containing the HTTP body.
+ *  @param sBody [in] The length of the buffer.
+ *  @param fnOnEvent [in] Data reception handler.
+ *  @param pUser [in] The user.
  *
- *  @return the error code
+ *  @return The error code.
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_sendHttpHeaderAndBody(
     jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port, olchar_t * pstrHeader,
     olsize_t sHeader, olchar_t * pstrBody, olsize_t sBody,
     jf_webclient_fnOnEvent_t fnOnEvent, void * pUser);
 
-/** Deletes all pending requests to a specific IP/Port combination
+/** Deletes all pending requests to a specific IP/Port combination.
  *
- *  @param pWebclient [in] the web client
- *  @param pjiRemote [in] the address of remote server
- *  @param u16Port [in] the port of remote server
+ *  @param pWebclient [in] The web client.
+ *  @param pjiRemote [in] The address of remote server.
+ *  @param u16Port [in] The port of remote server.
  *
- *  @return the error code
+ *  @return The error code.
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_deleteRequest(
     jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port);
 
-/** Destory webclient object
+/** Destory webclient object.
  *
- *  @param ppWebclient [in/out] the webclient to free
+ *  @param ppWebclient [in/out] The webclient to free.
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_destroy(jf_webclient_t ** ppWebclient);
 

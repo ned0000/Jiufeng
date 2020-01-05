@@ -1,7 +1,7 @@
 /**
  *  @file webclient/common.c
  *
- *  @brief Common routines shared by all other object  
+ *  @brief Common routines shared by all other object.
  *
  *  @author Min Zhang
  *
@@ -18,6 +18,7 @@
 #include "jf_ipaddr.h"
 #include "jf_mutex.h"
 #include "jf_queue.h"
+
 #include "common.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */

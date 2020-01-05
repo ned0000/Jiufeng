@@ -1,7 +1,7 @@
 /**
  *  @file webclientrequest.h
  *
- *  @brief Header file for webclient request
+ *  @brief Header file for webclient request.
  *
  *  @author Min Zhang
  *

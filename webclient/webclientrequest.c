@@ -1,7 +1,7 @@
 /**
  *  @file webclientrequest.c
  *
- *  @brief Webclient request implementation file
+ *  @brief Webclient request implementation file.
  *
  *  @author Min Zhang
  *
@@ -28,6 +28,7 @@
 #include "jf_hashtree.h"
 #include "jf_queue.h"
 #include "jf_datavec.h"
+
 #include "common.h"
 #include "webclientrequest.h"
 

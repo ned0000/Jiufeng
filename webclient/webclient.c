@@ -1,7 +1,7 @@
 /**
  *  @file webclient.c
  *
- *  @brief The webclient library
+ *  @brief The implementation file of webclient library.
  *
  *  @author Min Zhang
  *
@@ -28,17 +28,18 @@
 #include "jf_hashtree.h"
 #include "jf_queue.h"
 #include "jf_datavec.h"
+
 #include "dataobjectpool.h"
 #include "webclientrequest.h"
 #include "common.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/** This initial size of the receive buffer
+/** This initial size of the receive buffer.
  */
 #define WEBCLIENT_INITIAL_BUFFER_SIZE         (2048)
 
-/** Maximum number of data object for the webclient
+/** Maximum number of data object for the webclient.
  */
 #define MAX_WEBCLIENT_DATA_OBJECT             (100)
 
@@ -93,15 +94,15 @@ static boolean_t _isEmptyWebclientRequestQueue(internal_webclient_t * piw)
     return bRet;
 }
 
-/** Pre select handler for chain
+/** Pre select handler for chain.
  *
- *  @param pWebclient [in] the web client object
- *  @param readset [out] the read fd set
- *  @param writeset [out] the write fd set
- *  @param errorset [out] the error fd set
- *  @param pu32BlockTime [out] the block time in millisecond
+ *  @param pWebclient [in] The web client object.
+ *  @param readset [out] The read fd set.
+ *  @param writeset [out] The write fd set.
+ *  @param errorset [out] The error fd set.
+ *  @param pu32BlockTime [out] The block time in millisecond.
  *
- *  @return the error code
+ *  @return The error code.
  */
 static u32 _preWebclientProcess(
     void * pWebclient, fd_set * readset, fd_set * writeset, fd_set * errorset, u32 * pu32BlockTime)
