@@ -45,7 +45,7 @@ static u32 _writeVec(
     jf_datavec_entry_t * entry;
     olint_t index = 0;
 
-    while ((total > 0) && (u32Ret == JF_ERR_NO_ERROR) && (index <= pjdData->jd_u16CurEntry))
+    while ((total > 0) && (u32Ret == JF_ERR_NO_ERROR) && (index <= pjdData->jd_u16NumOfEntry))
     {
         entry = &pjdData->jd_jdeEntry[index ++];
 
@@ -62,7 +62,7 @@ static u32 _writeVec(
         if (size > total)
             size = total;
 
-        u32Ret = jf_filestream_writen(pjf, entry->jde_pu8Buf + vecoffset, size);
+        u32Ret = jf_filestream_writen(pjf, entry->jde_pu8Data + vecoffset, size);
 
         ndata += size;
         total -= size;
@@ -82,22 +82,22 @@ static u32 _readVec(jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t * ps
 
     while ((total > 0) && (! jf_filestream_isEndOfFile(pjf)) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        entry = &pjdData->jd_jdeEntry[pjdData->jd_u16CurEntry];
+        entry = &pjdData->jd_jdeEntry[pjdData->jd_u16NumOfEntry];
 
-        size = entry->jde_sBuf - entry->jde_sOffset;
+        size = entry->jde_sData - entry->jde_sOffset;
         if (size > total)
             size = total;
 
-        u32Ret = jf_filestream_readn(pjf, entry->jde_pu8Buf + entry->jde_sOffset, &size);
+        u32Ret = jf_filestream_readn(pjf, entry->jde_pu8Data + entry->jde_sOffset, &size);
 
         ndata += size;
         total -= size;
 
         entry->jde_sOffset += size;
-        if (entry->jde_sOffset == entry->jde_sBuf)
+        if (entry->jde_sOffset == entry->jde_sData)
         {
-            pjdData->jd_u16CurEntry ++;
-            if (pjdData->jd_u16CurEntry == pjdData->jd_u16MaxEntry)
+            pjdData->jd_u16NumOfEntry ++;
+            if (pjdData->jd_u16NumOfEntry == pjdData->jd_u16MaxEntry)
                 break;
         }
     }

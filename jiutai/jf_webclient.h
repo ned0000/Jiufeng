@@ -1,12 +1,12 @@
 /**
  *  @file jf_webclient.h
  *
- *  @brief web client header file
+ *  @brief Header file defines the interface of web client library.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_webclient library
- *
+ *  @note
+ *  -# Routines declared in this file are included in jf_webclient library.
  */
 
 #ifndef JIUFENG_WEBCLIENT_H
@@ -49,6 +49,8 @@ typedef enum jf_webclient_event
 
 /* --- data structures -------------------------------------------------------------------------- */
 
+/** Parameter for creating webclient.
+ */
 typedef struct
 {
     /** number of connection in pool */
@@ -57,6 +59,8 @@ typedef struct
     olsize_t jwcp_sBuffer;
 } jf_webclient_create_param_t;
 
+/** Callback function for webclient event.
+ */
 typedef u32 (* jf_webclient_fnOnEvent_t)(
     jf_network_asocket_t * pAsocket, jf_webclient_event_t event,
     jf_httpparser_packet_header_t * header, void * pUser);

@@ -132,7 +132,35 @@ static u32 _fnDispatcherQueueServServerMsg(u8 * pu8Msg, olsize_t sMsg)
     return u32Ret;
 }
 
-static JF_THREAD_RETURN_VALUE _dispatherMsgThread(void * pArg)
+static u32 _dispatchMsg(internal_dispatcher_t * pid)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_messaging_msg_t * pMsg = NULL;
+    olsize_t sMsg;
+
+    jf_mutex_acquire(&pid->id_jmMsgLock);
+    pMsg = jf_queue_dequeue(&pid->id_jqMsgQueue);
+    jf_mutex_release(&pid->id_jmMsgLock);
+
+    while ((pMsg != NULL) && (u32Ret == JF_ERR_NO_ERROR))
+    {
+        sMsg = getDispatcherMsgSize((u8 *)pMsg);
+
+        /*Send the message to destination service.*/
+        u32Ret = dispatchMsgToServ((u8 *)pMsg, sMsg);
+
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            jf_mutex_acquire(&pid->id_jmMsgLock);
+            pMsg = jf_queue_dequeue(&pid->id_jqMsgQueue);
+            jf_mutex_release(&pid->id_jmMsgLock);
+        }
+    }
+
+    return u32Ret;
+}
+
+static JF_THREAD_RETURN_VALUE _dispatcherMsgThread(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_t * pid = (internal_dispatcher_t *)pArg;
@@ -145,7 +173,7 @@ static JF_THREAD_RETURN_VALUE _dispatherMsgThread(void * pArg)
         u32Ret = jf_sem_down(&pid->id_jsMsgSem);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-
+            u32Ret = _dispatchMsg(pid);
         }
     }
 
@@ -159,7 +187,7 @@ static u32 _startMsgDispatcherThread(internal_dispatcher_t * pid)
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     /*Start a thread to run the chain.*/
-    u32Ret = jf_thread_create(NULL, NULL, _dispatherMsgThread, pid);
+    u32Ret = jf_thread_create(NULL, NULL, _dispatcherMsgThread, pid);
 
     return u32Ret;
 }
@@ -289,11 +317,12 @@ u32 startDispatcher(void)
     if (! pid->id_bInitialized)
         u32Ret = JF_ERR_NOT_INITIALIZED;
 
-    /*Start the service client.*/
-
-
     /*Start the dispather thread*/
     u32Ret = _startMsgDispatcherThread(pid);
+
+    /*Start the service client.*/
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = startDispatcherServClients();
 
     /*Start the service server.*/
     if (u32Ret == JF_ERR_NO_ERROR)

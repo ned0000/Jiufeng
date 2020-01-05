@@ -275,13 +275,13 @@ static u32 _sendWebclientRequestData(
     jf_datavec_entry_t * entry = NULL;
 
     for (u16Index = 0;
-         (u16Index < piwr->iwr_jdDataVec.jd_u16CurEntry) && (u32Ret == JF_ERR_NO_ERROR);
+         (u16Index < piwr->iwr_jdDataVec.jd_u16NumOfEntry) && (u32Ret == JF_ERR_NO_ERROR);
          ++ u16Index)
     {
         entry = &piwr->iwr_jdDataVec.jd_jdeEntry[u16Index];
 
         u32Ret = jf_network_sendAcsocketData(
-            pAcsocket, pAsocket, entry->jde_pu8Buf, entry->jde_sOffset);
+            pAcsocket, pAsocket, entry->jde_pu8Data, entry->jde_sOffset);
     }
 
     return u32Ret;

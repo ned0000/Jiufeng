@@ -28,6 +28,7 @@
 #include "jf_thread.h"
 #include "jf_jiukun.h"
 #include "jf_listhead.h"
+#include "jf_queue.h"
 
 #include "dispatchercommon.h"
 #include "servconfig.h"
@@ -51,6 +52,14 @@ typedef struct
 
     /**The process id of the service.*/
     pid_t dsc_piServId;
+    /**The queue for message.*/
+    jf_queue_t dsc_jqMsg;
+    /**Number of message.*/
+    u16 dsc_u16NumOfHighPrioMsg;
+    u16 dsc_u16NumOfMidPrioMsg;
+    u16 dsc_u16NumOfLowPrioMsg;
+    u16 dsc_u16Reserved;
+
 } dispatcher_serv_client_t;
 
 /** The chain for service clients. 
@@ -197,6 +206,16 @@ static JF_THREAD_RETURN_VALUE _servClientThread(void * pArg)
     JF_THREAD_RETURN(u32Ret);
 }
 
+static u32 _dispatchMsgToServ(dispatcher_serv_client_t * pdsc, u8 * pu8Msg, olsize_t sMsg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    /*Send the message to service.*/
+//    u32Ret = jf_network_sendAcsocketData(pdsc->dsc_pjnaAcsocket);
+
+    return u32Ret;
+}
+
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 createDispatcherServClients(
@@ -272,6 +291,24 @@ u32 stopDispatcherServClients(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = jf_network_stopChain(ls_pjncServClientChain);
+
+    return u32Ret;
+}
+
+u32 dispatchMsgToServ(u8 * pu8Msg, olsize_t sMsg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_listhead_t * pjl = NULL;
+    dispatcher_serv_client_t * pdsc = NULL;
+
+    jf_logger_logDebugMsg("dispatch msg to serv");
+
+    jf_listhead_forEach(&ls_jlServClientList, pjl)
+    {
+        pdsc = jf_listhead_getEntry(pjl, dispatcher_serv_client_t, dsc_jlServ);
+
+        u32Ret = _dispatchMsgToServ(pdsc, pu8Msg, sMsg);
+    }
 
     return u32Ret;
 }

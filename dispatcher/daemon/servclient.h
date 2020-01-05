@@ -47,6 +47,8 @@ u32 startDispatcherServClients(void);
 
 u32 stopDispatcherServClients(void);
 
+u32 dispatchMsgToServ(u8 * pu8Msg, olsize_t sMsg);
+
 #endif /*JIUFENG_SERVCLIENT_H*/
 
 /*------------------------------------------------------------------------------------------------*/

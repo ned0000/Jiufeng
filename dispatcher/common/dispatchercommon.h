@@ -15,12 +15,15 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_err.h"
+#include "jf_messaging.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
 /** The directory containing the uds socket file.
  */
 #define DISPATCHER_UDS_DIR  "/tmp/jf_dispatcher"
+
+typedef jf_messaging_header_t  jf_messaging_msg_t;
 
 /* --- data structures -------------------------------------------------------------------------- */
 

@@ -1,5 +1,5 @@
 /**
- *  @file errcode.c
+ *  @file utility/errcode.c
  *
  *  @brief The utility for errcode.
  *
@@ -32,7 +32,8 @@ static void _printErrcodeUsage(void)
 {
     ol_printf("\
 Usage: jf_errcode [-c error code] [-h] \n\
-    [-c error code]: print error message for the error code.\n");
+    -c print error message for the error code.\n\
+    -h print the usage.\n");
 
     ol_printf("\n");
 }

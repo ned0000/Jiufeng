@@ -1,5 +1,5 @@
 /**
- *  @file dispatcherserv.c
+ *  @file servserver.c
  *
  *  @brief Implementation file for message server of dispather service.
  *

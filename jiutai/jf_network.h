@@ -241,13 +241,13 @@ typedef struct
     /**The max number of simultaneous connections that will be allowed.*/
     u32 jnacp_u32MaxConn;
     u8 jnacp_u8Reserved[8];
-    /**Function that triggers when a connection is established.*/
+    /**Callback function that triggers when a connection is established.*/
     jf_network_fnAcsocketOnConnect_t jnacp_fnOnConnect;
-    /**Function that triggers when a connection is closed.*/
+    /**Callback function that triggers when a connection is closed.*/
     jf_network_fnAcsocketOnDisconnect_t jnacp_fnOnDisconnect;
-    /**Function that triggers when data is received.*/
+    /**Callback function that triggers when data is received.*/
     jf_network_fnAcsocketOnData_t jnacp_fnOnData;
-    /**Function that triggers when pending sends are complete.*/
+    /**Callback function that triggers when pending sends are complete.*/
     jf_network_fnAcsocketOnSendData_t jnacp_fnOnSendData;
     olchar_t * jnacp_pstrName;
 } jf_network_acsocket_create_param_t;
