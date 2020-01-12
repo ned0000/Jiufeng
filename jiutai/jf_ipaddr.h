@@ -102,19 +102,35 @@ IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_setIpV4AddrToInaddrAny(jf_ipaddr_t * pji);
 
 IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_setIpV6AddrToInaddrAny(jf_ipaddr_t * pji);
 
-/** Get the string of IP address according to the IP address type
+/** Get the string of IP address according to the IP address type.
  *
- *  @note The function does not check the size of the string buffer. Please make sure it is big
+ *  @note
+ *  -# The function does not check the size of the string buffer. Please make sure it is big
  *   enough to avoid memory access violation.
  *
- *  @param pstrIp [in] the string buffer where the IP address string will return
- *  @param pji [out] the ip address
+ *  @param pstrIp [out] The string buffer where the IP address string will return.
+ *  @param pji [in] The ip address.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
- *  @retval JF_ERR_INVALID_IP_ADDR_TYPE invalid address type
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_INVALID_IP_ADDR_TYPE Invalid address type.
  */
 IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getStringIpAddr(olchar_t * pstrIp, const jf_ipaddr_t * pji);
+
+/** Get the string of IP address and port.
+ *
+ *  @note
+ *  -# The function does not check the size of the string buffer. Please make sure it is big
+ *   enough to avoid memory access violation.
+ *
+ *  @param pstrIp [out] The string buffer where the string will return.
+ *  @param pji [in] The ip address.
+ *  @param u16Port [out] The port.
+ *
+ *  @return The length of the string.
+ */
+IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getStringIpAddrPort(
+    olchar_t * pstrIp, const jf_ipaddr_t * pji, const u16 u16Port);
 
 IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getIpAddrFromString(
     const olchar_t * pstrIp, u8 u8AddrType, jf_ipaddr_t * pji);

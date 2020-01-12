@@ -243,10 +243,12 @@ static u32 _webclientDataobjectRetryConnect(void * object)
     else
     {
         /*Lets retry again*/
+        jf_hsm_event_t event;
         jf_logger_logInfoMsg("webclient retry connect, try to connect");
-        u32Ret = jf_network_connectAcsocketTo(
-            piwd->iwd_piwdpPool->iwdp_pjnaAcsocket, &piwd->iwd_jiRemote,
-            piwd->iwd_u16RemotePort, piwd);
+
+        jf_hsm_initEvent(&event, WDE_SEND_DATA, piwd, NULL);
+
+        u32Ret = jf_hsm_processEvent(piwd->iwd_pjhDataobject, &event);
     }
 
     return u32Ret;
@@ -729,7 +731,7 @@ static u32 _webclientDataobjectOnConnect(
     if (u32Status == JF_ERR_NO_ERROR)
     {
         jf_logger_logDebugMsg("webclient dataobject onconnect, connected");
-        piwd->iwd_u32ExponentialBackoff = 0;
+//        piwd->iwd_u32ExponentialBackoff = 0;
         piwd->iwd_pjnaConn = pAsocket;
         jf_network_getLocalInterfaceOfAcsocket(pAcsocket, pAsocket, &piwd->iwd_jiLocal);
 

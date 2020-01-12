@@ -137,7 +137,6 @@ static u32 _validateServServerMsg(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t sBuf = sEndPointer - sBeginPointer;
-//    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)(pu8Buffer + u32Begin);
     olsize_t sMsg = 0;
 
     if (sBuf < sizeof(jf_messaging_header_t))
@@ -146,7 +145,7 @@ static u32 _validateServServerMsg(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*The full message size is header size plus payload size.*/
-        sMsg = getDispatcherMsgSize(pu8Buffer + sBeginPointer);
+        sMsg = getMessagingSize(pu8Buffer + sBeginPointer);
 
         if (sBuf < sMsg)
             u32Ret = JF_ERR_INCOMPLETE_DATA;
@@ -169,20 +168,19 @@ static u32 _processServServerMsg(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t sBegin = *psBeginPointer;
-//    jf_messaging_header_t * pHeader = NULL;
     olsize_t sMsg = 0;
 
     u32Ret = _validateServServerMsg(pu8Buffer, *psBeginPointer, sEndPointer);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Receive full message.*/
-        sMsg = getDispatcherMsgSize(pu8Buffer + sBegin);
+        sMsg = getMessagingSize(pu8Buffer + sBegin);
 
         u32Ret = _isServServerMsgAllowed(pu8Buffer + sBegin, sMsg);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = pdss->dss_fnQueueMsg(pu8Buffer + sBegin, sMsg);
+        pdss->dss_fnQueueMsg(pu8Buffer + sBegin, sMsg);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         *psBeginPointer = sMsg;

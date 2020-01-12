@@ -36,14 +36,36 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
+/** Reserved message id, not used for application.
+ */
+#define JF_MESSAGING_RESERVED_MSG_ID   (0xF0000000)
 
+/** Maximum message size.
+ */
+#define JF_MESSAGING_MAX_MSG_SIZE      (128 * 1024)
 
 /* --- data structures -------------------------------------------------------------------------- */
+
+/** The callback function to process the incoming message.
+ */
+typedef u32 (* jf_messaging_fnProcessMsg_t)(u8 * pu8Msg, olsize_t sMsg);
 
 /** The parameter for initializing messaging library.
  */
 typedef struct
 {
+    /**Callback function to process message.*/
+    jf_messaging_fnProcessMsg_t jmip_fnProcessMsg;
+    /**The address to receive message from.*/
+    olchar_t * jmip_pstrMessagingIn;
+    /**The address to send message to.*/
+    olchar_t * jmip_pstrMessagingOut;
+    /**The name of the application.*/
+    olchar_t * jmip_pstrName;
+    /**Maximum message size.*/
+    olsize_t jmip_sMaxMsg;
+    /**Maximum number of message.*/
+    u32 jmip_u32MaxNumMsg;
     u8 jmip_u8Reserved[32];
 } jf_messaging_init_param_t;
 
@@ -77,17 +99,45 @@ typedef struct
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/** Initializing the messaging library.
+/** Initialize the messaging library.
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_init(jf_messaging_init_param_t * pjrip);
 
-/** Finalizing the messaging library.
+/** Finalize the messaging library.
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_fini(void);
+
+/** Start messaging.
+ */
+MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_start(void);
+
+/** Stop messaging.
+ */
+MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_stop(void);
 
 /** Send message.
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_sendMsg(u8 * pu8Msg, olsize_t sMsg);
+
+/** Initialize message header.
+ *
+ *  @note
+ *  -# The routine will set the source id of the header.
+ */
+MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_initMsgHeader(
+    u8 * pu8Msg, u32 u32MsgId, u8 u8MsgPrio, u32 u32PayloadSize);
+
+/** Get message ID.
+ */
+MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_getMsgId(u8 * pu8Msg, olsize_t sMsg);
+
+/** Set message payload size.
+ */
+MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_setMsgPayloadSize(u8 * pu8Msg, u32 u32PayloadSize);
+
+/** Set message destination ID.
+ */
+MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_setMsgDestinationId(u8 * pu8Msg, pid_t destinationId);
 
 #endif /*JIUFENG_MESSAGING_H*/
 

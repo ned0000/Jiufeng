@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration version="1.0">
+<serviceInfo>
+  <serviceName>sysctld</serviceName>
+  <userName>minz</userName>
+  <messagingIn>sysctld_message_in</messagingIn>
+  <messagingOut>sysctld_message_out</messagingOut>
+  <maxNumMsg>200</maxNumMsg>
+  <maxMsgSize>1024</maxMsgSize>
+</serviceInfo>
+<publishedMessage>
+  <message id="2002">start_activity</message>
+  <message id="2003">stop_activity</message>
+  <message id="3000">system_info</message>
+</publishedMessage>
+<subscribedMessage>
+  <message id="2000">activity_info</message>
+  <message id="2001">activity_status</message>
+</subscribedMessage>
+</configuration>

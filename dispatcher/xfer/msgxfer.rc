@@ -1,0 +1,6 @@
+#define VER_FILEDESCRIPTION_STR "Jiufeng Dispatcher Xfer DLL"
+#define VER_INTERNALNAME_STR "jf_dispatcher_xfer.dll"
+#define VER_ORIGINALFILENAME_STR "jf_dispatcher_xfer.dll"
+#define VER_PRODUCTNAME_STR "Jiufeng Dispatcher Xfer Dynamic Linking Library"
+
+#include "jiutai.rc"

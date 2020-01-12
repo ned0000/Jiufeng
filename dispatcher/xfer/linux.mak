@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The makefile for jiukun library
+#  @brief The makefile for dispatcher xfer library
 #
 #  @author Min Zhang
 #
@@ -10,19 +10,15 @@
 
 #---------------------------------------------------------------------------------------------------
 
-SONAME = jf_jiukun
+SONAME = jf_dispatcher_xfer
 
-SOURCES = buddy.c slab.c jiukun.c
+SOURCES = ../common/dispatchercommon.c xferpool.c dispatcherxfer.c
 
-JIUTAI_SRCS = jf_mem.c jf_mutex.c
+JIUTAI_SRCS = jf_hashtree.c jf_queue.c jf_mutex.c jf_hex.c jf_hsm.c
 
-EXTRA_LIBS = -ljf_logger
+EXTRA_LIBS = -ljf_network -ljf_string -ljf_jiukun -ljf_logger
 
-ifeq ("$(DEBUG_JIUFENG)", "yes")
-EXTRA_CFLAGS += -DDEBUG_JIUKUN
-EXTRA_CFLAGS += -DDEBUG_JIUKUN_STAT
-EXTRA_CFLAGS += -DDEBUG_JIUKUN_VERBOSE
-endif
+EXTRA_INC_DIR = -I../common
 
 include $(TOPDIR)/mak/lnxlib.mak
 

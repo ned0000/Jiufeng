@@ -490,7 +490,7 @@ u32 jf_ipaddr_validateIpAddr(const olchar_t * pstrIp, const u8 u8AddrType)
     return jf_ipaddr_getIpAddrFromString(pstrIp, u8AddrType, &ji);
 }
 
-u32 jf_ipaddr_getStringIpAddr(olchar_t * pstrIpAddr, const jf_ipaddr_t * pji)
+u32 jf_ipaddr_getStringIpAddr(olchar_t * pstrIp, const jf_ipaddr_t * pji)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     struct in_addr inaddr;
@@ -499,10 +499,10 @@ u32 jf_ipaddr_getStringIpAddr(olchar_t * pstrIpAddr, const jf_ipaddr_t * pji)
     {
         inaddr.s_addr = pji->ji_uAddr.ju_nAddr;
 #if defined(LINUX)
-        if (inet_ntop(AF_INET, (void *)&inaddr, pstrIpAddr, 16) == NULL)
+        if (inet_ntop(AF_INET, (void *)&inaddr, pstrIp, 16) == NULL)
             u32Ret = JF_ERR_INVALID_IP;
 #elif defined(WINDOWS)
-        ol_strcpy(pstrIpAddr, inet_ntoa(inaddr));
+        ol_strcpy(pstrIp, inet_ntoa(inaddr));
 #endif
     }
     else if (pji->ji_u8AddrType == JF_IPADDR_TYPE_V6)
@@ -512,12 +512,30 @@ u32 jf_ipaddr_getStringIpAddr(olchar_t * pstrIpAddr, const jf_ipaddr_t * pji)
 #if defined(LINUX)
     else if (pji->ji_u8AddrType == JF_IPADDR_TYPE_UDS)
     {
-        ol_strcpy(pstrIpAddr, pji->ji_uAddr.ju_strPath);
+        ol_strcpy(pstrIp, pji->ji_uAddr.ju_strPath);
     }
 #endif
     else
     {
         u32Ret = JF_ERR_INVALID_IP_ADDR_TYPE;
+    }
+
+    return u32Ret;
+}
+
+u32 jf_ipaddr_getStringIpAddrPort(olchar_t * pstrIp, const jf_ipaddr_t * pji, const u16 u16Port)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t str[16];
+
+    u32Ret = jf_ipaddr_getStringIpAddr(pstrIp, pji);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        if (pji->ji_u8AddrType != JF_IPADDR_TYPE_UDS)
+        {
+            ol_sprintf(str, ":%u", u16Port);
+            ol_strcat(pstrIp, str);
+        }
     }
 
     return u32Ret;

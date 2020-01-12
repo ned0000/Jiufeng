@@ -1,7 +1,7 @@
 /**
  *  @file internalsocket.h
  *
- *  @brief internal socket data structure and routines shared in network library
+ *  @brief Internal socket data structure and routines shared in network library.
  *
  *  @author Min Zhang
  *
@@ -48,8 +48,7 @@ u32 newIsocketWithSocket(internal_socket_t ** ppIsocket, isocket_t sock);
 u32 freeIsocket(internal_socket_t ** ppIsocket);
 
 u32 createIsocket(
-    olint_t domain, olint_t type, olint_t protocol,
-    internal_socket_t ** ppIsocket);
+    olint_t domain, olint_t type, olint_t protocol, internal_socket_t ** ppIsocket);
 
 u32 destroyIsocket(internal_socket_t ** ppIsocket);
 
@@ -74,8 +73,7 @@ u32 createDgramIsocket(
 u32 createStreamIsocket(
     jf_ipaddr_t * pjiLocal, u16 * pu16Port, internal_socket_t ** ppIsocket);
 
-u32 ioctlIsocket(
-    internal_socket_t * pis, olint_t req, void * pArg);
+u32 ioctlIsocket(internal_socket_t * pis, olint_t req, void * pArg);
 
 u32 setIsocketBlock(internal_socket_t * pis);
 
@@ -99,8 +97,7 @@ u32 isSendWithTimeout(
 /** Try to send all data with possible several round, until an error occurs,
  *  the actual sent size is in psSend
  */
-u32 isSendn(
-    internal_socket_t * pis, void * pBuffer, olsize_t * psSend);
+u32 isSendn(internal_socket_t * pis, void * pBuffer, olsize_t * psSend);
 
 /** Try to send all data with possible several round, until an error occurs or
  *  timeout, the actual sent size is in psSend
@@ -111,8 +108,7 @@ u32 isSendnWithTimeout(
 /** Try to recveive all data but only recveive once, the actual received size is
  *  in psRecv
  */
-u32 isRecv(
-    internal_socket_t * pis, void * pBuffer, olsize_t * psRecv);
+u32 isRecv(internal_socket_t * pis, void * pBuffer, olsize_t * psRecv);
 
 /** Try to recveive all data but only recveive once, unless timeout the actual
  *  received size is in psRecv
@@ -127,8 +123,7 @@ u32 isRecvfromWithTimeout(
 /** Try to recveive all data with possible several round, until an error occurs,
  *  the actual recveived size is in psRecv
  */
-u32 isRecvn(internal_socket_t * pis,
-    void * pBuffer, olsize_t * psRecv);
+u32 isRecvn(internal_socket_t * pis, void * pBuffer, olsize_t * psRecv);
 
 /** Try to recveive all data with possible several round, until an error occurs
  *  or timeout, the actual recveived size is in psRecv
@@ -140,56 +135,50 @@ u32 isConnect(
     internal_socket_t * pis, const jf_ipaddr_t * pji, u16 u16Port);
 
 u32 isConnectWithTimeout(
-    internal_socket_t * pis, const jf_ipaddr_t * pji, u16 u16Port,
-    u32 u32Timeout);
+    internal_socket_t * pis, const jf_ipaddr_t * pji, u16 u16Port, u32 u32Timeout);
 
 u32 isListen(internal_socket_t * pis, olint_t backlog);
 
 u32 isAccept(
-    internal_socket_t * pisListen, jf_ipaddr_t * pji,
-    u16 * pu16Port, internal_socket_t ** ppIsocket);
+    internal_socket_t * pisListen, jf_ipaddr_t * pji, u16 * pu16Port,
+    internal_socket_t ** ppIsocket);
 
 u32 isSendto(
-    internal_socket_t * pis, void * pBuffer,
-    olsize_t * psSend, const jf_ipaddr_t * pjiTo, u16 u16Port);
+    internal_socket_t * pis, void * pBuffer, olsize_t * psSend, const jf_ipaddr_t * pjiTo,
+    u16 u16Port);
 
 u32 isRecvfrom(
-    internal_socket_t * pis, void * pBuffer,
-    olsize_t * psRecv, jf_ipaddr_t * pjiTo, u16 * pu16Port);
+    internal_socket_t * pis, void * pBuffer, olsize_t * psRecv, jf_ipaddr_t * pjiTo,
+    u16 * pu16Port);
 
 u32 isSelect(
-    fd_set * readfds, fd_set * writefds,
-    fd_set * exceptfds, struct timeval * timeout, u32 * pu32Ready);
+    fd_set * readfds, fd_set * writefds, fd_set * exceptfds, struct timeval * timeout,
+    u32 * pu32Ready);
 
 u32 getIsocketName(
     internal_socket_t * pis, struct sockaddr * pName, olint_t * pnNameLen);
 
-void clearIsocketFromFdSet(
-    internal_socket_t * pis, fd_set * set);
+void clearIsocketFromFdSet(internal_socket_t * pis, fd_set * set);
 
-boolean_t isIsocketSetInFdSet(
-    internal_socket_t * pis, fd_set * set);
+boolean_t isIsocketSetInFdSet(internal_socket_t * pis, fd_set * set);
 
 void setIsocketToFdSet(internal_socket_t * pis, fd_set * set);
 
 void clearIsocketFdSet(fd_set * set);
 
 u32 isGetSockOpt(
-    internal_socket_t * pis, olint_t level, olint_t optname,
-    void * optval, olsize_t * optlen);
+    internal_socket_t * pis, olint_t level, olint_t optname, void * optval, olsize_t * optlen);
 
 u32 isSetSockOpt(
-    internal_socket_t * pis, olint_t level, olint_t optname,
-    void * optval, olsize_t optlen);
+    internal_socket_t * pis, olint_t level, olint_t optname, void * optval, olsize_t optlen);
 
 #if defined(WINDOWS)
 /** For internal use and Windows platform only, a wrapper to WSAIoctl
  */
 u32 WSAIoctlIsocket(
-    internal_socket_t * pis, DWORD dwIoControlCode,
-    LPVOID lpvInBuffer, DWORD cbInBuffer, LPVOID lpvOutBuffer,
-    DWORD cbOutBuffer, LPDWORD lpcbBytesReturned, LPWSAOVERLAPPED lpOverlapped,
-    LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
+    internal_socket_t * pis, DWORD dwIoControlCode, LPVOID lpvInBuffer, DWORD cbInBuffer,
+    LPVOID lpvOutBuffer, DWORD cbOutBuffer, LPDWORD lpcbBytesReturned,
+    LPWSAOVERLAPPED lpOverlapped, LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine);
 #endif
 
 #endif /*NETWORK_INTERNALSOCKET_H*/

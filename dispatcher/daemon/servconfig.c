@@ -32,13 +32,13 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/** Maximum number of message for service.
+/** Maximum number of message in message queue for service.
  */
-#define MAX_NUM_OF_SERV_MSG       (100)
+#define MAX_NUM_OF_SERV_MSG                        (500)
 
 /** Maximum service message size.
  */
-#define MAX_SERV_MSG_SIZE         (128 * 1024)
+#define MAX_SERV_MSG_SIZE                          (128 * 1024)
 
 #define DISPATCHER_CONFIG_FILE_EXT                 ".xml"
 
@@ -282,6 +282,8 @@ static u32 _parseDispatcherServConfigFile(
     jf_ptree_t * pPtree = NULL;
     dispatcher_serv_config_t * pdsc = NULL;
 
+    jf_logger_logDebugMsg("parse config file: %s", pstrFullpath);
+
     /*Parse the config XML file and build the property tree.*/
     u32Ret = jf_xmlparser_parseXmlFile(pstrFullpath, &pPtree);
 
@@ -308,6 +310,7 @@ static u32 _parseDispatcherServConfigFile(
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _validateDispatcherServConfig(pdsc);
 
+    /*Add the config to list.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_linklist_appendTo(psdcdp->sdcdp_pjlServConfig, pdsc);
 
@@ -322,6 +325,7 @@ static u32 _parseDispatcherServConfigFile(
     }
     else if (pdsc != NULL)
     {
+        jf_logger_logErrMsg(u32Ret, "parse dispatcher config file");
         jf_jiukun_freeMemory((void **)&pdsc);
     }
 

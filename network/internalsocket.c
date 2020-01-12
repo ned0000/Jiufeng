@@ -41,11 +41,12 @@
 #include "internalsocket.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
-/** The minimal port number from that the allocation will be
+
+/** The minimal port number from that the allocation will be.
  */
 #define  NET_MIN_PORT_NUMBER          (50000)
 
-/** The port number range for the allocation
+/** The port number range for the allocation.
  */
 #define  NET_PORT_NUMBER_RANGE        (15000)
 
@@ -114,6 +115,7 @@ static u32 _bindIpSocket(
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
+
 u32 newIsocket(internal_socket_t ** ppIsocket)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -183,14 +185,13 @@ u32 freeIsocket(internal_socket_t ** ppIsocket)
     return u32Ret;
 }
 
-/** Allocates a UDP socket for a given interface, choosing a random port number
- *  from 55000 to 65000
+/** Allocates a UDP socket for a given interface, choosing a random port number from 55000 to 65000.
  *
- *  @param pjiLocal [in] the interface to bind to 
- *  @param pu16Port [in/out] the port number to bind to
- *  @param ppIsocket [out] the created UDP socket 
+ *  @param pjiLocal [in] The interface to bind to.
+ *  @param pu16Port [in/out] The port number to bind to.
+ *  @param ppIsocket [out] The created UDP socket.
  *
- *  @return the error code
+ *  @return The error code.
  */
 u32 createDgramIsocket(
     jf_ipaddr_t * pjiLocal, u16 * pu16Port, internal_socket_t ** ppIsocket)
@@ -478,8 +479,7 @@ u32 isSend(internal_socket_t * pis, void * pBuffer, olsize_t * psSend)
  *  is in psSend
  */
 u32 isSendWithTimeout(
-    internal_socket_t * pis, void * pBuffer, olsize_t * psSend,
-    u32 u32Timeout)
+    internal_socket_t * pis, void * pBuffer, olsize_t * psSend, u32 u32Timeout)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t sSent = 0;
@@ -542,11 +542,11 @@ u32 isSendn(internal_socket_t * pis, void * pBuffer, olsize_t * psSend)
     return u32Ret;
 }
 
-/** Try to send all data with possible several round, until an error occurs or
- *  timeout, the actual sent size is in psSend
+/** Try to send all data with possible several round, until an error occurs or timeout, the actual
+ *  sent size is in psSend.
  */
-u32 isSendnWithTimeout(internal_socket_t * pis, void * pBuffer,
-    olsize_t * psSend, u32 u32Timeout)
+u32 isSendnWithTimeout(
+    internal_socket_t * pis, void * pBuffer, olsize_t * psSend, u32 u32Timeout)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t sSent = 0, sent;
@@ -603,8 +603,7 @@ u32 isSendnWithTimeout(internal_socket_t * pis, void * pBuffer,
     return u32Ret;
 }
 
-/** Try to recveive all data but only recveive once, the actual received size is
- *  in psRecv
+/** Try to recveive all data but only recveive once, the actual received size is in psRecv.
  */
 u32 isRecv(internal_socket_t * pis, void * pBuffer, olsize_t * psRecv)
 {
@@ -632,8 +631,8 @@ u32 isRecv(internal_socket_t * pis, void * pBuffer, olsize_t * psRecv)
     return u32Ret;
 }
 
-/** Try to recveive all data but only recveive once, unless timeout the actual
- *  received size is in psRecv
+/** Try to recveive all data but only recveive once, unless timeout the actual received size is in
+ *  psRecv.
  */
 u32 isRecvWithTimeout(
     internal_socket_t * pis, void * pBuffer, olsize_t * psRecv, u32 u32Timeout)
@@ -674,8 +673,8 @@ u32 isRecvWithTimeout(
     return u32Ret;
 }
 
-/** Try to recveive all data but only recveive once, unless timeout the actual
- *  received size is in psRecv
+/** Try to recveive all data but only recveive once, unless timeout the actual received size is
+ *  in psRecv.
  */
 u32 isRecvfromWithTimeout(
     internal_socket_t * pis, void * pBuffer, olsize_t * psRecv,
@@ -717,8 +716,8 @@ u32 isRecvfromWithTimeout(
     return u32Ret;
 }
 
-/** Try to recveive all data with possible several round, until an error occurs,
- *  the actual recveived size is in psRecv
+/** Try to recveive all data with possible several round, until an error occurs, the actual
+ *  recveived size is in psRecv.
  */
 u32 isRecvn(internal_socket_t * pis, void * pBuffer, olsize_t * psRecv)
 {
@@ -744,8 +743,8 @@ u32 isRecvn(internal_socket_t * pis, void * pBuffer, olsize_t * psRecv)
     return u32Ret;
 }
 
-/** Try to recveive all data with possible several round, until an error occurs
- *  or timeout, the actual recveived size is in psRecv
+/** Try to recveive all data with possible several round, until an error occurs or timeout, the
+ *  actual recveived size is in psRecv.
  */
 u32 isRecvnWithTimeout(
     internal_socket_t * pis, void * pBuffer, olsize_t * psRecv, u32 u32Timeout)
@@ -852,8 +851,7 @@ u32 isConnect(internal_socket_t * pis, const jf_ipaddr_t * pji, u16 u16Port)
 }
 
 u32 isConnectWithTimeout(
-    internal_socket_t * pis, const jf_ipaddr_t * pji,
-    u16 u16Port, u32 u32Timeout)
+    internal_socket_t * pis, const jf_ipaddr_t * pji, u16 u16Port, u32 u32Timeout)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     boolean_t bConnect = FALSE;
@@ -946,8 +944,8 @@ u32 isAccept(
 }
 
 u32 isSendto(
-    internal_socket_t * pis, void * pBuffer, olsize_t * psSend,
-    const jf_ipaddr_t * pjiTo, u16 u16Port)
+    internal_socket_t * pis, void * pBuffer, olsize_t * psSend, const jf_ipaddr_t * pjiTo,
+    u16 u16Port)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u8 u8Addr[100];
@@ -978,8 +976,8 @@ u32 isSendto(
 }
 
 u32 isRecvfrom(
-    internal_socket_t * pis, void * pBuffer, olsize_t * psRecv,
-    jf_ipaddr_t * pjiFrom, u16 * pu16Port)
+    internal_socket_t * pis, void * pBuffer, olsize_t * psRecv, jf_ipaddr_t * pjiFrom,
+    u16 * pu16Port)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u8 u8Addr[100];
@@ -1010,8 +1008,8 @@ u32 isRecvfrom(
 }
 
 u32 isSelect(
-    fd_set * readfds, fd_set * writefds, fd_set * exceptfds,
-    struct timeval * timeout, u32 * pu32Ready)
+    fd_set * readfds, fd_set * writefds, fd_set * exceptfds, struct timeval * timeout,
+    u32 * pu32Ready)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t slct;
@@ -1053,10 +1051,9 @@ u32 getIsocketName(
 
 #if defined(WINDOWS)
 u32 WSAIoctlIsocket(
-    internal_socket_t * pis, DWORD dwIoControlCode,
-    LPVOID lpvInBuffer, DWORD cbInBuffer, LPVOID lpvOutBuffer,
-    DWORD cbOutBuffer, LPDWORD lpcbBytesReturned, LPWSAOVERLAPPED lpOverlapped,
-    LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine)
+    internal_socket_t * pis, DWORD dwIoControlCode, LPVOID lpvInBuffer, DWORD cbInBuffer,
+    LPVOID lpvOutBuffer, DWORD cbOutBuffer, LPDWORD lpcbBytesReturned,
+    LPWSAOVERLAPPED lpOverlapped, LPWSAOVERLAPPED_COMPLETION_ROUTINE lpCompletionRoutine)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t bRet;
@@ -1104,8 +1101,7 @@ void clearIsocketFdSet(fd_set * set)
 }
 
 u32 isGetSockOpt(
-    internal_socket_t * pis, olint_t level, olint_t optname,
-    void * optval, olsize_t * optlen)
+    internal_socket_t * pis, olint_t level, olint_t optname, void * optval, olsize_t * optlen)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nRet = -1;
@@ -1121,8 +1117,7 @@ u32 isGetSockOpt(
 }
 
 u32 isSetSockOpt(
-    internal_socket_t * pis, olint_t level, olint_t optname,
-    void * optval, olsize_t optlen)
+    internal_socket_t * pis, olint_t level, olint_t optname, void * optval, olsize_t optlen)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nRet = -1;

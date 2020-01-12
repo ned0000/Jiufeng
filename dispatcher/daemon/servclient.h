@@ -19,6 +19,8 @@
 #include "jf_err.h"
 #include "jf_linklist.h"
 
+#include "dispatchercommon.h"
+
 /* --- constant definitions --------------------------------------------------------------------- */
 
 
@@ -47,7 +49,7 @@ u32 startDispatcherServClients(void);
 
 u32 stopDispatcherServClients(void);
 
-u32 dispatchMsgToServ(u8 * pu8Msg, olsize_t sMsg);
+u32 dispatchMsgToServ(dispatcher_msg_t * pdm);
 
 #endif /*JIUFENG_SERVCLIENT_H*/
 

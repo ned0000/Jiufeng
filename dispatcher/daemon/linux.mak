@@ -17,9 +17,10 @@ SOURCES = ../common/dispatchercommon.c servconfig.c servclient.c servserver.c di
 JIUTAI_SRCS = jf_process.c jf_mutex.c jf_thread.c jf_user.c jf_queue.c jf_ptree.c jf_linklist.c \
     jf_hashtree.c jf_stack.c jf_option.c jf_sem.c
 
-EXTRA_LIBS = -ljf_string -ljf_files -ljf_logger -ljf_ifmgmt -ljf_network -ljf_jiukun -ljf_xmlparser
+EXTRA_LIBS = -ljf_string -ljf_files -ljf_logger -ljf_ifmgmt -ljf_network -ljf_jiukun \
+    -ljf_xmlparser -ljf_dispatcher_xfer
 
-EXTRA_INC_DIR = -I../common
+EXTRA_INC_DIR = -I../common -I../xfer
 
 EXTRA_CFLAGS = -D_GNU_SOURCE
 

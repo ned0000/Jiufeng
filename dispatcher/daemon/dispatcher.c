@@ -30,7 +30,6 @@
 #include "jf_ipaddr.h"
 #include "jf_thread.h"
 #include "jf_jiukun.h"
-#include "jf_dir.h"
 #include "jf_sem.h"
 #include "jf_mutex.h"
 #include "jf_queue.h"
@@ -99,30 +98,18 @@ static jf_linklist_t ls_jlServConfig;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _createUdsDir(const olchar_t * pstrDir)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-
-    u32Ret = jf_dir_create(pstrDir, JF_DIR_DEFAULT_CREATE_MODE);
-    if (u32Ret == JF_ERR_DIR_ALREADY_EXIST)
-        /*It's ok if the directory is already existing.*/
-        u32Ret = JF_ERR_NO_ERROR;
-
-    return u32Ret;
-}
-
 static u32 _fnDispatcherQueueServServerMsg(u8 * pu8Msg, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_t * pid = &ls_idDispatcher;
-    u8 * pu8CloneMsg = NULL;
+    dispatcher_msg_t * pdm = NULL;
 
-    u32Ret = jf_jiukun_cloneMemory((void **)&pu8CloneMsg, pu8Msg, sMsg);
+    u32Ret = createDispatcherMsg(&pdm, pu8Msg, sMsg);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_mutex_acquire(&pid->id_jmMsgLock);
-        u32Ret = jf_queue_enqueue(&pid->id_jqMsgQueue, pu8Msg);
+        u32Ret = jf_queue_enqueue(&pid->id_jqMsgQueue, pdm);
         jf_mutex_release(&pid->id_jmMsgLock);
     }
 
@@ -135,24 +122,21 @@ static u32 _fnDispatcherQueueServServerMsg(u8 * pu8Msg, olsize_t sMsg)
 static u32 _dispatchMsg(internal_dispatcher_t * pid)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_messaging_msg_t * pMsg = NULL;
-    olsize_t sMsg;
+    dispatcher_msg_t * pdm = NULL;
 
     jf_mutex_acquire(&pid->id_jmMsgLock);
-    pMsg = jf_queue_dequeue(&pid->id_jqMsgQueue);
+    pdm = jf_queue_dequeue(&pid->id_jqMsgQueue);
     jf_mutex_release(&pid->id_jmMsgLock);
 
-    while ((pMsg != NULL) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((pdm != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        sMsg = getDispatcherMsgSize((u8 *)pMsg);
-
         /*Send the message to destination service.*/
-        u32Ret = dispatchMsgToServ((u8 *)pMsg, sMsg);
+        u32Ret = dispatchMsgToServ(pdm);
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             jf_mutex_acquire(&pid->id_jmMsgLock);
-            pMsg = jf_queue_dequeue(&pid->id_jqMsgQueue);
+            pdm = jf_queue_dequeue(&pid->id_jqMsgQueue);
             jf_mutex_release(&pid->id_jmMsgLock);
         }
     }
@@ -234,6 +218,7 @@ u32 initDispatcher(dispatcher_param_t * pdp)
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_sem_init(&pid->id_jsMsgSem, 0, MAX_CONCURRENT_DISPATCHER_MSG);
 
+    /*Scan the config directory and parse the config file.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(&sdcdp, sizeof(sdcdp));
@@ -248,9 +233,11 @@ u32 initDispatcher(dispatcher_param_t * pdp)
         ls_u16NumOfServConfig = sdcdp.sdcdp_u16NumOfServConfig;
     }
 
+    /*Create the directory for unix domain socket.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = _createUdsDir(DISPATCHER_UDS_DIR);
+        u32Ret = createUdsDir();
 
+    /*Create the service clients.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         create_dispatcher_serv_client_param_t cdscp;
@@ -262,6 +249,7 @@ u32 initDispatcher(dispatcher_param_t * pdp)
         u32Ret = createDispatcherServClients(&ls_jlServConfig, &cdscp);
     }
 
+    /*Create the service servers.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         create_dispatcher_serv_server_param_t cdssp;
@@ -291,9 +279,9 @@ u32 finiDispatcher(void)
 
     destroyDispatcherServServers();
 
-    destroyDispatcherServConfigList(&ls_jlServConfig);
+    destroyDispatcherServClients();
 
-    pid->id_bInitialized = FALSE;
+    destroyDispatcherServConfigList(&ls_jlServConfig);
 
     jf_time_sleep(3);
 
@@ -303,6 +291,7 @@ u32 finiDispatcher(void)
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_sem_fini(&pid->id_jsMsgSem);
 
+    pid->id_bInitialized = FALSE;
 
     return u32Ret;
 }

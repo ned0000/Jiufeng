@@ -23,7 +23,7 @@ PROGRAMS = xmalloc-test hashtree-test listhead-test hlisthead-test              
     archive-test user-test httpparser-test network-test linklist-test                 \
     network-test-server network-test-client network-test-client-chain                 \
     matrix-test webclient-test sqlite-test hex-test                                   \
-    utimer-test
+    utimer-test dispatcher-test-bgad
 
 SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c hlisthead-test.c                       \
     listarray-test.c logger-test.c process-test.c hashtable-test.c mutex-test.c                 \
@@ -36,7 +36,7 @@ SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c hlisthead-test.c       
     archive-test.c user-test.c httpparser-test.c network-test.c linklist-test.c                 \
     network-test-server.c network-test-client.c network-test-client-chain.c                     \
     matrix-test.c webclient-test.c sqlite-test.c hex-test.c                                     \
-    utimer-test.c
+    utimer-test.c dispatcher-test-bgad.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -196,6 +196,11 @@ $(BIN_DIR)/xmlparser-test: xmlparser-test.o $(JIUTAI_DIR)/jf_option.o $(JIUTAI_D
 
 $(BIN_DIR)/httpparser-test: httpparser-test.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -lm -ljf_httpparser \
+       -ljf_logger -ljf_jiukun
+
+$(BIN_DIR)/dispatcher-test-bgad: dispatcher-test-bgad.o $(JIUTAI_DIR)/jf_option.o \
+       $(JIUTAI_DIR)/jf_time.o $(JIUTAI_DIR)/jf_process.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -lm -ljf_messaging \
        -ljf_logger -ljf_jiukun
 
 $(BIN_DIR)/network-test: network-test.o $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_thread.o
