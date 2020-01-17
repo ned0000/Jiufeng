@@ -320,6 +320,7 @@ u32 jf_network_createAssocket(
            (pjnacp->jnacp_u32MaxConn <= ASS_MAX_CONNECTIONS));
     assert((pjnacp->jnacp_fnOnConnect != NULL) && (pjnacp->jnacp_fnOnDisconnect != NULL) &&
            (pjnacp->jnacp_fnOnData != NULL));
+    assert(pjnacp->jnacp_pstrName != NULL);
 
     jf_logger_logInfoMsg(
         "create assocket %s, max conn %u", pjnacp->jnacp_pstrName, pjnacp->jnacp_u32MaxConn);

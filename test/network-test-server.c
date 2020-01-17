@@ -193,6 +193,7 @@ JF_THREAD_RETURN_VALUE _networkTestServerThread(void * pArg)
         jnacp.jnacp_fnOnDisconnect = _onNtsDisconnect;
         jnacp.jnacp_fnOnSendData = _onNtsSendData;
         jnacp.jnacp_fnOnData = _onNtsData;
+        jnacp.jnacp_pstrName = NETWORK_TEST_SERVER;
 
         u32Ret = jf_network_createAssocket(ls_pjncNtsChain, &pjnaNtsAssocket, &jnacp);
     }
@@ -223,7 +224,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = NETWORK_TEST_SERVER;
     jlipParam.jlip_bLogToStdout = TRUE;
-    jlipParam.jlip_u8TraceLevel = 3;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DEBUG;
 
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
@@ -235,6 +236,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
+        JF_LOGGER_DEBUG("%s starts", NETWORK_TEST_SERVER);
 
         u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == JF_ERR_NO_ERROR)

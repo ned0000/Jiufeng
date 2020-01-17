@@ -174,7 +174,7 @@ static u32 _destroyDispatcherXferObject(internal_dispatcher_xfer_object_t ** ppO
     olchar_t str[128];
 
     jf_ipaddr_getStringIpAddrPort(str, &pidxop->idxop_jiRemote, pidxop->idxop_u16RemotePort);
-    jf_logger_logDebugMsg("destroy dispatcher xfer msg obj");
+    JF_LOGGER_DEBUG("destroy xfer obj");
 
     assert(pidxo->idxo_pjnaConn == NULL);
 
@@ -214,19 +214,18 @@ static u32 _dispatcherXferObjectRetryConnect(void * object)
         1 : pidxo->idxo_u32ExponentialBackoff * 2;
 
     jf_ipaddr_getStringIpAddrPort(str, &pidxop->idxop_jiRemote, pidxop->idxop_u16RemotePort);
-    jf_logger_logInfoMsg(
-        "dispatcher xfer retry connect, %s, eb %u", str, pidxo->idxo_u32ExponentialBackoff);
+    JF_LOGGER_INFO("server addr: %s, eb %u", str, pidxo->idxo_u32ExponentialBackoff);
 
     if (pidxo->idxo_u32ExponentialBackoff >=
         (olint_t) pow((oldouble_t) 2, (oldouble_t) DISPATCHER_XFER_CONNECT_RETRY_COUNT))
     {
         /*Retried enough times, rollback to 0 and retry.*/
-        jf_logger_logInfoMsg("dispatcher xfer retry connect, rollback to 0");
+        JF_LOGGER_INFO("rollback to 0");
         pidxo->idxo_u32ExponentialBackoff = 0;
     }
 
     /*Lets retry again.*/
-    jf_logger_logInfoMsg("dispatcher xfer retry connect, try to connect");
+    JF_LOGGER_INFO("try to connect");
 
     jf_hsm_initEvent(&event, DXOE_SEND_DATA, pidxo, NULL); 
     u32Ret = jf_hsm_processEvent(pidxo->idxo_pjhObject, &event);
@@ -240,12 +239,12 @@ static u32 _dispatcherXferObjectFreeTimerHandler(void * object)
     internal_dispatcher_xfer_object_t * pidxo = (internal_dispatcher_xfer_object_t *)object;
     internal_dispatcher_xfer_object_pool_t * pidxop = pidxo->idxo_pidxopPool;
 
-    jf_logger_logInfoMsg("dispatcher xfer free timer handler");
+    JF_LOGGER_INFO("timer handler");
 
     if (pidxo->idxo_pdmMsg == NULL)
     {
         /*This connection is idle, because there are no pending message.*/
-        jf_logger_logInfoMsg("dispatcher xfer free timer handler, no pending message");
+        JF_LOGGER_INFO("no pending message");
 
         _destroyDispatcherXferObject(&pidxop->idxop_pidxoMsg);
     }
@@ -258,7 +257,7 @@ static u32 _sendDispatcherXferObjectMsg(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logDebugMsg("send dispatcher xfer object msg");
+    JF_LOGGER_DEBUG("send msg");
 
     u32Ret = jf_network_sendAcsocketStaticData(pAcsocket, pAsocket, pu8Msg, sMsg);
 
@@ -272,7 +271,7 @@ static u32 _fnDxoEventActionStartConn(jf_hsm_event_t * pEvent)
         (internal_dispatcher_xfer_object_t *)pEvent->jhe_pData;
     internal_dispatcher_xfer_object_pool_t * pidxop = pidxo->idxo_pidxopPool;
 
-    jf_logger_logDebugMsg("dxo event action start conn");
+    JF_LOGGER_DEBUG("action start conn");
 
     /*If the data object is created, connect to remote server. The async socket will wake
       up the chain so dispatcher xfer doesn't have to care about it.*/
@@ -313,7 +312,7 @@ static u32 _fnDxoEventActionSendMsg(jf_hsm_event_t * pEvent)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_xfer_object_t * pidxo = pEvent->jhe_pData;
 
-    jf_logger_logDebugMsg("dxo event action send msg");
+    JF_LOGGER_DEBUG("action send msg");
 
     if (pidxo->idxo_pdmMsg != NULL)
     {
@@ -336,12 +335,11 @@ static u32 _dispatcherXferObjectIdleTimerHandler(void * object)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_xfer_object_t * pidxo = (internal_dispatcher_xfer_object_t *)object;
 
-    jf_logger_logInfoMsg("dispatcher xfer idle timer handler");
+    JF_LOGGER_INFO("idle timer handler");
 
     if (pidxo->idxo_pdmMsg == NULL)
     {
-        jf_logger_logInfoMsg(
-            "dispatcher xfer idle timer handler, queue is empty, close the connection");
+        JF_LOGGER_INFO("queue is empty, close the connection");
         /*This connection is idle, because there are no pending requests */
         /*We need to close this socket.*/
         jf_network_disconnectAcsocket(
@@ -357,7 +355,7 @@ static u32 _fnDxoEventActionDataSent(jf_hsm_event_t * pEvent)
     internal_dispatcher_xfer_object_t * pidxo =
         (internal_dispatcher_xfer_object_t *)pEvent->jhe_pData;
 
-    jf_logger_logInfoMsg("dxo event action data sent");
+    JF_LOGGER_INFO("action data sent");
 
     /*Send the next message.*/
     if (pidxo->idxo_pdmMsg != NULL)
@@ -376,14 +374,14 @@ static u32 _fnDxoEventActionDisconnected(jf_hsm_event_t * pEvent)
     internal_dispatcher_xfer_object_t * pidxo =
         (internal_dispatcher_xfer_object_t *)pEvent->jhe_pData;
 
-    jf_logger_logDebugMsg("dxo event action disconnected");
+    JF_LOGGER_DEBUG("action disconnected");
 
     pidxo->idxo_pjnaConn = NULL;
 
     if (pidxo->idxo_pdmMsg != NULL)
     {
         /*There are still message to be sent, make another connection and continue.*/
-        jf_logger_logDebugMsg("dxo event action disconnected, retry later");
+        JF_LOGGER_DEBUG("retry later");
         jf_network_addUtimerItem(
             pidxo->idxo_pidxopPool->idxop_pjnuUtimer, pidxo, pidxo->idxo_u32ExponentialBackoff,
             _dispatcherXferObjectRetryConnect, NULL);
@@ -400,7 +398,7 @@ static u32 _onEntryDxoIdleState(jf_hsm_state_id_t stateId, jf_hsm_event_t * pEve
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_xfer_object_t * pidxo = (internal_dispatcher_xfer_object_t *)pEvent->jhe_pData;
 
-    jf_logger_logDebugMsg("onentry dxo_idle state");
+    JF_LOGGER_DEBUG("on entry idle state");
 
     u32Ret = jf_network_addUtimerItem(
         pidxo->idxo_pidxopPool->idxop_pjnuUtimer, pidxo, DISPATCHER_XFER_OBJECT_IDLE_TIMEOUT,
@@ -414,7 +412,7 @@ static u32 _onExitDxoIdleState(jf_hsm_state_id_t stateId, jf_hsm_event_t * pEven
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_xfer_object_t * pidxo = (internal_dispatcher_xfer_object_t *)pEvent->jhe_pData;
 
-    jf_logger_logDebugMsg("onexit dxo_idle state");
+    JF_LOGGER_DEBUG("on exit idle state");
 
     u32Ret = jf_network_removeUtimerItem(pidxo->idxo_pidxopPool->idxop_pjnuUtimer, pidxo);
 
@@ -426,7 +424,7 @@ static u32 _onEntryDxoInitialState(jf_hsm_state_id_t stateId, jf_hsm_event_t * p
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_xfer_object_t * pidxo = (internal_dispatcher_xfer_object_t *)pEvent->jhe_pData;
 
-    jf_logger_logDebugMsg("onentry dxo_initial state");
+    JF_LOGGER_DEBUG("on entry initial state");
 
     /*Set a timer to destroy dispatcher xfer data object if object is in initial for certain time.*/
     jf_network_addUtimerItem(
@@ -441,7 +439,7 @@ static u32 _onExitDxoInitialState(jf_hsm_state_id_t stateId, jf_hsm_event_t * pE
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_xfer_object_t * pidxo = (internal_dispatcher_xfer_object_t *)pEvent->jhe_pData;
 
-    jf_logger_logDebugMsg("onexit dxo_initial state");
+    JF_LOGGER_DEBUG("on exit initial state");
 
     u32Ret = jf_network_removeUtimerItem(pidxo->idxo_pidxopPool->idxop_pjnuUtimer, pidxo);
 
@@ -465,7 +463,7 @@ static u32 _createDispatcherXferObject(
         {JF_HSM_LAST_STATE_ID, JF_HSM_LAST_EVENT_ID, NULL, NULL, JF_HSM_LAST_STATE_ID},
     };
 
-    jf_logger_logInfoMsg("create dispatcher xfer data obj");
+    JF_LOGGER_INFO("create xfer obj");
 
     u32Ret = jf_jiukun_allocMemory((void **)&pidxo, sizeof(*pidxo));
 
@@ -507,12 +505,12 @@ static u32 _processDispatcherXferSendMsg(
     olchar_t str[128];
 
     jf_ipaddr_getStringIpAddrPort(str, &pidxop->idxop_jiRemote, pidxop->idxop_u16RemotePort);
-    jf_logger_logInfoMsg("process dispatcher xfer send msg, %s", str);
+    JF_LOGGER_INFO("server addr: %s", str);
 
     if (pidxop->idxop_pidxoMsg == NULL)
     {
         /*There is no previous connection, so we need to set it up*/
-        jf_logger_logInfoMsg("process dispatcher xfer req send data, create object");
+        JF_LOGGER_INFO("create object");
 
         u32Ret = _createDispatcherXferObject(
             &pidxop->idxop_pidxoMsg, pidxop, &pidxop->idxop_jiRemote, pidxop->idxop_u16RemotePort);
@@ -548,7 +546,7 @@ static u32 _finishSendingDispatcherXferObjectMsg(internal_dispatcher_xfer_object
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_hsm_event_t event;
 
-    jf_logger_logInfoMsg("finish sending dispatcher xfer object msg");
+    JF_LOGGER_INFO("finish msg");
 
     /*Post a data sent event to the state machine.*/
     jf_hsm_initEvent(&event, DXOE_DATA_SENT, pidxo, NULL);
@@ -574,7 +572,7 @@ static u32 _dispatcherXferObjectOnData(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logInfoMsg("dispatcher xfer object data, unexpected data");
+    JF_LOGGER_INFO("unexpected data");
 
     *psBeginPointer = sEndPointer;
 
@@ -598,7 +596,7 @@ static u32 _dispatcherXferObjectOnConnect(
 
     if (u32Status == JF_ERR_NO_ERROR)
     {
-        jf_logger_logDebugMsg("dispatcher xfer object onconnect, connected");
+        JF_LOGGER_DEBUG("connected");
         /*Do not set the backoff time to 0. The test shows when we connect to the no listening uds,
           the connection is make successfully, and then fails to send data and we know the
           connection is broken. If the backoff time is clear to 0, it will loop without any pause.
@@ -611,13 +609,11 @@ static u32 _dispatcherXferObjectOnConnect(
         jf_hsm_processEvent(pidxo->idxo_pjhObject, &event);
 
         stateId = jf_hsm_getCurrentStateId(pidxo->idxo_pjhObject);
-        jf_logger_logDebugMsg(
-            "dispatcher xfer object onconnect, state: %s",
-            _getStringDispatcherXferObjectState(stateId));
+        JF_LOGGER_DEBUG("hsm state: %s", _getStringDispatcherXferObjectState(stateId));
     }
     else
     {
-        jf_logger_logInfoMsg("dispatcher xfer object onconnect, failed, retry later");
+        JF_LOGGER_INFO("failed, retry later");
         /*The connection failed, so let's set a timed callback, and try again.*/
         jf_network_addUtimerItem(
             pidxo->idxo_pidxopPool->idxop_pjnuUtimer, pidxo, pidxo->idxo_u32ExponentialBackoff,
@@ -643,7 +639,7 @@ static u32 _dispatcherXferObjectOnDisconnect(
     internal_dispatcher_xfer_object_t * pidxo = (internal_dispatcher_xfer_object_t *)pUser;
     jf_hsm_event_t event;
 
-    jf_logger_logInfoMsg("dispatcher xfer disconnect");
+    JF_LOGGER_INFO("disconnect");
 
     jf_hsm_initEvent(&event, DXOE_DISCONNECTED, pidxo, NULL);
     u32Ret = jf_hsm_processEvent(pidxo->idxo_pjhObject, &event);
@@ -671,7 +667,7 @@ static u32 _dispatcherXferObjectOnSendData(
     internal_dispatcher_xfer_object_pool_t * pidxop = pidxo->idxo_pidxopPool;
     dispatcher_msg_t * pdm = NULL;
 
-    jf_logger_logInfoMsg("dispatcher xfer object send data, status: 0x%X", u32Status);
+    JF_LOGGER_INFO("status: 0x%X", u32Status);
 
     if (u32Status == JF_ERR_NO_ERROR)
     {
@@ -701,7 +697,7 @@ u32 destroyDispatcherXferObjectPool(dispatcher_xfer_object_pool_t ** ppPool)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_xfer_object_pool_t * pidxop = NULL;
 
-    jf_logger_logDebugMsg("destroy dispatcher xfer object pool");
+    JF_LOGGER_DEBUG("destroy xfer object pool");
     pidxop = (internal_dispatcher_xfer_object_pool_t *) *ppPool;
 
     /*Destroy the xfer object.*/
@@ -735,7 +731,7 @@ u32 createDispatcherXferObjectPool(
     internal_dispatcher_xfer_object_pool_t * pidxop = NULL;
     olchar_t strName[128];
 
-    jf_logger_logDebugMsg("create dispatcher xfer object pool");
+    JF_LOGGER_DEBUG("create xfer object pool");
 
     u32Ret = jf_jiukun_allocMemory((void **)&pidxop, sizeof(*pidxop));
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -784,7 +780,7 @@ u32 sendDispatcherXferPoolMsg(dispatcher_xfer_object_pool_t * pPool, dispatcher_
     internal_dispatcher_xfer_object_pool_t * pidxop =
         (internal_dispatcher_xfer_object_pool_t *)pPool;
 
-    jf_logger_logDebugMsg("send dispatcher xfer pool msg");
+    JF_LOGGER_DEBUG("send msg");
 
     u32Ret = _processDispatcherXferSendMsg(pidxop, pdm);
 
@@ -799,7 +795,7 @@ u32 deleteDispatcherXferPoolMsg(dispatcher_xfer_object_pool_t * pPool)
     internal_dispatcher_xfer_object_pool_t * pidxop =
         (internal_dispatcher_xfer_object_pool_t *)pPool;
 
-    jf_logger_logInfoMsg("delete dispatcher xfer pool msg, close the connection");
+    JF_LOGGER_INFO("close the connection");
 
     pidxop->idxop_pidxoMsg->idxo_pdmMsg = NULL;
 

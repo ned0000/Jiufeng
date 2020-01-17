@@ -171,7 +171,7 @@ static u32 _createDispatcherServClient(
     u32 u32Ret = JF_ERR_NO_ERROR;
     dispatcher_serv_client_t * pClient = NULL;
 
-    jf_logger_logDebugMsg("create serv client: %s", pdsc->dsc_strName);
+    JF_LOGGER_DEBUG("serv client: %s", pdsc->dsc_strName);
 
     /*Allocate memory for service client data type.*/
     u32Ret = jf_jiukun_allocMemory((void **)&pClient, sizeof(*pClient));
@@ -210,7 +210,7 @@ static u32 _createDispatcherServClients(
     dispatcher_serv_config_t * pdsc = NULL;
     dispatcher_serv_client_t * pClient = NULL;
 
-    jf_logger_logDebugMsg("create serv clients");
+    JF_LOGGER_DEBUG("create serv clients");
 
     pNode = jf_linklist_getFirstNode(pjlServConfig);
     while ((pNode != NULL) && (u32Ret == JF_ERR_NO_ERROR))
@@ -237,12 +237,12 @@ static JF_THREAD_RETURN_VALUE _servClientThread(void * pArg)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_network_chain_t * pChain = (jf_network_chain_t *)pArg;
 
-    jf_logger_logInfoMsg("enter serv client thread");
+    JF_LOGGER_INFO("enter serv client thread");
 
     /*Start the client chain.*/
     u32Ret = jf_network_startChain(pChain);
 
-    jf_logger_logInfoMsg("quit serv client thread");
+    JF_LOGGER_INFO("quit serv client thread");
 
     JF_THREAD_RETURN(u32Ret);
 }
@@ -277,7 +277,7 @@ static u32 _addSubscribedMsgToTable(
     dispatcher_subscribed_msg_t * pdsm = NULL;
     u32 u32Index = 0;
 
-    jf_logger_logDebugMsg("add msg to hash table, msg id: %u", pMsgConfig->dmc_u32MsgId);
+    JF_LOGGER_DEBUG("msg id: %u", pMsgConfig->dmc_u32MsgId);
 
     /*Allocate dispatcher subscribed message from cache.*/
     u32Ret = jf_jiukun_allocObject(pjjcSubscribedMsg, (void **)&pdsm);
@@ -289,7 +289,7 @@ static u32 _addSubscribedMsgToTable(
 
         /*Hash message id to key.*/
         u32Index = _hashMsgIdToKey(pMsgConfig->dmc_u32MsgId, u32Shift);
-        jf_logger_logDebugMsg("add msg to hash table, index: %u", u32Index);
+        JF_LOGGER_DEBUG("index: %u", u32Index);
         /*Add dispatcher subscribed message data type to hash table.*/
         jf_hlisthead_addHead(&pjhMsgHashTable[u32Index], &pdsm->dsm_jhnHash);
     }
@@ -307,8 +307,7 @@ static u32 _addSubscribedMsgListToTable(
     jf_linklist_node_t * pjln = NULL;
     dispatcher_msg_config_t * pMsgConfig = NULL;
 
-    jf_logger_logDebugMsg(
-        "add msg list to hash table, serv: %s", pdsc->dsc_pdscConfig->dsc_strName);
+    JF_LOGGER_DEBUG("serv: %s", pdsc->dsc_pdscConfig->dsc_strName);
 
     /*Subscribed message list is in service config of service client.*/
 	pjln = jf_linklist_getFirstNode(&pdsc->dsc_pdscConfig->dsc_jlSubscribedMsg);
@@ -336,7 +335,7 @@ static u32 _buildDispatcherMsgHashTable(
     dispatcher_serv_client_t * pdsc = NULL;
     u16 u16Index = 0;
 
-    jf_logger_logDebugMsg("build sub msg hash table");
+    JF_LOGGER_DEBUG("build hash table");
 
     /*Initialize the hash table.*/
     for (u16Index = 0; u16Index < u16Count; u16Index ++)
@@ -441,7 +440,7 @@ u32 createDispatcherServClients(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logDebugMsg("create dispatcher serv client");
+    JF_LOGGER_DEBUG("create serv client");
 
     jf_listhead_init(&ls_jlServClientList);
 
@@ -484,7 +483,7 @@ u32 destroyDispatcherServClients(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logDebugMsg("destroy dispatcher serv client");
+    JF_LOGGER_DEBUG("destroy serv clients");
 
     /*Destroy dispatcher subscribed message hash table.*/
     _destroyDispatcherSubscribedMsgHashTable(
@@ -529,7 +528,7 @@ u32 pauseDispatcherServClient(pid_t servPid)
     u32 u32Ret = JF_ERR_NO_ERROR;
     dispatcher_serv_client_t * pdsc = NULL;
 
-    jf_logger_logInfoMsg("pause dispatcher serv client, servPid: %u", servPid);
+    JF_LOGGER_INFO("servPid: %u", servPid);
 
     u32Ret = _findDispatcherServClientByPid(&ls_jlServClientList, servPid, &pdsc);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -543,7 +542,7 @@ u32 resumeDispatcherServClient(pid_t servPid)
     u32 u32Ret = JF_ERR_NO_ERROR;
     dispatcher_serv_client_t * pdsc = NULL;
 
-    jf_logger_logInfoMsg("resume dispatcher serv client, servPid: %u", servPid);
+    JF_LOGGER_INFO("servPid: %u", servPid);
 
     u32Ret = _findDispatcherServClientByPid(&ls_jlServClientList, servPid, &pdsc);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -560,10 +559,10 @@ u32 dispatchMsgToServClients(dispatcher_msg_t * pdm)
     u32 u32Index = 0;
     u32 u32MsgId = getDispatcherMsgId(pdm);
 
-    jf_logger_logDebugMsg("dispatch msg to serv clients, msg id: %u", u32MsgId);
+    JF_LOGGER_DEBUG("msg id: %u", u32MsgId);
 
     u32Index = _hashMsgIdToKey(u32MsgId, DISPATCHER_SUBSCRIBED_MSG_HASH_TABLE_SHIFT);
-    jf_logger_logDebugMsg("dispatch msg to serv clients, index: %u", u32Index);
+    JF_LOGGER_DEBUG("index: %u", u32Index);
 
     jf_hlisthead_forEach(&ls_jhMsgHashTable[u32Index], pjhn)
     {

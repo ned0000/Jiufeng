@@ -143,7 +143,7 @@ static u32 _preDispatcherXferProcess(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_xfer_t * pidx = (internal_dispatcher_xfer_t *) pXfer;
 
-    jf_logger_logDebugMsg("pre dispatcher xfer");
+    JF_LOGGER_DEBUG("pre dispatcher xfer");
 
     u32Ret = _sendDispatcherXferMsg(pidx);
 
@@ -161,7 +161,7 @@ static u32 _fnOnDispatcherXferObjectEvent(
     if (event == DISPATCHER_XFER_OBJECT_EVENT_MSG_SENT)
     {
         /*Message is sent so we can remove it from queue and free it.*/
-        jf_logger_logDebugMsg("on dispatcher xfer object event, msg sent");
+        JF_LOGGER_DEBUG("msg sent");
         pdm = _dequeueDispatcherXferMsgFromQueue(pidx);
         assert(pdm != NULL);
         freeDispatcherMsg(&pdm);
@@ -179,7 +179,7 @@ u32 dispatcher_xfer_destroy(dispatcher_xfer_t ** ppXfer)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_xfer_t * pidx = (internal_dispatcher_xfer_t *) *ppXfer;
 
-    jf_logger_logDebugMsg("dispatcher xfer destroy");
+    JF_LOGGER_DEBUG("destroy xfer");
 
     /*Destroy the xfer object pool.*/
     if (pidx->idx_pdxopPool != NULL)
@@ -204,7 +204,7 @@ u32 dispatcher_xfer_create(
     assert((pjnc != NULL) && (ppXfer != NULL));
     assert((pdxcp != NULL) && (pdxcp->dxcp_sMaxMsg != 0));
 
-    jf_logger_logDebugMsg("dispather xfer create");
+    JF_LOGGER_DEBUG("create xfer");
 
     u32Ret = jf_jiukun_allocMemory((void **)&pidx, sizeof(internal_dispatcher_xfer_t));
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -281,7 +281,7 @@ u32 dispatcher_xfer_sendMsg(dispatcher_xfer_t * pXfer, dispatcher_msg_t * pdm)
     internal_dispatcher_xfer_t * pidx = (internal_dispatcher_xfer_t *) pXfer;
     boolean_t bWakeup = FALSE;
 
-    jf_logger_logInfoMsg("dispatcher xfer send msg");
+    JF_LOGGER_INFO("send msg");
 
     /*Add the message to queue.*/
     u32Ret = _enqueueDispatcherXferMsgToQueue(pidx, pdm, &bWakeup);

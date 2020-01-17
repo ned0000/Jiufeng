@@ -328,7 +328,7 @@ static u32 _parseDispatcherServConfigFile(
     jf_ptree_t * pPtree = NULL;
     dispatcher_serv_config_t * pdsc = NULL;
 
-    jf_logger_logDebugMsg("parse config file: %s", pstrFullpath);
+    JF_LOGGER_DEBUG("config file: %s", pstrFullpath);
 
     /*Parse the config XML file and build the property tree.*/
     u32Ret = jf_xmlparser_parseXmlFile(pstrFullpath, &pPtree);
@@ -366,7 +366,7 @@ static u32 _parseDispatcherServConfigFile(
         pdsc->dsc_u16ServId = psdcdp->sdcdp_u16NumOfServConfig;
         psdcdp->sdcdp_u16NumOfServConfig ++;
 
-        jf_logger_logInfoMsg(
+        JF_LOGGER_INFO(
             "service id: %u, version: %s, name: %s, msgin: %s, msgout: %s, maxnummsg: %u, maxmsgsize: %u",
             pdsc->dsc_u16ServId, pdsc->dsc_strVersion, pdsc->dsc_strName, pdsc->dsc_strMessagingIn,
             pdsc->dsc_strMessagingOut, pdsc->dsc_u32MaxNumMsg, pdsc->dsc_u32MaxMsgSize);
@@ -403,7 +403,7 @@ u32 scanDispatcherConfigDir(scan_dispatcher_config_dir_param_t * pParam)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_jiukun_cache_create_param_t jjccp;
 
-    jf_logger_logInfoMsg("scan dir: %s", pParam->sdcdp_pstrConfigDir);
+    JF_LOGGER_INFO("scan dir: %s", pParam->sdcdp_pstrConfigDir);
 
     /*Create the message config cache.*/
     ol_bzero(&jjccp, sizeof(jjccp));

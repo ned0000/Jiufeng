@@ -1,7 +1,7 @@
 /**
- *  @file
+ *  @file logger/common.h
  *
- *  @brief internal common routine used by logger library
+ *  @brief Header file defines the internal common routine used by logger library.
  *
  *  @author Min Zhang
  *
@@ -22,6 +22,7 @@
 /* --- data structures -------------------------------------------------------------------------- */
 
 /* --- functional routines ---------------------------------------------------------------------- */
+
 boolean_t isSysErrorCode(u32 u32ErrCode);
 
 

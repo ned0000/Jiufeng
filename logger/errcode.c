@@ -1,7 +1,7 @@
 /**
- *  @file
+ *  @file logger/errcode.c
  *
- *  @brief The error code implementation file
+ *  @brief The error code implementation file.
  *
  *  @author Min Zhang
  *
@@ -23,15 +23,20 @@
 #define ERR_MSG_FORMAT      "ERR - (0x%X) %s"
 #define SYS_ERR_MSG_FORMAT  "ERR - (0x%X) %s\n      %d, %s"
 
-/* error code descriptions */
+/** Define the error code description data type.
+ */
 typedef struct
 {
     u32 iecd_u32ErrorCode;
     olchar_t * iecd_pstrDesc;
 } internal_error_code_desc_t;
 
-/* the data in ls_iecdErrorCodeDesc must be sorted in the ascending order of error code */
-/* in order to support binary search */
+/** Define the error code description.
+ *
+ *  @note
+ *  -# the data in ls_iecdErrorCodeDesc must be sorted in the ascending order of error code in
+ *   order to support binary search.
+ */
 static internal_error_code_desc_t ls_iecdErrorCodeDesc[] = 
 {
     {JF_ERR_NO_ERROR, "No error."},
@@ -233,11 +238,10 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_INVALID_OPTION, "Invalid option for the command or the action."},
 };
 
-static u32 ls_u32NumberOfErrorCodes = sizeof(ls_iecdErrorCodeDesc) / \
-    sizeof(internal_error_code_desc_t);
+static u32 ls_u32NumberOfErrorCodes = \
+    sizeof(ls_iecdErrorCodeDesc) / sizeof(internal_error_code_desc_t);
 
-static internal_error_code_desc_t \
-    ls_iecdVendorSpecErrorCodeDesc[JF_ERR_MAX_VENDOR_SPEC_ERROR];
+static internal_error_code_desc_t ls_iecdVendorSpecErrorCodeDesc[JF_ERR_MAX_VENDOR_SPEC_ERROR];
 
 /* --- private routine section ------------------------------------------------------------------ */
 static void _getSysErrMsg(u32 u32Ret, olchar_t * pstrBuf, olsize_t sBuf)
@@ -258,13 +262,15 @@ static void _getSysErrMsg(u32 u32Ret, olchar_t * pstrBuf, olsize_t sBuf)
     memset(strMsg, 0, 128 + 1);
     pstrBuf[0] = '\0';
 #if defined(LINUX)
-    ol_snprintf(pstrBuf, sBuf - 1, SYS_ERR_MSG_FORMAT, u32Ret,
-		jf_err_getDescription(u32Ret), errno_save, strerror(errno_save));
+    ol_snprintf(
+        pstrBuf, sBuf - 1, SYS_ERR_MSG_FORMAT, u32Ret, jf_err_getDescription(u32Ret), errno_save,
+        strerror(errno_save));
 #elif defined(WINDOWS)
-    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, dwErrorCode, 0, 
-        strMsg, 128, NULL);
-    ol_snprintf(pstrBuf, sBuf - 1, SYS_ERR_MSG_FORMAT, u32Ret,
-		jf_err_getDescription(u32Ret), dwErrorCode, strMsg);
+    FormatMessage(
+        FORMAT_MESSAGE_FROM_SYSTEM, NULL, dwErrorCode, 0, strMsg, 128, NULL);
+    ol_snprintf(
+        pstrBuf, sBuf - 1, SYS_ERR_MSG_FORMAT, u32Ret, jf_err_getDescription(u32Ret), dwErrorCode,
+        strMsg);
 #endif
 }
 
@@ -273,11 +279,11 @@ void _getErrMsg(u32 u32Ret, olchar_t * pstrBuf, olsize_t sBuf)
     memset(pstrBuf, 0, sBuf);
 
 #if defined(LINUX)
-    ol_snprintf(pstrBuf, sBuf - 1, ERR_MSG_FORMAT, u32Ret,
-        jf_err_getDescription(u32Ret));
+    ol_snprintf(
+        pstrBuf, sBuf - 1, ERR_MSG_FORMAT, u32Ret, jf_err_getDescription(u32Ret));
 #elif defined(WINDOWS)
-    ol_snprintf(pstrBuf, sBuf - 1, ERR_MSG_FORMAT, u32Ret,
-        jf_err_getDescription(u32Ret));
+    ol_snprintf(
+        pstrBuf, sBuf - 1, ERR_MSG_FORMAT, u32Ret, jf_err_getDescription(u32Ret));
 #endif
 }
 
@@ -358,12 +364,14 @@ void checkErrCode(void)
     u32 u32Index;
     u32 u32Min = 0;
 
-    ol_printf("0x%X %s\n", ls_iecdErrorCodeDesc[0].iecd_u32ErrorCode,
-            ls_iecdErrorCodeDesc[0].iecd_pstrDesc);
+    ol_printf(
+        "0x%X %s\n", ls_iecdErrorCodeDesc[0].iecd_u32ErrorCode,
+        ls_iecdErrorCodeDesc[0].iecd_pstrDesc);
 
     for (u32Index = 1; u32Index < ls_u32NumberOfErrorCodes; u32Index ++)
     {
-        ol_printf("0x%X %s\n", ls_iecdErrorCodeDesc[u32Index].iecd_u32ErrorCode,
+        ol_printf(
+            "0x%X %s\n", ls_iecdErrorCodeDesc[u32Index].iecd_u32ErrorCode,
             ls_iecdErrorCodeDesc[u32Index].iecd_pstrDesc);
 
         if (ls_iecdErrorCodeDesc[u32Index].iecd_u32ErrorCode < u32Min)
@@ -372,8 +380,9 @@ void checkErrCode(void)
             break;
         }
         else
+        {
             u32Min = ls_iecdErrorCodeDesc[u32Index].iecd_u32ErrorCode;
-
+        }
     }
 }
 #endif

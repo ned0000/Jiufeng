@@ -80,10 +80,10 @@ static internal_logger_t ls_ilLogger;
 /* --- private routine section ------------------------------------------------------------------ */
 /** Get max lines of the log file according to the file size.
  *
- *  @param u32Size [in] the file size
+ *  @param u32Size [in] The file size.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _getLogFileLines(u32 u32Size)
 {
@@ -95,13 +95,12 @@ static u32 _getLogFileLines(u32 u32Size)
     return u32lines;
 }
 
-/** Get the log time stamp of the current time. The time stamp is in the format
- *  of "mm/dd/yyyy hh:mm:ss".
+/** Get the log time stamp of the current time. The time stamp is in the format of
+ *  "mm/dd/yyyy hh:mm:ss".
  *
- *  @param pstrStamp [out] the string buffer where the time stamp will be
- *   returned
+ *  @param pstrStamp [out] The string buffer where the time stamp will be returned.
  *
- *  @return none
+ *  @return Void.
  */
 static void _getLogTimeStamp(olchar_t * pstrStamp)
 {
@@ -112,9 +111,9 @@ static void _getLogTimeStamp(olchar_t * pstrStamp)
     tmLocal = localtime(&tCurrent);
     if (tmLocal != NULL)
     {
-        ol_sprintf(pstrStamp, "%02d/%02d/%04d %02d:%02d:%02d", 
-            tmLocal->tm_mon+1, tmLocal->tm_mday, (tmLocal->tm_year + 1900),
-            tmLocal->tm_hour, tmLocal->tm_min, tmLocal->tm_sec);
+        ol_sprintf(
+            pstrStamp, "%02d/%02d/%04d %02d:%02d:%02d", tmLocal->tm_mon + 1, tmLocal->tm_mday,
+            tmLocal->tm_year + 1900, tmLocal->tm_hour, tmLocal->tm_min, tmLocal->tm_sec);
     }
     else
     {
@@ -122,14 +121,14 @@ static void _getLogTimeStamp(olchar_t * pstrStamp)
     }
 }
 
-/** Log the message log to the specified output of the logger
+/** Log the message log to the specified output of the logger.
  *
- *  @param pil [in] the pointer to the logger
- *  @param nLevel [in] the log level to be passed to syslog
- *  @param pstrHeader [in] the header
- *  @param pstrLog [in] the log message
+ *  @param pil [in] The pointer to the logger.
+ *  @param nLevel [in] The log level to be passed to syslog.
+ *  @param pstrHeader [in] The header.
+ *  @param pstrLog [in] The log message.
  *
- *  @return none
+ *  @return Void.
  */
 static void _log(
     internal_logger_t * pil, olint_t nLevel, olchar_t * pstrHeader, olchar_t * pstrLog)
@@ -186,8 +185,8 @@ static u32 _logMsg(internal_logger_t * pil, olint_t nLevel, olchar_t * pstrMsg)
     nOffset = (int)strlen(strHeader);
 
     ol_sprintf(
-        strHeader + nOffset, " [%s:%d:%lu] ", pil->il_strCallerName, 
-        jf_process_getCurrentId(), jf_thread_getCurrentId());
+        strHeader + nOffset, " [%s:%d:%lu] ", pil->il_strCallerName, jf_process_getCurrentId(),
+        jf_thread_getCurrentId());
     nOffset = (int)strlen(strHeader);
 
     _log(pil, nLevel, strHeader, pstrMsg);
@@ -242,8 +241,7 @@ static u32 _logSysErrMsg(internal_logger_t * pil, u32 u32ErrCode,
 
     bufMsg[0] = '\0';
 #if defined(WINDOWS)
-    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, dwErrorCode, 0, 
-        bufMsg, 128, NULL);
+    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, NULL, dwErrorCode, 0, bufMsg, 128, NULL);
     bufMsg[128] = 0;
 #elif defined(LINUX)
     ol_strncpy(bufMsg, strerror(errno_save), 128);
@@ -262,12 +260,12 @@ static u32 _logSysErrMsg(internal_logger_t * pil, u32 u32ErrCode,
     }
 
 #if defined(LINUX)
-    nPrint = ol_snprintf(buf + nPrint, JF_LOGGER_MAX_MSG_SIZE - nPrint - 1,
-        " - (0x%X) %s\n      %d, %s", 
+    nPrint = ol_snprintf(
+        buf + nPrint, JF_LOGGER_MAX_MSG_SIZE - nPrint - 1, " - (0x%X) %s\n      %d, %s",
         u32ErrCode, jf_err_getDescription(u32ErrCode), errno_save, bufMsg);
 #elif defined(WINDOWS)
-    nPrint = ol_snprintf(buf + nPrint, JF_LOGGER_MAX_MSG_SIZE - nPrint - 1,
-        " - (0x%X) %s\n      %d, %s", 
+    nPrint = ol_snprintf(
+        buf + nPrint, JF_LOGGER_MAX_MSG_SIZE - nPrint - 1, " - (0x%X) %s\n      %d, %s", 
         u32ErrCode, jf_err_getDescription(u32ErrCode), dwErrorCode, bufMsg);
 #endif
     buf[JF_LOGGER_MAX_MSG_SIZE - 1] = 0;
@@ -276,8 +274,7 @@ static u32 _logSysErrMsg(internal_logger_t * pil, u32 u32ErrCode,
     return u32Ret;    
 }
 
-static u32 _logErrMsg(internal_logger_t * pil, u32 u32ErrCode,
-    const olchar_t * fmt, va_list ap)
+static u32 _logErrMsg(internal_logger_t * pil, u32 u32ErrCode, const olchar_t * fmt, va_list ap)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nPrint;
@@ -569,8 +566,7 @@ u32 jf_logger_logDataMsg(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...
     return u32Ret;    
 }
 
-u32 jf_logger_logDataMsgWithAscii(
-    u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
+u32 jf_logger_logDataMsgWithAscii(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_logger_t * pil = &ls_ilLogger;

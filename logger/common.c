@@ -1,7 +1,7 @@
 /**
- *  @file
+ *  @file logger/common.c
  *
- *  @brief The common routine shared in the logger library
+ *  @brief The common routine shared in the logger library.
  *
  *  @author Min Zhang
  *
@@ -17,6 +17,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
+
 #include "common.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */

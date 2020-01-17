@@ -106,7 +106,7 @@ static u32 _fnDispatcherQueueServServerMsg(u8 * pu8Msg, olsize_t sMsg)
     internal_dispatcher_t * pid = &ls_idDispatcher;
     dispatcher_msg_t * pdm = NULL;
 
-    jf_logger_logDebugMsg("queue server msg, msg id: %u", getMessagingMsgId(pu8Msg, sMsg));
+    JF_LOGGER_DEBUG("msg id: %u", getMessagingMsgId(pu8Msg, sMsg));
 
     /*Create the message and copy the data. This is necessary as the original message buffer is not
       allocated.*/
@@ -141,7 +141,7 @@ static u32 _processReservedDispatcherMsg(dispatcher_msg_t * pdm)
         u32Ret = resumeDispatcherServClient(servPid);
         break;
     default:
-        jf_logger_logInfoMsg("Unrecognized reserved message, msg id: %u", u32MsgId);
+        JF_LOGGER_INFO("Unrecognized reserved message, msg id: %u", u32MsgId);
         break;
     }
 
@@ -187,7 +187,7 @@ static JF_THREAD_RETURN_VALUE _dispatcherMsgThread(void * pArg)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_t * pid = (internal_dispatcher_t *)pArg;
 
-    jf_logger_logInfoMsg("enter dispatcher msg thread");
+    JF_LOGGER_INFO("enter dispatcher msg thread");
 
     /*Start the loop.*/
     while (! pid->id_bToTerminate)
@@ -199,7 +199,7 @@ static JF_THREAD_RETURN_VALUE _dispatcherMsgThread(void * pArg)
         }
     }
 
-    jf_logger_logInfoMsg("quit dispatcher msg thread");
+    JF_LOGGER_INFO("quit dispatcher msg thread");
 
     JF_THREAD_RETURN(u32Ret);
 }
@@ -237,7 +237,7 @@ u32 initDispatcher(dispatcher_param_t * pdp)
     assert(pdp != NULL);
     assert(! pid->id_bInitialized);
     
-    jf_logger_logDebugMsg("init dispatcher");
+    JF_LOGGER_DEBUG("config dir: %s", pdp->dp_pstrConfigDir);
 
     ol_bzero(pid, sizeof(internal_dispatcher_t));
 
@@ -313,7 +313,7 @@ u32 finiDispatcher(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_t * pid = &ls_idDispatcher;
 
-    jf_logger_logDebugMsg("fini dispatcher");
+    JF_LOGGER_DEBUG("fini dispatcher");
 
     destroyDispatcherServServers();
 
@@ -339,7 +339,7 @@ u32 startDispatcher(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_t * pid = &ls_idDispatcher;
 
-    jf_logger_logDebugMsg("start dispatcher");
+    JF_LOGGER_DEBUG("start dispatcher");
     
     if (! pid->id_bInitialized)
         u32Ret = JF_ERR_NOT_INITIALIZED;
@@ -362,7 +362,7 @@ u32 startDispatcher(void)
         {
             jf_time_sleep(2);
         }
-        jf_logger_logInfoMsg("dispatcher main thread stop");
+        JF_LOGGER_INFO("dispatcher main thread stop");
     }
 
     return u32Ret;

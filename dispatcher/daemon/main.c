@@ -52,8 +52,7 @@ logger options:\n\
 }
 
 static u32 _parseDispatcherCmdLineParam(
-    olint_t argc, olchar_t ** argv, 
-    dispatcher_param_t * pdp, jf_logger_init_param_t * pjlip)
+    olint_t argc, olchar_t ** argv, dispatcher_param_t * pdp, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
