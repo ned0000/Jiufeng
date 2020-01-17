@@ -229,7 +229,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "WEBCLIENT-TEST";
-    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
     jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_bLogToFile = TRUE;
 

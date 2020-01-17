@@ -137,7 +137,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
     jlipParam.jlip_pstrCallerName = "XMLPARSER";
 //    jlipParam.jlip_bLogToStdout = TRUE;
-    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DEBUG;
 
     u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)

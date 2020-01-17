@@ -140,7 +140,7 @@ static u32 _serviceDispatcher(olint_t argc, char** argv)
 
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "DISPATCHER";
-    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DEBUG;
     jlipParam.jlip_bLogToStdout = TRUE;
 
     ol_bzero(&jjip, sizeof(jjip));

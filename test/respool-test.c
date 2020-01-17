@@ -236,7 +236,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "RESPOOL-TEST";
     jlipParam.jlip_bLogToStdout = TRUE;
-    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
 
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;

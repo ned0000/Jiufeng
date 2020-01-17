@@ -37,13 +37,29 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-#define JF_LOGGER_TRACE_NONE      (0)
-#define JF_LOGGER_TRACE_ERROR     (1)
-#define JF_LOGGER_TRACE_INFO      (2)
-#define JF_LOGGER_TRACE_DEBUG     (3)
-#define JF_LOGGER_TRACE_DATA      (4)
+/** Define the logger trace level.
+ */
+typedef enum
+{
+    /**No trace level.*/
+    JF_LOGGER_TRACE_LEVEL_NONE = 0,
+    /**Error trace level.*/
+    JF_LOGGER_TRACE_LEVEL_ERROR,
+    /**Warning trace level.*/
+    JF_LOGGER_TRACE_LEVEL_WARN,
+    /**Information trace level.*/
+    JF_LOGGER_TRACE_LEVEL_INFO,
+    /**Debug trace level.*/
+    JF_LOGGER_TRACE_LEVEL_DEBUG,
+    /**Data trace level.*/
+    JF_LOGGER_TRACE_LEVEL_DATA,
+} jf_logger_trace_level_t;
 
+/* Maximum message size.
+ */
 #define JF_LOGGER_MAX_MSG_SIZE    (256)
+
+//#define JF_LOGGER_DATA
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -93,43 +109,53 @@ LOGGERAPI u32 LOGGERCALL jf_logger_init(jf_logger_init_param_t * pjlip);
  */
 LOGGERAPI u32 LOGGERCALL jf_logger_fini(void);
 
-/** Log an info type msg.
+/** Log an info type message.
  *
- *  @param fmt [in] The msg format.
- *  @param ... [in] The input to the msg format.
+ *  @param fmt [in] The message format.
+ *  @param ... [in] The input to the message format.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
 LOGGERAPI u32 LOGGERCALL jf_logger_logInfoMsg(const olchar_t * fmt, ...);
 
-/** Log an debug type msg.
+/** Log an debug type message.
  *
- *  @param fmt [in] The msg format.
- *  @param ... [in] The input to the msg format.
+ *  @param fmt [in] The message format.
+ *  @param ... [in] The input to the message format.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR success.
  */
 LOGGERAPI u32 LOGGERCALL jf_logger_logDebugMsg(const olchar_t * fmt, ...);
 
-/** Log an error type msg.
+/** Log an warning type message.
+ *
+ *  @param fmt [in] The message format.
+ *  @param ... [in] The input to the message format.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR success.
+ */
+LOGGERAPI u32 LOGGERCALL jf_logger_logWarnMsg(const olchar_t * fmt, ...);
+
+/** Log an error type message.
  *
  *  @param u32ErrCode [in] The error code.
- *  @param fmt [in] The msg format.
- *  @param ... [in] The input to the msg format.
+ *  @param fmt [in] The message format.
+ *  @param ... [in] The input to the message format.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
 LOGGERAPI u32 LOGGERCALL jf_logger_logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...);
 
-/** Log a data msg. The system error code is in errno.
+/** Log a data message. The system error code is in errno.
  *
  *  @param pu8Data [in] The data to be logged.
  *  @param u32DataLen [in] The length of the data in bytes.
- *  @param fmt [in] The msg format.
- *  @param ... [in] The input to the msg format.
+ *  @param fmt [in] The message format.
+ *  @param ... [in] The input to the message format.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
@@ -137,12 +163,12 @@ LOGGERAPI u32 LOGGERCALL jf_logger_logErrMsg(u32 u32ErrCode, const olchar_t * fm
 LOGGERAPI u32 LOGGERCALL jf_logger_logDataMsg(
     u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...);
 
-/** Log a data msg with ascii string. The system error code is in errno.
+/** Log a data message with ascii string. The system error code is in errno.
  *
  *  @param pu8Data [in] The data to be logged.
  *  @param u32DataLen [in] The length of the data in bytes.
- *  @param fmt [in] The msg format.
- *  @param ... [in] The input to the msg format.
+ *  @param fmt [in] The message format.
+ *  @param ... [in] The input to the message format.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.

@@ -324,7 +324,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     ol_bzero(&jlipParam, sizeof(jf_logger_init_param_t));
     jlipParam.jlip_pstrCallerName = "HSM-TEST";
     jlipParam.jlip_bLogToStdout = TRUE;
-    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
 
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;

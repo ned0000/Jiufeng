@@ -804,7 +804,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jlipParam.jlip_pstrCallerName = "JIUKUN-TEST";
 //    jlipParam.jlip_pstrLogFilePath = "jiukun-test.log";
     jlipParam.jlip_bLogToStdout = TRUE;
-    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
 
     u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)

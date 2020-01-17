@@ -118,7 +118,7 @@ static void _testLogger(void)
     jlipParam.jlip_pstrCallerName = "LOGGER-TEST";
     jlipParam.jlip_bLogToFile = TRUE;
     jlipParam.jlip_bLogToStdout = TRUE;
-    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_INFO;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_INFO;
 
 //    checkErrCode();
 

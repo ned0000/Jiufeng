@@ -218,7 +218,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         jlipParam.jlip_pstrCallerName = "SQLITE-TEST";
         jlipParam.jlip_bLogToFile = FALSE;
         jlipParam.jlip_bLogToStdout = TRUE;
-        jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DATA;
+        jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
 
         u32Ret = _parseSqliteTestCmdLineParam(argc, argv);
     }

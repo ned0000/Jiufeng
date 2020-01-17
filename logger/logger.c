@@ -214,7 +214,7 @@ static void _setDefaultParam(jf_logger_init_param_t * pjlip)
     pjlip->jlip_pu8RemoteMachineIP = NULL;
     pjlip->jlip_pstrTTY = NULL;
     pjlip->jlip_sLogFile = 0;
-    pjlip->jlip_u8TraceLevel = JF_LOGGER_TRACE_NONE;
+    pjlip->jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_NONE;
 }
 
 static u32 _logSysErrMsg(internal_logger_t * pil, u32 u32ErrCode,
@@ -442,7 +442,7 @@ u32 jf_logger_logInfoMsg(const olchar_t * fmt, ...)
         return u32Ret;
 
     if ((pil->il_u8LogMask != IL_LOG_MASK_NONE) &&
-        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_INFO))
+        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_LEVEL_INFO))
     {
         va_start(ap, fmt);
         ol_vsnprintf(buf, JF_LOGGER_MAX_MSG_SIZE - 1, fmt, ap);
@@ -466,7 +466,31 @@ u32 jf_logger_logDebugMsg(const olchar_t * fmt, ...)
         return u32Ret;
 
     if ((pil->il_u8LogMask != IL_LOG_MASK_NONE) &&
-        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_DEBUG))
+        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_LEVEL_DEBUG))
+    {
+        va_start(ap, fmt);
+        ol_vsnprintf(buf, JF_LOGGER_MAX_MSG_SIZE - 1, fmt, ap);
+        buf[JF_LOGGER_MAX_MSG_SIZE - 1] = 0;
+        va_end(ap);
+    
+        _logMsg(pil, LOG_INFO, buf);
+    }
+
+    return u32Ret;    
+}
+
+u32 jf_logger_logWarnMsg(const olchar_t * fmt, ...)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    va_list ap; 
+    internal_logger_t * pil = &ls_ilLogger;
+    olchar_t buf[JF_LOGGER_MAX_MSG_SIZE];
+
+    if (! pil->il_bInitialized)
+        return u32Ret;
+
+    if ((pil->il_u8LogMask != IL_LOG_MASK_NONE) &&
+        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_LEVEL_WARN))
     {
         va_start(ap, fmt);
         ol_vsnprintf(buf, JF_LOGGER_MAX_MSG_SIZE - 1, fmt, ap);
@@ -489,7 +513,7 @@ u32 jf_logger_logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...)
         return u32Ret;
 
     if ((pil->il_u8LogMask != IL_LOG_MASK_NONE) &&
-        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_ERROR))
+        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_LEVEL_ERROR))
     {
         va_start(ap, fmt);
 
@@ -517,7 +541,7 @@ u32 jf_logger_logDataMsg(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...
         return u32Ret;
 
     if ((pil->il_u8LogMask != IL_LOG_MASK_NONE) &&
-        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_DATA))
+        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_LEVEL_DATA))
     {
         va_start(ap, fmt);
         ol_vsnprintf(buf, JF_LOGGER_MAX_MSG_SIZE - 1, fmt, ap);
@@ -559,7 +583,7 @@ u32 jf_logger_logDataMsgWithAscii(
         return u32Ret;
 
     if ((pil->il_u8LogMask != IL_LOG_MASK_NONE) &&
-        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_DATA))
+        (pil->il_u8TraceLevel >= JF_LOGGER_TRACE_LEVEL_DATA))
     {
         va_start(ap, fmt);
         ol_vsnprintf(buf, JF_LOGGER_MAX_MSG_SIZE - 1, fmt, ap);

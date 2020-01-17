@@ -144,7 +144,7 @@ static u32 _serviceDongyuan(olint_t argc, char** argv)
     /*Initialize the parameter for logger library.*/
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "DONGYUAN";
-    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DEBUG;
     jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_bLogToFile = TRUE;
 
