@@ -88,6 +88,14 @@ u32 jf_ptree_destroy(jf_ptree_t ** ppPtree);
  *  -# If key is NULL, return the root node.
  *  -# The key uses "." as the separator by default.
  *  -# If multiple nodes are available, the first node is returned.
+ *
+ *  @param pPtree [in] The property tree to find node.
+ *  @param pstrKey [in] The key in string.
+ *  @param ppNode [out] The node found.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR The node is found.
+ *  @retval JF_ERR_PTREE_NODE_NOT_FOUND The node is not found.
  */
 u32 jf_ptree_findNode(
     jf_ptree_t * pPtree, olchar_t * pstrKey, jf_ptree_node_t ** ppNode);
@@ -98,6 +106,15 @@ u32 jf_ptree_findNode(
  *  -# If key is NULL, return the root node.
  *  -# The key uses "." as the separator by default.
  *  -# If multiple nodes are available, all nodes are returned unless maximum nodes are reached.
+ *
+ *  @param pPtree [in] The property tree to find node.
+ *  @param pstrKey [in] The key in string.
+ *  @param ppNode [out] The node array found.
+ *  @param pu16NumOfNode [out] Number of node found.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR The node is found.
+ *  @retval JF_ERR_PTREE_NODE_NOT_FOUND The node is not found.
  */
 u32 jf_ptree_findAllNode(
     jf_ptree_t * pPtree, olchar_t * pstrKey, jf_ptree_node_t ** ppNode, u16 * pu16NumOfNode);
@@ -106,6 +123,13 @@ u32 jf_ptree_findAllNode(
  *
  *  @note
  *  -# If multiple nodes are available, the first node is returned.
+ *
+ *  @param pNode [in] The property tree node.
+ *  @param pstrNs [in] The name space of the node.
+ *  @param pstrName [in] The name of the node.
+ *  @param ppChild [out] The child node found.
+ *
+ *  @return The error code.
  */
 u32 jf_ptree_findChildNode(
     jf_ptree_node_t * pNode, olchar_t * pstrNs, olchar_t * pstrName, jf_ptree_node_t ** ppChild);
@@ -114,6 +138,12 @@ u32 jf_ptree_findChildNode(
  *
  *  @note
  *  -# The iteration will stop if return code of callback function is not JF_ERR_NO_ERROR.
+ *
+ *  @param pNode [in] The property tree node.
+ *  @param fnOpNode [in] The callback function for each child node.
+ *  @param pArg [in] The argument for the callback function.
+ *
+ *  @return The error code.
  */
 u32 jf_ptree_iterateNode(jf_ptree_node_t * pNode, jf_ptree_fnOpNode_t fnOpNode, void * pArg);
 
@@ -132,6 +162,8 @@ u32 jf_ptree_iterateNode(jf_ptree_node_t * pNode, jf_ptree_fnOpNode_t fnOpNode, 
  *  @param pstrValue [in] The value of the node.
  *  @param sValue [in] The size of the value.
  *  @param ppChildNode [out] The child node returned.
+ *
+ *  @return The error code.
  */
 u32 jf_ptree_addChildNode(
     jf_ptree_t * pPtree, jf_ptree_node_t * pNode, const olchar_t * pstrNs, const olsize_t sNs,
@@ -139,34 +171,47 @@ u32 jf_ptree_addChildNode(
     const olsize_t sValue, jf_ptree_node_t ** ppChildNode);
 
 /** Change node of the property tree.
+ *
+ *  @param pNode [in] The property tree node.
+ *  @param pstrValue [int] The node value to be set.
+ *
+ *  @return The error code.
  */
 u32 jf_ptree_changeNodeValue(jf_ptree_node_t * pNode, const olchar_t * pstrValue);
 
 /** Get name space of the node.
  *
- *  @param pNode [in] The property node.
+ *  @param pNode [in] The property tree node.
  *  @param ppstrNs [out] The node name space string.
  *  @param psNs [out] The size of the node name space, it can be NULL.
+ *
+ *  @return The error code.
  */
 u32 jf_ptree_getNodeNs(jf_ptree_node_t * pNode, olchar_t ** ppstrNs, olsize_t * psNs);
 
 /** Get name of the node.
  *
- *  @param pNode [in] The property node.
+ *  @param pNode [in] The property tree node.
  *  @param ppstrName [out] The node name string.
  *  @param psName [out] The size of the node name, it can be NULL.
+ *
+ *  @return The error code.
  */
 u32 jf_ptree_getNodeName(jf_ptree_node_t * pNode, olchar_t ** ppstrName, olsize_t * psName);
 
 /** Get value of the node.
  *
- *  @param pNode [in] The property node.
+ *  @param pNode [in] The property tree node.
  *  @param ppstrValue [out] The node value string.
  *  @param psValue [out] The size of the node value, it can be NULL.
+ *
+ *  @return The error code.
  */
 u32 jf_ptree_getNodeValue(jf_ptree_node_t * pNode, olchar_t ** ppstrValue, olsize_t * psValue);
 
 /** Check if the node is a leaf node.
+ *
+ *  @param pNode [in] The node to be checked.
  *
  *  @return If it's a leaf node.
  *  @retval TRUE It's a leaf node.
@@ -179,6 +224,10 @@ boolean_t jf_ptree_isLeafNode(jf_ptree_node_t * pNode);
  *  @note
  *  -# The node to be deleted cannot be the root node.
  *  -# Use jf_ptree_destroy() to destroy the tree including the root node.
+ *
+ *  @param ppNode [in/out] The node to be deleted.
+ *
+ *  @return The error code.
  */
 u32 jf_ptree_deleteNode(jf_ptree_node_t ** ppNode);
 
@@ -187,14 +236,26 @@ u32 jf_ptree_deleteNode(jf_ptree_node_t ** ppNode);
 /*--------------------------------------------------------------------------*/
 
 /** Get the root node of property tree.
+ *
+ *  @param pPtree [in] The property tree.
+ *
+ *  @return The root node.
  */
 jf_ptree_node_t * jf_ptree_getRootNode(jf_ptree_t * pPtree);
 
 /** Get the child node of the property tree node.
+ *
+ *  @param pNode [in] The property tree node.
+ *
+ *  @return The child node.
  */
 jf_ptree_node_t * jf_ptree_getChildNode(jf_ptree_node_t * pNode);
 
 /** Get the sibling node of the property tree node.
+ *
+ *  @param pNode [in] The property tree node.
+ *
+ *  @return The sibling node.
  */
 jf_ptree_node_t * jf_ptree_getSiblingNode(jf_ptree_node_t * pNode);
 
@@ -206,6 +267,13 @@ jf_ptree_node_t * jf_ptree_getSiblingNode(jf_ptree_node_t * pNode);
  *
  *  @note
  *  -# Prefix string may be NULL.
+ *
+ *  @param pNode [in] The property tree node.
+ *  @param pstrPrefix [in] The attribute prefix string.
+ *  @param pstrName [in] The attribute name string.
+ *  @param ppAttr [out] The attribute found.
+ *
+ *  @return The error code.
  */
 u32 jf_ptree_findNodeAttribute(
     jf_ptree_node_t * pNode, const olchar_t * pstrPrefix, const olchar_t * pstrName,
@@ -216,6 +284,8 @@ u32 jf_ptree_findNodeAttribute(
  *  @param pAttr [in] The node attribute.
  *  @param ppstrPrefix [out] The attribute prefix string.
  *  @param psPrefix [out] The size of the node attribute prefix, it can be NULL.
+ *
+ *  @return The error code.
  */
 u32 jf_ptree_getNodeAttributePrefix(
     jf_ptree_node_attribute_t * pAttr, olchar_t ** ppstrPrefix, olsize_t * psPrefix);
@@ -225,6 +295,8 @@ u32 jf_ptree_getNodeAttributePrefix(
  *  @param pAttr [in] The node attribute.
  *  @param ppstrName [out] The attribute name string.
  *  @param psName [out] The size of the node attribute name, it can be NULL.
+ *
+ *  @return The error code.
  */
 u32 jf_ptree_getNodeAttributeName(
     jf_ptree_node_attribute_t * pAttr, olchar_t ** ppstrName, olsize_t * psName);
@@ -234,6 +306,8 @@ u32 jf_ptree_getNodeAttributeName(
  *  @param pAttr [in] The node attribute.
  *  @param ppstrValue [out] The attribute value string.
  *  @param psValue [out] The size of the node attribute value, it can be NULL.
+ *
+ *  @return The error code.
  */
 u32 jf_ptree_getNodeAttributeValue(
     jf_ptree_node_attribute_t * pAttr, olchar_t ** ppstrValue, olsize_t * psValue);

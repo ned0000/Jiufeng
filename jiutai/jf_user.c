@@ -1,7 +1,7 @@
 /**
  *  @file jf_user.c
  *
- *  @brief The user C file
+ *  @brief Implementation file for routine related to user.
  *
  *  @author Min Zhang
  *

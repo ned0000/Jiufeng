@@ -22,6 +22,7 @@
 #include "jf_file.h"
 #include "jf_jiukun.h"
 #include "jf_option.h"
+#include "jf_time.h"
 
 #include "dispatcher.h"
 
@@ -110,12 +111,19 @@ static u32 _initAndStartDispatcher(dispatcher_param_t * pdp)
 
     u32Ret = jf_process_registerSignalHandlers(_dispatcherSignalHandler);
 
+    /*Initialize dispather.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = initDispatcher(pdp);
 
+    /*Start dispather, it enters loop until it's stopped.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = startDispatcher();
 
+    /*Dispatcher is stopped in the signal handler. Sleep several second to wait for the finish of
+      network chain.*/
+    jf_time_sleep(3);
+
+    /*Finalize dispather.*/
     finiDispatcher();
 
     return u32Ret;
@@ -145,12 +153,14 @@ static u32 _serviceDispatcher(olint_t argc, char** argv)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Switch to daemon by default.*/
         if (! ls_bForeground)
             u32Ret = jf_process_switchToDaemon();
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Quit if the service is already running.*/
         if (jf_process_isAlreadyRunning(ls_strProgramName))
         {
             fprintf(stderr, "Another %s is running\n", ls_strProgramName);

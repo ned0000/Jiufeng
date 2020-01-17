@@ -1,7 +1,7 @@
 /**
  *  @file jf_linklist.c
  *
- *  @brief provide linked list data structure
+ *  @brief Implementation file for linked list data structure.
  *
  *  @author Min Zhang
  *  

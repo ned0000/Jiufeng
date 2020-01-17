@@ -88,6 +88,7 @@ static u32 _destroyDispatcherMessagingClient(dispatcher_messaging_client_t ** pp
     u32 u32Ret = JF_ERR_NO_ERROR;
     dispatcher_messaging_client_t * pdmc = *ppClient;
 
+    /*Destroy xfer for messaging client.*/
     if (pdmc->dmc_pdxXfer != NULL)
         dispatcher_xfer_destroy(&pdmc->dmc_pdxXfer);
 
@@ -112,6 +113,7 @@ static u32 _createDispatcherMessagingClient(
 
     }
 
+    /*Create xfer for messaging client.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _createDispatcherMessagingClientXfer(pdmc, pcdmcp, pChain);
     
@@ -168,8 +170,10 @@ u32 createDispatcherMessagingClient(create_dispatcher_messaging_client_param_t *
 
     jf_logger_logDebugMsg("create dispatcher messaging client");
 
+    /*Create the network chain.*/
     u32Ret = jf_network_createChain(&ls_pjncMessagingClientChain);
 
+    /*Create the messaging client.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _createDispatcherMessagingClient(
@@ -185,9 +189,11 @@ u32 destroyDispatcherMessagingClient(void)
 
     jf_logger_logDebugMsg("destroy dispatcher messaging client");
 
+    /*Destroy the messaging client.*/
     if (ls_pdmcMessagingClient != NULL)
         _destroyDispatcherMessagingClient(&ls_pdmcMessagingClient);
 
+    /*Destroy the network chain.*/
     if (ls_pjncMessagingClientChain != NULL)
         u32Ret = jf_network_destroyChain(&ls_pjncMessagingClientChain);
 
@@ -212,6 +218,7 @@ u32 stopDispatcherMessagingClient(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
+    /*Stop the network chain.*/
     u32Ret = jf_network_stopChain(ls_pjncMessagingClientChain);
 
     return u32Ret;
@@ -224,7 +231,7 @@ u32 sendDispatcherMessagingMsg(dispatcher_msg_t * pdm)
 
     jf_logger_logDebugMsg("send dispatcher messaging msg");
 
-    /*Send the message to service.*/
+    /*Send the message to dispatcher daemon.*/
     u32Ret = dispatcher_xfer_sendMsg(pdmc->dmc_pdxXfer, pdm);
 
     return u32Ret;

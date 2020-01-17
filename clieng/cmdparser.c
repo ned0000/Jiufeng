@@ -84,20 +84,19 @@ static u32 _printError(internal_clieng_parser_t * picp, const u32 u32ErrorCode)
 
     pstrDesc = jf_err_getDescription(u32ErrorCode);
 
-    u32Ret = outputLine(
-        "Error (0x%x): %s", u32ErrorCode, pstrDesc);
+    u32Ret = outputLine("Error (0x%x): %s", u32ErrorCode, pstrDesc);
 
     return u32Ret;
 }
 
-/** Trim the left blank spaces, and the eol at the end of the string
+/** Trim the left blank spaces, and the eol at the end of the string.
  *
- *  @param pstrCmd [in] the command string
+ *  @param pstrCmd [in] The command string.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR on success
- *  @retval JF_ERR_BLANK_CMD if the command line is blank;
- *  @retval JF_ERR_COMMENT_CMD if the command line is comment;
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_BLANK_CMD If the command line is blank.
+ *  @retval JF_ERR_COMMENT_CMD If the command line is comment.
  */
 static u32 _trimCmdLine(olchar_t * pstrCmd)
 {
@@ -148,15 +147,14 @@ static u32 _trimCmdLine(olchar_t * pstrCmd)
     return u32Ret;
 }
 
-/** Form the command line arguments, and set the picp->icp_sArgc and
- *  picp->icp_pstrArgv.
+/** Form the command line arguments, and set argc and argv.
  *
- *  @param picp [in/out] the pointer to the CLI Parser. Its member attributes
- *   icp_sArgc and icp_pstrArgv will be set accordingly.
- *  @param pstrCmd [in/out] the command line. It will be changed during the
- *   process, and it will be referred by picp->icp_pstrArgv.
+ *  @param picp [in/out] the pointer to the CLI Parser. Its member attributes icp_sArgc and
+ *   icp_pstrArgv will be set accordingly.
+ *  @param pstrCmd [in/out] the command line. It will be changed during the process, and it will
+ *   be referred by picp->icp_pstrArgv.
  *
- *  @return the error code
+ *  @return The error code.
  */
 static u32 _formCmdLineArguments(
     internal_clieng_parser_t * picp, olchar_t * pstrCmd)
@@ -170,8 +168,7 @@ static u32 _formCmdLineArguments(
         jf_logger_logInfoMsg("clieng form arg, pstrCmd %s", pstrCmd);
 
         picp->icp_sArgc = MAX_ARGC;
-        u32Ret = jf_process_formCmdLineArguments(
-            pstrCmd, &picp->icp_sArgc, picp->icp_pstrArgv);
+        u32Ret = jf_process_formCmdLineArguments(pstrCmd, &picp->icp_sArgc, picp->icp_pstrArgv);
 
         jf_logger_logInfoMsg("clieng form arg, argc %d", picp->icp_sArgc);
         for (u32Index = 0; u32Index < picp->icp_sArgc; u32Index ++)
@@ -184,8 +181,8 @@ static u32 _formCmdLineArguments(
     return u32Ret;
 }
 
-/** For argv without leading - option, merge them to the previous argv to better
- *  handle invalid input
+/** For argv without leading - option, merge them to the previous argv to better handle invalid
+ *  input.
  */
 static u32 _preProcessCmdLine(internal_clieng_parser_t * picp)
 {
@@ -240,13 +237,12 @@ static boolean_t _findMore(olsize_t * psArgc, olchar_t ** ppstrArgv)
     return FALSE;
 }
 
-/** Parse and process the command according to the picp->icp_sArgc and
- *  picp->icp_pstrArgv.
+/** Parse and process the command according to the argc and argv.
  *
- *  @param picp [in] the pointer to the CLI parser. Its member attributes
- *   icp_sArgc and icp_pstrArgv must be set before this func is called.
+ *  @param picp [in] the pointer to the CLI parser. Its member attributes icp_sArgc and
+ *   icp_pstrArgv must be set before this func is called.
  *
- *  @return the error code
+ *  @return The error code.
  */
 static u32 _parseAndProcess(internal_clieng_parser_t * picp)
 {
@@ -256,19 +252,18 @@ static u32 _parseAndProcess(internal_clieng_parser_t * picp)
     u32Ret = jf_hashtable_getEntry(
         picp->icp_jhCmd, (void *)picp->icp_pstrArgv[0], (void **)&picc);
     if (u32Ret != JF_ERR_NO_ERROR)
+    {
         u32Ret = JF_ERR_INVALID_COMMAND;
+    }
     else
     {
-        u32Ret = picc->icc_fnSetDefaultParam(
-            picp->icp_pMaster, picc->icc_pParam);
+        u32Ret = picc->icc_fnSetDefaultParam(picp->icp_pMaster, picc->icc_pParam);
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = picc->icc_fnParseCmd(
-                picp->icp_pMaster, picp->icp_sArgc, picp->icp_pstrArgv,
-                picc->icc_pParam);
+                picp->icp_pMaster, picp->icp_sArgc, picp->icp_pstrArgv, picc->icc_pParam);
 
         if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = picc->icc_fnProcessCmd(
-                picp->icp_pMaster, picc->icc_pParam);
+            u32Ret = picc->icc_fnProcessCmd(picp->icp_pMaster, picc->icc_pParam);
     }
 
     setMoreDisable();
@@ -289,11 +284,9 @@ static olint_t _cmpKeys(void * pKey1, void * pKey2)
 static u32 _freeCmd(void ** ppCmd)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_clieng_cmd_t * picc = *ppCmd;
+//    internal_clieng_cmd_t * picc = *ppCmd;
 
-    free(picc);
-
-    *ppCmd = NULL;
+    jf_jiukun_freeMemory(ppCmd);
 
     return u32Ret;
 }
@@ -345,8 +338,7 @@ u32 createParser(clieng_parser_t ** pcp, clieng_parser_param_t * pcpp)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        picp->icp_u32MaxCmd = (pcpp->cpp_u32MaxCmd > 0) ?
-            pcpp->cpp_u32MaxCmd : MAX_CMD;
+        picp->icp_u32MaxCmd = (pcpp->cpp_u32MaxCmd > 0) ? pcpp->cpp_u32MaxCmd : MAX_CMD;
 
         memset(&jhcp, 0, sizeof(jhcp));
 
@@ -379,7 +371,7 @@ u32 destroyParser(clieng_parser_t ** pcp)
     jf_logger_logInfoMsg("destroy parser");
 
     if (picp->icp_piccsCmdSet != NULL)
-        free(picp->icp_piccsCmdSet);
+        jf_jiukun_freeMemory((void **)&picp->icp_piccsCmdSet);
 
     if (picp->icp_jhCmd != NULL)
         jf_hashtable_destroy(&(picp->icp_jhCmd));
@@ -418,7 +410,7 @@ u32 parseCmd(clieng_parser_t * pcp, olchar_t * pstrCmd)
     {
         u32Ret = _parseAndProcess(picp);
     }
-    else if (u32Ret != JF_ERR_BLANK_CMD && u32Ret != JF_ERR_COMMENT_CMD)
+    else if ((u32Ret != JF_ERR_BLANK_CMD) && (u32Ret != JF_ERR_COMMENT_CMD))
     {
         _printError(picp, u32Ret);
     }
@@ -428,9 +420,8 @@ u32 parseCmd(clieng_parser_t * pcp, olchar_t * pstrCmd)
 
 u32 newCmd(
     clieng_parser_t * pcp, const olchar_t * pstrName,
-    jf_clieng_fnSetDefaultParam_t fnSetDefaultParam,
-    jf_clieng_fnParseCmd_t fnParseCmd, jf_clieng_fnProcessCmd_t fnProcessCmd,
-    void * pParam, jf_clieng_cmd_t ** ppCmd)
+    jf_clieng_fnSetDefaultParam_t fnSetDefaultParam, jf_clieng_fnParseCmd_t fnParseCmd,
+    jf_clieng_fnProcessCmd_t fnProcessCmd, void * pParam, jf_clieng_cmd_t ** ppCmd)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_parser_t * picp = (internal_clieng_parser_t *)pcp;

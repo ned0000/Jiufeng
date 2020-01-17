@@ -1,7 +1,7 @@
 /**
  *  @file jf_option.c
  *
- *  @brief routines for handling option 
+ *  @brief Implementation file for handling option. 
  *
  *  @author Min Zhang
  *

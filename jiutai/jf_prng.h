@@ -44,14 +44,23 @@
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Initialize the prng library.
+ *
+ *  @return The error code.
  */
 PRNGAPI u32 PRNGCALL jf_prng_init(void);
 
 /** Finalize the prng library.
+ *
+ *  @return The error code.
  */
 PRNGAPI u32 PRNGCALL jf_prng_fini(void);
 
 /** Get random data.
+ *
+ *  @param pu8Data [out] The random data generated.
+ *  @param u32Len [in] The size of the data array.
+ *
+ *  @return The error code.
  */
 PRNGAPI u32 PRNGCALL jf_prng_getData(u8 * pu8Data, u32 u32Len);
 
@@ -59,6 +68,11 @@ PRNGAPI u32 PRNGCALL jf_prng_getData(u8 * pu8Data, u32 u32Len);
  *
  *  @note
  *  -# Pseudo-random bytes that are guaranteed to be unique but not unpredictable.
+ *
+ *  @param pu8Data [out] The random data generated.
+ *  @param u32Len [in] The size of the data array.
+ *
+ *  @return The error code.
  */
 PRNGAPI u32 PRNGCALL jf_prng_getPseudoData(u8 * pu8Data, u32 u32Len);
 

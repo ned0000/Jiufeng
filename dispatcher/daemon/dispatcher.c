@@ -98,24 +98,53 @@ static jf_linklist_t ls_jlServConfig;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
+/** Queue dispatcher message.
+ */
 static u32 _fnDispatcherQueueServServerMsg(u8 * pu8Msg, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_t * pid = &ls_idDispatcher;
     dispatcher_msg_t * pdm = NULL;
 
+    jf_logger_logDebugMsg("queue server msg, msg id: %u", getMessagingMsgId(pu8Msg, sMsg));
+
+    /*Create the message and copy the data. This is necessary as the original message buffer is not
+      allocated.*/
     u32Ret = createDispatcherMsg(&pdm, pu8Msg, sMsg);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Add the message to the queue.*/
         jf_mutex_acquire(&pid->id_jmMsgLock);
         u32Ret = jf_queue_enqueue(&pid->id_jqMsgQueue, pdm);
         jf_mutex_release(&pid->id_jmMsgLock);
     }
 
+    /*Up the semaphore to wakeup the dispatcher thread.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_sem_up(&pid->id_jsMsgSem);
     
+    return u32Ret;
+}
+
+static u32 _processReservedDispatcherMsg(dispatcher_msg_t * pdm)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    u32 u32MsgId = getDispatcherMsgId(pdm);
+    pid_t servPid = getDispatcherMsgSourceId(pdm);
+
+    switch (u32MsgId)
+    {
+    case DISPATCHER_MSG_ID_SERV_ACTIVE:
+        /*Service active message id, notify the service client to start sending message the active
+          message.*/
+        u32Ret = resumeDispatcherServClient(servPid);
+        break;
+    default:
+        jf_logger_logInfoMsg("Unrecognized reserved message, msg id: %u", u32MsgId);
+        break;
+    }
+
     return u32Ret;
 }
 
@@ -130,9 +159,18 @@ static u32 _dispatchMsg(internal_dispatcher_t * pid)
 
     while ((pdm != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        /*Send the message to destination service.*/
-        u32Ret = dispatchMsgToServ(pdm);
+        /*Check if the message is reserved for internal use.*/
+        if (isReservedDispatcherMsg(pdm))
+            /*Process the internal dispatcher message.*/
+            u32Ret = _processReservedDispatcherMsg(pdm);
+        else
+            /*Send the message to destination service.*/
+            u32Ret = dispatchMsgToServClients(pdm);
 
+        /*Free the message*/
+        freeDispatcherMsg(&pdm);
+
+        /*Get the next message.*/
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             jf_mutex_acquire(&pid->id_jmMsgLock);
@@ -170,7 +208,7 @@ static u32 _startMsgDispatcherThread(internal_dispatcher_t * pid)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    /*Start a thread to run the chain.*/
+    /*Start a thread to dispatch the message.*/
     u32Ret = jf_thread_create(NULL, NULL, _dispatcherMsgThread, pid);
 
     return u32Ret;
@@ -324,7 +362,7 @@ u32 startDispatcher(void)
         {
             jf_time_sleep(2);
         }
-        jf_logger_logInfoMsg("dispatcher main thread quit.");
+        jf_logger_logInfoMsg("dispatcher main thread stop");
     }
 
     return u32Ret;
@@ -342,6 +380,7 @@ u32 stopDispatcher(void)
     stopDispatcherServServers();
 
     /*Stop service client.*/
+    stopDispatcherServClients();
 
     /*Stop dispatcher thread.*/
     _stopMsgDispatcherThread(pid);

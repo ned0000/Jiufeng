@@ -1,7 +1,7 @@
 /**
  *  @file jf_date.c
  *
- *  @brief The implementation file for date object.
+ *  @brief The implementation file for date routines.
  *
  *  @author Min Zhang
  *  

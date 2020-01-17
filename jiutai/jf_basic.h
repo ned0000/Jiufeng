@@ -1,7 +1,7 @@
 /**
  *  @file jf_basic.h
  *
- *  @brief basic types header file
+ *  @brief Header file define the basic data type.
  *
  *  @author Min Zhang
  *  

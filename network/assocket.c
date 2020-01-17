@@ -41,10 +41,10 @@ typedef struct internal_assocket
     jf_network_chain_object_header_t ia_jncohHeader;
     jf_network_chain_t * ia_pjncChain;
 
-    u16 ia_u32MaxConn;
+    u32 ia_u32MaxConn;
     u16 ia_u16PortNumber;
     boolean_t ia_bListening;
-    u8 ia_u8Reserved[3];
+    u8 ia_u8Reserved[1];
     jf_ipaddr_t ia_jiAddr;
 
     olchar_t ia_strName[JF_NETWORK_MAX_NAME_LEN];
@@ -71,7 +71,7 @@ typedef struct internal_assocket
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-/** preselect handler for basic chain
+/** preselect handler for basic chain.
  */
 static u32 _preSelectAssocket(
     void * pAssocket, fd_set * readset, fd_set * writeset, fd_set * errorset, u32 * pu32BlockTime)
@@ -83,13 +83,13 @@ static u32 _preSelectAssocket(
       that means we need to do that.*/
     if (! pia->ia_bListening)
     {
-        jf_logger_logInfoMsg("pre sel ass, listening on the socket");
+        jf_logger_logInfoMsg("pre sel ass, listening on the socket %s", pia->ia_strName);
         /*Set the socket to non-block mode, so we can play nice and share the thread*/
         jf_network_setSocketNonblock(pia->ia_pjnsListenSocket);
 
         /*Put the socket in listen, and add it to the fdset for the select*/
         pia->ia_bListening = TRUE;
-        jf_network_listen(pia->ia_pjnsListenSocket, 4);
+        jf_network_listen(pia->ia_pjnsListenSocket, pia->ia_u32MaxConn);
         jf_network_setSocketToFdSet(pia->ia_pjnsListenSocket, readset);
     }
     else
@@ -104,7 +104,7 @@ static u32 _preSelectAssocket(
     return u32Ret;
 }
 
-/** Post select handler for basic chain
+/** Post select handler for basic chain.
  */
 static u32 _postSelectAssocket(
     void * pAssocket, olint_t slct, fd_set * readset, fd_set * writeset, fd_set * errorset)
@@ -119,7 +119,8 @@ static u32 _postSelectAssocket(
 
     if (jf_network_isSocketSetInFdSet(pia->ia_pjnsListenSocket, readset))
     {
-        jf_logger_logInfoMsg("post select assocket, listen socket is in readset");
+        jf_logger_logInfoMsg(
+            "post select assocket, listen socket %s is in readset", pia->ia_strName);
 
         /*There are pending TCP connection requests*/
         while (u32Ret == JF_ERR_NO_ERROR)
@@ -167,15 +168,15 @@ static u32 _postSelectAssocket(
     return u32Ret;
 }
 
-/** Internal method dispatched by the OnData event of the underlying asocket
+/** Internal method dispatched by the OnData event of the underlying asocket.
  *
- *  @param pAsocket [in] the async socket
- *  @param pu8Buffer [in] the buffer
- *  @param psBeginPointer [in/out] the beging pointer of the data 
- *  @param sEndPointer [in] the end pointer of the data 
- *  @param pUser [in] the user
+ *  @param pAsocket [in] The async socket.
+ *  @param pu8Buffer [in] The buffer.
+ *  @param psBeginPointer [in/out] The beging pointer of the data.
+ *  @param sEndPointer [in] The end pointer of the data.
+ *  @param pUser [in] The user.
  *
- *  @return the error code
+ *  @return The error code.
  */
 static u32 _assOnData(
     void * pAsocket, u8 * pu8Buffer, olsize_t * psBeginPointer,
@@ -187,38 +188,36 @@ static u32 _assOnData(
 
     jf_logger_logInfoMsg("ass on data");
 
-    /*Pass the received data up*/
+    /*Pass the received data up.*/
     u32Ret = pia->ia_fnOnData(
         pad->ad_iaAssocket, pAsocket, pu8Buffer, psBeginPointer, sEndPointer, pad->ad_pUser);
 
     return u32Ret;
 }
 
-static u32 _assGetTagOfAsocket(jf_network_asocket_t * pAsocket)
+static u32 _assGetIndexOfAsocket(jf_network_asocket_t * pAsocket)
 {
     u32 u32Index;
-#if defined(JIUFENG_64BIT)
-    u32Index = (u32)(u64)getTagOfAsocket(pAsocket);
-#else
-    u32Index = (u32)getTagOfAsocket(pAsocket);
-#endif
+
+    u32Index = getIndexOfAsocket(pAsocket);
+
     return u32Index;
 }
 
-/** Internal method dispatched by the disconnect event of the underlying asocket
+/** Internal method dispatched by the disconnect event of the underlying asocket.
  *
- *  @param pAsocket [in] the async socket 
- *  @param u32Status [in] the status code for the disconnection
- *  @param pUser [in] the user
+ *  @param pAsocket [in] The async socket.
+ *  @param u32Status [in] The status code for the disconnection.
+ *  @param pUser [in] The user.
  *
- *  @return the error code
+ *  @return The error code.
  */
 static u32 _assOnDisconnect(jf_network_asocket_t * pAsocket, u32 u32Status, void * pUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     assocket_data_t * pad = (assocket_data_t *) pUser;
     internal_assocket_t * pia = pad->ad_iaAssocket;
-    u32 u32Index = _assGetTagOfAsocket(pAsocket);
+    u32 u32Index = _assGetIndexOfAsocket(pAsocket);
 
     jf_logger_logInfoMsg("ass on disconnect, put %u", u32Index);
 
@@ -233,15 +232,15 @@ static u32 _assOnDisconnect(jf_network_asocket_t * pAsocket, u32 u32Status, void
     return u32Ret;
 }
 
-/** Internal method dispatched by the OnSendOK event of the underlying asocket
+/** Internal method dispatched by the OnSendOK event of the underlying asocket.
  *
- *  @param pAsocket [in] the async socket 
- *  @param u32Status [in] the status of the data transmission
- *  @param pu8Buffer [in] the buffer containing the sent data
- *  @param sBuf [in] the size of the buffer
- *  @param pUser [in] the user
+ *  @param pAsocket [in] The async socket.
+ *  @param u32Status [in] The status of the data transmission.
+ *  @param pu8Buffer [in] The buffer containing the sent data.
+ *  @param sBuf [in] The size of the buffer.
+ *  @param pUser [in] The user.
  *
- *  @return the error code
+ *  @return The error code.
  */
 static u32 _assOnSendData(
     jf_network_asocket_t * pAsocket, u32 u32Status, u8 * pu8Buffer, olsize_t sBuf, void * pUser)
@@ -325,7 +324,7 @@ u32 jf_network_createAssocket(
     jf_logger_logInfoMsg(
         "create assocket %s, max conn %u", pjnacp->jnacp_pstrName, pjnacp->jnacp_u32MaxConn);
 
-    /*create a new assocket*/
+    /*Allocate memory for async server socket.*/
     u32Ret = jf_jiukun_allocMemory((void **)&pia, sizeof(internal_assocket_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -345,6 +344,7 @@ u32 jf_network_createAssocket(
         pia->ia_u32MaxConn = pjnacp->jnacp_u32MaxConn;
         pia->ia_u16PortNumber = pjnacp->jnacp_u16ServerPort;
         ol_memcpy(&(pia->ia_jiAddr), &(pjnacp->jnacp_jiServer), sizeof(jf_ipaddr_t));
+        ol_strncpy(pia->ia_strName, pjnacp->jnacp_pstrName, JF_NETWORK_MAX_NAME_LEN - 1);
 
         u32Ret = jf_jiukun_allocMemory(
             (void **)&pia->ia_pjnaAsockets,
@@ -397,11 +397,7 @@ u32 jf_network_createAssocket(
             u32Ret = createAsocket(pChain, &pia->ia_pjnaAsockets[u32Index], &acp);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-#if defined(JIUFENG_64BIT)
-                setTagOfAsocket(pia->ia_pjnaAsockets[u32Index], (void *)(u64)u32Index);
-#else
-                setTagOfAsocket(pia->ia_pjnaAsockets[u32Index], (void *)u32Index);
-#endif
+                setIndexOfAsocket(pia->ia_pjnaAsockets[u32Index], u32Index);
             }
         }
     }
@@ -451,7 +447,7 @@ u32 jf_network_disconnectAssocket(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_assocket_t * pia = (internal_assocket_t *) pAssocket;
-    u32 u32Index = _assGetTagOfAsocket(pAsocket);
+    u32 u32Index = _assGetIndexOfAsocket(pAsocket);
 
     jf_logger_logInfoMsg("ass disconnect, index %u", u32Index);
     assert(u32Index < pia->ia_u32MaxConn);

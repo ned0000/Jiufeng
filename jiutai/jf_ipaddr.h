@@ -1,12 +1,13 @@
 /**
  *  @file jf_ipaddr.h
  *
- *  @brief Header file contains data structure and  routines for IP address manipulation
+ *  @brief Header file contains data structure and routines for IP address manipulation.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_ifmgmt library
- *  @note Link with olfiles and olstringparse library
+ *  @note
+ *  -# Routines declared in this file are included in jf_ifmgmt library.
+ *  -# Link with olfiles and olstringparse library.
  *
  */
 
@@ -51,36 +52,52 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-/**IPV4 address type*/
+/** IPV4 address type.
+ */
 #define JF_IPADDR_TYPE_V4               (0x0)
 
-/**IPV6 address type*/
+/** IPV6 address type.
+ */
 #define JF_IPADDR_TYPE_V6               (0x1)
 
-/**Unix domain socket*/
+/** Unix domain socket.
+ */
 #define JF_IPADDR_TYPE_UDS              (0x2)
 
 /* --- data structures -------------------------------------------------------------------------- */
 
+/** Define the IP address data type.
+ */
 typedef struct
 {
-    /**address type*/
+    /**Address type.*/
     u8 ji_u8AddrType;
     u8 ji_u8Reserved[7];
     union
     {
-        /**IPV4 address*/
+        /**IPV4 address.*/
         olint_t ju_nAddr;
-        /**IPV6 address*/
+        /**IPV6 address.*/
         u8 ju_u8Addr[16];
-        /**Unix domain socket*/
+        /**Unix domain socket.*/
         olchar_t ju_strPath[120];
     } ji_uAddr;
 } jf_ipaddr_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/*get local ip addr list, not include the loop back*/
+/** Get local ip address list.
+ *
+ *  @note
+ *  -# Loop back address are excluded.
+ *
+ *  @param u8AddrType [in] The address type.
+ *  @param pAddr [in] The address data type array.
+ *  @param pu16Count [in/out] The array size as in parameter and number of address in array as out
+ *   parameter.
+ *
+ *  @return The error code.
+ */
 IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getLocalIpAddrList(
     u8 u8AddrType, jf_ipaddr_t * pAddr, u16 * pu16Count);
 

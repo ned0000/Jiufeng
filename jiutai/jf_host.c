@@ -1,7 +1,7 @@
 /**
  *  @file jf_host.c
  *
- *  @brief get host information implementation file
+ *  @brief Implementation file for routines related to host information.
  *
  *  @author Min Zhang
  *

@@ -7,7 +7,7 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_stack object.
- *  -# The item is first in, last out.
+ *  -# The stack is first in, last out.
  *  -# Link with jf_jiukun library for memory allocation.
  *  -# This object is not thread safe.
  *  

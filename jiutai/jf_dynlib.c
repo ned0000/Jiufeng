@@ -49,8 +49,9 @@ u32 jf_dynlib_load(const olchar_t * pstrLibFile, jf_dynlib_t ** ppLib)
     u32Ret = jf_jiukun_allocMemory((void **)&pidl, sizeof(internal_dyn_lib_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(pidl, 0, sizeof(internal_dyn_lib_t));
+        ol_bzero(pidl, sizeof(internal_dyn_lib_t));
         
+        /*Open the dynamic library.*/
         pidl->idl_pDynLib = dlopen(pstrLibFile, RTLD_LAZY);
         if (pidl->idl_pDynLib == NULL)
             u32Ret = JF_ERR_FAIL_LOAD_DYNLIB;
@@ -60,8 +61,9 @@ u32 jf_dynlib_load(const olchar_t * pstrLibFile, jf_dynlib_t ** ppLib)
     u32Ret = jf_jiukun_allocMemory((void **)&pidl, sizeof(internal_dyn_lib_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        memset(pidl, 0, sizeof(internal_dyn_lib_t));
+        ol_bzero(pidl, sizeof(internal_dyn_lib_t));
 
+        /*Load the dynamic library.*/
         pidl->idl_hDynLib = LoadLibrary(pstrLibFile);
         if (pidl->idl_hDynLib == NULL)
             u32Ret = JF_ERR_FAIL_LOAD_DYNLIB;
@@ -91,6 +93,7 @@ u32 jf_dynlib_unload(jf_dynlib_t ** ppLib)
 
     if (pidl->idl_pDynLib != NULL)
     {
+        /*Close the dynamic library handle.*/
         nRet = dlclose(pidl->idl_pDynLib);
         if (nRet != 0)
             u32Ret = JF_ERR_FAIL_FREE_DYNLIB;
@@ -107,6 +110,7 @@ u32 jf_dynlib_unload(jf_dynlib_t ** ppLib)
 
     if (pidl->idl_hDynLib != NULL)
     {
+        /*Free the dynamic library handle.*/
         bRet = FreeLibrary(pidl->idl_hDynLib);
         if (! bRet)
             u32Ret = JF_ERR_FAIL_FREE_DYNLIB;
@@ -128,6 +132,7 @@ u32 jf_dynlib_getSymbolAddress(
 #if defined(LINUX)
     assert(pLib != NULL);
 
+    /*Get symbol address.*/
     *ppAddress = dlsym(pidl->idl_pDynLib, pstrSymbol);
     if (*ppAddress == NULL)
         u32Ret = JF_ERR_FAIL_GET_SYMBOL_ADDR;
@@ -135,6 +140,7 @@ u32 jf_dynlib_getSymbolAddress(
 #elif defined(WINDOWS)
     assert(pLib != NULL);
 
+    /*Get symbol address.*/
     *ppAddress = GetProcAddress(pidl->idl_hDynLib, pstrSymbol);
     if (*ppAddress == NULL)
         u32Ret = JF_ERR_FAIL_GET_SYMBOL_ADDR;

@@ -7,6 +7,8 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_serv library.
+ *  -# All service control routines are synchronous, it will not return until the response is
+ *   received or timeout.
  */
 
 #ifndef JIUFENG_SERV_H
@@ -112,42 +114,83 @@ typedef struct
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Initialize the service library.
+ *
+ *  @param pjsip [in] The parameter for initilizing the service library.
+ *
+ *  @return The error code.
  */
 SERVAPI u32 SERVCALL jf_serv_init(jf_serv_init_param_t * pjsip);
 
 /** Finalize the service library.
+ *
+ *  @return The error code.
  */
 SERVAPI u32 SERVCALL jf_serv_fini(void);
 
 /** Get the service information list.
+ *
+ *  @param pjsil [out] The service information list.
+ *
+ *  @return The error code.
  */
 SERVAPI u32 SERVCALL jf_serv_getInfoList(jf_serv_info_list_t * pjsil);
 
 /** Get information of a service.
+ *
+ *  @param pstrName [in] The name of the service.
+ *  @param pjsi [out] The service information.
+ *
+ *  @return The error code.
  */
 SERVAPI u32 SERVCALL jf_serv_getInfo(const olchar_t * pstrName, jf_serv_info_t * pjsi);
 
 /** Stop a service.
+ *
+ *  @param pstrName [in] The name of the service.
+ *
+ *  @return The error code.
  */
 SERVAPI u32 SERVCALL jf_serv_stopServ(const olchar_t * pstrName);
 
 /** Start a service.
+ *
+ *  @param pstrName [in] The name of the service.
+ *
+ *  @return The error code.
  */
 SERVAPI u32 SERVCALL jf_serv_startServ(const olchar_t * pstrName);
 
 /** Change the startup type of a service.
+ *
+ *  @param pstrName [in] The name of the service.
+ *  @param u8StartupType [in] The startup type of the service, refer to jf_serv_startup_type_t.
+ *
+ *  @return The error code.
  */
 SERVAPI u32 SERVCALL jf_serv_setServStartupType(const olchar_t * pstrName, const u8 u8StartupType);
 
 /** Get the service status in string format.
+ *
+ *  @param u8Status [in] The service status, refer to jf_serv_status_t.
+ *
+ *  @return The status string.
  */
 SERVAPI const olchar_t * SERVCALL jf_serv_getStringServStatus(const u8 u8Status);
 
 /** Get the service startup type in string format.
+ *
+ *  @param u8StartupType [in] The service startup type, refer to jf_serv_startup_type_t.
+ *
+ *  @return The startup type string.
  */
 SERVAPI const olchar_t * SERVCALL jf_serv_getStringServStartupType(const u8 u8StartupType);
 
 /** Get the service startup type from string.
+ *
+ *  @param pstrType [in] The service startup type string.
+ *  @param pu8StartupType [in] The service startup type parsed from string.
+ *
+ *  @return The startup type, one of value in jf_serv_startup_type_t.
  */
 SERVAPI u32 SERVCALL jf_serv_getServStartupTypeFromString(
     const olchar_t * pstrType, u8 * pu8StartupType);

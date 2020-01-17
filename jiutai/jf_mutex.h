@@ -27,8 +27,10 @@
 typedef struct
 {
 #if defined(LINUX)
+    /**The mutex handle from pthread library.*/
     pthread_mutex_t jm_ptmMutex;
 #elif defined(WINDOWS)
+    /**The mutex handle.*/
     HANDLE jm_hMutex;
 #endif
 } jf_mutex_t;

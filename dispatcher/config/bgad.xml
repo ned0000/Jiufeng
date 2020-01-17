@@ -13,6 +13,7 @@
   <message id="2001">activity_status</message>
 </publishedMessage>
 <subscribedMessage>
+  <message id="3000">system_info</message>
   <message id="2002">start_activity</message>
   <message id="2003">stop_activity</message>
 </subscribedMessage>

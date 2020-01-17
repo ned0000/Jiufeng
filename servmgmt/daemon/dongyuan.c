@@ -38,13 +38,17 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/** the buffer should be large enough to hold all sevice information
+/** The buffer should be large enough to hold all sevice information
  *  sizeof(jf_serv_info_t) * JF_SERV_MAX_NUM_OF_SERV
  */
 #define MAX_DONGYUAN_ASSOCKET_BUF_SIZE  (2048)
 
+/** Maximum connection in async server socket.
+ */
 #define MAX_DONGYUAN_ASSOCKET_CONN      (3)
 
+/** Define the internal dongyuan data type.
+ */
 typedef struct
 {
     boolean_t id_bInitialized;
@@ -58,6 +62,8 @@ typedef struct
 
 } internal_dongyuan_t;
 
+/** The internal dongyuan instance.
+ */
 static internal_dongyuan_t ls_idDongyuan;
 
 /* --- private routine section ------------------------------------------------------------------ */
@@ -117,6 +123,7 @@ static u32 _procesServMgmtMsgGetInfo(
 
     jf_logger_logDebugMsg("process msg, get info");
     
+    /*Check the size of the specified message.*/
     if (u32Size < sizeof(servmgmt_get_info_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
@@ -129,6 +136,7 @@ static u32 _procesServMgmtMsgGetInfo(
         resp.sgir_smhHeader.smh_u32Result = getServMgmtServInfo(
             pReq->sgir_strName, &resp.sgir_jsiInfo);
 
+        /*Send the response.*/
         u32Ret = jf_network_sendAssocketData(pAssocket, pAsocket, (u8 *)&resp, sizeof(resp));
     }
 
@@ -144,6 +152,7 @@ static u32 _procesServMgmtMsgGetInfoList(
     u8 u8Buffer[2048];
     servmgmt_get_info_list_resp_t * pResp = (servmgmt_get_info_list_resp_t *)u8Buffer;
 
+    /*Check the size of the specified message.*/
     if (u32Size < sizeof(servmgmt_get_info_list_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
@@ -155,10 +164,13 @@ static u32 _procesServMgmtMsgGetInfoList(
         _initServMgmtRespMsgHeader(
             (servmgmt_msg_header_t *)pResp, (servmgmt_msg_header_t *)pReq,
             SERVMGMT_MSG_ID_GET_INFO_LIST_RESP, sizeof(*pResp));
+        /*Get the service information list.*/
         pResp->sgilr_smhHeader.smh_u32Result = getServMgmtServInfoList(&pResp->sgilr_jsilList);
+        /*Calculate the payload size.*/
         pResp->sgilr_smhHeader.smh_u32PayloadSize = sizeof(jf_serv_info_list_t) +
             sizeof(jf_serv_info_t) * pResp->sgilr_jsilList.jsil_u16NumOfService;
 
+        /*Send the response.*/
         u32Ret = jf_network_sendAssocketData(
             pAssocket, pAsocket, (u8 *)pResp,
             sizeof(servmgmt_msg_header_t) + pResp->sgilr_smhHeader.smh_u32PayloadSize);
@@ -175,6 +187,7 @@ static u32 _procesServMgmtMsgStartServ(
     servmgmt_start_serv_req_t * pReq = (servmgmt_start_serv_req_t *)pu8Buffer;
     servmgmt_start_serv_resp_t resp;
 
+    /*Check the size of the specified message.*/
     if (u32Size < sizeof(servmgmt_start_serv_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
@@ -186,8 +199,10 @@ static u32 _procesServMgmtMsgStartServ(
         _initServMgmtRespMsgHeader(
             (servmgmt_msg_header_t *)&resp, (servmgmt_msg_header_t *)pReq,
             SERVMGMT_MSG_ID_START_SERV_RESP, sizeof(resp));
+        /*Start the service.*/
         resp.sssr_smhHeader.smh_u32Result = startServMgmtServ(pReq->sssr_strName);
 
+        /*Send the response.*/
         u32Ret = jf_network_sendAssocketData(pAssocket, pAsocket, (u8 *)&resp, sizeof(resp));
     }
 
@@ -202,6 +217,7 @@ static u32 _procesServMgmtMsgStopServ(
     servmgmt_stop_serv_req_t * pReq = (servmgmt_stop_serv_req_t *)pu8Buffer;
     servmgmt_stop_serv_resp_t resp;
 
+    /*Check the size of the specified message.*/
     if (u32Size < sizeof(servmgmt_stop_serv_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
@@ -213,8 +229,10 @@ static u32 _procesServMgmtMsgStopServ(
         _initServMgmtRespMsgHeader(
             (servmgmt_msg_header_t *)&resp, (servmgmt_msg_header_t *)pReq,
             SERVMGMT_MSG_ID_STOP_SERV_RESP, sizeof(resp));
+        /*Stop the service.*/
         resp.sssr_smhHeader.smh_u32Result = stopServMgmtServ(pReq->sssr_strName);
 
+        /*Send the response.*/
         u32Ret = jf_network_sendAssocketData(pAssocket, pAsocket, (u8 *)&resp, sizeof(resp));
     }
 
@@ -229,6 +247,7 @@ static u32 _procesServMgmtMsgSetStartupType(
     servmgmt_set_startup_type_req_t * pReq = (servmgmt_set_startup_type_req_t *)pu8Buffer;
     servmgmt_set_startup_type_resp_t resp;
 
+    /*Check the size of the specified message.*/
     if (u32Size < sizeof(servmgmt_set_startup_type_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
@@ -240,9 +259,11 @@ static u32 _procesServMgmtMsgSetStartupType(
         _initServMgmtRespMsgHeader(
             (servmgmt_msg_header_t *)&resp, (servmgmt_msg_header_t *)pReq,
             SERVMGMT_MSG_ID_SET_STARTUP_TYPE_RESP, sizeof(resp));
+        /*Set the startup type.*/
         resp.ssstr_smhHeader.smh_u32Result = setServMgmtServStartupType(
             pReq->ssstr_strName, pReq->ssstr_u8StartupType);
 
+        /*Send the response.*/
         u32Ret = jf_network_sendAssocketData(pAssocket, pAsocket, (u8 *)&resp, sizeof(resp));
     }
 
@@ -257,14 +278,15 @@ static u32 _validateServMgmtReqMsg(
     u32 u32Size = u32EndPointer - u32Begin;
     servmgmt_msg_header_t * pHeader = (servmgmt_msg_header_t *)(pu8Buffer + u32Begin);
 
+    /*The size should more than header size.*/
     if (u32Size < sizeof(servmgmt_msg_header_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Check the magic number.*/
         if (pHeader->smh_u32MagicNumber != SERVMGMT_MSG_MAGIC_NUMBER)
         {
-            *pu32BeginPointer = u32EndPointer;
             u32Ret = JF_ERR_INVALID_DATA;
         }
     }
@@ -280,6 +302,7 @@ static u32 _procesServMgmtMsg(
     u32 u32Begin = 0, u32Size = 0;
     servmgmt_msg_header_t * pHeader = NULL;
 
+    /*Validate the service management message.*/
     u32Ret = _validateServMgmtReqMsg(pu8Buffer, pu32BeginPointer, u32EndPointer);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -288,6 +311,7 @@ static u32 _procesServMgmtMsg(
         pu8Buffer += u32Begin;
         u32Size = u32EndPointer - u32Begin;
 
+        /*Process the message according to the message id.*/
         switch (pHeader->smh_u8MsgId)
         {
         case SERVMGMT_MSG_ID_GET_INFO_REQ:
@@ -312,8 +336,13 @@ static u32 _procesServMgmtMsg(
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
+        /*The message is handled without error, clear the data.*/
+        *pu32BeginPointer = u32EndPointer;
+    else if (u32Ret == JF_ERR_INVALID_DATA)
+        /*Invalid data, discard the data.*/
         *pu32BeginPointer = u32EndPointer;
     else if (u32Ret == JF_ERR_INCOMPLETE_DATA)
+        /*Incomplete data, waiting for more data.*/
         u32Ret = JF_ERR_NO_ERROR;
 
     return u32Ret;
@@ -328,6 +357,7 @@ static u32 _onDongyuanData(
 
     jf_logger_logDebugMsg("on dongyuan data, begin: %d, end: %d", u32Begin, u32EndPointer);
 
+    /*Process the service management message.*/
     u32Ret = _procesServMgmtMsg(pAssocket, pAsocket, pu8Buffer, pu32BeginPointer, u32EndPointer);
 
     return u32Ret;
@@ -338,6 +368,7 @@ static u32 _createDongyuanAssocket(internal_dongyuan_t * pid, dongyuan_param_t *
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_network_assocket_create_param_t jnacp;
 
+    /*Set the parameter for creating async server socket.*/
     ol_bzero(&jnacp, sizeof(jnacp));
 
     jnacp.jnacp_sInitialBuf = MAX_DONGYUAN_ASSOCKET_BUF_SIZE;
@@ -349,6 +380,7 @@ static u32 _createDongyuanAssocket(internal_dongyuan_t * pid, dongyuan_param_t *
     jnacp.jnacp_fnOnData = _onDongyuanData;
     jnacp.jnacp_pstrName = "dongyuan";
 
+    /*Creat the async server socket.*/
     u32Ret = jf_network_createAssocket(
         pid->id_pjncDongyuanChain, &pid->id_pjnaDongyuanAssocket, &jnacp);
 
@@ -359,9 +391,10 @@ static void _dongyuanSignalHandler(olint_t signal)
 {
     ol_printf("get signal %d\n", signal);
 
+    /*Handle the SIGCHID for forked children process.*/
     if (signal == SIGCHLD)
         handleServMgmtSignal(signal);
-    else
+    else /*Stop dongyuan service.*/
         stopDongyuan();
 }
 
@@ -392,6 +425,7 @@ u32 initDongyuan(dongyuan_param_t * pdp)
     /*Create the basic chain.*/
     u32Ret = jf_network_createChain(&pid->id_pjncDongyuanChain);
     
+    /*Initialize the service management module.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(&smip, sizeof(smip));
@@ -406,7 +440,7 @@ u32 initDongyuan(dongyuan_param_t * pdp)
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_thread_registerSignalHandlers(_dongyuanSignalHandler);
 
-    /*Create the async server socket.*/
+    /*Create the async server socket for service control.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _createDongyuanAssocket(pid, pdp);
     
@@ -424,13 +458,16 @@ u32 finiDongyuan(void)
     internal_dongyuan_t * pid = &ls_idDongyuan;
 
     jf_logger_logDebugMsg("fini dongyuan");
-    
+
+    /*Destroy the async server socket.*/
     if (pid->id_pjnaDongyuanAssocket != NULL)
         u32Ret = jf_network_destroyAssocket(&pid->id_pjnaDongyuanAssocket);
 
+    /*Destroy the network chain.*/
     if (pid->id_pjncDongyuanChain != NULL)
         u32Ret = jf_network_destroyChain(&pid->id_pjncDongyuanChain);
 
+    /*Finalize the service management module.*/
     finiServMgmt();
 
     pid->id_bInitialized = FALSE;

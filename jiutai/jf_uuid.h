@@ -104,6 +104,13 @@ typedef struct
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Get UUID.
+ *
+ *  @param pu8Uuid [out] The data buffer for the UUID.
+ *  @param u32Len [in] Length of the buffer.
+ *  @param version [in] UUID version.
+ *  @param pjup [in] Parameter for generating UUID.
+ *
+ *  @return The error code.
  */
 UUIDAPI u32 UUIDCALL jf_uuid_get(
     u8 * pu8Uuid, u32 u32Len, jf_uuid_ver_t version, jf_uuid_param_t * pjup);

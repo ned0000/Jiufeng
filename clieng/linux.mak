@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief the makefile for cli engine library
+#  @brief The makefile for cli engine library.
 #
 #  @author Min Zhang
 #

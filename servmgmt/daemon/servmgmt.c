@@ -149,6 +149,7 @@ static u32 _utimerStartService(void * pData)
         "utimer start serv %s, status: %s", pisi->isi_pstrName,
         getStringServStatus(pisi->isi_u8Status));
 
+    /*Start the service in "running" status, the service is failed to be started before.*/
     if (pisi->isi_u8Status == JF_SERV_STATUS_RUNNING)
         u32Ret = _startServMgmtServ(psmu->smu_pismServMgmt, pisi);
 
@@ -166,6 +167,7 @@ static u32 _tryStartServMgmtServ(internal_serv_mgmt_t * pism, internal_service_i
         "try to start service %s, restart count: %d", pisi->isi_pstrName,
         pisi->isi_u8RestartCount);
 
+    /*Donot restart the service if we have tried many times than expected.*/
     if (pisi->isi_u8RestartCount < pisms->isms_u8FailureRetryCount)
     {
         u32Delay = pisi->isi_u8RestartCount;
@@ -206,6 +208,7 @@ static u32 _startAllServices(internal_serv_mgmt_t * pism)
 
     jf_logger_logInfoMsg("start all serv");
 
+    /*Start all service.*/
     for (u32Index = 0;
          (u32Index < pisms->isms_u16NumOfService) && (u32Ret == JF_ERR_NO_ERROR);
          u32Index++)
@@ -214,6 +217,7 @@ static u32 _startAllServices(internal_serv_mgmt_t * pism)
 
         pisi->isi_u8Status = JF_SERV_STATUS_STOPPED;
 
+        /*Only start the service with automatic startup type.*/
         if (pisi->isi_u8StartupType == JF_SERV_STARTUP_TYPE_AUTOMATIC)
             u32Ret = _startServMgmtServ(pism, pisi);
     }
@@ -228,6 +232,7 @@ static u32 _stopServMgmtServ(
 
     jf_logger_logInfoMsg("stop serv %s", pisi->isi_pstrName);
 
+    /*Terminate the process.*/
     u32Ret = jf_process_terminate(&pisi->isi_jphHandle);
     if (u32Ret == JF_ERR_NO_ERROR)
         pisi->isi_u8Status = JF_SERV_STATUS_STOPPED;
@@ -244,15 +249,18 @@ static u32 _stopAllServices(internal_serv_mgmt_t * pism)
 
     jf_logger_logInfoMsg("stop all serv");
 
+    /*Stop all service.*/
     for (u32Index = 0;
          (u32Index < pisms->isms_u16NumOfService) && (u32Ret == JF_ERR_NO_ERROR);
          u32Index++)
     {
         pisi = &(pisms->isms_isiService[u32Index]);
 
+        /*Only when the status of service is "running", the service should be stopped.*/
         if (pisi->isi_u8Status == JF_SERV_STATUS_RUNNING)
             u32Ret = _stopServMgmtServ(pisms, pisi);
 
+        /*Update the service status to "stopped".*/
         pisi->isi_u8Status = JF_SERV_STATUS_STOPPED;
     }
 
@@ -278,6 +286,7 @@ static u32 _waitForChildProcess(
 
     jf_logger_logInfoMsg("wait for child");
 
+    /*Wait for terminated child process.*/
     u32Ret = jf_process_waitForChildProcessTermination(pid, u32Count, 0, &u32Index, &u32Reason);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -285,6 +294,7 @@ static u32 _waitForChildProcess(
 
         jf_mutex_acquire(&pism->ism_jmLock);
 
+        /*Iterate the service array.*/
         for (u32ServIndex = 0; u32ServIndex < pisms->isms_u16NumOfService; u32ServIndex ++)
         {
             pisi = &(pisms->isms_isiService[u32ServIndex]);
@@ -292,6 +302,7 @@ static u32 _waitForChildProcess(
             ret = ol_memcmp(&(pid[u32Index]), &pisi->isi_jphHandle, sizeof(jf_process_handle_t));
             if ((pisi->isi_u8Status == JF_SERV_STATUS_RUNNING) && (ret == 0))
             {
+                /*The terminated process is found.*/
                 _dumpServMgmtInfo(pisi);
                 _tryStartServMgmtServ(pism, pisi);
                 *pbRetry = TRUE;
@@ -318,6 +329,7 @@ static u32 _handleChildProcess(boolean_t * pbRetry)
 
     jf_mutex_acquire(&pism->ism_jmLock);
 
+    /*Build the process handle array.*/
     for (u32Count = 0, u32ServIndex = 0;
          u32ServIndex < pisms->isms_u16NumOfService; u32ServIndex ++)
     {
@@ -333,6 +345,7 @@ static u32 _handleChildProcess(boolean_t * pbRetry)
 
     jf_mutex_release(&pism->ism_jmLock);
 
+    /*Waiting for terminated child process.*/
     if (u32Count > 0)
     {
         u32Ret = _waitForChildProcess(pism, pid, u32Count, pbRetry);
@@ -348,6 +361,9 @@ static u32 _handleSigchldForChildProcess(void * pData)
 
     do
     {
+        /*If child process is terminated, we should retry checking the other child process, the
+          testing shows only 1 SIGCHLD is received when there are more than 1 processes are
+          terminated.*/
         bRetry = FALSE;
 
         _handleChildProcess(&bRetry);
@@ -376,14 +392,18 @@ static u32 _initServMgmt(internal_serv_mgmt_t * pism, serv_mgmt_init_param_t * p
             pisms->isms_strSettingFile, SERV_MGMT_SETTING_FILE, JF_LIMIT_MAX_PATH_LEN - 1);
     }
 
+    /*Read the setting file.*/
     u32Ret = _readServMgmtSetting(pisms);
 
+    /*Initialize the mutex lock.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_mutex_init(&pism->ism_jmLock);
-    
+
+    /*Create the utimer.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_network_createUtimer(psmip->smip_pjncChain, &pism->ism_pjnuUtimer, "dongyuan");
 
+    /*Start all services in setting file.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _startAllServices(pism);
 
@@ -398,6 +418,7 @@ static u32 _findServMgmtServ(
     u32 u32ServIndex = 0;
     internal_service_info_t * pisi = NULL;
 
+    /*Iterate the service array to find the service by name.*/
     for (u32ServIndex = 0; u32ServIndex < pisms->isms_u16NumOfService; u32ServIndex ++)
     {
         pisi = &pisms->isms_isiService[u32ServIndex];
@@ -409,6 +430,7 @@ static u32 _findServMgmtServ(
         }
     }
 
+    /*Iterate to the end of the array, the service is not found.*/
     if (u32ServIndex == pisms->isms_u16NumOfService)
         u32Ret = JF_ERR_SERV_NOT_FOUND;
 
@@ -446,14 +468,17 @@ u32 finiServMgmt(void)
     if (pism->ism_pjnuUtimer != NULL)
         jf_network_destroyUtimer(&pism->ism_pjnuUtimer);
 
-    /*ignore SIGCHLD before stopping daemon*/
+    /*Ignore SIGCHLD before stopping daemon.*/
     jf_process_ignoreSignal(SIGCHLD);
-    
+
+    /*Stop all service.*/
     _stopAllServices(pism);
 
+    /*Free the property tree of setting.*/
     if (pism->ism_ismsSetting.isms_pjpService != NULL)
         jf_ptree_destroy(&pism->ism_ismsSetting.isms_pjpService);
-    
+
+    /*Finalize the mutex lock.*/
     jf_mutex_fini(&pism->ism_jmLock);
 
     pism->ism_bInitialized = FALSE;
@@ -505,7 +530,7 @@ u32 getServMgmtServInfo(const olchar_t * pstrName, jf_serv_info_t * pjsi)
 u32 getServMgmtServInfoList(jf_serv_info_list_t * pjsil)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32ServIndex;
+    u32 u32ServIndex = 0;
     internal_serv_mgmt_t * pism = &ls_ismServMgmt;
     internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
     internal_service_info_t * pisi = NULL;
@@ -515,6 +540,7 @@ u32 getServMgmtServInfoList(jf_serv_info_list_t * pjsil)
     
     jf_mutex_acquire(&pism->ism_jmLock);
     
+    /*Copy the service information from internal data structure to the list.*/
     for (u32ServIndex = 0; u32ServIndex < pisms->isms_u16NumOfService; u32ServIndex ++)
     {
         pisi = &pisms->isms_isiService[u32ServIndex];

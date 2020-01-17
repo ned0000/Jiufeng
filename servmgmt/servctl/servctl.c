@@ -25,22 +25,46 @@
 #include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
+/** List all service or specified service.
+ */
 static boolean_t ls_bList = FALSE;
+
+/** Stop the specified service.
+ */
 static boolean_t ls_bStop = FALSE;
+
+/** Start the specified service.
+ */
 static boolean_t ls_bStart = FALSE;
+
+/** Set the startup type of a service.
+ */
 static boolean_t ls_bStartupType = FALSE;
+
+/** Specify the service name.
+ */
 static olchar_t * ls_pstrServName = NULL;
+
+/** Specify the service startup type.
+ */
 static u8 ls_u8StartupType = JF_SERV_STARTUP_TYPE_UNKNOWN;
 
-static const olchar_t * ls_pstrProgramName = "jf_servctl";
-static const olchar_t * ls_pstrVersion = "1.0.0";
+/** The programe name for service control executable file.
+ */
+static const olchar_t * ls_pstrServCtlProgramName = "jf_servctl";
+
+/** The version of the program.
+ */
+static const olchar_t * ls_pstrServCtlVersion = "1.0.0";
 
 /* --- private routine section ------------------------------------------------------------------ */
+
 static void _printServCtlUsage(void)
 {
     ol_printf("\
 Usage: %s [-l] [-s] [-t] [-u automatic|manual] [-n service name] [-V] [logger options]\n\
-    -l list service.\n\
+    -l list service. List all services is \"-n\" is not specified.\n\
     -t start service.\n\
     -s stop service.\n\
     -u <automatic|manual> change the startup type of the service.\n\
@@ -50,7 +74,7 @@ logger options:\n\
     -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug, 4: data.\n\
     -F <log file> the log file.\n\
     -S <log file size> the size of log file. No limit if not specified.\n",
-              ls_pstrProgramName);
+              ls_pstrServCtlProgramName);
 
     ol_printf("\n");
 
@@ -92,7 +116,7 @@ static u32 _parseServCtlCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_i
             u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case 'V':
-            ol_printf("%s %s\n", ls_pstrProgramName, ls_pstrVersion);
+            ol_printf("%s %s\n", ls_pstrServCtlProgramName, ls_pstrServCtlVersion);
             exit(0);
         case 'T':
             u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
@@ -224,6 +248,48 @@ static u32 _changeServiceStartupType(olchar_t * name, u8 u8Type)
 
     return u32Ret;
 }
+
+static u32 _processServCtlCommand(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_serv_init_param_t jsip;
+
+    ol_bzero(&jsip, sizeof(jsip));
+
+    /*Initialize the service library.*/
+    u32Ret = jf_serv_init(&jsip);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        if (ls_bStop)
+        {
+            u32Ret = _stopService(ls_pstrServName);
+        }
+        else if (ls_bStart)
+        {
+            u32Ret = _startService(ls_pstrServName);
+        }
+        else if (ls_bStartupType)
+        {
+            u32Ret = _changeServiceStartupType(ls_pstrServName, ls_u8StartupType);
+        }
+        else if (ls_bList)
+        {
+            if (ls_pstrServName != NULL)
+                u32Ret = _listService(ls_pstrServName);                
+            else
+                u32Ret = _listAllServices();
+        }
+        else
+        {
+            ol_printf("Operation is not specified!\n");
+            u32Ret = JF_ERR_INVALID_PARAM;
+        }
+
+        jf_serv_fini();
+    }
+
+    return u32Ret;
+}
 /* --- public routine section ------------------------------------------------------------------- */
 
 olint_t main(olint_t argc, olchar_t ** argv)
@@ -231,7 +297,6 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
     jf_logger_init_param_t jlipParam;
-    jf_serv_init_param_t jsip;
     jf_jiukun_init_param_t jjip;
 
     ol_bzero(&jlipParam, sizeof(jlipParam));
@@ -245,43 +310,15 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32Ret = _parseServCtlCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Initialize the logger library.*/
         jf_logger_init(&jlipParam);
 
+        /*Initialize the jiukun library.*/
         u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            ol_bzero(&jsip, sizeof(jsip));
-
-            u32Ret = jf_serv_init(&jsip);
-            if (u32Ret == JF_ERR_NO_ERROR)
-            {
-                if (ls_bStop)
-                {
-                    u32Ret = _stopService(ls_pstrServName);
-                }
-                else if (ls_bStart)
-                {
-                    u32Ret = _startService(ls_pstrServName);
-                }
-                else if (ls_bStartupType)
-                {
-                    u32Ret = _changeServiceStartupType(ls_pstrServName, ls_u8StartupType);
-                }
-                else if (ls_bList)
-                {
-                    if (ls_pstrServName != NULL)
-                        u32Ret = _listService(ls_pstrServName);                
-                    else
-                        u32Ret = _listAllServices();
-                }
-                else
-                {
-                    ol_printf("Operation is not specified!\n");
-                    u32Ret = JF_ERR_INVALID_PARAM;
-                }
-
-                jf_serv_fini();
-            }
+            /*Process the service control command.*/
+            u32Ret = _processServCtlCommand();
 
             jf_jiukun_fini();
         }

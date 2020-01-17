@@ -29,29 +29,40 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/** This initial size of the receive buffer
+/** This initial size of the receive buffer.
  */
 #define DISPATCHER_XFER_INITIAL_BUFFER_SIZE            (2048)
 
+/** Define the internal dispatcher xfer data type.
+ */
 typedef struct internal_dispatcher_xfer
 {
+    /**The network chain object header.*/
     jf_network_chain_object_header_t idx_jncohHeader;
 
     u32 idx_u32Reserved[4];
 
+    /*The network chain.*/
     jf_network_chain_t * idx_pjncChain;
 
+    /**Mutex lock for the message queue.*/
     jf_mutex_t idx_jmMsg;
+    /**Message queue.*/
     jf_queue_t idx_jqMsg;
-
-    /**Number of message.*/
+    /**xfer is paused if it's TRUE.*/
+    boolean_t idx_bPause;
+    u8 idx_u8Reserved[7];
+    /**Number of high priority message.*/
     u16 idx_u16NumOfHighPrioMsg;
+    /**Number of mid priority message.*/
     u16 idx_u16NumOfMidPrioMsg;
+    /**Number of low priority message.*/
     u16 idx_u16NumOfLowPrioMsg;
+
     u16 idx_u16Reserved;
-
+    /**Maximum number of message allowed in the queue.*/
     u32 idx_u32MaxNumMsg;
-
+    /**The xfer object pool*/
     dispatcher_xfer_object_pool_t * idx_pdxopPool;
 
 } internal_dispatcher_xfer_t;
@@ -98,6 +109,15 @@ static u32 _sendDispatcherXferMsg(internal_dispatcher_xfer_t * pidx)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     dispatcher_msg_t * pdm = NULL;
+    boolean_t bPause = FALSE;
+
+    /*If the pause flag is set, do not send any message.*/
+    jf_mutex_acquire(&pidx->idx_jmMsg);
+    bPause = pidx->idx_bPause;
+    jf_mutex_release(&pidx->idx_jmMsg);
+
+    if (bPause)
+        return u32Ret;
 
     /*Peek the message from queue. The message is destroyed when it's sent.*/
     pdm = _peekDispatcherXferMsgFromQueue(pidx);
@@ -141,6 +161,7 @@ static u32 _fnOnDispatcherXferObjectEvent(
     if (event == DISPATCHER_XFER_OBJECT_EVENT_MSG_SENT)
     {
         /*Message is sent so we can remove it from queue and free it.*/
+        jf_logger_logDebugMsg("on dispatcher xfer object event, msg sent");
         pdm = _dequeueDispatcherXferMsgFromQueue(pidx);
         assert(pdm != NULL);
         freeDispatcherMsg(&pdm);
@@ -158,11 +179,13 @@ u32 dispatcher_xfer_destroy(dispatcher_xfer_t ** ppXfer)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_xfer_t * pidx = (internal_dispatcher_xfer_t *) *ppXfer;
 
-    jf_logger_logDebugMsg("dispather xfer destroy");
+    jf_logger_logDebugMsg("dispatcher xfer destroy");
 
+    /*Destroy the xfer object pool.*/
     if (pidx->idx_pdxopPool != NULL)
         destroyDispatcherXferObjectPool(&pidx->idx_pdxopPool);
 
+    /*Finalize the message queue and free all the message.*/
     jf_queue_finiQueueAndData(&pidx->idx_jqMsg, fnFreeDispatcherMsg);
     jf_mutex_fini(&pidx->idx_jmMsg);
 
@@ -186,7 +209,9 @@ u32 dispatcher_xfer_create(
     u32Ret = jf_jiukun_allocMemory((void **)&pidx, sizeof(internal_dispatcher_xfer_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Initialize the dispatcher xfer.*/
         ol_bzero(pidx, sizeof(internal_dispatcher_xfer_t));
+        /*The callback function for network chain object header.*/
         pidx->idx_jncohHeader.jncoh_fnPreSelect = _preDispatcherXferProcess;
         pidx->idx_pjncChain = pjnc;
         pidx->idx_u32MaxNumMsg = pdxcp->dxcp_u32MaxNumMsg;
@@ -194,9 +219,11 @@ u32 dispatcher_xfer_create(
         jf_mutex_init(&pidx->idx_jmMsg);
         jf_queue_init(&pidx->idx_jqMsg);
 
+        /*Add the oject header to network chain.*/
         u32Ret = jf_network_appendToChain(pjnc, pidx);
     }
 
+    /*Create xfer object pool.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(&dxpcp, sizeof(dxpcp));
@@ -219,6 +246,35 @@ u32 dispatcher_xfer_create(
     return u32Ret;
 }
 
+u32 dispatcher_xfer_pause(dispatcher_xfer_t * pXfer)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_dispatcher_xfer_t * pidx = (internal_dispatcher_xfer_t *) pXfer;
+
+    /*Set the flag.*/
+    jf_mutex_acquire(&pidx->idx_jmMsg);
+    pidx->idx_bPause = TRUE;
+    jf_mutex_release(&pidx->idx_jmMsg);
+
+    return u32Ret;
+}
+
+u32 dispatcher_xfer_resume(dispatcher_xfer_t * pXfer)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_dispatcher_xfer_t * pidx = (internal_dispatcher_xfer_t *) pXfer;
+
+    /*Clear the flag.*/
+    jf_mutex_acquire(&pidx->idx_jmMsg);
+    pidx->idx_bPause = FALSE;
+    jf_mutex_release(&pidx->idx_jmMsg);
+
+    /*Wakeup the network chain.*/
+    u32Ret = jf_network_wakeupChain(pidx->idx_pjncChain);
+
+    return u32Ret;
+}
+
 u32 dispatcher_xfer_sendMsg(dispatcher_xfer_t * pXfer, dispatcher_msg_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -227,6 +283,7 @@ u32 dispatcher_xfer_sendMsg(dispatcher_xfer_t * pXfer, dispatcher_msg_t * pdm)
 
     jf_logger_logInfoMsg("dispatcher xfer send msg");
 
+    /*Add the message to queue.*/
     u32Ret = _enqueueDispatcherXferMsgToQueue(pidx, pdm, &bWakeup);
 
     if ((u32Ret == JF_ERR_NO_ERROR) && bWakeup)
@@ -242,6 +299,8 @@ u32 dispatcher_xfer_clearMsgQueue(dispatcher_xfer_t * pXfer)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_xfer_t * pidx = (internal_dispatcher_xfer_t *) pXfer;
     dispatcher_msg_t * pdm = NULL;
+
+    /*TODO: delete the message in the xfer object as the message is going to be destroyed.*/
 
     jf_mutex_acquire(&pidx->idx_jmMsg);
     pdm = jf_queue_dequeue(&pidx->idx_jqMsg);

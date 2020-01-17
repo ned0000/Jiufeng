@@ -39,8 +39,8 @@
  *  @return Number of bytes converted to hex string.
  */
 olsize_t jf_hex_convertByteDataToString(
-    const u8 * pu8Data, const olsize_t sData, const olsize_t sOffset,
-    olchar_t * pstrHex, olsize_t sStr);
+    const u8 * pu8Data, const olsize_t sData, const olsize_t sOffset, olchar_t * pstrHex,
+    olsize_t sStr);
 
 /** Convert the word data into word hex string, starting from the giving index.
  *
@@ -57,8 +57,8 @@ olsize_t jf_hex_convertByteDataToString(
  *  @return Number of words converted to hex string.
  */
 olsize_t jf_hex_convertWordDataToString(
-    const u16 * pu16Data, const olsize_t sData, const olsize_t sOffset,
-    olchar_t * pstrHex, olsize_t sStr);
+    const u16 * pu16Data, const olsize_t sData, const olsize_t sOffset, olchar_t * pstrHex,
+    olsize_t sStr);
 
 /** Convert the byte data into byte hex string, starting from the giving index with ASCSII appended
  *  to each line.
@@ -76,8 +76,8 @@ olsize_t jf_hex_convertWordDataToString(
  *  @return Number of words converted to hex string and ASCII.
  */
 olsize_t jf_hex_convertByteDataToStringWithAscii(
-    const u8 * pu8Data, const olsize_t sData, const olsize_t sOffset,
-    olchar_t * pstrHex, olsize_t sStr);
+    const u8 * pu8Data, const olsize_t sData, const olsize_t sOffset, olchar_t * pstrHex,
+    olsize_t sStr);
 
 /** Dump byte data buffer, the output is byte hex string with ascii
  *

@@ -1,7 +1,7 @@
 /**
  *  @file cmdhistory.c
  *
- *  @brief The command history
+ *  @brief The command history module.
  *
  *  @author Min Zhang
  *
@@ -27,9 +27,9 @@
 
 typedef struct
 {
-    /* the max number of characters for one command */
+    /**The max number of characters for one command.*/
 	olsize_t icch_sMaxCmdLine;
-    /* the size of the command history buffer. In the number of commands. */
+    /**The size of the command history buffer. In the number of commands.*/
 	olsize_t icch_sCmdHistroyBuf;
 	olindex_t icch_iCurrentCmd;
 	olindex_t icch_iFirstCmd;
@@ -41,8 +41,7 @@ typedef struct
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 createCommandHistory(
-    clieng_cmd_history_t ** ppcch, clieng_cmd_history_param_t * pcchp)
+u32 createCommandHistory(clieng_cmd_history_t ** ppcch, clieng_cmd_history_param_t * pcchp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t size = 0;
@@ -52,8 +51,9 @@ u32 createCommandHistory(
     
     assert((ppcch != NULL) && (pcchp != NULL));
         
-    size = sizeof(internal_clieng_cmd_history_t) + 
+    size = sizeof(internal_clieng_cmd_history_t) +
         (pcchp->cchp_sCmdHistroyBuf * (pcchp->cchp_sMaxCmdLine + 1)) - 4;
+
     u32Ret = jf_jiukun_allocMemory((void **)&picch, size);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -119,7 +119,9 @@ u32 appendCommand(clieng_cmd_history_t * pcch, olchar_t * pstrCmd)
         
     length = ol_strlen(pstrCmd);
     if (length > picch->icch_sMaxCmdLine)
+    {
         u32Ret = JF_ERR_CMD_TOO_LONG;
+    }
     else
     {
         /* adjust the indexes */
@@ -130,13 +132,11 @@ u32 appendCommand(clieng_cmd_history_t * pcch, olchar_t * pstrCmd)
         }
         else
         {
-            picch->icch_iLastCmd =
-                (picch->icch_iLastCmd + 1) % picch->icch_sCmdHistroyBuf;
+            picch->icch_iLastCmd = (picch->icch_iLastCmd + 1) % picch->icch_sCmdHistroyBuf;
             if (picch->icch_iFirstCmd == picch->icch_iLastCmd)
             {
                 /* the buffer is full, overwrite the oldest command */
-                picch->icch_iFirstCmd = 
-                    (picch->icch_iFirstCmd + 1) % picch->icch_sCmdHistroyBuf;
+                picch->icch_iFirstCmd = (picch->icch_iFirstCmd + 1) % picch->icch_sCmdHistroyBuf;
             }
         }
             
@@ -144,7 +144,7 @@ u32 appendCommand(clieng_cmd_history_t * pcch, olchar_t * pstrCmd)
         picch->icch_iCurrentCmd = picch->icch_iLastCmd + 1;
 
         /* copy the command over to the command buffer */
-        pstrLastCmd = picch->icch_strCommands + 
+        pstrLastCmd = picch->icch_strCommands +
             (picch->icch_sMaxCmdLine + 1) * picch->icch_iLastCmd;
         ol_strcpy(pstrLastCmd, pstrCmd);
     }
@@ -152,8 +152,7 @@ u32 appendCommand(clieng_cmd_history_t * pcch, olchar_t * pstrCmd)
     return u32Ret;
 }
 
-u32 getPreviousCommand(
-    clieng_cmd_history_t * pcch, olchar_t * pstrCmdBuf, olsize_t sBuf)
+u32 getPreviousCommand(clieng_cmd_history_t * pcch, olchar_t * pstrCmdBuf, olsize_t sBuf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t length = 0;
@@ -166,11 +165,15 @@ u32 getPreviousCommand(
     jf_logger_logInfoMsg("get previous command");    
 
     if (picch->icch_iLastCmd == INVALID_CMD_INDEX)
+    {
         pstrCmdBuf[0] = 0;
+    }
     else
     {
         if (picch->icch_iCurrentCmd > 0)
+        {
             previous = picch->icch_iCurrentCmd - 1;
+        }
         else
         {
             if (picch->icch_iFirstCmd == 0)
@@ -179,12 +182,13 @@ u32 getPreviousCommand(
                 previous = picch->icch_sCmdHistroyBuf - 1;
         }
             
-        pstrPreviousCmd = picch->icch_strCommands + 
-            (picch->icch_sMaxCmdLine + 1) * previous;
+        pstrPreviousCmd = picch->icch_strCommands + (picch->icch_sMaxCmdLine + 1) * previous;
         length = ol_strlen(pstrPreviousCmd);
             
         if ((length + 1) > sBuf)
+        {
             u32Ret = JF_ERR_BUFFER_TOO_SMALL;
+        }
         else
         {
             ol_strcpy(pstrCmdBuf, pstrPreviousCmd);
@@ -195,35 +199,38 @@ u32 getPreviousCommand(
     return u32Ret;
 }
 
-u32 getNextCommand(
-    clieng_cmd_history_t * pcch, olchar_t * pstrCmdBuf, olsize_t sBuf)
+u32 getNextCommand(clieng_cmd_history_t * pcch, olchar_t * pstrCmdBuf, olsize_t sBuf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t length = 0;
     olindex_t next = 0;
     olchar_t * pstrNextCmd = NULL;
-    internal_clieng_cmd_history_t * picch =
-        (internal_clieng_cmd_history_t *)pcch;
+    internal_clieng_cmd_history_t * picch = (internal_clieng_cmd_history_t *)pcch;
 
     assert(pcch != NULL && pstrCmdBuf != NULL && sBuf > 0);
 
     jf_logger_logInfoMsg("get next command");
         
     if (picch->icch_iLastCmd == -1)
+    {
         pstrCmdBuf[0] = 0; /* history buffer is empty */
+    }
     else
     {
         if (((picch->icch_iCurrentCmd - 1) == picch->icch_iLastCmd) ||
             (picch->icch_iCurrentCmd == picch->icch_iLastCmd))
+        {
             pstrCmdBuf[0] = 0; /* already reached the last command */
+        }
         else
         {
             next = (picch->icch_iCurrentCmd + 1) % picch->icch_sCmdHistroyBuf;
-            pstrNextCmd = picch->icch_strCommands +
-                (picch->icch_sMaxCmdLine + 1) * next;
+            pstrNextCmd = picch->icch_strCommands + (picch->icch_sMaxCmdLine + 1) * next;
             length = ol_strlen(pstrNextCmd);
             if ((length + 1) > sBuf)
+            {
                 u32Ret = JF_ERR_BUFFER_TOO_SMALL;
+            }
             else
             {
                 ol_strcpy(pstrCmdBuf, pstrNextCmd);

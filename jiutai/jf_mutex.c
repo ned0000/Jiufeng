@@ -1,7 +1,7 @@
 /**
  *  @file jf_mutex.c
  *
- *  @brief synchronization object implementation file
+ *  @brief Implementation file for synchronization object.
  *
  *  @author Min Zhang
  *

@@ -1,7 +1,7 @@
 /**
- *  @file jf_hex.h
+ *  @file cghashcommon.h
  *
- *  @brief header file for cghash library, provide common constant
+ *  @brief Header file for cghash library, provide common constant.
  *
  *  @author Min Zhang
  *  

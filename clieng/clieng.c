@@ -20,6 +20,8 @@
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_clieng.h"
+#include "jf_process.h"
+
 #include "engio.h"
 #include "cmdhistory.h"
 #include "cmdparser.h"
@@ -72,8 +74,7 @@ static u32 _createCmdHistory(
     return u32Ret;
 }
 
-static u32 _createInputOutput(
-    internal_clieng_t * pic, jf_clieng_init_param_t * pjcip)
+static u32 _createInputOutput(internal_clieng_t * pic, jf_clieng_init_param_t * pjcip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     clieng_io_param_t param;
@@ -88,8 +89,7 @@ static u32 _createInputOutput(
     return u32Ret;
 }
 
-static u32 _createParser(
-    internal_clieng_t * pic, jf_clieng_init_param_t * pjcip)
+static u32 _createParser(internal_clieng_t * pic, jf_clieng_init_param_t * pjcip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     clieng_parser_param_t param;
@@ -106,69 +106,19 @@ static u32 _createParser(
     return u32Ret;
 }
 
-void _terminateCliengShell(olint_t signal)
+static void _terminateCliengShell(olint_t signal)
 {
     ls_nTerminationSignal = signal;
 }
-#ifndef WINDOWS
+
 static u32 _registerSignalHandlers(internal_clieng_t * pic)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olint_t nRet;
-    olint_t nSignals[] = { SIGABRT, SIGHUP, SIGPIPE, SIGQUIT, SIGTERM, SIGTSTP };
-    olint_t nIndex, nSignalCount = 6;
-    sigset_t ssSignalSet;
-    struct sigaction act, oact;
 
-    nIndex = 0;
-    while ((u32Ret == JF_ERR_NO_ERROR) && (nIndex<nSignalCount))
-    {
-        nRet = sigemptyset(&ssSignalSet);
-    	if (nRet == -1)
-        {
-            u32Ret = JF_ERR_OPERATION_FAIL;
-    	    jf_logger_logErrMsg(
-                u32Ret, "register signal, sigemptyset() for signals[%d] failed",
-                nIndex);
-    	}
-        else
-    	{
-            nRet = sigaddset(&ssSignalSet, nSignals[nIndex]);
-            if (nRet == -1)
-    	    {
-                u32Ret = JF_ERR_OPERATION_FAIL;
-	            jf_logger_logErrMsg(u32Ret, "register signal, sigaddset() failed");
-    	    }
-        }
-
-    	if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            /*act.sa_sigaction = terminate;*/
-            act.sa_handler = _terminateCliengShell;
-            act.sa_mask = ssSignalSet;
-            act.sa_flags = SA_SIGINFO;
-
-#ifdef SA_RESTART
-            act.sa_flags |= SA_RESTART;
-#endif
-
-            nRet = sigaction(nSignals[nIndex], &act, &oact);
-            if (nRet == -1)
-            {
-                jf_logger_logErrMsg(
-                    u32Ret,
-                    "register signal, sigaction() for signals[%d] failed",
-                    nIndex);
-                u32Ret = JF_ERR_OPERATION_FAIL;
-            }
-        }
-
-    	nIndex = nIndex+1;
-    }
+    u32Ret = jf_process_registerSignalHandlers(_terminateCliengShell);
 
     return u32Ret;
 }
-#endif
 
 static u32 _printPrompt(internal_clieng_t * pic)
 {
@@ -196,8 +146,7 @@ static u32 _cliengLoop(internal_clieng_t * pic)
     while (u32Ret == JF_ERR_NO_ERROR)
     {
     	u32Ret = engioInput(
-            &citInputType, pic->ic_strInputBuffer, &length,
-            ol_strlen(pic->ic_strPrompt));
+            &citInputType, pic->ic_strInputBuffer, &length, ol_strlen(pic->ic_strPrompt));
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             /* navigation command */
@@ -206,14 +155,12 @@ static u32 _cliengLoop(internal_clieng_t * pic)
                 /* Upper Arrow */
                 if (pic->ic_strInputBuffer[0] == 'A')
                 {
-                    getPreviousCommand(
-                        pic->ic_pcchCmdHistory, pic->ic_strInputBuffer, length);
+                    getPreviousCommand(pic->ic_pcchCmdHistory, pic->ic_strInputBuffer, length);
                 }    
 	    	    /* Down Arrow */
 		        else if (pic->ic_strInputBuffer[0] == 'B')
 		        {
-                    getNextCommand(
-                        pic->ic_pcchCmdHistory, pic->ic_strInputBuffer, length);
+                    getNextCommand(pic->ic_pcchCmdHistory, pic->ic_strInputBuffer, length);
                 }
             } 
             /* regular command */
@@ -224,8 +171,7 @@ static u32 _cliengLoop(internal_clieng_t * pic)
             else 
             {
                 u32Ret = JF_ERR_NOT_IMPLEMENTED;
-                jf_logger_logErrMsg(u32Ret, "_cliengLoop() got input with type %d",
-                    citInputType);
+                jf_logger_logErrMsg(u32Ret, "_cliengLoop() got input with type %d", citInputType);
     	        return u32Ret;
             }
         }
@@ -362,7 +308,7 @@ u32 jf_clieng_stop(void)
     return u32Ret;
 }
 
-u32 jf_clieng_fini()
+u32 jf_clieng_fini(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_t * pic = &ls_icClieng;
@@ -398,16 +344,14 @@ u32 jf_clieng_newCmd(
     return u32Ret;
 }
 
-u32 jf_clieng_newCmdSet(
-    const olchar_t * pstrName, jf_clieng_cmd_set_t ** ppCmdSet)
+u32 jf_clieng_newCmdSet(const olchar_t * pstrName, jf_clieng_cmd_set_t ** ppCmdSet)
 {
     u32 u32Ret = JF_ERR_NOT_IMPLEMENTED;
 
     return u32Ret;
 }
 
-u32 jf_clieng_addToCmdSet(
-    jf_clieng_cmd_t * pCmd, jf_clieng_cmd_set_t * pCmdSet)
+u32 jf_clieng_addToCmdSet(jf_clieng_cmd_t * pCmd, jf_clieng_cmd_set_t * pCmdSet)
 {
     u32 u32Ret = JF_ERR_NOT_IMPLEMENTED;
 

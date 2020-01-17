@@ -179,6 +179,9 @@ u32 jf_messaging_sendMsg(u8 * pu8Msg, olsize_t sMsg)
     u32 u32Ret = JF_ERR_NO_ERROR;
 //    internal_messaging_t * pim = &ls_imMessaging;
     dispatcher_msg_t * pdm = NULL;
+    u32 u32MsgId = getMessagingMsgId(pu8Msg, sMsg);
+
+    jf_logger_logDebugMsg("messaging send msg id: %u", u32MsgId);
 
     u32Ret = createDispatcherMsg(&pdm, pu8Msg, sMsg);
     if (u32Ret == JF_ERR_NO_ERROR)

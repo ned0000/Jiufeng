@@ -1,7 +1,7 @@
 /**
  *  @file cli/main.c
  *
- *  @brief The main file of cli
+ *  @brief The main file of cli.
  *
  *  @author Min Zhang
  *  
@@ -34,7 +34,8 @@
 #include "main.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
-jiufeng_cli_master_t * ls_pocmMaster = NULL;
+
+static jiufeng_cli_master_t ls_jcmCliMaster;
 
 static const olchar_t * ls_pstrProgramName = "olcli";
 static const olchar_t * ls_pstrVersion = "1.0.0";
@@ -106,14 +107,33 @@ static u32 _printShellGreeting(void * pMaster)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_clieng_outputLine(
-        "-------------------------------------------------------------");
-    jf_clieng_outputLine(
-        "Jiufeng Command Line Interface (CLI) Utility");
-    jf_clieng_outputLine(
-        "Version: %s Build Date: %s", ls_pstrVersion, ls_pstrBuildData);
-    jf_clieng_outputLine(
-        "-------------------------------------------------------------");
+    jf_clieng_outputLine("-------------------------------------------------------------");
+    jf_clieng_outputLine("Jiufeng Command Line Interface (CLI) Utility");
+    jf_clieng_outputLine("Version: %s Build Date: %s", ls_pstrVersion, ls_pstrBuildData);
+    jf_clieng_outputLine("-------------------------------------------------------------");
+
+    return u32Ret;
+}
+
+static u32 _initAndRunJfCliEngine(
+    jiufeng_cli_master_t * pjcmCliEngine, jf_clieng_init_param_t * pjcip)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    cli_param_t cliParam;
+
+    u32Ret = jf_clieng_init(pjcip);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = addCmd(pjcmCliEngine, &cliParam);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = jf_clieng_run();
+    }
+
+    jf_clieng_fini();
 
     return u32Ret;
 }
@@ -125,49 +145,39 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_clieng_init_param_t jcip;
     jf_logger_init_param_t jlipParam;
-    cli_param_t cliParam;
-//    aether_param_t ap;
+    jf_jiukun_init_param_t jjip;
 
-    u32Ret = jf_jiukun_allocMemory((void **)&ls_pocmMaster, sizeof(jiufeng_cli_master_t));
+    ol_bzero(&jlipParam, sizeof(jlipParam));
+    jlipParam.jlip_pstrCallerName = "JF_CLI";
+    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_u8TraceLevel = 3;
+
+    ol_bzero(&jjip, sizeof(jjip));
+    jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
+
+    ol_bzero(&jcip, sizeof(jcip));
+    jcip.jcip_sMaxCmdLine = JF_CLIENG_MAX_COMMAND_LINE_SIZE;
+    jcip.jcip_sCmdHistroyBuf = 20;
+    ol_strcpy(jcip.jcip_strCliName, "Jiufeng CLI");
+    jcip.jcip_pstrNewLine = "\n";
+    jcip.jcip_pMaster = &ls_jcmCliMaster;
+    jcip.jcip_fnPrintGreeting = _printShellGreeting;
+
+    u32Ret = _parseCmdLineParam(argc, argv, &jcip, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_bzero(ls_pocmMaster, sizeof(jiufeng_cli_master_t));
-        ol_bzero(&jlipParam, sizeof(jf_logger_init_param_t));
-        jlipParam.jlip_pstrCallerName = "CLI";
+        jf_logger_init(&jlipParam);
 
-        ol_memset(&jcip, 0, sizeof(jcip));
+        u32Ret = jf_jiukun_init(&jjip);
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            u32Ret = _initAndRunJfCliEngine(&ls_jcmCliMaster, &jcip);
 
-        jcip.jcip_sMaxCmdLine = JF_CLIENG_MAX_COMMAND_LINE_SIZE;
-        jcip.jcip_sCmdHistroyBuf = 20;
-        ol_strcpy(jcip.jcip_strCliName, "Jiufeng CLI");
-        jcip.jcip_pstrNewLine = "\n";
-        jcip.jcip_pMaster = ls_pocmMaster;
-        jcip.jcip_fnPrintGreeting = _printShellGreeting;
+            jf_jiukun_fini();
+        }
 
-        u32Ret = _parseCmdLineParam(argc, argv, &jcip, &jlipParam);
+        jf_logger_fini();
     }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        u32Ret = jf_clieng_init(&jcip);
-    }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        u32Ret = addCmd(ls_pocmMaster, &cliParam);
-    }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        u32Ret = jf_clieng_run();
-    }
-
-    jf_clieng_fini();
-
-    jf_logger_fini();
-
-    if (ls_pocmMaster != NULL)
-        jf_jiukun_freeMemory((void **)&ls_pocmMaster);
 
     return u32Ret;
 }

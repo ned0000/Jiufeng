@@ -1,11 +1,12 @@
 /**
  *  @file jf_encode.h
  *
- *  @brief  API for the encode-decode library
+ *  @brief Header file defines the interface of encode-decode library.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_encode library
+ *  @note
+ *  -# Routines declared in this file are included in jf_encode library.
  *
  */
 
@@ -41,17 +42,21 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
+/** Maximum huffman code length.
+ */
 #define JF_ENCODE_MAX_HUFFMAN_CODE_LEN    (8)
 
+/** Define the encoded huffman code data type.
+ */
 typedef struct jf_encode_huffman_code
 {
-    /** symbol, max 65536 symbols */
+    /**Symbol, max 65536 symbols.*/
     u16 jehc_u16Symbol;
-    /** code length */
+    /**Code length.*/
     u16 jehc_u16CodeLen;
-    /** freqwency of the symbol */
+    /**Freqwency of the symbol.*/
     u32 jehc_u32Freq;
-    /** the code generated */
+    /**The code generated.*/
     jf_bitarray_t jehc_jbCode[JF_ENCODE_MAX_HUFFMAN_CODE_LEN];
 } jf_encode_huffman_code_t;
 
@@ -59,33 +64,33 @@ typedef struct jf_encode_huffman_code
 
 /*base64 encode and decode*/
 
-/** Base64 encode a stream, add padding and line breaks
+/** Base64 encode a stream, add padding and line breaks.
  *
- *  @param pu8Input [in] the stream to encode 
- *  @param sInput [in] The length of the stream to encode 
- *  @param ppstrOutput [out] The encoded stream 
+ *  @param pu8Input [in] The stream to encode.
+ *  @param sInput [in] The length of the stream to encode.
+ *  @param ppstrOutput [out] The encoded stream.
 
- *  @return the error code
+ *  @return The error code.
  */
 ENCODEAPI u32 ENCODECALL jf_encode_encodeBase64(
     const u8 * pu8Input, const olsize_t sInput, olchar_t ** ppstrOutput);
 
-/** Decode a base64 encoded stream discarding padding, line breaks and noise
+/** Decode a base64 encoded stream discarding padding, line breaks and noise.
  *
- *  @param pstrInput [in] The stream to decode 
- *  @param ppu8Output [out] The decoded stream 
- *  @param psOutput [out] The length of the decoded stream
+ *  @param pstrInput [in] The stream to decode.
+ *  @param ppu8Output [out] The decoded stream.
+ *  @param psOutput [out] The length of the decoded stream.
  *
- *  @return the error code
+ *  @return The error code.
  */
 ENCODEAPI u32 ENCODECALL jf_encode_decodeBase64(
     const olchar_t * pstrInput, u8 ** ppu8Output, olsize_t * psOutput);
 
-/** Free the buffer allocated by the function base64Encode and base64Decode 
+/** Free the buffer allocated by the function base64Encode and base64Decode.
  *
- *  @param ppu8Buffer [in/out] the buffer to free
+ *  @param ppu8Buffer [in/out] The buffer to free.
  *
- *  @return the error code
+ *  @return The error code.
  */
 ENCODEAPI u32 ENCODECALL jf_encode_freeBase64Buffer(u8 ** ppu8Buffer);
 
@@ -94,21 +99,21 @@ ENCODEAPI u32 ENCODECALL jf_encode_freeBase64Buffer(u8 ** ppu8Buffer);
 
 /** By frequency, code length and code are generated in one pass.
  *
- *  @param pjehc [in/out] the array of huffman code
- *  @param u16NumOfCode [in] number of code in the array
+ *  @param pjehc [in/out] The array of huffman code.
+ *  @param u16NumOfCode [in] Number of code in the array.
  *
- *  @return the error code
+ *  @return The error code.
  */
 ENCODEAPI u32 ENCODECALL jf_encode_genHuffmanCode(
     jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode);
 
-/** By frequency, code length and code are generated. The code is canonical
- *  huffman code, and code with maximum length is assigned with all 0 bits. 
+/** By frequency, code length and code are generated. The code is canonical huffman code, and code
+ *  with maximum length is assigned with all 0 bits.
  *
- *  @param pjehc [in/out] the array of huffman code
- *  @param u16NumOfCode [in] number of code in the array
+ *  @param pjehc [in/out] The array of huffman code.
+ *  @param u16NumOfCode [in] Number of code in the array.
  *
- *  @return the error code
+ *  @return The error code.
  */
 ENCODEAPI u32 ENCODECALL jf_encode_genCanonicalHuffmanCode(
     jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode);

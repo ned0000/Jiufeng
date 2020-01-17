@@ -43,7 +43,7 @@
 typedef void  jf_clieng_cmd_t;
 typedef void  jf_clieng_cmd_set_t;
 
-/** Maximum output line length
+/** Maximum output line length.
  */
 #define JF_CLIENG_MAX_OUTPUT_LINE_LEN      (100)
 
@@ -78,7 +78,7 @@ typedef struct
 
 typedef struct
 {
-    /*The length of caption must be smaller than the length.*/
+    /**The length of caption must be smaller than the length.*/
     olchar_t * jcc_pstrCaption;
     u32 jcc_u32Len;
 } jf_clieng_caption_t;
@@ -159,8 +159,7 @@ CLIENGAPI u32 CLIENGCALL jf_clieng_printDividerShift2(void);
  *
  *  @return The error code.
  */
-CLIENGAPI u32 CLIENGCALL jf_clieng_printHexDumpInByte(
-    u8 * pu8Buffer, u32 u32Len);
+CLIENGAPI u32 CLIENGCALL jf_clieng_printHexDumpInByte(u8 * pu8Buffer, u32 u32Len);
 
 /** Print the header bar according to the caption list for brief printing.
  *
@@ -194,8 +193,7 @@ CLIENGAPI u32 CLIENGCALL jf_clieng_printOneFullLine(
  *  @return The error code.
  */
 CLIENGAPI u32 CLIENGCALL jf_clieng_printTwoHalfLine(
-    const jf_clieng_caption_t * pjcc, const olchar_t * pstrLeft,
-    const olchar_t *pstrRight);
+    const jf_clieng_caption_t * pjcc, const olchar_t * pstrLeft, const olchar_t * pstrRight);
 
 /** Append brief column to the line.
  *
@@ -204,8 +202,7 @@ CLIENGAPI u32 CLIENGCALL jf_clieng_printTwoHalfLine(
  *  @param pstrColumn [in] The value of the column.
  */
 CLIENGAPI void CLIENGCALL jf_clieng_appendBriefColumn(
-    const jf_clieng_caption_t * pjcc, olchar_t * pstrLine,
-    const olchar_t * pstrColumn);
+    const jf_clieng_caption_t * pjcc, olchar_t * pstrLine, const olchar_t * pstrColumn);
 
 #endif /*JIUFENG_CLIEN_H*/
 

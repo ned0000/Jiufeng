@@ -48,6 +48,8 @@ u32 destroyDispatcherMsg(dispatcher_msg_t ** ppMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
+    jf_logger_logDebugMsg("destroy dispatcher msg");
+
     jf_jiukun_freeMemory((void **)ppMsg);
 
     return u32Ret;
@@ -59,11 +61,13 @@ u32 createDispatcherMsg(dispatcher_msg_t ** ppMsg, u8 * pu8Msg, olsize_t sMsg)
     dispatcher_msg_t * pdm = NULL;
     u8 * pu8Start = NULL;
 
+    jf_logger_logDebugMsg("create dispatcher msg");
+
     u32Ret = jf_jiukun_allocMemory((void **)&pdm, sizeof(*pdm) + sMsg);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pdm, sizeof(*pdm));
-        pdm->dm_u16Ref = 1;
+        pdm->dm_nRef = 1;
         pdm->dm_sMsg = sMsg;
 
         pu8Start = (u8 *)pdm + sizeof(*pdm);
@@ -78,19 +82,45 @@ u32 createDispatcherMsg(dispatcher_msg_t ** ppMsg, u8 * pu8Msg, olsize_t sMsg)
     return u32Ret;
 }
 
+boolean_t isReservedDispatcherMsg(dispatcher_msg_t * pdm)
+{
+    boolean_t bRet = FALSE;
+    u32 u32MsgId = getDispatcherMsgId(pdm);
+
+    if (u32MsgId >= JF_MESSAGING_RESERVED_MSG_ID)
+        bRet = TRUE;
+
+    return bRet;
+}
+
 void incDispatcherMsgRef(dispatcher_msg_t * pdm)
 {
-    pdm->dm_u16Ref ++;
+    pdm->dm_nRef ++;
 }
 
 void decDispatcherMsgRef(dispatcher_msg_t * pdm)
 {
-    pdm->dm_u16Ref --;
+    pdm->dm_nRef --;
 }
 
-u8 getDispatcherMsgRef(dispatcher_msg_t * pdm)
+olint_t getDispatcherMsgRef(dispatcher_msg_t * pdm)
 {
-    return pdm->dm_u16Ref;
+    return pdm->dm_nRef;
+}
+
+pid_t getDispatcherMsgSourceId(dispatcher_msg_t * pdm)
+{
+    return getMessagingMsgSourceId(pdm->dm_u8Msg, pdm->dm_sMsg);
+}
+
+pid_t getDispatcherMsgDestinationId(dispatcher_msg_t * pdm)
+{
+    return getMessagingMsgDestinationId(pdm->dm_u8Msg, pdm->dm_sMsg);
+}
+
+u32 getDispatcherMsgId(dispatcher_msg_t * pdm)
+{
+    return getMessagingMsgId(pdm->dm_u8Msg, pdm->dm_sMsg);
 }
 
 u32 freeDispatcherMsg(dispatcher_msg_t ** ppMsg)
@@ -99,7 +129,7 @@ u32 freeDispatcherMsg(dispatcher_msg_t ** ppMsg)
 
     decDispatcherMsgRef(*ppMsg);
 
-    if (getDispatcherMsgRef(*ppMsg) == 0)
+    if (getDispatcherMsgRef(*ppMsg) <= 0)
     {
         destroyDispatcherMsg(ppMsg);
     }
@@ -111,7 +141,8 @@ u32 fnFreeDispatcherMsg(void ** ppData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = freeDispatcherMsg((dispatcher_msg_t **)ppData);
+    /*Destroy the message, ignore the reference number.*/
+    u32Ret = destroyDispatcherMsg((dispatcher_msg_t **)ppData);
     
     return u32Ret;
 }
@@ -161,6 +192,13 @@ u32 setMessagingMsgSourceId(u8 * pu8Msg, pid_t sourceId)
     return JF_ERR_NO_ERROR;
 }
 
+pid_t getMessagingMsgSourceId(u8 * pu8Msg, olsize_t sMsg)
+{
+    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
+
+    return pHeader->jmh_piSourceId;
+}
+
 u32 setMessagingMsgDestinationId(u8 * pu8Msg, pid_t destinationId)
 {
     jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
@@ -168,6 +206,13 @@ u32 setMessagingMsgDestinationId(u8 * pu8Msg, pid_t destinationId)
     pHeader->jmh_piDestinationId = destinationId;
 
     return JF_ERR_NO_ERROR;
+}
+
+pid_t getMessagingMsgDestinationId(u8 * pu8Msg, olsize_t sMsg)
+{
+    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
+
+    return pHeader->jmh_piDestinationId;
 }
 
 u32 setMessagingMsgPayloadSize(u8 * pu8Msg, u32 u32PayloadSize)

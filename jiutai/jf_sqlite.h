@@ -50,26 +50,54 @@ typedef struct jf_sqlite
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Initialize the sqlite object.
+ *
+ *  @param pjs [in] The sqlite object to be initialized.
+ *  @param param [in] The parameter for Initializing the object.
+ *
+ *  @return The error code.
  */
 u32 jf_sqlite_init(jf_sqlite_t * pjs, jf_sqlite_init_param_t * param);
 
 /** Finalize the sqlite object.
+ *
+ *  @param pjs [in] The sqlite object to be finalized.
+ *
+ *  @return The error code.
  */
 u32 jf_sqlite_fini(jf_sqlite_t * pjs);
 
 /** Rollback transaction.
+ *
+ *  @param pjs [in] The sqlite object.
+ *
+ *  @return The error code.
  */
 u32 jf_sqlite_rollbackTransaction(jf_sqlite_t * pjs);
 
 /** Start transaction.
+ *
+ *  @param pjs [in] The sqlite object.
+ *
+ *  @return The error code.
  */
 u32 jf_sqlite_startTransaction(jf_sqlite_t * pjs);
 
 /** Commit transaction.
+ *
+ *  @param pjs [in] The sqlite object.
+ *
+ *  @return The error code.
  */
 u32 jf_sqlite_commitTransaction(jf_sqlite_t * pjs);
 
 /** Execute SQL statement.
+ *
+ *  @param pjs [in] The sqlite object.
+ *  @param pstrSql [in] The SQL statement.
+ *  @param pstrResult [out] The result string for executing the SQL statement.
+ *  @param sResult [in] The length of the result string buffer.
+ *
+ *  @return The error code.
  */
 u32 jf_sqlite_execSql(
     jf_sqlite_t * pjs, olchar_t * pstrSql, olchar_t * pstrResult, olsize_t sResult);

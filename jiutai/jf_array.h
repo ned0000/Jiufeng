@@ -119,6 +119,10 @@ u32 jf_array_removeAllElements(jf_array_t * pja);
 
 /** Insert element to array at specified position.
  *
+ *  @note
+ *  -# If the position is out of range, the element is appended to the end of array, no error is
+ *   returned.
+ *
  *  @param pja [in] The pointer to the array.
  *  @param u32Index [in] The position of the element.
  *  @param pjae [in] The element to be inserted.

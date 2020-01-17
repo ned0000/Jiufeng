@@ -1,7 +1,7 @@
 /**
  *  @file asocket.c
  *
- *  @brief The async socket implementation file
+ *  @brief Implementation file for async socket.
  *
  *  @author Min Zhang
  *
@@ -35,6 +35,9 @@ typedef struct asocket_send_data
     olsize_t asd_sBytesSent;
 
     jf_listhead_t asd_jlList;
+    /**It's static data if it's true. Async socket will not allocate memory for the static data.*/
+    boolean_t asd_bStatic;
+    boolean_t asd_u8Reserved[7];
 
     struct asocket_send_data *asd_pasdNext;
 } asocket_send_data_t;
@@ -71,7 +74,8 @@ typedef struct
 
     u8 * ia_pu8Buffer;
     olsize_t ia_sMalloc;
-    u32 ia_u32Reserved2;
+    /**Index used by async server socket and async client socket. Asocket should not touch it.*/
+    u32 ia_u32Index;
 
     olsize_t ia_sBeginPointer;
     olsize_t ia_sEndPointer;
@@ -119,7 +123,7 @@ static void _destroyAsocketSendData(asocket_send_data_t ** ppasd)
 {
     asocket_send_data_t * pasd = *ppasd;
 
-    if (pasd->asd_pu8Buffer != NULL)
+    if ((! pasd->asd_bStatic) && (pasd->asd_pu8Buffer != NULL))
     {
         jf_jiukun_freeMemory((void **)&pasd->asd_pu8Buffer);
     }
@@ -137,21 +141,24 @@ static void _clearPendingSendOfAsocket(internal_asocket_t * pia)
 
     jf_logger_logDebugMsg("as clear pending send data");
     
-    /*Wait data should be also freed.*/
+    /*Move the data from waiting list to send list as Wait data should be also freed.*/
     jf_mutex_acquire(&pia->ia_jmLock);
     if (! jf_listhead_isEmpty(&pia->ia_jlWaitData))
         jf_listhead_spliceTail(&pia->ia_jlSendData, &pia->ia_jlWaitData);
     jf_mutex_release(&pia->ia_jmLock);
             
+    /*Free the send data one by one.*/
     jf_listhead_forEachSafe(&pia->ia_jlSendData, pos, temppos)
     {
         pasd = jf_listhead_getEntry(pos, asocket_send_data_t, asd_jlList);
 
         jf_listhead_del(&pasd->asd_jlList);
 
+        /*Invoke the callback function to notify the data is failed to be sent.*/
         pia->ia_fnOnSendData(
             pia, pia->ia_u32Status, pasd->asd_pu8Buffer, pasd->asd_sBuf, pia->ia_pUser);
 
+        /*Free the data.*/
         _destroyAsocketSendData(&pasd);
     }
     
@@ -313,9 +320,9 @@ static u32 _preSelectAsocket(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
-
-    jf_logger_logDebugMsg("pre select as %s", pia->ia_strName);
-    
+#if defined(DEBUG_ASOCKET)
+    jf_logger_logDebugMsg("as %s pre select", pia->ia_strName);
+#endif
     if (pia->ia_pjnsSocket != NULL)
     {
         if (! pia->ia_bFinConnect)
@@ -355,7 +362,7 @@ static u32 _asPostSelectSendData(internal_asocket_t * pia)
     jf_listhead_t * pos = NULL, * temppos = NULL;
 
     jf_logger_logDebugMsg("as %s post select, send data", pia->ia_strName);
-    
+
     /*Keep trying to send data, until we are told we can't*/
     jf_listhead_forEachSafe(&pia->ia_jlSendData, pos, temppos)
     {
@@ -421,9 +428,9 @@ static u32 _postSelectAsocket(
     struct sockaddr * psa = (struct sockaddr *)u8Addr;
     olint_t nLen;
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
-
-    jf_logger_logDebugMsg("post select as %s", pia->ia_strName);
-
+#if defined(DEBUG_ASOCKET)
+    jf_logger_logDebugMsg("as %s post select", pia->ia_strName);
+#endif
     /*write handling*/
     if ((pia->ia_pjnsSocket != NULL) && pia->ia_bFinConnect &&
         jf_network_isSocketSetInFdSet(pia->ia_pjnsSocket, writeset) != 0)
@@ -473,7 +480,8 @@ static u32 _postSelectAsocket(
     return u32Ret;
 }
 
-static u32 _asAddSendData(internal_asocket_t * pia, u8 * pu8Buffer, olsize_t sBuf)
+static u32 _asAddSendData(
+    internal_asocket_t * pia, u8 * pu8Buffer, olsize_t sBuf, boolean_t bStatic)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     asocket_send_data_t * pasd = NULL;
@@ -484,14 +492,17 @@ static u32 _asAddSendData(internal_asocket_t * pia, u8 * pu8Buffer, olsize_t sBu
         ol_bzero(pasd, sizeof(*pasd));
         pasd->asd_pu8Buffer = pu8Buffer;
         pasd->asd_sBuf = sBuf;
+        pasd->asd_bStatic = bStatic;
         jf_listhead_init(&pasd->asd_jlList);
 
-        u32Ret = jf_jiukun_cloneMemory((void **)&pasd->asd_pu8Buffer, pu8Buffer, sBuf);
+        /*Clone the data if it's not static data.*/
+        if (! pasd->asd_bStatic)
+            u32Ret = jf_jiukun_cloneMemory((void **)&pasd->asd_pu8Buffer, pu8Buffer, sBuf);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /*queue up the data to wait data list*/
+        /*Queue up the data to wait data list.*/
         jf_logger_logDebugMsg("as %s add send data to wait list", pia->ia_strName);
         jf_mutex_acquire(&pia->ia_jmLock);
         jf_listhead_addTail(&pia->ia_jlWaitData, &pasd->asd_jlList);
@@ -701,7 +712,36 @@ u32 sendAsocketData(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _asAddSendData(pia, pu8Buffer, sBuf);
+        u32Ret = _asAddSendData(pia, pu8Buffer, sBuf, FALSE);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        jf_network_wakeupChain(pia->ia_pjncChain);
+    }
+
+    return u32Ret;
+}
+
+u32 sendAsocketStaticData(
+    jf_network_asocket_t * pAsocket, u8 * pu8Buffer, olsize_t sBuf)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
+
+    jf_logger_logDebugMsg(
+        "as %s send static data, %02x %02x %02x %02x, %d", pia->ia_strName,
+        pu8Buffer[0], pu8Buffer[1], pu8Buffer[2], pu8Buffer[3], sBuf);
+
+    jf_mutex_acquire(&pia->ia_jmLock);
+    if (pia->ia_bFree)
+        /*the socket is not connected*/
+        u32Ret = JF_ERR_SOCKET_CONNECTION_NOT_SETUP;
+    jf_mutex_release(&pia->ia_jmLock);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = _asAddSendData(pia, pu8Buffer, sBuf, TRUE);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -837,6 +877,20 @@ void setTagOfAsocket(jf_network_asocket_t * pAsocket, void * pTag)
     internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
 
     pia->ia_pTag = pTag;
+}
+
+u32 getIndexOfAsocket(jf_network_asocket_t * pAsocket)
+{
+    internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
+
+    return pia->ia_u32Index;
+}
+
+void setIndexOfAsocket(jf_network_asocket_t * pAsocket, u32 u32Index)
+{
+    internal_asocket_t * pia = (internal_asocket_t *) pAsocket;
+
+    pia->ia_u32Index = u32Index;
 }
 
 u32 jf_network_getAsocketOption(

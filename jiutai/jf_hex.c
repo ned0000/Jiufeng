@@ -1,8 +1,7 @@
 /**
  *  @file jf_hex.c
  *
- *  @brief Hex string header file, provide some functional routine to dump
- *   hex logs
+ *  @brief Implementation file for functional routines of hex data.
  *
  *  @author Min Zhang
  *

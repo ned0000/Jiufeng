@@ -1,7 +1,7 @@
 /**
  *  @file jf_date.h
  *
- *  @brief Header file which provide some date routine.
+ *  @brief Header file which provide some date routines.
  *
  *  @author Min Zhang
  *  
@@ -179,6 +179,8 @@ void jf_date_getStringDate2ForDaysFrom1970(olchar_t * pstrDate, const olint_t nD
  *
  *  @param pstrTime [out] The string buffer where the date string will return.
  *  @param tTime [in] The time.
+ *
+ *  @return The error code.
  */
 u32 jf_date_getStringLocalTime(olchar_t * pstrTime, const time_t tTime);
 
@@ -191,15 +193,31 @@ u32 jf_date_getStringLocalTime(olchar_t * pstrTime, const time_t tTime);
  *
  *  @param pstrTime [out] The string buffer where the date string will return.
  *  @param tTime [in] The time.
+ *
+ *  @return The error code.
  */
 u32 jf_date_getStringUTCTime(olchar_t * pstrTime, const time_t tTime);
 
 /** Get date from the string with the format year/month/date like 2005/10/20.
+ *  
+ *  @param pstrDate [in] The date string.
+ *  @param pYear [out] The year of the date.
+ *  @param pMon [out] The month of the date.
+ *  @param pDay [out] The day of the date.
+ *
+ *  @return The error code.
  */
 u32 jf_date_getDateFromString(
     const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay);
 
 /** Get date from the string with the format year-month-date like 2005-10-20.
+ *  
+ *  @param pstrDate [in] The date string.
+ *  @param pYear [out] The year of the date.
+ *  @param pMon [out] The month of the date.
+ *  @param pDay [out] The day of the date.
+ *
+ *  @return The error code.
  */
 u32 jf_date_getDate2FromString(
     const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay);

@@ -34,12 +34,12 @@
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-/** Calculate a numeric Hash from a given string
+/** Calculate a numeric hash from a given string.
  *
- *  @param pKey [in] The string to hash 
- *  @param u32KeyLen [in] The length of the string to hash 
+ *  @param pKey [in] The string to hash.
+ *  @param u32KeyLen [in] The length of the string to hash.
  
- *  @return the hash value   
+ *  @return The hash value.
  */
 static olint_t _getHashValue(void * pKey, u32 u32KeyLen)
 {
@@ -48,23 +48,20 @@ static olint_t _getHashValue(void * pKey, u32 u32KeyLen)
 
     if (u32KeyLen <= 4)
     {
-        // If the key length is <= 4, the hash is just the key 
-        // expressed as an integer
+        /*If the key length is <= 4, the hash is just the key expressed as an integer.*/
         ol_memset(temp, 0, 4);
         ol_memcpy(temp, pKey, u32KeyLen);
         value = *((olint_t *) temp);
     }
     else
     {
-        // If the key length is >4, the hash is the first 4 bytes 
-        // XOR with the last 4
+        /*If the key length is >4, the hash is the first 4 bytes XOR with the last 4.*/
         ol_memcpy(temp, pKey, 4);
         value = *((olint_t *) temp);
         ol_memcpy(temp, (olchar_t *) pKey + (u32KeyLen - 4), 4);
         value = value ^ (*((olint_t *) temp));
 
-        // If the key length is >= 10, the hash is also XOR with the 
-        // middle 4 bytes
+        /*If the key length is >= 10, the hash is also XOR with the middle 4 bytes.*/
         if (u32KeyLen >= 10)
         {
             ol_memcpy(temp, (olchar_t *) pKey + (u32KeyLen / 2), 4);
@@ -82,11 +79,13 @@ static u32 _newHashtreeEntry(
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_hashtree_node_t * node = NULL;
 
+    /*Allocate memory for hashtree node.*/
     u32Ret = jf_jiukun_allocMemory((void **)&node, sizeof(jf_hashtree_node_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(node, sizeof(jf_hashtree_node_t));
 
+        /*Clone the key in string.*/
         u32Ret = jf_jiukun_cloneMemory((void **)&node->jhn_pstrKeyValue, pKey, sKey);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
@@ -109,16 +108,15 @@ static u32 _newHashtreeEntry(
     return u32Ret;
 }
 
-/** Determine if a key entry exists in a hash tree, and creates it 
- *  if requested
+/** Determine if a key entry exists in a hash tree, and creates it if requested.
  *
- *  @param pHashtree [in] the hashtree to operate on 
- *  @param pKey [in] the key 
- *  @param sKey [in] the length of the key 
- *  @param bCreate [in] if true, create the entry
- *  @param ppNode [in/out] the hashtree node
+ *  @param pHashtree [in] The hashtree to operate on.
+ *  @param pKey [in] The key.
+ *  @param sKey [in] The length of the key.
+ *  @param bCreate [in] If true, create the entry.
+ *  @param ppNode [in/out] The hashtree node.
  * 
- *  @return the error code
+ *  @return The error code.
  */
 static u32 _findHashtreeEntry(
     jf_hashtree_t * pHashtree, void * pKey, olsize_t sKey, boolean_t bCreate,
@@ -168,7 +166,7 @@ void jf_hashtree_fini(jf_hashtree_t * pHashtree)
     pjhn = pHashtree->jh_pjhnRoot;
     while (pjhn != NULL)
     {
-        // Iterate through each node, and free all the resources
+        /*Iterate through each node, and free all the resources.*/
         pNode = pjhn->jhn_pjhnNext;
         if (pjhn->jhn_pstrKeyValue != NULL)
         {
@@ -190,7 +188,7 @@ void jf_hashtree_finiHashtreeAndData(
     pjhn = pHashtree->jh_pjhnRoot;
     while (pjhn != NULL)
     {
-        // Iterate through each node, and free all the resources
+        /*Iterate through each node, and free all the resources.*/
         pNode = pjhn->jhn_pjhnNext;
 
         if (pjhn->jhn_pData != NULL)
@@ -206,15 +204,13 @@ void jf_hashtree_finiHashtreeAndData(
     }
 }
 
-boolean_t jf_hashtree_hasEntry(
-    jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey)
+boolean_t jf_hashtree_hasEntry(jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey)
 {
     boolean_t bRet = FALSE;
     jf_hashtree_node_t * pjhn;
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    /*This can be duplicated by calling Find entry, 
-      but setting the create flag to false*/
+    /*This can be duplicated by calling Find entry, but setting the create flag to false.*/
     u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, FALSE, &pjhn);
     if (u32Ret == JF_ERR_NO_ERROR)
         bRet = TRUE;
@@ -242,8 +238,8 @@ u32 jf_hashtree_getEntry(
     jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void ** ppData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    /*This can be duplicated by calling FindEntry and setting create to false.
-      If a match is found, just return the data*/
+    /*This can be duplicated by calling FindEntry and setting create to false. If a match is found,
+      just return the data.*/
     jf_hashtree_node_t * pjhn = NULL;
 
     u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, FALSE, &pjhn);
@@ -255,8 +251,7 @@ u32 jf_hashtree_getEntry(
     return u32Ret;
 }
 
-u32 jf_hashtree_deleteEntry(
-    jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey)
+u32 jf_hashtree_deleteEntry(jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_hashtree_node_t * pjhn;
@@ -264,7 +259,7 @@ u32 jf_hashtree_deleteEntry(
     u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, FALSE, &pjhn);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /*Then remove it from the tree*/
+        /*Then remove it from the tree.*/
         if (pjhn == pHashtree->jh_pjhnRoot)
         {
             pHashtree->jh_pjhnRoot = pjhn->jhn_pjhnNext;

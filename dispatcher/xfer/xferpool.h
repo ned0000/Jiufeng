@@ -1,5 +1,5 @@
 /**
- *  @file networkxfer/xferpool.h
+ *  @file xfer/xferpool.h
  *
  *  @brief Header file for webclient data object pool.
  *
@@ -65,12 +65,18 @@ typedef struct
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+/** Destroy dispatcher xfer object pool.
+ */
 u32 destroyDispatcherXferObjectPool(dispatcher_xfer_object_pool_t ** ppPool);
 
+/** Create dispatcher xfer object pool.
+ */
 u32 createDispatcherXferObjectPool(
     jf_network_chain_t * pjnc, dispatcher_xfer_object_pool_t ** ppPool,
     dispatcher_xfer_pool_create_param_t * pdxpcp);
 
+/** Send dispatcher xfer pool message.
+ */
 u32 sendDispatcherXferPoolMsg(dispatcher_xfer_object_pool_t * pPool, dispatcher_msg_t * pdm);
 
 #endif /*DISPATCHER_XFER_OBJECT_POOL_H*/

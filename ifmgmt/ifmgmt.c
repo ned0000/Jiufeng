@@ -74,7 +74,7 @@ static u32 _getIfmgmtIfFlag(olint_t sock, jf_ifmgmt_if_t * pIf)
             pIf->jii_bBroadcast = TRUE;
 
         if (ifr.ifr_flags & IFF_POINTOPOINT)
-            pIf->jii_bPointopoint = TRUE;
+            pIf->jii_bPointToPoint = TRUE;
 
         if (ifr.ifr_flags & IFF_LOOPBACK)
             pIf->jii_bLoopback = TRUE;
@@ -378,8 +378,8 @@ u32 jf_ifmgmt_getStringIfFlags(olchar_t * pstrFlags, jf_ifmgmt_if_t * pIf)
     if (pIf->jii_bBroadcast)
         ol_strcat(pstrFlags, ", Broadcast");
 
-    if (pIf->jii_bPointopoint)
-        ol_strcat(pstrFlags, ", Pointtopoint");
+    if (pIf->jii_bPointToPoint)
+        ol_strcat(pstrFlags, ", PointToPoint");
 
     if (pIf->jii_bLoopback)
         ol_strcat(pstrFlags, ", Loopback");

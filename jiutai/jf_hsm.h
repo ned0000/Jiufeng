@@ -122,11 +122,17 @@ typedef void  jf_hsm_t;
  *  @param ppHsm [out] The state machine to be created and returned.
  *  @param pTransition [out] The transition table.
  *  @param initialStateId [out] The initial state id for the transition table.
+ *
+ *  @return The error code.
  */
 u32 jf_hsm_create(
     jf_hsm_t ** ppHsm, jf_hsm_transition_t * pTransition, jf_hsm_event_id_t initialStateId);
 
 /** Destroy the state machine.
+ *
+ *  @param ppHsm [in/out] The state machine to be destroyed.
+ *
+ *  @return The error code.
  */
 u32 jf_hsm_destroy(jf_hsm_t ** ppHsm);
 
@@ -139,7 +145,6 @@ u32 jf_hsm_destroy(jf_hsm_t ** ppHsm);
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
- *
  */
 u32 jf_hsm_addStateTransition(
     jf_hsm_t * pHsm, jf_hsm_state_id_t stateId, jf_hsm_transition_t * pTransition,
@@ -149,20 +154,43 @@ u32 jf_hsm_addStateTransition(
  *
  *  @note
  *  -# The callback function is called when entering and exiting the state.
+ *
+ *  @param pHsm [in] The pointer to hsm object.
+ *  @param stateId [in] The state id for the transition table.
+ *  @param fnOnEntry [in] Callback function when entering the state.
+ *  @param fnOnExit [in] Callback function when exiting the state.
+ *
+ *  @return The error code.
  */
 u32 jf_hsm_addStateCallback(
     jf_hsm_t * pHsm, jf_hsm_state_id_t stateId, jf_hsm_fnOnEntry fnOnEntry,
     jf_hsm_fnOnExit fnOnExit);
 
 /** Get current state id.
+ *
+ *  @param pHsm [in] The pointer to hsm object.
+ *
+ *  @return The current state id.
  */
-jf_hsm_state_id_t jf_hsm_getCurrentStateId(jf_hsm_t * pjh);
+jf_hsm_state_id_t jf_hsm_getCurrentStateId(jf_hsm_t * pHsm);
 
-/** Process event.
+/** Process event according to the state transition table.
+ *
+ *  @param pHsm [in] The pointer to hsm object.
+ *  @param pEvent [in] The event to be processed.
+ *
+ *  @return The error code.
  */
-u32 jf_hsm_processEvent(jf_hsm_t * pjh, jf_hsm_event_t * pEvent);
+u32 jf_hsm_processEvent(jf_hsm_t * pHsm, jf_hsm_event_t * pEvent);
 
 /** Init the event data type.
+ *
+ *  @param pEvent [out] The event to be processed.
+ *  @param eventId [in] The event id.
+ *  @param pData [in] The data for the event.
+ *  @param pDataEx [in] The second data for the event.
+ *
+ *  @return Void.
  */
 static inline void jf_hsm_initEvent(
     jf_hsm_event_t * pEvent, jf_hsm_event_id_t eventId, void * pData, void * pDataEx)

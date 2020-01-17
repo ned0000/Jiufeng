@@ -1,7 +1,7 @@
 /**
  *  @file engio.c
  *
- *  @brief The clieng io module
+ *  @brief The clieng io module.
  *
  *  @author Min Zhang
  *
@@ -49,7 +49,7 @@ typedef struct
 {
     boolean_t ici_bInitialized;
     u8 ici_u8Reserved[7];
-    /* ";" */
+    /**The default delimiter is ";".*/
 	olchar_t ici_strSpecialDelimit[8];
 	olchar_t ici_strNewLine[8];
 	olchar_t ici_strBlankSpaces[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
@@ -57,8 +57,8 @@ typedef struct
     olsize_t ici_sNewLine;
 	u8 ici_u8MoreLines;
     u8 ici_u8Reserved4[3];
-    /*is special delimit on? By default it is off, blank spaces are used for
-      delimit; when it is on, a semi-column is used. */
+    /**Is special delimit on? By default it is off, blank spaces are used for
+      delimit; when it is on, a semi-column is used.*/
 	boolean_t ici_bSpecialDelimit;
 	boolean_t ici_bMoreEnabled;
 	boolean_t ici_bMoreCancel;
@@ -72,11 +72,11 @@ typedef struct
     #define MAX_MORE_LINES    (23)
 #endif
 
-/** Maximum number of command in command history
+/** Maximum number of command in command history.
  */
 #define MAX_CMD_HISTORY       (64)
 
-/** use LEFT-SPACE-LEFT to implement backspace
+/** Use LEFT-SPACE-LEFT to implement backspace.
  */
 static olchar_t str_backspace[] = {27, '[', 'D', ' ', 27, '[', 'D'};
 
@@ -652,15 +652,13 @@ static u32 _waitForMore(internal_clieng_io_t * pici)
         u32Ret = _getInput(&citInputType, strInputKey, &sInput, 49);
 
     if (u32Ret == JF_ERR_NO_ERROR)    
-        u32Ret = _postOutput(
-            pici, cot_text, remove_more, ol_strlen(remove_more));
+        u32Ret = _postOutput(pici, cot_text, remove_more, ol_strlen(remove_more));
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (strInputKey[0] == 0x18) /* CTRL- X */
         {
-            u32Ret = _postOutput(
-                pici, cot_text, enter_line, ol_strlen(enter_line));
+            u32Ret = _postOutput(pici, cot_text, enter_line, ol_strlen(enter_line));
             u32Ret = JF_ERR_MORE_CANCELED;
         }
     }
@@ -1054,8 +1052,7 @@ char * getDelimit(const olsize_t u32StrLen, olsize_t u32TotalLen)
                 sDelimit = JF_CLIENG_MAX_OUTPUT_LINE_LEN;
         }
 
-        pstrDelimit = pici->ici_strBlankSpaces + JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1 -
-            sDelimit;
+        pstrDelimit = pici->ici_strBlankSpaces + JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1 - sDelimit;
     }
     
     return pstrDelimit;

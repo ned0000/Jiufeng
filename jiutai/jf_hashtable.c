@@ -111,7 +111,7 @@ static u32 _default_fnHtFreeEntry(void ** ppEntry)
 static hash_table_bucket_t ** _getPositionOfKey(internal_hash_table_t * piht, void * pKey)
 {
     olint_t h = piht->iht_fnHashKey(pKey);
-    hash_table_bucket_t **p;
+    hash_table_bucket_t ** p = NULL;
     jf_hashtable_fnCmpKeys_t fnCmpKeys = piht->iht_fnCmpKeys;
     jf_hashtable_fnGetKeyFromEntry_t fnGetKeyFromEntry = piht->iht_fnGetKeyFromEntry;
 
@@ -449,8 +449,7 @@ void jf_hashtable_getStat(jf_hashtable_t * pht, jf_hashtable_stat_t * stat)
     stat->jhs_u32CountOfResizeOp = piht->iht_u32Resizes;
 }
 
-/** iterator routines
- */
+/* iterator routines */
 
 void jf_hashtable_setupIterator(
     jf_hashtable_t * pht, jf_hashtable_iterator_t * pIterator)
@@ -467,12 +466,15 @@ void jf_hashtable_incrementIterator(jf_hashtable_iterator_t * pIterator)
 {
     hash_table_bucket_t * current = (hash_table_bucket_t *)pIterator->jhi_pCursor;
 
+    /*Check the next bucket ot the bucket.*/
     if ((current != NULL) && (current->htb_phtbNext != NULL))
     {
+        /*Next bucket is available.*/
         pIterator->jhi_pCursor = current->htb_phtbNext;
     }
     else
     {
+        /*Next bucket is not available. Let's move to the next bucket in the array.*/
         olint_t i = pIterator->jhi_nPos + 1;
         u32 sz = ((internal_hash_table_t *)(pIterator->jhi_htTable))->iht_u32Size;
         hash_table_bucket_t ** table =

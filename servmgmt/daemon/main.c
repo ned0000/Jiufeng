@@ -29,10 +29,17 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-static boolean_t ls_bForeground = FALSE;
+/** The service should run in foregroud if it's TRUE, otherwise it runs in background as a daemon.
+ */
+static boolean_t ls_bDongyuanForeground = FALSE;
 
-static olchar_t ls_strProgramName[64];
-static olchar_t * ls_pstrVersion = "1.0.0";
+/** The name of the executable file for this service.
+ */
+static olchar_t ls_strDongyuanProgramName[64];
+
+/** The version of this service.
+ */
+static olchar_t * ls_pstrDongyuanVersion = "1.0.0";
 
 #if defined(LINUX)
     #define SERVICE_RETURN_VALUE  int
@@ -54,7 +61,7 @@ logger options:\n\
     -T <0|1|2|3> the log level. 0: no log, 1: error only, 2: info, 3: all, 4: data.\n\
     -F <log file> the log file.\n\
     -S <log file size> the size of log file. No limit if not specified.\n",
-           ls_strProgramName);
+           ls_strDongyuanProgramName);
 
     ol_printf("\n");
 
@@ -72,7 +79,7 @@ static u32 _parseDongyuanCmdLineParam(
         switch (nOpt)
         {
         case 'f':
-            ls_bForeground = TRUE;
+            ls_bDongyuanForeground = TRUE;
             break;
         case 's':
             pdp->dp_pstrSettingFile = optarg;
@@ -83,7 +90,7 @@ static u32 _parseDongyuanCmdLineParam(
             exit(0);
             break;
         case 'V':
-            ol_printf("%s %s\n", ls_strProgramName, ls_pstrVersion);
+            ol_printf("%s %s\n", ls_strDongyuanProgramName, ls_pstrDongyuanVersion);
             exit(0);
         case 'T':
             u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
@@ -111,10 +118,14 @@ static u32 _initAndStartDongyuan(dongyuan_param_t * pdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
+    /*Initialize the dongyuan service.*/
     u32Ret = initDongyuan(pdp);
+
+    /*Start the dongyuan service.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = startDongyuan();
 
+    /*Finalize the dongyuan service.*/
     finiDongyuan();
 
     return u32Ret;
@@ -127,33 +138,39 @@ static u32 _serviceDongyuan(olint_t argc, char** argv)
     jf_logger_init_param_t jlipParam;
     jf_jiukun_init_param_t jjip;
 
-    jf_file_getFileName(ls_strProgramName, sizeof(ls_strProgramName), argv[0]);
+    /*Get programe name of the service.*/
+    jf_file_getFileName(ls_strDongyuanProgramName, sizeof(ls_strDongyuanProgramName), argv[0]);
 
+    /*Initialize the parameter for logger library.*/
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "DONGYUAN";
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
     jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_bLogToFile = TRUE;
 
+    /*Initialize the parameter for jiukun library.*/
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
 
     setDefaultDongyuanParam(&dp);
     dp.dp_pstrCmdLine = argv[0];
 
+    /*Parse the parameter.*/
     u32Ret = _parseDongyuanCmdLineParam(argc, argv, &dp, &jlipParam);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (! ls_bForeground)
+        /*Switch to daemon if necessary.*/
+        if (! ls_bDongyuanForeground)
             u32Ret = jf_process_switchToDaemon();
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (jf_process_isAlreadyRunning(ls_strProgramName))
+        /*Check if the service is alreay started.*/
+        if (jf_process_isAlreadyRunning(ls_strDongyuanProgramName))
         {
-            ol_fprintf(stderr, "Another %s is running\n", ls_strProgramName);
+            ol_fprintf(stderr, "Another %s is running\n", ls_strDongyuanProgramName);
             u32Ret = JF_ERR_ALREADY_RUNNING;
         }
     }

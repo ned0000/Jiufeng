@@ -91,7 +91,6 @@ u32 jf_host_getInfo(jf_host_info_t * pjhi);
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
- *
  */
 void jf_host_getName(olchar_t * pstrName, u32 u32Len);
 

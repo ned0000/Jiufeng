@@ -52,14 +52,22 @@ typedef u32 (* fnAsocketOnDisconnect_t)(
 typedef u32 (* fnAsocketOnSendData_t)(
     jf_network_asocket_t * pAsocket, u32 u32Status, u8 * pu8Buffer, olsize_t sBuf, void * pUser);
 
+/** The parameter for creating async socket.
+ */
 typedef struct
 {
+    /**Initial buffer size.*/
     olsize_t acp_sInitialBuf;
     u32 acp_u32Reserved;
+    /**Callback function for incoming data.*/
     fnAsocketOnData_t acp_fnOnData;
+    /**Callback function for connect event.*/
     fnAsocketOnConnect_t acp_fnOnConnect;
+    /**Callback function for disconnect event.*/
     fnAsocketOnDisconnect_t acp_fnOnDisconnect;
+    /**Callback function for send data.*/
     fnAsocketOnSendData_t acp_fnOnSendData;
+    /*Name of the async socket.*/
     olchar_t * acp_pstrName;
     u8 jnacp_u8Reserved[16];
 } asocket_create_param_t;
@@ -67,117 +75,179 @@ typedef struct
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/** async socket
- */
-
-/** Creates a new asocket object
+/** Create a new async socket object.
  *
- *  @param pChain [in] the chain object to add the asocket
- *  @param ppAsocket [in/out] the asocket object created
- *  @param pacp [in] the parameter for creating the asocket
+ *  @param pChain [in] The chain object to add the async socket.
+ *  @param ppAsocket [in/out] The async socket object created.
+ *  @param pacp [in] The parameter for creating the async socket.
  *
- *  @return the error code
+ *  @return The error code.
  */
 u32 createAsocket(
     jf_network_chain_t * pChain, jf_network_asocket_t ** ppAsocket, asocket_create_param_t * pacp);
 
-/** Destroy asocket object
+/** Destroy asocket object.
  *
- *  @param ppAsocket [in/out] the asocket object
+ *  @note
+ *  -# Connection is closed immediately. Asocket will not notify upper layer for the disconnection.
+ *  -# All the pending send data are cleared immediately, callback function fnAsocketOnSendData_t is
+ *   called to notify upper layer.
  *
- *  @return the error code
+ *  @param ppAsocket [in/out] The async socket object.
+ *
+ *  @return The error code.
  */
 u32 destroyAsocket(jf_network_asocket_t ** ppAsocket);
 
-/** Determines if an asocket is utilized
+/** Determine if an async socket is utilized.
  *
- *  @param pAsocket [in] the asocket to check
+ *  @param pAsocket [in] The async socket to check.
  *
- *  @return the status of the asocket
- *  @retval FALSE if utilized
- *  @retval TRUE if free
+ *  @return The status of the async socket.
+ *  @retval FALSE If async socket is utilized.
+ *  @retval TRUE If async socket is free.
  */
 boolean_t isAsocketFree(jf_network_asocket_t * pAsocket);
 
-/** Returns the number of bytes that are pending to be sent
+/** Return the number of bytes that are pending to be sent.
  *
- *  @param pAsocket [in] the asocket to check
+ *  @param pAsocket [in] The async socket to check.
  *
- *  @return number of pending bytes
+ *  @return Number of pending bytes.
  */
 olsize_t getTotalSendDataOfAsocket(jf_network_asocket_t * pAsocket);
 
-/** Returns the total number of bytes that have been sent, since the last reset
+/** Return the total number of bytes that have been sent, since the last reset.
  *
- *  @param pAsocket [in] the asocket to check
+ *  @param pAsocket [in] The async socket to check.
  *
- *  @return number of bytes sent
+ *  @return Number of bytes sent.
  */
 olsize_t getTotalBytesSentOfAsocket(jf_network_asocket_t * pAsocket);
 
-/** Returns the Local Interface of a connected socket
+/** Return the Local Interface of a connected socket.
  *
- *  @param pAsocket [in] the asocket to query
- *  @param pjiAddr [in] the local interface
+ *  @param pAsocket [in] The async socket representing the connection.
+ *  @param pjiAddr [in] The local interface.
+ *
+ *  @return Void.
  */
-void getLocalInterfaceOfAsocket(
-    jf_network_asocket_t * pAsocket, jf_ipaddr_t * pjiAddr);
+void getLocalInterfaceOfAsocket(jf_network_asocket_t * pAsocket, jf_ipaddr_t * pjiAddr);
 
-/** Returns the Remote Interface of a connected socket
+/** Return the Remote Interface of a connected socket.
  *
- *  @param pAsocket [in] the asocket to query
- *  @param pjiAddr [out] the remote interface
+ *  @param pAsocket [in] The async socket to query.
+ *  @param pjiAddr [out] The remote interface.
+ *
+ *  @return Void.
  */
 void getRemoteInterfaceOfAsocket(
     jf_network_asocket_t * pAsocket, jf_ipaddr_t * pjiAddr);
 
-/** Returns the user's tag associated with the asocket
+/** Return the user's tag associated with the async socket.
  *
- *  @param pAsocket [in] the asocket to query
+ *  @param pAsocket [in] The async socket to query.
  *
  *  @return The user Tag
  */
 void * getTagOfAsocket(jf_network_asocket_t * pAsocket);
 
-/** Sets the user's tag asociated with the asocket
+/** Set the user's tag asociated with the async socket.
  *
- *  @param pAsocket [in] the asocket to save the tag to
- *  @param pTag [in] the user's tag
+ *  @param pAsocket [in] The asocket to save the tag to.
+ *  @param pTag [in] The user's tag.
+ *
+ *  @return Void.
  */
 void setTagOfAsocket(jf_network_asocket_t * pAsocket, void * pTag);
 
-/** Disconnects an asocket
+/** Return the index associated with the async socket.
  *
- *  @param pAsocket [in] the asocket to disconnect
+ *  @param pAsocket [in] The async socket to query.
+ *
+ *  @return The index.
+ */
+u32 getIndexOfAsocket(jf_network_asocket_t * pAsocket);
+
+/** Set the index asociated with the async socket.
+ *
+ *  @param pAsocket [in] The async socket to save the index to.
+ *  @param u32Index [in] The index.
+ *
+ *  @return Void.
+ */
+void setIndexOfAsocket(jf_network_asocket_t * pAsocket, u32 u32Index);
+
+/** Disconnect an async socket.
+ *
+ *  @note
+ *  -# Connection is not closed in this function, a utimer is started to do the job. Application
+ *   should wait for the disconnect event by fnAsocketOnDisconnect_t for the final result.
+ *  -# Since utimer is used for disconnection, if network chain is stopped, the utimer handler can
+ *   not be triggerred. In this case, use jf_network_destroyAcsocket() instead.
+ *  -# The timer handler will clear all the pending send data, callback function fnAsocketOnSendData_t
+ *   is called to notify upper layer.
+ *
+ *  @param pAsocket [in] The asocket to disconnect.
+ *
+ *  @return The error code.
  */
 u32 disconnectAsocket(jf_network_asocket_t * pAsocket);
 
-/** Try to send the data and cache the data if the socket is temporarily not
- *  writable
+/** Send data to remote server.
  *
- *  @param pAsocket [in] the asocket to send data on
- *  @param pu8Buffer [in] the buffer to send
- *  @param sBuf [in] the length of the buffer to send
+ *  @note
+ *  -# The data is cloned and then send to the remote server.
  *
- *  @return the error code
+ *  @param pAsocket [in] The asocket to send data on.
+ *  @param pu8Buffer [in] The buffer to send.
+ *  @param sBuf [in] The length of the buffer to send.
+ *
+ *  @return The error code.
  */
 u32 sendAsocketData(
     jf_network_asocket_t * pAsocket, u8 * pu8Buffer, olsize_t sBuf);
 
-/** Attempts to establish a TCP connection
+/** Send static data to remote server.
  *
- *  @param pAsocket [in] the asocket to initiate the connection
- *  @param pjiRemote [in] the remote interface to connect to
- *  @param u16RemotePortNumber [in] the remote port to connect to
- *  @param pUser [in] user object that will be passed to other method
+ *  @note
+ *  -# The data is not cloned and will used in async socket. Application should not touch it until
+ *   fnAsocketOnSendData_t is called for the successful transimission.
+ *
+ *  @param pAsocket [in] The asocket to send data on.
+ *  @param pu8Buffer [in] The buffer to send.
+ *  @param sBuf [in] The length of the buffer to send.
+ *
+ *  @return The error code.
+ */
+u32 sendAsocketStaticData(
+    jf_network_asocket_t * pAsocket, u8 * pu8Buffer, olsize_t sBuf);
+
+/** Attempt to establish a TCP connection.
+ *
+ *  @param pAsocket [in] The asocket to initiate the connection.
+ *  @param pjiRemote [in] The remote interface to connect to.
+ *  @param u16RemotePortNumber [in] The remote port to connect to.
+ *  @param pUser [in] User object that will be passed to other method.
+ *
+ *  @return The error code.
  */
 u32 connectAsocketTo(
     jf_network_asocket_t * pAsocket, jf_ipaddr_t * pjiRemote,
     u16 u16RemotePortNumber, void * pUser);
 
-/** Async server socket call this function to set the client socket
+/** Async server socket call this function to set the client socket.
  *
- *  @note No lock is required as the function is called in internal chain
+ *  @note
+ *  -# No lock is required as the function is called in internal chain.
+ *
+ *  @param pAsocket [in] The free async socket.
+ *  @param pSocket [in] The socket representing a connection.
+ *  @param pjiAddr [in] The remote address.
+ *  @param u16Port [in] The remote port.
+ *  @param pUser [in] User object that will be passed to other method.
+ *
+ *  @return The error code.
  */
 u32 useSocketForAsocket(
     jf_network_asocket_t * pAsocket, jf_network_socket_t * pSocket,

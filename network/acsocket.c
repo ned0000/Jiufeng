@@ -158,14 +158,12 @@ static u32 _acsOnConnect(jf_network_asocket_t * pAsocket, u32 u32Status, void * 
     return u32Ret;
 }
 
-static u32 _acsGetTagOfAsocket(jf_network_asocket_t * pAsocket)
+static u32 _acsGetIndexOfAsocket(jf_network_asocket_t * pAsocket)
 {
     u32 u32Index;
-#if defined(JIUFENG_64BIT)
-    u32Index = (u32)(u64)getTagOfAsocket(pAsocket);
-#else
-    u32Index = (u32)getTagOfAsocket(pAsocket);
-#endif
+
+    u32Index = getIndexOfAsocket(pAsocket);
+
     return u32Index;
 }
 
@@ -182,7 +180,7 @@ static u32 _acsOnDisconnect(jf_network_asocket_t * pAsocket, u32 u32Status, void
     u32 u32Ret = JF_ERR_NO_ERROR;
     acsocket_data_t * pad = (acsocket_data_t *) pUser;
     internal_acsocket_t * pia = pad->ad_iaAcsocket;
-    u32 u32Index = _acsGetTagOfAsocket(pAsocket);
+    u32 u32Index = _acsGetIndexOfAsocket(pAsocket);
 
     jf_logger_logInfoMsg("acs %s on disconnect, put %u", pia->ia_strName, u32Index);
     jf_mutex_acquire(&pia->ia_jmAsocket);
@@ -357,11 +355,7 @@ u32 jf_network_createAcsocket(
             u32Ret = createAsocket(pChain, &pia->ia_pjnaAsockets[u32Index], &acp);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-#if defined(JIUFENG_64BIT)
-                setTagOfAsocket(pia->ia_pjnaAsockets[u32Index], (void *)(u64)u32Index);
-#else
-                setTagOfAsocket(pia->ia_pjnaAsockets[u32Index], (void *)u32Index);
-#endif
+                setIndexOfAsocket(pia->ia_pjnaAsockets[u32Index], u32Index);
             }
         }
     }
@@ -396,7 +390,7 @@ u32 jf_network_disconnectAcsocket(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_acsocket_t * pia = (internal_acsocket_t *) pAcsocket;
-    u32 u32Index = _acsGetTagOfAsocket(pAsocket);
+    u32 u32Index = _acsGetIndexOfAsocket(pAsocket);
 
     jf_logger_logDebugMsg("acs %s disconnect, index %u", pia->ia_strName, u32Index);
     assert(u32Index < pia->ia_u32MaxConn);
@@ -406,27 +400,32 @@ u32 jf_network_disconnectAcsocket(
     return u32Ret;
 }
 
-boolean_t jf_network_isAcsocketFree(
-    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket)
-{
-    boolean_t bRet;
-
-    bRet = isAsocketFree(pAsocket);
-
-    return bRet;
-}
-
 u32 jf_network_sendAcsocketData(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u8 * pu8Buffer,
     olsize_t sBuf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_acsocket_t * pia = (internal_acsocket_t *) pAcsocket;
-    u32 u32Index = _acsGetTagOfAsocket(pAsocket);
+    u32 u32Index = _acsGetIndexOfAsocket(pAsocket);
 
     jf_logger_logDebugMsg("acs %s send data, index: %u", pia->ia_strName, u32Index);
 
     u32Ret = sendAsocketData(pAsocket, pu8Buffer, sBuf);
+
+    return u32Ret;
+}
+
+u32 jf_network_sendAcsocketStaticData(
+    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u8 * pu8Buffer,
+    olsize_t sBuf)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_acsocket_t * pia = (internal_acsocket_t *) pAcsocket;
+    u32 u32Index = _acsGetIndexOfAsocket(pAsocket);
+
+    jf_logger_logDebugMsg("acs %s send static data, index: %u", pia->ia_strName, u32Index);
+
+    u32Ret = sendAsocketStaticData(pAsocket, pu8Buffer, sBuf);
 
     return u32Ret;
 }

@@ -1,7 +1,7 @@
 /**
  *  @file jf_attask.c
  *
- *  @brief task container and scheduler
+ *  @brief Implemention file for at task object which is task container and scheduler.
  *
  *  @author Min Zhang
  *

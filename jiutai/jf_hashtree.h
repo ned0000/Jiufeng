@@ -11,7 +11,9 @@
  *  -# The simple hash tree, suitable for items less than 50. For large amount of items, uses
  *   hash table in jf_hashtable.h.
  *  -# This object is not thread safe.
- *  
+ *  -# The hash tree will hash string key to integer key when adding application data. When
+ *   seaching, the integer key is compared firstly and then the string key, this will speed up the
+ *   finding of data.
  */
 
 #ifndef JIUTAI_HASHTREE_H
@@ -28,28 +30,42 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-/** The hash tree node data type.
+/** Define the hash tree node data type.
  */
 typedef struct jf_hashtree_node
 {
+    /**The next node.*/
     struct jf_hashtree_node * jhn_pjhnNext;
+    /**The previous node.*/
     struct jf_hashtree_node * jhn_pjhnPrev;
+    /**The key after hash.*/
     olint_t jhn_nKey;
+    /**The key string.*/
     olchar_t * jhn_pstrKeyValue;
+    /**The length of the key string.*/
     olsize_t jhn_sKey;
+    /**The application data.*/
     void * jhn_pData;
 } jf_hashtree_node_t;
 
+/** Define the hash tree enumerator data type.
+ */
 typedef struct jf_hashtree_enumerator
 {
+    /**The hash tree node.*/
     jf_hashtree_node_t * jhe_pjhnNode;
 } jf_hashtree_enumerator_t;
 
+/** Define the hash tree data type.
+ */
 typedef struct jf_hashtree
 {
+    /**The root node of the hash tree.*/
     jf_hashtree_node_t * jh_pjhnRoot;
 } jf_hashtree_t;
 
+/** Callback function for freeing data in hash tree node.
+ */
 typedef u32 (* jf_hashtree_fnFreeData_t)(void ** ppData);
 
 /* --- functional routines ---------------------------------------------------------------------- */
@@ -104,8 +120,7 @@ static inline boolean_t jf_hashtree_isEmpty(jf_hashtree_t * pHashtree)
  *  @retval TRUE the entry is existing.
  *  @retval FALSE the entry is not existing.
  */
-boolean_t jf_hashtree_hasEntry(
-    jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey);
+boolean_t jf_hashtree_hasEntry(jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey);
 
 /** Adds an item to the hash tree.
  * 
@@ -122,7 +137,7 @@ boolean_t jf_hashtree_hasEntry(
 u32 jf_hashtree_addEntry(
     jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey, void * pValue);
 
-/** Gets an item from a hash tree
+/** Gets an item from a hash tree.
  *
  *  @param pHashtree [in] The hash tree to operate on.
  *  @param pstrKey [in] The key.
@@ -174,6 +189,14 @@ static inline void jf_hashtree_finiEnumerator(
     ol_memset(pEnumerator, 0, sizeof(jf_hashtree_enumerator_t));
 }
 
+/** Check if the node in enumerator is empty.
+ *
+ *  @param pEnumerator [in] The enumerator to check.
+ *
+ *  @return The status.
+ *  @retval TRUE The enumerator node is empty.
+ *  @retval FALSE The enumerator node is not empty.
+ */
 static inline boolean_t jf_hashtree_isEnumeratorEmptyNode(
     jf_hashtree_enumerator_t * pEnumerator)
 {
@@ -195,13 +218,13 @@ static inline u32 jf_hashtree_moveEnumeratorNext(
 
     if (pEnumerator->jhe_pjhnNode != NULL)
     {
-        /*Advance the enumerator to point to the next node. If there is a node
-          return 0, else return 1*/
+        /*Advance the enumerator to point to the next node. If there is a node return 0,
+          else return 1.*/
         pEnumerator->jhe_pjhnNode = pEnumerator->jhe_pjhnNode->jhn_pjhnNext;
     }
     else
     {
-        /*There are no more nodes*/
+        /*There are no more nodes.*/
         u32Ret = JF_ERR_END_OF_HASHTREE;
     }
 
@@ -218,8 +241,7 @@ static inline u32 jf_hashtree_moveEnumeratorNext(
  *  @return Void.
  */
 static inline void jf_hashtree_getEnumeratorValue(
-    jf_hashtree_enumerator_t * pEnumerator,
-    olchar_t ** ppstrKey, olsize_t * psKey, void ** ppData)
+    jf_hashtree_enumerator_t * pEnumerator, olchar_t ** ppstrKey, olsize_t * psKey, void ** ppData)
 {
     /*All we do, is just assign the pointers.*/
     if (ppstrKey != NULL)

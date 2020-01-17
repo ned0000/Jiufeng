@@ -391,8 +391,7 @@ u32 isJoinMulticastGroup(
         mreq.imr_interface.s_addr = pjiAddr->ji_uAddr.ju_nAddr;
 
         nRet = setsockopt(
-            pis->is_isSocket, IPPROTO_IP, IP_ADD_MEMBERSHIP,
-            (olchar_t *)&mreq, sizeof(mreq));
+            pis->is_isSocket, IPPROTO_IP, IP_ADD_MEMBERSHIP, (olchar_t *)&mreq, sizeof(mreq));
         if (nRet != 0)
             u32Ret = JF_ERR_FAIL_JOIN_MULTICAST_GROUP;
     }
@@ -402,21 +401,18 @@ u32 isJoinMulticastGroup(
 #if defined(LINUX)
         /* join using the multicast address passed in */
         ol_memcpy(
-            mreq6.ipv6mr_multiaddr.s6_addr,
-            pjiMulticaseAddr->ji_uAddr.ju_u8Addr, 16);
+            mreq6.ipv6mr_multiaddr.s6_addr, pjiMulticaseAddr->ji_uAddr.ju_u8Addr, 16);
         /* join with specified interface */
         mreq6.ipv6mr_interface = pjiAddr->ji_uAddr.ju_nAddr;
 #elif defined(WINDOWS)
         /* join using the multicast address passed in */
         ol_memcpy(
-            mreq6.ipv6mr_multiaddr.u.Byte,
-            pjiMulticaseAddr->ji_uAddr.ju_u8Addr, 16);
+            mreq6.ipv6mr_multiaddr.u.Byte, pjiMulticaseAddr->ji_uAddr.ju_u8Addr, 16);
         /* join with specified interface */
         mreq6.ipv6mr_interface = pjiAddr->ji_uAddr.ju_nAddr;
 #endif
         nRet = setsockopt(
-            pis->is_isSocket, IPPROTO_IP, IPV6_ADD_MEMBERSHIP,
-            (olchar_t *)&mreq6, sizeof(mreq6));
+            pis->is_isSocket, IPPROTO_IP, IPV6_ADD_MEMBERSHIP, (olchar_t *)&mreq6, sizeof(mreq6));
         if (nRet != 0)
             u32Ret = JF_ERR_FAIL_JOIN_MULTICAST_GROUP;
     }
@@ -921,11 +917,10 @@ u32 isAccept(
     u32Ret = jf_jiukun_allocMemory((void **)&pisAccept, sizeof(internal_socket_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(pisAccept, 0, sizeof(internal_socket_t));
+        ol_bzero(pisAccept, sizeof(internal_socket_t));
 
 #if defined(LINUX)
-        pisAccept->is_isSocket = accept(
-            pis->is_isSocket, psaFrom, (socklen_t *)&nFromLen);
+        pisAccept->is_isSocket = accept(pis->is_isSocket, psaFrom, (socklen_t *)&nFromLen);
 #elif defined(WINDOWS)
         pisAccept->is_isSocket = accept(pis->is_isSocket, psaFrom, &nFromLen);
 #endif
@@ -1059,9 +1054,8 @@ u32 WSAIoctlIsocket(
     olint_t bRet;
 
     bRet = WSAIoctl(
-        pis->is_isSocket, dwIoControlCode, lpvInBuffer, cbInBuffer,
-        lpvOutBuffer, cbOutBuffer, lpcbBytesReturned, lpOverlapped,
-        lpCompletionRoutine);
+        pis->is_isSocket, dwIoControlCode, lpvInBuffer, cbInBuffer, lpvOutBuffer, cbOutBuffer,
+        lpcbBytesReturned, lpOverlapped, lpCompletionRoutine);
     if (bRet != 0)
         u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
 

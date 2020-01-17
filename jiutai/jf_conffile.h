@@ -1,18 +1,25 @@
 /**
  *  @file jf_conffile.h
  *
- *  @brief Configuration file header file
+ *  @brief Header file defines the interface for reading configuration file.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_files library
- *  @note The implementation is very simple, reads the options in a configuration file.
- *  @note An example of the configuration file is as below:    \n
- *   \# this is an exmaple of the configuration file            \n
- *   optiontagname1=value1 # this is an example of option      \n
- *   optiontagname2=value2                                     \n
- *   \# the end of the configuration file
+ *  @note
+ *  -# Routines declared in this file are included in jf_files library
+ *  -# The implementation is very simple, reads the options in a configuration file.
  *
+ *  <HR>
+ *
+ *  @par Example
+ *  @code
+ *   # this is an exmaple of the configuration file
+ *   optiontagname1=value1 # this is an example of option
+ *   optiontagname2=value2
+ *   # the end of the configuration file
+ *  @endcode
+ *
+ *  <HR>
  */
 
 #ifndef JIUFEN_CONFFILE_H

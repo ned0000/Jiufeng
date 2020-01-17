@@ -1,5 +1,5 @@
 /**
- *  @file dispatcher-test-bgad.c
+ *  @file dispatcher-test-sysctld.c
  *
  *  @brief Test file for dispatcher service.
  *
@@ -30,14 +30,14 @@
 
 static boolean_t ls_bTestMessaging = FALSE;
 
-static boolean_t ls_bToTerminateDtb = FALSE;
+static boolean_t ls_bToTerminateDts = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static void _printDispatcherTestBgadUsage(void)
+static void _printDispatcherTestSysctldUsage(void)
 {
     ol_printf("\
-Usage: dispatcher-test-bgad.c [-m] [-h] [logger options] \n\
+Usage: dispatcher-test-sysctld.c [-m] [-h] [logger options] \n\
     -m test messaging library.\n\
     -h print the usage.\n\
 logger options:\n\
@@ -49,7 +49,7 @@ logger options:\n\
     ol_printf("\n");
 }
 
-static u32 _parseDispatcherTestBgadCmdLineParam(
+static u32 _parseDispatcherTestSysctldCmdLineParam(
     olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -62,7 +62,7 @@ static u32 _parseDispatcherTestBgadCmdLineParam(
         {
         case '?':
         case 'h':
-            _printDispatcherTestBgadUsage();
+            _printDispatcherTestSysctldUsage();
             exit(0);
             break;
         case 'm':
@@ -87,36 +87,28 @@ static u32 _parseDispatcherTestBgadCmdLineParam(
     return u32Ret;
 }
 
-static u32 _bgadProcessMsg(u8 * pu8Msg, olsize_t sMsg)
+static u32 _sysctldProcessMsg(u8 * pu8Msg, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-//    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
     u32 u32MsgId = jf_messaging_getMsgId(pu8Msg, sMsg);
-    bgad_activity_status_msg basm;
-    sysctld_system_info_msg * pssim;
+    sysctld_system_info_msg ssim;
 
     jf_messaging_initMsgHeader(
-        (u8 *)&basm, BGAD_MSG_ID_ACTIVITY_STATUS, JF_MESSAGING_PRIO_MID,
-        sizeof(basm.basm_basmpPayload));
+        (u8 *)&ssim, SYSCTLD_MSG_ID_SYSTEM_INFO, JF_MESSAGING_PRIO_HIGH,
+        sizeof(ssim.ssim_ssimpPayload));
 
     switch (u32MsgId)
     {
-    case BGAD_MSG_ID_START_ACTIVITY:
-        ol_printf("receive message, BGAD_MSG_ID_START_ACTIVITY\n");
-
-        u32Ret = jf_messaging_sendMsg((u8 *)&basm, sizeof(basm));
-
-        break;
-    case BGAD_MSG_ID_STOP_ACTIVITY:
-        ol_printf("receive message, BGAD_MSG_ID_STOP_ACTIVITY\n");
-
-        u32Ret = jf_messaging_sendMsg((u8 *)&basm, sizeof(basm));
+    case BGAD_MSG_ID_ACTIVITY_INFO:
+        ol_printf("receive message, BGAD_MSG_ID_ACTIVITY_INFO\n");
+        ol_strcpy((olchar_t *)ssim.ssim_ssimpPayload.ssimp_u8Payload, "activity info");
+        u32Ret = jf_messaging_sendMsg((u8 *)&ssim, sizeof(ssim));
 
         break;
-    case SYSCTLD_MSG_ID_SYSTEM_INFO:
-        ol_printf("receive message, SYSCTLD_MSG_ID_SYSTEM_INFO\n");
-        pssim = (sysctld_system_info_msg *)pu8Msg;
-        ol_printf("system info: %s\n", (olchar_t *)pssim->ssim_ssimpPayload.ssimp_u8Payload);
+    case BGAD_MSG_ID_ACTIVITY_STATUS:
+        ol_printf("receive message, BGAD_MSG_ID_ACTIVITY_STATUS\n");
+        ol_strcpy((olchar_t *)ssim.ssim_ssimpPayload.ssimp_u8Payload, "activity status");
+        u32Ret = jf_messaging_sendMsg((u8 *)&ssim, sizeof(ssim));
 
         break;
     default:
@@ -127,16 +119,46 @@ static u32 _bgadProcessMsg(u8 * pu8Msg, olsize_t sMsg)
     return u32Ret;
 }
 
-static u32 _testMessagingBgad(void)
+static u32 _sysctldStartBgadActivity(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    bgad_start_activity_msg bsam;
+
+    jf_messaging_initMsgHeader(
+        (u8 *)&bsam, BGAD_MSG_ID_START_ACTIVITY, JF_MESSAGING_PRIO_MID,
+        sizeof(bsam.bsam_bsampPayload));
+    ol_strcpy((olchar_t *)bsam.bsam_bsampPayload.bsamp_u8Payload, "check");
+
+    u32Ret = jf_messaging_sendMsg((u8 *)&bsam, sizeof(bsam));
+
+    return u32Ret;
+}
+
+static u32 _sysctldStopBgadActivity(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    bgad_stop_activity_msg bsam;
+
+    jf_messaging_initMsgHeader(
+        (u8 *)&bsam, BGAD_MSG_ID_STOP_ACTIVITY, JF_MESSAGING_PRIO_MID,
+        sizeof(bsam.bsam_bsampPayload));
+    ol_strcpy((olchar_t *)bsam.bsam_bsampPayload.bsamp_u8Payload, "check");
+
+    u32Ret = jf_messaging_sendMsg((u8 *)&bsam, sizeof(bsam));
+
+    return u32Ret;
+}
+
+static u32 _testMessagingSysctld(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_messaging_init_param_t jmip;
 
     ol_bzero(&jmip, sizeof(jmip));
-    jmip.jmip_fnProcessMsg = _bgadProcessMsg;
-    jmip.jmip_pstrMessagingIn = "bgad_message_in";
-    jmip.jmip_pstrMessagingOut = "bgad_message_out";
-    jmip.jmip_pstrName = "bgad";
+    jmip.jmip_fnProcessMsg = _sysctldProcessMsg;
+    jmip.jmip_pstrMessagingIn = "sysctld_message_in";
+    jmip.jmip_pstrMessagingOut = "sysctld_message_out";
+    jmip.jmip_pstrName = "sysctld";
     jmip.jmip_sMaxMsg = 1024;
     jmip.jmip_u32MaxNumMsg = 8;
 
@@ -146,20 +168,29 @@ static u32 _testMessagingBgad(void)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        bgad_activity_info_msg baim;
+        sysctld_system_info_msg ssim;
 
         jf_messaging_initMsgHeader(
-            (u8 *)&baim, BGAD_MSG_ID_ACTIVITY_INFO, JF_MESSAGING_PRIO_MID,
-            sizeof(baim.baim_baimpPayload));
+            (u8 *)&ssim, SYSCTLD_MSG_ID_SYSTEM_INFO, JF_MESSAGING_PRIO_HIGH,
+            sizeof(ssim.ssim_ssimpPayload));
+        ol_strcpy((olchar_t *)ssim.ssim_ssimpPayload.ssimp_u8Payload, "initial");
 
-        u32Ret = jf_messaging_sendMsg((u8 *)&baim, sizeof(baim));
+        u32Ret = jf_messaging_sendMsg((u8 *)&ssim, sizeof(ssim));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        while (! ls_bToTerminateDtb)
+        while (! ls_bToTerminateDts)
         {
-            jf_time_sleep(2);
+            jf_time_sleep(5);
+
+            if (! ls_bToTerminateDts)
+                _sysctldStartBgadActivity();
+
+            jf_time_sleep(5);
+
+            if (! ls_bToTerminateDts)
+                _sysctldStopBgadActivity();
         }
         jf_time_sleep(3);
     }
@@ -169,13 +200,13 @@ static u32 _testMessagingBgad(void)
     return u32Ret;
 }
 
-static void _terminateDispatcherTestBgad(olint_t signal)
+static void _terminateDispatcherTestSysctld(olint_t signal)
 {
     ol_printf("get signal\n");
 
     jf_messaging_stop();
 
-    ls_bToTerminateDtb = TRUE;
+    ls_bToTerminateDts = TRUE;
 }
 
 
@@ -189,7 +220,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_jiukun_init_param_t jjip;
 
     ol_bzero(&jlipParam, sizeof(jlipParam));
-    jlipParam.jlip_pstrCallerName = "DSPT-TEST-BGAD";
+    jlipParam.jlip_pstrCallerName = "DSPT-TEST-SYSCTLD";
 //    jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_bLogToFile = TRUE;
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_DEBUG;
@@ -197,9 +228,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
 
-    u32Ret = _parseDispatcherTestBgadCmdLineParam(argc, argv, &jlipParam);
+    u32Ret = _parseDispatcherTestSysctldCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_process_registerSignalHandlers(_terminateDispatcherTestBgad);
+        u32Ret = jf_process_registerSignalHandlers(_terminateDispatcherTestSysctld);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -210,12 +241,12 @@ olint_t main(olint_t argc, olchar_t ** argv)
         {
             if (ls_bTestMessaging)
             {
-                u32Ret = _testMessagingBgad();
+                u32Ret = _testMessagingSysctld();
             }
             else 
             {
                 ol_printf("No operation is specified !!!!\n\n");
-                _printDispatcherTestBgadUsage();
+                _printDispatcherTestSysctldUsage();
             }
 
             jf_jiukun_fini();

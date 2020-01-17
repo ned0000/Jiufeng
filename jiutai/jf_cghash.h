@@ -1,12 +1,13 @@
 /**
  *  @file jf_cghash.h
  *
- *  @brief cryptographic hash function
+ *  @brief Header file define the interface for cryptographic hash function.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_cghash library
- *  
+ *  @note
+ *  -# Routines declared in this file are included in jf_cghash library.
+ *
  */
 
 #ifndef JIUFENG_CGHASH_H

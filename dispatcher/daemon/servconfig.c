@@ -80,6 +80,36 @@ static jf_jiukun_cache_t * ls_pjjcMsgConfig = NULL;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
+/** Free one message config.
+ */
+static u32 _fnFreeDispatcherMsgConfig(void ** ppData)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    jf_jiukun_freeObject(ls_pjjcMsgConfig, (void **)ppData);
+
+    return u32Ret;
+}
+
+/** Free one service config.
+ */
+static u32 _fnFreeDispatcherServConfig(void ** pData)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    dispatcher_serv_config_t * pdsc = (dispatcher_serv_config_t *) *pData;
+
+    /*Free the published message link list and all the entries in the list.*/
+    jf_linklist_finiListAndData(&pdsc->dsc_jlPublishedMsg, _fnFreeDispatcherMsgConfig);
+
+    /*Free the subscribed message link list and all the entries in the list.*/
+    jf_linklist_finiListAndData(&pdsc->dsc_jlSubscribedMsg, _fnFreeDispatcherMsgConfig);
+
+    /*Free the serivice config.*/
+    jf_jiukun_freeMemory(pData);
+
+    return u32Ret;
+}
+
 /** Check the message config, no duplicate id.
  */
 static u32 _validateMsgConfig(parse_serv_msg_t * ppsm, dispatcher_msg_config_t * pMsg)
@@ -97,10 +127,12 @@ static u32 _fnParseServMsg(jf_ptree_node_t * pNode, void * pArg)
     jf_ptree_node_attribute_t * pAttr = NULL;
     dispatcher_msg_config_t * pMsg = NULL;
 
+    /*Allocate message config object from cache.*/
     u32Ret = jf_jiukun_allocObject(ppsm->psm_pjjcMsgConfig, (void **)&pMsg);
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pNode, &pstrValue, NULL);
 
+    /*Copy the message description.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         ol_strncpy(pMsg->dmc_strMsgDesc, pstrValue, MAX_DISPATCHER_MSG_DESC_LEN - 1);
 
@@ -123,9 +155,11 @@ static u32 _fnParseServMsg(jf_ptree_node_t * pNode, void * pArg)
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_string_getU32FromString(pstrId + 1, sId - 2, &pMsg->dmc_u32MsgId);
 
+    /*Validate message config.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _validateMsgConfig(ppsm, pMsg);
 
+    /*Append the message config to the linked list.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_linklist_appendTo(ppsm->psm_pjlMsg, pMsg);
 
@@ -153,6 +187,7 @@ static u32 _parseDispatcherMessage(
         psmArg.psm_pjjcMsgConfig = ls_pjjcMsgConfig;
         psmArg.psm_pjlMsg = &pdsc->dsc_jlPublishedMsg;
 
+        /*Iterate node to add all message to linked list.*/
         u32Ret = jf_ptree_iterateNode(pNode, _fnParseServMsg, &psmArg);
     }
 
@@ -169,6 +204,7 @@ static u32 _parseDispatcherMessage(
         psmArg.psm_pjjcMsgConfig = ls_pjjcMsgConfig;
         psmArg.psm_pjlMsg = &pdsc->dsc_jlSubscribedMsg;
 
+        /*Iterate node to add all message to linked list.*/
         u32Ret = jf_ptree_iterateNode(pNode, _fnParseServMsg, &psmArg);
     }
 
@@ -185,23 +221,30 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_serv_conf
     olchar_t * pstrValue = NULL;
     olsize_t sValue = 0;
 
+    /*Find the service name node.*/
     u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_SERV_NAME, &pNode);
 
+    /*Get name of the service.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pNode, &pstrValue, NULL);
 
+    /*Copy the service name.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         ol_strncpy(pdsc->dsc_strName, pstrValue, MAX_DISPATCHER_SERV_NAME_LEN - 1);
 
+    /*Find the service user name node.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_SERV_USER_NAME, &pNode);
 
+    /*Get name of the service user.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pNode, &pstrValue, NULL);
 
+    /*Get UID and GID of the user.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_user_getUidGid(pstrValue, &pdsc->dsc_uiUser, &pdsc->dsc_giGroup);
 
+    /*Find the service messaging in node.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_SERV_MESSAGING_IN, &pNode);
 
@@ -211,6 +254,7 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_serv_conf
     if (u32Ret == JF_ERR_NO_ERROR)
         ol_strncpy(pdsc->dsc_strMessagingIn, pstrValue, MAX_DISPATCHER_MESSAGING_NAME_LEN - 1);
 
+    /*Find the service messaging out node.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_SERV_MESSAGING_OUT, &pNode);
 
@@ -220,6 +264,7 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_serv_conf
     if (u32Ret == JF_ERR_NO_ERROR)
         ol_strncpy(pdsc->dsc_strMessagingOut, pstrValue, MAX_DISPATCHER_MESSAGING_NAME_LEN - 1);
 
+    /*Find the maximum number of message node.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_SERV_MAX_NUM_MSG, &pNode);
 
@@ -229,6 +274,7 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_serv_conf
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_string_getU32FromString(pstrValue, sValue, &pdsc->dsc_u32MaxNumMsg);
 
+    /*Find the maximum message size node.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_SERV_MAX_MSG_SIZE, &pNode);
 
@@ -316,17 +362,19 @@ static u32 _parseDispatcherServConfigFile(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Set the service ID.*/
+        pdsc->dsc_u16ServId = psdcdp->sdcdp_u16NumOfServConfig;
         psdcdp->sdcdp_u16NumOfServConfig ++;
 
         jf_logger_logInfoMsg(
-            "service version: %s, name: %s, msgin: %s, msgout: %s, maxnummsg: %u, maxmsgsize: %u",
-            pdsc->dsc_strVersion, pdsc->dsc_strName, pdsc->dsc_strMessagingIn,
+            "service id: %u, version: %s, name: %s, msgin: %s, msgout: %s, maxnummsg: %u, maxmsgsize: %u",
+            pdsc->dsc_u16ServId, pdsc->dsc_strVersion, pdsc->dsc_strName, pdsc->dsc_strMessagingIn,
             pdsc->dsc_strMessagingOut, pdsc->dsc_u32MaxNumMsg, pdsc->dsc_u32MaxMsgSize);
     }
     else if (pdsc != NULL)
     {
         jf_logger_logErrMsg(u32Ret, "parse dispatcher config file");
-        jf_jiukun_freeMemory((void **)&pdsc);
+        _fnFreeDispatcherServConfig((void **)&pdsc);
     }
 
     return u32Ret;
@@ -348,29 +396,6 @@ static u32 _handleDispatcherConfigDirEntry(
     return u32Ret;
 }
 
-static u32 _fnFreeDispatcherMsgConfig(void ** ppData)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-
-    jf_jiukun_freeObject(ls_pjjcMsgConfig, (void **)ppData);
-
-    return u32Ret;
-}
-
-static u32 _fnFreeDispatcherServConfig(void ** pData)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    dispatcher_serv_config_t * pdsc = (dispatcher_serv_config_t *) *pData;
-
-    jf_linklist_finiListAndData(&pdsc->dsc_jlPublishedMsg, _fnFreeDispatcherMsgConfig);
-
-    jf_linklist_finiListAndData(&pdsc->dsc_jlSubscribedMsg, _fnFreeDispatcherMsgConfig);
-
-    jf_jiukun_freeMemory(pData);
-
-    return u32Ret;
-}
-
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 scanDispatcherConfigDir(scan_dispatcher_config_dir_param_t * pParam)
@@ -380,6 +405,7 @@ u32 scanDispatcherConfigDir(scan_dispatcher_config_dir_param_t * pParam)
 
     jf_logger_logInfoMsg("scan dir: %s", pParam->sdcdp_pstrConfigDir);
 
+    /*Create the message config cache.*/
     ol_bzero(&jjccp, sizeof(jjccp));
     jjccp.jjccp_pstrName = DISPATCHER_MSG_CACHE;
     jjccp.jjccp_sObj = sizeof(dispatcher_msg_config_t);
@@ -387,6 +413,7 @@ u32 scanDispatcherConfigDir(scan_dispatcher_config_dir_param_t * pParam)
 
     u32Ret = jf_jiukun_createCache(&ls_pjjcMsgConfig, &jjccp);
 
+    /*Parse the config directory.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_dir_parse(
             pParam->sdcdp_pstrConfigDir, _handleDispatcherConfigDirEntry, (void *)pParam);
@@ -398,8 +425,10 @@ u32 destroyDispatcherServConfigList(jf_linklist_t * pjlServConfig)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
+    /*Free the service config linked list and all the entries in the list.*/
     jf_linklist_finiListAndData(pjlServConfig, _fnFreeDispatcherServConfig);
 
+    /*Free the message config cache.*/
     if (ls_pjjcMsgConfig != NULL)
         jf_jiukun_destroyCache(&ls_pjjcMsgConfig);
 

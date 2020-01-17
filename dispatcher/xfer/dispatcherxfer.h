@@ -81,12 +81,7 @@ DISPATCHERXFERAPI u32 DISPATCHERXFERCALL dispatcher_xfer_create(
  *  -# The data array is cloned in this funcion.
  *
  *  @param pXfer [in] The dispatcher xfer to queue the requests to.
- *  @param pjiRemote [in] The address of remote server.
- *  @param u16Port [in] The port of remote server.
- *  @param pu8Msg [in] The message to send.
- *  @param sMsg [in] The message size.
- *  @param fnOnEvent [in] data reception handler.
- *  @param pUser [in] The user.
+ *  @param pdm [in] The message to send.
  *
  *  @return The error code.
  */
@@ -96,8 +91,6 @@ DISPATCHERXFERAPI u32 DISPATCHERXFERCALL dispatcher_xfer_sendMsg(
 /** Clear the message queue for a specific remote server.
  *
  *  @param pXfer [in] The dispatcher xfer.
- *  @param pjiRemote [in] The address of remote server.
- *  @param u16Port [in] The port of remote server.
  *
  *  @return The error code.
  */
@@ -106,9 +99,33 @@ DISPATCHERXFERAPI u32 DISPATCHERXFERCALL dispatcher_xfer_clearMsgQueue(dispatche
 /** Destory dispatcher xfer.
  *
  *  @param ppXfer [in/out] The dispatcher xfer to free.
+ *
+ *  @return The error code.
  */
 DISPATCHERXFERAPI u32 DISPATCHERXFERCALL dispatcher_xfer_destroy(
     dispatcher_xfer_t ** ppXfer);
+
+/** Pause dispatcher xfer.
+ *
+ *  @note
+ *  -# After pause, the xfer will not send out any message.
+ *
+ *  @param pXfer [in] The dispatcher xfer to pause.
+ *
+ *  @return The error code.
+ */
+DISPATCHERXFERAPI u32 DISPATCHERXFERCALL dispatcher_xfer_pause(dispatcher_xfer_t * pXfer);
+
+/** Resume dispatcher xfer.
+ *
+ *  @note
+ *  -# After resume, the xfer will start sending out message.
+ *
+ *  @param pXfer [in] The dispatcher xfer to resume.
+ *
+ *  @return The error code.
+ */
+DISPATCHERXFERAPI u32 DISPATCHERXFERCALL dispatcher_xfer_resume(dispatcher_xfer_t * pXfer);
 
 #endif /*DISPATCHER_XFER_H*/
 

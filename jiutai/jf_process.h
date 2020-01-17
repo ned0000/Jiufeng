@@ -106,23 +106,55 @@ u32 jf_process_switchToDaemon(void);
 boolean_t jf_process_isAlreadyRunning(olchar_t * pstrDaemonName);
 
 /** Initialize the process handle.
+ *
+ *  @param pHandle [in] The process handle to be initialized.
+ *
+ *  @return Void.
  */
-void jf_process_initHandle(jf_process_handle_t * pProcessId);
+void jf_process_initHandle(jf_process_handle_t * pHandle);
 
 /** Check if the process handle is valid or not.
+ *
+ *  @param pHandle [in] The process handle to be checked.
+ *
+ *  @return The status of the process handle.
+ *  @retval TRUE If the process handle is valid.
+ *  @retval FALSE If the process handle is invalid.
  */
 boolean_t jf_process_isValidHandle(jf_process_handle_t * pHandle);
 
 /** Create a process.
+ *
+ *  @param pHandle [out] The process handle to be created.
+ *  @param pAttr [in] The attribute for creating the process.
+ *  @param pstrCommandLine [in] The command line to run as a process.
+ *
+ *  @return The error code.
  */
 u32 jf_process_create(
     jf_process_handle_t * pHandle, jf_process_attr_t * pAttr, olchar_t * pstrCommandLine);
 
-/** Send SIGKILL to process to kill the process, SIGKILL cannot be caught by process.
+/** Send SIGKILL to process to kill the process.
+ *
+ *  @note
+ *  -# SIGKILL can not be caught by process, the process will be stopped anyway.
+ *  -# It's recommended to use jf_process_terminate() firstly and then this routine after waiting
+ *   serveral seconds.
+ *
+ *  @param pHandle [in] The process handle to be killed.
+ *
+ *  @return The error code.
  */
 u32 jf_process_kill(jf_process_handle_t * pHandle);
 
-/** Send SIGTERM to process to terminate the process, SIGKILL can be caught by process.
+/** Send SIGTERM to process to terminate the process.
+ *
+ *  @note
+ *  -# SIGTERM can be caught by process, the process may not be terminated for some reasons.
+ *
+ *  @param pHandle [in] The process handle to be terminated.
+ *
+ *  @return The error code.
  */
 u32 jf_process_terminate(jf_process_handle_t * pHandle);
 
@@ -131,11 +163,13 @@ u32 jf_process_terminate(jf_process_handle_t * pHandle);
  *  @note
  *  -# The function returns if a child process terminates.
  *
- *  @param pidChild [in] The child process array to wait.
+ *  @param pidChild [in] The child process handle array to wait.
  *  @param u32Count [in] The count of child process array.
  *  @param u32BlockTime [in] The block time in millisecond.
  *  @param pu32Index [out] The index in array where the child is terminated.
  *  @param pu32Reason [out] The termination reason defined as jf_process_termination_reason_t.
+ *
+ *  @return The error code.
  */
 u32 jf_process_waitForChildProcessTermination(
     jf_process_handle_t pidChild[], u32 u32Count, u32 u32BlockTime, u32 * pu32Index, u32 * pu32Reason);

@@ -1,16 +1,16 @@
 /**
  *  @file jf_encrypt.h
  *
- *  @brief encryption/decryption header file. It provides fucntions to encrypt
- *   and decrypt file and string.
+ *  @brief Encryption/decryption header file which provides fucntions to encrypt and decrypt file
+ *   and string.
  *
  *  @author Min Zhang
  *
- *  @note Routines declared in this file are included in jf_encrypt library
- *  @note On Linux platform, link with ssl and crypto library
- *  @note Link with olstringparse and olfiles library
- *  @note Use AES as the encrypt algorithm, the length of the encrypt key
- *   should be 16 bytes long
+ *  @note
+ *  -# Routines declared in this file are included in jf_encrypt library.
+ *  -# On Linux platform, link with ssl and crypto library.
+ *  -# Link with olstringparse and olfiles library
+ *  -# Use AES as the encrypt algorithm, the length of the encrypt key should be 16 bytes long.
  *
  */
 
@@ -46,54 +46,55 @@
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/** Encrypt file
+/** Encrypt file.
  *
- *  @param pSrcFile [in] file to be encrypted
- *  @param pDestFile [in] generated encrypted file
- *  @param pKey [in] encryption key, the length of pKey array must >= 8. But
- *   only first 7 bytes are used
+ *  @param pSrcFile [in] File to be encrypted.
+ *  @param pDestFile [in] Generated encrypted file.
+ *  @param pKey [in] Encryption key, the length of pKey array must >= 8. But only first 7 bytes are
+ *   used.
  *
- *  @return the error code
+ *  @return The error code.
  */
 u32 jf_encrypt_encryptFile(
     olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey);
 
-/** Decrypt file
+/** Decrypt file.
  *
- *  @param pSrcFile [in] file to be decrypted
- *  @param pDestFile [in] generated decrypted file
- *  @param pKey [in] encryption key
+ *  @param pSrcFile [in] File to be decrypted.
+ *  @param pDestFile [in] Generated decrypted file.
+ *  @param pKey [in] Encryption key.
  *
- *  @return the error code
+ *  @return The error code.
  */
 u32 jf_encrypt_decryptFile(olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey);
 
-/** Encrypt a string, the encrypted string is convert to another string
+/** Encrypt a string, the encrypted string is convert to another string.
  *
- *  @param pSrcStr [in] string to be encrypted
- *  @param ppDestStr [out] generated encrypted string
- *  @param pKey [in] encryption key
+ *  @param pSrcStr [in] String to be encrypted.
+ *  @param ppDestStr [out] Generated encrypted string.
+ *  @param pKey [in] Encryption key.
  *
- *  @return the error code
+ *  @return The error code.
  */
 u32 jf_encrypt_encryptString(
     const olchar_t * pSrcStr, olchar_t ** ppDestStr, olchar_t * pKey);
 
-/** Decrypt to generate original string
+/** Decrypt to generate original string.
  *
- *  @param pSrcStr [in] string to be decrypted
- *  @param ppDestStr [out] generated original string
- *  @param pKey [in] encryption key
+ *  @param pSrcStr [in] String to be decrypted.
+ *  @param ppDestStr [out] Generated original string.
+ *  @param pKey [in] Encryption key.
  *
- *  @return the error code
+ *  @return The error code.
  */
 u32 jf_encrypt_decryptString(
     const olchar_t * pSrcStr, olchar_t ** ppDestStr, olchar_t * pKey);
 
-/** Free string allocated by encryptString() and decryptString()
- *  @param ppStr [in/out] string to free
+/** Free string allocated by jf_encrypt_encryptString() and jf_encrypt_decryptString().
  *
- *  @return void
+ *  @param ppStr [in/out] String to free.
+ *
+ *  @return Void.
  */
 void jf_encrypt_freeString(olchar_t ** ppStr);
 
