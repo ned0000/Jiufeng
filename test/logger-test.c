@@ -140,8 +140,10 @@ static void _testLogger(void)
     jf_logger_logErrMsg(E_BAT_MAN, "Vendor error code");
 
     jf_logger_logInfoMsg("logger test, info msg");
+    JF_LOGGER_INFO("logger test, info msg");
 
     jf_logger_logErrMsg(JF_ERR_NOT_FOUND, "logger test, err msg");
+    JF_LOGGER_ERR(JF_ERR_FAIL_CREATE_MUTEX, "err msg for testing logger");
 
     jf_logger_logDataMsg(u8Data, sizeof(u8Data), "logger test, err msg");
 

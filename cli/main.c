@@ -107,10 +107,10 @@ static u32 _printShellGreeting(void * pMaster)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_clieng_outputLine("-------------------------------------------------------------");
+    jf_clieng_outputLine("--------------------------------------------------------------------");
     jf_clieng_outputLine("Jiufeng Command Line Interface (CLI) Utility");
     jf_clieng_outputLine("Version: %s Build Date: %s", ls_pstrVersion, ls_pstrBuildData);
-    jf_clieng_outputLine("-------------------------------------------------------------");
+    jf_clieng_outputLine("--------------------------------------------------------------------");
 
     return u32Ret;
 }

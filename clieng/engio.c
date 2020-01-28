@@ -1375,9 +1375,9 @@ u32 jf_clieng_printBanner(u32 u32Len)
     const olchar_t * pstrBanner = NULL;
 
     if (u32Len > JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1)
-        pstrBanner = cls_pstrBanner;
+        pstrBanner = cls_pstrBanner + (u32Len - JF_CLIENG_MAX_OUTPUT_LINE_LEN);
     else
-        pstrBanner = cls_pstrBanner + (JF_CLIENG_MAX_OUTPUT_LINE_LEN - u32Len);
+        pstrBanner = cls_pstrBanner;
 
     u32Ret = outputLine(pstrBanner);
 

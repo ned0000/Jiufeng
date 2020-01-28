@@ -328,8 +328,8 @@ u32 jf_clieng_fini(void)
 
 u32 jf_clieng_newCmd(
     const olchar_t * pstrName, jf_clieng_fnSetDefaultParam_t fnSetDefaultParam,
-    jf_clieng_fnParseCmd_t fnParseCmd, jf_clieng_fnProcessCmd_t fnProcessCmd,
-    void * pParam, jf_clieng_cmd_t ** ppCmd)
+    jf_clieng_fnParseCmd_t fnParseCmd, jf_clieng_fnProcessCmd_t fnProcessCmd, void * pParam,
+    jf_clieng_cmd_t ** ppCmd)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_t * pic = &ls_icClieng;
@@ -338,8 +338,7 @@ u32 jf_clieng_newCmd(
            (fnParseCmd != NULL) && (fnProcessCmd != NULL));
 
     u32Ret = newCmd(
-        pic->ic_pcpParser, pstrName, fnSetDefaultParam,
-        fnParseCmd, fnProcessCmd, pParam, ppCmd);
+        pic->ic_pcpParser, pstrName, fnSetDefaultParam, fnParseCmd, fnProcessCmd, pParam, ppCmd);
 
     return u32Ret;
 }

@@ -82,6 +82,11 @@ if [ $? -ne 0 ]; then
     exit $E_BUILD_ERROR
 fi
 
+print_banner "Generate documentation"
+cd $topdir/
+rm -fr doc/html
+doxygen doc/Doxyfile
+
 print_banner "Copy executable files"
 cd $topdir/build/bin
 for file in $bin_files
@@ -125,6 +130,10 @@ do
     echo "Copy $file"
     cp $file $configdir
 done
+
+print_banner "Copy documentation"
+cd $topdir/doc
+cp -r html $docdir
 
 print_banner "Copy makefiles"
 cd $topdir/mak

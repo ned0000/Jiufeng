@@ -129,7 +129,7 @@ u32 jf_array_removeAllElements(jf_array_t * pja);
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
- *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY out of memory
+ *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY Out of memory.
  */
 u32 jf_array_insertElementAt(jf_array_t * pja, u32 u32Index, jf_array_element_t * pjae);
 
@@ -140,7 +140,7 @@ u32 jf_array_insertElementAt(jf_array_t * pja, u32 u32Index, jf_array_element_t 
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
- *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY out of memory
+ *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY Out of memory.
  */
 u32 jf_array_appendElementTo(jf_array_t * pja, jf_array_element_t * pjae);
 

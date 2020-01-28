@@ -74,6 +74,11 @@ typedef enum
 #define JF_LOGGER_DEBUG(fmt, ...)  \
     jf_logger_logDebugMsg("%s:%d, "fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
+/** The helper function to output error message with function name and line number.
+ */
+#define JF_LOGGER_ERR(u32ErrCode, fmt, ...)  \
+    jf_logger_logErrMsg(u32ErrCode, "%s:%d, "fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+
 /* --- data structures -------------------------------------------------------------------------- */
 
 /** Define the parameter data type for creating logger.

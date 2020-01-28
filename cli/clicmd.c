@@ -121,9 +121,9 @@ static void _printUserVerbose(user_info_t * pui)
 
 static jf_clieng_caption_t ls_jccUserInfoBrief[] =
 {
-    {"Name", 10},
-    {"FullName", 20},
-    {"Email", 30},
+    {"Name", 15},
+    {"FullName", 25},
+    {"Email", 40},
     {"GroupId", 10},
     {"Enabled", 9},
 };

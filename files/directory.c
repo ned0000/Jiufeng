@@ -343,8 +343,9 @@ u32 jf_dir_parse(
             if (! _isIgnoreEntry(direntry.jde_strName))
             {
                 ol_memset(strFullname, 0, sizeof(strFullname));
-                ol_snprintf(strFullname, sizeof(strFullname) - 1, "%s%c%s", strName,
-                         PATH_SEPARATOR, direntry.jde_strName);
+                ol_snprintf(
+                    strFullname, sizeof(strFullname) - 1, "%s%c%s", strName, PATH_SEPARATOR,
+                    direntry.jde_strName);
 
                 u32Ret = jf_file_getStat(strFullname, &filestat);
                 if (u32Ret == JF_ERR_NO_ERROR)
