@@ -59,14 +59,14 @@ static u32 _jtSqliteEvalSqlStmt(
         {
         case SQLITE_ROW:
             /*Success and data is returned.*/
-            jf_logger_logDebugMsg("jt sqlite eval sql stmt return SQLITE_ROW");
+            JF_LOGGER_DEBUG("sqlite3_step return SQLITE_ROW");
             ol_strncpy(pstrResult, (olchar_t *)sqlite3_column_text(pStatement, 0), sResult - 1);
             pstrResult[sResult - 1] = '\0';
             bKeepOnTrying = FALSE;
             break;
         case SQLITE_BUSY:
         case SQLITE_LOCKED:
-            jf_logger_logDebugMsg("jt sqlite eval sql stmt, ret: %d", nRet);
+            JF_LOGGER_DEBUG("sqlite3_step return %d", nRet);
 
             if (bTransaction || pjs->js_bTransactionStarted)
             {
@@ -82,11 +82,11 @@ static u32 _jtSqliteEvalSqlStmt(
             break;
         case SQLITE_DONE:
             /*Success and no data is returned.*/
-            jf_logger_logDebugMsg("jt sqlite eval sql stmt, return SQLITE_DONE");
+            JF_LOGGER_DEBUG("sqlite3_step return SQLITE_DONE");
             bKeepOnTrying = FALSE;
             break;
         default:
-            jf_logger_logInfoMsg("jt sqlite eval sql stmt, ret: %d", nRet);
+            JF_LOGGER_INFO("sqlite3_step return %d", nRet);
             sqlite3_reset(pStatement);
             bKeepOnTrying = FALSE;
             u32Ret = JF_ERR_SQL_EVAL_ERROR;
@@ -105,15 +105,15 @@ static u32 _jtSqliteExecSql(
     sqlite3_stmt * pStatement = NULL;
     olint_t nRet = SQLITE_OK;
 
-    jf_logger_logInfoMsg("jt sqlite exec sql, %s", pstrSql);
+    JF_LOGGER_DEBUG("sql: %s", pstrSql);
 
     pstrResult[0] = '\0';
 
     nRet = sqlite3_prepare_v2(pjs->js_psSqlite, pstrSql, -1, &pStatement, NULL);
     if (nRet != SQLITE_OK)
     {
-        jf_logger_logInfoMsg("sqlite3_prepare_v2 return %d", nRet);
         u32Ret = JF_ERR_SQL_COMPILE_ERROR;
+        JF_LOGGER_ERR(u32Ret, "sqlite3_prepare_v2 return %d", nRet);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -143,8 +143,7 @@ static u32 _jtSqliteExecSqlTransaction(jf_sqlite_t * pjs, olchar_t * pSql)
 
 		/*Get random number for sleep time in millisecond.*/
         u32Value = jf_rand_getU32InRange(TRANSACTION_RETRY_MIN_TIME, TRANSACTION_RETRY_MAX_TIME);
-        jf_logger_logDebugMsg(
-            "retry jt sqlite trans, attemp: %d, sleep: %u", nAttempt, u32Value);
+        JF_LOGGER_DEBUG("attemp: %d, sleep: %u", nAttempt, u32Value);
 		jf_time_milliSleep(u32Value);
 		nAttempt++;
 	} while (u32Ret != JF_ERR_NO_ERROR);
@@ -166,7 +165,7 @@ u32 jf_sqlite_init(jf_sqlite_t * pjs, jf_sqlite_init_param_t * param)
     if (ret != SQLITE_OK)
     {
         /*Doesn't matter if failed.*/
-        jf_logger_logInfoMsg("init jt sqlite, config failed");
+        JF_LOGGER_INFO("sqlite3_config failed");
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -178,7 +177,7 @@ u32 jf_sqlite_init(jf_sqlite_t * pjs, jf_sqlite_init_param_t * param)
         if (ret != SQLITE_OK)
         {
             u32Ret = JF_ERR_PERSISTENCY_INIT_ERROR;
-            jf_logger_logErrMsg(u32Ret, "init jt sqlite, open db failed");
+            JF_LOGGER_ERR(u32Ret, "open db failed");
         }
     }
 
@@ -192,7 +191,7 @@ u32 jf_sqlite_init(jf_sqlite_t * pjs, jf_sqlite_init_param_t * param)
             ret = sqlite3_busy_timeout(pjs->js_psSqlite, 500);
             if (ret != SQLITE_OK)
             {
-                jf_logger_logInfoMsg("create jt sqlite, failed to set busy timeout");
+                JF_LOGGER_INFO("failed to set busy timeout");
             }
         }
     }
@@ -228,7 +227,7 @@ u32 jf_sqlite_rollbackTransaction(jf_sqlite_t * pjs)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logDebugMsg("jt sqlite rollback transaction");
+    JF_LOGGER_DEBUG("rollback transaction");
 
     if (! pjs->js_bInitialized)
         return JF_ERR_NOT_INITIALIZED;
@@ -249,7 +248,7 @@ u32 jf_sqlite_startTransaction(jf_sqlite_t * pjs)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logDebugMsg("jt sqlite start transaction");
+    JF_LOGGER_DEBUG("start transaction");
 
     if (! pjs->js_bInitialized)
         return JF_ERR_NOT_INITIALIZED;
@@ -267,7 +266,7 @@ u32 jf_sqlite_commitTransaction(jf_sqlite_t * pjs)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logDebugMsg("jt sqlite commit transaction");
+    JF_LOGGER_DEBUG("commit transaction");
 
     if (! pjs->js_bInitialized)
         return JF_ERR_NOT_INITIALIZED;

@@ -62,12 +62,12 @@ typedef enum
 /** The helper function to output warning message with function name and line number.
  */
 #define JF_LOGGER_WARN(fmt, ...)  \
-    jf_logger_logDebugMsg("%s:%d, "fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+    jf_logger_logWarnMsg("%s:%d, "fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
 /** The helper function to output information message with function name and line number.
  */
 #define JF_LOGGER_INFO(fmt, ...)  \
-    jf_logger_logDebugMsg("%s:%d, "fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+    jf_logger_logInfoMsg("%s:%d, "fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
 /** The helper function to output debug message with function name and line number.
  */
