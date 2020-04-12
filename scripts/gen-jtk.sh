@@ -1,5 +1,5 @@
 #!/bin/bash
-# generate Jiufeng Tool Kit
+# Generate Jiufeng Tool Kit.
 
 SUCCESS=0
 E_ARGERROR=65
@@ -7,9 +7,6 @@ E_EXE_NEXISTING=66
 E_BUILD_ERROR=67
 
 debug=no
-
-cd ..
-topdir=`pwd`
 
 bin_files="jf_genuuid jf_dongyuan jf_servctl"
 setting_files="servmgmt/servmgmt.setting"
@@ -19,8 +16,8 @@ help_gen_jtk()
     echo ""
     echo "`basename $0` : generate Jiufeng Took Kit"
     echo "Usage: `basename $0` dir debug"
-    echo "   dir: the dir containing the JTK"
-    echo "   debug: debug version"
+    echo "   dir: the directory containing the JTK."
+    echo "   debug: debug version."
     echo "Eg. `basename $0` /root debug"
     echo ""
 }
@@ -48,26 +45,30 @@ if [ x"$2" = xdebug ]; then
     debug=yes
 fi
 
-destdir=$1
-rootdir=$destdir/jtk
-bindir=$rootdir/bin
-incdir=$rootdir/inc
-libdir=$rootdir/lib
-configdir=$rootdir/config
-docdir=$rootdir/doc
-makdir=$rootdir/mak
-templatedir=$rootdir/template
+destdir=$(cd $1; pwd)
 
-rm -fr $rootdir
+dest_rootdir=$destdir/jtk
+dest_bindir=$dest_rootdir/bin
+dest_incdir=$dest_rootdir/inc
+dest_libdir=$dest_rootdir/lib
+dest_configdir=$dest_rootdir/config
+dest_docdir=$dest_rootdir/doc
+dest_makdir=$dest_rootdir/mak
+dest_templatedir=$dest_rootdir/template
 
-mkdir $rootdir
-mkdir $bindir
-mkdir $incdir
-mkdir $libdir
-mkdir $configdir
-mkdir $docdir
-mkdir $makdir
-mkdir $templatedir
+rm -fr $dest_rootdir
+
+mkdir $dest_rootdir
+mkdir $dest_bindir
+mkdir $dest_incdir
+mkdir $dest_libdir
+mkdir $dest_configdir
+mkdir $dest_docdir
+mkdir $dest_makdir
+mkdir $dest_templatedir
+
+cd ..
+topdir=`pwd`
 
 echo "Build Jiufeng Took Kit"
 make -f linux.mak clean
@@ -95,7 +96,7 @@ do
     if [ $debug != yes ]; then
         strip $file
     fi
-    cp $file $bindir
+    cp $file $dest_bindir
 done
 
 print_banner "Copy header files"
@@ -103,11 +104,11 @@ cd $topdir/jiutai
 for headerfile in $(ls *.h)
 do
     echo "Copy $headerfile"
-    cp $headerfile $incdir
+    cp $headerfile $dest_incdir
     objfile=${headerfile/.h/.o}  
     if [ -e $objfile ]; then
         echo "Copy $objfile"
-        cp $objfile $incdir
+        cp $objfile $dest_incdir
     fi
 done
 
@@ -120,7 +121,7 @@ do
     if [ $debug != yes ]; then
         strip $libfile
     fi
-    cp $libfile $libdir
+    cp $libfile $dest_libdir
 done
 
 print_banner "Copy config files"
@@ -128,12 +129,12 @@ cd $topdir/build/config
 for file in $(ls)
 do
     echo "Copy $file"
-    cp $file $configdir
+    cp $file $dest_configdir
 done
 
 print_banner "Copy documentation"
 cd $topdir/doc
-cp -r html $docdir
+cp -r html $dest_docdir
 
 print_banner "Copy makefiles"
 cd $topdir/mak
@@ -141,11 +142,11 @@ for file in $(ls)
 do
     makefile=$file
     echo "Copy $makefile"
-    cp $makefile $makdir
+    cp $makefile $dest_makdir
 done
 if [ $debug == yes ]; then
-    echo "DEBUG_JIUFENG = yes" > $makdir/lnxcfg.mak
-    cat $topdir/mak/lnxcfg.mak >> $makdir/lnxcfg.mak
+    echo "DEBUG_JIUFENG = yes" > $dest_makdir/lnxcfg.mak
+    cat $topdir/mak/lnxcfg.mak >> $dest_makdir/lnxcfg.mak
 fi
 
 print_banner "Copy template files"
@@ -153,7 +154,7 @@ cd $topdir/template
 for file in $(ls)
 do
     echo "Copy $file"
-    cp $file $templatedir
+    cp $file $dest_templatedir
 done
 
 cd $destdir

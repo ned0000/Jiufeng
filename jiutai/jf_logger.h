@@ -57,7 +57,7 @@ typedef enum
 
 /* Maximum message size.
  */
-#define JF_LOGGER_MAX_MSG_SIZE    (256)
+#define JF_LOGGER_MAX_MSG_SIZE    (512)
 
 /** The helper function to output warning message with function name and line number.
  */
