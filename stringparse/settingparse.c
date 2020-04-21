@@ -559,6 +559,31 @@ u32 jf_string_getSettingsU32(
     return u32Ret;
 }
 
+u32 jf_string_getSettingsDouble(
+    olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
+    const oldouble_t dbDefaultValue, oldouble_t * pdbValue)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t strValue[200];
+
+    u32Ret = jf_string_retrieveSettings(
+        pstrArray, sArray, pstrSettingName, strValue, sizeof(strValue));
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = jf_string_getDoubleFromString(strValue, ol_strlen(strValue), pdbValue);
+        if (u32Ret != JF_ERR_NO_ERROR)
+        {
+            *pdbValue = dbDefaultValue;
+        }
+    }
+    else if (u32Ret == JF_ERR_NOT_FOUND)
+    {
+        *pdbValue = dbDefaultValue;
+        u32Ret = JF_ERR_NO_ERROR;
+    }
+
+    return u32Ret;
+}
 
 /** If setting name is not found in the string array, the default value is
  *  set and return JF_ERR_NO_ERROR. if setting name is found and the value 

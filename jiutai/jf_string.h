@@ -789,6 +789,9 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSettingsString(
     olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
     const olchar_t * pstrDefaultValue, olchar_t * pstrValue, olsize_t sValue);
 
+STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSettingsDouble(
+    olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
+    const oldouble_t dbDefaultValue, oldouble_t * pdbValue);
 
 #endif /*JIUFENG_STRING_H*/
 
