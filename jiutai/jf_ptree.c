@@ -962,7 +962,7 @@ u32 jf_ptree_iterateNodeAttribute(
 u32 jf_ptree_deleteNodeAttribute(
     jf_ptree_node_t * pNode, const olchar_t * pstrPrefix, const olchar_t * pstrName)
 {
-    u32 u32Ret = JF_ERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NOT_IMPLEMENTED;
 
     return u32Ret;
 }
@@ -1000,7 +1000,7 @@ u32 jf_ptree_changeNodeAttribute(
     jf_ptree_node_t * pNode, const olchar_t * pstrPrefix, const olchar_t * pstrName,
     olchar_t ** pstrValue)
 {
-    u32 u32Ret = JF_ERR_NO_ERROR;
+    u32 u32Ret = JF_ERR_NOT_IMPLEMENTED;
 
     return u32Ret;
 }

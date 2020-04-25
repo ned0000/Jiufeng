@@ -139,9 +139,9 @@ u32 _setFileStat(jf_file_stat_t * pStat, struct stat * pFileInfo)
     pStat->jfs_u16Link = (u16)pFileInfo->st_nlink;
     pStat->jfs_u16UserId = (u16)pFileInfo->st_uid;
     pStat->jfs_u16GroupId = (u16)pFileInfo->st_gid;
-    pStat->jfs_u32AccessTime = (u32)pFileInfo->st_atime;
-    pStat->jfs_u32ModifyTime = (u32)pFileInfo->st_mtime;
-    pStat->jfs_u32Createtime  = (u32)pFileInfo->st_ctime;
+    pStat->jfs_u64AccessTime = (u64)pFileInfo->st_atime;
+    pStat->jfs_u64ModifyTime = (u64)pFileInfo->st_mtime;
+    pStat->jfs_u64Createtime  = (u64)pFileInfo->st_ctime;
 
     return u32Ret;
 }

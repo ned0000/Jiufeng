@@ -51,8 +51,7 @@ static boolean_t _isDayInRange(olint_t year, olint_t month, olint_t day)
 /** Get date from the string with the format yyyy%mm%dd where '%' is the seperator.
  */
 static u32 _getDateFromString(
-    const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay,
-    olchar_t sep)
+    const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay, olchar_t sep)
 {
     u32 u32Ret = JF_ERR_INVALID_DATE;
     olsize_t size = 0;
@@ -60,7 +59,7 @@ static u32 _getDateFromString(
     olchar_t u8Data[100];
     u32 u32Value;
 
-    memset(u8Data, 0, 100);
+    ol_memset(u8Data, 0, 100);
     ol_strncpy(u8Data, pstrDate, 99);
     firstChar = u8Data;
 
@@ -293,8 +292,7 @@ void jf_date_getStringDate(
     else if ((mon > 12) || (mon == 0))
         ol_sprintf(pstrDate, "Month(%d) %d, %04d", mon, day, year);
     else
-        ol_sprintf(
-            pstrDate, "%s %d, %04d", ls_pstrMonth[mon - 1], day, year);
+        ol_sprintf(pstrDate, "%s %d, %04d", ls_pstrMonth[mon - 1], day, year);
 }
 
 void jf_date_getStringDate2(
@@ -306,8 +304,7 @@ void jf_date_getStringDate2(
         ol_sprintf(pstrDate, "%4d-%02d-%02d", year, mon, day);
 }
 
-void jf_date_getStringDate2ForDaysFrom1970(
-    olchar_t * pstrDate, const olint_t nDays)
+void jf_date_getStringDate2ForDaysFrom1970(olchar_t * pstrDate, const olint_t nDays)
 {
     olint_t year, mon, day;
 
@@ -318,7 +315,7 @@ void jf_date_getStringDate2ForDaysFrom1970(
 u32 jf_date_getStringUTCTime(olchar_t * pstrTime, const time_t tTime)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    struct tm * ptmLocal;
+    struct tm * ptmLocal = NULL;
     time_t t = tTime;
     olchar_t strDate[64];
 
@@ -330,11 +327,12 @@ u32 jf_date_getStringUTCTime(olchar_t * pstrTime, const time_t tTime)
     }
     else
     {
-        jf_date_getStringDate(strDate,
-            (ptmLocal->tm_year+1900), (ptmLocal->tm_mon+1), ptmLocal->tm_mday);
+        jf_date_getStringDate(
+            strDate, ptmLocal->tm_year + 1900, ptmLocal->tm_mon + 1, ptmLocal->tm_mday);
 
-        ol_sprintf(pstrTime, "%s %02d:%02d:%02d", strDate,
-            ptmLocal->tm_hour, ptmLocal->tm_min, ptmLocal->tm_sec);
+        ol_sprintf(
+            pstrTime, "%s %02d:%02d:%02d", strDate, ptmLocal->tm_hour, ptmLocal->tm_min,
+            ptmLocal->tm_sec);
     }
 
     return u32Ret;
@@ -343,7 +341,7 @@ u32 jf_date_getStringUTCTime(olchar_t * pstrTime, const time_t tTime)
 u32 jf_date_getStringLocalTime(olchar_t * pstrTime, const time_t tTime)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    struct tm * ptmLocal;
+    struct tm * ptmLocal = NULL;
     time_t t = tTime;
     olchar_t strDate[64];
 
@@ -355,11 +353,12 @@ u32 jf_date_getStringLocalTime(olchar_t * pstrTime, const time_t tTime)
     }
     else
     {
-        jf_date_getStringDate(strDate,
-            (ptmLocal->tm_year+1900), (ptmLocal->tm_mon+1), ptmLocal->tm_mday);
+        jf_date_getStringDate(
+            strDate, ptmLocal->tm_year + 1900, ptmLocal->tm_mon + 1, ptmLocal->tm_mday);
 
-        ol_sprintf(pstrTime, "%s %02d:%02d:%02d", strDate,
-            ptmLocal->tm_hour, ptmLocal->tm_min, ptmLocal->tm_sec);
+        ol_sprintf(
+            pstrTime, "%s %02d:%02d:%02d", strDate, ptmLocal->tm_hour, ptmLocal->tm_min,
+            ptmLocal->tm_sec);
     }
 
     return u32Ret;

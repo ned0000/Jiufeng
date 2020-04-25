@@ -202,7 +202,7 @@ static u32 _processUser(void * pMaster, void * pParam)
         else
         {
             jf_clieng_printHeader(
-                ls_jccUserInfoBrief, JF_BASIC_ARRAY_SIZE(ls_jccUserInfoBrief));
+                ls_jccUserInfoBrief, ARRAY_SIZE(ls_jccUserInfoBrief));
 
             for (u16Index=0; u16Index < userlist.ul_u16NumUser; u16Index++)
                 _printUserBrief(&userlist.ul_tUser[u16Index]);

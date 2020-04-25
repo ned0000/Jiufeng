@@ -158,8 +158,8 @@ static u32 _setCommonFields(
             pFilestat->jfs_u16UserId);
         ol_snprintf((olchar_t *)pah->ah_u8GroupId, AH_USER_GROUP_ID_LEN - 1, "%d",
             pFilestat->jfs_u16GroupId);
-        ol_snprintf((olchar_t *)pah->ah_u8ModifyTime, AH_TIME_LEN - 1, "%u",
-            pFilestat->jfs_u32ModifyTime);
+        ol_snprintf((olchar_t *)pah->ah_u8ModifyTime, AH_TIME_LEN - 1, "%llu",
+            pFilestat->jfs_u64ModifyTime);
         ol_snprintf((olchar_t *)pah->ah_u8Magic, AH_MAGIC_LEN - 1, "%s", AH_MAGIC);
         /* version */
         memcpy(pah->ah_u8Version, AH_VERSION, AH_VERSION_LEN);

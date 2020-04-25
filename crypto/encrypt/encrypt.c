@@ -128,7 +128,7 @@ u32 jf_encrypt_encryptFile(
             u32Ret = jf_filestream_readn(fpSrc, pBuf, &sread);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                sread = ALIGN(sread, 16);
+                sread = ALIGN_CEIL(sread, 16);
                 AES_cbc_encrypt(
                     (u8 *)pBuf, (u8 *)pBuf, sread, &aeskey, iv, AES_ENCRYPT);
 
@@ -233,7 +233,7 @@ u32 jf_encrypt_encryptString(
     u8 * pstr = NULL;
     olchar_t * pDestStr = NULL;
     olsize_t len = ol_strlen(pSrcStr);
-    olsize_t outlen = ALIGN(len, AES_BLOCK_SIZE);
+    olsize_t outlen = ALIGN_CEIL(len, AES_BLOCK_SIZE);
     u8 iv[AES_BLOCK_SIZE];
 
     u32Ret = _setEncryptKey(pKey, &aeskey);

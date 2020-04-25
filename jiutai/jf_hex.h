@@ -93,12 +93,22 @@ void jf_hex_dumpByteDataBuffer(const u8 * pu8Data, const olsize_t sLen);
 
 /** Convert the string to byte hex.
  *
+ *  @param pstr [in] The hex string.
+ *  @param sStr [in] The length of the hex string.
+ *  @param pu8Hex [out] The hex array.
+ *  @param sHex [in] The length of the hex array.
+ *
  *  @return Number of bytes hex converted from the string.
  */
 olsize_t jf_hex_convertStringToHex(
     const olchar_t * pstr, const olsize_t sStr, u8 * pu8Hex, olsize_t sHex);
 
 /** Convert the hex data to string.
+ *
+ *  @param pstr [out] The hex string.
+ *  @param sStr [in] The length of the hex string.
+ *  @param pu8Hex [in] The hex array.
+ *  @param sHex [in] The length of the hex array.
  *
  *  @return Number of bytes hex converted to the string.
  */

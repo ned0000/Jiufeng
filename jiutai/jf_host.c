@@ -335,11 +335,10 @@ static u32 _getHostNetworkInfo(jf_host_info_t * pjhi)
         for (u32Index = 0; u32Index < u32Count; u32Index ++)
         {
             ol_strncpy(
-                pjhi->jhi_jhniNet[u32Index].jhni_strName,
-                allIf[u32Index].jii_strName, JF_HOST_MAX_NET_NAME_LEN);
+                pjhi->jhi_jhniNet[u32Index].jhni_strName, allIf[u32Index].jii_strName,
+                JF_HOST_MAX_NET_NAME_LEN);
             jf_ipaddr_getStringIpAddr(
-                pjhi->jhi_jhniNet[u32Index].jhni_strIpAddr,
-                &allIf[u32Index].jii_jiAddr);
+                pjhi->jhi_jhniNet[u32Index].jhni_strIpAddr, &allIf[u32Index].jii_jiAddr);
         }
     }
 
@@ -396,6 +395,7 @@ static u32 _getHostNetworkInfo(jf_host_info_t * pjhi)
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
+
 void jf_host_getName(olchar_t * pstrName, u32 u32Len)
 {
 #if defined(LINUX)

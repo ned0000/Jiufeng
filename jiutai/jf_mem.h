@@ -30,6 +30,8 @@
  *  @param size [in] The size of the memory.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_OUT_OF_MEMORY Out of memory.
  */
 u32 jf_mem_alloc(void ** pptr, olsize_t size);
 
@@ -39,6 +41,8 @@ u32 jf_mem_alloc(void ** pptr, olsize_t size);
  *  @param size [in] The size of the memory.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_OUT_OF_MEMORY Out of memory.
  */
 u32 jf_mem_calloc(void ** pptr, olsize_t size);
 
@@ -53,6 +57,8 @@ u32 jf_mem_calloc(void ** pptr, olsize_t size);
  *  @param size [in] The new size of the memory.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_OUT_OF_MEMORY Out of memory.
  */
 u32 jf_mem_realloc(void ** pptr, olsize_t size);
 
@@ -61,6 +67,7 @@ u32 jf_mem_realloc(void ** pptr, olsize_t size);
  *  @param pptr [in/out] The pointer to the allocated memory.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_mem_free(void ** pptr);
 
@@ -71,6 +78,8 @@ u32 jf_mem_free(void ** pptr);
  *  @param size [in] The size of the buffer.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_OUT_OF_MEMORY Out of memory.
  */
 u32 jf_mem_duplicate(void ** pptr, const u8 * pu8Buffer, const olsize_t size);
 

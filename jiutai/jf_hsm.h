@@ -52,11 +52,11 @@
 
 /** Last state ID.
  */
-#define JF_HSM_LAST_STATE_ID     (U32_MAX)
+#define JF_HSM_LAST_STATE_ID           (U32_MAX)
 
 /** Last event ID.
  */
-#define JF_HSM_LAST_EVENT_ID     (U32_MAX)
+#define JF_HSM_LAST_EVENT_ID           (U32_MAX)
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -124,6 +124,7 @@ typedef void  jf_hsm_t;
  *  @param initialStateId [out] The initial state id for the transition table.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_hsm_create(
     jf_hsm_t ** ppHsm, jf_hsm_transition_t * pTransition, jf_hsm_event_id_t initialStateId);
@@ -133,6 +134,7 @@ u32 jf_hsm_create(
  *  @param ppHsm [in/out] The state machine to be destroyed.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_hsm_destroy(jf_hsm_t ** ppHsm);
 
@@ -161,6 +163,7 @@ u32 jf_hsm_addStateTransition(
  *  @param fnOnExit [in] Callback function when exiting the state.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_hsm_addStateCallback(
     jf_hsm_t * pHsm, jf_hsm_state_id_t stateId, jf_hsm_fnOnEntry fnOnEntry,
@@ -180,10 +183,11 @@ jf_hsm_state_id_t jf_hsm_getCurrentStateId(jf_hsm_t * pHsm);
  *  @param pEvent [in] The event to be processed.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_hsm_processEvent(jf_hsm_t * pHsm, jf_hsm_event_t * pEvent);
 
-/** Init the event data type.
+/** Initialize the event data type.
  *
  *  @param pEvent [out] The event to be processed.
  *  @param eventId [in] The event id.
@@ -204,5 +208,3 @@ static inline void jf_hsm_initEvent(
 #endif /*JIUTAI_HSM_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

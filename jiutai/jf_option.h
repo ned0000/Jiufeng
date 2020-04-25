@@ -8,7 +8,7 @@
  *  @note
  *  -# Routines declared in this file are included in jf_option common object.
  *  -# For option handling, use functions in jf_option object, not jf_string library.
- *  -# No memory allocation in jf_option object.
+ *  -# No memory allocation in jf_option object, so it's safe to use it before memory is initialized.
  *  
  */
 

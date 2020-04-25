@@ -68,7 +68,7 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
 
     assert((pu8Data != NULL) && (u32Len != 0));
 
-    u32Count = ALIGN(u32Len, JF_CGHASH_MD5_DIGEST_LEN / 2);
+    u32Count = ALIGN_CEIL(u32Len, JF_CGHASH_MD5_DIGEST_LEN / 2);
 
     if (pip->ip_dbEntropy >= ENTROPY_NEEDED)
         bEntropy = TRUE;

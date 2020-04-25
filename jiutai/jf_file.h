@@ -117,7 +117,7 @@
 #define JF_FILE_MODE_WOTH        (00002)
 #define JF_FILE_MODE_XOTH        (00001)
 
-/** File status.
+/** Define the file status data type.
  */
 typedef struct
 {
@@ -130,10 +130,12 @@ typedef struct
     u16 jfs_u16UserId;
     u16 jfs_u16GroupId;
     u16 jfs_u16Reserved;
-    u32 jfs_u32AccessTime; /* 00:00:00 UTC, January 1, 1970, in seconds*/
-    u32 jfs_u32ModifyTime;
-    u32 jfs_u32Createtime;
-    u32 jfs_u32Reserved2;
+    /**Access time in second from 00:00:00 UTC, January 1, 1970.*/
+    u64 jfs_u64AccessTime;
+    /**Modify time in second from 00:00:00 UTC, January 1, 1970.*/
+    u64 jfs_u64ModifyTime;
+    /**Create time in second from 00:00:00 UTC, January 1, 1970.*/
+    u64 jfs_u64Createtime;
     u32 jfs_u32Reserved3[8];
 } jf_file_stat_t;
 

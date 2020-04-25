@@ -19,19 +19,19 @@
 
 /** Maximum programe name length.
  */
-#define JF_LIMIT_MAX_PROGRAM_NAME_LEN     (64)
+#define JF_LIMIT_MAX_PROGRAM_NAME_LEN         (64)
 
 /** Maximum data transfer size.
  */
-#define JF_LIMIT_MAX_DATA_TRANSFER_SIZE	  (65536)
+#define JF_LIMIT_MAX_DATA_TRANSFER_SIZE	      (65536)
 
 /** Maximum file path length.
  */
-#define JF_LIMIT_MAX_PATH_LEN             (512)
+#define JF_LIMIT_MAX_PATH_LEN                 (512)
 
 /** The length of MAC address. 
  */
-#define JF_LIMIT_MAC_LEN                  (6)
+#define JF_LIMIT_MAC_LEN                      (6)
 
 #endif /*JIUTAI_LIMIT_H*/
 

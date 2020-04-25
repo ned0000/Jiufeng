@@ -26,23 +26,23 @@
 
 /** Maximum net name length.
  */
-#define JF_HOST_MAX_NET_NAME_LEN     (24)
+#define JF_HOST_MAX_NET_NAME_LEN           (24)
 
 /** Maximum number of net interface.
  */
-#define JF_HOST_MAX_NET_INTERFACES   (16)
+#define JF_HOST_MAX_NET_INTERFACES         (16)
 
 /** Maximum IP address length.
  */
-#define JF_HOST_MAX_IP_ADDR_LEN      (40)
+#define JF_HOST_MAX_IP_ADDR_LEN            (40)
 
 /** Maximum host name length.
  */
-#define JF_HOST_MAX_HOST_NAME_LEN    (32)
+#define JF_HOST_MAX_HOST_NAME_LEN          (32)
 
 /** Maximum OS name length.
  */
-#define JF_HOST_MAX_OS_NAME_LEN      (256)
+#define JF_HOST_MAX_OS_NAME_LEN            (256)
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -75,9 +75,9 @@ typedef struct
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/** Get host info.
+/** Get host information.
  *
- *  @param pjhi [out] The pointer to the host_info_t struct.
+ *  @param pjhi [out] The pointer to the host information data structure.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.

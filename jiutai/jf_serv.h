@@ -118,12 +118,14 @@ typedef struct
  *  @param pjsip [in] The parameter for initilizing the service library.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 SERVAPI u32 SERVCALL jf_serv_init(jf_serv_init_param_t * pjsip);
 
 /** Finalize the service library.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 SERVAPI u32 SERVCALL jf_serv_fini(void);
 
@@ -132,6 +134,7 @@ SERVAPI u32 SERVCALL jf_serv_fini(void);
  *  @param pjsil [out] The service information list.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 SERVAPI u32 SERVCALL jf_serv_getInfoList(jf_serv_info_list_t * pjsil);
 
@@ -141,6 +144,7 @@ SERVAPI u32 SERVCALL jf_serv_getInfoList(jf_serv_info_list_t * pjsil);
  *  @param pjsi [out] The service information.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 SERVAPI u32 SERVCALL jf_serv_getInfo(const olchar_t * pstrName, jf_serv_info_t * pjsi);
 
@@ -149,6 +153,7 @@ SERVAPI u32 SERVCALL jf_serv_getInfo(const olchar_t * pstrName, jf_serv_info_t *
  *  @param pstrName [in] The name of the service.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 SERVAPI u32 SERVCALL jf_serv_stopServ(const olchar_t * pstrName);
 
@@ -157,6 +162,7 @@ SERVAPI u32 SERVCALL jf_serv_stopServ(const olchar_t * pstrName);
  *  @param pstrName [in] The name of the service.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 SERVAPI u32 SERVCALL jf_serv_startServ(const olchar_t * pstrName);
 
@@ -166,6 +172,7 @@ SERVAPI u32 SERVCALL jf_serv_startServ(const olchar_t * pstrName);
  *  @param u8StartupType [in] The startup type of the service, refer to jf_serv_startup_type_t.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 SERVAPI u32 SERVCALL jf_serv_setServStartupType(const olchar_t * pstrName, const u8 u8StartupType);
 

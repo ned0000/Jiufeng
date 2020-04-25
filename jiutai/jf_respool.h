@@ -46,7 +46,7 @@ typedef void  jf_respool_resource_data_t;
  *     pool.
  *
  *  @param pjrr [in] The pointer to the resource to be created and returned.
- *  @param ppData [in/out] The pointer to the resource data.
+ *  @param ppData [out] The pointer to the resource data.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
@@ -57,8 +57,7 @@ typedef u32 (* jf_respool_fnCreateResource_t)(
 
 /** Destroy the resource.
  *  
- *  @param pjrr [in] The pointer to the resource to be destroyed. After destruction, it will be set
- *   to NULL.
+ *  @param pjrr [in] The pointer to the resource to be destroyed.
  *  @param ppData [in/out] The pointer to the resource data.
  *
  *  @return The error code.
@@ -67,9 +66,11 @@ typedef u32 (* jf_respool_fnCreateResource_t)(
 typedef u32 (* jf_respool_fnDestroyResource_t)(
     jf_respool_resource_t * pjrr, jf_respool_resource_data_t ** ppData);
 
-/** The parameter for creating the resource. The minimum number of resources is full time resources
- *  which are not released after use. Other resources are part time resource which are released 
- *  after use.
+/** The parameter for creating the resource.
+ *
+ *  @note
+ *  -# The minimum number of resources is full time resources which are not released after use.
+ *   Other resources are part time resource which are released after use.
  */
 typedef struct
 {
@@ -107,8 +108,7 @@ u32 jf_respool_create(jf_respool_t ** ppjr, jf_respool_create_param_t * pjrcp);
 
 /** Destroy the resource pool.
  *
- *  @param ppjr [in/out] The pointer to the resource pool to be destroyed. After destruction, it
- *  will be set to NULL.
+ *  @param ppjr [in/out] The pointer to the resource pool to be destroyed.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.

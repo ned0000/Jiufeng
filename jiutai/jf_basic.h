@@ -236,23 +236,41 @@ typedef time_t                       oltime_t;
     #define inline                   __inline
 #endif
 
+/** Get the maximum value.
+ */
 #ifndef MAX
-    #define MAX(a, b)   ((a) >= (b) ? (a) : (b))
+    #define MAX(a, b)                ((a) >= (b) ? (a) : (b))
 #endif
 
+/** Get the minimum value.
+ */
 #ifndef MIN
-    #define MIN(a, b)   ((a) <= (b) ? (a) : (b))
+    #define MIN(a, b)                ((a) <= (b) ? (a) : (b))
 #endif
 
-#ifndef ALIGN
-    #define ALIGN(x, a) (((x) + (a) - 1) & ~((a) - 1))
+/** Align value 'x' with 'a' to ceil.
+ */
+#ifndef ALIGN_CEIL
+    #define ALIGN_CEIL(x, a)         (((x) + (a) - 1) & ~((a) - 1))
 #endif
 
+/** Align value 'x' with 'a' to floor.
+ */
+#ifndef ALIGN_FLOOR
+    #define ALIGN_FLOOR(x, a)        ((x) & ~((a) - 1))
+#endif
+
+/** Get the absolute value.
+ */
 #ifndef ABS
-    #define ABS(a)      ((a) >= 0 ? (a) : (-(a)))
+    #define ABS(a)                   ((a) >= 0 ? (a) : (-(a)))
 #endif
 
-#define JF_BASIC_ARRAY_SIZE(x)   (sizeof(x) / sizeof((x)[0]))
+/** Get the size of the array.
+ */
+#ifndef ARRAY_SIZE
+    #define ARRAY_SIZE(x)            (sizeof(x) / sizeof((x)[0]))
+#endif
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
@@ -260,6 +278,3 @@ typedef time_t                       oltime_t;
 #endif /*JIUTAI_JF_BASIC_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-
-

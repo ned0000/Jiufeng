@@ -148,6 +148,8 @@ void jf_date_getDateToday(olint_t * year, olint_t * mon, olint_t * day);
  *  @param year [in] The year.
  *  @param mon [in] The month of the year.
  *  @param day [in] The day of the month.
+ *
+ *  @return Void.
  */
 void jf_date_getStringDate(
     olchar_t * pstrDate, const olint_t year, const olint_t mon, const olint_t day);
@@ -162,11 +164,22 @@ void jf_date_getStringDate(
  *  @param year [in] The year.
  *  @param mon [in] The month of the year.
  *  @param day [in] The day of the month.
+ *
+ *  @return Void.
  */
 void jf_date_getStringDate2(
     olchar_t * pstrDate, const olint_t year, const olint_t mon, const olint_t day);
 
-/** Print date with format yyyy-mm-dd.
+/** Get the string of date in format yyyy-mm-dd.
+ *
+ *  @note
+ *  -# This function does not check the size of the string buffer. Please make sure it is big
+ *   enough to avoid memory access violation.
+ *
+ *  @param pstrDate [out] The string buffer where the date string will return.
+ *  @param nDays [in] The days from 1970.
+ *
+ *  @return Void.
  */
 void jf_date_getStringDate2ForDaysFrom1970(olchar_t * pstrDate, const olint_t nDays);
 
@@ -181,6 +194,8 @@ void jf_date_getStringDate2ForDaysFrom1970(olchar_t * pstrDate, const olint_t nD
  *  @param tTime [in] The time.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_INVALID_TIME Invalid time.
  */
 u32 jf_date_getStringLocalTime(olchar_t * pstrTime, const time_t tTime);
 
@@ -195,6 +210,8 @@ u32 jf_date_getStringLocalTime(olchar_t * pstrTime, const time_t tTime);
  *  @param tTime [in] The time.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_INVALID_TIME Invalid time.
  */
 u32 jf_date_getStringUTCTime(olchar_t * pstrTime, const time_t tTime);
 
@@ -225,5 +242,3 @@ u32 jf_date_getDate2FromString(
 #endif /*JIUTAI_DATE_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

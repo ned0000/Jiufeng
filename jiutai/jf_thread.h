@@ -36,6 +36,7 @@
  */
 typedef struct
 {
+    /**Detach the thread.*/
     boolean_t jta_bDetached;
     u8 jta_u8Reserved[31];
 } jf_thread_attr_t;
@@ -67,25 +68,54 @@ typedef struct
     typedef LPTHREAD_START_ROUTINE           jf_thread_fnRoutine_t;
 #endif
 
+/** The callback function for signal handler.
+ */
 typedef void (* jf_thread_fnSignalHandler_t)(olint_t signal);
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Initialize the thread id.
+ *
+ *  @param pThreadId [out] The thread ID.
+ *
+ *  @return Void.
  */
 void jf_thread_initId(jf_thread_id_t * pThreadId);
 
 /** Check if it's a valid thread id.
+ *
+ *  @param pThreadId [in] The thread id to be checked.
+ *
+ *  @return The status of the thread id.
+ *  @retval TRUE If the thread id is valid.
+ *  @retval FALSE If the thread id is invalid.
  */
 boolean_t jf_thread_isValidId(jf_thread_id_t * pThreadId);
 
 /** Create thread and run the specified routine.
+ *
+ *  @param pThreadId [out] The thread id created.
+ *  @param pAttr [in] The attribute for creating the thread.
+ *  @param fnRoutine [in] The routine to be called for the thread.
+ *  @param pArg [in] The argument for the routine.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_thread_create(
     jf_thread_id_t * pThreadId, jf_thread_attr_t * pAttr, jf_thread_fnRoutine_t fnRoutine,
     void * pArg);
 
 /** Terminate the thread.
+ *
+ *  @note
+ *  -# If the thread is terminated successfully, the ID is reinitialized.
+ *
+ *  @param pThreadId [in] The thread id to be terminated.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_TERMINATE_THREAD Failed to terminate the thread.
  */
 u32 jf_thread_terminate(jf_thread_id_t * pThreadId);
 
@@ -94,6 +124,12 @@ u32 jf_thread_terminate(jf_thread_id_t * pThreadId);
  *  @note
  *  -# The thread must be joinable.
  *  -# If the thread has already terminated, the function returns immediately.
+ *
+ *  @param threadId [in] The thread id to wait.
+ *  @param pu32RetCode [out] The thread termination reason.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_thread_waitForThreadTermination(jf_thread_id_t threadId, u32 * pu32RetCode);
 
@@ -103,6 +139,11 @@ u32 jf_thread_waitForThreadTermination(jf_thread_id_t threadId, u32 * pu32RetCod
  *  -# The function will create a dedicated thread to handle the signal. Different from traditional
  *   signal handler scheme, this scheme will handle the signal asynchronously. So other threads
  *   won't be interrupted by signal.
+ *
+ *  @param fnSignalHandler [in] The signal handler.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_thread_registerSignalHandlers(jf_thread_fnSignalHandler_t fnSignalHandler);
 

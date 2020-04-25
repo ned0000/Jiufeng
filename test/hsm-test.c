@@ -297,7 +297,7 @@ static u32 _testHsm(void)
     {
         _printCurrentRiceCookerState(pjh);
 
-        for (index = 0; index < JF_BASIC_ARRAY_SIZE(pEventArray); ++ index)
+        for (index = 0; index < ARRAY_SIZE(pEventArray); ++ index)
         {
             pEvent = pEventArray[index];
             _printEvent(pEvent);

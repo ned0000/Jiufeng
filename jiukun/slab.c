@@ -283,7 +283,7 @@ static void _slabCacheEstimate(
         extra = sizeof(slab_bufctl_t);
     }
     i = 0;
-    while (i * size + ALIGN(base + i * extra, SLAB_ALIGN_SIZE) <= wastage)
+    while (i * size + ALIGN_CEIL(base + i * extra, SLAB_ALIGN_SIZE) <= wastage)
         i++;
     if (i > 0)
         i--;
@@ -293,7 +293,7 @@ static void _slabCacheEstimate(
 
     *num = i;
     wastage -= i * size;
-    wastage -= ALIGN(base + i * extra, SLAB_ALIGN_SIZE);
+    wastage -= ALIGN_CEIL(base + i * extra, SLAB_ALIGN_SIZE);
     *left_over = wastage;
 }
 
@@ -379,7 +379,7 @@ static inline slab_t * _slabMgmt(
     else
     {
         slabp = (slab_t *)objp;
-        offset = ALIGN(
+        offset = ALIGN_CEIL(
             pCache->sc_u32Num * sizeof(slab_bufctl_t) + sizeof(slab_t), SLAB_ALIGN_SIZE);
     }
     slabp->s_u32InUse = 0;
@@ -752,7 +752,7 @@ static u32 _createSlabCache(
     /*Check that size is in terms of words. This is needed to avoid unaligned accesses for some
       archs when redzoning is used, and makes sure any on-slab bufctl's are also correctly
       aligned.*/
-    pjjccp->jjccp_sObj = ALIGN(pjjccp->jjccp_sObj, SLAB_ALIGN_SIZE);
+    pjjccp->jjccp_sObj = ALIGN_CEIL(pjjccp->jjccp_sObj, SLAB_ALIGN_SIZE);
 
     /*Get cache's description obj.*/
     u32Ret = _allocObj(pijs, &(pijs->ijs_scCacheCache), (void **)&pCache);
@@ -820,7 +820,7 @@ static u32 _createSlabCache(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        slab_size = ALIGN(
+        slab_size = ALIGN_CEIL(
             pCache->sc_u32Num * sizeof(slab_bufctl_t) + sizeof(slab_t), SLAB_ALIGN_SIZE);
 
         /*If the slab has been placed off-slab, and we have enough space then move it on-slab.*/

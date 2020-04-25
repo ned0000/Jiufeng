@@ -9,6 +9,7 @@
  *  -# Routines declared in this file are included in jf_process object.
  *  -# For linux, link with stringparse library.
  *  -# For Windows, link with psapi.lib.
+ *  -# Process handle and process id are 2 different concepts.
  *  
  */
 
@@ -75,16 +76,33 @@ typedef enum
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Get the PID file name for a given daemon name.
+ *
+ *  @param pstrPidFilename [out] The buffer for the PID file name.
+ *  @param sFile [in] The size of the file name buffer.
+ *  @param pstrDaemonName [in] The daemon name.
+ *
+ *  @return Void.
  */
 void jf_process_getPidFilename(
     olchar_t * pstrPidFilename, olsize_t sFile, olchar_t * pstrDaemonName);
 
 /** Break the command string into pointer array.
+ *
+ *  @param pstrCmd [out] The command string.
+ *  @param psArgc [in/out] The size of the argument array as in parameter. Number of argument in the
+ *   array as out parameter.
+ *  @param argv [out] The pointer array for the argument.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_process_formCmdLineArguments(olchar_t * pstrCmd, olsize_t * psArgc, olchar_t * argv[]);
 
 /** Switch the process to daemon, so it can detach themselves from the controlling terminal and run
  *  in the background.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_process_switchToDaemon(void);
 
@@ -130,6 +148,7 @@ boolean_t jf_process_isValidHandle(jf_process_handle_t * pHandle);
  *  @param pstrCommandLine [in] The command line to run as a process.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_process_create(
     jf_process_handle_t * pHandle, jf_process_attr_t * pAttr, olchar_t * pstrCommandLine);
@@ -144,6 +163,7 @@ u32 jf_process_create(
  *  @param pHandle [in] The process handle to be killed.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_process_kill(jf_process_handle_t * pHandle);
 
@@ -155,6 +175,7 @@ u32 jf_process_kill(jf_process_handle_t * pHandle);
  *  @param pHandle [in] The process handle to be terminated.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_process_terminate(jf_process_handle_t * pHandle);
 
@@ -170,23 +191,51 @@ u32 jf_process_terminate(jf_process_handle_t * pHandle);
  *  @param pu32Reason [out] The termination reason defined as jf_process_termination_reason_t.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_process_waitForChildProcessTermination(
     jf_process_handle_t pidChild[], u32 u32Count, u32 u32BlockTime, u32 * pu32Index, u32 * pu32Reason);
 
-/** Get current working directory of the process. 
+/** Get current working directory of the process.
+ *
+ *  @note
+ *  -# Caller should make sure the buffer is big enough to hold the working directory name.
+ *
+ *  @param pstrDir [out] The buffer for the working directory.
+ *  @param sDir [in] The size of the buffer.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_GET_CWD Failed to get current working directory.
  */
 u32 jf_process_getCurrentWorkingDirectory(olchar_t * pstrDir, olsize_t sDir);
 
-/** Set current working directory of the process. 
+/** Set current working directory of the process.
+ *
+ *  @param pstrDir [in] The buffer for the working directory.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_SET_CWD Failed to set current working directory.
  */
 u32 jf_process_setCurrentWorkingDirectory(const olchar_t * pstrDir);
 
-/** Register signal handler for the process. 
+/** Register signal handler for the process.
+ *
+ *  @param fnSignalHandler [in] The signal handler.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_OPERATION_FAIL Failed to set signal handler.
  */
 u32 jf_process_registerSignalHandlers(jf_process_fnSignalHandler_t fnSignalHandler);
 
 /** Ignore the specified signal.
+ *
+ *  @param sig [in] The signal to ignore.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_process_ignoreSignal(olint_t sig);
 
@@ -195,10 +244,16 @@ u32 jf_process_ignoreSignal(olint_t sig);
  *  @note
  *  -# For Linux platform, this function do nothing.
  *  -# For Window platform, this function confirms the winsock version. 
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_process_initSocket(void);
 
 /** Finalize the socket library.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_process_finiSocket(void);
 

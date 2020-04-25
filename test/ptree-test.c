@@ -179,7 +179,7 @@ static u32 _testPtreeNode(void)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_ptree_node_t * fnode[100];
-        u16 u16NumOfNode = JF_BASIC_ARRAY_SIZE(fnode);
+        u16 u16NumOfNode = ARRAY_SIZE(fnode);
 
         ol_printf("Get node \"NOT_FOUND\":\n");
 
@@ -195,7 +195,7 @@ static u32 _testPtreeNode(void)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_ptree_node_t * fnode[100];
-        u16 u16NumOfNode = JF_BASIC_ARRAY_SIZE(fnode);
+        u16 u16NumOfNode = ARRAY_SIZE(fnode);
 
         ol_printf("Get node \"servmgmtsetting.version\":\n");
 

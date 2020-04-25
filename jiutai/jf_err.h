@@ -8,6 +8,7 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_logger library.
+ *  -# Vendor specific error code and description can be added to the library.
  *
  *  @par Error Code Format
  *  @code
@@ -563,11 +564,22 @@
  */
 LOGGERAPI olchar_t * LOGGERCALL jf_err_getDescription(u32 u32ErrCode);
 
-/** Get the description of the specified error code, the description is returned in argument..
+/** Get the description of the specified error code, the description is returned in argument.
+ *
+ *  @param u32Err [in] The specified error code.
+ *  @param pstrBuf [in] The buffer for the description.
+ *  @param sBuf [in] The buffer size.
+ *
+ *  @return Void.
  */
 LOGGERAPI void LOGGERCALL jf_err_getMsg(u32 u32Err, olchar_t * pstrBuf, olsize_t sBuf);
 
 /** Add description for the vendor specific error code.
+ *
+ *  @param u32Err [in] The error code to be added.
+ *  @param pstrDesc [in] The description for the error code.
+ *
+ *  @return The error code.
  */
 LOGGERAPI u32 LOGGERCALL jf_err_addCode(u32 u32Err, olchar_t * pstrDesc);
 

@@ -39,14 +39,13 @@
 /* --- public routine section ------------------------------------------------------------------- */
 
 olsize_t jf_hex_convertByteDataToString(
-    const u8 * pu8Data, const olsize_t sData, const olsize_t sOffset, 
-    olchar_t * pstrHex, olsize_t sStr)
+    const u8 * pu8Data, const olsize_t sData, const olsize_t sOffset, olchar_t * pstrHex,
+    olsize_t sStr)
 {
     olsize_t sLimited = 0, sLen = 0;
     olchar_t strTemp[8];
     
-    assert((pu8Data != NULL) && (sData != 0) &&
-           (sOffset < sData) && (pstrHex != NULL));
+    assert((pu8Data != NULL) && (sData != 0) && (sOffset < sData) && (pstrHex != NULL));
     assert(sStr >= MIN_BYTE_HEXSTR_LENGTH);
 
     sLen = sData - sOffset;

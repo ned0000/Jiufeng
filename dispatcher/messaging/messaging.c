@@ -55,7 +55,7 @@ static u32 _initDispatcherMessaging(internal_messaging_t * pim, jf_messaging_ini
     assert(pjmip->jmip_fnProcessMsg != NULL);
     assert((pjmip->jmip_sMaxMsg > 0) && (pjmip->jmip_sMaxMsg < JF_MESSAGING_MAX_MSG_SIZE));
 
-    jf_logger_logInfoMsg("init dispatcher messaging");
+    JF_LOGGER_INFO("init messaging");
 
     u32Ret = jf_mutex_init(&pim->im_jmLock);
 
@@ -101,7 +101,7 @@ static u32 _finiDispatcherMessaging(internal_messaging_t * pim)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logInfoMsg("fini dispatcher messaging");
+    JF_LOGGER_INFO("fini messaging");
 
     destroyDispatcherMessagingClient();
 
@@ -126,7 +126,8 @@ u32 jf_messaging_init(jf_messaging_init_param_t * pjmip)
     assert(pjmip->jmip_pstrMessagingIn != NULL);
     assert(pjmip->jmip_pstrMessagingOut != NULL);
 
-    jf_logger_logInfoMsg("init messaging");
+    JF_LOGGER_INFO(
+        "MessagingIn: %s, MessagingOut: %s", pjmip->jmip_pstrMessagingIn, pjmip->jmip_pstrMessagingOut);
 
     u32Ret = _initDispatcherMessaging(pim, pjmip);
 
@@ -138,7 +139,7 @@ u32 jf_messaging_fini(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_messaging_t * pim = &ls_imMessaging;
 
-    jf_logger_logInfoMsg("fini messaging");
+    JF_LOGGER_INFO("fini");
 
     _finiDispatcherMessaging(pim);
 
@@ -150,7 +151,7 @@ u32 jf_messaging_start(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
 //    internal_messaging_t * pim = &ls_imMessaging;
 
-    jf_logger_logInfoMsg("start messaging");
+    JF_LOGGER_INFO("start");
 
     u32Ret = startDispatcherMessagingClient();
 
@@ -165,7 +166,7 @@ u32 jf_messaging_stop(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
 //    internal_messaging_t * pim = &ls_imMessaging;
 
-    jf_logger_logInfoMsg("stop messaging");
+    JF_LOGGER_INFO("stop");
 
     stopDispatcherMessagingClient();
 
@@ -181,7 +182,7 @@ u32 jf_messaging_sendMsg(u8 * pu8Msg, olsize_t sMsg)
     dispatcher_msg_t * pdm = NULL;
     u32 u32MsgId = getMessagingMsgId(pu8Msg, sMsg);
 
-    jf_logger_logDebugMsg("messaging send msg id: %u", u32MsgId);
+    JF_LOGGER_DEBUG("msg id: %u", u32MsgId);
 
     u32Ret = createDispatcherMsg(&pdm, pu8Msg, sMsg);
     if (u32Ret == JF_ERR_NO_ERROR)

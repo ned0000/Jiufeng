@@ -38,11 +38,11 @@
 
 /** Reserved message id, not used for application.
  */
-#define JF_MESSAGING_RESERVED_MSG_ID   (0xF0000000)
+#define JF_MESSAGING_RESERVED_MSG_ID        (0xF0000000)
 
 /** Maximum message size.
  */
-#define JF_MESSAGING_MAX_MSG_SIZE      (128 * 1024)
+#define JF_MESSAGING_MAX_MSG_SIZE           (128 * 1024)
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -73,8 +73,11 @@ typedef struct
  */
 typedef enum
 {
+    /**Low priority.*/
     JF_MESSAGING_PRIO_LOW = 0,
+    /**Medium priority.*/
     JF_MESSAGING_PRIO_MID,
+    /**High priority.*/
     JF_MESSAGING_PRIO_HIGH,
 } jf_messaging_prio_t;
 
@@ -100,42 +103,88 @@ typedef struct
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Initialize the messaging library.
+ *
+ *  @param pjrip [in] The parameter for initilizing the messaging library.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_init(jf_messaging_init_param_t * pjrip);
 
 /** Finalize the messaging library.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_fini(void);
 
 /** Start messaging.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_CREATE_THREAD Failed to create thread to start messaging.
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_start(void);
 
 /** Stop messaging.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_stop(void);
 
 /** Send message.
+ *
+ *  @param pu8Msg [in] The message to send.
+ *  @param sMsg [in] The message size.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_sendMsg(u8 * pu8Msg, olsize_t sMsg);
 
 /** Initialize message header.
  *
  *  @note
- *  -# The routine will set the source id of the header.
+ *  -# The routine will set the source id of the header with current process id.
+ *
+ *  @param pu8Msg [in] The message to initialize.
+ *  @param u32MsgId [in] The message ID.
+ *  @param u8MsgPrio [in] The message priority.
+ *  @param u32PayloadSize [in] The message payload size.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_initMsgHeader(
     u8 * pu8Msg, u32 u32MsgId, u8 u8MsgPrio, u32 u32PayloadSize);
 
 /** Get message ID.
+ *
+ *  @param pu8Msg [in] The message.
+ *  @param sMsg [in] The message size.
+ *
+ *  @return The message ID.
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_getMsgId(u8 * pu8Msg, olsize_t sMsg);
 
 /** Set message payload size.
+ *
+ *  @param pu8Msg [in] The message to set.
+ *  @param u32PayloadSize [in] The message payload size.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_setMsgPayloadSize(u8 * pu8Msg, u32 u32PayloadSize);
 
 /** Set message destination ID.
+ *
+ *  @param pu8Msg [in] The message to set.
+ *  @param destinationId [in] The message destination ID.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_setMsgDestinationId(u8 * pu8Msg, pid_t destinationId);
 
