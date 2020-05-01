@@ -71,7 +71,7 @@ typedef struct
 {
     boolean_t id_bInitialized;
     boolean_t id_bToTerminate;
-    u8 id_u8Reserved[7];
+    u8 id_u8Reserved[6];
 
     olchar_t * id_pstrConfigDir;
     u32 id_u32Reserved[8];
@@ -130,18 +130,18 @@ static u32 _fnDispatcherQueueServServerMsg(u8 * pu8Msg, olsize_t sMsg)
 static u32 _processReservedDispatcherMsg(dispatcher_msg_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32MsgId = getDispatcherMsgId(pdm);
-    pid_t servPid = getDispatcherMsgSourceId(pdm);
+    u16 u16MsgId = getDispatcherMsgId(pdm);
+    u32 servId = getDispatcherMsgSourceId(pdm);
 
-    switch (u32MsgId)
+    switch (u16MsgId)
     {
     case DISPATCHER_MSG_ID_SERV_ACTIVE:
         /*Service active message id, notify the service client to start sending message the active
           message.*/
-        u32Ret = resumeDispatcherServClient(servPid);
+        u32Ret = resumeDispatcherServClient(servId);
         break;
     default:
-        JF_LOGGER_INFO("Unrecognized reserved message, msg id: %u", u32MsgId);
+        JF_LOGGER_INFO("Unrecognized reserved message, msg id: %u", u16MsgId);
         break;
     }
 

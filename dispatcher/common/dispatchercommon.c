@@ -61,7 +61,7 @@ u32 createDispatcherMsg(dispatcher_msg_t ** ppMsg, u8 * pu8Msg, olsize_t sMsg)
     dispatcher_msg_t * pdm = NULL;
     u8 * pu8Start = NULL;
 
-    jf_logger_logDebugMsg("create dispatcher msg");
+    JF_LOGGER_DEBUG("smsg: %d", sMsg);
 
     u32Ret = jf_jiukun_allocMemory((void **)&pdm, sizeof(*pdm) + sMsg);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -84,13 +84,7 @@ u32 createDispatcherMsg(dispatcher_msg_t ** ppMsg, u8 * pu8Msg, olsize_t sMsg)
 
 boolean_t isReservedDispatcherMsg(dispatcher_msg_t * pdm)
 {
-    boolean_t bRet = FALSE;
-    u32 u32MsgId = getDispatcherMsgId(pdm);
-
-    if (u32MsgId >= JF_MESSAGING_RESERVED_MSG_ID)
-        bRet = TRUE;
-
-    return bRet;
+    return isReservedMessagingMsg(pdm->dm_u8Msg, pdm->dm_sMsg);
 }
 
 void incDispatcherMsgRef(dispatcher_msg_t * pdm)
@@ -108,17 +102,17 @@ olint_t getDispatcherMsgRef(dispatcher_msg_t * pdm)
     return pdm->dm_nRef;
 }
 
-pid_t getDispatcherMsgSourceId(dispatcher_msg_t * pdm)
+u32 getDispatcherMsgSourceId(dispatcher_msg_t * pdm)
 {
     return getMessagingMsgSourceId(pdm->dm_u8Msg, pdm->dm_sMsg);
 }
 
-pid_t getDispatcherMsgDestinationId(dispatcher_msg_t * pdm)
+u32 getDispatcherMsgDestinationId(dispatcher_msg_t * pdm)
 {
     return getMessagingMsgDestinationId(pdm->dm_u8Msg, pdm->dm_sMsg);
 }
 
-u32 getDispatcherMsgId(dispatcher_msg_t * pdm)
+u16 getDispatcherMsgId(dispatcher_msg_t * pdm)
 {
     return getMessagingMsgId(pdm->dm_u8Msg, pdm->dm_sMsg);
 }
@@ -154,65 +148,81 @@ olsize_t getMessagingSize(u8 * pu8Msg)
     return sizeof(*pHeader) + pHeader->jmh_u32PayloadSize;
 }
 
-u32 initMessagingMsgHeader(u8 * pu8Msg, u32 u32MsgId, u8 u8MsgPrio, u32 u32PayloadSize)
+u32 initMessagingMsgHeader(u8 * pu8Msg, u16 u16MsgId, u8 u8MsgPrio, u32 u32PayloadSize)
 {
     jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
 
     ol_bzero(pHeader, sizeof(*pHeader));
-    pHeader->jmh_u32MsgId = u32MsgId;
+    pHeader->jmh_u16MsgId = u16MsgId;
     pHeader->jmh_u8MsgPrio = u8MsgPrio;
     pHeader->jmh_u32PayloadSize = u32PayloadSize;
-    pHeader->jmh_piSourceId = jf_process_getCurrentId();
-
-    return pHeader->jmh_u32MsgId;
-}
-
-u32 getMessagingMsgId(u8 * pu8Msg, olsize_t sMsg)
-{
-    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
-
-    return pHeader->jmh_u32MsgId;
-}
-
-u32 setMessagingMsgId(u8 * pu8Msg, u32 u32MsgId)
-{
-    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
-
-    pHeader->jmh_u32MsgId = u32MsgId;
+    pHeader->jmh_u32SourceId = (u32)jf_process_getCurrentId();
 
     return JF_ERR_NO_ERROR;
 }
 
-u32 setMessagingMsgSourceId(u8 * pu8Msg, pid_t sourceId)
+u16 getMessagingMsgId(u8 * pu8Msg, olsize_t sMsg)
 {
     jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
 
-    pHeader->jmh_piSourceId = sourceId;
+    return pHeader->jmh_u16MsgId;
+}
+
+u32 setMessagingMsgId(u8 * pu8Msg, u16 u16MsgId)
+{
+    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
+
+    pHeader->jmh_u16MsgId = u16MsgId;
 
     return JF_ERR_NO_ERROR;
 }
 
-pid_t getMessagingMsgSourceId(u8 * pu8Msg, olsize_t sMsg)
+u32 setMessagingMsgSourceId(u8 * pu8Msg, u32 sourceId)
 {
     jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
 
-    return pHeader->jmh_piSourceId;
-}
-
-u32 setMessagingMsgDestinationId(u8 * pu8Msg, pid_t destinationId)
-{
-    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
-
-    pHeader->jmh_piDestinationId = destinationId;
+    pHeader->jmh_u32SourceId = sourceId;
 
     return JF_ERR_NO_ERROR;
 }
 
-pid_t getMessagingMsgDestinationId(u8 * pu8Msg, olsize_t sMsg)
+u32 getMessagingMsgSourceId(u8 * pu8Msg, olsize_t sMsg)
 {
     jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
 
-    return pHeader->jmh_piDestinationId;
+    return pHeader->jmh_u32SourceId;
+}
+
+u32 setMessagingMsgDestinationId(u8 * pu8Msg, u32 destinationId)
+{
+    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
+
+    pHeader->jmh_u32DestinationId = destinationId;
+
+    return JF_ERR_NO_ERROR;
+}
+
+u32 getMessagingMsgDestinationId(u8 * pu8Msg, olsize_t sMsg)
+{
+    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
+
+    return pHeader->jmh_u32DestinationId;
+}
+
+u32 setMessagingMsgTransactionId(u8 * pu8Msg, u32 transactionId)
+{
+    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
+
+    pHeader->jmh_u32TransactionId = transactionId;
+
+    return JF_ERR_NO_ERROR;
+}
+
+u32 getMessagingMsgTransactionId(u8 * pu8Msg, olsize_t sMsg)
+{
+    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
+
+    return pHeader->jmh_u32TransactionId;
 }
 
 u32 setMessagingMsgPayloadSize(u8 * pu8Msg, u32 u32PayloadSize)
@@ -224,6 +234,15 @@ u32 setMessagingMsgPayloadSize(u8 * pu8Msg, u32 u32PayloadSize)
     return JF_ERR_NO_ERROR;
 }
 
+boolean_t isReservedMessagingMsg(u8 * pu8Msg, olsize_t sMsg)
+{
+    boolean_t bRet = FALSE;
+    u16 u16MsgId = getMessagingMsgId(pu8Msg, sMsg);
+
+    if (u16MsgId >= JF_MESSAGING_RESERVED_MSG_ID_START)
+        bRet = TRUE;
+
+    return bRet;
+}
+
 /*------------------------------------------------------------------------------------------------*/
-
-

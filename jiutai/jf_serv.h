@@ -9,6 +9,66 @@
  *  -# Routines declared in this file are included in jf_serv library.
  *  -# All service control routines are synchronous, it will not return until the response is
  *   received or timeout.
+ *
+ *  @par Service Management Daemon
+ *  -# The daemon's name is "jf_dongyuan", it's will read the setting file at default location
+ *   "../config/servmgmt.setting". The setting file can be changed by using option "-s".
+ *  -# By default, the daemon is running in background.
+ *  @code
+ *  Run the daemon in background and read setting file at default location:
+ *  jf_dongyuan
+ *  Run the daemon in background and read specified setting file:
+ *  jf_dongyuan -s setting-file
+ *  Run the daemon in foreground:
+ *  jf_dongyuan -f
+ *  Show the version information:
+ *  jf_dongyuan -V
+ *  @endcode
+ *
+ *  @par Service Management Setting File
+ *  -# The service which is supposed to be managed by daemon should provide following configuration
+ *   in setting file.
+ *  -# The startupType is how to start the service. The service management daemon will start the
+ *   service if the startup type is "automatic". The daemon will not start the service if the
+ *   startup type is "manual".
+ *  -# If the service is terminated abnormally, the daemon will restart the service. The maximum
+ *   retry count is 3 by default. Daemon will not restart the service after 3 times. User can change
+ *   the configuration in setting file, the configuration name is "maxFailureRetryCount".
+ *  -# The "cmdPath" is the path to the executable file of the service. The "cmdParam" is the
+ *   parameter for starting the service.
+ *  @code
+ *  <service>
+ *    <name>zeus</name>
+ *    <description>zeus service</description>
+ *    <startupType>automatic</startupType>
+ *    <cmdPath>olzeus</cmdPath>
+ *    <cmdParam></cmdParam>
+ *  </service>
+ *  @endcode
+ *
+ *  @par Service Management Tool
+ *  -# The tool's name is "jf_servctl". User can use the tool to list, start and stop service, and
+ *   also change the setting of service.
+ *  -# The tool uses unix domain socket to communicate with daemon, so the daemon should be running
+ *   when using the tool.
+ *  @code
+ *  List all service.
+ *  jf_servctl -l
+ *  List specified service
+ *  jf_servctl -l -n service-name
+ *  Start a service
+ *  jf_servctl -t -n service-name
+ *  Stop a service
+ *  jf_servctl -s -n service-name
+ *  Change the startup type of a service
+ *  jf_servctl -u manual -n service-name
+ *  Show the version information:
+ *  jf_servctl -V
+ *  @endcode
+ *
+ *  @par Rules for Service
+ *  -# Service may not care about the background and daemonize, as all services are started by
+ *   service management daemon.
  */
 
 #ifndef JIUFENG_SERV_H

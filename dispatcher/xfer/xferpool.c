@@ -731,7 +731,7 @@ u32 createDispatcherXferObjectPool(
     internal_dispatcher_xfer_object_pool_t * pidxop = NULL;
     olchar_t strName[128];
 
-    JF_LOGGER_DEBUG("create xfer object pool");
+    JF_LOGGER_DEBUG("name: %s", pdxpcp->dxpcp_pstrName);
 
     u32Ret = jf_jiukun_allocMemory((void **)&pidxop, sizeof(*pidxop));
     if (u32Ret == JF_ERR_NO_ERROR)

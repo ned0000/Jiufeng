@@ -7,6 +7,15 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_messaging library.
+ *  -# Link with jf_dispatcher_xfer library for message transfer.
+ *
+ *  @par Rules for Messaging
+ *  -# The messaging library creates thread to send message so application will not block for
+ *   sending message.
+ *  -# The messaging library creates thread for recevie message. If the incoming message queue is
+ *   full, the new message will be discarded.
+ *  -# Service main thread should not quit after starting messaging library.
+ *
  */
 
 #ifndef JIUFENG_MESSAGING_H
@@ -36,13 +45,13 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-/** Reserved message id, not used for application.
+/** Reserved message id start, not used for application.
  */
-#define JF_MESSAGING_RESERVED_MSG_ID        (0xF0000000)
+#define JF_MESSAGING_RESERVED_MSG_ID_START      (60000)
 
 /** Maximum message size.
  */
-#define JF_MESSAGING_MAX_MSG_SIZE           (128 * 1024)
+#define JF_MESSAGING_MAX_MSG_SIZE               (128 * 1024)
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -86,18 +95,18 @@ typedef enum
 typedef struct
 {
     /**Unique identifier of the message.*/    
-    u32 jmh_u32MsgId;
+    u16 jmh_u16MsgId;
     /**Message priority.*/
     u8 jmh_u8MsgPrio;
-    u8 jmh_u8Reserved[3];
+    u8 jmh_u8Reserved[5];
     /**Transaction identifier.*/
     u32 jmh_u32TransactionId;
     /**Payload size.*/
     u32 jmh_u32PayloadSize;
-    /**Sender's identifier, it's the process id.*/
-    pid_t jmh_piSourceId;
-    /**Receiver's identifier, it's the process id.*/
-    pid_t jmh_piDestinationId;
+    /**Sender's identifier, suggest using process id.*/
+    u32 jmh_u32SourceId;
+    /**Receiver's identifier, suggest using process id.*/
+    u32 jmh_u32DestinationId;
 } jf_messaging_header_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
@@ -149,7 +158,7 @@ MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_sendMsg(u8 * pu8Msg, olsize_t sMsg);
  *  -# The routine will set the source id of the header with current process id.
  *
  *  @param pu8Msg [in] The message to initialize.
- *  @param u32MsgId [in] The message ID.
+ *  @param u16MsgId [in] The message ID.
  *  @param u8MsgPrio [in] The message priority.
  *  @param u32PayloadSize [in] The message payload size.
  *
@@ -157,7 +166,7 @@ MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_sendMsg(u8 * pu8Msg, olsize_t sMsg);
  *  @retval JF_ERR_NO_ERROR Success.
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_initMsgHeader(
-    u8 * pu8Msg, u32 u32MsgId, u8 u8MsgPrio, u32 u32PayloadSize);
+    u8 * pu8Msg, u16 u16MsgId, u8 u8MsgPrio, u32 u32PayloadSize);
 
 /** Get message ID.
  *
@@ -166,7 +175,7 @@ MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_initMsgHeader(
  *
  *  @return The message ID.
  */
-MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_getMsgId(u8 * pu8Msg, olsize_t sMsg);
+MESSAGINGAPI u16 MESSAGINGCALL jf_messaging_getMsgId(u8 * pu8Msg, olsize_t sMsg);
 
 /** Set message payload size.
  *
@@ -186,7 +195,26 @@ MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_setMsgPayloadSize(u8 * pu8Msg, u32 u
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_setMsgDestinationId(u8 * pu8Msg, pid_t destinationId);
+MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_setMsgDestinationId(u8 * pu8Msg, u32 destinationId);
+
+/** Set message transaction ID.
+ *
+ *  @param pu8Msg [in] The message to set.
+ *  @param transactionId [in] The message transaction ID.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_setMsgTransactionId(u8 * pu8Msg, u32 transactionId);
+
+/** Get message transaction ID.
+ *
+ *  @param pu8Msg [in] The message.
+ *  @param sMsg [in] The message size.
+ *
+ *  @return The message transaction ID.
+ */
+MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_getMsgTransactionId(u8 * pu8Msg, olsize_t sMsg);
 
 #endif /*JIUFENG_MESSAGING_H*/
 

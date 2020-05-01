@@ -127,7 +127,8 @@ u32 jf_messaging_init(jf_messaging_init_param_t * pjmip)
     assert(pjmip->jmip_pstrMessagingOut != NULL);
 
     JF_LOGGER_INFO(
-        "MessagingIn: %s, MessagingOut: %s", pjmip->jmip_pstrMessagingIn, pjmip->jmip_pstrMessagingOut);
+        "MessagingIn: %s, MessagingOut: %s, MaxMsg: %d, MaxNumMsg: %u",
+        pjmip->jmip_pstrMessagingIn, pjmip->jmip_pstrMessagingOut, pjmip->jmip_sMaxMsg, pjmip->jmip_u32MaxNumMsg);
 
     u32Ret = _initDispatcherMessaging(pim, pjmip);
 
@@ -180,9 +181,9 @@ u32 jf_messaging_sendMsg(u8 * pu8Msg, olsize_t sMsg)
     u32 u32Ret = JF_ERR_NO_ERROR;
 //    internal_messaging_t * pim = &ls_imMessaging;
     dispatcher_msg_t * pdm = NULL;
-    u32 u32MsgId = getMessagingMsgId(pu8Msg, sMsg);
+    u16 u16MsgId = getMessagingMsgId(pu8Msg, sMsg);
 
-    JF_LOGGER_DEBUG("msg id: %u", u32MsgId);
+    JF_LOGGER_DEBUG("msg id: %u", u16MsgId);
 
     u32Ret = createDispatcherMsg(&pdm, pu8Msg, sMsg);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -193,17 +194,17 @@ u32 jf_messaging_sendMsg(u8 * pu8Msg, olsize_t sMsg)
     return u32Ret;
 }
 
-u32 jf_messaging_initMsgHeader(u8 * pu8Msg, u32 u32MsgId, u8 u8MsgPrio, u32 u32PayloadSize)
+u32 jf_messaging_initMsgHeader(u8 * pu8Msg, u16 u16MsgId, u8 u8MsgPrio, u32 u32PayloadSize)
 {
-    return initMessagingMsgHeader(pu8Msg, u32MsgId, u8MsgPrio, u32PayloadSize);
+    return initMessagingMsgHeader(pu8Msg, u16MsgId, u8MsgPrio, u32PayloadSize);
 }
 
-u32 jf_messaging_getMsgId(u8 * pu8Msg, olsize_t sMsg)
+u16 jf_messaging_getMsgId(u8 * pu8Msg, olsize_t sMsg)
 {
     return getMessagingMsgId(pu8Msg, sMsg);
 }
 
-u32 jf_messaging_setMsgDestinationId(u8 * pu8Msg, pid_t destinationId)
+u32 jf_messaging_setMsgDestinationId(u8 * pu8Msg, u32 destinationId)
 {
     return setMessagingMsgDestinationId(pu8Msg, destinationId);
 }
@@ -213,6 +214,14 @@ u32 jf_messaging_setMsgPayloadSize(u8 * pu8Msg, u32 u32PayloadSize)
     return setMessagingMsgPayloadSize(pu8Msg, u32PayloadSize);
 }
 
+u32 jf_messaging_setMsgTransactionId(u8 * pu8Msg, u32 transactionId)
+{
+    return setMessagingMsgTransactionId(pu8Msg, transactionId);
+}
+
+u32 jf_messaging_getMsgTransactionId(u8 * pu8Msg, olsize_t sMsg)
+{
+    return getMessagingMsgTransactionId(pu8Msg, sMsg);
+}
+
 /*------------------------------------------------------------------------------------------------*/
-
-

@@ -34,14 +34,18 @@
 
 #define MAX_DISPATCHER_MSG_DESC_LEN            (48)
 
+/** Define the invalid service ID.
+ */
+#define DISPATCHER_INVALID_SERVICE_ID          (U32_MAX)
+
 /* --- data structures -------------------------------------------------------------------------- */
 
 /** Define the service config data type.
  */
 typedef struct
 {
-    /**The service ID, the ID is unique for each service in this daemon scope.*/
-    u16 dsc_u16ServId;
+    /**The service config ID, the ID is unique for each service in this daemon scope.*/
+    u16 dsc_u16ServConfigId;
     u16 dsc_u16Reserved[3];
     /*Data from configuration file.*/
     /**Version.*/
@@ -71,13 +75,14 @@ typedef struct
     jf_linklist_t dsc_jlSubscribedMsg;
 
     /*Data for running time.*/
-    /**The process id of the service connected to the dispatcher.*/
-    pid_t dsc_piServPid;
+    /**The service ID of the service connected to the dispatcher.*/
+    u32 dsc_u32ServId;
 } dispatcher_serv_config_t;
 
 typedef struct
 {
-    u32 dmc_u32MsgId;
+    u16 dmc_u16MsgId;
+    u16 dmc_u16Reserved[3];
     olchar_t dmc_strMsgDesc[MAX_DISPATCHER_MSG_DESC_LEN];
 
     u32 dmc_u32Reserved[4];

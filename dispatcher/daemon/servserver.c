@@ -58,7 +58,7 @@ static jf_network_chain_t * ls_pjncServServerChain = NULL;
 
 /** The dispather server list.
  */
-static jf_listhead_t ls_jlServServerList;
+static JF_LISTHEAD(ls_jlServServerList);
 
 /* --- private routine section ------------------------------------------------------------------ */
 
@@ -76,10 +76,6 @@ static u32 _checkServCredential(dispatcher_serv_server_t * pdss, jf_network_asoc
         if (pdss->dss_pdscConfig->dsc_uiUser != credential.uid)
             u32Ret = JF_ERR_DISPATCHER_UNAUTHORIZED_USER;
     }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-        /*Save the process id.*/
-        pdss->dss_pdscConfig->dsc_piServPid = credential.pid;
 
     return u32Ret;
 }
@@ -156,11 +152,11 @@ static u32 _validateServServerMsg(
 static u32 _findServServerMsgId(jf_linklist_node_t * pNode, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32MsgId = *((u32 *)pArg);
+    u16 u16MsgId = *((u16 *)pArg);
     dispatcher_msg_config_t * pdmc = jf_linklist_getDataFromNode(pNode);
 
     /*Terminate the iteration if the message id is found.*/
-    if (pdmc->dmc_u32MsgId == u32MsgId)
+    if (pdmc->dmc_u16MsgId == u16MsgId)
         u32Ret = JF_ERR_TERMINATED;
 
     return u32Ret;
@@ -169,25 +165,56 @@ static u32 _findServServerMsgId(jf_linklist_node_t * pNode, void * pArg)
 static u32 _isServServerMsgAllowed(dispatcher_serv_server_t * pdss, u8 * pu8Msg, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32MsgId = getMessagingMsgId(pu8Msg, sMsg);
+    u16 u16MsgId = getMessagingMsgId(pu8Msg, sMsg);
 
     /*The reserved message is used in dispatcher, it's always allowed.*/
-    if (u32MsgId >= JF_MESSAGING_RESERVED_MSG_ID)
+    if (isReservedMessagingMsg(pu8Msg, sMsg))
         return u32Ret;
     
-    u32Ret = jf_linklist_iterate(
-        &pdss->dss_pdscConfig->dsc_jlPublishedMsg, _findServServerMsgId, (void **)&u32MsgId);
-
-    /*Iteration is terminated, the message id is in the published list.*/
-    if (u32Ret == JF_ERR_TERMINATED)
+    if (pdss->dss_pdscConfig->dsc_u32ServId == DISPATCHER_INVALID_SERVICE_ID)
     {
-        u32Ret = JF_ERR_NO_ERROR;
+        JF_LOGGER_INFO("invalid service id, msgid: %u", u16MsgId);
+        u32Ret = JF_ERR_INVALID_MESSAGE;
     }
-    else
+
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /*The message id is not in the published list.*/
-        u32Ret = JF_ERR_MSG_NOT_IN_PUBLISHED_LIST;
-        JF_LOGGER_INFO("message is not in published list, msg id: %u", u32MsgId);
+        u32Ret = jf_linklist_iterate(
+            &pdss->dss_pdscConfig->dsc_jlPublishedMsg, _findServServerMsgId, (void **)&u16MsgId);
+
+        /*Iteration is terminated, the message id is in the published list.*/
+        if (u32Ret == JF_ERR_TERMINATED)
+        {
+            u32Ret = JF_ERR_NO_ERROR;
+        }
+        else
+        {
+            /*The message id is not in the published list.*/
+            u32Ret = JF_ERR_MSG_NOT_IN_PUBLISHED_LIST;
+            JF_LOGGER_INFO("message is not in published list, msg id: %u", u16MsgId);
+        }
+    }
+
+    return u32Ret;
+}
+
+static u32 _processServServerReservedMsg(dispatcher_serv_server_t * pdss, u8 * pu8Msg, olsize_t sMsg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    u16 u16MsgId = getMessagingMsgId(pu8Msg, sMsg);
+    dispatcher_serv_active_msg * pdsam = (dispatcher_serv_active_msg *)pu8Msg;
+
+    if (u16MsgId == DISPATCHER_MSG_ID_SERV_ACTIVE)
+    {
+        if (pdsam->dsam_jmhHeader.jmh_u32SourceId != pdsam->dsam_dsampPayload.dsamp_u32ServId)
+            u32Ret = JF_ERR_INVALID_MESSAGE;
+
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            /*Save the service id.*/
+            pdss->dss_pdscConfig->dsc_u32ServId = pdsam->dsam_dsampPayload.dsamp_u32ServId;
+            JF_LOGGER_INFO("receive serv active msg, serv id: %u", pdss->dss_pdscConfig->dsc_u32ServId);
+        }
     }
 
     return u32Ret;
@@ -209,20 +236,24 @@ static u32 _processServServerMsg(
         /*Receive full message.*/
         sMsg = getMessagingSize(pu8Buffer + sBegin);
 
-        u32Ret = _isServServerMsgAllowed(pdss, pu8Buffer + sBegin, sMsg);
+        u32Ret = _processServServerReservedMsg(pdss, pu8Buffer + sBegin, sMsg);
+        if (u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = _isServServerMsgAllowed(pdss, pu8Buffer + sBegin, sMsg);
     }
 
     /*Invoke the callback function to queue the message.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         pdss->dss_fnQueueMsg(pu8Buffer + sBegin, sMsg);
 
-    if (u32Ret == JF_ERR_NO_ERROR)
-        *psBeginPointer = sMsg;
-    else if (u32Ret == JF_ERR_MSG_NOT_IN_PUBLISHED_LIST)
+    if (u32Ret == JF_ERR_MSG_NOT_IN_PUBLISHED_LIST)
         /*Message is right, but it's not in the published list, the message is discarded.*/
         *psBeginPointer = sMsg;
     else if (u32Ret == JF_ERR_INCOMPLETE_DATA)
+        /*Message is not complete, need next round to get more data.*/
         u32Ret = JF_ERR_NO_ERROR;
+    else
+        /*For other else, discard the message.*/
+        *psBeginPointer = sMsg;
 
     return u32Ret;
 }

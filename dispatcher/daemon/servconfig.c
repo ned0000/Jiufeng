@@ -153,7 +153,7 @@ static u32 _fnParseServMsg(jf_ptree_node_t * pNode, void * pArg)
 
     /*Convert the string to integer.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_string_getU32FromString(pstrId + 1, sId - 2, &pMsg->dmc_u32MsgId);
+        u32Ret = jf_string_getU16FromString(pstrId + 1, sId - 2, &pMsg->dmc_u16MsgId);
 
     /*Validate message config.*/
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -339,7 +339,12 @@ static u32 _parseDispatcherServConfigFile(
 
     /*Parse the version.*/
     if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_bzero(pdsc, sizeof(*pdsc));
+        pdsc->dsc_u32ServId = DISPATCHER_INVALID_SERVICE_ID;
+
         u32Ret = _getDispatcherServConfigVersion(pPtree, pdsc);
+    }
 
     /*Parse the service information.*/
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -363,12 +368,12 @@ static u32 _parseDispatcherServConfigFile(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Set the service ID.*/
-        pdsc->dsc_u16ServId = psdcdp->sdcdp_u16NumOfServConfig;
+        pdsc->dsc_u16ServConfigId = psdcdp->sdcdp_u16NumOfServConfig;
         psdcdp->sdcdp_u16NumOfServConfig ++;
 
         JF_LOGGER_INFO(
-            "service id: %u, version: %s, name: %s, msgin: %s, msgout: %s, maxnummsg: %u, maxmsgsize: %u",
-            pdsc->dsc_u16ServId, pdsc->dsc_strVersion, pdsc->dsc_strName, pdsc->dsc_strMessagingIn,
+            "service config id: %u, version: %s, name: %s, msgin: %s, msgout: %s, maxnummsg: %u, maxmsgsize: %u",
+            pdsc->dsc_u16ServConfigId, pdsc->dsc_strVersion, pdsc->dsc_strName, pdsc->dsc_strMessagingIn,
             pdsc->dsc_strMessagingOut, pdsc->dsc_u32MaxNumMsg, pdsc->dsc_u32MaxMsgSize);
     }
     else if (pdsc != NULL)

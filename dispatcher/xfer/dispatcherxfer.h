@@ -58,6 +58,7 @@ typedef struct
     jf_ipaddr_t * dxcp_pjiRemote;
     /**The port of remote server.*/
     u16 dxcp_u16RemotePort;
+    u16 dxcp_u16Reserved[3];
     /**The name of the application.*/
     olchar_t * dxcp_pstrName;
 } dispatcher_xfer_create_param_t;

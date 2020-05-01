@@ -28,13 +28,21 @@ typedef jf_messaging_header_t  jf_messaging_msg_t;
 
 /** The internal message id, service active.
  */
-#define DISPATCHER_MSG_ID_SERV_ACTIVE (JF_MESSAGING_RESERVED_MSG_ID + 0x10)
+#define DISPATCHER_MSG_ID_SERV_ACTIVE          (JF_MESSAGING_RESERVED_MSG_ID_START + 0x10)
 
 /* --- data structures -------------------------------------------------------------------------- */
 
 typedef struct
 {
+    /**Service ID, should be the same as source ID in the header.*/
+    u32 dsamp_u32ServId;
+    u8 dsamp_u8Reserved[60];
+} dispatcher_serv_active_msg_payload;
+
+typedef struct
+{
     jf_messaging_header_t dsam_jmhHeader;
+    dispatcher_serv_active_msg_payload dsam_dsampPayload;
 } dispatcher_serv_active_msg;
 
 /** Define the dispatcher message data type.
@@ -43,7 +51,7 @@ typedef struct
 {
     /**Reference number*/
     olint_t dm_nRef;
-    u16 dm_u16Reserved[3];
+    u16 dm_u16Reserved[4];
     /**The message size*/
     olsize_t dm_sMsg;
     /**The start of the message*/
@@ -84,15 +92,15 @@ olint_t getDispatcherMsgRef(dispatcher_msg_t * pdm);
 
 /** Get source ID of dispatcher message.
  */
-pid_t getDispatcherMsgSourceId(dispatcher_msg_t * pdm);
+u32 getDispatcherMsgSourceId(dispatcher_msg_t * pdm);
 
 /** Get destination ID of dispatcher message.
  */
-pid_t getDispatcherMsgDestinationId(dispatcher_msg_t * pdm);
+u32 getDispatcherMsgDestinationId(dispatcher_msg_t * pdm);
 
 /** Get dispatcher message id.
  */
-u32 getDispatcherMsgId(dispatcher_msg_t * pdm);
+u16 getDispatcherMsgId(dispatcher_msg_t * pdm);
 
 /** Free dispatcher message.
  */
@@ -101,43 +109,76 @@ u32 fnFreeDispatcherMsg(void ** ppData);
 /*Functions for messaging message*/
 
 /** Initialize the messaging message header.
+ *
+ *  @return The error code.
  */
-u32 initMessagingMsgHeader(u8 * pu8Msg, u32 u32MsgId, u8 u8MsgPrio, u32 u32PayloadSize);
+u32 initMessagingMsgHeader(u8 * pu8Msg, u16 u16MsgId, u8 u8MsgPrio, u32 u32PayloadSize);
 
 /** Get messaging message size.
+ *
+ *  @note
+ *  -# Full message size including header and payload.
+ *
+ *  @return The message size.
  */
 olsize_t getMessagingSize(u8 * pu8Msg);
 
 /** Get messaging message ID.
+ *
+ *  @return The message ID.
  */
-u32 getMessagingMsgId(u8 * pu8Msg, olsize_t sMsg);
+u16 getMessagingMsgId(u8 * pu8Msg, olsize_t sMsg);
 
 /** Set messaging message ID.
+ *
+ *  @return The error code.
  */
-u32 setMessagingMsgId(u8 * pu8Msg, u32 u32MsgId);
+u32 setMessagingMsgId(u8 * pu8Msg, u16 u16MsgId);
 
 /** Set messaging message payload size.
  */
 u32 setMessagingMsgPayloadSize(u8 * pu8Msg, u32 u32PayloadSize);
 
 /** Set messaging message source ID.
+ *
+ *  @return The error code.
  */
-u32 setMessagingMsgSourceId(u8 * pu8Msg, pid_t sourceId);
+u32 setMessagingMsgSourceId(u8 * pu8Msg, u32 sourceId);
 
 /** Get messaging message source ID.
+ *
+ *  @return The source ID.
  */
-pid_t getMessagingMsgSourceId(u8 * pu8Msg, olsize_t sMsg);
+u32 getMessagingMsgSourceId(u8 * pu8Msg, olsize_t sMsg);
 
 /** Set messaging message destination ID.
+ *
+ *  @return The error code.
  */
-u32 setMessagingMsgDestinationId(u8 * pu8Msg, pid_t destinationId);
+u32 setMessagingMsgDestinationId(u8 * pu8Msg, u32 destinationId);
 
 /** Get messaging message destination ID.
+ *
+ *  @return The destination ID.
  */
-pid_t getMessagingMsgDestinationId(u8 * pu8Msg, olsize_t sMsg);
+u32 getMessagingMsgDestinationId(u8 * pu8Msg, olsize_t sMsg);
+
+/** Check if the message is reserved message.
+ */
+boolean_t isReservedMessagingMsg(u8 * pu8Msg, olsize_t sMsg);
+
+/** Get messaging message transaction ID.
+ *
+ *  @return The transaction ID.
+ */
+u32 getMessagingMsgTransactionId(u8 * pu8Msg, olsize_t sMsg);
+
+/** Set messaging message transaction ID.
+ *
+ *  @return The error code.
+ */
+u32 setMessagingMsgTransactionId(u8 * pu8Msg, u32 transactionId);
 
 #endif /*DISPATCHER_DISPATCHERCOMMON_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

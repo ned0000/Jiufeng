@@ -57,11 +57,11 @@ u32 stopDispatcherServClients(void);
 
 /** Pause dispatcher service client, the client will stop sending out the message.
  */
-u32 pauseDispatcherServClient(pid_t servPid);
+u32 pauseDispatcherServClient(u32 servPid);
 
 /** Resume dispatcher service client, the client will start sending out the message.
  */
-u32 resumeDispatcherServClient(pid_t servPid);
+u32 resumeDispatcherServClient(u32 servPid);
 
 /** Dispatch message to service.
  */

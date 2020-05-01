@@ -72,7 +72,7 @@ static jf_network_chain_t * ls_pjncServClientChain = NULL;
 
 /** The dispather client list.
  */
-static jf_listhead_t ls_jlServClientList;
+static JF_LISTHEAD(ls_jlServClientList);
 
 /** The shift for the subscribed message hash table.
  */
@@ -277,7 +277,7 @@ static u32 _addSubscribedMsgToTable(
     dispatcher_subscribed_msg_t * pdsm = NULL;
     u32 u32Index = 0;
 
-    JF_LOGGER_DEBUG("msg id: %u", pMsgConfig->dmc_u32MsgId);
+    JF_LOGGER_DEBUG("msg id: %u", pMsgConfig->dmc_u16MsgId);
 
     /*Allocate dispatcher subscribed message from cache.*/
     u32Ret = jf_jiukun_allocObject(pjjcSubscribedMsg, (void **)&pdsm);
@@ -288,7 +288,7 @@ static u32 _addSubscribedMsgToTable(
         JF_HLISTHEAD_INIT_NODE(&pdsm->dsm_jhnHash);
 
         /*Hash message id to key.*/
-        u32Index = _hashMsgIdToKey(pMsgConfig->dmc_u32MsgId, u32Shift);
+        u32Index = _hashMsgIdToKey((u32)pMsgConfig->dmc_u16MsgId, u32Shift);
         JF_LOGGER_DEBUG("index: %u", u32Index);
         /*Add dispatcher subscribed message data type to hash table.*/
         jf_hlisthead_addHead(&pjhMsgHashTable[u32Index], &pdsm->dsm_jhnHash);
@@ -380,10 +380,10 @@ static u32 _destroyDispatcherSubscribedMsgHashTable(
     return u32Ret;
 }
 
-/** Find dispatcher service client by pid.
+/** Find dispatcher service client by service ID.
  */
-static u32 _findDispatcherServClientByPid(
-    jf_listhead_t * pjlServClientList, pid_t servPid, dispatcher_serv_client_t ** ppdsc)
+static u32 _findDispatcherServClientByServId(
+    jf_listhead_t * pjlServClientList, u32 servId, dispatcher_serv_client_t ** ppdsc)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
     jf_listhead_t * pjl = NULL;
@@ -393,7 +393,7 @@ static u32 _findDispatcherServClientByPid(
     {
         pdsc = jf_listhead_getEntry(pjl, dispatcher_serv_client_t, dsc_jlServ);
 
-        if (pdsc->dsc_pdscConfig->dsc_piServPid == servPid)
+        if (pdsc->dsc_pdscConfig->dsc_u32ServId == servId)
         {
             u32Ret = JF_ERR_NO_ERROR;
             *ppdsc = pdsc;
@@ -414,11 +414,11 @@ static boolean_t _isMatchingDispatcherSubscribedMsg(
     dispatcher_subscribed_msg_t * pdsm, dispatcher_msg_t * pdm)
 {
     boolean_t bRet = FALSE;
-    u32 u32MsgId = getDispatcherMsgId(pdm);
-    pid_t destPid = getDispatcherMsgDestinationId(pdm);
+    u16 u16MsgId = getDispatcherMsgId(pdm);
+    u32 destPid = getDispatcherMsgDestinationId(pdm);
 
     /*Message id is not match, return FALSE.*/
-    if (pdsm->dsm_pdmcMsgConfig->dmc_u32MsgId != u32MsgId)
+    if (pdsm->dsm_pdmcMsgConfig->dmc_u16MsgId != u16MsgId)
         return bRet;
 
     /*If the destination id is not 0, the message should send to specified service.*/
@@ -426,7 +426,7 @@ static boolean_t _isMatchingDispatcherSubscribedMsg(
     {
         /*If the destination id in message is not equal to the saved id in service config, return
           FALSE.*/
-        if (pdsm->dsm_pdscClient->dsc_pdscConfig->dsc_piServPid != destPid)
+        if (pdsm->dsm_pdscClient->dsc_pdscConfig->dsc_u32ServId != destPid)
             return bRet;
     }
     
@@ -523,28 +523,28 @@ u32 stopDispatcherServClients(void)
     return u32Ret;
 }
 
-u32 pauseDispatcherServClient(pid_t servPid)
+u32 pauseDispatcherServClient(u32 servId)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     dispatcher_serv_client_t * pdsc = NULL;
 
-    JF_LOGGER_INFO("servPid: %u", servPid);
+    JF_LOGGER_INFO("servId: %u", servId);
 
-    u32Ret = _findDispatcherServClientByPid(&ls_jlServClientList, servPid, &pdsc);
+    u32Ret = _findDispatcherServClientByServId(&ls_jlServClientList, servId, &pdsc);
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = dispatcher_xfer_pause(pdsc->dsc_pdxXfer);
 
     return u32Ret;
 }
 
-u32 resumeDispatcherServClient(pid_t servPid)
+u32 resumeDispatcherServClient(u32 servId)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     dispatcher_serv_client_t * pdsc = NULL;
 
-    JF_LOGGER_INFO("servPid: %u", servPid);
+    JF_LOGGER_INFO("servId: %u", servId);
 
-    u32Ret = _findDispatcherServClientByPid(&ls_jlServClientList, servPid, &pdsc);
+    u32Ret = _findDispatcherServClientByServId(&ls_jlServClientList, servId, &pdsc);
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = dispatcher_xfer_resume(pdsc->dsc_pdxXfer);
 

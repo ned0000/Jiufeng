@@ -204,7 +204,7 @@ u32 dispatcher_xfer_create(
     assert((pjnc != NULL) && (ppXfer != NULL));
     assert((pdxcp != NULL) && (pdxcp->dxcp_sMaxMsg != 0));
 
-    JF_LOGGER_DEBUG("create xfer");
+    JF_LOGGER_INFO("name: %s", pdxcp->dxcp_pstrName);
 
     u32Ret = jf_jiukun_allocMemory((void **)&pidx, sizeof(internal_dispatcher_xfer_t));
     if (u32Ret == JF_ERR_NO_ERROR)

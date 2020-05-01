@@ -144,9 +144,13 @@ static u32 _processMessagingServerMsg(
         pdms->dms_fnProcessMsg(pu8Buffer + sBegin, sMsg);
 
     if (u32Ret == JF_ERR_NO_ERROR)
+        /*Message is processed, discard the message.*/
         *psBeginPointer = sMsg;
     else if (u32Ret == JF_ERR_INCOMPLETE_DATA)
+        /*Incomplete data.*/
         u32Ret = JF_ERR_NO_ERROR;
+    else  /*For other errors, just discard the data.*/
+        *psBeginPointer = sMsg;
 
     return u32Ret;
 }
@@ -242,12 +246,12 @@ static JF_THREAD_RETURN_VALUE _messagingServerThread(void * pArg)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_network_chain_t * pChain = (jf_network_chain_t *)pArg;
 
-    jf_logger_logInfoMsg("enter messaging server thread");
+    JF_LOGGER_DEBUG("enter");
 
     /*Start the server chain.*/
     u32Ret = jf_network_startChain(pChain);
 
-    jf_logger_logInfoMsg("quit messaging server thread");
+    JF_LOGGER_DEBUG("quit");
 
     JF_THREAD_RETURN(u32Ret);
 }

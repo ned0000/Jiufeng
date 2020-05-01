@@ -21,7 +21,7 @@
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "jf_err.h"
+#include "jf_process.h"
 #include "jf_logger.h"
 #include "jf_network.h"
 #include "jf_ipaddr.h"
@@ -130,12 +130,12 @@ static JF_THREAD_RETURN_VALUE _messagingClientThread(void * pArg)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_network_chain_t * pChain = (jf_network_chain_t *)pArg;
 
-    jf_logger_logInfoMsg("enter messaging client thread");
+    JF_LOGGER_DEBUG("enter");
 
     /*Start the client chain.*/
     u32Ret = jf_network_startChain(pChain);
 
-    jf_logger_logInfoMsg("quit messaging client thread");
+    JF_LOGGER_DEBUG("quit");
 
     JF_THREAD_RETURN(u32Ret);
 }
@@ -147,7 +147,10 @@ static u32 _sendDispatcherServActiveMsg(void)
     dispatcher_serv_active_msg dsam;
 
     /*Initialize the message.*/
-    initMessagingMsgHeader((u8 *)&dsam, DISPATCHER_MSG_ID_SERV_ACTIVE, JF_MESSAGING_PRIO_MID, 0);
+    initMessagingMsgHeader(
+        (u8 *)&dsam, DISPATCHER_MSG_ID_SERV_ACTIVE, JF_MESSAGING_PRIO_MID,
+        sizeof(dispatcher_serv_active_msg_payload));
+    dsam.dsam_dsampPayload.dsamp_u32ServId = dsam.dsam_jmhHeader.jmh_u32SourceId;
 
     /*Create the dispatcher message.*/
     u32Ret = createDispatcherMsg(&pdm, (u8 *)&dsam, sizeof(dsam));
@@ -168,7 +171,7 @@ u32 createDispatcherMessagingClient(create_dispatcher_messaging_client_param_t *
     assert(pcdmcp->cdmcp_pstrSocketDir != NULL);
     assert(pcdmcp->cdmcp_pstrMessagingOut != NULL);
 
-    jf_logger_logDebugMsg("create dispatcher messaging client");
+    JF_LOGGER_DEBUG("create");
 
     /*Create the network chain.*/
     u32Ret = jf_network_createChain(&ls_pjncMessagingClientChain);
@@ -187,7 +190,7 @@ u32 destroyDispatcherMessagingClient(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logDebugMsg("destroy dispatcher messaging client");
+    JF_LOGGER_DEBUG("destroy");
 
     /*Destroy the messaging client.*/
     if (ls_pdmcMessagingClient != NULL)
