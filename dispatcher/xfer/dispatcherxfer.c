@@ -53,13 +53,11 @@ typedef struct internal_dispatcher_xfer
     boolean_t idx_bPause;
     u8 idx_u8Reserved[7];
     /**Number of high priority message.*/
-    u16 idx_u16NumOfHighPrioMsg;
+    u32 idx_u32NumOfHighPrioMsg;
     /**Number of mid priority message.*/
-    u16 idx_u16NumOfMidPrioMsg;
+    u32 idx_u32NumOfMidPrioMsg;
     /**Number of low priority message.*/
-    u16 idx_u16NumOfLowPrioMsg;
-
-    u16 idx_u16Reserved;
+    u32 idx_u32NumOfLowPrioMsg;
     /**Maximum number of message allowed in the queue.*/
     u32 idx_u32MaxNumMsg;
     /**The xfer object pool*/
@@ -73,6 +71,7 @@ static u32 _enqueueDispatcherXferMsgToQueue(
     internal_dispatcher_xfer_t * pidx, dispatcher_msg_t * pdm, boolean_t * pbWakeup)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    u8 u8MsgPrio = getDispatcherMsgPrio(pdm);
 
     jf_mutex_acquire(&pidx->idx_jmMsg);
     /*If the request queue is empty, chain should be waken up.*/

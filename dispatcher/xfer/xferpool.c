@@ -745,7 +745,7 @@ u32 createDispatcherXferObjectPool(
         pidxop->idxop_u16RemotePort = pdxpcp->dxpcp_u16RemotePort;
         pidxop->idxop_fnOnEvent = pdxpcp->dxpcp_fnOnEvent;
         pidxop->idxop_pUser = pdxpcp->dxpcp_pUser;
-        sprintf(strName, "%s-xfer-pool", pdxpcp->dxpcp_pstrName);
+        ol_sprintf(strName, "%s-xfer-pool", pdxpcp->dxpcp_pstrName);
 
         u32Ret = jf_network_createUtimer(pjnc, &pidxop->idxop_pjnuUtimer, strName);
     }
@@ -760,7 +760,7 @@ u32 createDispatcherXferObjectPool(
         jnacp.jnacp_fnOnConnect = _dispatcherXferObjectOnConnect;
         jnacp.jnacp_fnOnDisconnect = _dispatcherXferObjectOnDisconnect;
         jnacp.jnacp_fnOnSendData = _dispatcherXferObjectOnSendData;
-        sprintf(strName, "%s-%s", pdxpcp->dxpcp_pstrName, DISPATCHER_XFER_OBJECT_NAME);
+        ol_sprintf(strName, "%s-%s", pdxpcp->dxpcp_pstrName, DISPATCHER_XFER_OBJECT_NAME);
         jnacp.jnacp_pstrName = strName;
 
         u32Ret = jf_network_createAcsocket(pjnc, &pidxop->idxop_pjnaAcsocket, &jnacp);

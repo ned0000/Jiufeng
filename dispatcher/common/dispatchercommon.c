@@ -10,10 +10,12 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stdio.h>
 #include <string.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_messaging.h"
@@ -117,6 +119,11 @@ u16 getDispatcherMsgId(dispatcher_msg_t * pdm)
     return getMessagingMsgId(pdm->dm_u8Msg, pdm->dm_sMsg);
 }
 
+u8 getDispatcherMsgPrio(dispatcher_msg_t * pdm)
+{
+    return getMessagingMsgPrio(pdm->dm_u8Msg, pdm->dm_sMsg);
+}
+
 u32 freeDispatcherMsg(dispatcher_msg_t ** ppMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -166,6 +173,13 @@ u16 getMessagingMsgId(u8 * pu8Msg, olsize_t sMsg)
     jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
 
     return pHeader->jmh_u16MsgId;
+}
+
+u8 getMessagingMsgPrio(u8 * pu8Msg, olsize_t sMsg)
+{
+    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
+
+    return pHeader->jmh_u8MsgPrio;
 }
 
 u32 setMessagingMsgId(u8 * pu8Msg, u16 u16MsgId)

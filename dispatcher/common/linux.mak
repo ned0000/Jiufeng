@@ -11,7 +11,7 @@
 
 #---------------------------------------------------------------------------------------------------
 
-SOURCES = dispatchercommon.c
+SOURCES = dispatchercommon.c prioqueue.c
 
 EXTRA_CFLAGS =
 

@@ -102,6 +102,10 @@ u32 getDispatcherMsgDestinationId(dispatcher_msg_t * pdm);
  */
 u16 getDispatcherMsgId(dispatcher_msg_t * pdm);
 
+/** Get dispatcher message priority.
+ */
+u8 getDispatcherMsgPrio(dispatcher_msg_t * pdm);
+
 /** Free dispatcher message.
  */
 u32 fnFreeDispatcherMsg(void ** ppData);

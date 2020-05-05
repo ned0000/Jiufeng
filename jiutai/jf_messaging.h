@@ -12,10 +12,13 @@
  *  @par Rules for Messaging
  *  -# The messaging library creates thread to send message so application will not block for
  *   sending message.
- *  -# The messaging library creates thread for recevie message. If the incoming message queue is
- *   full, the new message will be discarded.
+ *  -# The messaging library creates 2 threads for incoming message. One receives message and
+ *   another processes message.
  *  -# Service main thread should not quit after starting messaging library.
- *
+ *  -# When the message queue is full, the oldest message is removed from queue and new message is
+ *   added only when the priority of new message is not lower than all messages in queue. Otherwise
+ *   the new message is discarded. Eg. the message in queue has middle priority, then high and
+ *   middle message can be added to queue, low priority cannot be added.
  */
 
 #ifndef JIUFENG_MESSAGING_H
@@ -216,8 +219,15 @@ MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_setMsgTransactionId(u8 * pu8Msg, u32
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_getMsgTransactionId(u8 * pu8Msg, olsize_t sMsg);
 
+/** Get message priority.
+ *
+ *  @param pu8Msg [in] The message.
+ *  @param sMsg [in] The message size.
+ *
+ *  @return The message priority.
+ */
+u8 getMessagingMsgPrio(u8 * pu8Msg, olsize_t sMsg);
+
 #endif /*JIUFENG_MESSAGING_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-
