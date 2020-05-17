@@ -19,6 +19,8 @@
 #include "jf_err.h"
 #include "jf_messaging.h"
 
+#include "dispatchercommon.h"
+
 /* --- constant definitions --------------------------------------------------------------------- */
 
 
@@ -40,12 +42,12 @@ typedef struct
     jf_messaging_fnProcessMsg_t cdmsp_fnProcessMsg;
     /**The address to receive message from.*/
     olchar_t * cdmsp_pstrMessagingIn;
-    /**The address to send message to.*/
-//    olchar_t * cdmsp_pstrMessagingOut;
     /**The name of the application.*/
     olchar_t * cdmsp_pstrName;
     /**Maximum message size.*/
     olsize_t cdmsp_sMaxMsg;
+    /**Maximum number of message.*/
+    u32 cdmsp_u32MaxNumMsg;
 } create_dispatcher_messaging_server_param_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
@@ -59,6 +61,10 @@ u32 destroyDispatcherMessagingServer(void);
 u32 startDispatcherMessagingServer(void);
 
 u32 stopDispatcherMessagingServer(void);
+
+/** Add message to incoming message queue.
+ */
+u32 addDispatcherMessagingMsg(dispatcher_msg_t * pdm);
 
 #endif /*DISPATCHER_MESSAGING_SERVER_H*/
 

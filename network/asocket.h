@@ -208,21 +208,6 @@ u32 disconnectAsocket(jf_network_asocket_t * pAsocket);
 u32 sendAsocketData(
     jf_network_asocket_t * pAsocket, u8 * pu8Buffer, olsize_t sBuf);
 
-/** Send static data to remote server.
- *
- *  @note
- *  -# The data is not cloned and will used in async socket. Application should not touch it until
- *   fnAsocketOnSendData_t is called for the successful transimission.
- *
- *  @param pAsocket [in] The asocket to send data on.
- *  @param pu8Buffer [in] The buffer to send.
- *  @param sBuf [in] The length of the buffer to send.
- *
- *  @return The error code.
- */
-u32 sendAsocketStaticData(
-    jf_network_asocket_t * pAsocket, u8 * pu8Buffer, olsize_t sBuf);
-
 /** Attempt to establish a TCP connection.
  *
  *  @param pAsocket [in] The asocket to initiate the connection.

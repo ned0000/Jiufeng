@@ -225,7 +225,7 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
 /* servmgmt error */
     {JF_ERR_SERV_NOT_FOUND, "Service is not found."},
 /* dispatcher error */
-    {JF_ERR_INVALID_DISPATCHER_SERV_CONFIG, "Invalid dispatcher service configuration."},
+    {JF_ERR_INVALID_DISPATCHER_SERVICE_CONFIG, "Invalid dispatcher service configuration."},
     {JF_ERR_DISPATCHER_UNAUTHORIZED_USER, "Unauthorized user for service in dispatcher."},
 /* cli error */
     {JF_ERR_LOGOUT_REQUIRED, "Command cannot be processed in an active session. Please logout first."},

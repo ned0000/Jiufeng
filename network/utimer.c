@@ -78,8 +78,7 @@ static u32 _destroyUtimerItems(internal_utimer_t * piu, jf_listhead_t * list, bo
             temp->ui_fnCallback(temp->ui_pData);
 
 #if defined(DEBUG_UTIMER)
-        jf_logger_logInfoMsg(
-            "destroy item of utimer %s, expire: %d", piu->iu_strName, temp->ui_u32Expire);
+        JF_LOGGER_DEBUG("utimer: %s, expire: %d", piu->iu_strName, temp->ui_u32Expire);
 #endif
 
         _freeUtimerItem(&temp);
@@ -116,7 +115,7 @@ static u32 _checkUtimer(
     {
         current = (tp.tv_sec * 1000) + (tp.tv_nsec / 1000000);
 #if defined(DEBUG_UTIMER)
-        jf_logger_logInfoMsg("check utimer %s, current: %d", piu->iu_strName, current);
+        JF_LOGGER_DEBUG("utimer: %s, current: %d", piu->iu_strName, current);
 #endif
         jf_mutex_acquire(&piu->iu_jmLock);
 
@@ -145,7 +144,7 @@ static u32 _checkUtimer(
             {
                 *pu32Blocktime = nexttick;
 #if defined(DEBUG_UTIMER)
-                jf_logger_logInfoMsg("check utimer %s, blocktime: %d", piu->iu_strName, nexttick);
+                JF_LOGGER_DEBUG("utimer: %s, blocktime: %d", piu->iu_strName, nexttick);
 #endif
             }
         }
@@ -257,7 +256,7 @@ u32 jf_network_addUtimerItem(
     assert((pData != NULL) && (fnCallback != NULL));
     
 #if defined(DEBUG_UTIMER)
-    jf_logger_logInfoMsg("add item to utimer %s", piu->iu_strName);
+    JF_LOGGER_DEBUG("utimer: %s", piu->iu_strName);
 #endif
     u32Ret = jf_jiukun_allocMemory((void **)&pui, sizeof(utimer_item_t));
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -272,8 +271,7 @@ u32 jf_network_addUtimerItem(
         /*Set the trigger time*/
         pui->ui_u32Expire = (tp.tv_sec * 1000) + (tp.tv_nsec / 1000000) + (u32Seconds * 1000);
 #if defined(DEBUG_UTIMER)
-        jf_logger_logInfoMsg(
-            "add item to utimer %s, expire at: %d", piu->iu_strName, pui->ui_u32Expire);
+        JF_LOGGER_DEBUG("utimer: %s, expire at: %d", piu->iu_strName, pui->ui_u32Expire);
 #endif
         pui->ui_pData = pData;
         /*Set the callback handlers*/
@@ -299,7 +297,7 @@ u32 jf_network_removeUtimerItem(jf_network_utimer_t * pUtimer, void * pData)
     internal_utimer_t * piu = (internal_utimer_t *) pUtimer;
 
 #if defined(DEBUG_UTIMER)
-    jf_logger_logInfoMsg("remove item from utimer %s", piu->iu_strName);
+    JF_LOGGER_DEBUG("utimer: %s", piu->iu_strName);
 #endif
 
     u32Ret = _removeUtimerItem(piu, pData);
@@ -331,7 +329,7 @@ u32 jf_network_createUtimer(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_utimer_t * piu = NULL;
 
-    jf_logger_logDebugMsg("create utimer %s", pstrName);
+    JF_LOGGER_DEBUG("name: %s", pstrName);
 
     u32Ret = jf_jiukun_allocMemory((void **)&piu, sizeof(internal_utimer_t));
     if (u32Ret == JF_ERR_NO_ERROR)

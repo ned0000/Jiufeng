@@ -22,28 +22,18 @@
 
 /** The directory containing the uds socket file.
  */
-#define DISPATCHER_UDS_DIR  "/tmp/jf_dispatcher"
+#define DISPATCHER_UDS_DIR                        "/tmp/jf_dispatcher"
 
-typedef jf_messaging_header_t  jf_messaging_msg_t;
-
-/** The internal message id, service active.
+/** Maximum connection for a service.
  */
-#define DISPATCHER_MSG_ID_SERV_ACTIVE          (JF_MESSAGING_RESERVED_MSG_ID_START + 0x10)
+#define DISPATCHER_MAX_CONN_IN_SERVICE_SERVER     (2)
+
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-typedef struct
-{
-    /**Service ID, should be the same as source ID in the header.*/
-    u32 dsamp_u32ServId;
-    u8 dsamp_u8Reserved[60];
-} dispatcher_serv_active_msg_payload;
-
-typedef struct
-{
-    jf_messaging_header_t dsam_jmhHeader;
-    dispatcher_serv_active_msg_payload dsam_dsampPayload;
-} dispatcher_serv_active_msg;
+/** Define the messaging message data type.
+ */
+typedef jf_messaging_header_t  jf_messaging_msg_t;
 
 /** Define the dispatcher message data type.
  */
@@ -73,10 +63,6 @@ u32 createDispatcherMsg(dispatcher_msg_t ** ppMsg, u8 * pu8Msg, olsize_t sMsg);
 /** Destroy dispatcher message.
  */
 u32 freeDispatcherMsg(dispatcher_msg_t ** ppMsg);
-
-/** Check if the message is reserved message.
- */
-boolean_t isReservedDispatcherMsg(dispatcher_msg_t * pdm);
 
 /** Increase the reference of dispatcher message.
  */
@@ -166,10 +152,6 @@ u32 setMessagingMsgDestinationId(u8 * pu8Msg, u32 destinationId);
  *  @return The destination ID.
  */
 u32 getMessagingMsgDestinationId(u8 * pu8Msg, olsize_t sMsg);
-
-/** Check if the message is reserved message.
- */
-boolean_t isReservedMessagingMsg(u8 * pu8Msg, olsize_t sMsg);
 
 /** Get messaging message transaction ID.
  *

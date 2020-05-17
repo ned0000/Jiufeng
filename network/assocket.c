@@ -83,7 +83,7 @@ static u32 _preSelectAssocket(
       that means we need to do that.*/
     if (! pia->ia_bListening)
     {
-        jf_logger_logInfoMsg("pre sel ass, listening on the socket %s", pia->ia_strName);
+        JF_LOGGER_INFO("name: %s, listening", pia->ia_strName);
         /*Set the socket to non-block mode, so we can play nice and share the thread*/
         jf_network_setSocketNonblock(pia->ia_pjnsListenSocket);
 
@@ -98,7 +98,7 @@ static u32 _preSelectAssocket(
         if (! jf_listarray_isEnd(pia->ia_pjlAsocket))
             jf_network_setSocketToFdSet(pia->ia_pjnsListenSocket, readset);
         else
-            jf_logger_logInfoMsg("pre sel ass, no free asocket on the socket");
+            JF_LOGGER_INFO("name: %s, no free asocket", pia->ia_strName);
     }
 
     return u32Ret;
@@ -119,8 +119,7 @@ static u32 _postSelectAssocket(
 
     if (jf_network_isSocketSetInFdSet(pia->ia_pjnsListenSocket, readset))
     {
-        jf_logger_logInfoMsg(
-            "post select assocket, listen socket %s is in readset", pia->ia_strName);
+        JF_LOGGER_DEBUG("name: %s, in readset", pia->ia_strName);
 
         /*There are pending TCP connection requests*/
         while (u32Ret == JF_ERR_NO_ERROR)
@@ -134,8 +133,8 @@ static u32 _postSelectAssocket(
                 u32Index = jf_listarray_getNode(pia->ia_pjlAsocket);
                 if (u32Index != JF_LISTARRAY_END)
                 {
-                    jf_logger_logInfoMsg(
-                        "post select assocket, new connection, use %u", u32Index);
+                    JF_LOGGER_DEBUG(
+                        "name: %s, new connection, index: %u", pia->ia_strName, u32Index);
 
                     assert(isAsocketFree(pia->ia_pjnaAsockets[u32Index]));
                     /*Instantiate a pia to contain all the data about
@@ -156,8 +155,7 @@ static u32 _postSelectAssocket(
                 else
                 {
                     u32Ret = JF_ERR_SOCKET_POOL_EMPTY;
-                    jf_logger_logErrMsg(
-                        u32Ret, "post select assocket, no more free asocket");
+                    JF_LOGGER_ERR(u32Ret, "name: %s, no more free asocket", pia->ia_strName);
                     jf_network_destroySocket(&pNewSocket);
                     break;
                 }
@@ -186,7 +184,7 @@ static u32 _assOnData(
     assocket_data_t * pad = (assocket_data_t *) pUser;
     internal_assocket_t * pia = pad->ad_iaAssocket;
 
-    jf_logger_logInfoMsg("ass on data");
+    JF_LOGGER_DEBUG("name: %s", pia->ia_strName);
 
     /*Pass the received data up.*/
     u32Ret = pia->ia_fnOnData(
@@ -219,7 +217,7 @@ static u32 _assOnDisconnect(jf_network_asocket_t * pAsocket, u32 u32Status, void
     internal_assocket_t * pia = pad->ad_iaAssocket;
     u32 u32Index = _assGetIndexOfAsocket(pAsocket);
 
-    jf_logger_logInfoMsg("ass on disconnect, put %u", u32Index);
+    JF_LOGGER_DEBUG("name: %s, index: %u", pia->ia_strName, u32Index);
 
     /*Pass this Disconnect event up*/
     pia->ia_fnOnDisconnect(
@@ -249,7 +247,7 @@ static u32 _assOnSendData(
     assocket_data_t * pad = (assocket_data_t *) pUser;
     internal_assocket_t * pia = pad->ad_iaAssocket;
 
-    jf_logger_logInfoMsg("ass on send ok");
+    JF_LOGGER_DEBUG("name: %s", pia->ia_strName);
 
     /*Pass the OnSendOK event up*/
     u32Ret = pia->ia_fnOnSendData(
@@ -274,7 +272,7 @@ u32 jf_network_destroyAssocket(jf_network_assocket_t ** ppAssocket)
     internal_assocket_t * pia = (internal_assocket_t *) *ppAssocket;
     u32 u32Index;
 
-    jf_logger_logInfoMsg("destroy assocket");
+    JF_LOGGER_INFO("name: %s", pia->ia_strName);
 
     if (pia->ia_pjnaAsockets != NULL)
     {
@@ -322,8 +320,7 @@ u32 jf_network_createAssocket(
            (pjnacp->jnacp_fnOnData != NULL));
     assert(pjnacp->jnacp_pstrName != NULL);
 
-    jf_logger_logInfoMsg(
-        "create assocket %s, max conn %u", pjnacp->jnacp_pstrName, pjnacp->jnacp_u32MaxConn);
+    JF_LOGGER_INFO("name: %s, max conn: %u", pjnacp->jnacp_pstrName, pjnacp->jnacp_u32MaxConn);
 
     /*Allocate memory for async server socket.*/
     u32Ret = jf_jiukun_allocMemory((void **)&pia, sizeof(internal_assocket_t));
@@ -408,7 +405,7 @@ u32 jf_network_createAssocket(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_logger_logDebugMsg("create listening socket for assocket %s", pjnacp->jnacp_pstrName);
+        JF_LOGGER_DEBUG("name: %s, create listening socket", pjnacp->jnacp_pstrName);
         /*Create listening socket.*/
         u32Ret = jf_network_createStreamSocket(
             &pia->ia_jiAddr, &pia->ia_u16PortNumber, &pia->ia_pjnsListenSocket);
@@ -450,7 +447,7 @@ u32 jf_network_disconnectAssocket(
     internal_assocket_t * pia = (internal_assocket_t *) pAssocket;
     u32 u32Index = _assGetIndexOfAsocket(pAsocket);
 
-    jf_logger_logInfoMsg("ass disconnect, index %u", u32Index);
+    JF_LOGGER_DEBUG("name: %s, index: %u", pia->ia_strName, u32Index);
     assert(u32Index < pia->ia_u32MaxConn);
 
     u32Ret = disconnectAsocket(pAsocket);
@@ -463,8 +460,9 @@ u32 jf_network_sendAssocketData(
     u8 * pu8Buffer, olsize_t sBuf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_assocket_t * pia = (internal_assocket_t *) pAssocket;
 
-    jf_logger_logInfoMsg("ass send data");
+    JF_LOGGER_DEBUG("name: %s", pia->ia_strName);
 
     u32Ret = sendAsocketData(pAsocket, pu8Buffer, sBuf);
 

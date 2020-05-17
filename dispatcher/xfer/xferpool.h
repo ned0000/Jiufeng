@@ -20,8 +20,11 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
+
 /* --- data structures -------------------------------------------------------------------------- */
 
+/** Define the xfer object pool data type.
+ */
 typedef void  dispatcher_xfer_object_pool_t;
 
 typedef void  dispatcher_xfer_object_t;
@@ -46,21 +49,20 @@ typedef u32 (* fnOnDispatcherXferObjectEvent_t)(
  */
 typedef struct
 {
-    /**Number of object in pool.*/
-    u32 dxpcp_u32PoolSize;
-    /**Buffer size of the object.*/
-    olsize_t dxpcp_sBuffer;
-    /**The address of remote server.*/
-    jf_ipaddr_t * dxpcp_pjiRemote;
+    /**Maximum message size.*/
+    olsize_t dxpcp_sMaxMsg;
+    /**Maximum number of message.*/
+    u32 dxpcp_u32MaxNumMsg;
+
+    /**Maximum address.*/
+    u32 dxpcp_u32MaxAddress;
+    /**The address of remote server, the remote server may be have several address.*/
+    jf_ipaddr_t * dxpcp_pjiRemote[DISPATCHER_XFER_MAX_NUM_OF_ADDRESS];
     /**The port of remote server.*/
-    u16 dxpcp_u16RemotePort;
-    u16 dxpcp_u16Reserved[3];
+    u16 dxpcp_u16RemotePort[DISPATCHER_XFER_MAX_NUM_OF_ADDRESS];
+
     /**The name of the application.*/
     olchar_t * dxpcp_pstrName;
-    /**Callback function to process the dispather xfer object event.*/
-    fnOnDispatcherXferObjectEvent_t dxpcp_fnOnEvent;
-    /**The argument of the callback function.*/
-    void * dxpcp_pUser;
 } dispatcher_xfer_pool_create_param_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
@@ -77,7 +79,16 @@ u32 createDispatcherXferObjectPool(
 
 /** Send dispatcher xfer pool message.
  */
-u32 sendDispatcherXferPoolMsg(dispatcher_xfer_object_pool_t * pPool, dispatcher_msg_t * pdm);
+u32 sendMsgByDispatcherXferObjectPool(dispatcher_xfer_object_pool_t * pPool, dispatcher_msg_t * pdm);
+
+/** Pause dispatcher xfer object pool
+ */
+u32 pauseDispatcherXferObjectPool(dispatcher_xfer_object_pool_t * pPool);
+
+/** Resume dispatcher xfer object pool
+ */
+u32 resumeDispatcherXferObjectPool(dispatcher_xfer_object_pool_t * pPool);
+
 
 #endif /*DISPATCHER_XFER_OBJECT_POOL_H*/
 

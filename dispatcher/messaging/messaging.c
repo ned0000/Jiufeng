@@ -27,11 +27,6 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/** Maximum connection in the async server socket for a messaging server, one for the receiving
- *  message, another is for backup.
- */
-#define MAX_CONN_IN_MESSAGING_SERVER           (2)
-
 typedef struct
 {
     boolean_t im_bInitialized;
@@ -55,8 +50,6 @@ static u32 _initDispatcherMessaging(internal_messaging_t * pim, jf_messaging_ini
     assert(pjmip->jmip_fnProcessMsg != NULL);
     assert((pjmip->jmip_sMaxMsg > 0) && (pjmip->jmip_sMaxMsg < JF_MESSAGING_MAX_MSG_SIZE));
 
-    JF_LOGGER_INFO("init messaging");
-
     u32Ret = jf_mutex_init(&pim->im_jmLock);
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -66,12 +59,13 @@ static u32 _initDispatcherMessaging(internal_messaging_t * pim, jf_messaging_ini
     {
         create_dispatcher_messaging_server_param_t cdmsp;
         ol_bzero(&cdmsp, sizeof(cdmsp));
-        cdmsp.cdmsp_u32MaxConnInServer = MAX_CONN_IN_MESSAGING_SERVER;
+        cdmsp.cdmsp_u32MaxConnInServer = DISPATCHER_MAX_CONN_IN_SERVICE_SERVER;
         cdmsp.cdmsp_pstrSocketDir = DISPATCHER_UDS_DIR;
         cdmsp.cdmsp_fnProcessMsg = pjmip->jmip_fnProcessMsg;
         cdmsp.cdmsp_pstrMessagingIn = pjmip->jmip_pstrMessagingIn;
         cdmsp.cdmsp_pstrName = pjmip->jmip_pstrName;
         cdmsp.cdmsp_sMaxMsg = pjmip->jmip_sMaxMsg;
+        cdmsp.cdmsp_u32MaxNumMsg = pjmip->jmip_u32MaxNumMsg;
 
         u32Ret = createDispatcherMessagingServer(&cdmsp);
     }
@@ -127,8 +121,9 @@ u32 jf_messaging_init(jf_messaging_init_param_t * pjmip)
     assert(pjmip->jmip_pstrMessagingOut != NULL);
 
     JF_LOGGER_INFO(
-        "MessagingIn: %s, MessagingOut: %s, MaxMsg: %d, MaxNumMsg: %u",
-        pjmip->jmip_pstrMessagingIn, pjmip->jmip_pstrMessagingOut, pjmip->jmip_sMaxMsg, pjmip->jmip_u32MaxNumMsg);
+        "name: %s, MessagingIn: %s, MessagingOut: %s, sMaxMsg: %d, MaxNumMsg: %u",
+        pjmip->jmip_pstrName, pjmip->jmip_pstrMessagingIn, pjmip->jmip_pstrMessagingOut,
+        pjmip->jmip_sMaxMsg, pjmip->jmip_u32MaxNumMsg);
 
     u32Ret = _initDispatcherMessaging(pim, pjmip);
 
@@ -190,6 +185,31 @@ u32 jf_messaging_sendMsg(u8 * pu8Msg, olsize_t sMsg)
     {
         u32Ret = sendDispatcherMessagingMsg(pdm);
     }
+
+    /*Destroy the message if the message queue is full.*/
+    if (u32Ret == JF_ERR_MSG_QUEUE_FULL)
+        freeDispatcherMsg(&pdm);
+
+    return u32Ret;
+}
+
+u32 jf_messaging_sendInternalMsg(u8 * pu8Msg, olsize_t sMsg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    dispatcher_msg_t * pdm = NULL;
+    u16 u16MsgId = getMessagingMsgId(pu8Msg, sMsg);
+
+    JF_LOGGER_DEBUG("msg id: %u", u16MsgId);
+
+    u32Ret = createDispatcherMsg(&pdm, pu8Msg, sMsg);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = addDispatcherMessagingMsg(pdm);
+    }
+
+    /*Destroy the message if the message queue is full.*/
+    if (u32Ret == JF_ERR_MSG_QUEUE_FULL)
+        freeDispatcherMsg(&pdm);
 
     return u32Ret;
 }

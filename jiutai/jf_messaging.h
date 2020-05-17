@@ -17,8 +17,8 @@
  *  -# Service main thread should not quit after starting messaging library.
  *  -# When the message queue is full, the oldest message is removed from queue and new message is
  *   added only when the priority of new message is not lower than all messages in queue. Otherwise
- *   the new message is discarded. Eg. the message in queue has middle priority, then high and
- *   middle message can be added to queue, low priority cannot be added.
+ *   an error is returned. Eg. the message in queue has middle priority, then high and middle
+ *   message can be added to queue, low priority cannot be added.
  */
 
 #ifndef JIUFENG_MESSAGING_H
@@ -47,10 +47,6 @@
 #endif
 
 /* --- constant definitions --------------------------------------------------------------------- */
-
-/** Reserved message id start, not used for application.
- */
-#define JF_MESSAGING_RESERVED_MSG_ID_START      (60000)
 
 /** Maximum message size.
  */
@@ -155,6 +151,19 @@ MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_stop(void);
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_sendMsg(u8 * pu8Msg, olsize_t sMsg);
 
+/** Send internal message.
+ *
+ *  @note
+ *  -# The message will not send to dispatcher but add to incoming message queue.
+ *
+ *  @param pu8Msg [in] The message to send.
+ *  @param sMsg [in] The message size.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_sendInternalMsg(u8 * pu8Msg, olsize_t sMsg);
+
 /** Initialize message header.
  *
  *  @note
@@ -226,7 +235,7 @@ MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_getMsgTransactionId(u8 * pu8Msg, ols
  *
  *  @return The message priority.
  */
-u8 getMessagingMsgPrio(u8 * pu8Msg, olsize_t sMsg);
+MESSAGINGAPI u8 MESSAGINGCALL getMessagingMsgPrio(u8 * pu8Msg, olsize_t sMsg);
 
 #endif /*JIUFENG_MESSAGING_H*/
 

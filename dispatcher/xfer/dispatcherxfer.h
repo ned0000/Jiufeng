@@ -40,6 +40,10 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
+/** Maximum number of server address.
+ */
+#define DISPATCHER_XFER_MAX_NUM_OF_ADDRESS                 (8)
+
 /** Define the dispatcher xfer data type.
  */
 typedef void  dispatcher_xfer_t;
@@ -54,11 +58,14 @@ typedef struct
     olsize_t dxcp_sMaxMsg;
     /**Maximum number of message.*/
     u32 dxcp_u32MaxNumMsg;
+
+    /**Maximum address.*/
+    u32 dxcp_u32MaxAddress;
     /**The address of remote server.*/
-    jf_ipaddr_t * dxcp_pjiRemote;
+    jf_ipaddr_t * dxcp_pjiRemote[DISPATCHER_XFER_MAX_NUM_OF_ADDRESS];
     /**The port of remote server.*/
-    u16 dxcp_u16RemotePort;
-    u16 dxcp_u16Reserved[3];
+    u16 dxcp_u16RemotePort[DISPATCHER_XFER_MAX_NUM_OF_ADDRESS];
+
     /**The name of the application.*/
     olchar_t * dxcp_pstrName;
 } dispatcher_xfer_create_param_t;
@@ -88,14 +95,6 @@ DISPATCHERXFERAPI u32 DISPATCHERXFERCALL dispatcher_xfer_create(
  */
 DISPATCHERXFERAPI u32 DISPATCHERXFERCALL dispatcher_xfer_sendMsg(
     dispatcher_xfer_t * pXfer, dispatcher_msg_t * pdm);
-
-/** Clear the message queue for a specific remote server.
- *
- *  @param pXfer [in] The dispatcher xfer.
- *
- *  @return The error code.
- */
-DISPATCHERXFERAPI u32 DISPATCHERXFERCALL dispatcher_xfer_clearMsgQueue(dispatcher_xfer_t * pXfer);
 
 /** Destory dispatcher xfer.
  *

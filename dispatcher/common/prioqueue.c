@@ -25,7 +25,7 @@
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
-#include "jf_err.h"
+#include "jf_logger.h"
 #include "jf_jiukun.h"
 #include "jf_mutex.h"
 
@@ -87,7 +87,7 @@ static void _decNumOfMsgInDispatcherPrioQueue(internal_dispatcher_prio_queue_t *
         prioqueue->idpq_u32NumOfLowPrioMsg --;
 }
 
-static boolean_t _canDispatcherMsgBeAdded(internal_dispatcher_prio_queue_t * prioqueue, u8 u8MsgPrio)
+static boolean_t _canDispatcherMsgBeQueued(internal_dispatcher_prio_queue_t * prioqueue, u8 u8MsgPrio)
 {
     boolean_t bRet = FALSE, bDequeue = FALSE;
     u32 u32Num = _getNumOfMsgInDispatcherPrioQueue(prioqueue);
@@ -105,12 +105,15 @@ static boolean_t _canDispatcherMsgBeAdded(internal_dispatcher_prio_queue_t * pri
     }
     else if (u8MsgPrio == JF_MESSAGING_PRIO_MID)
     {
-        /*For middle priority message, remove the oldest message if no high priority message in queue.*/
+        /*For middle priority message, remove the oldest message if no high priority message in
+          queue.*/
         if (prioqueue->idpq_u32NumOfHighPrioMsg == 0)
             bDequeue = TRUE;
     }
     else
     {
+        /*For low priority message, remove the oldest message if no high and middle priority message
+          in queue.*/
         if ((prioqueue->idpq_u32NumOfHighPrioMsg == 0) && (prioqueue->idpq_u32NumOfMidPrioMsg == 0))
             bDequeue = TRUE;
     }
@@ -135,6 +138,8 @@ u32 createDispatcherPrioQueue(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_prio_queue_t * prioqueue = NULL;
+
+    JF_LOGGER_INFO("maxnummsg: %u", param->cdpqp_u32MaxNumMsg);
 
     u32Ret = jf_jiukun_allocMemory((void **)&prioqueue, sizeof(*prioqueue));
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -162,29 +167,19 @@ u32 destroyDispatcherPrioQueue(dispatcher_prio_queue_t ** ppQueue)
 
 	assert(ppQueue != NULL);
 
-    jf_queue_fini(&prioqueue->idpq_jqMsg);
+    JF_LOGGER_INFO("destroy");
+
+    /*Finalize the message queue and free all the message.*/
+    jf_queue_finiQueueAndData(&prioqueue->idpq_jqMsg, fnFreeDispatcherMsg);
 
     jf_mutex_fini(&prioqueue->idpq_jmMsg);
+
+    jf_jiukun_freeMemory((void **)ppQueue);
 
     return u32Ret;
 }
 
-u32 destroyDispatcherPrioQueueAndData(
-    dispatcher_prio_queue_t ** ppQueue, jf_queue_fnFreeData_t fnFreeData)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_dispatcher_prio_queue_t * prioqueue = *ppQueue;
-
-	assert(ppQueue != NULL);
-
-    jf_queue_finiQueueAndData(&prioqueue->idpq_jqMsg, fnFreeData);
-
-    jf_mutex_fini(&prioqueue->idpq_jmMsg);
-
-    return u32Ret;
-}
-
-boolean_t isDispatcherPrioQueueEmpty(dispatcher_prio_queue_t * pQueue)
+boolean_t isEmptyDispatcherPrioQueue(dispatcher_prio_queue_t * pQueue)
 {
     internal_dispatcher_prio_queue_t * prioqueue = pQueue;
     return jf_queue_isEmpty(&prioqueue->idpq_jqMsg);
@@ -198,7 +193,7 @@ u32 enqueueDispatcherPrioQueue(dispatcher_prio_queue_t * pQueue, dispatcher_msg_
 
     jf_mutex_acquire(&prioqueue->idpq_jmMsg);
 
-    if (_canDispatcherMsgBeAdded(prioqueue, u8MsgPrio))
+    if (_canDispatcherMsgBeQueued(prioqueue, u8MsgPrio))
     {
         u32Ret = jf_queue_enqueue(&prioqueue->idpq_jqMsg, pMsg);
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -223,8 +218,8 @@ dispatcher_msg_t * dequeueDispatcherPrioQueue(dispatcher_prio_queue_t * pQueue)
     jf_mutex_acquire(&prioqueue->idpq_jmMsg);
 
     retval = jf_queue_dequeue(&prioqueue->idpq_jqMsg);
-    _decNumOfMsgInDispatcherPrioQueue(prioqueue, getDispatcherMsgPrio(retval));
-    freeDispatcherMsg(&retval);
+    if (retval != NULL)
+        _decNumOfMsgInDispatcherPrioQueue(prioqueue, getDispatcherMsgPrio(retval));
 
     jf_mutex_release(&prioqueue->idpq_jmMsg);
 

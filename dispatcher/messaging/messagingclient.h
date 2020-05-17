@@ -40,7 +40,6 @@ typedef struct
     olsize_t cdmcp_sMaxMsg;
     /**Maximum number of message.*/
     u32 cdmcp_u32MaxNumMsg;
-
 } create_dispatcher_messaging_client_param_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */

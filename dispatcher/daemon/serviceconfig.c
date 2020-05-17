@@ -1,5 +1,5 @@
 /**
- *  @file servconfig.c
+ *  @file serviceconfig.c
  *
  *  @brief Service configuration file
  *
@@ -27,44 +27,44 @@
 #include "jf_string.h"
 #include "jf_jiukun.h"
 
-#include "servconfig.h"
+#include "serviceconfig.h"
 #include "dispatchercommon.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
 /** Maximum number of message in message queue for service.
  */
-#define MAX_NUM_OF_SERV_MSG                        (500)
+#define MAX_NUM_OF_SERVICE_MSG                           (500)
 
 /** Maximum service message size.
  */
-#define MAX_SERV_MSG_SIZE                          (128 * 1024)
+#define MAX_SERVICE_MSG_SIZE                             (128 * 1024)
 
-#define DISPATCHER_CONFIG_FILE_EXT                 ".xml"
+#define DISPATCHER_CONFIG_FILE_EXT                       ".xml"
 
-#define DISPATCHER_SERV_CONFIG_ROOT                "configuration"
+#define DISPATCHER_SERVICE_CONFIG_ROOT                   "configuration"
 
-#define DISPATCHER_SERV_CONFIG_VERSION             "version"
+#define DISPATCHER_SERVICE_CONFIG_VERSION                "version"
 
-#define DISPATCHER_SERV_CONFIG_SERV_INFO           DISPATCHER_SERV_CONFIG_ROOT ".serviceInfo"
+#define DISPATCHER_SERVICE_CONFIG_SERVICE_INFO           DISPATCHER_SERVICE_CONFIG_ROOT ".serviceInfo"
 
-#define DISPATCHER_SERV_CONFIG_PUBLISHED_MSG       DISPATCHER_SERV_CONFIG_ROOT ".publishedMessage"
+#define DISPATCHER_SERVICE_CONFIG_PUBLISHED_MSG          DISPATCHER_SERVICE_CONFIG_ROOT ".publishedMessage"
 
-#define DISPATCHER_SERV_CONFIG_SUBSCRIBED_MSG      DISPATCHER_SERV_CONFIG_ROOT ".subscribedMessage"
+#define DISPATCHER_SERVICE_CONFIG_SUBSCRIBED_MSG         DISPATCHER_SERVICE_CONFIG_ROOT ".subscribedMessage"
 
-#define DISPATCHER_SERV_CONFIG_SERV_NAME           DISPATCHER_SERV_CONFIG_SERV_INFO ".serviceName"
-#define DISPATCHER_SERV_CONFIG_SERV_USER_NAME      DISPATCHER_SERV_CONFIG_SERV_INFO ".userName"
-#define DISPATCHER_SERV_CONFIG_SERV_MESSAGING_IN   DISPATCHER_SERV_CONFIG_SERV_INFO ".messagingIn"
-#define DISPATCHER_SERV_CONFIG_SERV_MESSAGING_OUT  DISPATCHER_SERV_CONFIG_SERV_INFO ".messagingOut"
-#define DISPATCHER_SERV_CONFIG_SERV_MAX_NUM_MSG    DISPATCHER_SERV_CONFIG_SERV_INFO ".maxNumMsg"
-#define DISPATCHER_SERV_CONFIG_SERV_MAX_MSG_SIZE   DISPATCHER_SERV_CONFIG_SERV_INFO ".maxMsgSize"
+#define DISPATCHER_SERVICE_CONFIG_SERVICE_NAME           DISPATCHER_SERVICE_CONFIG_SERVICE_INFO ".serviceName"
+#define DISPATCHER_SERVICE_CONFIG_SERVICE_USER_NAME      DISPATCHER_SERVICE_CONFIG_SERVICE_INFO ".userName"
+#define DISPATCHER_SERVICE_CONFIG_SERVICE_MESSAGING_IN   DISPATCHER_SERVICE_CONFIG_SERVICE_INFO ".messagingIn"
+#define DISPATCHER_SERVICE_CONFIG_SERVICE_MESSAGING_OUT  DISPATCHER_SERVICE_CONFIG_SERVICE_INFO ".messagingOut"
+#define DISPATCHER_SERVICE_CONFIG_SERVICE_MAX_NUM_MSG    DISPATCHER_SERVICE_CONFIG_SERVICE_INFO ".maxNumMsg"
+#define DISPATCHER_SERVICE_CONFIG_SERVICE_MAX_MSG_SIZE   DISPATCHER_SERVICE_CONFIG_SERVICE_INFO ".maxMsgSize"
 
-#define DISPATCHER_SERV_CONFIG_MESSAGE             "message"
-#define DISPATCHER_SERV_CONFIG_MESSAGE_ID          "id"
+#define DISPATCHER_SERVICE_CONFIG_MESSAGE                "message"
+#define DISPATCHER_SERVICE_CONFIG_MESSAGE_ID             "id"
 
 /** The name of message config cache.
  */
-#define DISPATCHER_MSG_CACHE                       "dispatcher_msg_config"
+#define DISPATCHER_MSG_CACHE                             "dispatcher_msg_config"
 
 typedef struct
 {
@@ -93,10 +93,10 @@ static u32 _fnFreeDispatcherMsgConfig(void ** ppData)
 
 /** Free one service config.
  */
-static u32 _fnFreeDispatcherServConfig(void ** pData)
+static u32 _fnFreeDispatcherServiceConfig(void ** pData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    dispatcher_serv_config_t * pdsc = (dispatcher_serv_config_t *) *pData;
+    dispatcher_service_config_t * pdsc = (dispatcher_service_config_t *) *pData;
 
     /*Free the published message link list and all the entries in the list.*/
     jf_linklist_finiListAndData(&pdsc->dsc_jlPublishedMsg, _fnFreeDispatcherMsgConfig);
@@ -138,7 +138,7 @@ static u32 _fnParseServMsg(jf_ptree_node_t * pNode, void * pArg)
 
     /*Parse the attribute with name "id".*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNodeAttribute(pNode, NULL, DISPATCHER_SERV_CONFIG_MESSAGE_ID, &pAttr);
+        u32Ret = jf_ptree_findNodeAttribute(pNode, NULL, DISPATCHER_SERVICE_CONFIG_MESSAGE_ID, &pAttr);
 
     /*Get attribute value, the id string is with format "id".*/
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -172,7 +172,7 @@ static u32 _fnParseServMsg(jf_ptree_node_t * pNode, void * pArg)
 }
 
 static u32 _parseDispatcherMessage(
-    jf_ptree_t * pPtree, dispatcher_serv_config_t * pdsc,
+    jf_ptree_t * pPtree, dispatcher_service_config_t * pdsc,
     scan_dispatcher_config_dir_param_t * psdcdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -180,7 +180,7 @@ static u32 _parseDispatcherMessage(
     parse_serv_msg_t psmArg;
 
     /*Parse the published message list.*/
-    u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_PUBLISHED_MSG, &pNode);
+    u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_PUBLISHED_MSG, &pNode);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(&psmArg, sizeof(psmArg));
@@ -196,7 +196,7 @@ static u32 _parseDispatcherMessage(
 
     /*Parse the subscribed message list.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_SUBSCRIBED_MSG, &pNode);
+        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_SUBSCRIBED_MSG, &pNode);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -214,7 +214,7 @@ static u32 _parseDispatcherMessage(
     return u32Ret;
 }
 
-static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_serv_config_t * pdsc)
+static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_service_config_t * pdsc)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ptree_node_t * pNode = NULL;
@@ -222,7 +222,7 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_serv_conf
     olsize_t sValue = 0;
 
     /*Find the service name node.*/
-    u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_SERV_NAME, &pNode);
+    u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_SERVICE_NAME, &pNode);
 
     /*Get name of the service.*/
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -230,11 +230,11 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_serv_conf
 
     /*Copy the service name.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        ol_strncpy(pdsc->dsc_strName, pstrValue, MAX_DISPATCHER_SERV_NAME_LEN - 1);
+        ol_strncpy(pdsc->dsc_strName, pstrValue, MAX_DISPATCHER_SERVICE_NAME_LEN - 1);
 
     /*Find the service user name node.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_SERV_USER_NAME, &pNode);
+        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_SERVICE_USER_NAME, &pNode);
 
     /*Get name of the service user.*/
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -246,7 +246,7 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_serv_conf
 
     /*Find the service messaging in node.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_SERV_MESSAGING_IN, &pNode);
+        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_SERVICE_MESSAGING_IN, &pNode);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pNode, &pstrValue, NULL);
@@ -256,7 +256,7 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_serv_conf
 
     /*Find the service messaging out node.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_SERV_MESSAGING_OUT, &pNode);
+        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_SERVICE_MESSAGING_OUT, &pNode);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pNode, &pstrValue, NULL);
@@ -266,7 +266,7 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_serv_conf
 
     /*Find the maximum number of message node.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_SERV_MAX_NUM_MSG, &pNode);
+        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_SERVICE_MAX_NUM_MSG, &pNode);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pNode, &pstrValue, &sValue);
@@ -276,7 +276,7 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_serv_conf
 
     /*Find the maximum message size node.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_SERV_MAX_MSG_SIZE, &pNode);
+        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_SERVICE_MAX_MSG_SIZE, &pNode);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pNode, &pstrValue, &sValue);
@@ -287,46 +287,46 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_serv_conf
     return u32Ret;
 }
 
-static u32 _getDispatcherServConfigVersion(jf_ptree_t * pPtree, dispatcher_serv_config_t * pdsc)
+static u32 _getDispatcherServiceConfigVersion(jf_ptree_t * pPtree, dispatcher_service_config_t * pdsc)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ptree_node_t * pNode = NULL;
     jf_ptree_node_attribute_t * pAttr = NULL;
     olchar_t * pstrVer = NULL;
 
-    u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERV_CONFIG_ROOT, &pNode);
+    u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_ROOT, &pNode);
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNodeAttribute(pNode, NULL, DISPATCHER_SERV_CONFIG_VERSION, &pAttr);
+        u32Ret = jf_ptree_findNodeAttribute(pNode, NULL, DISPATCHER_SERVICE_CONFIG_VERSION, &pAttr);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeAttributeValue(pAttr, &pstrVer, NULL);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        ol_strncpy(pdsc->dsc_strVersion, pstrVer, MAX_DISPATCHER_SERV_VERSION_LEN - 1);        
+        ol_strncpy(pdsc->dsc_strVersion, pstrVer, MAX_DISPATCHER_SERVICE_VERSION_LEN - 1);        
 
     return u32Ret;
 }
 
-static u32 _validateDispatcherServConfig(dispatcher_serv_config_t * pdsc)
+static u32 _validateDispatcherServiceConfig(dispatcher_service_config_t * pdsc)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    if ((pdsc->dsc_u32MaxNumMsg == 0) || (pdsc->dsc_u32MaxNumMsg > MAX_NUM_OF_SERV_MSG))
-        return JF_ERR_INVALID_DISPATCHER_SERV_CONFIG;
+    if ((pdsc->dsc_u32MaxNumMsg == 0) || (pdsc->dsc_u32MaxNumMsg > MAX_NUM_OF_SERVICE_MSG))
+        return JF_ERR_INVALID_DISPATCHER_SERVICE_CONFIG;
 
-    if ((pdsc->dsc_u32MaxMsgSize == 0) || (pdsc->dsc_u32MaxMsgSize > MAX_SERV_MSG_SIZE))
-        return JF_ERR_INVALID_DISPATCHER_SERV_CONFIG;
+    if ((pdsc->dsc_u32MaxMsgSize == 0) || (pdsc->dsc_u32MaxMsgSize > MAX_SERVICE_MSG_SIZE))
+        return JF_ERR_INVALID_DISPATCHER_SERVICE_CONFIG;
 
     return u32Ret;
 }
 
-static u32 _parseDispatcherServConfigFile(
+static u32 _parseDispatcherServiceConfigFile(
     const olchar_t * pstrFullpath, jf_file_stat_t * pStat,
     scan_dispatcher_config_dir_param_t * psdcdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ptree_t * pPtree = NULL;
-    dispatcher_serv_config_t * pdsc = NULL;
+    dispatcher_service_config_t * pdsc = NULL;
 
     JF_LOGGER_DEBUG("config file: %s", pstrFullpath);
 
@@ -341,9 +341,9 @@ static u32 _parseDispatcherServConfigFile(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pdsc, sizeof(*pdsc));
-        pdsc->dsc_u32ServId = DISPATCHER_INVALID_SERVICE_ID;
+        pdsc->dsc_u32ServiceId = DISPATCHER_INVALID_SERVICE_ID;
 
-        u32Ret = _getDispatcherServConfigVersion(pPtree, pdsc);
+        u32Ret = _getDispatcherServiceConfigVersion(pPtree, pdsc);
     }
 
     /*Parse the service information.*/
@@ -359,27 +359,27 @@ static u32 _parseDispatcherServConfigFile(
 
     /*Validate the config.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = _validateDispatcherServConfig(pdsc);
+        u32Ret = _validateDispatcherServiceConfig(pdsc);
 
     /*Add the config to list.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_linklist_appendTo(psdcdp->sdcdp_pjlServConfig, pdsc);
+        u32Ret = jf_linklist_appendTo(psdcdp->sdcdp_pjlServiceConfig, pdsc);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Set the service ID.*/
-        pdsc->dsc_u16ServConfigId = psdcdp->sdcdp_u16NumOfServConfig;
-        psdcdp->sdcdp_u16NumOfServConfig ++;
+        pdsc->dsc_u16ServiceConfigId = psdcdp->sdcdp_u16NumOfServiceConfig;
+        psdcdp->sdcdp_u16NumOfServiceConfig ++;
 
         JF_LOGGER_INFO(
             "service config id: %u, version: %s, name: %s, msgin: %s, msgout: %s, maxnummsg: %u, maxmsgsize: %u",
-            pdsc->dsc_u16ServConfigId, pdsc->dsc_strVersion, pdsc->dsc_strName, pdsc->dsc_strMessagingIn,
+            pdsc->dsc_u16ServiceConfigId, pdsc->dsc_strVersion, pdsc->dsc_strName, pdsc->dsc_strMessagingIn,
             pdsc->dsc_strMessagingOut, pdsc->dsc_u32MaxNumMsg, pdsc->dsc_u32MaxMsgSize);
     }
     else if (pdsc != NULL)
     {
         jf_logger_logErrMsg(u32Ret, "parse dispatcher config file");
-        _fnFreeDispatcherServConfig((void **)&pdsc);
+        _fnFreeDispatcherServiceConfig((void **)&pdsc);
     }
 
     return u32Ret;
@@ -395,7 +395,7 @@ static u32 _handleDispatcherConfigDirEntry(
         jf_file_isTypedFile(pstrFullpath, NULL, DISPATCHER_CONFIG_FILE_EXT))
     {
         /*Do not return error for one corrupted config file, continue to parse other config file.*/
-        _parseDispatcherServConfigFile(pstrFullpath, pStat, psdcdp);
+        _parseDispatcherServiceConfigFile(pstrFullpath, pStat, psdcdp);
     }
 
     return u32Ret;
@@ -426,12 +426,12 @@ u32 scanDispatcherConfigDir(scan_dispatcher_config_dir_param_t * pParam)
     return u32Ret;
 }
 
-u32 destroyDispatcherServConfigList(jf_linklist_t * pjlServConfig)
+u32 destroyDispatcherServiceConfigList(jf_linklist_t * pjlServiceConfig)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     /*Free the service config linked list and all the entries in the list.*/
-    jf_linklist_finiListAndData(pjlServConfig, _fnFreeDispatcherServConfig);
+    jf_linklist_finiListAndData(pjlServiceConfig, _fnFreeDispatcherServiceConfig);
 
     /*Free the message config cache.*/
     if (ls_pjjcMsgConfig != NULL)

@@ -1,5 +1,5 @@
 /**
- *  @file servconfig.h
+ *  @file serviceconfig.h
  *
  *  @brief Dispatcher service config header file, provide some functional routine to read service
  *   config.
@@ -10,12 +10,13 @@
  *  
  */
 
-#ifndef DISPATCHER_SERV_CONFIG_H
-#define DISPATCHER_SERV_CONFIG_H
+#ifndef DISPATCHER_SERVICE_CONFIG_H
+#define DISPATCHER_SERVICE_CONFIG_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_process.h"
@@ -26,17 +27,17 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-#define MAX_DISPATCHER_SERV_VERSION_LEN        (8)
+#define MAX_DISPATCHER_SERVICE_VERSION_LEN           (8)
 
-#define MAX_DISPATCHER_SERV_NAME_LEN           (24)
+#define MAX_DISPATCHER_SERVICE_NAME_LEN              (24)
 
-#define MAX_DISPATCHER_MESSAGING_NAME_LEN      (48)
+#define MAX_DISPATCHER_MESSAGING_NAME_LEN            (48)
 
-#define MAX_DISPATCHER_MSG_DESC_LEN            (48)
+#define MAX_DISPATCHER_MSG_DESC_LEN                  (48)
 
 /** Define the invalid service ID.
  */
-#define DISPATCHER_INVALID_SERVICE_ID          (U32_MAX)
+#define DISPATCHER_INVALID_SERVICE_ID                (U32_MAX)
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -45,13 +46,14 @@
 typedef struct
 {
     /**The service config ID, the ID is unique for each service in this daemon scope.*/
-    u16 dsc_u16ServConfigId;
+    u16 dsc_u16ServiceConfigId;
     u16 dsc_u16Reserved[3];
+
     /*Data from configuration file.*/
     /**Version.*/
-    olchar_t dsc_strVersion[MAX_DISPATCHER_SERV_VERSION_LEN];
+    olchar_t dsc_strVersion[MAX_DISPATCHER_SERVICE_VERSION_LEN];
     /**Service name.*/
-    olchar_t dsc_strName[MAX_DISPATCHER_SERV_NAME_LEN];
+    olchar_t dsc_strName[MAX_DISPATCHER_SERVICE_NAME_LEN];
     /**User ID who starts the service.*/
     uid_t dsc_uiUser;
     /**Group ID who starts the service.*/
@@ -76,8 +78,8 @@ typedef struct
 
     /*Data for running time.*/
     /**The service ID of the service connected to the dispatcher.*/
-    u32 dsc_u32ServId;
-} dispatcher_serv_config_t;
+    u32 dsc_u32ServiceId;
+} dispatcher_service_config_t;
 
 typedef struct
 {
@@ -93,8 +95,8 @@ typedef struct
 {
     olchar_t * sdcdp_pstrConfigDir;
 
-    jf_linklist_t * sdcdp_pjlServConfig;
-    u16 sdcdp_u16NumOfServConfig;
+    jf_linklist_t * sdcdp_pjlServiceConfig;
+    u16 sdcdp_u16NumOfServiceConfig;
     u16 sdcdp_u16Reserved[3];
 
 } scan_dispatcher_config_dir_param_t;
@@ -104,9 +106,9 @@ typedef struct
 
 u32 scanDispatcherConfigDir(scan_dispatcher_config_dir_param_t * pParam);
 
-u32 destroyDispatcherServConfigList(jf_linklist_t * pjlServConfig);
+u32 destroyDispatcherServiceConfigList(jf_linklist_t * pjlServiceConfig);
 
-#endif /*DISPATCHER_SERV_CONFIG_H*/
+#endif /*DISPATCHER_SERVICE_CONFIG_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

@@ -50,7 +50,7 @@ u32 destroyDispatcherMsg(dispatcher_msg_t ** ppMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logDebugMsg("destroy dispatcher msg");
+    JF_LOGGER_DEBUG("msg: %p", *ppMsg);
 
     jf_jiukun_freeMemory((void **)ppMsg);
 
@@ -63,11 +63,10 @@ u32 createDispatcherMsg(dispatcher_msg_t ** ppMsg, u8 * pu8Msg, olsize_t sMsg)
     dispatcher_msg_t * pdm = NULL;
     u8 * pu8Start = NULL;
 
-    JF_LOGGER_DEBUG("smsg: %d", sMsg);
-
     u32Ret = jf_jiukun_allocMemory((void **)&pdm, sizeof(*pdm) + sMsg);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        JF_LOGGER_DEBUG("size: %d, msg: %p", sMsg, pdm);
         ol_bzero(pdm, sizeof(*pdm));
         pdm->dm_nRef = 1;
         pdm->dm_sMsg = sMsg;
@@ -82,11 +81,6 @@ u32 createDispatcherMsg(dispatcher_msg_t ** ppMsg, u8 * pu8Msg, olsize_t sMsg)
         destroyDispatcherMsg(&pdm);
 
     return u32Ret;
-}
-
-boolean_t isReservedDispatcherMsg(dispatcher_msg_t * pdm)
-{
-    return isReservedMessagingMsg(pdm->dm_u8Msg, pdm->dm_sMsg);
 }
 
 void incDispatcherMsgRef(dispatcher_msg_t * pdm)
@@ -246,17 +240,6 @@ u32 setMessagingMsgPayloadSize(u8 * pu8Msg, u32 u32PayloadSize)
     pHeader->jmh_u32PayloadSize = u32PayloadSize;
 
     return JF_ERR_NO_ERROR;
-}
-
-boolean_t isReservedMessagingMsg(u8 * pu8Msg, olsize_t sMsg)
-{
-    boolean_t bRet = FALSE;
-    u16 u16MsgId = getMessagingMsgId(pu8Msg, sMsg);
-
-    if (u16MsgId >= JF_MESSAGING_RESERVED_MSG_ID_START)
-        bRet = TRUE;
-
-    return bRet;
 }
 
 /*------------------------------------------------------------------------------------------------*/

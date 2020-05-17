@@ -12,7 +12,7 @@
 
 SONAME = jf_dispatcher_xfer
 
-SOURCES = ../common/dispatchercommon.c xferpool.c dispatcherxfer.c
+SOURCES = ../common/dispatchercommon.c ../common/prioqueue.c xferpool.c dispatcherxfer.c
 
 JIUTAI_SRCS = jf_hashtree.c jf_queue.c jf_mutex.c jf_hex.c jf_hsm.c
 

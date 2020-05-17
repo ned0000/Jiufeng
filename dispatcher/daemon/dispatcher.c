@@ -36,9 +36,9 @@
 
 #include "dispatcher.h"
 #include "dispatchercommon.h"
-#include "servconfig.h"
-#include "servserver.h"
-#include "servclient.h"
+#include "serviceconfig.h"
+#include "serviceserver.h"
+#include "serviceclient.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -49,16 +49,6 @@
 /** The buffer size for dispatcher async server socket.
  */
 #define MAX_DISPATCHER_ASSOCKET_BUF_SIZE  (2048)
-
-/** Maximum connection in the async server socket for a service, one for the receiving message,
- *  another is for backup.
- */
-#define MAX_CONN_IN_SERV_SERVER           (2)
-
-/** Maximum connection in the async client socket for a service, one for the sending message,
- *  another is for backup.
- */
-#define MAX_CONN_IN_SERV_CLIENT           (2)
 
 /** Maximum concurrent dispatcher message.
  */
@@ -89,18 +79,40 @@ static internal_dispatcher_t ls_idDispatcher;
 
 /** Number of service config found in config directory.
  */
-static u16 ls_u16NumOfServConfig = 0;
+static u16 ls_u16NumOfServiceConfig = 0;
 
 /** Service config list.
  */
-static jf_linklist_t ls_jlServConfig;
+static jf_linklist_t ls_jlServiceConfig;
 
 
 /* --- private routine section ------------------------------------------------------------------ */
 
+static dispatcher_msg_t * _dequeueMsgInDispatcherMsgQueue(internal_dispatcher_t * pid)
+{
+    dispatcher_msg_t * pdm = NULL;
+
+    jf_mutex_acquire(&pid->id_jmMsgLock);
+    pdm = jf_queue_dequeue(&pid->id_jqMsgQueue);
+    jf_mutex_release(&pid->id_jmMsgLock);
+
+    return pdm;
+}
+
+static u32 _enqueueMsgInDispatcherMsgQueue(internal_dispatcher_t * pid, dispatcher_msg_t * pdm)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    jf_mutex_acquire(&pid->id_jmMsgLock);
+    u32Ret = jf_queue_enqueue(&pid->id_jqMsgQueue, pdm);
+    jf_mutex_release(&pid->id_jmMsgLock);
+
+    return u32Ret;
+}
+
 /** Queue dispatcher message.
  */
-static u32 _fnDispatcherQueueServServerMsg(u8 * pu8Msg, olsize_t sMsg)
+static u32 _fnDispatcherQueueServiceServerMsg(u8 * pu8Msg, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_t * pid = &ls_idDispatcher;
@@ -112,13 +124,9 @@ static u32 _fnDispatcherQueueServServerMsg(u8 * pu8Msg, olsize_t sMsg)
       allocated.*/
     u32Ret = createDispatcherMsg(&pdm, pu8Msg, sMsg);
 
+    /*Add the message to the queue.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        /*Add the message to the queue.*/
-        jf_mutex_acquire(&pid->id_jmMsgLock);
-        u32Ret = jf_queue_enqueue(&pid->id_jqMsgQueue, pdm);
-        jf_mutex_release(&pid->id_jmMsgLock);
-    }
+        u32Ret = _enqueueMsgInDispatcherMsgQueue(pid, pdm);
 
     /*Up the semaphore to wakeup the dispatcher thread.*/
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -127,56 +135,25 @@ static u32 _fnDispatcherQueueServServerMsg(u8 * pu8Msg, olsize_t sMsg)
     return u32Ret;
 }
 
-static u32 _processReservedDispatcherMsg(dispatcher_msg_t * pdm)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    u16 u16MsgId = getDispatcherMsgId(pdm);
-    u32 servId = getDispatcherMsgSourceId(pdm);
-
-    switch (u16MsgId)
-    {
-    case DISPATCHER_MSG_ID_SERV_ACTIVE:
-        /*Service active message id, notify the service client to start sending message the active
-          message.*/
-        u32Ret = resumeDispatcherServClient(servId);
-        break;
-    default:
-        JF_LOGGER_INFO("Unrecognized reserved message, msg id: %u", u16MsgId);
-        break;
-    }
-
-    return u32Ret;
-}
-
 static u32 _dispatchMsg(internal_dispatcher_t * pid)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     dispatcher_msg_t * pdm = NULL;
 
-    jf_mutex_acquire(&pid->id_jmMsgLock);
-    pdm = jf_queue_dequeue(&pid->id_jqMsgQueue);
-    jf_mutex_release(&pid->id_jmMsgLock);
+    pdm = _dequeueMsgInDispatcherMsgQueue(pid);
 
     while ((pdm != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        /*Check if the message is reserved for internal use.*/
-        if (isReservedDispatcherMsg(pdm))
-            /*Process the internal dispatcher message.*/
-            u32Ret = _processReservedDispatcherMsg(pdm);
-        else
-            /*Send the message to destination service.*/
-            u32Ret = dispatchMsgToServClients(pdm);
+        /*Send the message to destination service.*/
+        if (u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = dispatchMsgToServiceClients(pdm);
 
         /*Free the message*/
         freeDispatcherMsg(&pdm);
 
         /*Get the next message.*/
         if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            jf_mutex_acquire(&pid->id_jmMsgLock);
-            pdm = jf_queue_dequeue(&pid->id_jqMsgQueue);
-            jf_mutex_release(&pid->id_jmMsgLock);
-        }
+            pdm = _dequeueMsgInDispatcherMsgQueue(pid);
     }
 
     return u32Ret;
@@ -187,7 +164,7 @@ static JF_THREAD_RETURN_VALUE _dispatcherMsgThread(void * pArg)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dispatcher_t * pid = (internal_dispatcher_t *)pArg;
 
-    JF_LOGGER_INFO("enter dispatcher msg thread");
+    JF_LOGGER_INFO("enter");
 
     /*Start the loop.*/
     while (! pid->id_bToTerminate)
@@ -199,7 +176,7 @@ static JF_THREAD_RETURN_VALUE _dispatcherMsgThread(void * pArg)
         }
     }
 
-    JF_LOGGER_INFO("quit dispatcher msg thread");
+    JF_LOGGER_INFO("quit");
 
     JF_THREAD_RETURN(u32Ret);
 }
@@ -242,7 +219,7 @@ u32 initDispatcher(dispatcher_param_t * pdp)
     ol_bzero(pid, sizeof(internal_dispatcher_t));
 
     pid->id_pstrConfigDir = pdp->dp_pstrConfigDir;
-    jf_linklist_init(&ls_jlServConfig);
+    jf_linklist_init(&ls_jlServiceConfig);
 
     /*Change the working directory.*/
     jf_file_getDirectoryName(
@@ -261,14 +238,14 @@ u32 initDispatcher(dispatcher_param_t * pdp)
     {
         ol_bzero(&sdcdp, sizeof(sdcdp));
         sdcdp.sdcdp_pstrConfigDir = pid->id_pstrConfigDir;
-        sdcdp.sdcdp_pjlServConfig = &ls_jlServConfig;
+        sdcdp.sdcdp_pjlServiceConfig = &ls_jlServiceConfig;
 
         u32Ret = scanDispatcherConfigDir(&sdcdp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ls_u16NumOfServConfig = sdcdp.sdcdp_u16NumOfServConfig;
+        ls_u16NumOfServiceConfig = sdcdp.sdcdp_u16NumOfServiceConfig;
     }
 
     /*Create the directory for unix domain socket.*/
@@ -278,26 +255,25 @@ u32 initDispatcher(dispatcher_param_t * pdp)
     /*Create the service clients.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        create_dispatcher_serv_client_param_t cdscp;
+        create_dispatcher_service_client_param_t cdscp;
 
         ol_bzero(&cdscp, sizeof(cdscp));
-        cdscp.cdscp_u32MaxConnInClient = MAX_CONN_IN_SERV_CLIENT;
         cdscp.cdscp_pstrSocketDir = DISPATCHER_UDS_DIR;
 
-        u32Ret = createDispatcherServClients(&ls_jlServConfig, &cdscp);
+        u32Ret = createDispatcherServiceClients(&ls_jlServiceConfig, &cdscp);
     }
 
     /*Create the service servers.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        create_dispatcher_serv_server_param_t cdssp;
+        create_dispatcher_service_server_param_t cdssp;
 
         ol_bzero(&cdssp, sizeof(cdssp));
-        cdssp.cdssp_u32MaxConnInServer = MAX_CONN_IN_SERV_SERVER;
+        cdssp.cdssp_u32MaxConnInServer = DISPATCHER_MAX_CONN_IN_SERVICE_SERVER;
         cdssp.cdssp_pstrSocketDir = DISPATCHER_UDS_DIR;
-        cdssp.cdssp_fnQueueMsg = _fnDispatcherQueueServServerMsg;
+        cdssp.cdssp_fnQueueMsg = _fnDispatcherQueueServiceServerMsg;
 
-        u32Ret = createDispatcherServServers(&ls_jlServConfig, &cdssp);
+        u32Ret = createDispatcherServiceServers(&ls_jlServiceConfig, &cdssp);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -315,11 +291,11 @@ u32 finiDispatcher(void)
 
     JF_LOGGER_DEBUG("fini dispatcher");
 
-    destroyDispatcherServServers();
+    destroyDispatcherServiceServers();
 
-    destroyDispatcherServClients();
+    destroyDispatcherServiceClients();
 
-    destroyDispatcherServConfigList(&ls_jlServConfig);
+    destroyDispatcherServiceConfigList(&ls_jlServiceConfig);
 
     jf_time_sleep(3);
 
@@ -349,11 +325,11 @@ u32 startDispatcher(void)
 
     /*Start the service client.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = startDispatcherServClients();
+        u32Ret = startDispatcherServiceClients();
 
     /*Start the service server.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = startDispatcherServServers();
+        u32Ret = startDispatcherServiceServers();
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -377,10 +353,10 @@ u32 stopDispatcher(void)
         u32Ret = JF_ERR_NOT_INITIALIZED;
 
     /*Stop service server.*/
-    stopDispatcherServServers();
+    stopDispatcherServiceServers();
 
     /*Stop service client.*/
-    stopDispatcherServClients();
+    stopDispatcherServiceClients();
 
     /*Stop dispatcher thread.*/
     _stopMsgDispatcherThread(pid);
@@ -402,5 +378,3 @@ u32 setDefaultDispatcherParam(dispatcher_param_t * pdp)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-

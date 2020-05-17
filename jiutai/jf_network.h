@@ -1050,7 +1050,9 @@ NETWORKAPI u32 NETWORKCALL jf_network_disconnectAcsocket(
 /** Send data on the async client socket.
  *
  *  @note
- *  -# The data is cloned and then send to the remote server.
+ *  -# The data is cloned and added to queue, then the chain is waked up.
+ *  -# When the function returns, it doesn't mean the data is sent successfully.
+ *  -# After wakeup, the chain will send the data and notify application with the callback function.
  *
  *  @param pAcsocket [in] The async client socket.
  *  @param pAsocket [in] The async socket representing the connection.
@@ -1060,23 +1062,6 @@ NETWORKAPI u32 NETWORKCALL jf_network_disconnectAcsocket(
  *  @return The error code.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_sendAcsocketData(
-    jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u8 * pu8Buffer,
-    olsize_t sBuf);
-
-/** Send static data to remote server.
- *
- *  @note
- *  -# The data is not cloned and will used in async client socket. Application should not touch it
- *   until jf_network_fnAcsocketOnSendData_t is called for the successful transimission.
- *
- *  @param pAcsocket [in] The async client socket.
- *  @param pAsocket [in] The async socket representing the connection.
- *  @param pu8Buffer [in] The buffer to send.
- *  @param sBuf [in] The length of the buffer to send.
- *
- *  @return The error code.
- */
-NETWORKAPI u32 NETWORKCALL jf_network_sendAcsocketStaticData(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u8 * pu8Buffer,
     olsize_t sBuf);
 

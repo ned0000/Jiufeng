@@ -1,0 +1,29 @@
+
+---------------------------------------------------------
+- Dispatcher Service
+---------------------------------------------------------
+
+1. A dispatcher service is available, all applications talk to dispatcher service instead of talking
+   to each other.
+2. In case dispatcher service is terminated abnormally, all applications should keep running.
+   When dispatcher service comes back, all applications should work fine without any restart.
+3. No reserved message for internal use in dispatcher service. All message should be defined
+   transparently to all applications.
+4. Dispatcher service can dispatch the message to all application and also a specified application.
+
+---------------------------------------------------------
+- Message
+---------------------------------------------------------
+1. Message should have priority for the case when the message queue is full.
+2. Message should have transaction ID to identify each transaction.
+3. Message should have source ID to identify the source application who send the message.
+4. Message should have destination ID to identify the specified application who receive the message.
+
+---------------------------------------------------------
+- Messaging Library
+---------------------------------------------------------
+1. The messaging library must have the ability to send and receive message, the 2 functions must be
+   independent.
+2. A worker thread should be included in messaging library for processing the incoming message. The
+   worker thread cannot be used to receive incoming message.
+

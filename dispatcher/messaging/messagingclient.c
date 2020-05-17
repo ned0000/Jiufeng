@@ -75,7 +75,8 @@ static u32 _createDispatcherMessagingClientXfer(
     ol_bzero(&dxcp, sizeof(dxcp));
     dxcp.dxcp_sMaxMsg = pcdmcp->cdmcp_sMaxMsg;
     dxcp.dxcp_u32MaxNumMsg = pcdmcp->cdmcp_u32MaxNumMsg;
-    dxcp.dxcp_pjiRemote = &jiRemote;
+    dxcp.dxcp_u32MaxAddress = 1;
+    dxcp.dxcp_pjiRemote[0] = &jiRemote;
     dxcp.dxcp_pstrName = pcdmcp->cdmcp_pstrName;
 
     u32Ret = dispatcher_xfer_create(pChain, &pdmc->dmc_pdxXfer, &dxcp);
@@ -104,7 +105,7 @@ static u32 _createDispatcherMessagingClient(
     u32 u32Ret = JF_ERR_NO_ERROR;
     dispatcher_messaging_client_t * pdmc = NULL;
 
-    jf_logger_logDebugMsg("create messaging client: %s", pcdmcp->cdmcp_pstrName);
+    JF_LOGGER_INFO("name: %s", pcdmcp->cdmcp_pstrName);
 
     u32Ret = jf_jiukun_allocMemory((void **)&pdmc, sizeof(*pdmc));
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -140,28 +141,6 @@ static JF_THREAD_RETURN_VALUE _messagingClientThread(void * pArg)
     JF_THREAD_RETURN(u32Ret);
 }
 
-static u32 _sendDispatcherServActiveMsg(void)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    dispatcher_msg_t * pdm = NULL;
-    dispatcher_serv_active_msg dsam;
-
-    /*Initialize the message.*/
-    initMessagingMsgHeader(
-        (u8 *)&dsam, DISPATCHER_MSG_ID_SERV_ACTIVE, JF_MESSAGING_PRIO_MID,
-        sizeof(dispatcher_serv_active_msg_payload));
-    dsam.dsam_dsampPayload.dsamp_u32ServId = dsam.dsam_jmhHeader.jmh_u32SourceId;
-
-    /*Create the dispatcher message.*/
-    u32Ret = createDispatcherMsg(&pdm, (u8 *)&dsam, sizeof(dsam));
-
-    /*Send the dispatcher message.*/
-    if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = sendDispatcherMessagingMsg(pdm);
-
-    return u32Ret;
-}
-
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 createDispatcherMessagingClient(create_dispatcher_messaging_client_param_t * pcdmcp)
@@ -171,7 +150,7 @@ u32 createDispatcherMessagingClient(create_dispatcher_messaging_client_param_t *
     assert(pcdmcp->cdmcp_pstrSocketDir != NULL);
     assert(pcdmcp->cdmcp_pstrMessagingOut != NULL);
 
-    JF_LOGGER_DEBUG("create");
+    JF_LOGGER_INFO("socket dir: %s", pcdmcp->cdmcp_pstrSocketDir);
 
     /*Create the network chain.*/
     u32Ret = jf_network_createChain(&ls_pjncMessagingClientChain);
@@ -210,10 +189,6 @@ u32 startDispatcherMessagingClient(void)
     /*Start a thread to run the chain.*/
     u32Ret = jf_thread_create(NULL, NULL, _messagingClientThread, ls_pjncMessagingClientChain);
 
-    /*Send service active message.*/
-    if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = _sendDispatcherServActiveMsg();
-
     return u32Ret;
 }
 
@@ -231,8 +206,6 @@ u32 sendDispatcherMessagingMsg(dispatcher_msg_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     dispatcher_messaging_client_t * pdmc = ls_pdmcMessagingClient;
-
-    jf_logger_logDebugMsg("send dispatcher messaging msg");
 
     /*Send the message to dispatcher daemon.*/
     u32Ret = dispatcher_xfer_sendMsg(pdmc->dmc_pdxXfer, pdm);

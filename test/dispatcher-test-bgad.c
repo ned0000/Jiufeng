@@ -32,6 +32,8 @@ static boolean_t ls_bTestMessaging = FALSE;
 
 static boolean_t ls_bToTerminateDtb = FALSE;
 
+#define BGAD_MSG_ID_INTERNAL_1        (5000)
+
 /* --- private routine section ------------------------------------------------------------------ */
 
 static void _printDispatcherTestBgadUsage(void)
@@ -119,10 +121,41 @@ static u32 _bgadProcessMsg(u8 * pu8Msg, olsize_t sMsg)
         ol_printf("system info: %s\n", (olchar_t *)pssim->ssim_ssimpPayload.ssimp_u8Payload);
 
         break;
+    case BGAD_MSG_ID_INTERNAL_1:
+        ol_printf("receive internal message, BGAD_MSG_ID_INTERNAL_1\n");
+
+        break;
     default:
         ol_printf("unsupported subscribed message\n");
         break;
     }
+
+    return u32Ret;
+}
+
+static u32 _sendBgadActivityInfoMsg(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    bgad_activity_info_msg baim;
+
+    jf_messaging_initMsgHeader(
+        (u8 *)&baim, BGAD_MSG_ID_ACTIVITY_INFO, JF_MESSAGING_PRIO_MID,
+        sizeof(baim.baim_baimpPayload));
+
+    u32Ret = jf_messaging_sendMsg((u8 *)&baim, sizeof(baim));
+
+    return u32Ret;
+}
+
+static u32 _sendBgadInternalMsg(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_messaging_header_t msg;
+
+    jf_messaging_initMsgHeader(
+        (u8 *)&msg, BGAD_MSG_ID_INTERNAL_1, JF_MESSAGING_PRIO_HIGH, 0);
+
+    u32Ret = jf_messaging_sendInternalMsg((u8 *)&msg, sizeof(msg));
 
     return u32Ret;
 }
@@ -137,7 +170,7 @@ static u32 _testMessagingBgad(void)
     jmip.jmip_pstrMessagingIn = "bgad_message_in";
     jmip.jmip_pstrMessagingOut = "bgad_message_out";
     jmip.jmip_pstrName = "bgad";
-    jmip.jmip_sMaxMsg = 1024;
+    jmip.jmip_sMaxMsg = 512;
     jmip.jmip_u32MaxNumMsg = 8;
 
     u32Ret = jf_messaging_init(&jmip);
@@ -146,20 +179,13 @@ static u32 _testMessagingBgad(void)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        bgad_activity_info_msg baim;
-
-        jf_messaging_initMsgHeader(
-            (u8 *)&baim, BGAD_MSG_ID_ACTIVITY_INFO, JF_MESSAGING_PRIO_MID,
-            sizeof(baim.baim_baimpPayload));
-
-        u32Ret = jf_messaging_sendMsg((u8 *)&baim, sizeof(baim));
-    }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
         while (! ls_bToTerminateDtb)
         {
             jf_time_sleep(2);
+
+            _sendBgadActivityInfoMsg();
+
+            _sendBgadInternalMsg();
         }
         jf_time_sleep(3);
     }
@@ -190,7 +216,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "DSPT-TEST-BGAD";
-//    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_bLogToFile = TRUE;
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DEBUG;
 

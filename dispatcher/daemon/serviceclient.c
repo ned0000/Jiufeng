@@ -1,5 +1,5 @@
 /**
- *  @file servclient.c
+ *  @file serviceclient.c
  *
  *  @brief Implementation file for message client of dispather service.
  *
@@ -10,6 +10,7 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +20,7 @@
 #include <sys/stat.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -32,8 +34,8 @@
 #include "jf_hlisthead.h"
 #include "jf_hashtable.h"
 
-#include "servconfig.h"
-#include "servclient.h"
+#include "serviceconfig.h"
+#include "serviceclient.h"
 #include "dispatcherxfer.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -43,15 +45,15 @@
 typedef struct
 {
     /**The service config.*/
-    dispatcher_serv_config_t * dsc_pdscConfig;
+    dispatcher_service_config_t * dsc_pdscConfig;
     /**The xfer object for sending message.*/
     dispatcher_xfer_t * dsc_pdxXfer;
     /**The linked list for service client.*/
-    jf_listhead_t dsc_jlServ;
+    jf_listhead_t dsc_jlService;
 
     u8 dsc_u8Reserved[8];
 
-} dispatcher_serv_client_t;
+} dispatcher_service_client_t;
 
 /** Define the dispatcher subscribed message data type.
  */
@@ -60,7 +62,7 @@ typedef struct
     /**The pointer to the message config.*/
     dispatcher_msg_config_t * dsm_pdmcMsgConfig;
     /**The pointer to the service client who subscribe the message.*/
-    dispatcher_serv_client_t * dsm_pdscClient;
+    dispatcher_service_client_t * dsm_pdscClient;
     /**Double linked list node for hash.*/
     jf_hlisthead_node_t dsm_jhnHash;
 
@@ -68,11 +70,11 @@ typedef struct
 
 /** The chain for service clients. 
  */
-static jf_network_chain_t * ls_pjncServClientChain = NULL;
+static jf_network_chain_t * ls_pjncServiceClientChain = NULL;
 
-/** The dispather client list.
+/** The dispather service client list.
  */
-static JF_LISTHEAD(ls_jlServClientList);
+static JF_LISTHEAD(ls_jlServiceClientList);
 
 /** The shift for the subscribed message hash table.
  */
@@ -80,7 +82,7 @@ static JF_LISTHEAD(ls_jlServClientList);
 
 /** The size of the subscribed message hash table.
  */
-#define DISPATCHER_SUBSCRIBED_MSG_HASH_TABLE_SIZE  (1 << DISPATCHER_SUBSCRIBED_MSG_HASH_TABLE_SHIFT)
+#define DISPATCHER_SUBSCRIBED_MSG_HASH_TABLE_SIZE      (1 << DISPATCHER_SUBSCRIBED_MSG_HASH_TABLE_SHIFT)
 
 /** The name of subscribed message cache.
  */
@@ -99,8 +101,8 @@ static jf_jiukun_cache_t * ls_pjjcSubscribedMsg = NULL;
 
 /** Create dispatcher xfer.
  */
-static u32 _createDispatcherServClientXfer(
-    dispatcher_serv_client_t * pdsc, create_dispatcher_serv_client_param_t * pcdscp,
+static u32 _createDispatcherServiceClientXfer(
+    dispatcher_service_client_t * pdsc, create_dispatcher_service_client_param_t * pcdscp,
     jf_network_chain_t * pChain)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -117,7 +119,8 @@ static u32 _createDispatcherServClientXfer(
     ol_bzero(&dxcp, sizeof(dxcp));
     dxcp.dxcp_sMaxMsg = (olsize_t)pdsc->dsc_pdscConfig->dsc_u32MaxMsgSize;
     dxcp.dxcp_u32MaxNumMsg = pdsc->dsc_pdscConfig->dsc_u32MaxNumMsg;
-    dxcp.dxcp_pjiRemote = &jiRemote;
+    dxcp.dxcp_u32MaxAddress = 1;
+    dxcp.dxcp_pjiRemote[0] = &jiRemote;
     dxcp.dxcp_pstrName = pdsc->dsc_pdscConfig->dsc_strName;
 
     u32Ret = dispatcher_xfer_create(pChain, &pdsc->dsc_pdxXfer, &dxcp);
@@ -127,10 +130,10 @@ static u32 _createDispatcherServClientXfer(
 
 /** Destroy one service client.
  */
-static u32 _destroyDispatcherServClient(dispatcher_serv_client_t ** ppClient)
+static u32 _destroyDispatcherServiceClient(dispatcher_service_client_t ** ppClient)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    dispatcher_serv_client_t * pdsc = *ppClient;
+    dispatcher_service_client_t * pdsc = *ppClient;
 
     /*Destroy dispatcher xfer.*/
     if (pdsc->dsc_pdxXfer != NULL)
@@ -144,19 +147,19 @@ static u32 _destroyDispatcherServClient(dispatcher_serv_client_t ** ppClient)
 
 /** Destroy all the service clients.
  */
-static u32 _destroyDispatcherServClients(jf_listhead_t * pjlServClientList)
+static u32 _destroyDispatcherServiceClients(jf_listhead_t * pjlServiceClientList)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_listhead_t * pjl = NULL, * temp = NULL;
-    dispatcher_serv_client_t * pdsc = NULL;
+    dispatcher_service_client_t * pdsc = NULL;
 
-    jf_listhead_forEachSafe(&ls_jlServClientList, pjl, temp)
+    jf_listhead_forEachSafe(&ls_jlServiceClientList, pjl, temp)
     {
-        pdsc = jf_listhead_getEntry(pjl, dispatcher_serv_client_t, dsc_jlServ);
+        pdsc = jf_listhead_getEntry(pjl, dispatcher_service_client_t, dsc_jlService);
 
-        jf_listhead_del(&pdsc->dsc_jlServ);
+        jf_listhead_del(&pdsc->dsc_jlService);
 
-        _destroyDispatcherServClient(&pdsc);
+        _destroyDispatcherServiceClient(&pdsc);
     }
 
     return u32Ret;
@@ -164,12 +167,12 @@ static u32 _destroyDispatcherServClients(jf_listhead_t * pjlServClientList)
 
 /** Create one service client.
  */
-static u32 _createDispatcherServClient(
-    dispatcher_serv_client_t ** ppClient, dispatcher_serv_config_t * pdsc,
-    create_dispatcher_serv_client_param_t * pcdscp, jf_network_chain_t * pChain)
+static u32 _createDispatcherServiceClient(
+    dispatcher_service_client_t ** ppClient, dispatcher_service_config_t * pdsc,
+    create_dispatcher_service_client_param_t * pcdscp, jf_network_chain_t * pChain)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    dispatcher_serv_client_t * pClient = NULL;
+    dispatcher_service_client_t * pClient = NULL;
 
     JF_LOGGER_DEBUG("serv client: %s", pdsc->dsc_strName);
 
@@ -183,45 +186,44 @@ static u32 _createDispatcherServClient(
 
     /*Create dispatcher xfer.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = _createDispatcherServClientXfer(pClient, pcdscp, pChain);
+        u32Ret = _createDispatcherServiceClientXfer(pClient, pcdscp, pChain);
 
-    /*Pause dispatcher xfer until service active message is received from service. The service may
-      be not started ever. It's a waste of resource if we keep trying sending message to the not
-      running service.*/
+    /*Pause dispatcher xfer until message is received from service. The service may be not started
+      yet, it's no need to keep trying sending message to the not running service.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = dispatcher_xfer_pause(pClient->dsc_pdxXfer);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         *ppClient = pClient;
     else if (pClient != NULL)
-        _destroyDispatcherServClient(&pClient);
+        _destroyDispatcherServiceClient(&pClient);
 
     return u32Ret;
 }
 
 /** Create all service clients.
  */
-static u32 _createDispatcherServClients(
-    jf_linklist_t * pjlServConfig, jf_listhead_t * pjlServClientList,
-    create_dispatcher_serv_client_param_t * pcdscp, jf_network_chain_t * pChain)
+static u32 _createDispatcherServiceClients(
+    jf_linklist_t * pjlServiceConfig, jf_listhead_t * pjlServiceClientList,
+    create_dispatcher_service_client_param_t * pcdscp, jf_network_chain_t * pChain)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_linklist_node_t * pNode = NULL;
-    dispatcher_serv_config_t * pdsc = NULL;
-    dispatcher_serv_client_t * pClient = NULL;
+    dispatcher_service_config_t * pdsc = NULL;
+    dispatcher_service_client_t * pClient = NULL;
 
     JF_LOGGER_DEBUG("create serv clients");
 
-    pNode = jf_linklist_getFirstNode(pjlServConfig);
+    pNode = jf_linklist_getFirstNode(pjlServiceConfig);
     while ((pNode != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
         pdsc = jf_linklist_getDataFromNode(pNode);
 
-        u32Ret = _createDispatcherServClient(&pClient, pdsc, pcdscp, pChain);
+        u32Ret = _createDispatcherServiceClient(&pClient, pdsc, pcdscp, pChain);
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            jf_listhead_addTail(pjlServClientList, &pClient->dsc_jlServ);
+            jf_listhead_addTail(pjlServiceClientList, &pClient->dsc_jlService);
 
             pNode = jf_linklist_getNextNode(pNode);
         }
@@ -232,7 +234,7 @@ static u32 _createDispatcherServClients(
 
 /** Service client thread is to send message to service.
  */
-static JF_THREAD_RETURN_VALUE _servClientThread(void * pArg)
+static JF_THREAD_RETURN_VALUE _serviceClientThread(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_network_chain_t * pChain = (jf_network_chain_t *)pArg;
@@ -247,15 +249,24 @@ static JF_THREAD_RETURN_VALUE _servClientThread(void * pArg)
     JF_THREAD_RETURN(u32Ret);
 }
 
-static u32 _dispatchMsgToServ(dispatcher_serv_client_t * pdsc, dispatcher_msg_t * pdm)
+static u32 _dispatchMsgToServ(dispatcher_service_client_t * pdsc, dispatcher_msg_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+
+    JF_LOGGER_DEBUG("service: %s", pdsc->dsc_pdscConfig->dsc_strName);
 
     /*Increase the reference number in message.*/
     incDispatcherMsgRef(pdm);
 
     /*Send the message to service.*/
     u32Ret = dispatcher_xfer_sendMsg(pdsc->dsc_pdxXfer, pdm);
+
+    /*Decrease the reference number in message if message queue is full.*/
+    if (u32Ret == JF_ERR_MSG_QUEUE_FULL)
+    {
+        JF_LOGGER_DEBUG("msg queue is full");
+        decDispatcherMsgRef(pdm);
+    }
 
     return u32Ret;
 }
@@ -270,7 +281,7 @@ static u32 _hashMsgIdToKey(u32 u32MsgId, u32 u32Shift)
 /** Add subscribed message to hash table.
  */
 static u32 _addSubscribedMsgToTable(
-    jf_jiukun_cache_t * pjjcSubscribedMsg, dispatcher_serv_client_t * pdsc,
+    jf_jiukun_cache_t * pjjcSubscribedMsg, dispatcher_service_client_t * pdsc,
     dispatcher_msg_config_t * pMsgConfig, jf_hlisthead_t * pjhMsgHashTable, u32 u32Shift)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -300,7 +311,7 @@ static u32 _addSubscribedMsgToTable(
 /** Add subscribed message linked list to hash table.
  */
 static u32 _addSubscribedMsgListToTable(
-    jf_jiukun_cache_t * pjjcSubscribedMsg, dispatcher_serv_client_t * pdsc,
+    jf_jiukun_cache_t * pjjcSubscribedMsg, dispatcher_service_client_t * pdsc,
     jf_hlisthead_t * pjhMsgHashTable, u32 u32Shift)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -332,7 +343,7 @@ static u32 _buildDispatcherMsgHashTable(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_listhead_t * pjl = NULL;
-    dispatcher_serv_client_t * pdsc = NULL;
+    dispatcher_service_client_t * pdsc = NULL;
     u16 u16Index = 0;
 
     JF_LOGGER_DEBUG("build hash table");
@@ -346,7 +357,7 @@ static u32 _buildDispatcherMsgHashTable(
     /*Iterate the client list.*/
     jf_listhead_forEach(pjlClient, pjl)
     {
-        pdsc = jf_listhead_getEntry(pjl, dispatcher_serv_client_t, dsc_jlServ);
+        pdsc = jf_listhead_getEntry(pjl, dispatcher_service_client_t, dsc_jlService);
 
         /*Add subscribed message list in service config to hash table.*/
         u32Ret = _addSubscribedMsgListToTable(
@@ -382,18 +393,18 @@ static u32 _destroyDispatcherSubscribedMsgHashTable(
 
 /** Find dispatcher service client by service ID.
  */
-static u32 _findDispatcherServClientByServId(
-    jf_listhead_t * pjlServClientList, u32 servId, dispatcher_serv_client_t ** ppdsc)
+static u32 _findDispatcherServiceClientByServId(
+    jf_listhead_t * pjlServiceClientList, u32 servId, dispatcher_service_client_t ** ppdsc)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
     jf_listhead_t * pjl = NULL;
-    dispatcher_serv_client_t * pdsc = NULL;
+    dispatcher_service_client_t * pdsc = NULL;
 
-    jf_listhead_forEach(pjlServClientList, pjl)
+    jf_listhead_forEach(pjlServiceClientList, pjl)
     {
-        pdsc = jf_listhead_getEntry(pjl, dispatcher_serv_client_t, dsc_jlServ);
+        pdsc = jf_listhead_getEntry(pjl, dispatcher_service_client_t, dsc_jlService);
 
-        if (pdsc->dsc_pdscConfig->dsc_u32ServId == servId)
+        if (pdsc->dsc_pdscConfig->dsc_u32ServiceId == servId)
         {
             u32Ret = JF_ERR_NO_ERROR;
             *ppdsc = pdsc;
@@ -426,7 +437,7 @@ static boolean_t _isMatchingDispatcherSubscribedMsg(
     {
         /*If the destination id in message is not equal to the saved id in service config, return
           FALSE.*/
-        if (pdsm->dsm_pdscClient->dsc_pdscConfig->dsc_u32ServId != destPid)
+        if (pdsm->dsm_pdscClient->dsc_pdscConfig->dsc_u32ServiceId != destPid)
             return bRet;
     }
     
@@ -435,23 +446,23 @@ static boolean_t _isMatchingDispatcherSubscribedMsg(
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 createDispatcherServClients(
-    jf_linklist_t * pjlServConfig, create_dispatcher_serv_client_param_t * pcdscp)
+u32 createDispatcherServiceClients(
+    jf_linklist_t * pjlServiceConfig, create_dispatcher_service_client_param_t * pcdscp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    JF_LOGGER_DEBUG("create serv client");
+    JF_LOGGER_DEBUG("create");
 
-    jf_listhead_init(&ls_jlServClientList);
+    jf_listhead_init(&ls_jlServiceClientList);
 
     /*Create the network chain.*/
-    u32Ret = jf_network_createChain(&ls_pjncServClientChain);
+    u32Ret = jf_network_createChain(&ls_pjncServiceClientChain);
 
     /*Create all the service client.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _createDispatcherServClients(
-            pjlServConfig, &ls_jlServClientList, pcdscp, ls_pjncServClientChain);
+        u32Ret = _createDispatcherServiceClients(
+            pjlServiceConfig, &ls_jlServiceClientList, pcdscp, ls_pjncServiceClientChain);
     }
 
     /*Create the cache for hash table entry.*/
@@ -472,18 +483,18 @@ u32 createDispatcherServClients(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _buildDispatcherMsgHashTable(
-            ls_pjjcSubscribedMsg, &ls_jlServClientList, ls_jhMsgHashTable,
+            ls_pjjcSubscribedMsg, &ls_jlServiceClientList, ls_jhMsgHashTable,
             DISPATCHER_SUBSCRIBED_MSG_HASH_TABLE_SIZE, DISPATCHER_SUBSCRIBED_MSG_HASH_TABLE_SHIFT);
     }
 
     return u32Ret;
 }
 
-u32 destroyDispatcherServClients(void)
+u32 destroyDispatcherServiceClients(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    JF_LOGGER_DEBUG("destroy serv clients");
+    JF_LOGGER_DEBUG("destroy");
 
     /*Destroy dispatcher subscribed message hash table.*/
     _destroyDispatcherSubscribedMsgHashTable(
@@ -494,64 +505,64 @@ u32 destroyDispatcherServClients(void)
         jf_jiukun_destroyCache(&ls_pjjcSubscribedMsg);
 
     /*Destroy service client linked list.*/
-    _destroyDispatcherServClients(&ls_jlServClientList);
+    _destroyDispatcherServiceClients(&ls_jlServiceClientList);
 
     /*Destroy the network chain.*/
-    if (ls_pjncServClientChain != NULL)
-        u32Ret = jf_network_destroyChain(&ls_pjncServClientChain);
+    if (ls_pjncServiceClientChain != NULL)
+        u32Ret = jf_network_destroyChain(&ls_pjncServiceClientChain);
 
     return u32Ret;
 }
 
-u32 startDispatcherServClients(void)
+u32 startDispatcherServiceClients(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     /*Start a thread to run the chain.*/
-    u32Ret = jf_thread_create(NULL, NULL, _servClientThread, ls_pjncServClientChain);
+    u32Ret = jf_thread_create(NULL, NULL, _serviceClientThread, ls_pjncServiceClientChain);
 
     return u32Ret;
 }
 
-u32 stopDispatcherServClients(void)
+u32 stopDispatcherServiceClients(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     /*Stop the network chain.*/
-    u32Ret = jf_network_stopChain(ls_pjncServClientChain);
+    u32Ret = jf_network_stopChain(ls_pjncServiceClientChain);
 
     return u32Ret;
 }
 
-u32 pauseDispatcherServClient(u32 servId)
+u32 pauseDispatcherServiceClient(u32 servId)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    dispatcher_serv_client_t * pdsc = NULL;
+    dispatcher_service_client_t * pdsc = NULL;
 
-    JF_LOGGER_INFO("servId: %u", servId);
+    JF_LOGGER_DEBUG("servId: %u", servId);
 
-    u32Ret = _findDispatcherServClientByServId(&ls_jlServClientList, servId, &pdsc);
+    u32Ret = _findDispatcherServiceClientByServId(&ls_jlServiceClientList, servId, &pdsc);
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = dispatcher_xfer_pause(pdsc->dsc_pdxXfer);
 
     return u32Ret;
 }
 
-u32 resumeDispatcherServClient(u32 servId)
+u32 resumeDispatcherServiceClient(u32 servId)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    dispatcher_serv_client_t * pdsc = NULL;
+    dispatcher_service_client_t * pdsc = NULL;
 
-    JF_LOGGER_INFO("servId: %u", servId);
+    JF_LOGGER_DEBUG("servId: %u", servId);
 
-    u32Ret = _findDispatcherServClientByServId(&ls_jlServClientList, servId, &pdsc);
+    u32Ret = _findDispatcherServiceClientByServId(&ls_jlServiceClientList, servId, &pdsc);
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = dispatcher_xfer_resume(pdsc->dsc_pdxXfer);
 
     return u32Ret;
 }
 
-u32 dispatchMsgToServClients(dispatcher_msg_t * pdm)
+u32 dispatchMsgToServiceClients(dispatcher_msg_t * pdm)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_hlisthead_node_t * pjhn = NULL;
@@ -559,10 +570,8 @@ u32 dispatchMsgToServClients(dispatcher_msg_t * pdm)
     u32 u32Index = 0;
     u32 u32MsgId = getDispatcherMsgId(pdm);
 
-    JF_LOGGER_DEBUG("msg id: %u", u32MsgId);
-
     u32Index = _hashMsgIdToKey(u32MsgId, DISPATCHER_SUBSCRIBED_MSG_HASH_TABLE_SHIFT);
-    JF_LOGGER_DEBUG("index: %u", u32Index);
+    JF_LOGGER_DEBUG("msg id: %u, index: %u", u32MsgId, u32Index);
 
     jf_hlisthead_forEach(&ls_jhMsgHashTable[u32Index], pjhn)
     {

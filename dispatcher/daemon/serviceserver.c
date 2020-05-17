@@ -1,5 +1,5 @@
 /**
- *  @file servserver.c
+ *  @file serviceserver.c
  *
  *  @brief Implementation file for message server of dispather service.
  *
@@ -30,8 +30,9 @@
 #include "jf_listhead.h"
 
 #include "dispatchercommon.h"
-#include "servconfig.h"
-#include "servserver.h"
+#include "serviceconfig.h"
+#include "serviceserver.h"
+#include "serviceclient.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -39,7 +40,7 @@
  */
 typedef struct
 {
-    dispatcher_serv_config_t * dss_pdscConfig;
+    dispatcher_service_config_t * dss_pdscConfig;
     /**The network chain.*/
     jf_network_chain_t * dss_pjncChain;
     jf_network_assocket_t * dss_pjnaAssocket;
@@ -49,20 +50,20 @@ typedef struct
     boolean_t dss_bLogin;
     u8 dss_u8Reserved[7];
     /**The callback function to queue the message.*/
-    fnQueueServServerMsg_t dss_fnQueueMsg;
-} dispatcher_serv_server_t;
+    fnQueueServiceServerMsg_t dss_fnQueueMsg;
+} dispatcher_service_server_t;
 
 /** The chain for service servers. 
  */
-static jf_network_chain_t * ls_pjncServServerChain = NULL;
+static jf_network_chain_t * ls_pjncServiceServerChain = NULL;
 
 /** The dispather server list.
  */
-static JF_LISTHEAD(ls_jlServServerList);
+static JF_LISTHEAD(ls_jlServiceServerList);
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _checkServCredential(dispatcher_serv_server_t * pdss, jf_network_asocket_t * pAsocket)
+static u32 _checkServCredential(dispatcher_service_server_t * pdss, jf_network_asocket_t * pAsocket)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     struct ucred credential;
@@ -80,11 +81,11 @@ static u32 _checkServCredential(dispatcher_serv_server_t * pdss, jf_network_asoc
     return u32Ret;
 }
 
-static u32 _onDispatcherServServerConnect(
+static u32 _onDispatcherServiceServerConnect(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket, void ** ppUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    dispatcher_serv_server_t * pdss = jf_network_getTagOfAssocket(pAssocket);
+    dispatcher_service_server_t * pdss = jf_network_getTagOfAssocket(pAssocket);
 
     JF_LOGGER_DEBUG("connect");
 
@@ -94,7 +95,7 @@ static u32 _onDispatcherServServerConnect(
     u32Ret = _checkServCredential(pdss, pAsocket);
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        JF_LOGGER_INFO("security check failed");
+        JF_LOGGER_ERR(u32Ret, "security check failed");
         /*Security check is not passed, close the connection.*/
         u32Ret = jf_network_disconnectAssocket(pAssocket, pAsocket);
     }
@@ -103,11 +104,11 @@ static u32 _onDispatcherServServerConnect(
     return u32Ret;
 }
 
-static u32 _onDispatcherServServerDisconnect(
+static u32 _onDispatcherServiceServerDisconnect(
     jf_network_assocket_t * pAssocket, void * pAsocket, u32 u32Status, void * pUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    dispatcher_serv_server_t * pdss = jf_network_getTagOfAssocket(pAssocket);
+    dispatcher_service_server_t * pdss = jf_network_getTagOfAssocket(pAssocket);
 
     JF_LOGGER_DEBUG("reason: %s", jf_err_getDescription(u32Status));
 
@@ -116,7 +117,7 @@ static u32 _onDispatcherServServerDisconnect(
     return u32Ret;
 }
 
-static u32 _onDispatcherServServerSendData(
+static u32 _onDispatcherServiceServerSendData(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket, u32 u32Status,
     u8 * pu8Buffer, olsize_t sBuf, void * pUser)
 {
@@ -127,7 +128,7 @@ static u32 _onDispatcherServServerSendData(
     return u32Ret;
 }
 
-static u32 _validateServServerMsg(
+static u32 _isFullServiceServerMsg(
     u8 * pu8Buffer, olsize_t sBeginPointer, olsize_t sEndPointer)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -149,7 +150,7 @@ static u32 _validateServServerMsg(
     return u32Ret;
 }
 
-static u32 _findServServerMsgId(jf_linklist_node_t * pNode, void * pArg)
+static u32 _findServiceServerMsgId(jf_linklist_node_t * pNode, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u16 u16MsgId = *((u16 *)pArg);
@@ -162,25 +163,22 @@ static u32 _findServServerMsgId(jf_linklist_node_t * pNode, void * pArg)
     return u32Ret;
 }
 
-static u32 _isServServerMsgAllowed(dispatcher_serv_server_t * pdss, u8 * pu8Msg, olsize_t sMsg)
+static u32 _isServiceServerMsgAllowed(dispatcher_service_server_t * pdss, u8 * pu8Msg, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u16 u16MsgId = getMessagingMsgId(pu8Msg, sMsg);
+    u32 u32SourceId = getMessagingMsgSourceId(pu8Msg, sMsg);
 
-    /*The reserved message is used in dispatcher, it's always allowed.*/
-    if (isReservedMessagingMsg(pu8Msg, sMsg))
-        return u32Ret;
-    
-    if (pdss->dss_pdscConfig->dsc_u32ServId == DISPATCHER_INVALID_SERVICE_ID)
+    if (u32SourceId == 0)
     {
-        JF_LOGGER_INFO("invalid service id, msgid: %u", u16MsgId);
+        JF_LOGGER_DEBUG("invalid source id: %u", u32SourceId);
         u32Ret = JF_ERR_INVALID_MESSAGE;
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_linklist_iterate(
-            &pdss->dss_pdscConfig->dsc_jlPublishedMsg, _findServServerMsgId, (void **)&u16MsgId);
+            &pdss->dss_pdscConfig->dsc_jlPublishedMsg, _findServiceServerMsgId, (void **)&u16MsgId);
 
         /*Iteration is terminated, the message id is in the published list.*/
         if (u32Ret == JF_ERR_TERMINATED)
@@ -191,37 +189,32 @@ static u32 _isServServerMsgAllowed(dispatcher_serv_server_t * pdss, u8 * pu8Msg,
         {
             /*The message id is not in the published list.*/
             u32Ret = JF_ERR_MSG_NOT_IN_PUBLISHED_LIST;
-            JF_LOGGER_INFO("message is not in published list, msg id: %u", u16MsgId);
+            JF_LOGGER_DEBUG("message is not in published list, msg id: %u", u16MsgId);
         }
     }
 
     return u32Ret;
 }
 
-static u32 _processServServerReservedMsg(dispatcher_serv_server_t * pdss, u8 * pu8Msg, olsize_t sMsg)
+static u32 _preProcessServiceServerMsg(dispatcher_service_server_t * pdss, u8 * pu8Msg, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u16 u16MsgId = getMessagingMsgId(pu8Msg, sMsg);
-    dispatcher_serv_active_msg * pdsam = (dispatcher_serv_active_msg *)pu8Msg;
+    u32 servId = getMessagingMsgSourceId(pu8Msg, sMsg);
 
-    if (u16MsgId == DISPATCHER_MSG_ID_SERV_ACTIVE)
+    if (pdss->dss_pdscConfig->dsc_u32ServiceId != servId)
     {
-        if (pdsam->dsam_jmhHeader.jmh_u32SourceId != pdsam->dsam_dsampPayload.dsamp_u32ServId)
-            u32Ret = JF_ERR_INVALID_MESSAGE;
+        JF_LOGGER_DEBUG("set service id: %u", servId);
+        pdss->dss_pdscConfig->dsc_u32ServiceId = servId;
 
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            /*Save the service id.*/
-            pdss->dss_pdscConfig->dsc_u32ServId = pdsam->dsam_dsampPayload.dsamp_u32ServId;
-            JF_LOGGER_INFO("receive serv active msg, serv id: %u", pdss->dss_pdscConfig->dsc_u32ServId);
-        }
+        /*Notify the service client to start sending message the active message.*/
+        u32Ret = resumeDispatcherServiceClient(servId);
     }
 
     return u32Ret;
 }
 
-static u32 _processServServerMsg(
-    dispatcher_serv_server_t * pdss, jf_network_assocket_t * pAssocket,
+static u32 _processServiceServerMsg(
+    dispatcher_service_server_t * pdss, jf_network_assocket_t * pAssocket,
     jf_network_asocket_t * pAsocket, u8 * pu8Buffer, olsize_t * psBeginPointer,
     olsize_t sEndPointer)
 {
@@ -230,20 +223,21 @@ static u32 _processServServerMsg(
     olsize_t sMsg = 0;
 
     /*Validate the message.*/
-    u32Ret = _validateServServerMsg(pu8Buffer, *psBeginPointer, sEndPointer);
+    u32Ret = _isFullServiceServerMsg(pu8Buffer, *psBeginPointer, sEndPointer);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Receive full message.*/
         sMsg = getMessagingSize(pu8Buffer + sBegin);
 
-        u32Ret = _processServServerReservedMsg(pdss, pu8Buffer + sBegin, sMsg);
-        if (u32Ret == JF_ERR_NO_ERROR)
-            u32Ret = _isServServerMsgAllowed(pdss, pu8Buffer + sBegin, sMsg);
-    }
+        u32Ret = _isServiceServerMsgAllowed(pdss, pu8Buffer + sBegin, sMsg);
 
-    /*Invoke the callback function to queue the message.*/
-    if (u32Ret == JF_ERR_NO_ERROR)
-        pdss->dss_fnQueueMsg(pu8Buffer + sBegin, sMsg);
+        if (u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = _preProcessServiceServerMsg(pdss, pu8Buffer + sBegin, sMsg);
+
+        /*Invoke the callback function to queue the message.*/
+        if (u32Ret == JF_ERR_NO_ERROR)
+            pdss->dss_fnQueueMsg(pu8Buffer + sBegin, sMsg);
+    }
 
     if (u32Ret == JF_ERR_MSG_NOT_IN_PUBLISHED_LIST)
         /*Message is right, but it's not in the published list, the message is discarded.*/
@@ -258,23 +252,23 @@ static u32 _processServServerMsg(
     return u32Ret;
 }
 
-static u32 _onDispatcherServServerData(
+static u32 _onDispatcherServiceServerData(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
     u8 * pu8Buffer, olsize_t * psBeginPointer, olsize_t sEndPointer, void * pUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    dispatcher_serv_server_t * pdss = jf_network_getTagOfAssocket(pAssocket);
+    dispatcher_service_server_t * pdss = jf_network_getTagOfAssocket(pAssocket);
 
-    JF_LOGGER_DEBUG("begin: %d, end: %d", *psBeginPointer, sEndPointer);
+    JF_LOGGER_DEBUG("beginp: %d, endp: %d", *psBeginPointer, sEndPointer);
 
-    u32Ret = _processServServerMsg(
+    u32Ret = _processServiceServerMsg(
         pdss, pAssocket, pAsocket, pu8Buffer, psBeginPointer, sEndPointer);
 
     return u32Ret;
 }
 
-static u32 _createDispatcherServServerAssocket(
-    dispatcher_serv_server_t * pdss, create_dispatcher_serv_server_param_t * pcdssp)
+static u32 _createDispatcherServiceServerAssocket(
+    dispatcher_service_server_t * pdss, create_dispatcher_service_server_param_t * pcdssp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_network_assocket_create_param_t jnacp;
@@ -289,10 +283,10 @@ static u32 _createDispatcherServServerAssocket(
         sockfile, JF_LIMIT_MAX_PATH_LEN - 1, "%s/%s", pcdssp->cdssp_pstrSocketDir,
         pdss->dss_pdscConfig->dsc_strMessagingOut);
     jf_ipaddr_setUdsAddr(&jnacp.jnacp_jiServer, sockfile);
-    jnacp.jnacp_fnOnConnect = _onDispatcherServServerConnect;
-    jnacp.jnacp_fnOnDisconnect = _onDispatcherServServerDisconnect;
-    jnacp.jnacp_fnOnSendData = _onDispatcherServServerSendData;
-    jnacp.jnacp_fnOnData = _onDispatcherServServerData;
+    jnacp.jnacp_fnOnConnect = _onDispatcherServiceServerConnect;
+    jnacp.jnacp_fnOnDisconnect = _onDispatcherServiceServerDisconnect;
+    jnacp.jnacp_fnOnSendData = _onDispatcherServiceServerSendData;
+    jnacp.jnacp_fnOnData = _onDispatcherServiceServerData;
     jnacp.jnacp_pstrName = pdss->dss_pdscConfig->dsc_strName;
 
     u32Ret = jf_network_createAssocket(pdss->dss_pjncChain, &pdss->dss_pjnaAssocket, &jnacp);
@@ -302,10 +296,10 @@ static u32 _createDispatcherServServerAssocket(
     return u32Ret;
 }
 
-static u32 _destroyDispatcherServServer(dispatcher_serv_server_t ** ppServ)
+static u32 _destroyDispatcherServiceServer(dispatcher_service_server_t ** ppServ)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    dispatcher_serv_server_t * pdss = *ppServ;
+    dispatcher_service_server_t * pdss = *ppServ;
 
     if (pdss->dss_pjnaAssocket != NULL)
         jf_network_destroyAssocket(&pdss->dss_pjnaAssocket);
@@ -315,12 +309,12 @@ static u32 _destroyDispatcherServServer(dispatcher_serv_server_t ** ppServ)
     return u32Ret;
 }
 
-static u32 _createDispatcherServServer(
-    dispatcher_serv_server_t ** ppServ, dispatcher_serv_config_t * pdsc,
-    create_dispatcher_serv_server_param_t * pcdssp, jf_network_chain_t * pChain)
+static u32 _createDispatcherServiceServer(
+    dispatcher_service_server_t ** ppServ, dispatcher_service_config_t * pdsc,
+    create_dispatcher_service_server_param_t * pcdssp, jf_network_chain_t * pChain)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    dispatcher_serv_server_t * pdss = NULL;
+    dispatcher_service_server_t * pdss = NULL;
 
     JF_LOGGER_DEBUG("serv server: %s", pdsc->dsc_strName);
 
@@ -334,60 +328,60 @@ static u32 _createDispatcherServServer(
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = _createDispatcherServServerAssocket(pdss, pcdssp);
+        u32Ret = _createDispatcherServiceServerAssocket(pdss, pcdssp);
     
     if (u32Ret == JF_ERR_NO_ERROR)
         *ppServ = pdss;
     else if (pdss != NULL)
-        _destroyDispatcherServServer(&pdss);
+        _destroyDispatcherServiceServer(&pdss);
 
     return u32Ret;
 }
 
-static JF_THREAD_RETURN_VALUE _servServerThread(void * pArg)
+static JF_THREAD_RETURN_VALUE _serviceServerThread(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_network_chain_t * pChain = (jf_network_chain_t *)pArg;
 
-    JF_LOGGER_INFO("enter serv server thread");
+    JF_LOGGER_INFO("enter");
 
     /*Start the server chain.*/
     u32Ret = jf_network_startChain(pChain);
 
-    JF_LOGGER_INFO("quit serv server thread");
+    JF_LOGGER_INFO("quit");
 
     JF_THREAD_RETURN(u32Ret);
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 createDispatcherServServers(
-    jf_linklist_t * pjlServConfig, create_dispatcher_serv_server_param_t * pcdssp)
+u32 createDispatcherServiceServers(
+    jf_linklist_t * pjlServiceConfig, create_dispatcher_service_server_param_t * pcdssp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    dispatcher_serv_config_t * pdsc = NULL;
-    dispatcher_serv_server_t * pdss = NULL;
+    dispatcher_service_config_t * pdsc = NULL;
+    dispatcher_service_server_t * pdss = NULL;
     jf_linklist_node_t * pNode = NULL;
 
     JF_LOGGER_DEBUG(
         "max conn: %u, socket dir: %s", pcdssp->cdssp_u32MaxConnInServer,
         pcdssp->cdssp_pstrSocketDir);
 
-    jf_listhead_init(&ls_jlServServerList);
+    jf_listhead_init(&ls_jlServiceServerList);
 
-    u32Ret = jf_network_createChain(&ls_pjncServServerChain);
+    u32Ret = jf_network_createChain(&ls_pjncServiceServerChain);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        pNode = jf_linklist_getFirstNode(pjlServConfig);
+        pNode = jf_linklist_getFirstNode(pjlServiceConfig);
         while ((pNode != NULL) && (u32Ret == JF_ERR_NO_ERROR))
         {
             pdsc = jf_linklist_getDataFromNode(pNode);
 
-            u32Ret = _createDispatcherServServer(&pdss, pdsc, pcdssp, ls_pjncServServerChain);
+            u32Ret = _createDispatcherServiceServer(&pdss, pdsc, pcdssp, ls_pjncServiceServerChain);
 
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                jf_listhead_addTail(&ls_jlServServerList, &pdss->dss_jlServ);
+                jf_listhead_addTail(&ls_jlServiceServerList, &pdss->dss_jlServ);
 
                 pNode = jf_linklist_getNextNode(pNode);
             }
@@ -397,44 +391,44 @@ u32 createDispatcherServServers(
     return u32Ret;
 }
 
-u32 destroyDispatcherServServers(void)
+u32 destroyDispatcherServiceServers(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_listhead_t * pjl = NULL, * temp = NULL;
-    dispatcher_serv_server_t * pdss = NULL;
+    dispatcher_service_server_t * pdss = NULL;
 
-    JF_LOGGER_DEBUG("destroy serv servers");
+    JF_LOGGER_DEBUG("destroy service servers");
 
-    jf_listhead_forEachSafe(&ls_jlServServerList, pjl, temp)
+    jf_listhead_forEachSafe(&ls_jlServiceServerList, pjl, temp)
     {
-        pdss = jf_listhead_getEntry(pjl, dispatcher_serv_server_t, dss_jlServ);
+        pdss = jf_listhead_getEntry(pjl, dispatcher_service_server_t, dss_jlServ);
 
         jf_listhead_del(&pdss->dss_jlServ);
 
-        _destroyDispatcherServServer(&pdss);
+        _destroyDispatcherServiceServer(&pdss);
     }
 
-    if (ls_pjncServServerChain != NULL)
-        u32Ret = jf_network_destroyChain(&ls_pjncServServerChain);
+    if (ls_pjncServiceServerChain != NULL)
+        u32Ret = jf_network_destroyChain(&ls_pjncServiceServerChain);
 
     return u32Ret;
 }
 
-u32 startDispatcherServServers(void)
+u32 startDispatcherServiceServers(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     /*Start a thread to run the chain.*/
-    u32Ret = jf_thread_create(NULL, NULL, _servServerThread, ls_pjncServServerChain);
+    u32Ret = jf_thread_create(NULL, NULL, _serviceServerThread, ls_pjncServiceServerChain);
 
     return u32Ret;
 }
 
-u32 stopDispatcherServServers(void)
+u32 stopDispatcherServiceServers(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = jf_network_stopChain(ls_pjncServServerChain);
+    u32Ret = jf_network_stopChain(ls_pjncServiceServerChain);
 
     return u32Ret;
 }

@@ -63,7 +63,7 @@ static u32 _readWakeupSocket(internal_basic_chain_t * pibc)
             {
                 pibc->ibc_bToTerminate = TRUE;
 #if defined(DEBUG_CHAIN)
-                jf_logger_logInfoMsg("read wakeup socket, got terminate signal");
+                JF_LOGGER_INFO("read wakeup socket, got terminate signal");
 #endif
             }
     }
@@ -71,7 +71,7 @@ static u32 _readWakeupSocket(internal_basic_chain_t * pibc)
 #if defined(DEBUG_CHAIN)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_logger_logInfoMsg("read wakeup socket, %u", u32Count);
+        JF_LOGGER_DEBUG("read wakeup socket, %u", u32Count);
     }
 #endif
     return u32Ret;
@@ -115,7 +115,7 @@ u32 jf_network_destroyChain(jf_network_chain_t ** ppChain)
     assert((ppChain != NULL) && (*ppChain != NULL));
 
 #if defined(DEBUG_CHAIN)
-    jf_logger_logInfoMsg("destroy chain");
+    JF_LOGGER_INFO("destroy chain");
 #endif
 
     pibc = (internal_basic_chain_t *)*ppChain;
@@ -217,12 +217,12 @@ u32 jf_network_startChain(jf_network_chain_t * pChain)
         }
 
 #if defined(DEBUG_CHAIN)
-        jf_logger_logInfoMsg("enter select, %ld, %ld", tv.tv_sec, tv.tv_usec);
+        JF_LOGGER_DEBUG("enter select, tv_sec: %ld, tv_usec: %ld", tv.tv_sec, tv.tv_usec);
 #endif
         /*The actual select statement*/
         slct = select(FD_SETSIZE, &readset, &writeset, &errorset, &tv);
 #if defined(DEBUG_CHAIN)
-        jf_logger_logInfoMsg("exit select, %d", slct);
+        JF_LOGGER_DEBUG("exit select, return: %d", slct);
 #endif
         if (slct == -1)
         {
@@ -257,7 +257,7 @@ u32 jf_network_startChain(jf_network_chain_t * pChain)
         }
     }
 
-    jf_logger_logInfoMsg("exit chain loop");
+    JF_LOGGER_INFO("exit");
 
     return u32Ret;
 }
@@ -268,14 +268,14 @@ u32 jf_network_stopChain(jf_network_chain_t * pChain)
     internal_basic_chain_t * pibc = (internal_basic_chain_t *) pChain;
     olsize_t u32Count;
 
-    jf_logger_logInfoMsg("stop chain");
+    JF_LOGGER_INFO("stop chain");
 
     u32Count = 1;
     u32Ret = jf_network_send(pibc->ibc_pjnsWakeup[1], "S", &u32Count);
 #if defined(DEBUG_CHAIN)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_logger_logInfoMsg("stop chain, done");
+        JF_LOGGER_INFO("stop chain, done");
     }
 #endif
 
@@ -289,7 +289,7 @@ u32 jf_network_wakeupChain(jf_network_chain_t * pChain)
     olsize_t u32Count;
 
 #if defined(DEBUG_CHAIN)
-    jf_logger_logInfoMsg("wakeup chain");
+    JF_LOGGER_DEBUG("wakeup chain");
 #endif
 
     u32Count = 1;
@@ -297,7 +297,7 @@ u32 jf_network_wakeupChain(jf_network_chain_t * pChain)
 #if defined(DEBUG_CHAIN)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_logger_logInfoMsg("wakeup chain, done");
+        JF_LOGGER_DEBUG("wakeup chain, done");
     }
 #endif
 

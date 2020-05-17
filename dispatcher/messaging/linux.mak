@@ -15,7 +15,7 @@ SONAME = jf_messaging
 
 SOURCES = ../common/dispatchercommon.c messagingserver.c messagingclient.c messaging.c
 
-JIUTAI_SRCS = jf_process.c jf_time.c jf_mutex.c jf_thread.c
+JIUTAI_SRCS = jf_process.c jf_time.c jf_mutex.c jf_thread.c jf_sem.c
 
 EXTRA_LIBS = -ljf_logger -ljf_files -ljf_ifmgmt -ljf_network -ljf_jiukun -ljf_dispatcher_xfer
 

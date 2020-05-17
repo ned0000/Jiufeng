@@ -1,5 +1,5 @@
 #
-#  @file Makefile
+#  @file linux.mak
 #
 #  @brief The Makefile for dispatcher service.
 #
@@ -12,7 +12,8 @@
 
 EXE = jf_dispatcher
 
-SOURCES = ../common/dispatchercommon.c servconfig.c servclient.c servserver.c dispatcher.c main.c
+SOURCES = ../common/dispatchercommon.c serviceconfig.c serviceclient.c serviceserver.c \
+    dispatcher.c main.c
 
 JIUTAI_SRCS = jf_process.c jf_mutex.c jf_thread.c jf_user.c jf_queue.c jf_ptree.c jf_linklist.c \
     jf_hashtree.c jf_stack.c jf_option.c jf_sem.c

@@ -36,13 +36,14 @@ typedef void  dispatcher_prio_queue_t;
 typedef struct
 {
     u32 cdpqp_u32MaxNumMsg;
+    u32 cdpqp_u32Reserved[15];
 } create_dispatcher_prio_queue_param_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Create a priority Queue.
  *
- *  @param pQueue [out] The priority queue to be created.
+ *  @param ppQueue [out] The priority queue to be created.
  *  @param param [in] The parameter for creating the queue.
  *
  *  @return Void.
@@ -52,21 +53,11 @@ u32 createDispatcherPrioQueue(
 
 /** Destroy the priority queue.
  *
- *  @param pQueue [in] The queue to finalize.
+ *  @param ppQueue [in] The queue to finalize.
  *  
  *  @return Void.
  */
 u32 destroyDispatcherPrioQueue(dispatcher_prio_queue_t ** ppQueue);
-
-/** Destroy the priority queue and data.
- *
- *  @param pQueue [in] The linklist to finalize.
- *  @param fnFreeData [in] The call back function to free data.
- *
- *  @return Void.
- */
-u32 destroyDispatcherPrioQueueAndData(
-    dispatcher_prio_queue_t ** ppQueue, jf_queue_fnFreeData_t fnFreeData);
 
 /** Check to see if the priority queue is empty.
  *
@@ -76,7 +67,7 @@ u32 destroyDispatcherPrioQueueAndData(
  *  @retval TRUE the queue is empty.
  *  @retval FALSE the queue is not empty.
  */
-boolean_t isDispatcherPrioQueueEmpty(dispatcher_prio_queue_t * pQueue);
+boolean_t isEmptyDispatcherPrioQueue(dispatcher_prio_queue_t * pQueue);
 
 /** Add an item to the priority queue.
  *
@@ -84,7 +75,7 @@ boolean_t isDispatcherPrioQueueEmpty(dispatcher_prio_queue_t * pQueue);
  *  -# The item is added to the end of the queue.
  *
  *  @param pQueue [in] The queue to add.
- *  @param data [in] The data to add to the queue.
+ *  @param pMsg [in] The data to add to the queue.
  *
  *  @return The error code.
  */
@@ -115,4 +106,3 @@ dispatcher_msg_t * peekDispatcherPrioQueue(dispatcher_prio_queue_t * pQueue);
 #endif /*DISPATCHER_COMMON_PRIO_QUEUE_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
