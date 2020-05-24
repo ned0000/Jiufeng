@@ -342,7 +342,8 @@ u32 jf_network_createAssocket(
         pia->ia_u32MaxConn = pjnacp->jnacp_u32MaxConn;
         pia->ia_u16PortNumber = pjnacp->jnacp_u16ServerPort;
         ol_memcpy(&(pia->ia_jiAddr), &(pjnacp->jnacp_jiServer), sizeof(jf_ipaddr_t));
-        ol_strncpy(pia->ia_strName, pjnacp->jnacp_pstrName, JF_NETWORK_MAX_NAME_LEN - 1);
+        ol_snprintf(
+            pia->ia_strName, sizeof(pia->ia_strName) - 1, "%s-ass", pjnacp->jnacp_pstrName);
 
         u32Ret = jf_jiukun_allocMemory(
             (void **)&pia->ia_pjnaAsockets,
@@ -390,7 +391,7 @@ u32 jf_network_createAssocket(
              u32Index ++)
         {
             ol_snprintf(
-                strName, JF_NETWORK_MAX_NAME_LEN - 1, "%s-%d", pjnacp->jnacp_pstrName, u32Index);
+                strName, sizeof(strName) - 1, "%s-as-%d", pia->ia_strName, u32Index);
 
             u32Ret = createAsocket(pChain, &pia->ia_pjnaAsockets[u32Index], &acp);
             if (u32Ret == JF_ERR_NO_ERROR)

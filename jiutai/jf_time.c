@@ -10,6 +10,7 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stdio.h>
 #include <string.h>
 #if defined(LINUX)
@@ -19,16 +20,18 @@
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_time.h"
+#include "jf_string.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
 /* --- private routine section ------------------------------------------------------------------ */
 
 /* --- public routine section ------------------------------------------------------------------- */
+
 #if defined(WINDOWS)
 u32 jf_time_fileTimeToSecondsSince1970(FILETIME * pTime)
 {
@@ -75,14 +78,14 @@ u32 jf_time_getTimeOfDay(struct timeval * tv)
     return u32Ret;
 }
 
-u32 jf_time_getClockTime(clockid_t clkid, struct timespec *tp)
+u32 jf_time_getClockTime(clockid_t clkid, struct timespec * tp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
 #if defined(LINUX)
     s32 ret = 0;
 
-    ret = clock_gettime(CLOCK_MONOTONIC_RAW, tp);
+    ret = clock_gettime(clkid, tp);
     if (ret == -1)
         u32Ret = JF_ERR_FAIL_GET_CLOCK_TIME;
 
@@ -155,7 +158,7 @@ olint_t jf_time_convertTimeToSeconds(olint_t hour, olint_t min, olint_t sec)
 
 void jf_time_getStringTimePeriod(olchar_t * pstrTime, const u32 u32Period)
 {
-    u32 u32Temp, u32Seconds, u32Minutes, u32Hours;
+    u32 u32Temp = 0, u32Seconds = 0, u32Minutes = 0, u32Hours = 0;
     olchar_t strTemp[16];
 
     if (u32Period == 0)
@@ -181,7 +184,7 @@ void jf_time_getStringTimePeriod(olchar_t * pstrTime, const u32 u32Period)
             ol_sprintf(strTemp, "%d min", u32Minutes);
             if (ol_strlen(pstrTime) > 0)
             {
-                ol_strcat(pstrTime, " ");
+                ol_strcat(pstrTime, ", ");
             }
             ol_strcat(pstrTime, strTemp);
         }
@@ -191,7 +194,7 @@ void jf_time_getStringTimePeriod(olchar_t * pstrTime, const u32 u32Period)
             ol_sprintf(strTemp, "%d sec", u32Seconds);
             if (ol_strlen(pstrTime) > 0)
             {
-                ol_strcat(pstrTime, " ");
+                ol_strcat(pstrTime, ", ");
             }
             ol_strcat(pstrTime, strTemp);
         }
@@ -207,7 +210,7 @@ u32 jf_time_getTimeFromString(
     u32 u32Value;
     olsize_t size;
 
-    memset(strTime, 0, sizeof(strTime));
+    ol_memset(strTime, 0, sizeof(strTime));
     ol_strncpy(strTime, pstrTime, sizeof(strTime) - 1);
     firstChar = strTime;
 
@@ -278,6 +281,28 @@ u32 jf_time_getTimeFromString(
     return u32Ret;
 }
 
+void jf_time_getStringTime(
+    olchar_t * pstrTime, const olint_t hour, const olint_t min, const olint_t sec)
+{
+    if ((hour > 24) || (min > 60) || (sec > 60))
+        ol_strcpy(pstrTime, JF_STRING_NOT_APPLICABLE);
+    else
+        ol_sprintf(pstrTime, "%02d:%02d:%02d", hour, min, sec);
+}
+
+u32 jf_time_getMonotonicRawTimeSecond(olint_t * pSec)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    struct timespec tp;
+    olint_t rawtime = 0;
+
+    u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &tp);
+    if (u32Ret == JF_ERR_NO_ERROR)
+        rawtime = (olint_t)tp.tv_sec;
+
+    *pSec = rawtime;
+
+    return u32Ret;
+}
+
 /*------------------------------------------------------------------------------------------------*/
-
-

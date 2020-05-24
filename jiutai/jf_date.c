@@ -20,9 +20,9 @@
 
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_date.h"
+#include "jf_string.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -32,11 +32,6 @@ const static olchar_t * ls_pstrMonth[] =
 };
 
 /* --- private routine section ------------------------------------------------------------------ */
-
-static const olchar_t * _getStringNotApplicable(void)
-{
-    return "N/A";
-}
 
 static boolean_t _isDayInRange(olint_t year, olint_t month, olint_t day)
 {
@@ -288,7 +283,7 @@ void jf_date_getStringDate(
     olchar_t * pstrDate, const olint_t year, const olint_t mon, const olint_t day)
 {
     if ((mon == 0) && (day == 0))
-        ol_strcpy(pstrDate, _getStringNotApplicable());
+        ol_strcpy(pstrDate, JF_STRING_NOT_APPLICABLE);
     else if ((mon > 12) || (mon == 0))
         ol_sprintf(pstrDate, "Month(%d) %d, %04d", mon, day, year);
     else
@@ -299,7 +294,7 @@ void jf_date_getStringDate2(
     olchar_t * pstrDate, const olint_t year, const olint_t mon, const olint_t day)
 {
     if ((mon == 0) && (day == 0))
-        ol_strcpy(pstrDate, _getStringNotApplicable());
+        ol_strcpy(pstrDate, JF_STRING_NOT_APPLICABLE);
     else
         ol_sprintf(pstrDate, "%4d-%02d-%02d", year, mon, day);
 }

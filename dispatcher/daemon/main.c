@@ -10,13 +10,14 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_process.h"
 #include "jf_file.h"
@@ -28,10 +29,17 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-static boolean_t ls_bForeground = FALSE;
+/** Running dispatcher in foreground if it's TRUE.
+ */
+static boolean_t ls_bDispatcherForeground = FALSE;
 
-static olchar_t ls_strProgramName[64];
-static olchar_t * ls_pstrVersion = "1.0.0";
+/** Name of the executable file, parsed from command line.
+ */
+static olchar_t ls_strDispatcherProgramName[64];
+
+/** Version of the dispatcher.
+ */
+static olchar_t * ls_pstrDispatcherVersion = "1.0.0";
 
 /* --- private routine section ------------------------------------------------------------------ */
 
@@ -40,13 +48,13 @@ static void _printDispatcherUsage(void)
     ol_printf("\
 Usage: %s [-f] [-s config dir] [-V] [logger options]\n\
     -f running in foreground.\n\
-    -s specify the directory containing configuration file.\n\
+    -s specify the directory containing service manifest file.\n\
     -V show version information.\n\
 logger options:\n\
     -T <0|1|2|3|4> the log level. 0: no log, 1: error only, 2: info, 3: debug.\n\
     -F <log file> the log file.\n\
     -S <log file size> the size of log file. No limit if not specified.\n",
-           ls_strProgramName);
+           ls_strDispatcherProgramName);
 
     ol_printf("\n");
 }
@@ -63,7 +71,7 @@ static u32 _parseDispatcherCmdLineParam(
         switch (nOpt)
         {
         case 'f':
-            ls_bForeground = TRUE;
+            ls_bDispatcherForeground = TRUE;
             break;
         case 's':
             pdp->dp_pstrConfigDir = optarg;
@@ -73,7 +81,7 @@ static u32 _parseDispatcherCmdLineParam(
             _printDispatcherUsage();
             exit(0);
         case 'V':
-            ol_printf("%s %s\n", ls_strProgramName, ls_pstrVersion);
+            ol_printf("%s %s\n", ls_strDispatcherProgramName, ls_pstrDispatcherVersion);
             exit(0);
         case 'T':
             u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
@@ -135,7 +143,7 @@ static u32 _serviceDispatcher(olint_t argc, char** argv)
     jf_logger_init_param_t jlipParam;
     jf_jiukun_init_param_t jjip;
 
-    jf_file_getFileName(ls_strProgramName, sizeof(ls_strProgramName), argv[0]);
+    jf_file_getFileName(ls_strDispatcherProgramName, sizeof(ls_strDispatcherProgramName), argv[0]);
 
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "DISPATCHER";
@@ -153,16 +161,16 @@ static u32 _serviceDispatcher(olint_t argc, char** argv)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Switch to daemon by default.*/
-        if (! ls_bForeground)
+        if (! ls_bDispatcherForeground)
             u32Ret = jf_process_switchToDaemon();
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Quit if the service is already running.*/
-        if (jf_process_isAlreadyRunning(ls_strProgramName))
+        if (jf_process_isAlreadyRunning(ls_strDispatcherProgramName))
         {
-            fprintf(stderr, "Another %s is running\n", ls_strProgramName);
+            fprintf(stderr, "Another %s is running\n", ls_strDispatcherProgramName);
             u32Ret = JF_ERR_ALREADY_RUNNING;
         }
     }
@@ -209,4 +217,3 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
