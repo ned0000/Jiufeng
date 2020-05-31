@@ -140,7 +140,7 @@ FILESAPI u32 FILESCALL jf_dir_getFirstDirEntry(jf_dir_t * pDir, jf_dir_entry_t *
  */
 FILESAPI u32 FILESCALL jf_dir_getNextDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry);
 
-/** Traversal directory. 
+/** Traversal directory.
  *
  *  @note
  *  -# The function traverses the directory recursively, the sub-directory are traversed also.

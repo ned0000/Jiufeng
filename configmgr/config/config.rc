@@ -1,0 +1,6 @@
+#define VER_FILEDESCRIPTION_STR "Jiufeng Config DLL"
+#define VER_INTERNALNAME_STR "jf_config.dll"
+#define VER_ORIGINALFILENAME_STR "jf_config.dll"
+#define VER_PRODUCTNAME_STR "Jiufeng Config Dynamic Linking Library"
+
+#include "jiutai.rc"

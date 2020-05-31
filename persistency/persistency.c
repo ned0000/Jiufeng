@@ -1,7 +1,7 @@
 /**
- *  @file persistency.c
+ *  @file persistency/persistency.c
  *
- *  @brief persistency implementation file
+ *  @brief Persistency implementation file.
  *
  *  @author Min Zhang
  *
@@ -10,10 +10,12 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stdlib.h>
 #include <string.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_persistency.h"
@@ -88,8 +90,7 @@ u32 jf_persistency_destroy(jf_persistency_t ** ppPersist)
 }
 
 u32 jf_persistency_getValue(
-    jf_persistency_t * pPersist, olchar_t * key, olchar_t * value,
-    olsize_t valuelen)
+    jf_persistency_t * pPersist, const olchar_t * key, olchar_t * value, olsize_t valuelen)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
@@ -104,7 +105,7 @@ u32 jf_persistency_getValue(
 }
 
 u32 jf_persistency_setValue(
-    jf_persistency_t * pPersist, olchar_t * key, olchar_t * value)
+    jf_persistency_t * pPersist, const olchar_t * key, const olchar_t * value)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;

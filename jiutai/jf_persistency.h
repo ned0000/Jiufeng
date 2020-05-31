@@ -89,17 +89,22 @@ u32 jf_persistency_destroy(jf_persistency_t ** ppPersist);
  *  @return The error code.
  */
 u32 jf_persistency_getValue(
-    jf_persistency_t * pPersist, olchar_t * pKey, olchar_t * pValue, olsize_t sValue);
+    jf_persistency_t * pPersist, const olchar_t * pKey, olchar_t * pValue, olsize_t sValue);
 
 /** Set value of the key from persistency.
  *
+ *  @note
+ *  -# If the key is not existing, the key with value is created.
+ *  -# If the key is existing, old key is updated with new value.
+ *
  *  @param pPersist [in] The persistency handle.
  *  @param pKey [in] The key in string with NULL terminated.
- *  @param pValue [out] The value in string with NULL terminated.
+ *  @param pValue [in] The value in string with NULL terminated.
  *
  *  @return The error code.
  */
-u32 jf_persistency_setValue(jf_persistency_t * pPersist, olchar_t * pKey, olchar_t * pValue);
+u32 jf_persistency_setValue(
+    jf_persistency_t * pPersist, const olchar_t * pKey, const olchar_t * pValue);
 
 /** Start transaction.
  *

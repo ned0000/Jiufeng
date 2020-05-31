@@ -52,15 +52,15 @@
  *  -# The tool uses unix domain socket to communicate with daemon, so the daemon should be running
  *   when using the tool.
  *  @code
- *  List all service.
+ *  List all service:
  *  jf_servctl -l
- *  List specified service
+ *  List specified service:
  *  jf_servctl -l -n service-name
- *  Start a service
+ *  Start a service:
  *  jf_servctl -t -n service-name
- *  Stop a service
+ *  Stop a service:
  *  jf_servctl -s -n service-name
- *  Change the startup type of a service
+ *  Change the startup type of a service:
  *  jf_servctl -u manual -n service-name
  *  Show the version information:
  *  jf_servctl -V

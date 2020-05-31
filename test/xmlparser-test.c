@@ -144,7 +144,7 @@ static u32 _parseXmlparserTestCmdLineParam(
 
 #define XML_DOCUMENT_5 "\
 <?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n\
-<school name=\"yuying\" location=\"ab district\">\n\
+<school name='yuying' location='ab district'>\n\
 <!-- comment for person -->\n\
 <person>\n\
 <!-- comment for name -->\n\
@@ -223,14 +223,16 @@ static u32 _testXmlParser_1()
     return u32Ret;
 }
 
-static boolean_t _isSpecifiedService(jf_ptree_node_t * pNode, olchar_t * pstrService)
+static boolean_t _isSpecifiedService(
+    jf_ptree_t * pjpXml, jf_ptree_node_t * pNode, olchar_t * pstrService)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     boolean_t bRet = FALSE;
     jf_ptree_node_t * temp = NULL;
     olchar_t * pstr = NULL;
+    olchar_t * name = "name";
 
-    u32Ret = jf_ptree_findChildNode(pNode, NULL, "name", &temp);
+    u32Ret = jf_ptree_findChildNode(pjpXml, pNode, NULL, 0, name, ol_strlen(name), &temp);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_ptree_getNodeValue(temp, &pstr, NULL);
@@ -244,15 +246,17 @@ static boolean_t _isSpecifiedService(jf_ptree_node_t * pNode, olchar_t * pstrSer
     return bRet;
 }
 
-static u32 _changeStartupType(jf_ptree_node_t * pNode)
+static u32 _changeStartupType(jf_ptree_t * pjpXml, jf_ptree_node_t * pNode)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ptree_node_t * temp = NULL;
+    olchar_t * name = "startupType";
+    olchar_t * value = "manual";
 
-    u32Ret = jf_ptree_findChildNode(pNode, NULL, "startupType", &temp);
+    u32Ret = jf_ptree_findChildNode(pjpXml, pNode, NULL, 0, name, ol_strlen(name), &temp);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_ptree_changeNodeValue(temp, "manual");
+        u32Ret = jf_ptree_changeNodeValue(temp, value, ol_strlen(value));
     }
 
     return u32Ret;
@@ -265,14 +269,14 @@ static u32 _modifyXmlDocument(jf_ptree_t * pjpXml)
     jf_ptree_node_t * pNode[10];
     u16 u16Num = 10, u16Index = 0;
 
-    u32Ret = jf_ptree_findAllNode(pjpXml, nodename, pNode, &u16Num);
+    u32Ret = jf_ptree_findAllNode(pjpXml, nodename, ol_strlen(nodename), pNode, &u16Num);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (u16Index = 0; u16Index < u16Num; u16Index ++)
         {
-            if (_isSpecifiedService(pNode[u16Index], "bio"))
-                u32Ret = _changeStartupType(pNode[u16Index]);
+            if (_isSpecifiedService(pjpXml, pNode[u16Index], "bio"))
+                u32Ret = _changeStartupType(pjpXml, pNode[u16Index]);
         }
     }
     else if (u32Ret == JF_ERR_PTREE_NODE_NOT_FOUND)

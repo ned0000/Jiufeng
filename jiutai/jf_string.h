@@ -116,10 +116,12 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_parse(
  *
  *  @par Example
  *  <table>
- *  <tr><th>Source String      <th>Delimiter   <th>Number of Fields <th>Fields               </tr>
+ *  <tr><th>Source String      <th>Delimiter   <th>Number of Fields <th>Fields              </tr>
  *  <tr><td>"<My name is">" adv>"    <td>">"   <td>2   <td>"<My name is">" adv", ""         </tr>
  *  <tr><td>"<My name is'>' adv>"    <td>">"   <td>2   <td>"<My name is'>' adv", ""         </tr>
- *  <tr><td>">My name is'>' adv>"    <td>">"   <td>3   <td>"", "My name is'>' adv", ""     </tr>
+ *  <tr><td>">My name is'>' adv>"    <td>">"   <td>3   <td>"", "My name is'>' adv", ""      </tr>
+ *  <tr><td>""My > name is"> adv>"   <td>">"   <td>3   <td>""My > name is"", " adv", ""     </tr>
+ *  <tr><td>"'My name > is'> adv>"   <td>">"   <td>3   <td>"'My name > is'", " adv", ""     </tr>
  *  </table>
  *
  *  @param ppResult [out] The parse result returned.

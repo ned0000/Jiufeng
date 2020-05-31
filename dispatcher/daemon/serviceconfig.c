@@ -42,25 +42,39 @@
 
 #define DISPATCHER_CONFIG_FILE_EXT                       ".xml"
 
-#define DISPATCHER_SERVICE_CONFIG_ROOT                   "configuration"
+/* Dispatcher service config name definition */
 
-#define DISPATCHER_SERVICE_CONFIG_VERSION                "version"
+#define DSCN_ROOT                                        "configuration"
+#define DSCN_ROOT_LEN                                    ol_strlen(DSCN_ROOT)
 
-#define DISPATCHER_SERVICE_CONFIG_SERVICE_INFO           DISPATCHER_SERVICE_CONFIG_ROOT ".serviceInfo"
+#define DSCN_VERSION                                     "version"
+#define DSCN_VERSION_LEN                                 ol_strlen(DSCN_VERSION)
 
-#define DISPATCHER_SERVICE_CONFIG_PUBLISHED_MSG          DISPATCHER_SERVICE_CONFIG_ROOT ".publishedMessage"
+#define DSCN_SERVICE_INFO                                DSCN_ROOT ".serviceInfo"
 
-#define DISPATCHER_SERVICE_CONFIG_SUBSCRIBED_MSG         DISPATCHER_SERVICE_CONFIG_ROOT ".subscribedMessage"
+#define DSCN_PUBLISHED_MSG                               DSCN_ROOT ".publishedMessage"
+#define DSCN_PUBLISHED_MSG_LEN                           ol_strlen(DSCN_PUBLISHED_MSG)
 
-#define DISPATCHER_SERVICE_CONFIG_SERVICE_NAME           DISPATCHER_SERVICE_CONFIG_SERVICE_INFO ".serviceName"
-#define DISPATCHER_SERVICE_CONFIG_SERVICE_USER_NAME      DISPATCHER_SERVICE_CONFIG_SERVICE_INFO ".userName"
-#define DISPATCHER_SERVICE_CONFIG_SERVICE_MESSAGING_IN   DISPATCHER_SERVICE_CONFIG_SERVICE_INFO ".messagingIn"
-#define DISPATCHER_SERVICE_CONFIG_SERVICE_MESSAGING_OUT  DISPATCHER_SERVICE_CONFIG_SERVICE_INFO ".messagingOut"
-#define DISPATCHER_SERVICE_CONFIG_SERVICE_MAX_NUM_MSG    DISPATCHER_SERVICE_CONFIG_SERVICE_INFO ".maxNumMsg"
-#define DISPATCHER_SERVICE_CONFIG_SERVICE_MAX_MSG_SIZE   DISPATCHER_SERVICE_CONFIG_SERVICE_INFO ".maxMsgSize"
+#define DSCN_SUBSCRIBED_MSG                              DSCN_ROOT ".subscribedMessage"
+#define DSCN_SUBSCRIBED_MSG_LEN                          ol_strlen(DSCN_SUBSCRIBED_MSG)
 
-#define DISPATCHER_SERVICE_CONFIG_MESSAGE                "message"
-#define DISPATCHER_SERVICE_CONFIG_MESSAGE_ID             "id"
+#define DSCN_SERVICE_NAME                                DSCN_SERVICE_INFO ".serviceName"
+#define DSCN_SERVICE_NAME_LEN                            ol_strlen(DSCN_SERVICE_NAME)
+#define DSCN_SERVICE_USER_NAME                           DSCN_SERVICE_INFO ".userName"
+#define DSCN_SERVICE_USER_NAME_LEN                       ol_strlen(DSCN_SERVICE_USER_NAME)
+#define DSCN_SERVICE_MESSAGING_IN                        DSCN_SERVICE_INFO ".messagingIn"
+#define DSCN_SERVICE_MESSAGING_IN_LEN                    ol_strlen(DSCN_SERVICE_MESSAGING_IN)
+#define DSCN_SERVICE_MESSAGING_OUT                       DSCN_SERVICE_INFO ".messagingOut"
+#define DSCN_SERVICE_MESSAGING_OUT_LEN                   ol_strlen(DSCN_SERVICE_MESSAGING_OUT)
+#define DSCN_SERVICE_MAX_NUM_MSG                         DSCN_SERVICE_INFO ".maxNumMsg"
+#define DSCN_SERVICE_MAX_NUM_MSG_LEN                     ol_strlen(DSCN_SERVICE_MAX_NUM_MSG)
+#define DSCN_SERVICE_MAX_MSG_SIZE                        DSCN_SERVICE_INFO ".maxMsgSize"
+#define DSCN_SERVICE_MAX_MSG_SIZE_LEN                    ol_strlen(DSCN_SERVICE_MAX_MSG_SIZE)
+
+#define DSCN_MESSAGE                                     "message"
+
+#define DSCN_MESSAGE_ID                                  "id"
+#define DSCN_MESSAGE_ID_LEN                              ol_strlen(DSCN_MESSAGE_ID)
 
 /** The name of message config cache.
  */
@@ -118,7 +132,7 @@ static u32 _validateMsgConfig(parse_serv_msg_t * ppsm, dispatcher_msg_config_t *
     return u32Ret;
 }
 
-static u32 _fnParseServMsg(jf_ptree_node_t * pNode, void * pArg)
+static u32 _fnParseServMsg(jf_ptree_t * pPtree, jf_ptree_node_t * pNode, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     parse_serv_msg_t * ppsm = (parse_serv_msg_t *)pArg;
@@ -138,22 +152,16 @@ static u32 _fnParseServMsg(jf_ptree_node_t * pNode, void * pArg)
 
     /*Parse the attribute with name "id".*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNodeAttribute(pNode, NULL, DISPATCHER_SERVICE_CONFIG_MESSAGE_ID, &pAttr);
+        u32Ret = jf_ptree_findNodeAttribute(
+            pNode, NULL, 0, DSCN_MESSAGE_ID, DSCN_MESSAGE_ID_LEN, &pAttr);
 
     /*Get attribute value, the id string is with format "id".*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeAttributeValue(pAttr, &pstrId, &sId);
 
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        /*Id's length should more than 3.*/
-        if (sId < 3)
-            u32Ret = JF_ERR_INVALID_DATA;
-    }
-
     /*Convert the string to integer.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_string_getU16FromString(pstrId + 1, sId - 2, &pMsg->dmc_u16MsgId);
+        u32Ret = jf_string_getU16FromString(pstrId, sId, &pMsg->dmc_u16MsgId);
 
     /*Validate message config.*/
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -180,7 +188,7 @@ static u32 _parseDispatcherMessage(
     parse_serv_msg_t psmArg;
 
     /*Parse the published message list.*/
-    u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_PUBLISHED_MSG, &pNode);
+    u32Ret = jf_ptree_findNode(pPtree, DSCN_PUBLISHED_MSG, DSCN_PUBLISHED_MSG_LEN, &pNode);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(&psmArg, sizeof(psmArg));
@@ -188,7 +196,7 @@ static u32 _parseDispatcherMessage(
         psmArg.psm_pjlMsg = &pdsc->dsc_jlPublishedMsg;
 
         /*Iterate node to add all message to linked list.*/
-        u32Ret = jf_ptree_iterateNode(pNode, _fnParseServMsg, &psmArg);
+        u32Ret = jf_ptree_iterateNode(pPtree, pNode, _fnParseServMsg, &psmArg);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -196,7 +204,7 @@ static u32 _parseDispatcherMessage(
 
     /*Parse the subscribed message list.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_SUBSCRIBED_MSG, &pNode);
+        u32Ret = jf_ptree_findNode(pPtree, DSCN_SUBSCRIBED_MSG, DSCN_SUBSCRIBED_MSG_LEN, &pNode);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -205,7 +213,7 @@ static u32 _parseDispatcherMessage(
         psmArg.psm_pjlMsg = &pdsc->dsc_jlSubscribedMsg;
 
         /*Iterate node to add all message to linked list.*/
-        u32Ret = jf_ptree_iterateNode(pNode, _fnParseServMsg, &psmArg);
+        u32Ret = jf_ptree_iterateNode(pPtree, pNode, _fnParseServMsg, &psmArg);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -222,7 +230,7 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_service_c
     olsize_t sValue = 0;
 
     /*Find the service name node.*/
-    u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_SERVICE_NAME, &pNode);
+    u32Ret = jf_ptree_findNode(pPtree, DSCN_SERVICE_NAME, DSCN_SERVICE_NAME_LEN, &pNode);
 
     /*Get name of the service.*/
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -234,7 +242,8 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_service_c
 
     /*Find the service user name node.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_SERVICE_USER_NAME, &pNode);
+        u32Ret = jf_ptree_findNode(
+            pPtree, DSCN_SERVICE_USER_NAME, DSCN_SERVICE_USER_NAME_LEN, &pNode);
 
     /*Get name of the service user.*/
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -246,7 +255,8 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_service_c
 
     /*Find the service messaging in node.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_SERVICE_MESSAGING_IN, &pNode);
+        u32Ret = jf_ptree_findNode(
+            pPtree, DSCN_SERVICE_MESSAGING_IN, DSCN_SERVICE_MESSAGING_IN_LEN, &pNode);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pNode, &pstrValue, NULL);
@@ -256,7 +266,8 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_service_c
 
     /*Find the service messaging out node.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_SERVICE_MESSAGING_OUT, &pNode);
+        u32Ret = jf_ptree_findNode(
+            pPtree, DSCN_SERVICE_MESSAGING_OUT, DSCN_SERVICE_MESSAGING_OUT_LEN, &pNode);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pNode, &pstrValue, NULL);
@@ -266,7 +277,8 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_service_c
 
     /*Find the maximum number of message node.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_SERVICE_MAX_NUM_MSG, &pNode);
+        u32Ret = jf_ptree_findNode(
+            pPtree, DSCN_SERVICE_MAX_NUM_MSG, DSCN_SERVICE_MAX_NUM_MSG_LEN, &pNode);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pNode, &pstrValue, &sValue);
@@ -276,7 +288,8 @@ static u32 _parseDispatcherServiceInfo(jf_ptree_t * pPtree, dispatcher_service_c
 
     /*Find the maximum message size node.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_SERVICE_MAX_MSG_SIZE, &pNode);
+        u32Ret = jf_ptree_findNode(
+            pPtree, DSCN_SERVICE_MAX_MSG_SIZE, DSCN_SERVICE_MAX_MSG_SIZE_LEN, &pNode);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pNode, &pstrValue, &sValue);
@@ -294,9 +307,9 @@ static u32 _getDispatcherServiceConfigVersion(jf_ptree_t * pPtree, dispatcher_se
     jf_ptree_node_attribute_t * pAttr = NULL;
     olchar_t * pstrVer = NULL;
 
-    u32Ret = jf_ptree_findNode(pPtree, DISPATCHER_SERVICE_CONFIG_ROOT, &pNode);
+    u32Ret = jf_ptree_findNode(pPtree, DSCN_ROOT, DSCN_ROOT_LEN, &pNode);
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNodeAttribute(pNode, NULL, DISPATCHER_SERVICE_CONFIG_VERSION, &pAttr);
+        u32Ret = jf_ptree_findNodeAttribute(pNode, NULL, 0, DSCN_VERSION, DSCN_VERSION_LEN, &pAttr);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeAttributeValue(pAttr, &pstrVer, NULL);

@@ -29,10 +29,6 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/** Running dispatcher in foreground if it's TRUE.
- */
-static boolean_t ls_bDispatcherForeground = FALSE;
-
 /** Name of the executable file, parsed from command line.
  */
 static olchar_t ls_strDispatcherProgramName[64];
@@ -46,8 +42,7 @@ static olchar_t * ls_pstrDispatcherVersion = "1.0.0";
 static void _printDispatcherUsage(void)
 {
     ol_printf("\
-Usage: %s [-f] [-s config dir] [-V] [logger options]\n\
-    -f running in foreground.\n\
+Usage: %s [-s config dir] [-V] [logger options]\n\
     -s specify the directory containing service manifest file.\n\
     -V show version information.\n\
 logger options:\n\
@@ -65,14 +60,11 @@ static u32 _parseDispatcherCmdLineParam(
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "fs:VT:F:S:Oh")) != -1) &&
+    while (((nOpt = getopt(argc, argv, "s:VT:F:S:Oh")) != -1) &&
            (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
-        case 'f':
-            ls_bDispatcherForeground = TRUE;
-            break;
         case 's':
             pdp->dp_pstrConfigDir = optarg;
             break;
@@ -149,6 +141,7 @@ static u32 _serviceDispatcher(olint_t argc, char** argv)
     jlipParam.jlip_pstrCallerName = "DISPATCHER";
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DEBUG;
     jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_bLogToFile = TRUE;
 
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
@@ -157,13 +150,6 @@ static u32 _serviceDispatcher(olint_t argc, char** argv)
     dp.dp_pstrCmdLine = argv[0];
 
     u32Ret = _parseDispatcherCmdLineParam(argc, argv, &dp, &jlipParam);
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        /*Switch to daemon by default.*/
-        if (! ls_bDispatcherForeground)
-            u32Ret = jf_process_switchToDaemon();
-    }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {

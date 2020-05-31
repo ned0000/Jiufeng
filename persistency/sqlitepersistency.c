@@ -79,8 +79,7 @@ static u32 _finiSqlite(persistency_manager_t * ppm)
 }
 
 static u32 _getSqliteValue(
-    persistency_manager_t * ppm, olchar_t * pKey,
-    olchar_t * pValue, olsize_t sValue)
+    persistency_manager_t * ppm, const olchar_t * pKey, olchar_t * pValue, olsize_t sValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
@@ -99,7 +98,7 @@ static u32 _getSqliteValue(
 
 
 static u32 _setSqliteValue(
-    persistency_manager_t * ppm, olchar_t * pKey, olchar_t * pValue)
+    persistency_manager_t * ppm, const olchar_t * pKey, const olchar_t * pValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     sqlite_persistency_t * pSqlite = &ppm->pm_pdData.pd_spSqlite;
@@ -114,8 +113,7 @@ static u32 _setSqliteValue(
     {
         /*update or insert the value into the DB*/
         ol_snprintf(
-            pstrSql, nsize,
-            "REPLACE INTO %s(%s, %s) VALUES ('%s', '%s');",
+            pstrSql, nsize, "REPLACE INTO %s(%s, %s) VALUES ('%s', '%s');",
             pjpcs->jpcs_strTableName, pjpcs->jpcs_strKeyColumnName,
             pjpcs->jpcs_strValueColumnName, pKey, pValue);
         u32Ret = jf_sqlite_execSql(

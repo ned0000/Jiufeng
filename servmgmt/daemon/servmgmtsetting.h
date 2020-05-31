@@ -77,6 +77,10 @@ typedef struct
  */
 u32 readServMgmtSetting(internal_serv_mgmt_setting_t * pisms);
 
+/** Free the resource in setting.
+ */
+u32 freeServMgmtSetting(internal_serv_mgmt_setting_t * pisms);
+
 /** Modify the startup type of the service and save the new setting.
  */
 u32 modifyServiceStartupType(internal_serv_mgmt_setting_t * pisms, internal_service_info_t * pisi);

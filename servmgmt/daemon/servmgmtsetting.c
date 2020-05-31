@@ -28,49 +28,59 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+/* Service management setting name definition.*/
+
 /** The root node name of the setting file.
  */
-#define SERVMGMT_SETTING_ROOT                 "servMgmtSetting"
+#define SMSN_ROOT                             "servMgmtSetting"
 
 /** The node path of version.
  */
-#define SERVMGMT_SETTING_VERSION              SERVMGMT_SETTING_ROOT ".version"
+#define SMSN_VERSION                          SMSN_ROOT ".version"
+#define SMSN_VERSION_LEN                      ol_strlen(SMSN_VERSION)
 
 /** The node path of global setting.
  */
-#define SERVMGMT_SETTING_GLOBALSETTING        SERVMGMT_SETTING_ROOT ".globalSetting"
+#define SMSN_GLOBAL_SETTING                   SMSN_ROOT ".globalSetting"
 
 /** The node path of max failure retry count.
  */
-#define SERVMGMT_SETTING_MAXFAILURERETRYCOUNT SERVMGMT_SETTING_GLOBALSETTING ".maxFailureRetryCount"
+#define SMSN_MAX_FAILURE_RETRY_COUNT          SMSN_GLOBAL_SETTING ".maxFailureRetryCount"
+#define SMSN_MAX_FAILURE_RETRY_COUNT_LEN      ol_strlen(SMSN_MAX_FAILURE_RETRY_COUNT)
 
 /** The node path of all service setting.
  */
-#define SERVMGMT_SETTING_SERVICESETTING       SERVMGMT_SETTING_ROOT ".serviceSetting"
+#define SMSN_SERVICE_SETTING                  SMSN_ROOT ".serviceSetting"
 
 /** The node path of one service setting.
  */
-#define SERVMGMT_SETTING_SERVICE              SERVMGMT_SETTING_SERVICESETTING ".service"
+#define SMSN_SERVICE                          SMSN_SERVICE_SETTING ".service"
+#define SMSN_SERVICE_LEN                      ol_strlen(SMSN_SERVICE)
 
 /** The name of the setting name node.
  */
-#define SERVICE_INFO_NAME                     "name"
+#define SMSN_SERVICE_NAME                     "name"
+#define SMSN_SERVICE_NAME_LEN                 ol_strlen(SMSN_SERVICE_NAME)
 
 /** The name of the setting description node.
  */
-#define SERVICE_INFO_DESCRIPTION              "description"
+#define SMSN_SERVICE_DESCRIPTION              "description"
+#define SMSN_SERVICE_DESCRIPTION_LEN          ol_strlen(SMSN_SERVICE_DESCRIPTION)
 
 /** The name of the setting startup type node.
  */
-#define SERVICE_INFO_STARTUPTYPE              "startupType"
+#define SMSN_SERVICE_STARTUPTYPE              "startupType"
+#define SMSN_SERVICE_STARTUPTYPE_LEN          ol_strlen(SMSN_SERVICE_STARTUPTYPE)
 
 /** The name of the setting command path node.
  */
-#define SERVICE_INFO_CMDPATH                  "cmdPath"
+#define SMSN_SERVICE_CMDPATH                  "cmdPath"
+#define SMSN_SERVICE_CMDPATH_LEN              ol_strlen(SMSN_SERVICE_CMDPATH)
 
 /** The name of the setting command parameter node.
  */
-#define SERVICE_INFO_CMDPARAM                 "cmdParam"
+#define SMSN_SERVICE_CMDPARAM                 "cmdParam"
+#define SMSN_SERVICE_CMDPARAM_LEN             ol_strlen(SMSN_SERVICE_CMDPARAM)
 
 /* --- private routine section ------------------------------------------------------------------ */
 
@@ -82,7 +92,7 @@ static u32 _parseServMgmtVersion(internal_serv_mgmt_setting_t * pisms)
     jf_ptree_node_t * pNode = NULL;
 
     u32Ret = jf_ptree_findNode(
-        pisms->isms_pjpService, SERVMGMT_SETTING_VERSION, &pNode);
+        pisms->isms_pjpService, SMSN_VERSION, SMSN_VERSION_LEN, &pNode);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pNode, &pisms->isms_pstrVersion, NULL);
@@ -101,7 +111,8 @@ static u32 _parseGlobalSetting(internal_serv_mgmt_setting_t * pisms)
 
     /*Find the child node with max failure retry count.*/
     u32Ret = jf_ptree_findNode(
-        pisms->isms_pjpService, SERVMGMT_SETTING_MAXFAILURERETRYCOUNT, &pNode);
+        pisms->isms_pjpService, SMSN_MAX_FAILURE_RETRY_COUNT, SMSN_MAX_FAILURE_RETRY_COUNT_LEN,
+        &pNode);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pNode, &pstrValue, &sValue);
@@ -114,42 +125,50 @@ static u32 _parseGlobalSetting(internal_serv_mgmt_setting_t * pisms)
 
 /** Parse one service node.
  */
-static u32 _processServiceNode(internal_service_info_t * pisi, jf_ptree_node_t * pNode)
+static u32 _processServiceNode(
+    jf_ptree_t * pjpService, internal_service_info_t * pisi, jf_ptree_node_t * pNode)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ptree_node_t * pChild = NULL;
     olchar_t * pstrValue = NULL;
 
     /*Find the child node with service name.*/
-    u32Ret = jf_ptree_findChildNode(pNode, NULL, SERVICE_INFO_NAME, &pChild);
+    u32Ret = jf_ptree_findChildNode(
+        pjpService, pNode, NULL, 0, SMSN_SERVICE_NAME, SMSN_SERVICE_NAME_LEN, &pChild);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pChild, &pisi->isi_pstrName, NULL);
 
     /*Find the child node with service description.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findChildNode(pNode, NULL, SERVICE_INFO_DESCRIPTION, &pChild);
+        u32Ret = jf_ptree_findChildNode(
+            pjpService, pNode, NULL, 0, SMSN_SERVICE_DESCRIPTION, SMSN_SERVICE_DESCRIPTION_LEN,
+            &pChild);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pChild, &pisi->isi_pstrDescription, NULL);
 
     /*Find the child node with service command path.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findChildNode(pNode, NULL, SERVICE_INFO_CMDPATH, &pChild);
+        u32Ret = jf_ptree_findChildNode(
+            pjpService, pNode, NULL, 0, SMSN_SERVICE_CMDPATH, SMSN_SERVICE_CMDPATH_LEN, &pChild);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pChild, &pisi->isi_pstrCmdPath, NULL);
 
     /*Find the child node with service command parameter.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findChildNode(pNode, NULL, SERVICE_INFO_CMDPARAM, &pChild);
+        u32Ret = jf_ptree_findChildNode(
+            pjpService, pNode, NULL, 0, SMSN_SERVICE_CMDPARAM, SMSN_SERVICE_CMDPARAM_LEN, &pChild);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pChild, &pisi->isi_pstrCmdParam, NULL);
 
     /*Find the child node with service startup type.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findChildNode(pNode, NULL, SERVICE_INFO_STARTUPTYPE, &pChild);
+        u32Ret = jf_ptree_findChildNode(
+            pjpService, pNode, NULL, 0, SMSN_SERVICE_STARTUPTYPE, SMSN_SERVICE_STARTUPTYPE_LEN,
+            &pChild);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pChild, &pstrValue, NULL);
@@ -179,13 +198,16 @@ static u32 _parseServiceSetting(internal_serv_mgmt_setting_t * pisms)
 
     /*Find all the service node.*/
     u32Ret = jf_ptree_findAllNode(
-        pisms->isms_pjpService, SERVMGMT_SETTING_SERVICE, pNode, &u16NumOfNode);
+        pisms->isms_pjpService, SMSN_SERVICE, SMSN_SERVICE_LEN, pNode, &u16NumOfNode);
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         for (u16Index = 0; u16Index < u16NumOfNode; ++u16Index)
         {
             /*Parse the child node of service node.*/
-            u32Ret = _processServiceNode(&pisms->isms_isiService[u16Index], pNode[u16Index]);
+            u32Ret = _processServiceNode(
+                pisms->isms_pjpService, &pisms->isms_isiService[u16Index], pNode[u16Index]);
+
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 pisms->isms_u16NumOfService ++;
@@ -227,11 +249,22 @@ u32 readServMgmtSetting(internal_serv_mgmt_setting_t * pisms)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_logger_logInfoMsg("version     : %s", pisms->isms_pstrVersion);
-        jf_logger_logInfoMsg("number of service: %u", pisms->isms_u16NumOfService);
-        jf_logger_logInfoMsg("failureRetry: %u", pisms->isms_u8FailureRetryCount);
+        JF_LOGGER_INFO("version     : %s", pisms->isms_pstrVersion);
+        JF_LOGGER_INFO("number of service: %u", pisms->isms_u16NumOfService);
+        JF_LOGGER_INFO("failureRetry: %u", pisms->isms_u8FailureRetryCount);
     }
     
+    return u32Ret;
+}
+
+u32 freeServMgmtSetting(internal_serv_mgmt_setting_t * pisms)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    /*Free the property tree of setting.*/
+    if (pisms->isms_pjpService != NULL)
+        jf_ptree_destroy(&pisms->isms_pjpService);
+
     return u32Ret;
 }
 
@@ -241,7 +274,9 @@ u32 modifyServiceStartupType(internal_serv_mgmt_setting_t * pisms, internal_serv
     const olchar_t * pstrStartupType = getStringServStartupType(pisi->isi_u8StartupType);
     
     /*Change the value of the node for startup type.*/
-    u32Ret = jf_ptree_changeNodeValue(pisi->isi_pjpnStartupType, pstrStartupType);
+    u32Ret = jf_ptree_changeNodeValue(
+        pisi->isi_pjpnStartupType, pstrStartupType, ol_strlen(pstrStartupType));
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Save the modified property tree to XML file.*/

@@ -17,7 +17,7 @@ SOURCES = files.c directory.c conffile.c
 
 EXTRA_LIBS = -ljf_jiukun
 
-JIUTAI_SRCS =
+JIUTAI_SRCS = jf_option.c
 
 EXTRA_INC_DIR =
 

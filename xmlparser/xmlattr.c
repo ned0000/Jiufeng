@@ -120,6 +120,10 @@ static u32 _parseNameAndValueOfOneXmlAttribute(
 
         retval->ixxa_sValue = pValue->jspr_pjsprfLast->jsprf_sData;
         retval->ixxa_pstrValue = pValue->jspr_pjsprfLast->jsprf_pstrData;
+
+        /*The attribute value must be quoted by " or ', so the size should be at least 2.*/
+        if (retval->ixxa_sValue < 2)
+            u32Ret = JF_ERR_INVALID_XML_ATTRIBUTE;
     }
 
     if (pValue != NULL)
@@ -198,13 +202,13 @@ static u32 _fnCopyXmlDeclarationToPtree(jf_linklist_node_t * pNode, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ptree_t * pjpXml = (jf_ptree_t *)pArg;
-    internal_xmlparser_xml_attribute_t * pixxa = NULL;
+    internal_xmlparser_xml_attribute_t * pixxa = pNode->jln_pData;
 
-    pixxa = (internal_xmlparser_xml_attribute_t *)pNode->jln_pData;
+    /*Ignore the quotation " or ', suppose the quotation is right after =.*/
 
     u32Ret = jf_ptree_addDeclarationAttribute(
         pjpXml, pixxa->ixxa_pstrPrefix, pixxa->ixxa_sPrefix, pixxa->ixxa_pstrName,
-        pixxa->ixxa_sName, pixxa->ixxa_pstrValue, pixxa->ixxa_sValue);
+        pixxa->ixxa_sName, pixxa->ixxa_pstrValue + 1, pixxa->ixxa_sValue - 2);
     
     return u32Ret;
 }
@@ -213,13 +217,13 @@ static u32 _fnCopyXmlAttributeToPtree(jf_linklist_node_t * pNode, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ptree_node_t * pjpn = (jf_ptree_node_t *)pArg;
-    internal_xmlparser_xml_attribute_t * pixxa = NULL;
+    internal_xmlparser_xml_attribute_t * pixxa = pNode->jln_pData;
 
-    pixxa = (internal_xmlparser_xml_attribute_t *)pNode->jln_pData;
+    /*Ignore the quotation " or ', suppose the quotation is right after =.*/
 
     u32Ret = jf_ptree_addNodeAttribute(
         pjpn, pixxa->ixxa_pstrPrefix, pixxa->ixxa_sPrefix, pixxa->ixxa_pstrName,
-        pixxa->ixxa_sName, pixxa->ixxa_pstrValue, pixxa->ixxa_sValue);
+        pixxa->ixxa_sName, pixxa->ixxa_pstrValue + 1, pixxa->ixxa_sValue - 2);
     
     return u32Ret;
 }

@@ -20,28 +20,26 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-/** magic number SEMG (0x53 0x45 0x4D 0x47)
+/** Magic number, SEMG (0x53 0x45 0x4D 0x47)
  */
 #define SERVMGMT_MSG_MAGIC_NUMBER  (0x53454D47)
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-/** servmgmt message header
+/** service management message header
  */
 typedef struct 
 {
-    /**unique identifier of the message*/    
+    /**Unique identifier of the message.*/
     u8 smh_u8MsgId;
-    /**message priority*/
-    u8 smh_u8MsgPrio;
-    u8 smh_u8Reserved[2];
-    /**transaction identifier*/
-    u32 smh_u32TransactionId;
-    /**magic number for validation*/
+    u8 smh_u8Reserved[3];
+    /**Sequence number.*/
+    u32 smh_u32SeqNum;
+    /**Magic number for validation.*/
     u32 smh_u32MagicNumber;
-    /**payload size*/
+    /**Payload size.*/
     u32 smh_u32PayloadSize;
-    /**result code for response message*/
+    /**Result code for response message.*/
     u32 smh_u32Result;
     u32 smh_u32Reserved[3];
 } servmgmt_msg_header_t;

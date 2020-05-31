@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configMgrSetting>
+  <version>1.0</version>
+  <globalSetting>
+    <maxNumTransaction>10</maxNumTransaction>
+  </globalSetting>
+  <configSetting>
+    <configPersistency location="../config/jiufeng.conf">conf_file</configPersistency>
+  </configSetting>
+</configMgrSetting>

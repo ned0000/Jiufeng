@@ -79,7 +79,7 @@ static u32 _testPtreeNode(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ptree_t * pPtree = NULL;
-    jf_ptree_node_t * pNode = NULL, * pService = NULL, * pTemp = NULL;
+    jf_ptree_node_t * pNode = NULL, * pService = NULL, * pTemp = NULL, * pRoot2 = NULL;
     olchar_t * pstrName = "servmgmtsetting";
     olchar_t * pstrVer = "version";
     olchar_t * pstrVerValue = "1.0";
@@ -89,6 +89,11 @@ static u32 _testPtreeNode(void)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_ptree_addChildNode(pPtree, NULL, NULL, 0, pstrName, ol_strlen(pstrName), NULL, 0, &pNode);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = jf_ptree_addChildNode(pPtree, NULL, NULL, 0, "root2", 5, NULL, 0, &pRoot2);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -172,55 +177,71 @@ static u32 _testPtreeNode(void)
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-    {
         jf_ptree_dump(pPtree);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        olchar_t str[512];
+        olsize_t sStr = sizeof(str);
+
+        u32Ret = jf_ptree_getNodeFullName(pPtree, pTemp, str, &sStr);
+        if (u32Ret == JF_ERR_NO_ERROR)
+            ol_printf("Node full name: %s(%d)\n", str, sStr);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_ptree_node_t * fnode[100];
-        u16 u16NumOfNode = ARRAY_SIZE(fnode);
+        jf_ptree_node_t * node = NULL;
+        olchar_t * pstrKey = "root3.sch.name";
 
-        ol_printf("Get node \"NOT_FOUND\":\n");
+        u32Ret = jf_ptree_replaceNode(pPtree, pstrKey, ol_strlen(pstrKey), "xy", 2, &node);
+    }
 
-        u32Ret = jf_ptree_findAllNode(pPtree, "NOT_FOUND", fnode, &u16NumOfNode);
-        if (u32Ret != JF_ERR_NO_ERROR)
+    if (u32Ret == JF_ERR_NO_ERROR)
+        jf_ptree_dump(pPtree);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        olchar_t * pstr[] = {
+            "NOT_FOUND",
+            "servmgmtsetting",
+            "servmgmtsetting.version",            
+            "servmgmtsetting.service",
+            "root2",
+        };
+        u32 index = 0;
+
+        ol_printf("\n");
+        for (index = 0; index < ARRAY_SIZE(pstr); index ++)
         {
-            ol_printf("Not found, number of node: %u\n", u16NumOfNode);
+            jf_ptree_node_t * fnode[100];
+            u16 u16NumOfNode = ARRAY_SIZE(fnode);
 
-            u32Ret = JF_ERR_NO_ERROR;
+            ol_printf("Get node: \"%s\"\n", pstr[index]);
+
+            u32Ret = jf_ptree_findAllNode(
+                pPtree, pstr[index], ol_strlen(pstr[index]), fnode, &u16NumOfNode);
+
+            if (u32Ret == JF_ERR_NO_ERROR)
+                ol_printf("Number of node: %u\n", u16NumOfNode);
+            else
+                ol_printf("Not found\n");
+
+            ol_printf("\n");
         }
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        olchar_t * pstr = "servmgmtsetting.service";
         jf_ptree_node_t * fnode[100];
         u16 u16NumOfNode = ARRAY_SIZE(fnode);
 
-        ol_printf("Get node \"servmgmtsetting.version\":\n");
+        ol_printf("Delete the node: %s\n", pstr);
 
-        u32Ret = jf_ptree_findAllNode(pPtree, "servmgmtsetting.version", fnode, &u16NumOfNode);
+        u32Ret = jf_ptree_findAllNode(pPtree, pstr, ol_strlen(pstr), fnode, &u16NumOfNode);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            ol_printf("Number of node: %u\n", u16NumOfNode);
-
-        }
-    }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        jf_ptree_node_t * fnode[100];
-        u16 u16NumOfNode = sizeof(fnode);
-
-        ol_printf("Get node \"servmgmtsetting.service\":\n");
-
-        u32Ret = jf_ptree_findAllNode(pPtree, "servmgmtsetting.service", fnode, &u16NumOfNode);
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            ol_printf("Number of node: %u\n", u16NumOfNode);
-
-            ol_printf("Delete the node:\n");
-
             u32Ret = jf_ptree_deleteNode(&fnode[0]);
         }
 

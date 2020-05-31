@@ -18,6 +18,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 
@@ -167,8 +168,31 @@ u32 jf_option_getFloatFromString(const olchar_t * pstrFloat, olfloat_t * pflValu
  */
 u32 jf_option_getDoubleFromString(const olchar_t * pstrDouble, oldouble_t * pdbValue);
 
+/** Skip the space before string.
+ *
+ *  @note
+ *  -# The space is not removed.
+ *
+ *  @param pstr [in] The destination string.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Valid float.
+ */
+olchar_t * jf_option_skipSpaceBeforeString(olchar_t * pstr);
+
+/** Remove the space after string.
+ *
+ *  @note
+ *  -# The space is replaced with '\0'.
+ *
+ *  @param pstr [in] The destination string.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Valid float.
+ */
+void jf_option_removeSpaceAfterString(olchar_t * pstr);
+
+
 #endif /*JIUTAI_OPTION_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

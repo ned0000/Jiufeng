@@ -20,7 +20,7 @@
 #include "jf_conffile.h"
 #include "jf_filestream.h"
 #include "jf_array.h"
-#include "jf_string.h"
+#include "jf_option.h"
 #include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -132,14 +132,13 @@ static void _skipBlank(olchar_t * pstrBufOut, const olchar_t * pstrBufIn)
  *  @retval JF_ERR_NO_ERROR success
  */
 static u32 _getValueStringByTag(
-    internal_jf_conffile_t * pijc, 
-    const olchar_t * pstrTag, olchar_t strBuf[JF_CONFFILE_MAX_LINE_LEN])
+    internal_jf_conffile_t * pijc, const olchar_t * pstrTag, olchar_t strBuf[JF_CONFFILE_MAX_LINE_LEN])
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
     olchar_t strLine[JF_CONFFILE_MAX_LINE_LEN];
-    olchar_t * pcEqual, * pstrLine;
-    olint_t nChar;
-    olint_t nLength, nLengthTag;
+    olchar_t * pcEqual = NULL, * pstrLine = NULL, * pstrValue = NULL;
+    olint_t nChar = 0;
+    olint_t nLength = 0, nLengthTag = 0;
 
     nLengthTag = ol_strlen(pstrTag);
 
@@ -149,25 +148,80 @@ static u32 _getValueStringByTag(
         pstrLine = strLine;
         nChar = _readLineFromFile(pijc->ijc_pjfConfFile, strLine);
 
-        while (*pstrLine == ' ')
-            pstrLine ++;
+        /*Skip the space before tag name string.*/
+        pstrLine = jf_option_skipSpaceBeforeString(pstrLine);
 
-        nLength = ol_strlen(pstrLine);
-        if (nLength > 0)
+        if (ol_strlen(pstrLine) > 0)
         {
-            if (strncmp(pstrLine, pstrTag, nLengthTag) == 0)
+            /* found the tag, search for "=" */
+            pcEqual = strstr(&(pstrLine[nLengthTag]), (const olchar_t *)"=");
+            if (pcEqual != NULL)
             {
-                /* found the tag, search for "=" */
-                pcEqual = strstr(&(pstrLine[nLengthTag]), (const olchar_t *)"=");
-                if (pcEqual != NULL)
+                pstrValue = pcEqual + 1;
+
+                /*Skip the spaces after tag name string.*/
+                pcEqual --;
+                while (*pcEqual == ' ')
+                    pcEqual --;
+
+                nLength = pcEqual - pstrLine + 1;
+                if ((nLength == nLengthTag) &&
+                    (ol_strncmp(pstrLine, pstrTag, nLengthTag) == 0))
                 {
-                    _skipBlank(strBuf, &(pcEqual[1]));
+
+                    _skipBlank(strBuf, pstrValue);
                     nChar = EOF;
                     u32Ret = JF_ERR_NO_ERROR;
                 }
             }
         }
     } while (nChar != EOF);
+
+    return u32Ret;
+}
+
+static u32 _traverseConfFile(
+    internal_jf_conffile_t * pijc, jf_conffile_fnHandleConfig_t fnHandleConfig, void * pArg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t strLine[JF_CONFFILE_MAX_LINE_LEN];
+    olchar_t * pstrLine = NULL, * pstrValue = NULL, * pstrEqual = NULL;
+    olint_t nChar = 0;
+    olint_t nLength = 0;
+
+    jf_filestream_seek(pijc->ijc_pjfConfFile, 0L, SEEK_SET);
+
+    do
+    {
+        ol_memset(strLine, 0, JF_CONFFILE_MAX_LINE_LEN);
+        pstrLine = strLine;
+
+        nChar = _readLineFromFile(pijc->ijc_pjfConfFile, strLine);
+
+        /*Skip the space before tag name string.*/
+        pstrLine = jf_option_skipSpaceBeforeString(pstrLine);
+
+        nLength = ol_strlen(pstrLine);
+        if (nLength > 0)
+        {
+            /* found the tag, search for "=" */
+            pstrEqual = strstr(pstrLine, "=");
+            if (pstrEqual != NULL)
+            {
+                pstrValue = pstrEqual + 1;
+                *pstrEqual = '\0';
+                /*Remove the space after tag name string.*/
+                jf_option_removeSpaceAfterString(pstrLine);
+
+                /*Skip the space before and after value string.*/
+                pstrValue = jf_option_skipSpaceBeforeString(pstrValue);
+                jf_option_removeSpaceAfterString(pstrValue);
+
+                /*Allow space before and after value string.*/
+                u32Ret = fnHandleConfig(pstrLine, pstrValue, pArg);
+            }
+        }
+    } while ((nChar != EOF) && (u32Ret == JF_ERR_NO_ERROR));
 
     return u32Ret;
 }
@@ -187,8 +241,10 @@ u32 jf_conffile_open(
     {
         ol_bzero(pijc, sizeof(*pijc));
 
-        u32Ret = jf_filestream_open(
-            pParam->jcop_pstrFile, "r", &pijc->ijc_pjfConfFile);
+        if (pParam->jcop_bWrite)
+            u32Ret = jf_filestream_open(pParam->jcop_pstrFile, "w", &pijc->ijc_pjfConfFile);
+        else
+            u32Ret = jf_filestream_open(pParam->jcop_pstrFile, "r", &pijc->ijc_pjfConfFile);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -216,9 +272,18 @@ u32 jf_conffile_close(jf_conffile_t ** ppConffile)
     return u32Ret;
 }
 
+u32 jf_conffile_write(jf_conffile_t * pConffile, const olchar_t * pstrData, olsize_t sData)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_jf_conffile_t * pijc = (internal_jf_conffile_t *)pConffile;
+
+    u32Ret = jf_filestream_writen(pijc->ijc_pjfConfFile, pstrData, sData);
+
+    return u32Ret;
+}
+
 u32 jf_conffile_getInt(
-    jf_conffile_t * pConffile, const olchar_t * pstrTag, olint_t nDefault,
-    olint_t * pnValue)
+    jf_conffile_t * pConffile, const olchar_t * pstrTag, olint_t nDefault, olint_t * pnValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jf_conffile_t * pijc = (internal_jf_conffile_t *)pConffile;
@@ -255,8 +320,8 @@ u32 jf_conffile_getInt(
 }
 
 u32 jf_conffile_getString(
-    jf_conffile_t * pConffile, const olchar_t * pstrTag,
-    const olchar_t * pstrDefault, olchar_t * pstrValueBuf, olsize_t sBuf)
+    jf_conffile_t * pConffile, const olchar_t * pstrTag, const olchar_t * pstrDefault,
+    olchar_t * pstrValueBuf, olsize_t sBuf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jf_conffile_t * pijc = (internal_jf_conffile_t *)pConffile;
@@ -307,6 +372,15 @@ u32 jf_conffile_getString(
     return u32Ret;
 }
 
+u32 jf_conffile_traverse(
+    jf_conffile_t * pConffile, jf_conffile_fnHandleConfig_t fnHandleConfig, void * pArg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_jf_conffile_t * pijc = (internal_jf_conffile_t *)pConffile;
+
+    u32Ret = _traverseConfFile(pijc, fnHandleConfig, pArg);
+
+    return u32Ret;
+}
+
 /*------------------------------------------------------------------------------------------------*/
-
-

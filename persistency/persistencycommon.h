@@ -27,10 +27,9 @@ struct persistency_manager;
 
 typedef u32 (* fnFiniPersistency_t)(struct persistency_manager * pMananger);
 typedef u32 (* fnGetPersistencyValue_t)(
-    struct persistency_manager * pMananger, olchar_t * pKey,
-    olchar_t * pValue, olsize_t sValue);
+    struct persistency_manager * pMananger, const olchar_t * pKey, olchar_t * pValue, olsize_t sValue);
 typedef u32 (* fnSetPersistencyValue_t)(
-    struct persistency_manager * pMananger, olchar_t * pKey, olchar_t * pValue);
+    struct persistency_manager * pMananger, const olchar_t * pKey, const olchar_t * pValue);
 typedef u32 (* fnStartPersistencyTransaction_t)(struct persistency_manager * pMananger);
 typedef u32 (* fnCommitPersistencyTransaction_t)(struct persistency_manager * pMananger);
 typedef u32 (* fnRollbackPersistencyTransaction_t)(struct persistency_manager * pMananger);

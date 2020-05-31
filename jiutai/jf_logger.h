@@ -59,6 +59,11 @@ typedef enum
  */
 #define JF_LOGGER_MAX_MSG_SIZE    (512)
 
+/** The helper function to output error message with function name and line number.
+ */
+#define JF_LOGGER_ERR(u32ErrCode, fmt, ...)  \
+    jf_logger_logErrMsg(u32ErrCode, "%s:%d, "fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+
 /** The helper function to output warning message with function name and line number.
  */
 #define JF_LOGGER_WARN(fmt, ...)  \
@@ -74,10 +79,15 @@ typedef enum
 #define JF_LOGGER_DEBUG(fmt, ...)  \
     jf_logger_logDebugMsg("%s:%d, "fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
-/** The helper function to output error message with function name and line number.
+/** The helper function to output data message with function name and line number.
  */
-#define JF_LOGGER_ERR(u32ErrCode, fmt, ...)  \
-    jf_logger_logErrMsg(u32ErrCode, "%s:%d, "fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+#define JF_LOGGER_DATA(data, len, fmt, ...)  \
+    jf_logger_logDataMsg(data, len, "%s:%d, "fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
+
+/** The helper function to output data message with ASCII with function name and line number.
+ */
+#define JF_LOGGER_DATAA(data, len, fmt, ...)  \
+    jf_logger_logDataMsgWithAscii(data, len, "%s:%d, "fmt, __FUNCTION__, __LINE__, ##__VA_ARGS__)
 
 /* --- data structures -------------------------------------------------------------------------- */
 

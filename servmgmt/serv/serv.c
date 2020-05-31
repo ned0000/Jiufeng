@@ -1,5 +1,5 @@
 /**
- *  @file serv.c
+ *  @file servmgmt/serv/serv.c
  *
  *  @brief Implementation file for service library.
  *
@@ -46,10 +46,10 @@ typedef struct
     /**Server address of service management daemon.*/
     jf_ipaddr_t is_jiServer;
 
-    /**The mutex lock for the transaction id.*/
+    /**The mutex lock for the sequence number.*/
     jf_mutex_t is_jmLock;
-    /**The transaction id.*/
-    u32 is_u32TransactionId;
+    /**The sequence number.*/
+    u32 is_u32SeqNum;
 
 } internal_serv_t;
 
@@ -70,8 +70,8 @@ static u32 _initServMgmtReqMsgHeader(
 
     /*Set the transaction id and increase the id with 1.*/
     jf_mutex_acquire(&pis->is_jmLock);
-    pHeader->smh_u32TransactionId = pis->is_u32TransactionId;
-    pis->is_u32TransactionId ++;
+    pHeader->smh_u32SeqNum = pis->is_u32SeqNum;
+    pis->is_u32SeqNum ++;
     jf_mutex_release(&pis->is_jmLock);
 
     return u32Ret;
@@ -89,7 +89,7 @@ static u32 _sendRecvServMgmtMsg(
     u32Ret = jf_network_createSocket(AF_UNIX, SOCK_STREAM, 0, &pSocket);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_logger_logDebugMsg("socket created");
+        JF_LOGGER_DEBUG("socket created");
 
         /*Connect to the remote server.*/
         u32Ret = jf_network_connect(pSocket, &pis->is_jiServer, 0);
@@ -98,7 +98,7 @@ static u32 _sendRecvServMgmtMsg(
     /*Send the request message.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_logger_logDebugMsg("send data, size: %d", sSendMsg);
+        JF_LOGGER_DEBUG("send data, size: %d", sSendMsg);
 
         sMsg = sSendMsg;
         u32Ret = jf_network_sendnWithTimeout(pSocket, (void *)pSendMsg, &sMsg, pis->is_u32Timeout);
@@ -109,7 +109,7 @@ static u32 _sendRecvServMgmtMsg(
     {
         sMsg = sizeof(servmgmt_msg_header_t);
 
-        jf_logger_logDebugMsg("recv header, size: %d", sMsg);
+        JF_LOGGER_DEBUG("recv header, size: %d", sMsg);
 
         u32Ret = jf_network_recvnWithTimeout(pSocket, (void *)pRecvMsg, &sMsg, pis->is_u32Timeout);
     }
@@ -121,7 +121,7 @@ static u32 _sendRecvServMgmtMsg(
         pRecvMsg = (u8 *)pRecvMsg + sMsg;
         sMsg = pHeader->smh_u32PayloadSize;
 
-        jf_logger_logDebugMsg("recv payload, size: %d", sMsg);
+        JF_LOGGER_DEBUG("recv payload, size: %d", sMsg);
 
         if (sMsg != 0)
             u32Ret = jf_network_recvnWithTimeout(
@@ -130,7 +130,7 @@ static u32 _sendRecvServMgmtMsg(
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        jf_logger_logErrMsg(u32Ret, "send recv msg");
+        JF_LOGGER_ERR(u32Ret, "send recv msg");
     }
 
     /*Destroy the socket.*/
@@ -151,7 +151,7 @@ u32 jf_serv_init(jf_serv_init_param_t * pjsip)
 
     assert(pjsip != NULL);
 
-    jf_logger_logInfoMsg("init serv");
+    JF_LOGGER_INFO("init serv");
 
     pis->is_u32Timeout = SERV_SEND_RECV_DATA_TIMEOUT;
     jf_ipaddr_setUdsAddr(&pis->is_jiServer, SERVMGMT_SERVER_ADDR);
@@ -171,7 +171,7 @@ u32 jf_serv_fini(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_serv_t * pis = &ls_isServ;
 
-    jf_logger_logInfoMsg("fini serv mgmt");
+    JF_LOGGER_INFO("fini serv");
 
     u32Ret = jf_mutex_fini(&pis->is_jmLock);
     

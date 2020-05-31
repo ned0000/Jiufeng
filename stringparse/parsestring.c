@@ -85,7 +85,7 @@ u32 jf_string_parseAdv(
     olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_string_parse_result_t * ppr = NULL;
+    jf_string_parse_result_t * pjspr = NULL;
     olint_t i = 0;
     olchar_t * token = NULL;
     olint_t tokenlength = 0;
@@ -93,10 +93,10 @@ u32 jf_string_parseAdv(
     olint_t ignore = 0;
     olchar_t cDelimiter = 0;
 
-    u32Ret = jf_jiukun_allocMemory((void **)&ppr, sizeof(jf_string_parse_result_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&pjspr, sizeof(jf_string_parse_result_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(ppr, 0, sizeof(jf_string_parse_result_t));
+        ol_memset(pjspr, 0, sizeof(jf_string_parse_result_t));
 
         /* By default we will always return at least one token, which will be the
            entire string if the delimiter is not found.
@@ -143,20 +143,20 @@ u32 jf_string_parseAdv(
                     pjsprf->jsprf_pstrData = token;
                     pjsprf->jsprf_sData = tokenlength;
                     pjsprf->jsprf_pjsprfNext = NULL;
-                    if (ppr->jspr_pjsprfFirst != NULL)
+                    if (pjspr->jspr_pjsprfFirst != NULL)
                     {
-                        ppr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
-                        ppr->jspr_pjsprfLast = pjsprf;
+                        pjspr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
+                        pjspr->jspr_pjsprfLast = pjsprf;
                     }
                     else
                     {
-                        ppr->jspr_pjsprfFirst = pjsprf;
-                        ppr->jspr_pjsprfLast = pjsprf;
+                        pjspr->jspr_pjsprfFirst = pjsprf;
+                        pjspr->jspr_pjsprfLast = pjsprf;
                     }
 
                     /* after we populate the values, we advance the token to after 
                        the delimiter to prep for the next token */
-                    ++ppr->jspr_u32NumOfResult;
+                    ++pjspr->jspr_u32NumOfResult;
                     i = i + sDelimiter - 1;
                     token = token + tokenlength + sDelimiter;
                     tokenlength = 0;
@@ -184,26 +184,26 @@ u32 jf_string_parseAdv(
         pjsprf->jsprf_pstrData = token;
         pjsprf->jsprf_sData = tokenlength;
         pjsprf->jsprf_pjsprfNext = NULL;
-        if (ppr->jspr_pjsprfFirst != NULL)
+        if (pjspr->jspr_pjsprfFirst != NULL)
         {
-            ppr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
-            ppr->jspr_pjsprfLast = pjsprf;
+            pjspr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
+            pjspr->jspr_pjsprfLast = pjsprf;
         }
         else
         {
-            ppr->jspr_pjsprfFirst = pjsprf;
-            ppr->jspr_pjsprfLast = pjsprf;
+            pjspr->jspr_pjsprfFirst = pjsprf;
+            pjspr->jspr_pjsprfLast = pjsprf;
         }
-        ++ppr->jspr_u32NumOfResult;
+        ++pjspr->jspr_u32NumOfResult;
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        *ppResult = ppr;
+        *ppResult = pjspr;
     }
-    else if (ppr != NULL)
+    else if (pjspr != NULL)
     {
-        jf_string_destroyParseResult(&ppr);
+        jf_string_destroyParseResult(&pjspr);
     }
 
     return u32Ret;
@@ -214,16 +214,16 @@ u32 jf_string_parse(
     olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_string_parse_result_t * ppr;
+    jf_string_parse_result_t * pjspr;
     olint_t i = 0;
     olchar_t * token = NULL;
     olsize_t tokenlength = 0;
     jf_string_parse_result_field_t *pjsprf;
 
-    u32Ret = jf_jiukun_allocMemory((void **)&ppr, sizeof(jf_string_parse_result_t));
+    u32Ret = jf_jiukun_allocMemory((void **)&pjspr, sizeof(jf_string_parse_result_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(ppr, 0, sizeof(jf_string_parse_result_t));
+        ol_memset(pjspr, 0, sizeof(jf_string_parse_result_t));
 
         /*By default we will always return at least one token, which will be the entire string if
           the delimiter is not found. Iterate through the string to find delimiters*/
@@ -241,20 +241,20 @@ u32 jf_string_parse(
                     pjsprf->jsprf_pstrData = token;
                     pjsprf->jsprf_sData = tokenlength;
                     pjsprf->jsprf_pjsprfNext = NULL;
-                    if (ppr->jspr_pjsprfFirst != NULL)
+                    if (pjspr->jspr_pjsprfFirst != NULL)
                     {
-                        ppr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
-                        ppr->jspr_pjsprfLast = pjsprf;
+                        pjspr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
+                        pjspr->jspr_pjsprfLast = pjsprf;
                     }
                     else
                     {
-                        ppr->jspr_pjsprfFirst = pjsprf;
-                        ppr->jspr_pjsprfLast = pjsprf;
+                        pjspr->jspr_pjsprfFirst = pjsprf;
+                        pjspr->jspr_pjsprfLast = pjsprf;
                     }
 
                     /* After we populate the values, we advance the token to 
                        after the delimiter to prep for the next token */
-                    ++ppr->jspr_u32NumOfResult;
+                    ++pjspr->jspr_u32NumOfResult;
                     i = i + sDelimiter - 1;
                     token = token + tokenlength + sDelimiter;
                     tokenlength = 0;
@@ -280,27 +280,27 @@ u32 jf_string_parse(
             pjsprf->jsprf_pstrData = token;
             pjsprf->jsprf_sData = tokenlength;
             pjsprf->jsprf_pjsprfNext = NULL;
-            if (ppr->jspr_pjsprfFirst != NULL)
+            if (pjspr->jspr_pjsprfFirst != NULL)
             {
-                ppr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
-                ppr->jspr_pjsprfLast = pjsprf;
+                pjspr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
+                pjspr->jspr_pjsprfLast = pjsprf;
             }
             else
             {
-                ppr->jspr_pjsprfFirst = pjsprf;
-                ppr->jspr_pjsprfLast = pjsprf;
+                pjspr->jspr_pjsprfFirst = pjsprf;
+                pjspr->jspr_pjsprfLast = pjsprf;
             }
-            ++ppr->jspr_u32NumOfResult;
+            ++pjspr->jspr_u32NumOfResult;
         }
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        *ppResult = ppr;
+        *ppResult = pjspr;
     }
-    else if (ppr != NULL)
+    else if (pjspr != NULL)
     {
-        jf_string_destroyParseResult(&ppr);
+        jf_string_destroyParseResult(&pjspr);
     }
 
     return u32Ret;
@@ -330,14 +330,14 @@ void jf_string_skipBlank(olchar_t * pstrDest, const olchar_t * pstrSource)
 {
     olsize_t right, left = 0;
 
-    while ((pstrSource[left] != 0) && (pstrSource[left] == ' '))
+    while ((pstrSource[left] != '\0') && (pstrSource[left] == ' '))
     {
         left++;
     }
 
     right = ol_strlen(pstrSource);
 
-    if (pstrSource[left] != 0)
+    if (pstrSource[left] != '\0')
     {
         while (pstrSource[right-1] == ' ')
         {
@@ -347,7 +347,7 @@ void jf_string_skipBlank(olchar_t * pstrDest, const olchar_t * pstrSource)
         ol_strcpy(pstrDest, &pstrSource[left]);
     }
 
-    pstrDest[right - left] = 0;
+    pstrDest[right - left] = '\0';
 }
 
 boolean_t jf_string_isBlankLine(const olchar_t * pstrLine)
@@ -535,13 +535,15 @@ void jf_string_trimBlank(olchar_t * pstr)
 
         if (u32SpaceLen > 1)
         {
-            memmove(pstr + u32Index, pstr + u32Index + u32SpaceLen,
+            ol_memmove(pstr + u32Index, pstr + u32Index + u32SpaceLen,
                 sBuf - u32Index - u32SpaceLen + 1);
 
             u32Index += u32SpaceLen;
         }
         else
+        {
             u32Index ++;
+        }
     }
 }
 

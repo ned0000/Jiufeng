@@ -77,13 +77,16 @@ static u32 _fnSaveNodeAttributeToXmlFile(jf_ptree_node_attribute_t * pAttr, void
         u32Ret = jf_filestream_writen(fp, pstrName, sName);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_filestream_writen(fp, "=", 1);
+        u32Ret = jf_filestream_writen(fp, "=\"", 2);
     
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeAttributeValue(pAttr, &pstrValue, &sValue);
 
-    if (u32Ret == JF_ERR_NO_ERROR)
+    if ((u32Ret == JF_ERR_NO_ERROR) && (sValue > 0))
         u32Ret = jf_filestream_writen(fp, pstrValue, sValue);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_filestream_writen(fp, "\"", 1);
 
     return u32Ret;
 }

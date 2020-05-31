@@ -41,11 +41,16 @@
 /** The buffer should be large enough to hold all sevice information
  *  sizeof(jf_serv_info_t) * JF_SERV_MAX_NUM_OF_SERV
  */
-#define MAX_DONGYUAN_ASSOCKET_BUF_SIZE  (2048)
+#define MAX_DONGYUAN_ASSOCKET_BUF_SIZE         (2048)
 
 /** Maximum connection in async server socket.
  */
-#define MAX_DONGYUAN_ASSOCKET_CONN      (3)
+#define MAX_DONGYUAN_ASSOCKET_CONN             (3)
+
+/** Default donyuan setting file.
+ */
+#define DONGYUAN_DEFAULT_SETTING_FILE          "../config/servmgmt.setting"
+
 
 /** Define the internal dongyuan data type.
  */
@@ -54,7 +59,6 @@ typedef struct
     boolean_t id_bInitialized;
     u8 id_u8Reserved[7];
 
-    olchar_t * id_pstrSettingFile;
     u32 id_u32Reserved[8];
 
     jf_network_chain_t * id_pjncDongyuanChain;
@@ -73,7 +77,7 @@ static u32 _onDongyuanConnect(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logDebugMsg("on dongyuan connect, new connection");
+    JF_LOGGER_DEBUG("on dongyuan connect, new connection");
 
     return u32Ret;
 }
@@ -83,8 +87,7 @@ static u32 _onDongyuanDisconnect(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logDebugMsg(
-        "on dongyuan disconnect, reason: %s", jf_err_getDescription(u32Status));
+    JF_LOGGER_DEBUG("reason: %s", jf_err_getDescription(u32Status));
 
     return u32Ret;
 }
@@ -95,7 +98,7 @@ static u32 _onDongyuanSendData(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logDebugMsg("on dongyuan send data, len: %d", sBuf);
+    JF_LOGGER_DEBUG("sbuf: %d", sBuf);
 
     return u32Ret;
 }
@@ -107,7 +110,7 @@ static u32 _initServMgmtRespMsgHeader(
 
     pHeader->smh_u8MsgId = u8MsgId;
     pHeader->smh_u32MagicNumber = SERVMGMT_MSG_MAGIC_NUMBER;
-    pHeader->smh_u32TransactionId = pReqHeader->smh_u32TransactionId;
+    pHeader->smh_u32SeqNum = pReqHeader->smh_u32SeqNum;
     pHeader->smh_u32PayloadSize = u32MsgSize - sizeof(servmgmt_msg_header_t);
 
     return u32Ret;
@@ -121,7 +124,7 @@ static u32 _procesServMgmtMsgGetInfo(
     servmgmt_get_info_req_t * pReq = (servmgmt_get_info_req_t *)pu8Buffer;
     servmgmt_get_info_resp_t resp;
 
-    jf_logger_logDebugMsg("process msg, get info");
+    JF_LOGGER_DEBUG("process msg, get info");
     
     /*Check the size of the specified message.*/
     if (u32Size < sizeof(servmgmt_get_info_req_t))
@@ -156,7 +159,7 @@ static u32 _procesServMgmtMsgGetInfoList(
     if (u32Size < sizeof(servmgmt_get_info_list_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
-    jf_logger_logDebugMsg("process msg, get info list");
+    JF_LOGGER_DEBUG("process msg, get info list");
     
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -191,7 +194,7 @@ static u32 _procesServMgmtMsgStartServ(
     if (u32Size < sizeof(servmgmt_start_serv_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
-    jf_logger_logDebugMsg("process msg, start serv");
+    JF_LOGGER_DEBUG("process msg, start serv");
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -221,7 +224,7 @@ static u32 _procesServMgmtMsgStopServ(
     if (u32Size < sizeof(servmgmt_stop_serv_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
-    jf_logger_logDebugMsg("process msg, stop serv");
+    JF_LOGGER_DEBUG("process msg, stop serv");
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -251,7 +254,7 @@ static u32 _procesServMgmtMsgSetStartupType(
     if (u32Size < sizeof(servmgmt_set_startup_type_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
-    jf_logger_logDebugMsg("process msg, set startup type");
+    JF_LOGGER_DEBUG("process msg, set startup type");
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -355,7 +358,7 @@ static u32 _onDongyuanData(
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Begin = *pu32BeginPointer;
 
-    jf_logger_logDebugMsg("on dongyuan data, begin: %d, end: %d", u32Begin, u32EndPointer);
+    JF_LOGGER_DEBUG("begin: %d, end: %d", u32Begin, u32EndPointer);
 
     /*Process the service management message.*/
     u32Ret = _procesServMgmtMsg(pAssocket, pAsocket, pu8Buffer, pu32BeginPointer, u32EndPointer);
@@ -410,15 +413,12 @@ u32 initDongyuan(dongyuan_param_t * pdp)
     assert(pdp != NULL);
     assert(! pid->id_bInitialized);
     
-    jf_logger_logDebugMsg("init dongyuan");
+    JF_LOGGER_DEBUG("cmd line: %s, setting file: %s", pdp->dp_pstrCmdLine, pdp->dp_pstrSettingFile);
 
     ol_bzero(pid, sizeof(internal_dongyuan_t));
 
-    pid->id_pstrSettingFile = pdp->dp_pstrSettingFile;
-
     /*Change the working directory.*/
-    jf_file_getDirectoryName(
-        strExecutablePath, JF_LIMIT_MAX_PATH_LEN, pdp->dp_pstrCmdLine);
+    jf_file_getDirectoryName(strExecutablePath, JF_LIMIT_MAX_PATH_LEN, pdp->dp_pstrCmdLine);
     if (strlen(strExecutablePath) > 0)
         u32Ret = jf_process_setCurrentWorkingDirectory(strExecutablePath);
 
@@ -430,7 +430,7 @@ u32 initDongyuan(dongyuan_param_t * pdp)
     {
         ol_bzero(&smip, sizeof(smip));
 
-        smip.smip_pstrSettingFile = pid->id_pstrSettingFile;
+        smip.smip_pstrSettingFile = pdp->dp_pstrSettingFile;
         smip.smip_pjncChain = pid->id_pjncDongyuanChain;
 
         u32Ret = initServMgmt(&smip);
@@ -457,7 +457,7 @@ u32 finiDongyuan(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dongyuan_t * pid = &ls_idDongyuan;
 
-    jf_logger_logDebugMsg("fini dongyuan");
+    JF_LOGGER_DEBUG("fini");
 
     /*Destroy the async server socket.*/
     if (pid->id_pjnaDongyuanAssocket != NULL)
@@ -480,7 +480,7 @@ u32 startDongyuan(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_dongyuan_t * pid = &ls_idDongyuan;
 
-    jf_logger_logDebugMsg("start dongyuan");
+    JF_LOGGER_DEBUG("start");
     
     if (! pid->id_bInitialized)
         u32Ret = JF_ERR_NOT_INITIALIZED;
@@ -516,12 +516,10 @@ u32 setDefaultDongyuanParam(dongyuan_param_t * pdp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    ol_memset(pdp, 0, sizeof(dongyuan_param_t));
-
+    ol_bzero(pdp, sizeof(dongyuan_param_t));
+    pdp->dp_pstrSettingFile = DONGYUAN_DEFAULT_SETTING_FILE;
 
     return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-

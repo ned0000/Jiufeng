@@ -1,5 +1,5 @@
 /**
- *  @file stringparse-test.c
+ *  @file string-test.c
  *
  *  @brief The test file for jf_string library
  *
@@ -150,6 +150,8 @@ static u32 _testParseString(void)
     olchar_t * pstrAdv = "<My name is\">\" adv>";
     olchar_t * pstrAdv2 = "<My name is\'>\' adv>";
     olchar_t * pstrAdv3 = ">My name is\'>\' adv>";
+    olchar_t * pstrAdv4 = "\"My > name is\"> adv>";
+    olchar_t * pstrAdv5 = "\'My name > is\'> adv>";
 
     ol_printf("----------------------------------------------------\n");
     ol_printf("Test string parse\n");
@@ -186,6 +188,12 @@ static u32 _testParseString(void)
 
     if (u32Ret == JF_ERR_NO_ERROR)
          u32Ret = _testParseStringAdvWithDelimiter(pstrAdv3, ">");
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+         u32Ret = _testParseStringAdvWithDelimiter(pstrAdv4, ">");
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+         u32Ret = _testParseStringAdvWithDelimiter(pstrAdv5, ">");
 
     return u32Ret;
 }

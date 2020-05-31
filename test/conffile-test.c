@@ -23,8 +23,22 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+/* Example of configuration file.
+# test
+system.aa=7
+system.bb=mon
+bga.aa = 5
+bga.aa=10
+bga.dd=  
+ bga.ee=
+   bga.ee  =               
+ sysctl.aa = yu
+  sysctl.cc    = ui
+
+ */
 
 /* --- private routine section ------------------------------------------------------------------ */
+
 static void _printConffileTestUsage(void)
 {
     ol_printf("\
@@ -40,8 +54,7 @@ static u32 _parseConffileTestCmdLineParam(
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv,
-        "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while (((nOpt = getopt(argc, argv, "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
     {
         switch (nOpt)
         {
@@ -72,11 +85,11 @@ typedef struct
 static conf_file_tag_t ls_cftConfFileTag[] =
 {
     {"a", "default-a", 0},
-    {"b", "default-b", 0},
+    {"bga.aa", "default-b", 0},
     {"c", "default-c", 0},
     {"d", "default-d", 0},
     {"e", "default-e", 0},
-    {"aa", "default-aa", 0},
+    {"sysctl.cc", "default-aa", 0},
     {"bb", NULL, 2342},
     {"bc", NULL, 2312312},
     {"abcd", "default-abcd", 0},
@@ -95,7 +108,7 @@ static u32 _testConfFile(const olchar_t * pstrFilename)
 
     ol_printf("conffile: %s\n", pstrFilename);
 
-    ol_memset(&jcop, 0, sizeof(jcop));
+    ol_bzero(&jcop, sizeof(jcop));
     jcop.jcop_pstrFile = (olchar_t *)pstrFilename;
 
     u32Ret = jf_conffile_open(&jcop, &pjc);
@@ -135,7 +148,61 @@ static u32 _testConfFile(const olchar_t * pstrFilename)
     return u32Ret;
 }
 
+static u32 _fnTestConffileHandleConfig(
+    olchar_t * pstrName, olchar_t * pstrValue, void * pArg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_conffile_t * pjcWrite = (jf_conffile_t *)pArg;
+    olchar_t str[JF_CONFFILE_MAX_LINE_LEN];
+    olsize_t sStr;
+
+    ol_printf("name: %s(%ld), value: %s(%ld)\n", pstrName, ol_strlen(pstrName), pstrValue, ol_strlen(pstrValue));
+
+    sStr = snprintf(str, sizeof(str), "%s=%s\n", pstrName, pstrValue);
+
+    u32Ret = jf_conffile_write(pjcWrite, str, sStr);
+
+    return u32Ret;
+}
+
+static u32 _testTraversalConfFile(const olchar_t * pstrFilename)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_conffile_t * pjc = NULL, * pjcWrite = NULL;
+    jf_conffile_open_param_t jcop;
+
+    ol_printf("tranversal conffile: %s\n", pstrFilename);
+
+    ol_bzero(&jcop, sizeof(jcop));
+    jcop.jcop_pstrFile = (olchar_t *)pstrFilename;
+
+    u32Ret = jf_conffile_open(&jcop, &pjc);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_bzero(&jcop, sizeof(jcop));
+        jcop.jcop_pstrFile = "temp.conf";
+        jcop.jcop_bWrite = TRUE;
+
+        u32Ret = jf_conffile_open(&jcop, &pjcWrite);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = jf_conffile_traverse(pjc, _fnTestConffileHandleConfig, pjcWrite);
+    }
+
+    if (pjc != NULL)
+        jf_conffile_close(&pjc);
+
+    if (pjcWrite != NULL)
+        jf_conffile_close(&pjcWrite);
+
+    return u32Ret;
+}
+
 /* --- public routine section ------------------------------------------------------------------- */
+
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -144,7 +211,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_jiukun_init_param_t jjip;
 
     ol_bzero(&jlipParam, sizeof(jlipParam));
-    jlipParam.jlip_pstrCallerName = "ARCHIVE";
+    jlipParam.jlip_pstrCallerName = "CONFFILE-TEST";
     jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DEBUG;
 
@@ -166,7 +233,10 @@ olint_t main(olint_t argc, olchar_t ** argv)
         u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = _testConfFile(argv[argc - 1]);
+            u32Ret = _testTraversalConfFile(argv[argc - 1]);
+
+            if (u32Ret == JF_ERR_NO_ERROR)
+                _testConfFile(argv[argc - 1]);
 
             jf_jiukun_fini();
         }

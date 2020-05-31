@@ -16,13 +16,11 @@
 
 /* --- internal header files -------------------------------------------------------------------- */
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_err.h"
-#include "jf_sem.h"
-#include "jf_mem.h"
 #include "jf_serv.h"
 #include "jf_jiukun.h"
 #include "jf_option.h"
+#include "jf_file.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -50,9 +48,9 @@ static olchar_t * ls_pstrServName = NULL;
  */
 static u8 ls_u8StartupType = JF_SERV_STARTUP_TYPE_UNKNOWN;
 
-/** The programe name for service control executable file.
+/** The name of the executable file for this utility.
  */
-static const olchar_t * ls_pstrServCtlProgramName = "jf_servctl";
+static olchar_t ls_strServCtlProgramName[64];
 
 /** The version of the program.
  */
@@ -74,7 +72,7 @@ logger options:\n\
     -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug, 4: data.\n\
     -F <log file> the log file.\n\
     -S <log file size> the size of log file. No limit if not specified.\n",
-              ls_pstrServCtlProgramName);
+              ls_strServCtlProgramName);
 
     ol_printf("\n");
 
@@ -116,7 +114,7 @@ static u32 _parseServCtlCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_i
             u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case 'V':
-            ol_printf("%s %s\n", ls_pstrServCtlProgramName, ls_pstrServCtlVersion);
+            ol_printf("%s %s\n", ls_strServCtlProgramName, ls_pstrServCtlVersion);
             exit(0);
         case 'T':
             u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
@@ -298,6 +296,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
     olchar_t strErrMsg[300];
     jf_logger_init_param_t jlipParam;
     jf_jiukun_init_param_t jjip;
+
+    /*Get programe name of the service.*/
+    jf_file_getFileName(ls_strServCtlProgramName, sizeof(ls_strServCtlProgramName), argv[0]);
 
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "JF_SERV";

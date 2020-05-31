@@ -312,5 +312,28 @@ u32 jf_option_getDoubleFromString(const olchar_t * pstrDouble, oldouble_t * pdbV
     return u32Ret;
 }
 
-/*------------------------------------------------------------------------------------------------*/
+olchar_t * jf_option_skipSpaceBeforeString(olchar_t * pstr)
+{
+    if (*pstr != '\0')
+    {
+        while (*pstr == ' ')
+            pstr ++;
+    }
 
+    return pstr;
+}
+
+void jf_option_removeSpaceAfterString(olchar_t * pstr)
+{
+    olchar_t * end = NULL;
+
+    if (*pstr != '\0')
+    {
+        end = pstr + ol_strlen(pstr) - 1;
+        while ((end >= pstr) && (*end == ' '))
+            end --;
+        *(end + 1) = '\0';
+    }
+}
+
+/*------------------------------------------------------------------------------------------------*/
