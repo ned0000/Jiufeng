@@ -48,11 +48,11 @@ EXTRA_INC_DIR =
 
 all: $(FULL_PROGRAMS)
 
-$(BIN_DIR)/time-test: time-test.o $(JIUTAI_DIR)/jf_time.o
-	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_string
+$(BIN_DIR)/time-test: time-test.o $(JIUTAI_DIR)/jf_time.o $(JIUTAI_DIR)/jf_date.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_string -ljf_logger
 
 $(BIN_DIR)/date-test: date-test.o $(JIUTAI_DIR)/jf_date.o
-	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_string
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_string -ljf_logger
 
 $(BIN_DIR)/hashtree-test: hashtree-test.o $(JIUTAI_DIR)/jf_hashtree.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun

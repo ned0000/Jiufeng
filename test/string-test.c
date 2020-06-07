@@ -24,6 +24,7 @@
 /* --- private data/data structure section ------------------------------------------------------ */
 
 static boolean_t ls_bScanString = FALSE;
+
 static boolean_t ls_bParseString = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
@@ -201,28 +202,66 @@ static u32 _testParseString(void)
 static u32 _testScanString(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-	char * sdb = "226303136636.85";
-	char * sdb2 = "2298363628138.857";
-	char * sdb3 = "230189685431.55";
+	char * pstrDouble[] = {
+        "226303136636.85",
+        "2298363628138.857",
+        "230189685431.55",
+    };
 	oldouble_t db;
+    u32 index = 0;
+    char * pstrBoolean[] = {
+        "enabled",
+        "disabled",
+        "yes",
+        "no",
+        "true",
+        "false",
+    };
+    boolean_t bValue;
+    char * pstrByteSize[] = {
+        "xb",
+        "2..2B",
+        "1B",
+        "3MB",
+        "3.2MB",
+        "100KB",
+        "100.98KB",
+        "100.98KB",
+        "55.48GB",
+        "800GB",
+    };
+    u64 u64Size = 0;
 
-	u32Ret = jf_string_getDoubleFromString(sdb, ol_strlen(sdb), &db);
-	if (u32Ret == JF_ERR_NO_ERROR)
-	{
-		printf("%s, %.2f\n", sdb, db);
-	}
+    for (index = 0; index < ARRAY_SIZE(pstrDouble); index ++)
+    {
+        u32Ret = jf_string_getDoubleFromString(pstrDouble[index], ol_strlen(pstrDouble[index]), &db);
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            ol_printf("%s, %.2f\n", pstrDouble[index], db);
+        }
+    }
 
-	u32Ret = jf_string_getDoubleFromString(sdb2, ol_strlen(sdb2), &db);
-	if (u32Ret == JF_ERR_NO_ERROR)
-	{
-		printf("%s, %.2f\n", sdb2, db);
-	}
+    for (index = 0; index < ARRAY_SIZE(pstrBoolean); index ++)
+    {
+        u32Ret = jf_string_getBooleanFromString(
+            pstrBoolean[index], ol_strlen(pstrBoolean[index]), &bValue);
 
-	u32Ret = jf_string_getDoubleFromString(sdb3, ol_strlen(sdb3), &db);
-	if (u32Ret == JF_ERR_NO_ERROR)
-	{
-		printf("%s, %.2f\n", sdb3, db);
-	}
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            ol_printf("%s, %d\n", pstrBoolean[index], bValue);
+        }
+    }
+
+    for (index = 0; index < ARRAY_SIZE(pstrByteSize); index ++)
+    {
+        u32Ret = jf_string_getSizeFromByteString(
+            pstrByteSize[index], ol_strlen(pstrByteSize[index]), &u64Size);
+
+        if (u32Ret == JF_ERR_NO_ERROR)
+            ol_printf("%s, %llu\n", pstrByteSize[index], u64Size);
+        else
+            ol_printf("%s, error\n", pstrByteSize[index]);
+    }
 
     return u32Ret;
 }

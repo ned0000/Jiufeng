@@ -339,7 +339,7 @@ void jf_string_skipBlank(olchar_t * pstrDest, const olchar_t * pstrSource)
 
     if (pstrSource[left] != '\0')
     {
-        while (pstrSource[right-1] == ' ')
+        while (pstrSource[right - 1] == ' ')
         {
             right--;
         }

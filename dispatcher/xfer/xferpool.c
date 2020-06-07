@@ -276,7 +276,7 @@ static u32 _fnUtimerRetryConnInDispatcherXferObject(void * object)
     pidxo->idxo_u32ExponentialBackoff = (pidxo->idxo_u32ExponentialBackoff == 0) ?
         1 : pidxo->idxo_u32ExponentialBackoff * 2;
 
-    jf_ipaddr_getStringIpAddrPort(str, &pidxo->idxo_jiRemote, pidxo->idxo_u16RemotePort);
+    jf_ipaddr_getStringIpAddrPort(str, sizeof(str), &pidxo->idxo_jiRemote, pidxo->idxo_u16RemotePort);
     JF_LOGGER_DEBUG("server addr: %s, eb: %u", str, pidxo->idxo_u32ExponentialBackoff);
 
     if (pidxo->idxo_u32ExponentialBackoff >=
@@ -650,7 +650,7 @@ static u32 _createDispatcherXferObject(
     olchar_t str[128];
     internal_dispatcher_xfer_object_t * pidxo = NULL;
 
-    jf_ipaddr_getStringIpAddrPort(str, pjiRemote, u16Port);
+    jf_ipaddr_getStringIpAddrPort(str, sizeof(str), pjiRemote, u16Port);
     JF_LOGGER_DEBUG("name: %s, server addr: %s", pstrName, str);
 
     u32Ret = jf_jiukun_allocMemory((void **)&pidxo, sizeof(*pidxo));

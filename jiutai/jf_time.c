@@ -156,10 +156,13 @@ olint_t jf_time_convertTimeToSeconds(olint_t hour, olint_t min, olint_t sec)
     return hour * 3600 + min * 60 + sec;
 }
 
-void jf_time_getStringTimePeriod(olchar_t * pstrTime, const u32 u32Period)
+u32 jf_time_getStringTimePeriod(olchar_t * pstrTime, olsize_t sStrTime, const u32 u32Period)
 {
+    u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Temp = 0, u32Seconds = 0, u32Minutes = 0, u32Hours = 0;
     olchar_t strTemp[16];
+
+    ol_bzero(pstrTime, sStrTime);
 
     if (u32Period == 0)
     {
@@ -199,6 +202,8 @@ void jf_time_getStringTimePeriod(olchar_t * pstrTime, const u32 u32Period)
             ol_strcat(pstrTime, strTemp);
         }
     }
+
+    return u32Ret;
 }
 
 u32 jf_time_getTimeFromString(
@@ -281,16 +286,22 @@ u32 jf_time_getTimeFromString(
     return u32Ret;
 }
 
-void jf_time_getStringTime(
-    olchar_t * pstrTime, const olint_t hour, const olint_t min, const olint_t sec)
+u32 jf_time_getStringTime(
+    olchar_t * pstrTime, olsize_t sTime, const olint_t hour, const olint_t min, const olint_t sec)
 {
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    ol_bzero(pstrTime, sTime);
+
     if ((hour > 24) || (min > 60) || (sec > 60))
-        ol_strcpy(pstrTime, JF_STRING_NOT_APPLICABLE);
+        ol_strncpy(pstrTime, JF_STRING_NOT_APPLICABLE, sTime - 1);
     else
-        ol_sprintf(pstrTime, "%02d:%02d:%02d", hour, min, sec);
+        ol_snprintf(pstrTime, sTime - 1, "%02d:%02d:%02d", hour, min, sec);
+
+    return u32Ret;
 }
 
-u32 jf_time_getMonotonicRawTimeSecond(olint_t * pSec)
+u32 jf_time_getMonotonicRawTimeInSecond(olint_t * pSec)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     struct timespec tp;
@@ -301,6 +312,122 @@ u32 jf_time_getMonotonicRawTimeSecond(olint_t * pSec)
         rawtime = (olint_t)tp.tv_sec;
 
     *pSec = rawtime;
+
+    return u32Ret;
+}
+
+u32 jf_time_getUtcTimeInSecondFromTimeDate(
+    u64 * pu64Sec, const olint_t hour, const olint_t min, const olint_t sec,
+    const olint_t year, const olint_t mon, const olint_t day)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    struct tm result;
+
+    if (year < 1900)
+        u32Ret = JF_ERR_INVALID_DATE;
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_bzero(&result, sizeof(result));
+        result.tm_hour = hour;
+        result.tm_min = min;
+        result.tm_sec = sec;
+        result.tm_year = year - 1900;
+        result.tm_mon = mon - 1;
+        result.tm_mday = day;
+
+        *pu64Sec = (u64)mktime(&result);
+    }
+
+    return u32Ret;
+}
+
+u32 jf_time_getUtcTimeInSecond(u64 * pu64Sec)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    *pu64Sec = (u64)time(NULL);
+
+    return u32Ret;
+}
+
+u32 jf_time_getUtcTimeInSecondOfNextDay(const u64 u64Sec, u64 * pu64Next)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    time_t tSec = (time_t)u64Sec;
+    struct tm result;
+
+    /*Use local time instead utc time as mktime() needs local broken-down time.*/
+    localtime_r(&tSec, &result);
+    result.tm_mday ++;
+    /*mktime() take local broken-down time as parameter and return utc time.*/
+    *pu64Next = (u64)mktime(&result);
+
+    return u32Ret;
+}
+
+u32 jf_time_getUtcTimeInSecondOfNextWeek(const u64 u64Sec, u64 * pu64Next)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    time_t tSec = (time_t)u64Sec;
+    struct tm result;
+
+    /*Use local time instead utc time as mktime() needs local broken-down time.*/
+    localtime_r(&tSec, &result);
+    result.tm_mday += 7;
+    /*mktime() take local broken-down time as parameter and return utc time.*/
+    *pu64Next = (u64)mktime(&result);
+
+    return u32Ret;
+}
+
+static void _removeTrailingNewLineChar(olchar_t * pstrTime)
+{
+    olsize_t sTime = 0;
+
+    sTime = ol_strlen(pstrTime);
+    if ((sTime > 0) && pstrTime[sTime - 1] == '\n')
+        pstrTime[sTime - 1] = '\0';
+}
+
+u32 jf_time_getStringLocalTime(olchar_t * pstrTime, olsize_t sStrTime, const u64 u64Sec)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    const time_t tSec = (time_t)u64Sec;
+
+    ol_bzero(pstrTime, sStrTime);
+
+    if (sStrTime < 32)
+        u32Ret = JF_ERR_BUFFER_TOO_SMALL;
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ctime_r(&tSec, pstrTime);
+        /*Remove the '\n' at the end of string.*/
+        _removeTrailingNewLineChar(pstrTime);
+    }
+
+    return u32Ret;
+}
+
+u32 jf_time_getStringUtcTime(olchar_t * pstrTime, olsize_t sStrTime, const u64 u64Sec)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    const time_t tSec = (time_t)u64Sec;
+    struct tm result;
+
+    ol_bzero(pstrTime, sStrTime);
+
+    if (sStrTime < 32)
+        u32Ret = JF_ERR_BUFFER_TOO_SMALL;
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        gmtime_r(&tSec, &result);
+        asctime_r(&result, pstrTime);
+        /*Remove the '\n' at the end of string.*/
+        _removeTrailingNewLineChar(pstrTime);
+    }
 
     return u32Ret;
 }

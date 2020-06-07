@@ -10,6 +10,7 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -32,6 +33,7 @@
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_host.h"
@@ -39,11 +41,12 @@
 #include "jf_ifmgmt.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
 #if defined(WINDOWS)
     typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO);
 #endif
-#define SM_SERVERR2 89
-#define BUFSIZE 80
+#define SM_SERVERR2              (89)
+#define BUFSIZE                  (80)
 
 /* --- private funciton routines ---------------------------------------------------------------- */
 
@@ -338,7 +341,8 @@ static u32 _getHostNetworkInfo(jf_host_info_t * pjhi)
                 pjhi->jhi_jhniNet[u32Index].jhni_strName, allIf[u32Index].jii_strName,
                 JF_HOST_MAX_NET_NAME_LEN);
             jf_ipaddr_getStringIpAddr(
-                pjhi->jhi_jhniNet[u32Index].jhni_strIpAddr, &allIf[u32Index].jii_jiAddr);
+                pjhi->jhi_jhniNet[u32Index].jhni_strIpAddr,
+                sizeof(pjhi->jhi_jhniNet[u32Index].jhni_strIpAddr), &allIf[u32Index].jii_jiAddr);
         }
     }
 

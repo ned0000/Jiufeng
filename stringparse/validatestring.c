@@ -27,9 +27,6 @@
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-/** Validate string for alias. The alias can contain digit, alphabet, space and
- *  underscore, but not started with space.
- */
 u32 jf_string_validateStringAlias(const olchar_t * pstrAlias)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -65,9 +62,6 @@ u32 jf_string_validateStringAlias(const olchar_t * pstrAlias)
     return u32Ret;
 }
 
-/** Validate string for username. The username can contain digit, alphabet,
- *  and underscore.
- */
 u32 jf_string_validateStringUsername(const olchar_t * pstrUserName)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -93,8 +87,6 @@ u32 jf_string_validateStringUsername(const olchar_t * pstrUserName)
     return u32Ret;
 }
 
-/** Validate whether the input string is hex format
- */
 u32 jf_string_validateHexString(const olchar_t * pstrHex, const olsize_t sHex)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -114,20 +106,20 @@ u32 jf_string_validateHexString(const olchar_t * pstrHex, const olsize_t sHex)
     return u32Ret;
 }
 
-u32 jf_string_validateIntegerString(const olchar_t * pstrInteger, const olsize_t size)
+u32 jf_string_validateIntegerString(const olchar_t * pstrInteger, const olsize_t sInteger)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = jf_option_validateIntegerString(pstrInteger, size);
+    u32Ret = jf_option_validateIntegerString(pstrInteger, sInteger);
 
     return u32Ret;
 }
 
-u32 jf_string_validateFloatString(const olchar_t * pstrFloat, const olsize_t size)
+u32 jf_string_validateFloatString(const olchar_t * pstrFloat, const olsize_t sFloat)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = jf_option_validateFloatString(pstrFloat, size);
+    u32Ret = jf_option_validateFloatString(pstrFloat, sFloat);
 
     return u32Ret;
 }

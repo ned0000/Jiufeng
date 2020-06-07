@@ -23,6 +23,7 @@
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_jiukun.h"
@@ -32,6 +33,7 @@
 #include "jf_hashtree.h"
 #include "jf_string.h"
 #include "jf_stack.h"
+#include "jf_data.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -378,6 +380,7 @@ static u32 _changePtreeNodeValue(
 
 /** Traverse property tree.
  *
+ *  @param pip [in] The property tree to traverse.
  *  @param pipn [in] The node of the property tree.
  *  @param fnOpNode [in] The callback function to operate on the node.
  *  @param pArg [in] The argument for the callback function.
@@ -611,6 +614,7 @@ static u32 _matchPtreeNode(jf_ptree_t * pPtree, jf_ptree_node_t * pNode, void * 
 
 /** Builds the namespace hash tree.
  *
+ *  @param pPtree [in] The property tree to build name space table.
  *  @param pNode [in] This node to build hash tree.
  *  @param pArg [in] The argument.
  *
@@ -783,20 +787,6 @@ static u32 _addPtreeNode(
         jf_string_destroyParseResult(&pjspr);
 
     return u32Ret;
-}
-
-static olsize_t _copyDataToBuffer(
-    olchar_t * pBuf, olsize_t sBuf, olsize_t sOffset, olchar_t * pData, olsize_t sData)
-{
-    olsize_t copy = 0;
-
-    copy = sBuf - sOffset;
-    if (copy > sData)
-        copy = sData;
-
-    ol_memcpy(pBuf + sOffset, pData, copy);
-
-    return copy;
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
@@ -1289,17 +1279,17 @@ u32 jf_ptree_getNodeFullName(
         {
             if (pipn->ipn_pstrNs != NULL)
             {
-                sOffset += _copyDataToBuffer(
+                sOffset += jf_data_copyToBuffer(
                     pstrName, sName, sOffset, pipn->ipn_pstrNs, pipn->ipn_sNs);
-                sOffset += _copyDataToBuffer(
+                sOffset += jf_data_copyToBuffer(
                     pstrName, sName, sOffset, pip->ip_pstrNsSeparator, pip->ip_sNsSeparator);
             }
 
-            sOffset += _copyDataToBuffer(
+            sOffset += jf_data_copyToBuffer(
                 pstrName, sName, sOffset, pipn->ipn_pstrName, pipn->ipn_sName);
             /*No key separator if this is the last node.*/
             if (jf_stack_peek(&pjsNode) != NULL)
-                sOffset += _copyDataToBuffer(
+                sOffset += jf_data_copyToBuffer(
                     pstrName, sName, sOffset, pip->ip_pstrKeySeparator, pip->ip_sKeySeparator);
 
             pipn = jf_stack_pop(&pjsNode);

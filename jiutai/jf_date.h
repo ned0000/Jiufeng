@@ -6,6 +6,7 @@
  *  @author Min Zhang
  *  
  *  @note
+ *  -# Routines declared in this file are included in jf_date object.
  *
  */
 
@@ -15,12 +16,26 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
 
 /* --- data structures -------------------------------------------------------------------------- */
+
+/** Define the day of week.
+ */
+enum
+{
+    JF_DATE_SUNDAY = 0,
+    JF_DATE_MONDAY,
+    JF_DATE_TUESDAY,
+    JF_DATE_WEDNESDAY,
+    JF_DATE_THURSDAY,
+    JF_DATE_FRIDAY,
+    JF_DATE_SATURDAY,
+};
 
 
 /* --- functional routines ---------------------------------------------------------------------- */
@@ -116,6 +131,23 @@ olint_t jf_date_getDayOfWeekFromDate(olint_t year, olint_t mon, olint_t day);
  */
 olint_t jf_date_getDayOfWeekForToday(void);
 
+
+/** Get next day of week.
+ *
+ *  @param dayofweek [in] The current day of week.
+ *
+ *  @return The next day of week.
+ *  @retval 0 Sunday.
+ *  @retval 1 Monday.
+ *  @retval 2 Tuesday.
+ *  @retval 3 Wednesday.
+ *  @retval 4 Thursday.
+ *  @retval 5 Friday.
+ *  @retval 6 Saturday.
+ */
+olint_t jf_date_getNextDayOfWeek(olint_t dayofweek);
+
+
 /** Check if it's weekend from date.
  *  
  *  @param year [in] The year of the date.
@@ -145,75 +177,70 @@ void jf_date_getDateToday(olint_t * year, olint_t * mon, olint_t * day);
  *   enough to avoid memory access violation.
  *
  *  @param pstrDate [out] The string buffer where the date string will return.
+ *  @param sDate [in] Size of the string.
  *  @param year [in] The year.
  *  @param mon [in] The month of the year.
  *  @param day [in] The day of the month.
  *
  *  @return Void.
  */
-void jf_date_getStringDate(
-    olchar_t * pstrDate, const olint_t year, const olint_t mon, const olint_t day);
+u32 jf_date_getStringDate(
+    olchar_t * pstrDate, olsize_t sDate, const olint_t year, const olint_t mon, const olint_t day);
 
 /** Get the string of date in the format of "yyyy-mm-dd".
  *
- *  @note
- *  -# This function does not check the size of the string buffer. Please make sure it is big
- *   enough to avoid memory access violation.
- *
  *  @param pstrDate [out] The string buffer where the date string will return.
+ *  @param sDate [in] Size of the string.
  *  @param year [in] The year.
  *  @param mon [in] The month of the year.
  *  @param day [in] The day of the month.
  *
- *  @return Void.
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
-void jf_date_getStringDate2(
-    olchar_t * pstrDate, const olint_t year, const olint_t mon, const olint_t day);
+u32 jf_date_getStringDate2(
+    olchar_t * pstrDate, olsize_t sDate, const olint_t year, const olint_t mon, const olint_t day);
 
-/** Get the string of date in format yyyy-mm-dd.
- *
- *  @note
- *  -# This function does not check the size of the string buffer. Please make sure it is big
- *   enough to avoid memory access violation.
+/** Get the string of date in format "yyyy-mm-dd".
  *
  *  @param pstrDate [out] The string buffer where the date string will return.
+ *  @param sDate [in] Size of the string.
  *  @param nDays [in] The days from 1970.
  *
- *  @return Void.
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
-void jf_date_getStringDate2ForDaysFrom1970(olchar_t * pstrDate, const olint_t nDays);
+u32 jf_date_getStringDate2ForDaysFrom1970(olchar_t * pstrDate, olsize_t sDate, const olint_t nDays);
 
 /** Get the string of time in the format of "hh:mm:ss <month> <day>, <year>".
  *
  *  @note
- *  -# The time is local time.
- *  -# This function does not check the size of the string buffer. Please make sure it is big
- *   enough to avoid memory access violation.
+ *  -# The time is local time in second.
  *
  *  @param pstrTime [out] The string buffer where the date string will return.
- *  @param tTime [in] The time.
+ *  @param sTime [in] Size of the string.
+ *  @param u64Time [in] The time in second.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_INVALID_TIME Invalid time.
  */
-u32 jf_date_getStringLocalTime(olchar_t * pstrTime, const time_t tTime);
+u32 jf_date_getStringLocalTime(olchar_t * pstrTime, olsize_t sTime, const u64 u64Time);
 
 /** Get the string of time in the format of "hh:mm:ss <month> <day>, <year>".
  *
  *  @note
- *  -# The time is UTC time.
- *  -# This function does not check the size of the string buffer. Please make sure it is big
- *   enough to avoid memory access violation.
+ *  -# The time is UTC time in second.
  *
  *  @param pstrTime [out] The string buffer where the date string will return.
- *  @param tTime [in] The time.
+ *  @param sTime [in] Size of the string.
+ *  @param u64Time [in] The time in second.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_INVALID_TIME Invalid time.
  */
-u32 jf_date_getStringUTCTime(olchar_t * pstrTime, const time_t tTime);
+u32 jf_date_getStringUTCTime(olchar_t * pstrTime, olsize_t sTime, const u64 u64Time);
 
 /** Get date from the string with the format year/month/date like 2005/10/20.
  *  
@@ -223,6 +250,7 @@ u32 jf_date_getStringUTCTime(olchar_t * pstrTime, const time_t tTime);
  *  @param pDay [out] The day of the date.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_date_getDateFromString(
     const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay);
@@ -235,6 +263,7 @@ u32 jf_date_getDateFromString(
  *  @param pDay [out] The day of the date.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_date_getDate2FromString(
     const olchar_t * pstrDate, olint_t * pYear, olint_t * pMon, olint_t * pDay);

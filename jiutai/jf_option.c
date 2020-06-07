@@ -42,7 +42,7 @@ u32 jf_option_validateIntegerString(const olchar_t * pstrInteger, const olsize_t
     {
         if (isdigit(pstrInteger[i]) == 0)
         {
-            return JF_ERR_INVALID_INTEGER;
+            return JF_ERR_INVALID_STRING;
         }
     }
 
@@ -52,28 +52,41 @@ u32 jf_option_validateIntegerString(const olchar_t * pstrInteger, const olsize_t
 u32 jf_option_validateFloatString(const olchar_t * pstrFloat, const olsize_t size)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t i;
+    olsize_t i = 0;
     olchar_t * str = (olchar_t *)pstrFloat;
     olsize_t sizes = size;
+    olint_t nCount = 0;
 
     if (size < 1)
-        return JF_ERR_INVALID_FLOAT;
+        u32Ret = JF_ERR_INVALID_STRING;
 
-    if (str[0] == '-')
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        str ++;
-        sizes --;
+        if (str[0] == '-')
+        {
+            str ++;
+            sizes --;
+        }
     }
 
-    for (i = 0; ((i < sizes) && (u32Ret == JF_ERR_NO_ERROR)); i++)
+    for (i = 0; ((i < sizes) && (u32Ret == JF_ERR_NO_ERROR)); ++ i)
     {
         if (str[i] == 'e')
             break;
 
-        if ((isdigit(str[i]) == 0) && (str[i] != '.'))
+        if (isdigit(str[i]) == 0)
         {
-            return JF_ERR_INVALID_FLOAT;
+            if (str[i] == '.')
+                nCount++;
+            else
+                u32Ret = JF_ERR_INVALID_STRING;
         }
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        if (nCount > 1)  /*There can't be more than 1 dot.*/
+            u32Ret = JF_ERR_INVALID_STRING;
     }
 
     return u32Ret;

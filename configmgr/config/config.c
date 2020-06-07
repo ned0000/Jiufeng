@@ -62,13 +62,15 @@ static internal_config_t ls_icConfig;
 /* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _initConfigMgrReqMsgHeader(
-    config_mgr_msg_header_t * pHeader, internal_config_t * pic, u8 u8MsgId, u32 u32MsgSize)
+    config_mgr_msg_header_t * pHeader, internal_config_t * pic, u8 u8MsgId, u32 u32MsgSize,
+    u32 u32TransactionId)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     pHeader->cmmh_u8MsgId = u8MsgId;
     pHeader->cmmh_u32MagicNumber = CONFIG_MGR_MSG_MAGIC_NUMBER;
     pHeader->cmmh_u32PayloadSize = u32MsgSize - sizeof(config_mgr_msg_header_t);
+    pHeader->cmmh_u32TransactionId = u32TransactionId;
 
     /*Set the transaction id and increase the id with 1.*/
     jf_mutex_acquire(&pic->ic_jmLock);
@@ -182,7 +184,8 @@ u32 jf_config_fini(void)
     return u32Ret;
 }
 
-u32 jf_config_get(const olchar_t * name, olchar_t * value, olsize_t sValue)
+u32 jf_config_get(
+    u32 u32TransactionId, const olchar_t * pstrName, olchar_t * pstrValue, olsize_t sValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_config_t * pic = &ls_icConfig;
@@ -193,16 +196,17 @@ u32 jf_config_get(const olchar_t * name, olchar_t * value, olsize_t sValue)
     config_mgr_get_config_resp_t * pResp = (config_mgr_get_config_resp_t *)u8Resp;
     olchar_t * pstr = NULL;
 
-    assert((name != NULL) && (value != NULL) && (sValue > 0));
-    JF_LOGGER_DEBUG("name: %s, sValue: %d", name, sValue);
+    assert((pstrName != NULL) && (pstrValue != NULL) && (sValue > 0));
+    JF_LOGGER_DEBUG("tran id: %u, name: %s, sValue: %d", u32TransactionId, pstrName, sValue);
 
     /*Initialize the request message.*/
-    sReq = sizeof(*pReq) + ol_strlen(name);
+    sReq = sizeof(*pReq) + ol_strlen(pstrName);
     ol_bzero(pReq, sReq);
-    _initConfigMgrReqMsgHeader((config_mgr_msg_header_t *)pReq, pic, CMMI_GET_CONFIG_REQ, sReq);
-    pReq->cmgcr_u16NameLen = ol_strlen(name);
+    _initConfigMgrReqMsgHeader(
+        (config_mgr_msg_header_t *)pReq, pic, CMMI_GET_CONFIG_REQ, sReq, u32TransactionId);
+    pReq->cmgcr_u16NameLen = ol_strlen(pstrName);
     pstr = (olchar_t *)(pReq + 1);
-    ol_memcpy(pstr, name, pReq->cmgcr_u16NameLen);
+    ol_memcpy(pstr, pstrName, pReq->cmgcr_u16NameLen);
 
     /*Send the request message and receive the respond message.*/
     u32Ret = _sendRecvConfigMgrMsg(pic, (u8 *)pReq, sReq, u8Resp, sizeof(u8Resp));
@@ -212,18 +216,19 @@ u32 jf_config_get(const olchar_t * name, olchar_t * value, olsize_t sValue)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_bzero(value, sValue);
+        ol_bzero(pstrValue, sValue);
         if (sValue > (olsize_t)pResp->cmgcr_u16ValueLen)
             sValue = (olsize_t)pResp->cmgcr_u16ValueLen;
         pstr = (olchar_t *)(pResp + 1);
-        ol_memcpy(value, pstr, sValue);
-        JF_LOGGER_DEBUG("value: %s(%d)", value, sValue);
+        ol_memcpy(pstrValue, pstr, sValue);
+        JF_LOGGER_DEBUG("value: %s(%d)", pstrValue, sValue);
     }
 
     return u32Ret;
 }
 
-u32 jf_config_set(const olchar_t * name, const olchar_t * value)
+u32 jf_config_set(
+    u32 u32TransactionId, const olchar_t * pstrName, const olchar_t * pstrValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_config_t * pic = &ls_icConfig;
@@ -233,19 +238,20 @@ u32 jf_config_set(const olchar_t * name, const olchar_t * value)
     config_mgr_set_config_resp_t resp;
     u8 * pu8Mem = NULL;
 
-    assert((name != NULL) && (value != NULL));
-    JF_LOGGER_DEBUG("name: %s, value: %s", name, value);
+    assert((pstrName != NULL) && (pstrValue != NULL));
+    JF_LOGGER_DEBUG("tran id: %u, name: %s, value: %s", u32TransactionId, pstrName, pstrValue);
 
     /*Initialize the request message.*/
-    sReq = sizeof(*pReq) + ol_strlen(name) + ol_strlen(value);
+    sReq = sizeof(*pReq) + ol_strlen(pstrName) + ol_strlen(pstrValue);
     ol_bzero(pReq, sReq);
-    _initConfigMgrReqMsgHeader((config_mgr_msg_header_t *)pReq, pic, CMMI_SET_CONFIG_REQ, sReq);
-    pReq->cmscr_u16NameLen = ol_strlen(name);
-    pReq->cmscr_u16ValueLen = ol_strlen(value);
+    _initConfigMgrReqMsgHeader(
+        (config_mgr_msg_header_t *)pReq, pic, CMMI_SET_CONFIG_REQ, sReq, u32TransactionId);
+    pReq->cmscr_u16NameLen = ol_strlen(pstrName);
+    pReq->cmscr_u16ValueLen = ol_strlen(pstrValue);
     pu8Mem = (u8 *)(pReq + 1);
-    ol_memcpy(pu8Mem, name, pReq->cmscr_u16NameLen);
+    ol_memcpy(pu8Mem, pstrName, pReq->cmscr_u16NameLen);
     pu8Mem += pReq->cmscr_u16NameLen;
-    ol_memcpy(pu8Mem, value, pReq->cmscr_u16ValueLen);
+    ol_memcpy(pu8Mem, pstrValue, pReq->cmscr_u16ValueLen);
 
     /*Send the request message and receive the respond message.*/
     u32Ret = _sendRecvConfigMgrMsg(pic, (u8 *)pReq, sReq, (u8 *)&resp, sizeof(resp));
@@ -256,7 +262,7 @@ u32 jf_config_set(const olchar_t * name, const olchar_t * value)
     return u32Ret;
 }
 
-u32 jf_config_startTransaction(void)
+u32 jf_config_startTransaction(u32 * pu32TransactionId)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_config_t * pic = &ls_icConfig;
@@ -268,7 +274,8 @@ u32 jf_config_startTransaction(void)
     /*Initialize the request message.*/
     ol_bzero(&req, sizeof(req));
     _initConfigMgrReqMsgHeader(
-        (config_mgr_msg_header_t *)&req, pic, CMMI_START_TRANSACTION_REQ, sizeof(req));
+        (config_mgr_msg_header_t *)&req, pic, CMMI_START_TRANSACTION_REQ, sizeof(req),
+        JF_CONFIG_INVALID_TRANSACTION_ID);
 
     /*Send the request message and receive the respond message.*/
     u32Ret = _sendRecvConfigMgrMsg(pic, (u8 *)&req, sizeof(req), (u8 *)&resp, sizeof(resp));
@@ -276,22 +283,30 @@ u32 jf_config_startTransaction(void)
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = resp.cmstr_cmmhHeader.cmmh_u32Result;
 
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        *pu32TransactionId = resp.cmstr_cmmhHeader.cmmh_u32TransactionId;
+        JF_LOGGER_DEBUG("tran id: %u", *pu32TransactionId);
+    }
+
     return u32Ret;
 }
 
-u32 jf_config_commitTransaction(void)
+u32 jf_config_commitTransaction(u32 u32TransactionId)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_config_t * pic = &ls_icConfig;
     config_mgr_commit_transaction_req_t req;
     config_mgr_commit_transaction_resp_t resp;
 
-    JF_LOGGER_DEBUG("commit");
+    JF_LOGGER_DEBUG("tran id: %u", u32TransactionId);
+    assert(u32TransactionId != JF_CONFIG_INVALID_TRANSACTION_ID);
 
     /*Initialize the request message.*/
     ol_bzero(&req, sizeof(req));
     _initConfigMgrReqMsgHeader(
-        (config_mgr_msg_header_t *)&req, pic, CMMI_COMMIT_TRANSACTION_REQ, sizeof(req));
+        (config_mgr_msg_header_t *)&req, pic, CMMI_COMMIT_TRANSACTION_REQ, sizeof(req),
+        u32TransactionId);
 
     /*Send the request message and receive the respond message.*/
     u32Ret = _sendRecvConfigMgrMsg(pic, (u8 *)&req, sizeof(req), (u8 *)&resp, sizeof(resp));
@@ -302,19 +317,20 @@ u32 jf_config_commitTransaction(void)
     return u32Ret;
 }
 
-u32 jf_config_rollbackTransaction(void)
+u32 jf_config_rollbackTransaction(u32 u32TransactionId)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_config_t * pic = &ls_icConfig;
     config_mgr_rollback_transaction_req_t req;
     config_mgr_rollback_transaction_resp_t resp;
 
-    JF_LOGGER_DEBUG("rollback");
+    JF_LOGGER_DEBUG("tran id: %u", u32TransactionId);
 
     /*Initialize the request message.*/
     ol_bzero(&req, sizeof(req));
     _initConfigMgrReqMsgHeader(
-        (config_mgr_msg_header_t *)&req, pic, CMMI_ROLLBACK_TRANSACTION_REQ, sizeof(req));
+        (config_mgr_msg_header_t *)&req, pic, CMMI_ROLLBACK_TRANSACTION_REQ, sizeof(req),
+        u32TransactionId);
 
     /*Send the request message and receive the respond message.*/
     u32Ret = _sendRecvConfigMgrMsg(pic, (u8 *)&req, sizeof(req), (u8 *)&resp, sizeof(resp));

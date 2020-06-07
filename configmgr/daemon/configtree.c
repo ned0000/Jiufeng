@@ -67,8 +67,8 @@ static u32 _initConfigTree(internal_config_tree_t * pict, config_tree_init_param
     ol_bzero(pict, sizeof(*pict));
     pict->ict_picmsSetting = pctip->ctip_picmsSetting;
 
-    assert(pict->ict_picmsSetting->icms_u16MaxNumTransaction > 0);
-    sMem = sizeof(internal_config_tree_trasaction_t) * pict->ict_picmsSetting->icms_u16MaxNumTransaction;
+    assert(pict->ict_picmsSetting->icms_u16MaxNumOfTransaction > 0);
+    sMem = sizeof(internal_config_tree_trasaction_t) * pict->ict_picmsSetting->icms_u16MaxNumOfTransaction;
 
     u32Ret = jf_jiukun_allocMemory((void **)&pict->ict_picttTransaction, sMem);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -123,6 +123,11 @@ u32 finiConfigTree(void)
     if (pict->ict_picttTransaction != NULL)
         jf_jiukun_freeMemory((void **)&pict->ict_picttTransaction);
 
+    /*Save config to persistency.*/
+    saveConfigToPersistency(
+        pict->ict_picmsSetting->icms_u8ConfigPersistencyType,
+        pict->ict_picmsSetting->icms_pstrConfigPersistencyLocation, pict->ict_pjpConfig);
+
     if (pict->ict_pjpConfig != NULL)
         jf_ptree_destroy(&pict->ict_pjpConfig);
 
@@ -146,6 +151,8 @@ u32 getConfigFromConfigTree(
 
     JF_LOGGER_DATAA((u8 *)pstrName, sName, "%s", "name");
 
+    jf_mutex_acquire(&pict->ict_jmLock);
+
     u32Ret = jf_ptree_findNode(pict->ict_pjpConfig, pstrName, sName, &node);
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -164,6 +171,8 @@ u32 getConfigFromConfigTree(
         *psValue = sStr;
     }
 
+    jf_mutex_release(&pict->ict_jmLock);
+
     return u32Ret;
 }
 
@@ -178,16 +187,14 @@ u32 setConfigIntoConfigTree(
     JF_LOGGER_DATAA((u8 *)pstrName, sName, "name");
     JF_LOGGER_DATAA((u8 *)pstrValue, sValue, "value");
 
+    jf_mutex_acquire(&pict->ict_jmLock);
+
     u32Ret = jf_ptree_findNode(pict->ict_pjpConfig, pstrName, sName, &node);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_changeNodeValue(node, pstrValue, sValue);
 
-    if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = saveConfigToPersistency(
-            pict->ict_picmsSetting->icms_u8ConfigPersistencyType,
-            pict->ict_picmsSetting->icms_pstrConfigPersistencyLocation, pict->ict_pjpConfig);
-        
+    jf_mutex_release(&pict->ict_jmLock);
 
     return u32Ret;
 }

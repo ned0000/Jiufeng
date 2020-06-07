@@ -10,6 +10,7 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stdio.h>
 #include <string.h>
 #if defined(LINUX)
@@ -19,6 +20,7 @@
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_date.h"
@@ -237,8 +239,8 @@ olint_t jf_date_getDayOfWeekFromDate(olint_t year, olint_t mon, olint_t day)
     c = year / 100;
     y = year % 100; 
 
-    w = (int)(c / 4) - 2 * c + y + (int)(y / 4)
-        + (int)(13 * (m + 1) / 5) + d - 1;
+    w = (olint_t)(c / 4) - 2 * c + y + (olint_t)(y / 4)
+        + (olint_t)(13 * (m + 1) / 5) + d - 1;
 
     w = w % 7;
     if (w < 0)
@@ -253,6 +255,16 @@ olint_t jf_date_getDayOfWeekForToday(void)
 
     jf_date_getDateToday(&year, &mon, &day);
     return jf_date_getDayOfWeekFromDate(year, mon, day);
+}
+
+olint_t jf_date_getNextDayOfWeek(olint_t dayofweek)
+{
+    olint_t ret = dayofweek + 1;
+
+    if (dayofweek == JF_DATE_SATURDAY)
+        ret = JF_DATE_SUNDAY;
+
+    return ret;
 }
 
 boolean_t jf_date_isWeekendForDate(olint_t year, olint_t mon, olint_t day)
@@ -279,80 +291,103 @@ void jf_date_getDateToday(olint_t * year, olint_t * mon, olint_t * day)
     *day = tmdate->tm_mday;
 }
 
-void jf_date_getStringDate(
-    olchar_t * pstrDate, const olint_t year, const olint_t mon, const olint_t day)
+u32 jf_date_getStringDate(
+    olchar_t * pstrDate, olsize_t sDate, const olint_t year, const olint_t mon, const olint_t day)
 {
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    ol_bzero(pstrDate, sDate);
+
     if ((mon == 0) && (day == 0))
-        ol_strcpy(pstrDate, JF_STRING_NOT_APPLICABLE);
+        ol_strncpy(pstrDate, JF_STRING_NOT_APPLICABLE, sDate - 1);
     else if ((mon > 12) || (mon == 0))
-        ol_sprintf(pstrDate, "Month(%d) %d, %04d", mon, day, year);
+        ol_snprintf(pstrDate, sDate - 1, "Month(%d) %d, %04d", mon, day, year);
     else
-        ol_sprintf(pstrDate, "%s %d, %04d", ls_pstrMonth[mon - 1], day, year);
+        ol_snprintf(pstrDate, sDate - 1, "%s %d, %04d", ls_pstrMonth[mon - 1], day, year);
+
+    return u32Ret;
 }
 
-void jf_date_getStringDate2(
-    olchar_t * pstrDate, const olint_t year, const olint_t mon, const olint_t day)
+u32 jf_date_getStringDate2(
+    olchar_t * pstrDate, olsize_t sDate, const olint_t year, const olint_t mon, const olint_t day)
 {
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    ol_bzero(pstrDate, sDate);
+
     if ((mon == 0) && (day == 0))
-        ol_strcpy(pstrDate, JF_STRING_NOT_APPLICABLE);
+        ol_strncpy(pstrDate, JF_STRING_NOT_APPLICABLE, sDate - 1);
     else
-        ol_sprintf(pstrDate, "%4d-%02d-%02d", year, mon, day);
+        ol_snprintf(pstrDate, sDate - 1, "%4d-%02d-%02d", year, mon, day);
+
+    return u32Ret;
 }
 
-void jf_date_getStringDate2ForDaysFrom1970(olchar_t * pstrDate, const olint_t nDays)
+u32 jf_date_getStringDate2ForDaysFrom1970(olchar_t * pstrDate, olsize_t sDate, const olint_t nDays)
 {
-    olint_t year, mon, day;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olint_t year = 0, mon = 0, day = 0;
+
+    ol_bzero(pstrDate, sDate);
 
     jf_date_convertDaysFrom1970ToDate(nDays, &year, &mon, &day);
-    ol_sprintf(pstrDate, "%4d-%02d-%02d", year, mon, day);
+    ol_snprintf(pstrDate, sDate - 1, "%4d-%02d-%02d", year, mon, day);
+
+    return u32Ret;
 }
 
-u32 jf_date_getStringUTCTime(olchar_t * pstrTime, const time_t tTime)
+u32 jf_date_getStringUTCTime(olchar_t * pstrTime, olsize_t sTime, const u64 u64Time)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     struct tm * ptmLocal = NULL;
-    time_t t = tTime;
+    time_t t = u64Time;
     olchar_t strDate[64];
+
+    ol_bzero(pstrTime, sTime);
 
     ptmLocal = gmtime(&t);
     if (ptmLocal == NULL)
     {
-        ol_sprintf(pstrTime, "invalid time stamp (0x%x)", (u32)tTime);
+        ol_snprintf(pstrTime, sTime - 1, "invalid time stamp (%llu)", u64Time);
         u32Ret = JF_ERR_INVALID_TIME;
     }
     else
     {
         jf_date_getStringDate(
-            strDate, ptmLocal->tm_year + 1900, ptmLocal->tm_mon + 1, ptmLocal->tm_mday);
+            strDate, sizeof(strDate), ptmLocal->tm_year + 1900, ptmLocal->tm_mon + 1,
+            ptmLocal->tm_mday);
 
-        ol_sprintf(
-            pstrTime, "%s %02d:%02d:%02d", strDate, ptmLocal->tm_hour, ptmLocal->tm_min,
+        ol_snprintf(
+            pstrTime, sTime - 1, "%s %02d:%02d:%02d", strDate, ptmLocal->tm_hour, ptmLocal->tm_min,
             ptmLocal->tm_sec);
     }
 
     return u32Ret;
 }
 
-u32 jf_date_getStringLocalTime(olchar_t * pstrTime, const time_t tTime)
+u32 jf_date_getStringLocalTime(olchar_t * pstrTime, olsize_t sTime, const u64 u64Time)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     struct tm * ptmLocal = NULL;
-    time_t t = tTime;
+    time_t t = u64Time;
     olchar_t strDate[64];
+
+    ol_bzero(pstrTime, sTime);
 
     ptmLocal = localtime(&t);
     if (ptmLocal == NULL)
     {
-        ol_sprintf(pstrTime, "invalid time stamp (0x%x)", (u32)tTime);
+        ol_snprintf(pstrTime, sTime - 1, "invalid time stamp (%llu)", u64Time);
         u32Ret = JF_ERR_INVALID_TIME;
     }
     else
     {
         jf_date_getStringDate(
-            strDate, ptmLocal->tm_year + 1900, ptmLocal->tm_mon + 1, ptmLocal->tm_mday);
+            strDate, sizeof(strDate), ptmLocal->tm_year + 1900, ptmLocal->tm_mon + 1,
+            ptmLocal->tm_mday);
 
-        ol_sprintf(
-            pstrTime, "%s %02d:%02d:%02d", strDate, ptmLocal->tm_hour, ptmLocal->tm_min,
+        ol_snprintf(
+            pstrTime, sTime - 1, "%s %02d:%02d:%02d", strDate, ptmLocal->tm_hour, ptmLocal->tm_min,
             ptmLocal->tm_sec);
     }
 

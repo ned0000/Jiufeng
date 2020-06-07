@@ -1,7 +1,7 @@
 /**
  *  @file ifmgmt-test.c
  *
- *  @brief test file for ifmgmt library
+ *  @brief Test file for ifmgmt library.
  *
  *  @author Min Zhang
  *
@@ -10,11 +10,13 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_ifmgmt.h"
@@ -23,6 +25,7 @@
 #include "jf_process.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
 static boolean_t ls_bShowIpInfo = FALSE;
 static boolean_t ls_bShowIfInfo = FALSE;
 static boolean_t ls_bShowAllIfInfo = FALSE;
@@ -32,7 +35,8 @@ static boolean_t ls_bDownIf = FALSE;
 static olchar_t * ls_pstrIfName = NULL;
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+
+static void _printIfmgmtTestUsage(void)
 {
     ol_printf("\
 Usage: ifmgmt-test [-i] [-f if-name] [-u if-name] [-d if-name] [-a] \n\
@@ -45,7 +49,7 @@ Usage: ifmgmt-test [-i] [-f if-name] [-u if-name] [-d if-name] [-a] \n\
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parseIfmgmtTestCmdLineParam(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
@@ -57,7 +61,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printIfmgmtTestUsage();
             exit(0);
         case 'i':
             ls_bShowIpInfo = TRUE;
@@ -96,13 +100,13 @@ static u32 _showOneIfInfo(jf_ifmgmt_if_t * pif)
  
     ol_printf("Interface: %s\n", pif->jii_strName);
 
-    jf_ipaddr_getStringIpAddr(str, &pif->jii_jiAddr);
+    jf_ipaddr_getStringIpAddr(str, sizeof(str), &pif->jii_jiAddr);
     ol_printf("  IP: %s\n", str);
-    jf_ipaddr_getStringIpAddr(str, &pif->jii_jiNetmask);
+    jf_ipaddr_getStringIpAddr(str, sizeof(str), &pif->jii_jiNetmask);
     ol_printf("  Netmask: %s\n", str);
-    jf_ipaddr_getStringIpAddr(str, &pif->jii_jiBroadcast);
+    jf_ipaddr_getStringIpAddr(str, sizeof(str), &pif->jii_jiBroadcast);
     ol_printf("  Broadcast: %s\n", str);
-    jf_string_getStringMACAddress(str, pif->jii_u8Mac);
+    jf_string_getStringMacAddress(str, sizeof(str), pif->jii_u8Mac);
     ol_printf("  Mac: %s\n", str);
 
     jf_ifmgmt_getStringIfFlags(str, pif);
@@ -151,7 +155,7 @@ static u32 _showIpInfo()
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ipaddr_t ipaddr[16];
     u16 u16Count = 16, u16Index;
-    olchar_t strIp[20];
+    olchar_t strIp[512];
     u8 u8Mac[JF_LIMIT_MAC_LEN];
 
     u32Ret = jf_ipaddr_getLocalIpAddrList(JF_IPADDR_TYPE_V4, &ipaddr[0], &u16Count);
@@ -160,7 +164,7 @@ static u32 _showIpInfo()
         ol_printf("Local IP Address List:\n");
         for (u16Index = 0; u16Index < u16Count; u16Index ++)
         {
-            jf_ipaddr_getStringIpAddr(strIp, (jf_ipaddr_t *)&(ipaddr[u16Index]));
+            jf_ipaddr_getStringIpAddr(strIp, sizeof(strIp), (jf_ipaddr_t *)&(ipaddr[u16Index]));
             ol_printf("    %s\n", strIp);
         }
     }
@@ -170,7 +174,7 @@ static u32 _showIpInfo()
         u32Ret = jf_ifmgmt_getMacOfFirstIf(u8Mac);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            jf_string_getStringMACAddress(strIp, u8Mac);
+            jf_string_getStringMacAddress(strIp, sizeof(strIp), u8Mac);
             ol_printf("MAC of First Interface: %s\n", strIp);
         }
         else
@@ -211,7 +215,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
 
-    u32Ret = _parseCmdLineParam(argc, argv);
+    u32Ret = _parseIfmgmtTestCmdLineParam(argc, argv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_process_initSocket();
@@ -230,7 +234,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
             else
             {
                 ol_printf("No operation is specified !!!!\n\n");
-                _printUsage();
+                _printIfmgmtTestUsage();
             }
         }
 

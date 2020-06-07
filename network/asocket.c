@@ -735,7 +735,7 @@ u32 connectAsocketTo(
 
     assert((pAsocket != NULL) && (pjiRemote != NULL));
 
-    jf_ipaddr_getStringIpAddrPort(strServer, pjiRemote, u16Port);
+    jf_ipaddr_getStringIpAddrPort(strServer, sizeof(strServer), pjiRemote, u16Port);
     JF_LOGGER_DEBUG("name: %s, server: %s", pia->ia_strName, strServer);
 
     jf_mutex_acquire(&pia->ia_jmLock);

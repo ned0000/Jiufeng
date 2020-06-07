@@ -171,7 +171,6 @@ typedef time_t                       oltime_t;
     #define ol_random()              rand()
     #define ol_srand                 srand
     #define ol_time                  time
-    #define ol_strchr                strchr
     #define ol_unlink                unlink
     #define ol_open                  open
     #define ol_close                 close

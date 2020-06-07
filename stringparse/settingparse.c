@@ -1,7 +1,7 @@
 /**
  *  @file settingparse.c
  *
- *  @brief routines for parsing the setting string
+ *  @brief Implementation file of routines for parsing the setting string.
  *
  *  @author Min Zhang
  *
@@ -10,23 +10,25 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_string.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
-#define MAX_ID_LENGTH 4
+
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-/** Trim the setting pointed by pstrSetting and copy the trimmed setting
- *  to pstrValue
+/** Trim the setting pointed by pstrSetting and copy the trimmed setting to pstrValue
  */
 static u32 _trimSetting(olchar_t * pstrSetting, olchar_t * pstrValue, olsize_t sValue)
 {
@@ -59,12 +61,12 @@ static u32 _trimSetting(olchar_t * pstrSetting, olchar_t * pstrValue, olsize_t s
         else
         {
             ol_strncpy(pstrValue, pstrBegin, sEndIndex);
-            pstrValue[sEndIndex] = 0;
+            pstrValue[sEndIndex] = '\0';
         }
     }
     else
     {
-        pstrValue[0] = 0;
+        pstrValue[0] = '\0';
         u32Ret = JF_ERR_SETTING_EMPTY;
     }
 
@@ -73,211 +75,23 @@ static u32 _trimSetting(olchar_t * pstrSetting, olchar_t * pstrValue, olsize_t s
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 jf_string_processIdList(const olchar_t * pstrIdList, olid_t * pids, olsize_t * psId)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strId[(2 * MAX_ID_LENGTH) + 1 + 1];  /* "####", or "####~####" */
-    const static olchar_t cDelimit = ',', cRange = '~';
-    olchar_t * pstrList = NULL, * pstrRange = NULL, * pstrDelimit;
-    olsize_t sLength = 0, sCount;
-    olsize_t sValue1, sValue2;
-    olsize_t i = 0;
-
-    assert((pids != NULL) && (psId != NULL));
-
-    if (pstrIdList == NULL)
-    {
-        *psId = 0;
-        return u32Ret;
-    }
-    else
-    {
-        /* check for illegal input */
-        sLength = ol_strlen(pstrIdList);
-
-        for(i = 0; i < (olint_t)sLength; i++)
-        {
-            if (isdigit(pstrIdList[i]))
-                continue;
-            else if (pstrIdList[i] == '~')
-                continue;
-            else if (pstrIdList[i] == ',')
-                continue;
-            else if (pstrIdList[i] == ' ')
-                continue;
-            else
-            {
-                u32Ret = JF_ERR_INVALID_SETTING;
-                i = sLength;
-            }
-        }
-    }
-
-    sCount = 0;
-    pstrList = (olchar_t *)pstrIdList;
-    while ((pstrList != NULL) && (u32Ret == JF_ERR_NO_ERROR))
-    {
-        sLength = ol_strlen(pstrList);
-
-        pstrDelimit = strchr(pstrList, cDelimit);
-        if (pstrDelimit != NULL)
-        {
-            sLength = pstrDelimit - pstrList;
-            ol_strncpy(strId, pstrList, sLength);
-            strId[sLength] = 0;
-            pstrList = pstrDelimit + 1;
-            if (strlen(pstrList) == 0)
-            {
-                pstrList = NULL;
-            }
-        }
-        else
-        {
-            ol_strcpy(strId, pstrList);
-            pstrList = NULL;
-        }
-
-        for (i = 0; i < (olint_t)strlen(strId); i++)
-        {
-            if ((isdigit(strId[i]) == 0) &&
-                (strId[i] != cRange) &&
-                (strId[i] != cDelimit))
-                return JF_ERR_INVALID_SETTING;
-        }
-
-        pstrRange = strchr(strId, cRange);
-        if (pstrRange != NULL)
-        {
-            if (sscanf(strId, "%d~%d", &sValue1, &sValue2) != 2)
-            {
-                u32Ret = JF_ERR_INVALID_SETTING;
-            }
-        }
-        else
-        {
-            if (sscanf(strId, "%d", &sValue1) != 1)
-            {
-                u32Ret = JF_ERR_INVALID_SETTING;
-            }
-            else
-            {
-                sValue2 = sValue1;
-            }
-        }
-
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            if (sValue2 < sValue1)
-            {
-                u32Ret = JF_ERR_INVALID_SETTING;
-            }
-        }
-
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            /* fill the id array */
-            while ((sCount < *psId) && (sValue1 <= sValue2))
-            {
-                pids[sCount] = (olid_t)sValue1;
-                sCount++;
-                sValue1++;
-            }
-        }
-
-    }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        *psId = sCount;
-    }
-
-    return u32Ret;
-}
-
-u32 retrieveSettingsSize(olchar_t * pstrValue, u64 * pu64Value,
-    u64 u64Min, u64 u64Max)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-
-    u32Ret = jf_string_getSizeFromString(pstrValue, pu64Value);
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        if ((*pu64Value < u64Min) || (*pu64Value > u64Max))
-        {
-            u32Ret = JF_ERR_INVALID_SETTING;
-        }
-    }
-
-    return u32Ret;
-}
-
-u32 retrieveSettingsU32(olchar_t * pstrValue, u32 * pu32Value,
-    u32 u32Min, u32 u32Max)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t i;
-
-    for (i = 0; i < ol_strlen(pstrValue); i++)
-    {
-        if (isdigit(pstrValue[i]) == 0)
-            return JF_ERR_INVALID_SETTING;
-    }
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        if (sscanf(pstrValue, "%d", pu32Value) != 1)
-        {
-            u32Ret = JF_ERR_INVALID_SETTING;
-        }
-    }
-
-    if ((*pu32Value < u32Min) || (*pu32Value > u32Max))
-    {
-        u32Ret = JF_ERR_INVALID_SETTING;
-    }
-
-    return u32Ret;
-}
-
-u32 jf_string_retrieveSettingsEnable(olchar_t * pstrValue, boolean_t * pbEnable)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        if (strcasecmp((const olchar_t *)pstrValue, "enable") == 0 ||
-            ol_strcasecmp((const olchar_t *)pstrValue, "yes") == 0)
-        {
-            *pbEnable = TRUE;
-        }
-        else if (strcasecmp((const olchar_t *)pstrValue, "disable") == 0 ||
-                 ol_strcasecmp((const olchar_t *)pstrValue, "no") == 0)
-        {
-            *pbEnable = FALSE;
-        }
-        else
-        {
-            u32Ret = JF_ERR_INVALID_SETTING;
-        }
-    }
-    return u32Ret;
-}
-
 u32 jf_string_retrieveSettings(
-    olchar_t * pstrArray[], olsize_t sArray,
-    const olchar_t * pstrName, olchar_t * pstrValue, olsize_t sValue)
+    olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrName, olchar_t * pstrValue,
+    olsize_t sValue)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
     olchar_t cEqual = '=';
     olchar_t * psubStr = NULL, * pstrPos = NULL;
     olsize_t sTagLength = ol_strlen(pstrName);
-    olsize_t i;
+    olsize_t index = 0;
 
-    for (i = 0; i < sArray; i++)
+    ol_bzero(pstrValue, sValue);
+
+    for (index = 0; index < sArray; index ++)
     {
-        if (strncasecmp(pstrArray[i], pstrName, sTagLength) == 0)
+        if (ol_strncasecmp(pstrArray[index], pstrName, sTagLength) == 0)
         {
-            pstrPos = &(pstrArray[i][sTagLength]);
+            pstrPos = &(pstrArray[index][sTagLength]);
             psubStr = strchr(pstrPos, cEqual);
             if (psubStr != NULL)
             {
@@ -305,8 +119,8 @@ u32 jf_string_retrieveSettings(
 }
 
 u32 jf_string_validateSettings(
-    olchar_t * pstrNameArray[], olsize_t sNameArray, 
-    olchar_t * pstrArray[], olsize_t sArray, olindex_t * piArray)
+    olchar_t * pstrNameArray[], olsize_t sNameArray, olchar_t * pstrArray[], olsize_t sArray,
+    olindex_t * piArray)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * psubStr = NULL;
@@ -316,7 +130,7 @@ u32 jf_string_validateSettings(
     for (i = 0; (i < sArray) && (u32Ret == JF_ERR_NO_ERROR); i++)
     {
         u32Ret = JF_ERR_INVALID_SETTING;
-        psubStr = strchr(pstrArray[i], u8Equal);
+        psubStr = ol_strchr(pstrArray[i], u8Equal);
         if ((psubStr != NULL) && (psubStr != pstrArray[i]))
         {
             sTagLen = psubStr - pstrArray[i];
@@ -357,8 +171,7 @@ u32 jf_string_validateSettings(
 }
 
 u32 jf_string_processKeywordSettings(
-    u8 * pu8Settings, olsize_t sSettings,
-    olchar_t * pstrArray[], olsize_t * psArray)
+    u8 * pu8Settings, olsize_t sSettings, olchar_t * pstrArray[], olsize_t * psArray)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t u8Space = ' ';
@@ -541,10 +354,10 @@ u32 jf_string_getSettingsU32(
     olchar_t strValue[200];
 
     u32Ret = jf_string_retrieveSettings(
-        pstrArray, sArray, pstrSettingName, strValue, 200);
+        pstrArray, sArray, pstrSettingName, strValue, sizeof(strValue));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = retrieveSettingsU32(strValue, pu32Value, 0, 0xFFFFFFFF);
+        u32Ret = jf_option_getU32FromString(strValue, pu32Value);
         if (u32Ret != JF_ERR_NO_ERROR)
         {
             *pu32Value = u32DefaultValue;
@@ -553,6 +366,32 @@ u32 jf_string_getSettingsU32(
     else if (u32Ret == JF_ERR_NOT_FOUND)
     {
         *pu32Value = u32DefaultValue;
+        u32Ret = JF_ERR_NO_ERROR;
+    }
+
+    return u32Ret;
+}
+
+u32 jf_string_getSettingsU64(
+    olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
+    const u64 u64DefaultValue, u64 * pu64Value)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t strValue[200];
+
+    u32Ret = jf_string_retrieveSettings(
+        pstrArray, sArray, pstrSettingName, strValue, sizeof(strValue));
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = jf_option_getU64FromString(strValue, pu64Value);
+        if (u32Ret != JF_ERR_NO_ERROR)
+        {
+            *pu64Value = u64DefaultValue;
+        }
+    }
+    else if (u32Ret == JF_ERR_NOT_FOUND)
+    {
+        *pu64Value = u64DefaultValue;
         u32Ret = JF_ERR_NO_ERROR;
     }
 
@@ -570,7 +409,7 @@ u32 jf_string_getSettingsDouble(
         pstrArray, sArray, pstrSettingName, strValue, sizeof(strValue));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_string_getDoubleFromString(strValue, ol_strlen(strValue), pdbValue);
+        u32Ret = jf_option_getDoubleFromString(strValue, pdbValue);
         if (u32Ret != JF_ERR_NO_ERROR)
         {
             *pdbValue = dbDefaultValue;
@@ -597,10 +436,10 @@ u32 jf_string_getSettingsBoolean(
     olchar_t strValue[200];
 
     u32Ret = jf_string_retrieveSettings(
-        pstrArray, sArray, pstrSettingName, strValue, 200);
+        pstrArray, sArray, pstrSettingName, strValue, sizeof(strValue));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_string_retrieveSettingsEnable(strValue, pbValue);
+        u32Ret = jf_string_getBooleanFromString(strValue, ol_strlen(strValue), pbValue);
         if (u32Ret != JF_ERR_NO_ERROR)
         {
             *pbValue = bDefaultValue;
@@ -610,29 +449,6 @@ u32 jf_string_getSettingsBoolean(
     {
         *pbValue = bDefaultValue;
         u32Ret = JF_ERR_NO_ERROR;
-    }
-
-    return u32Ret;
-}
-
-u32 getSettingsSize(olchar_t * pstrArray[], olsize_t sArray,
-    const olchar_t * pstrSettingName, const u64 u64DefaultValue, u64 * pu64Value)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strSize[16];
-
-    u32Ret = jf_string_getSettingsString(
-        pstrArray, sArray, pstrSettingName, "", strSize, 16);
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        if (strSize[0] == 0)
-        {
-            *pu64Value = u64DefaultValue;
-        }
-        else
-        {
-            u32Ret = jf_string_getSizeFromString(strSize, pu64Value);
-        }
     }
 
     return u32Ret;
@@ -661,11 +477,11 @@ u32 jf_string_processSettingString(
         *pstrSubStr = '\0';
     }
     else
+    {
         u32Ret = JF_ERR_INVALID_SETTING;
+    }
 
     return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-

@@ -25,30 +25,28 @@
  *  @par Config Manager Setting File
  *  -# The setting are defined in the file.
  *  @code
- *  <configmgr>
- *    <name>zeus</name>
- *    <description>zeus service</description>
- *    <startupType>automatic</startupType>
- *    <cmdPath>olzeus</cmdPath>
- *    <cmdParam></cmdParam>
- *  </service>
+ *  <configMgrSetting>
+ *    <version>1.0</version>
+ *    <globalSetting>
+ *      <maxNumTransaction>10</maxNumTransaction>
+ *    </globalSetting>
+ *    <configSetting>
+ *      <configPersistency location="../config/jiufeng.conf">conf_file</configPersistency>
+ *    </configSetting>
+ *  </configMgrSetting>
  *  @endcode
  *
  *  @par Config Management Tool
- *  -# The tool's name is "jf_configctl". User can use the tool to list, start and stop config.
+ *  -# The tool's name is "jf_configctl". User can use the tool to list, get and set config.
  *  -# The tool uses unix domain socket to communicate with daemon, so the daemon should be running
  *   when using the tool.
  *  @code
  *  List all config:
  *  jf_configctl -l
- *  List specified config:
- *  jf_configctl -l -n config-name
- *  Add config:
- *  jf_configctl -a -n config-name -v config-value
- *  Delete config:
- *  jf_configctl -d -n config-name -v config-value
- *  Show the version information:
- *  jf_configctl -V
+ *  Get specified config:
+ *  jf_configctl -g -n config-name
+ *  Set config:
+ *  jf_configctl -s -n config-name -v config-value
  *  @endcode
  *
  */
@@ -83,11 +81,15 @@
 
 /** Maximum config name length.
  */
-#define JF_CONFIG_MAX_CONFIG_NAME_LEN              (512)
+#define JF_CONFIG_MAX_CONFIG_NAME_LEN                  (512)
 
 /** Maximum config value length.
  */
-#define JF_CONFIG_MAX_CONFIG_VALUE_LEN             (512)
+#define JF_CONFIG_MAX_CONFIG_VALUE_LEN                 (512)
+
+/** The invalid transaction id.
+ */
+#define JF_CONFIG_INVALID_TRANSACTION_ID               (0)
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -118,42 +120,54 @@ CONFIGAPI u32 CONFIGCALL jf_config_fini(void);
 
 /** Get the config.
  *
- *  @param name [in] The name of config in string with NULL terminated.
- *  @param value [out] The buffer for the value.
+ *  @param u32TransactionId [in] The transaction ID. Use invalid transaction id if this routine is
+ *   not called during tansaction.
+ *  @param pstrName [in] The name of config in string with NULL terminated.
+ *  @param pstrValue [out] The buffer for the value.
  *  @param sValue [in] The size of the buffer.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-CONFIGAPI u32 CONFIGCALL jf_config_get(const olchar_t * name, olchar_t * value, olsize_t sValue);
+CONFIGAPI u32 CONFIGCALL jf_config_get(
+    u32 u32TransactionId, const olchar_t * pstrName, olchar_t * pstrValue, olsize_t sValue);
 
 /** Set config.
  *
- *  @param name [in] The name of config in string with NULL terminated.
- *  @param value [in] The value of config in string with NULL terminated.
+ *  @param u32TransactionId [in] The transaction ID. Use invalid transaction id if this routine is
+ *   not called during tansaction.
+ *  @param pstrName [in] The name of config in string with NULL terminated.
+ *  @param pstrValue [in] The value of config in string with NULL terminated.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-CONFIGAPI u32 CONFIGCALL jf_config_set(const olchar_t * name, const olchar_t * value);
+CONFIGAPI u32 CONFIGCALL jf_config_set(
+    u32 u32TransactionId, const olchar_t * pstrName, const olchar_t * pstrValue);
 
 /** Start transaction.
  *
+ *  @param pu32TransactionId [out] The transaction ID returned.
+ *
  *  @return The error code.
  */
-CONFIGAPI u32 CONFIGCALL jf_config_startTransaction(void);
+CONFIGAPI u32 CONFIGCALL jf_config_startTransaction(u32 * pu32TransactionId);
 
 /** Commit transaction.
  *
- *  @return The error code.
- */
-CONFIGAPI u32 CONFIGCALL jf_config_commitTransaction(void);
-
-/** Rollback transaction.
+ *  @param u32TransactionId [in] The transaction ID, must be available.
  *
  *  @return The error code.
  */
-CONFIGAPI u32 CONFIGCALL jf_config_rollbackTransaction(void);
+CONFIGAPI u32 CONFIGCALL jf_config_commitTransaction(u32 u32TransactionId);
+
+/** Rollback transaction.
+ *
+ *  @param u32TransactionId [in] The transaction ID, must be available.
+ *
+ *  @return The error code.
+ */
+CONFIGAPI u32 CONFIGCALL jf_config_rollbackTransaction(u32 u32TransactionId);
 
 #endif /*JIUFENG_CONFIG_H*/
 

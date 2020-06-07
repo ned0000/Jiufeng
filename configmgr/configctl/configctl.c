@@ -42,6 +42,14 @@ static boolean_t ls_bSetConfig = FALSE;
  */
 static olchar_t * ls_pstrConfigName = NULL;
 
+/** Use transaction.
+ */
+static boolean_t ls_bTransaction = FALSE;
+
+/** The transaction ID.
+ */
+static u32 ls_u32TransactionId = JF_CONFIG_INVALID_TRANSACTION_ID;
+
 /** The config value string.
  */
 static olchar_t * ls_pstrConfigValue = NULL;
@@ -59,12 +67,13 @@ static const olchar_t * ls_pstrConfigCtlVersion = "1.0.0";
 static void _printConfigCtlUsage(void)
 {
     ol_printf("\
-Usage: %s [-l] [-s] [-t] [-u automatic|manual] [-n service name] [-V] [logger options]\n\
+Usage: %s [-l] [-g] [-s] [-n config-name] [-v config-value] [-t]  [-V] [logger options]\n\
     -l list all configs.\n\
     -g get config.\n\
     -s set config.\n\
     -n specify the config name.\n\
     -v specify the config value.\n\
+    -t start a transaction to get or set config.\n\
     -V show version information.\n\
 logger options:\n\
     -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug, 4: data.\n\
@@ -103,6 +112,9 @@ static u32 _parseConfigCtlCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger
             break;
         case 'n':
             ls_pstrConfigName = optarg;
+            break;
+        case 't':
+            ls_bTransaction = TRUE;
             break;
         case 'v':
             ls_pstrConfigValue = optarg;
@@ -158,7 +170,7 @@ static u32 _getConfig(olchar_t * pstrName)
     {
         ol_bzero(value, sizeof(value));
 
-        u32Ret = jf_config_get(pstrName, value, sizeof(value));
+        u32Ret = jf_config_get(ls_u32TransactionId, pstrName, value, sizeof(value));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -181,7 +193,22 @@ static u32 _setConfig(olchar_t * pstrName, olchar_t * pstrValue)
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_config_set(pstrName, pstrValue);
+    {
+        if (! ls_bTransaction)
+        {
+            u32Ret = jf_config_set(ls_u32TransactionId, pstrName, pstrValue);
+        }
+        else
+        {
+            u32Ret = jf_config_startTransaction(&ls_u32TransactionId);
+            if (u32Ret == JF_ERR_NO_ERROR)
+            {
+                u32Ret = jf_config_set(ls_u32TransactionId, pstrName, pstrValue);
+
+                jf_config_commitTransaction(ls_u32TransactionId);
+            }
+        }
+    }
 
     return u32Ret;
 }

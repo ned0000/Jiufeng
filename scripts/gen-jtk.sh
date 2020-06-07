@@ -8,8 +8,7 @@ E_BUILD_ERROR=67
 
 debug=no
 
-bin_files="jf_genuuid jf_dongyuan jf_servctl jf_dispatcher"
-setting_files="servmgmt/servmgmt.setting"
+bin_files="jf_genuuid jf_dongyuan jf_servctl jf_dispatcher jf_configmgr jf_configctl"
 
 help_gen_jtk()
 {

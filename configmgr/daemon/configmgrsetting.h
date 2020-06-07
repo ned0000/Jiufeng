@@ -36,8 +36,9 @@ typedef struct
     olchar_t icms_strSettingFile[JF_LIMIT_MAX_PATH_LEN];
     olchar_t * icms_pstrVersion;
 
-    u16 icms_u16MaxNumTransaction;
-    u8 icms_u8Reserved[5];
+    u16 icms_u16MaxNumOfTransaction;
+    u16 icms_u16MaxNumOfConnection;
+    u8 icms_u8Reserved[3];
     u8 icms_u8ConfigPersistencyType;
     olchar_t * icms_pstrConfigPersistencyLocation;
 
