@@ -1,7 +1,8 @@
 /**
  *  @file ifmgmt-test.c
  *
- *  @brief Test file for ifmgmt library.
+ *  @brief Test file for IP address and network interface management function defined in jf_ifmgmt
+ *   library.
  *
  *  @author Min Zhang
  *
@@ -243,7 +244,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        jf_err_getMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
+        jf_err_readDescription(u32Ret, strErrMsg, sizeof(strErrMsg));
         ol_printf("%s\n", strErrMsg);
     }
 
@@ -251,4 +252,3 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

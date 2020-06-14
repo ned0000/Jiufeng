@@ -1,7 +1,7 @@
 /**
  *  @file string-test.c
  *
- *  @brief The test file for jf_string library
+ *  @brief Test file for string function defined in jf_string library.
  *
  *  @author Min Zhang
  *
@@ -10,11 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -313,7 +312,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        jf_err_getMsg(u32Ret, strErrMsg, 300);
+        jf_err_readDescription(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 
@@ -321,5 +320,3 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-

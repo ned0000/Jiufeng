@@ -1,7 +1,7 @@
 /**
  *  @file jf_ifmgmt.h
  *
- *  @brief Header file of network interface management library.
+ *  @brief Header file defines network interface management function.
  *
  *  @author Min Zhang
  *
@@ -152,4 +152,3 @@ IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[JF_LIMIT_MAC_LEN]);
 #endif /*JIUFENG_IFMGMT_H */
 
 /*------------------------------------------------------------------------------------------------*/
-

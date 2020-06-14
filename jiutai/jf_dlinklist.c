@@ -1,7 +1,7 @@
 /**
  *  @file jf_dlinklist.c
  *
- *  @brief The double linked list data structure
+ *  @brief Implementation file for double linked list.
  *
  *  @author Min Zhang
  *  
@@ -10,18 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-#if defined(WINDOWS)
 
-#elif defined(LINUX)
-    #include <unistd.h>
-#endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -38,9 +30,6 @@
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-/** Init the double linked list
- *
- */
 void jf_dlinklist_init(jf_dlinklist_t * pList)
 {
     assert(pList != NULL);
@@ -48,9 +37,6 @@ void jf_dlinklist_init(jf_dlinklist_t * pList)
     pList->jd_pjdnHead = pList->jd_pjdnTail = NULL;
 }
 
-/** Create the double linked list
- *
- */
 void jf_dlinklist_fini(jf_dlinklist_t * pList)
 {
     jf_dlinklist_node_t * pjdn, * pNode;
@@ -68,9 +54,6 @@ void jf_dlinklist_fini(jf_dlinklist_t * pList)
     jf_dlinklist_init(pList);
 }
 
-/** Create the double linked list with the function to free the data
- * 
- */
 void jf_dlinklist_finiListAndData(
     jf_dlinklist_t * pList, jf_dlinklist_fnFreeNodeData_t fnFreeData)
 {
@@ -92,9 +75,6 @@ void jf_dlinklist_finiListAndData(
     jf_dlinklist_init(pList);
 }
 
-/** remove all notes from double linked list
- * 
- */
 void jf_dlinklist_removeAllNodes(
     jf_dlinklist_t * pList, jf_dlinklist_fnFreeNodeData_t fnFreeData)
 {
@@ -116,25 +96,21 @@ void jf_dlinklist_removeAllNodes(
     jf_dlinklist_init(pList);
 }
 
-/** find the data
- * 
- */
 u32 jf_dlinklist_findFirstData(
     jf_dlinklist_t * pList, void ** ppData,
-    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey)
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pArg)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
     jf_dlinklist_node_t * pjdn;
 
-    assert((pList != NULL) && (ppData != NULL) &&
-           (fnFindData != NULL));
+    assert((pList != NULL) && (ppData != NULL) && (fnFindData != NULL));
 
     *ppData = NULL;
 
     pjdn = pList->jd_pjdnHead;
     while (pjdn != NULL)
     {
-        if (fnFindData(pjdn->jdn_pData, pKey))
+        if (fnFindData(pjdn->jdn_pData, pArg))
         {
             *ppData = pjdn->jdn_pData;
             u32Ret = JF_ERR_NO_ERROR;
@@ -147,25 +123,21 @@ u32 jf_dlinklist_findFirstData(
     return u32Ret;
 }
 
-/** find the node
- * 
- */
 u32 jf_dlinklist_findFirstNode(
     jf_dlinklist_t * pList, jf_dlinklist_node_t ** ppNode,
-    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey)
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pArg)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
-    jf_dlinklist_node_t * pjdn;
+    jf_dlinklist_node_t * pjdn = NULL;
 
-    assert((pList != NULL) && (ppNode != NULL) &&
-           (fnFindData != NULL));
+    assert((pList != NULL) && (ppNode != NULL) && (fnFindData != NULL));
 
     *ppNode = NULL;
 
     pjdn = pList->jd_pjdnHead;
     while (pjdn != NULL)
     {
-        if (fnFindData(pjdn->jdn_pData, pKey))
+        if (fnFindData(pjdn->jdn_pData, pArg))
         {
             *ppNode = pjdn;
             u32Ret = JF_ERR_NO_ERROR;
@@ -178,25 +150,21 @@ u32 jf_dlinklist_findFirstNode(
     return u32Ret;
 }
 
-/** Create the double linked list with the function to free the data
- * 
- */
 u32 jf_dlinklist_findLastData(
     jf_dlinklist_t * pList, void ** ppData,
-    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey)
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pArg)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
-    jf_dlinklist_node_t * pjdn;
+    jf_dlinklist_node_t * pjdn = NULL;
 
-    assert((pList != NULL) && (ppData != NULL) &&
-           (fnFindData != NULL));
+    assert((pList != NULL) && (ppData != NULL) && (fnFindData != NULL));
 
     *ppData = NULL;
 
     pjdn = pList->jd_pjdnTail;
     while (pjdn != NULL)
     {
-        if (fnFindData(pjdn->jdn_pData, pKey))
+        if (fnFindData(pjdn->jdn_pData, pArg))
         {
             *ppData = pjdn->jdn_pData;
             u32Ret = JF_ERR_NO_ERROR;
@@ -209,25 +177,21 @@ u32 jf_dlinklist_findLastData(
     return u32Ret;
 }
 
-/** find last node
- * 
- */
 u32 jf_dlinklist_findLastNode(
     jf_dlinklist_t * pList, jf_dlinklist_node_t ** ppNode,
-    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey)
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pArg)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
-    jf_dlinklist_node_t * pjdn;
+    jf_dlinklist_node_t * pjdn = NULL;
 
-    assert((pList != NULL) && (ppNode != NULL) &&
-           (fnFindData != NULL));
+    assert((pList != NULL) && (ppNode != NULL) && (fnFindData != NULL));
 
     *ppNode = NULL;
 
     pjdn = pList->jd_pjdnTail;
     while (pjdn != NULL)
     {
-        if (fnFindData(pjdn->jdn_pData, pKey))
+        if (fnFindData(pjdn->jdn_pData, pArg))
         {
             *ppNode = pjdn;
             u32Ret = JF_ERR_NO_ERROR;
@@ -240,23 +204,19 @@ u32 jf_dlinklist_findLastNode(
     return u32Ret;
 }
 
-/** find the next node
- * 
- */
 u32 jf_dlinklist_findNextNode(
     jf_dlinklist_node_t * pNode, jf_dlinklist_node_t ** ppNode,
-    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey)
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pArg)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
 
-    assert((pNode != NULL) && (ppNode != NULL) &&
-           (fnFindData != NULL));
+    assert((pNode != NULL) && (ppNode != NULL) && (fnFindData != NULL));
 
     *ppNode = NULL;
     pNode = pNode->jdn_pjdnNext;
     while (pNode != NULL)
     {
-        if (fnFindData(pNode->jdn_pData, pKey))
+        if (fnFindData(pNode->jdn_pData, pArg))
         {
             *ppNode = pNode;
             u32Ret = JF_ERR_NO_ERROR;
@@ -269,23 +229,19 @@ u32 jf_dlinklist_findNextNode(
     return u32Ret;
 }
 
-/** find the previous node
- * 
- */
 u32 jf_dlinklist_findPrevNode(
     jf_dlinklist_node_t * pNode, jf_dlinklist_node_t ** ppNode,
-    jf_dlinklist_fnFindNodeData_t fnFindData, void * pKey)
+    jf_dlinklist_fnFindNodeData_t fnFindData, void * pArg)
 {
     u32 u32Ret = JF_ERR_NOT_FOUND;
 
-    assert((pNode != NULL) && (ppNode != NULL) &&
-           (fnFindData != NULL));
+    assert((pNode != NULL) && (ppNode != NULL) && (fnFindData != NULL));
 
     *ppNode = NULL;
     pNode = pNode->jdn_pjdnPrev;
     while (pNode != NULL)
     {
-        if (fnFindData(pNode->jdn_pData, pKey))
+        if (fnFindData(pNode->jdn_pData, pArg))
         {
             *ppNode = pNode;
             u32Ret = JF_ERR_NO_ERROR;
@@ -348,4 +304,3 @@ u32 jf_dlinklist_iterate(jf_dlinklist_t * pList, jf_dlinklist_fnOpNode_t fnOpNod
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

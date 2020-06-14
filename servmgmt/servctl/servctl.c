@@ -10,11 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_serv.h"
@@ -329,7 +328,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        jf_err_getMsg(u32Ret, strErrMsg, 300);
+        jf_err_readDescription(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 
@@ -337,4 +336,3 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

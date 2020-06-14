@@ -7,16 +7,18 @@
  *
  *  @note
  *  -# Use transaction routines instead of sql statement to start, commit and rollback transaction.
- *
+ *  -# Link with jf_rand object to get random number.
  */
 
 #ifndef JIUTAI_SQLITE_H
 #define JIUTAI_SQLITE_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include "sqlite3.h"
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 
@@ -55,6 +57,7 @@ typedef struct jf_sqlite
  *  @param param [in] The parameter for Initializing the object.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_sqlite_init(jf_sqlite_t * pjs, jf_sqlite_init_param_t * param);
 
@@ -63,6 +66,7 @@ u32 jf_sqlite_init(jf_sqlite_t * pjs, jf_sqlite_init_param_t * param);
  *  @param pjs [in] The sqlite object to be finalized.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_sqlite_fini(jf_sqlite_t * pjs);
 
@@ -71,6 +75,8 @@ u32 jf_sqlite_fini(jf_sqlite_t * pjs);
  *  @param pjs [in] The sqlite object.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_NOT_INITIALIZED Sqlite object is not initialized.
  */
 u32 jf_sqlite_rollbackTransaction(jf_sqlite_t * pjs);
 
@@ -79,6 +85,8 @@ u32 jf_sqlite_rollbackTransaction(jf_sqlite_t * pjs);
  *  @param pjs [in] The sqlite object.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_NOT_INITIALIZED Sqlite object is not initialized.
  */
 u32 jf_sqlite_startTransaction(jf_sqlite_t * pjs);
 
@@ -87,6 +95,8 @@ u32 jf_sqlite_startTransaction(jf_sqlite_t * pjs);
  *  @param pjs [in] The sqlite object.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_NOT_INITIALIZED Sqlite object is not initialized.
  */
 u32 jf_sqlite_commitTransaction(jf_sqlite_t * pjs);
 
@@ -98,6 +108,9 @@ u32 jf_sqlite_commitTransaction(jf_sqlite_t * pjs);
  *  @param sResult [in] The length of the result string buffer.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_NOT_INITIALIZED Sqlite object is not initialized.
+ *  @retval JF_ERR_SQL_COMPILE_ERROR Error in compiling SQL statement.
  */
 u32 jf_sqlite_execSql(
     jf_sqlite_t * pjs, olchar_t * pstrSql, olchar_t * pstrResult, olsize_t sResult);

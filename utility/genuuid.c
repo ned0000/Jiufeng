@@ -1,7 +1,7 @@
 /**
  *  @file genuuid.c
  *
- *  @brief Application for generating UUID
+ *  @brief Application for generating UUID.
  *
  *  @author Min Zhang
  *
@@ -10,11 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -26,6 +25,7 @@
 #include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
 static jf_uuid_ver_t ls_juvVersion = JF_UUID_VER_1;
 static jf_uuid_fmt_t ls_jufFormat = JF_UUID_FMT_STR;
 static boolean_t ls_bMulticastMac = FALSE;
@@ -220,7 +220,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        jf_err_getMsg(u32Ret, strErrMsg, 200);
+        jf_err_readDescription(u32Ret, strErrMsg, 200);
         ol_printf("%s\n", strErrMsg);
     }
 
@@ -228,4 +228,3 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

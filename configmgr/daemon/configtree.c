@@ -147,9 +147,11 @@ u32 getConfigFromConfigTree(
     internal_config_tree_t * pict = &ls_ictConfigTree;
     jf_ptree_node_t * node = NULL;
     olchar_t * pstr = NULL;
-    olsize_t sStr = 0;
+    olsize_t sStr = 0, sValue = *psValue;
 
     JF_LOGGER_DATAA((u8 *)pstrName, sName, "%s", "name");
+
+    *psValue = 0;
 
     jf_mutex_acquire(&pict->ict_jmLock);
 
@@ -161,7 +163,7 @@ u32 getConfigFromConfigTree(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         JF_LOGGER_DEBUG("value: %s(%d)", pstr, sStr);
-        if (sStr > *psValue)
+        if (sStr > sValue)
             u32Ret = JF_ERR_BUFFER_TOO_SMALL;
     }
 

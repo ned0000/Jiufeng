@@ -1,7 +1,7 @@
 /**
  *  @file jf_sem.h
  *
- *  @brief The header file which defines interface for synchronization semaphore object.
+ *  @brief Header file defines interface for synchronization semaphore object.
  *
  *  @author Min Zhang
  *
@@ -43,6 +43,7 @@ typedef struct
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_CREATE_SEM Failed to create semaphore.
  */
 u32 jf_sem_init(jf_sem_t * pSem, u32 u32InitialCount, u32 u32MaxCount);
 
@@ -64,6 +65,7 @@ u32 jf_sem_fini(jf_sem_t * pSem);
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_DOWN_SEM Failed to down a semaphore.
  */
 u32 jf_sem_down(jf_sem_t * pSem);
 
@@ -76,17 +78,18 @@ u32 jf_sem_down(jf_sem_t * pSem);
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_DOWN_SEM Failed to down a semaphore.
  */
 u32 jf_sem_tryDown(jf_sem_t * pSem);
 
 /** Down a semaphore with time out.
  *
  *  @param pSem [in] The semaphore to be downed.
- *  @param u32Timeout [in] The maximum waiting period if the semophore has been up by another
- *   thread in milliseconds.
+ *  @param u32Timeout [in] The maximum waiting period in milliseconds when the semophore is 0.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_DOWN_SEM Failed to down a semaphore.
  */
 u32 jf_sem_downWithTimeout(jf_sem_t * pSem, u32 u32Timeout);
 
@@ -96,6 +99,7 @@ u32 jf_sem_downWithTimeout(jf_sem_t * pSem, u32 u32Timeout);
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_UP_SEM Failed to up a semaphore.
  */
 u32 jf_sem_up(jf_sem_t * pSem);
 

@@ -30,7 +30,7 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-#define PRNG_POOL_SIZE    (1024)
+#define PRNG_POOL_SIZE                    (1024)
 
 typedef struct
 {
@@ -75,7 +75,7 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
 
     if (! bEntropy)
     {
-        /*entropy is not enough*/
+        /*Entropy is not enough.*/
         pip->ip_dbEntropy -= u32Len;
         if (pip->ip_dbEntropy < 0)
             pip->ip_dbEntropy = 0;
@@ -83,11 +83,11 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
 
     if (! pip->ip_bPoolStirred)
     {
-        /* stir all data in pool */
+        /*Stir all data in pool.*/
         u32PoolSize = PRNG_POOL_SIZE;
         while ((u32PoolSize > 0) && (u32Ret == JF_ERR_NO_ERROR))
         {
-            /* At least JF_CGHASH_MD5_DIGEST_LEN */
+            /*At least JF_CGHASH_MD5_DIGEST_LEN.*/
 #define DUMMY_SEED "...................."
             u32Ret = jf_prng_seed((u8 *)DUMMY_SEED, JF_CGHASH_MD5_DIGEST_LEN, 0.0);
             if (u32Ret == JF_ERR_NO_ERROR)
@@ -106,7 +106,7 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
         if (pip->ip_u32PoolIndex > pip->ip_u32PoolSize)
             pip->ip_u32PoolIndex %= pip->ip_u32PoolSize;
 
-        /* increase the number of get operation */
+        /*Increase the number of get operation.*/
         pip->ip_u32NumOfGet += 1;
 
         jf_cghash_initMd5(&md5);
@@ -119,14 +119,14 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
 
         if (curr_pid)
         {
-            /* just in the first iteration to save time */
+            /*Just in the first iteration to save time.*/
             jf_cghash_updateMd5(&md5, (u8 *)&curr_pid, sizeof(curr_pid));
             curr_pid = 0;
         }
 
         jf_cghash_updateMd5(&md5, local_md, JF_CGHASH_MD5_DIGEST_LEN);
         jf_cghash_updateMd5(&md5, (u8 *)&pip->ip_u32NumOfGet, sizeof(pip->ip_u32NumOfGet));
-        /* include the data in parameter from caller */
+        /*Include the data in parameter from caller.*/
         jf_cghash_updateMd5(&md5, pu8Data, j);
 
         k = (u32Idx + JF_CGHASH_MD5_DIGEST_LEN / 2) - pip->ip_u32PoolSize;
@@ -144,8 +144,8 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
 
         for (i = 0; i < JF_CGHASH_MD5_DIGEST_LEN / 2; i ++)
         {
-            /* put the first part of message digest into pool, return the last
-               part of message digest to caller */
+            /*Put the first part of message digest into pool, return the last part of message
+              digest to caller.*/
             pip->ip_u8Pool[u32Idx++] ^= local_md[i];
             if (u32Idx >= pip->ip_u32PoolSize)
                 u32Idx=0;
@@ -163,8 +163,7 @@ static u32 _getPrngData(internal_prng_t * pip, u8 * pu8Data, u32 u32Len)
 
         if (! bEntropy)
         {
-            /* prng is not seeded and entropy is not enough, the random data
-             * are pseudo
+            /*Prng is not seeded and entropy is not enough, the random data are pseudo.
              */
             u32Ret = JF_ERR_PRNG_NOT_SEEDED;
         }
@@ -251,14 +250,13 @@ u32 jf_prng_seed(const u8 * pu8Data, olint_t u32Len, oldouble_t dbEntropy)
     pip->ip_u32PoolIndex += u32Len;
     if (pip->ip_u32PoolIndex >= PRNG_POOL_SIZE)
     {
-        /* the pool index roll back from the start, set the pool size to the
-           maximum pool size */
+        /*The pool index roll back from the start, set the pool size to the maximum pool size.*/
         pip->ip_u32PoolIndex %= PRNG_POOL_SIZE;
         pip->ip_u32PoolSize = PRNG_POOL_SIZE;
     }
     else if (pip->ip_u32PoolSize < PRNG_POOL_SIZE)
     {
-        /* set the pool size to pool index */
+        /*Set the pool size to pool index.*/
         if (pip->ip_u32PoolIndex > pip->ip_u32PoolSize)
             pip->ip_u32PoolSize = pip->ip_u32PoolIndex;
     }
@@ -288,7 +286,7 @@ u32 jf_prng_seed(const u8 * pu8Data, olint_t u32Len, oldouble_t dbEntropy)
 
         for (k = 0; k < j; k ++)
         {
-            /* save the message digest to pool */
+            /*Save the message digest to pool.*/
             pip->ip_u8Pool[u32Index ++] ^= local_md[k];
             if (u32Index >= PRNG_POOL_SIZE)
                 u32Index = 0;
@@ -297,7 +295,7 @@ u32 jf_prng_seed(const u8 * pu8Data, olint_t u32Len, oldouble_t dbEntropy)
 
     for (k = 0; k < (olint_t)sizeof(pip->ip_u8Md); k++)
     {
-        /* save the last message digest */
+        /*Save the last message digest.*/
         pip->ip_u8Md[k] ^= local_md[k];
     }
 

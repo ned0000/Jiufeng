@@ -135,7 +135,7 @@ u32 jf_sem_down(jf_sem_t * pSem)
     dwRet = WaitForSingleObject(pSem->js_hSem, INFINITE);
     if (dwRet == WAIT_FAILED)
     {
-        u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
+        u32Ret = JF_ERR_FAIL_DOWN_SEM;
     }
     else if (dwRet == WAIT_TIMEOUT)
     {
@@ -153,7 +153,7 @@ u32 jf_sem_down(jf_sem_t * pSem)
     nRet = semop(pSem->js_nSem, &semlock, 1);
     if (nRet != 0)
     {
-        u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
+        u32Ret = JF_ERR_FAIL_DOWN_SEM;
     }
 #endif
     
@@ -172,7 +172,7 @@ u32 jf_sem_tryDown(jf_sem_t * pSem)
     dwRet = WaitForSingleObject(pSem->js_hSem, 0);
     if (dwRet == WAIT_FAILED)
     {
-        u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
+        u32Ret = JF_ERR_FAIL_DOWN_SEM;
     }
     else if (dwRet == WAIT_TIMEOUT)
     {
@@ -190,7 +190,7 @@ u32 jf_sem_tryDown(jf_sem_t * pSem)
     nRet = semop(pSem->js_nSem, &semlock, 1);
     if (nRet != 0)
     {
-        u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
+        u32Ret = JF_ERR_FAIL_DOWN_SEM;
     }
 #endif
     
@@ -209,7 +209,7 @@ u32 jf_sem_downWithTimeout(jf_sem_t * pSem, u32 u32Timeout)
     dwRet = WaitForSingleObject(pSem->js_hSem, u32Timeout);
     if (dwRet == WAIT_FAILED)
     {
-        u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
+        u32Ret = JF_ERR_FAIL_DOWN_SEM;
     }
     else if (dwRet == WAIT_TIMEOUT)
     {
@@ -233,7 +233,7 @@ u32 jf_sem_downWithTimeout(jf_sem_t * pSem, u32 u32Timeout)
     nRet = semtimedop(pSem->js_nSem, &semlock, 1, &timeout);
     if (nRet != 0)
     {
-        u32Ret = JF_ERR_FAIL_ACQUIRE_SEM;
+        u32Ret = JF_ERR_FAIL_DOWN_SEM;
     }
 #endif
     
@@ -252,7 +252,7 @@ u32 jf_sem_up(jf_sem_t * pSem)
     bRet = ReleaseSemaphore(pSem->js_hSem, 1, NULL);
     if (! bRet)
     {
-        u32Ret = JF_ERR_FAIL_RELEASE_SEM;
+        u32Ret = JF_ERR_FAIL_UP_SEM;
     }
 #elif defined(LINUX)
     olint_t nRet = 0;
@@ -266,7 +266,7 @@ u32 jf_sem_up(jf_sem_t * pSem)
     nRet = semop(pSem->js_nSem, &semunlock, 1);
     if (nRet != 0)
     {
-        u32Ret = JF_ERR_FAIL_RELEASE_SEM;
+        u32Ret = JF_ERR_FAIL_UP_SEM;
     }
 #endif
     

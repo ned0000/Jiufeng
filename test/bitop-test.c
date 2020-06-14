@@ -1,7 +1,7 @@
 /**
  *  @file bitop-test.c
  *
- *  @brief test file for bit op object file
+ *  @brief Test file for bit operation defined in jf_bitop common object.
  *
  *  @author Min Zhang
  *
@@ -9,11 +9,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -25,15 +24,16 @@
 
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+
+static void _printBitopTestUsage(void)
 {
     ol_printf("\
 Usage: bitop-test [-h]\n\
-         -h show this usage\n");
+    -h show this usage.\n");
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parseBitopTestCmdLineParam(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
@@ -45,7 +45,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printBitopTestUsage();
             break;
         case ':':
             u32Ret = JF_ERR_MISSING_PARAM;
@@ -200,11 +200,12 @@ static u32 _testBitOp(void)
 
 
 /* --- public routine section ------------------------------------------------------------------- */
+
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = _parseCmdLineParam(argc, argv);
+    u32Ret = _parseBitopTestCmdLineParam(argc, argv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _testBitOp();

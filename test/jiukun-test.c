@@ -1,7 +1,7 @@
 /**
  *  @file jiukun-test.c
  *
- *  @brief The test file for jiukun library
+ *  @brief Test file for memory allocation function defined in jf_jiukun library.
  *
  *  @author Min Zhang
  *
@@ -10,11 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -49,7 +48,7 @@ boolean_t ls_bAllocateWithoutFree = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static void _printUsage(void)
+static void _printJiukunTestUsage(void)
 {
     ol_printf("\
 Usage: jiukun-test [-t] [-j page|memory|object] [stress testing option] [allocate without free] \n\
@@ -75,7 +74,7 @@ logger options:\n\
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
+static u32 _parseJiukunTestCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
@@ -87,7 +86,7 @@ static u32 _parseCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_par
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printJiukunTestUsage();
             exit(u32Ret);
             break;
         case 'j':
@@ -198,7 +197,7 @@ u32 _testAllocMem(void)
                 }
                 else
                 {
-                    jf_err_getMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
+                    jf_err_readDescription(u32Ret, strErrMsg, sizeof(strErrMsg));
                     jf_logger_logInfoMsg("failed, %s\n", strErrMsg);
                 }
             }
@@ -281,7 +280,7 @@ u32 _testJiukunPage(void)
                 }
                 else
                 {
-                    jf_err_getMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
+                    jf_err_readDescription(u32Ret, strErrMsg, sizeof(strErrMsg));
                     jf_logger_logInfoMsg("failed, %s\n", strErrMsg);
                 }
             }
@@ -359,7 +358,7 @@ u32 _testJiukunCache(void)
                 }
                 else
                 {
-                    jf_err_getMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
+                    jf_err_readDescription(u32Ret, strErrMsg, sizeof(strErrMsg));
                     jf_logger_logInfoMsg("failed, %s\n", strErrMsg);
                 }
             }
@@ -421,7 +420,7 @@ JF_THREAD_RETURN_VALUE _allocFree(void * pArg)
         jf_logger_logInfoMsg("alloc-free thread %u quits", u32Index);
     else
     {
-        jf_err_getMsg(u32Ret, strErrMsg, 300);
+        jf_err_readDescription(u32Ret, strErrMsg, 300);
         jf_logger_logInfoMsg("alloc-free thread %u quits, %s", u32Index, strErrMsg);
     }
 
@@ -806,7 +805,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
 
-    u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
+    u32Ret = _parseJiukunTestCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
@@ -842,7 +841,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        jf_err_getMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
+        jf_err_readDescription(u32Ret, strErrMsg, sizeof(strErrMsg));
         ol_printf("%s\n", strErrMsg);
     }
 
@@ -850,5 +849,3 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-

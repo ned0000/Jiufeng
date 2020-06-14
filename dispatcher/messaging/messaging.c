@@ -244,4 +244,14 @@ u32 jf_messaging_getMsgTransactionId(u8 * pu8Msg, olsize_t sMsg)
     return getMessagingMsgTransactionId(pu8Msg, sMsg);
 }
 
+u32 jf_messaging_isFullMsg(u8 * pu8Msg, olsize_t sMsg)
+{
+    return isMessagingFullMsg(pu8Msg, sMsg);
+}
+
+olsize_t jf_messaging_getMsgSize(u8 * pu8Msg)
+{
+    return getMessagingMsgSize(pu8Msg);
+}
+
 /*------------------------------------------------------------------------------------------------*/

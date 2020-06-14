@@ -449,10 +449,11 @@ STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringNotSupported(
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getStringMacAddress(
     olchar_t * pstrMacAddr, olsize_t sMacAddr, const u8 * pu8Mac);
 
-/** Get the size string in GB, MB, KB and B. The size string will be the format of
- *  "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>".
+/** Get the size string in TB, GB, MB, KB and B.
  *
  *  @note
+ *  -# The size is calculated with 1024 byte.
+ *  -# The size string will be the format of "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>".
  *
  *  @param pstrSize [out] The size string to be returned.
  *  @param sStrSize [in] Size of the string.
@@ -464,10 +465,11 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getStringMacAddress(
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getByteStringSize(
     olchar_t * pstrSize, olsize_t sStrSize, const u64 u64Size);
 
-/** Get the size string in GB, MB, KB and B. The size string will be the format of
- *  "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>"
+/** Get the size string in TB, GB, MB, KB and B.
  *
  *  @note
+ *  -# The size is calculated with 1024 byte.
+ *  -# The size string will be the format of "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>".
  *
  *  @param pstrSize [out] The size string to be returned.
  *  @param sStrSize [in] Size of the string.
@@ -479,11 +481,11 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getByteStringSize(
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getByteStringSizeMax(
     olchar_t * pstrSize, olsize_t sStrSize, const u64 u64Size);
 
-/** Get the size string based 1000 in GB, MB, KB and B. The size string will be the format of
- *  "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>".
+/** Get the size string based 1000 in TB, GB, MB, KB and B.
  *
  *  @note
-
+ *  -# The size is calculated with 1000 byte.
+ *  -# The size string will be the format of "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>".
  *
  *  @param pstrSize [out] The size string to be returned.
  *  @param sStrSize [in] Size of the string.

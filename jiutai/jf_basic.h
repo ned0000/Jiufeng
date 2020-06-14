@@ -12,6 +12,8 @@
 #define JIUTAI_JF_BASIC_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
+#include <string.h>
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -27,6 +29,10 @@
     #include <unistd.h>
     #include <getopt.h>
     #include <arpa/inet.h>
+    #include <stdlib.h>
+    #include <stdio.h>
+    #include <stdarg.h>
+    #include <stddef.h>
 #else
     #error "Unsupported platform."
 #endif

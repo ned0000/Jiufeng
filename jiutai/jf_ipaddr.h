@@ -238,6 +238,7 @@ IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getIpAddrFromString(
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_INVALID_IP Invalid IP address.
  *  @retval JF_ERR_INVALID_IP_ADDR_TYPE Invalid address type.
  */
 IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getIpAddrPortFromString(

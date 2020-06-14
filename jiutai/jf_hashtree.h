@@ -20,9 +20,10 @@
 #define JIUTAI_HASHTREE_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stddef.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 

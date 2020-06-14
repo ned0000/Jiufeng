@@ -1,7 +1,7 @@
 /**
  *  @file template.h
  *
- *  @brief template header file
+ *  @brief Template C header file.
  *
  *  @author Min Zhang
  *
@@ -14,6 +14,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
@@ -26,5 +27,3 @@
 #endif /*JIUFENG_TEMPLATE_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

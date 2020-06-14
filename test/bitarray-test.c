@@ -1,7 +1,7 @@
 /**
  *  @file bitarray-test.c
  *
- *  @brief Test file for bit array object defined in jf_bitarray.h
+ *  @brief Test file for bit array function defined in jf_bitarray common object.
  *
  *  @author Min Zhang
  *
@@ -10,20 +10,21 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_bitarray.h"
 #include "jf_string.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
 static boolean_t ls_bSizeof = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
+
 static void _printBitarrayTestUsage(void)
 {
     ol_printf("\
@@ -285,7 +286,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        jf_err_getMsg(u32Ret, strErrMsg, 300);
+        jf_err_readDescription(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 
@@ -293,4 +294,3 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

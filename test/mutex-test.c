@@ -1,7 +1,7 @@
 /**
  *  @file mutex-test.c
  *
- *  @brief test file for jf_mutex common object
+ *  @brief Test file for mutex defind in jf_mutex common object.
  *
  *  @author Min Zhang
  *
@@ -10,11 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -23,6 +22,7 @@
 #include "jf_thread.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
 static jf_mutex_t ls_jmLock;
 static boolean_t ls_bToTerminate = FALSE;
 static olint_t nMutex = 0;
@@ -30,6 +30,7 @@ static olint_t nMutex = 0;
 #define MAX_RESOURCE_COUNT  1
 
 /* --- private routine section ------------------------------------------------------------------ */
+
 JF_THREAD_RETURN_VALUE consumer(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -51,7 +52,7 @@ JF_THREAD_RETURN_VALUE consumer(void * pArg)
         ol_printf("consumer quits\n");
     else
     {
-        jf_err_getMsg(u32Ret, strErrMsg, 300);
+        jf_err_readDescription(u32Ret, strErrMsg, 300);
         ol_printf("consumer quits, %s\n", strErrMsg);
     }
 
@@ -79,7 +80,7 @@ JF_THREAD_RETURN_VALUE producer(void * pArg)
         ol_printf("producer quits\n");
     else
     {
-        jf_err_getMsg(u32Ret, strErrMsg, 300);
+        jf_err_readDescription(u32Ret, strErrMsg, 300);
         ol_printf("producer quits, %s\n", strErrMsg);
     }
 
@@ -122,7 +123,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        jf_err_getMsg(u32Ret, strErrMsg, 300);
+        jf_err_readDescription(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 
@@ -130,6 +131,3 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-
-

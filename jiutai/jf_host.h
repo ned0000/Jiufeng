@@ -18,6 +18,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_limit.h"
@@ -26,23 +27,23 @@
 
 /** Maximum net name length.
  */
-#define JF_HOST_MAX_NET_NAME_LEN           (24)
+#define JF_HOST_MAX_NET_NAME_LEN                    (24)
 
 /** Maximum number of net interface.
  */
-#define JF_HOST_MAX_NET_INTERFACES         (16)
+#define JF_HOST_MAX_NET_INTERFACES                  (16)
 
 /** Maximum IP address length.
  */
-#define JF_HOST_MAX_IP_ADDR_LEN            (40)
+#define JF_HOST_MAX_IP_ADDR_LEN                     (40)
 
 /** Maximum host name length.
  */
-#define JF_HOST_MAX_HOST_NAME_LEN          (32)
+#define JF_HOST_MAX_HOST_NAME_LEN                   (32)
 
 /** Maximum OS name length.
  */
-#define JF_HOST_MAX_OS_NAME_LEN            (256)
+#define JF_HOST_MAX_OS_NAME_LEN                     (256)
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -67,9 +68,9 @@ typedef struct
     olchar_t jhi_strOSName[JF_HOST_MAX_OS_NAME_LEN];
     u8 jhi_u8Reserved[256];
     u16 jhi_u16Reserved[3];
-    /**The number of net interface.*/
+    /**Number of network interface.*/
     u16 jhi_u16NetCount;
-    /**The net interface list.*/
+    /**Network interface list.*/
     jf_host_net_info_t jhi_jhniNet[JF_HOST_MAX_NET_INTERFACES];
 } jf_host_info_t;
 

@@ -1,7 +1,7 @@
 /**
  *  @file user-test.c
  *
- *  @brief Test file for user object.
+ *  @brief Test file for user function defined in jf_user common object.
  *
  *  @author Min Zhang
  *
@@ -10,11 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -27,7 +26,8 @@ static boolean_t ls_bShowUserInfo = FALSE;
 static olchar_t * ls_pstrUserName = NULL;
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+
+static void _printUserTestUsage(void)
 {
     ol_printf("\
 Usage: user-test [-s] [-u user-name] [-h] \n\
@@ -49,7 +49,7 @@ static u32 _parseUserTestCmdLineParam(olint_t argc, olchar_t ** argv)
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printUserTestUsage();
             exit(0);
         case 's':
             ls_bShowUserInfo = TRUE;
@@ -110,13 +110,13 @@ olint_t main(olint_t argc, olchar_t ** argv)
         else
         {
             ol_printf("No operation is specified !!!!\n\n");
-            _printUsage();
+            _printUserTestUsage();
         }
     }
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        jf_err_getMsg(u32Ret, strErrMsg, sizeof(strErrMsg));
+        jf_err_readDescription(u32Ret, strErrMsg, sizeof(strErrMsg));
         ol_printf("%s\n", strErrMsg);
     }
 
@@ -124,4 +124,3 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

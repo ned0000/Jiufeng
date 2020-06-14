@@ -228,14 +228,25 @@ MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_setMsgTransactionId(u8 * pu8Msg, u32
  */
 MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_getMsgTransactionId(u8 * pu8Msg, olsize_t sMsg);
 
-/** Get message priority.
+/** Check if full message is received.
  *
  *  @param pu8Msg [in] The message.
  *  @param sMsg [in] The message size.
  *
- *  @return The message priority.
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Full message is received.
+ *  @retval JF_ERR_INCOMPLETE_DATA Partial message is received.
  */
-MESSAGINGAPI u8 MESSAGINGCALL getMessagingMsgPrio(u8 * pu8Msg, olsize_t sMsg);
+MESSAGINGAPI u32 MESSAGINGCALL jf_messaging_isFullMsg(u8 * pu8Msg, olsize_t sMsg);
+
+/** Get messaging message size.
+ *
+ *  @note
+ *  -# Full message size including header and payload.
+ *
+ *  @return The message size.
+ */
+MESSAGINGAPI olsize_t MESSAGINGCALL jf_messaging_getMsgSize(u8 * pu8Msg);
 
 #endif /*JIUFENG_MESSAGING_H*/
 

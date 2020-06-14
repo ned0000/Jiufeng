@@ -1,7 +1,7 @@
 /**
- *  @file
+ *  @file template.c
  *
- *  @brief The template C file
+ *  @brief Template C implementation file.
  *
  *  @author Min Zhang
  *
@@ -9,12 +9,13 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stdio.h>
 #include <string.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
-#include "jf_limit.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -25,4 +26,3 @@
 
 
 /*------------------------------------------------------------------------------------------------*/
-

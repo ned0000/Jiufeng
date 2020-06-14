@@ -1,7 +1,7 @@
 /**
  *  @file webclient-test.c
  *
- *  @brief test file for webclient library
+ *  @brief Test file for WEB client function defined in jf_webclient library.
  *
  *  @author Min Zhang
  *
@@ -10,11 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -27,6 +26,7 @@
 #include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
 static const olchar_t * ls_pstrProgramName = "webclient-test";
 static const olchar_t * ls_pstrVersion = "1.0.0";
 
@@ -39,7 +39,8 @@ static jf_ipaddr_t ls_jiServerAddr;
 static olchar_t * ls_pstrStocks = "sh000001,sh600000";
 
 /* --- private routine section ------------------------------------------------------------------ */
-static void _printUsage(void)
+
+static void _printWebclientTestUsage(void)
 {
     ol_printf("\
 Usage: %s [-V] [logger options] [-h]\n\
@@ -54,7 +55,7 @@ logger options:\n\
     ol_printf("\n");
 }
 
-static u32 _parseCmdLineParam(
+static u32 _parseWebclientTestCmdLineParam(
     olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -67,7 +68,7 @@ static u32 _parseCmdLineParam(
         {
         case '?':
         case 'h':
-            _printUsage();
+            _printWebclientTestUsage();
             exit(0);
             break;
         case 'V':
@@ -236,7 +237,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
 
-    u32Ret = _parseCmdLineParam(argc, argv, &jlipParam);
+    u32Ret = _parseWebclientTestCmdLineParam(argc, argv, &jlipParam);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_logger_init(&jlipParam);
@@ -260,7 +261,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        jf_err_getMsg(u32Ret, strErrMsg, 300);
+        jf_err_readDescription(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 
@@ -268,4 +269,3 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

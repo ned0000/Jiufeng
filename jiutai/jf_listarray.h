@@ -1,21 +1,23 @@
 /**
  *  @file jf_listarray.h
  *
- *  @brief The list array data structure
+ *  @brief Header file of list array data structure.
  *
  *  @author Min Zhang
  *
- *  @note This object is not thread safe
- *  
+ *  @note
+ *  -# This object is not thread safe.
  */
 
 #ifndef JIUTAI_LISTARRAY_H
 #define JIUTAI_LISTARRAY_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stddef.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 
@@ -27,14 +29,19 @@
  */
 typedef struct jf_listarray
 {
+    /**Number of node in the array.*/
     u32 jl_u32NumOfNode;
+    /**Head of list array.*/
     u32 jl_u32Head;
 } jf_listarray_t;
 
-#define JF_LISTARRAY_NODE(pla) \
-    ((u32 *)(((jf_listarray_t *)pla) + 1))
+/** Get list array node.
+ */
+#define JF_LISTARRAY_NODE(pla)             ((u32 *)(((jf_listarray_t *)pla) + 1))
 
-#define JF_LISTARRAY_END   U32_MAX
+/** The end of list array.
+ */
+#define JF_LISTARRAY_END                   U32_MAX
 
 /* --- functional routines ---------------------------------------------------------------------- */
 

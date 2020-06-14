@@ -142,7 +142,7 @@ u32 fnFreeDispatcherMsg(void ** ppData)
     return u32Ret;
 }
 
-olsize_t getMessagingSize(u8 * pu8Msg)
+olsize_t getMessagingMsgSize(u8 * pu8Msg)
 {
     jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
 
@@ -162,18 +162,18 @@ u32 initMessagingMsgHeader(u8 * pu8Msg, u16 u16MsgId, u8 u8MsgPrio, u32 u32Paylo
     return JF_ERR_NO_ERROR;
 }
 
-u16 getMessagingMsgId(u8 * pu8Msg, olsize_t sMsg)
-{
-    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
-
-    return pHeader->jmh_u16MsgId;
-}
-
 u8 getMessagingMsgPrio(u8 * pu8Msg, olsize_t sMsg)
 {
     jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
 
     return pHeader->jmh_u8MsgPrio;
+}
+
+u16 getMessagingMsgId(u8 * pu8Msg, olsize_t sMsg)
+{
+    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
+
+    return pHeader->jmh_u16MsgId;
 }
 
 u32 setMessagingMsgId(u8 * pu8Msg, u16 u16MsgId)
@@ -240,6 +240,26 @@ u32 setMessagingMsgPayloadSize(u8 * pu8Msg, u32 u32PayloadSize)
     pHeader->jmh_u32PayloadSize = u32PayloadSize;
 
     return JF_ERR_NO_ERROR;
+}
+
+u32 isMessagingFullMsg(u8 * pu8Msg, olsize_t sMsg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olsize_t size = 0;
+
+    if (sMsg < sizeof(jf_messaging_header_t))
+        u32Ret = JF_ERR_INCOMPLETE_DATA;
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        /*The full message size is header size plus payload size.*/
+        size = getMessagingMsgSize(pu8Msg);
+
+        if (sMsg < size)
+            u32Ret = JF_ERR_INCOMPLETE_DATA;
+    }
+
+    return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/

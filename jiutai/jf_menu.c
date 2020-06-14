@@ -10,17 +10,17 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_jiukun.h"
 #include "jf_menu.h"
 #include "jf_err.h"
 #include "jf_string.h"
+#include "jf_process.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -34,7 +34,7 @@ typedef enum
     ENTRY_TYPE_MENU,
     ENTRY_TYPE_COMMAND,
     ENTRY_TYPE_QUIT,
-    ENTRY_TYPE_UPONELEVEL,
+    ENTRY_TYPE_UP_ONE_LEVEL,
 } entry_type_t;
 
 /** The entry definition
@@ -58,58 +58,32 @@ typedef struct internal_menu_entry
         {
             jf_menu_fnHandler_t is_fnHandler;
             void * is_pArg;
-        } iu_stCommand;
+        } ime_stCommand;
         /**The entry is a menu.*/
-        struct internal_menu *iu_imMenu;
-    } ime_uContent;
+        struct internal_menu * ime_pimMenu;
+    };
 
     /**The parent menu containing this entry.*/
-    struct internal_menu *ime_imParent;
+    struct internal_menu * ime_pimParent;
 
     /**The next entry in this menu.*/
-    struct internal_menu_entry *ime_imeNext;
+    struct internal_menu_entry * ime_pimeNext;
 } internal_menu_entry_t;
-
-/** Name attribute of entry, up-one-level entry.
- */
-#define  MENU_ENTRY_ATTR_UP_ONE_LEVEL        (0x1)
-
-/** Name attribute of entry, quit entry.
- */
-#define  MENU_ENTRY_ATTR_QUIT                (0x2)
-
-
-/** The entry is an up-one-level entry.
- */
-#define  set_uponelevel_menu_entry(entry)   \
-    (entry->ime_u32Attribute |= MENU_ENTRY_ATTR_UP_ONE_LEVEL)
-
-/** The entry is a quit entry.
- */
-#define  set_quit_menu_entry(entry)   \
-    (entry->ime_u32Attribute |= MENU_ENTRY_ATTR_QUIT)
-
-/** Verify up-one-level entry.
- */
-#define  is_uponelevel_menu_entry(entry)    \
-    (entry->ime_u32Attribute & MENU_ENTRY_ATTR_UP_ONE_LEVEL)
-
-/** Verify quit entry.
- */
-#define  is_quit_menu_entry(entry) \
-    (entry->ime_u32Attribute & MENU_ENTRY_ATTR_QUIT)
 
 /** The menu definition.
  */
 typedef struct internal_menu
 {
     /**Entries of this menu.*/
-    internal_menu_entry_t *im_imeEntries;
-    /**The flag indicates the quit of menu, that is available for top menu.*/
+    internal_menu_entry_t * im_pimeHead;
+    /**Last entry of this menu.*/
+    internal_menu_entry_t * im_pimeTail;
+    /**The flag indicates the quit of menu, only available for top menu.*/
     boolean_t im_bQuit;
+    u8 im_u8Reserved[7];
 
     /**The up level menu.*/
-    struct internal_menu *im_imParent;
+    struct internal_menu * im_pimParent;
 
     /**Before showing the menu, the handler is invoked.*/
     jf_menu_fnPreShow_t im_fnPreShow;
@@ -123,8 +97,8 @@ typedef struct internal_menu
 
 static internal_menu_t * _getTopMenu(internal_menu_t * pMenu)
 {
-    while (pMenu->im_imParent != NULL)
-        pMenu = pMenu->im_imParent;
+    while (pMenu->im_pimParent != NULL)
+        pMenu = pMenu->im_pimParent;
 
     return pMenu;
 }
@@ -140,6 +114,22 @@ static olint_t _quitMenu(internal_menu_t * pMenu)
     return 0;
 }
 
+static u32 _destroyMenuEntry(internal_menu_entry_t ** ppEntry)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_menu_entry_t * pEntry = *ppEntry;
+
+    if (pEntry->ime_pstrName != NULL)
+        jf_string_free(&pEntry->ime_pstrName);
+
+    if (pEntry->ime_pstrDesc != NULL)
+        jf_string_free(&pEntry->ime_pstrDesc);
+
+    jf_jiukun_freeMemory((void **)ppEntry);
+
+    return u32Ret;
+}
+
 static u32 _newMenuEntry(
     internal_menu_t * pParent, const olchar_t * pstrName, 
     const olchar_t * pstrDesc, const u32 attr, internal_menu_entry_t ** ppEntry)
@@ -152,131 +142,110 @@ static u32 _newMenuEntry(
     {
         ol_bzero(pEntry, sizeof(internal_menu_entry_t));
         pEntry->ime_u32Attribute = attr;
-        pEntry->ime_imParent = pParent;
+        pEntry->ime_pimParent = pParent;
 
-        u32Ret = jf_string_duplicate(&(pEntry->ime_pstrName), pstrName);
-        if (u32Ret != JF_ERR_NO_ERROR)
-        {
-            jf_jiukun_freeMemory((void **)&pEntry);
-        }
-        else
-        {
-            if (pstrDesc != NULL)
-            {
-                u32Ret = jf_string_duplicate(&(pEntry->ime_pstrDesc), pstrDesc);
-                if (u32Ret != JF_ERR_NO_ERROR)
-                {
-                    jf_jiukun_freeMemory((void **)&(pEntry->ime_pstrName));
-                    jf_jiukun_freeMemory((void **)&pEntry);
-                }
-            }
-        }
+        u32Ret = jf_string_duplicate(&pEntry->ime_pstrName, pstrName);
     }
+
+    if ((u32Ret == JF_ERR_NO_ERROR) && (pstrDesc != NULL))
+        u32Ret = jf_string_duplicate(&pEntry->ime_pstrDesc, pstrDesc);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         *ppEntry = pEntry;
+    else if (pEntry != NULL)
+        _destroyMenuEntry(&pEntry);
 
     return u32Ret;
 }
 
-static u32 _destroyEntry(internal_menu_entry_t ** ppEntry)
+static u32 _newQuitEntry(internal_menu_t * pParent, internal_menu_entry_t ** ppEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_menu_entry_t * pEntry = NULL;
 
-    jf_jiukun_freeMemory((void **)ppEntry);
-
-    return u32Ret;
-}
-
-static u32 _newQuitEntry(
-    internal_menu_t * pParent, internal_menu_entry_t ** ppEntry)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_menu_entry_t * pEntry;
-
-    u32Ret = _newMenuEntry(pParent, "quit", NULL, 0, &pEntry);
+    u32Ret = _newMenuEntry(pParent, "Quit", NULL, 0, &pEntry);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pEntry->ime_etType = ENTRY_TYPE_QUIT;
-        *ppEntry = pEntry;
+
     }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        *ppEntry = pEntry;
 
     return u32Ret;
 }
 
-static u32 _newUponelevelEntry(
+static u32 _newUpOneLevelEntry(
     internal_menu_t * pParent, internal_menu_entry_t ** ppEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_menu_entry_t * pEntry;
 
-    u32Ret = _newMenuEntry(pParent, "up", "up one level", 0, &pEntry);
+    u32Ret = _newMenuEntry(pParent, "Up", "Up one level", 0, &pEntry);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        pEntry->ime_etType = ENTRY_TYPE_UPONELEVEL;
-        *ppEntry = pEntry;
+        pEntry->ime_etType = ENTRY_TYPE_UP_ONE_LEVEL;
+
     }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        *ppEntry = pEntry;
 
     return u32Ret;
 }
 
-static u32 _addEntry(internal_menu_t * pParent, internal_menu_entry_t *pEntry)
+static u32 _addEntry(internal_menu_t * pParent, internal_menu_entry_t * pEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    pEntry->ime_imeNext = pParent->im_imeEntries;
-    pParent->im_imeEntries = pEntry;
+    if (pParent->im_pimeHead == NULL)
+        pParent->im_pimeHead = pEntry;
+    else
+        pParent->im_pimeTail->ime_pimeNext = pEntry;
+
+    pParent->im_pimeTail = pEntry;
 
     return u32Ret;
 }
 
 static u32 _newMenu(
-    internal_menu_t * pParent, jf_menu_fnPreShow_t fnPreShow,
-    jf_menu_fnPostShow_t fnPostShow, void * pArg, internal_menu_t ** ppMenu)
+    internal_menu_t * pParent, jf_menu_fnPreShow_t fnPreShow, jf_menu_fnPostShow_t fnPostShow,
+    void * pArg, boolean_t bUpOneLevel, internal_menu_t ** ppMenu)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_menu_t *pMenu;
-    internal_menu_entry_t *pEntry;
+    internal_menu_t * pMenu = NULL;
+    internal_menu_entry_t *pEntry = NULL;
 
     u32Ret = jf_jiukun_allocMemory((void **)&pMenu, sizeof(internal_menu_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(pMenu, 0, sizeof(internal_menu_t));
+        ol_bzero(pMenu, sizeof(*pMenu));
 
         pMenu->im_fnPreShow = fnPreShow;
         pMenu->im_fnPostShow = fnPostShow;
-        pMenu->im_imParent = pParent;
+        pMenu->im_pimParent = pParent;
         pMenu->im_pArg = pArg;
 
-        // setup the quit entry
+        /*Setup the quit entry.*/
         u32Ret = _newQuitEntry(pMenu, &pEntry);
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            _addEntry(pMenu, pEntry);
-            if (pParent != NULL)
-            {
-                u32Ret = _newUponelevelEntry(pMenu, &pEntry);
-                if (u32Ret == JF_ERR_NO_ERROR)
-                {
-                    _addEntry(pMenu, pEntry);
-                }
-                else
-                {
-                    jf_jiukun_freeMemory((void **)&pMenu);
-                    _destroyEntry(&pEntry);
-                }
-            }
-        }
-        else
-        {
-            jf_jiukun_freeMemory((void **)&pMenu);
-        }
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = _addEntry(pMenu, pEntry);
+
+    if ((u32Ret == JF_ERR_NO_ERROR) && bUpOneLevel)
     {
-        *ppMenu = pMenu;
+        u32Ret = _newUpOneLevelEntry(pMenu, &pEntry);
+
+        if (u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = _addEntry(pMenu, pEntry);
     }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        *ppMenu = pMenu;
+    else if (pMenu != NULL)
+        jf_menu_destroy((jf_menu_t **)&pMenu);
 
     return u32Ret;
 }
@@ -289,18 +258,18 @@ static u32 _newMenu(
  */
 static internal_menu_t * _showMenu(internal_menu_t * pMenu)
 {
-    internal_menu_entry_t *pEntry;
-    olint_t i;
-    boolean_t bValid;
-    olsize_t len, j;
-    internal_menu_t *ret = pMenu;
-    olint_t choice;
+    internal_menu_entry_t * pEntry = NULL;
+    olint_t i = 0;
+    boolean_t bValid = TRUE;
+    olsize_t len = 0, j = 0;
+    internal_menu_t * ret = pMenu;
+    olint_t choice = 0;
     olchar_t buf[30];
 
     ol_printf("\n");
 
     i = 0;
-    pEntry = pMenu->im_imeEntries;
+    pEntry = pMenu->im_pimeHead;
     while (pEntry != NULL)
     {
         /*The display for sub-menu is a little different from the command.*/
@@ -308,15 +277,14 @@ static internal_menu_t * _showMenu(internal_menu_t * pMenu)
             ol_printf("[%d] %s ->\n", i++, pEntry->ime_pstrName);
         else
             ol_printf("[%d] %s\n", i++, pEntry->ime_pstrName);
-        pEntry = pEntry->ime_imeNext;
+        pEntry = pEntry->ime_pimeNext;
     }
 
     /*Receive user's input. user doesn't need to input the name of the menu but rather select the
       index of the entry.*/
-    bValid = TRUE;
     do
     {
-        memset(buf, 0, 30);
+        ol_bzero(buf, 30);
         ol_printf("Please select [0-%d]: ", i - 1);
         fgets(buf, sizeof(buf) - 1, stdin);
         len = ol_strlen(buf);
@@ -337,37 +305,36 @@ static internal_menu_t * _showMenu(internal_menu_t * pMenu)
 
     /*Get the entry according to user's selection.*/
     i = 0;
-    pEntry = pMenu->im_imeEntries;
+    pEntry = pMenu->im_pimeHead;
     while (pEntry != NULL)
     {
         if (i++ == choice)
             break;
-        pEntry = pEntry->ime_imeNext;
+        pEntry = pEntry->ime_pimeNext;
     }
 
     /*Process the selection.*/
     switch (pEntry->ime_etType)
     {
     case ENTRY_TYPE_COMMAND:
-        pEntry->ime_uContent.iu_stCommand.is_fnHandler(
-            pEntry->ime_uContent.iu_stCommand.is_pArg);
+        pEntry->ime_stCommand.is_fnHandler(pEntry->ime_stCommand.is_pArg);
         break;
     case ENTRY_TYPE_MENU:
-        ret = pEntry->ime_uContent.iu_imMenu;
+        ret = pEntry->ime_pimMenu;
         /*Before entering the menu, do the initializing stuff.*/
         if (ret->im_fnPreShow != NULL)
             ret->im_fnPreShow(ret->im_pArg);
         break;
     case ENTRY_TYPE_QUIT:
-        _quitMenu(pEntry->ime_imParent);
+        _quitMenu(pEntry->ime_pimParent);
         break;
-    case ENTRY_TYPE_UPONELEVEL:
+    case ENTRY_TYPE_UP_ONE_LEVEL:
         /*Before upping one level, make clean.*/
         if (ret->im_fnPostShow != NULL)
             ret->im_fnPostShow(ret->im_pArg);
-        /*If the uponelevel menu is NULL, then this is the top menu.*/
-        ret = (pEntry->ime_imParent->im_imParent == NULL) ?
-            pEntry->ime_imParent : pEntry->ime_imParent->im_imParent;
+        /*If the up one level menu is NULL, then this is the top menu.*/
+        ret = (pEntry->ime_pimParent->im_pimParent == NULL) ?
+            pEntry->ime_pimParent : pEntry->ime_pimParent->im_pimParent;
         break;
     default:
         break;
@@ -376,107 +343,120 @@ static internal_menu_t * _showMenu(internal_menu_t * pMenu)
     return ret;
 }
 
-static olint_t _destroyMenu(internal_menu_t * pTop)
+static u32 _destroyMenu(internal_menu_t ** ppMenu)
 {
-    internal_menu_entry_t *p, *p1;
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_menu_t * pMenu = *ppMenu;
+    internal_menu_entry_t * pEntry = NULL, * pTemp = NULL;
 
-    p = pTop->im_imeEntries;
-    while (p != NULL)
+    pEntry = pMenu->im_pimeHead;
+    while (pEntry != NULL)
     {
-        p1 = p->ime_imeNext;
+        pTemp = pEntry->ime_pimeNext;
 
-        jf_jiukun_freeMemory((void **)&p->ime_pstrName);
-        if (p->ime_pstrDesc != NULL)
-        {
-            jf_jiukun_freeMemory((void **)&p->ime_pstrDesc);
-        }
-        if (p->ime_etType == ENTRY_TYPE_MENU)
-            _destroyMenu(p->ime_uContent.iu_imMenu);
+        if (pEntry->ime_etType == ENTRY_TYPE_MENU)
+            _destroyMenu(&pEntry->ime_pimMenu);
 
-        jf_jiukun_freeMemory((void **)&p);
+        _destroyMenuEntry(&pEntry);
 
-        p = p1;
+        pEntry = pTemp;
     }
 
-    return 0;
+    jf_jiukun_freeMemory((void **)ppMenu);
+
+    return u32Ret;
+}
+
+static void _terminateMenu(olint_t signal)
+{
+    /*Do nothing. Use "Quit" to exit menu.*/
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-u32 jf_menu_createTopMenu(
+u32 jf_menu_create(
     jf_menu_fnPreShow_t fnPreShow, jf_menu_fnPostShow_t fnPostShow, void * pArg,
     jf_menu_t ** ppMenu)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = _newMenu(
-        NULL, fnPreShow, fnPostShow, pArg, (internal_menu_t **)ppMenu);
+    u32Ret = _newMenu(NULL, fnPreShow, fnPostShow, pArg, FALSE, (internal_menu_t **)ppMenu);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_process_registerSignalHandlers(_terminateMenu);
 
     return u32Ret;
 }
 
 u32 jf_menu_addEntry(
     jf_menu_t * pParent, const olchar_t * pstrName, const olchar_t * pstrDesc,
-    const u32 attr, jf_menu_fnHandler_t fnHandler, void * pArg)
+    const u32 u32Attr, jf_menu_fnHandler_t fnHandler, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_menu_entry_t * pEntry;
+    internal_menu_entry_t * pEntry = NULL;
     internal_menu_t * pParentMenu = (internal_menu_t *)pParent;
 
-    assert((pstrName != NULL) && (pParent != NULL) &&
-           (fnHandler != NULL));
+    assert((pstrName != NULL) && (pParent != NULL) && (fnHandler != NULL));
 
-    u32Ret = _newMenuEntry(pParentMenu, pstrName, pstrDesc, attr, &pEntry);
+    u32Ret = _newMenuEntry(pParentMenu, pstrName, pstrDesc, u32Attr, &pEntry);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pEntry->ime_etType = ENTRY_TYPE_COMMAND;
-        pEntry->ime_uContent.iu_stCommand.is_pArg = pArg;
-        pEntry->ime_uContent.iu_stCommand.is_fnHandler = fnHandler;
+        pEntry->ime_stCommand.is_pArg = pArg;
+        pEntry->ime_stCommand.is_fnHandler = fnHandler;
 
-        _addEntry(pParentMenu, pEntry);
+        u32Ret = _addEntry(pParentMenu, pEntry);
     }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        ;
+    else if (pEntry != NULL)
+        _destroyMenuEntry(&pEntry);
 
     return u32Ret;
 }
 
 u32 jf_menu_addSubMenu(
-    jf_menu_t * pParent, const olchar_t * pstrName, const olchar_t * pstrDesc, const u32 attr,
+    jf_menu_t * pParent, const olchar_t * pstrName, const olchar_t * pstrDesc, const u32 u32Attr,
     jf_menu_fnPreShow_t fnPreShow, jf_menu_fnPostShow_t fnPostShow, void * pArg,
     jf_menu_t ** ppMenu)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_menu_entry_t * pEntry;
-    internal_menu_t * pMenu;
+    internal_menu_entry_t * pEntry = NULL;
+    internal_menu_t * pMenu = NULL;
     internal_menu_t * pParentMenu = (internal_menu_t *)pParent;
 
     assert((pstrName != NULL) && (pParent != NULL));
 
-    u32Ret = _newMenuEntry(pParentMenu, pstrName, pstrDesc, attr, &pEntry);
+    u32Ret = _newMenuEntry(pParentMenu, pstrName, pstrDesc, u32Attr, &pEntry);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pEntry->ime_etType = ENTRY_TYPE_MENU;
-        u32Ret = _newMenu(pParentMenu, fnPreShow, fnPostShow, pArg, &pMenu);
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            pEntry->ime_uContent.iu_imMenu = pMenu;
-            *ppMenu = pMenu;
-            _addEntry(pParent, pEntry);
-        }
-        else
-        {
-            _destroyEntry(&pEntry);
-        }
+
+        u32Ret = _newMenu(pParentMenu, fnPreShow, fnPostShow, pArg, TRUE, &pMenu);
     }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        pEntry->ime_pimMenu = pMenu;
+
+        u32Ret = _addEntry(pParentMenu, pEntry);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        *ppMenu = pMenu;
+    else
+        jf_menu_destroy((jf_menu_t **)&pMenu);
 
     return u32Ret;
 }
 
-u32 jf_menu_start(jf_menu_t * pTop)
+u32 jf_menu_run(jf_menu_t * pTop)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_menu_t * p, * pMenu = (internal_menu_t *)pTop;
+    internal_menu_t * p = NULL, * pMenu = (internal_menu_t *)pTop;
 
-    assert(pMenu != NULL && pMenu->im_imParent == NULL);
+    assert((pMenu != NULL) && (pMenu->im_pimParent == NULL));
 
     if (pMenu->im_fnPreShow != NULL)
         pMenu->im_fnPreShow(pMenu->im_pArg);
@@ -490,10 +470,18 @@ u32 jf_menu_start(jf_menu_t * pTop)
     if (pMenu->im_fnPostShow != NULL)
         pMenu->im_fnPostShow(pMenu->im_pArg);
 
-    _destroyMenu(pMenu);
+    return u32Ret;
+}
+
+u32 jf_menu_destroy(jf_menu_t ** ppMenu)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    internal_menu_t * pTop = *ppMenu;
+
+    *ppMenu = NULL;
+    _destroyMenu(&pTop);
 
     return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

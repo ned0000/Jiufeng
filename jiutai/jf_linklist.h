@@ -30,7 +30,9 @@
  */
 typedef struct jf_linklist_node
 {
+    /**Next node of the list.*/
     struct jf_linklist_node * jln_pjlnNext;
+    /**Data of the node.*/
     void * jln_pData;
 } jf_linklist_node_t;
 
@@ -38,6 +40,7 @@ typedef struct jf_linklist_node
  */
 typedef struct jf_linklist
 {
+    /**Head node of the list*/
 	jf_linklist_node_t * jl_pjlnHead;
 } jf_linklist_t;
 
@@ -72,10 +75,10 @@ void jf_linklist_init(jf_linklist_t * pList);
  */
 void jf_linklist_fini(jf_linklist_t * pList);
 
-/** Finalize the linked list and data.
+/** Finalize the linked list and free the data.
  *
  *  @param pList [in] The linked list to finalize.
- *  @param fnFreeData [in] The call back function to free data.
+ *  @param fnFreeData [in] The callback function to free data.
  *
  *  @return Void.
  */
@@ -83,11 +86,15 @@ void jf_linklist_finiListAndData(jf_linklist_t * pList, jf_linklist_fnFreeNodeDa
 
 /** Iterate the linked list and call the callback function.
  *
+ *  @note
+ *  -# The iteration will stop if the return code of callback function is not JF_ERR_NO_ERROR.
+ *
  *  @param pList [in] The linked list to iterate.
  *  @param fnOpNode [in] The callback function to operate on the data.
  *  @param pArg [in] The argument for the callback function.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_linklist_iterate(jf_linklist_t * pList, jf_linklist_fnOpNode_t fnOpNode, void * pArg);
 
@@ -97,6 +104,7 @@ u32 jf_linklist_iterate(jf_linklist_t * pList, jf_linklist_fnOpNode_t fnOpNode, 
  *  @param pData [in] The data to be appended.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_linklist_appendTo(jf_linklist_t * pList, void * pData);
 
@@ -106,9 +114,18 @@ u32 jf_linklist_appendTo(jf_linklist_t * pList, void * pData);
  *  @param pData [in] The data to be inserted.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_linklist_insertTo(jf_linklist_t * pList, void * pData);
 
+/** Check if the linked list is empty.
+ *
+ *  @param pList [in] The linked list to check.
+ *
+ *  @return The empty status of the list.
+ *  @retval TRUE The list is empty.
+ *  @retval FALSE The list is not empty.
+ */
 static inline boolean_t jf_linklist_isEmpty(jf_linklist_t * pList)
 {
     if (pList->jl_pjlnHead == NULL)
@@ -118,6 +135,9 @@ static inline boolean_t jf_linklist_isEmpty(jf_linklist_t * pList)
 
 /** Get the first node of linked list.
  *
+ *  @param pList [in] The linked list to check.
+ *
+ *  @return The first node of the list.
  */
 static inline jf_linklist_node_t * jf_linklist_getFirstNode(jf_linklist_t * pList)
 {
@@ -126,6 +146,9 @@ static inline jf_linklist_node_t * jf_linklist_getFirstNode(jf_linklist_t * pLis
 
 /** Get the next node of the specified node.
  *
+ *  @param pNode [in] The currrent node.
+ *
+ *  @return The next node of the list.
  */
 static inline jf_linklist_node_t * jf_linklist_getNextNode(jf_linklist_node_t * pNode)
 {
@@ -134,6 +157,9 @@ static inline jf_linklist_node_t * jf_linklist_getNextNode(jf_linklist_node_t * 
 
 /** Get data from the linked node.
  *
+ *  @param pNode [in] The currrent node.
+ *
+ *  @return The data of the node.
  */
 static inline void * jf_linklist_getDataFromNode(jf_linklist_node_t * pNode)
 {

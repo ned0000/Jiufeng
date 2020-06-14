@@ -103,7 +103,7 @@ static void _printErrorCode(void)
     ol_printf("Code   : 0x%x\n", code);
     ol_printf("System : %s\n", jf_string_getStringPositive(bPos));
 
-    jf_err_getMsg(ls_u32ErrorCode, msg, sizeof(msg));
+    jf_err_readDescription(ls_u32ErrorCode, msg, sizeof(msg));
 
     ol_printf("%s\n", msg);
 }

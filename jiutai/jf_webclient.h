@@ -15,6 +15,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_httpparser.h"
 
@@ -36,14 +37,19 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
+/** Define the web client data type.
+ */
 typedef void  jf_webclient_t;
 
 /** The possible value for nEvent in function jf_webclient_fnOnEvent_t
  */
 typedef enum jf_webclient_event
 {
+    /**Unknown event.*/
     JF_WEBCLIENT_EVENT_UNKNOWN = 0,
+    /**Incoming data.*/
     JF_WEBCLIENT_EVENT_INCOMING_DATA,
+    /**HTTP request is deleted.*/
     JF_WEBCLIENT_EVENT_HTTP_REQ_DELETED,
 } jf_webclient_event_t;
 
@@ -67,13 +73,14 @@ typedef u32 (* jf_webclient_fnOnEvent_t)(
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/** Create a new webclient.
+/** Create a webclient object.
  *
  *  @param pjnc [in] The chain to add this module to.
  *  @param ppWebclient [out] The created web client.
  *  @param pjwcp [in] The parameters for creating web client.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_create(
     jf_network_chain_t * pjnc, jf_webclient_t ** ppWebclient, jf_webclient_create_param_t * pjwcp);
@@ -84,10 +91,11 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_create(
  *  @param pjiRemote [in] The address of remote server.
  *  @param u16Port [in] The port of remote server.
  *  @param pjhph [in] The header of the message.
- *  @param fnOnEvent [in] Data reception handler.
- *  @param pUser [in] The user.
+ *  @param fnOnEvent [in] Event handler.
+ *  @param pUser [in] The user. It's the argument of the handler function.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_sendHttpPacket(
     jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port,
@@ -106,15 +114,16 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_sendHttpPacket(
  *  @param sHeader [in] The length of the headers.
  *  @param pstrBody [in] The buffer containing the HTTP body.
  *  @param sBody [in] The length of the buffer.
- *  @param fnOnEvent [in] Data reception handler.
- *  @param pUser [in] The user.
+ *  @param fnOnEvent [in] Event handler.
+ *  @param pUser [in] The user. It's the argument of the handler function.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_sendHttpHeaderAndBody(
     jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port, olchar_t * pstrHeader,
-    olsize_t sHeader, olchar_t * pstrBody, olsize_t sBody,
-    jf_webclient_fnOnEvent_t fnOnEvent, void * pUser);
+    olsize_t sHeader, olchar_t * pstrBody, olsize_t sBody, jf_webclient_fnOnEvent_t fnOnEvent,
+    void * pUser);
 
 /** Deletes all pending requests to a specific IP/Port combination.
  *
@@ -123,18 +132,20 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_sendHttpHeaderAndBody(
  *  @param u16Port [in] The port of remote server.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_deleteRequest(
     jf_webclient_t * pWebclient, jf_ipaddr_t * pjiRemote, u16 u16Port);
 
-/** Destory webclient object.
+/** Destory the webclient object.
  *
- *  @param ppWebclient [in/out] The webclient to free.
+ *  @param ppWebclient [in/out] The webclient to destroy.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_destroy(jf_webclient_t ** ppWebclient);
 
 #endif /*JIUFENG_WEBCLIENT_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

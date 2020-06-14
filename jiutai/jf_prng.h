@@ -46,12 +46,14 @@
 /** Initialize the prng library.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 PRNGAPI u32 PRNGCALL jf_prng_init(void);
 
 /** Finalize the prng library.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 PRNGAPI u32 PRNGCALL jf_prng_fini(void);
 
@@ -61,6 +63,8 @@ PRNGAPI u32 PRNGCALL jf_prng_fini(void);
  *  @param u32Len [in] The size of the data array.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_PRNG_NOT_SEEDED Prng is not seeded.
  */
 PRNGAPI u32 PRNGCALL jf_prng_getData(u8 * pu8Data, u32 u32Len);
 
@@ -73,6 +77,7 @@ PRNGAPI u32 PRNGCALL jf_prng_getData(u8 * pu8Data, u32 u32Len);
  *  @param u32Len [in] The size of the data array.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 PRNGAPI u32 PRNGCALL jf_prng_getPseudoData(u8 * pu8Data, u32 u32Len);
 

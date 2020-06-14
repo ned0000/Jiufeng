@@ -1,7 +1,7 @@
 /**
  *  @file jf_linklist.c
  *
- *  @brief Implementation file for linked list data structure.
+ *  @brief Implementation file for linked list.
  *
  *  @author Min Zhang
  *  
@@ -10,18 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-#if defined(WINDOWS)
 
-#elif defined(LINUX)
-    #include <unistd.h>
-#endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -45,9 +37,6 @@ void jf_linklist_init(jf_linklist_t * pList)
     pList->jl_pjlnHead = NULL;
 }
 
-/** Finalize the linked list
- *
- */
 void jf_linklist_fini(jf_linklist_t * pList)
 {
     jf_linklist_node_t * pjln, * pNode;
@@ -65,9 +54,6 @@ void jf_linklist_fini(jf_linklist_t * pList)
     jf_linklist_init(pList);
 }
 
-/** Finalize the linked list with the function to free the data
- * 
- */
 void jf_linklist_finiListAndData(
     jf_linklist_t * pList, jf_linklist_fnFreeNodeData_t fnFreeData)
 {
@@ -89,9 +75,6 @@ void jf_linklist_finiListAndData(
     jf_linklist_init(pList);
 }
 
-/** Append the data to the linked list
- *
- */
 u32 jf_linklist_appendTo(jf_linklist_t * pList, void * pData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -122,9 +105,6 @@ u32 jf_linklist_appendTo(jf_linklist_t * pList, void * pData)
     return u32Ret;
 }
 
-/** Insert the data to the head of the linked list
- *
- */
 u32 jf_linklist_insertTo(jf_linklist_t * pList, void * pData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -165,4 +145,3 @@ u32 jf_linklist_iterate(jf_linklist_t * pList, jf_linklist_fnOpNode_t fnOpNode, 
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

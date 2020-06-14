@@ -1,7 +1,7 @@
 /**
  *  @file cgmac-test.c
  *
- *  @brief test file for cgmac library
+ *  @brief Test file for cryptographic message authentication code defined in jf_cgmac library.
  *
  *  @author Min Zhang
  *
@@ -10,11 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -23,10 +22,12 @@
 #include "jf_string.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
 boolean_t ls_bHmacSha1 = FALSE;
 boolean_t ls_bHmacMd5 = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
+
 static void _printCgmacTestUsage(void)
 {
     ol_printf("\
@@ -232,7 +233,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        jf_err_getMsg(u32Ret, strErrMsg, 300);
+        jf_err_readDescription(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 
@@ -240,4 +241,3 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

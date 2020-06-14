@@ -1,7 +1,7 @@
 /**
  *  @file xmlparser-test.c
  *
- *  @brief Test file for jf_xmlparser library.
+ *  @brief Test file for XML parser function defined in jf_xmlparser library.
  *
  *  @author Min Zhang
  *
@@ -10,11 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -54,6 +53,7 @@
 static olchar_t * ls_pstrXmlFileName = NULL;
 
 /* --- private routine section ------------------------------------------------------------------ */
+
 static void _printXmlparserTestUsage(void)
 {
     ol_printf("\
@@ -200,7 +200,7 @@ static u32 _testXmlParser_1()
         else if (u32Ret != txp[u32Index].u32ErrCode)
         {
             ol_printf("\nParse result:\n");
-            jf_err_getMsg(u32Ret, strErrMsg, 300);
+            jf_err_readDescription(u32Ret, strErrMsg, 300);
             ol_printf("%s\n", strErrMsg);
 
             u32Ret = JF_ERR_PROGRAM_ERROR;
@@ -363,7 +363,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        jf_err_getMsg(u32Ret, strErrMsg, 300);
+        jf_err_readDescription(u32Ret, strErrMsg, 300);
         ol_printf("%s\n", strErrMsg);
     }
 
@@ -371,4 +371,3 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

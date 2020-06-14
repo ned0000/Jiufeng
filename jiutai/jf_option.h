@@ -171,12 +171,11 @@ u32 jf_option_getDoubleFromString(const olchar_t * pstrDouble, oldouble_t * pdbV
 /** Skip the space before string.
  *
  *  @note
- *  -# The space is not removed.
+ *  -# The string is not touched and the space is not removed. The new string is returned.
  *
- *  @param pstr [in] The destination string.
+ *  @param pstr [in] The original string.
  *
- *  @return The error code.
- *  @retval JF_ERR_NO_ERROR Valid float.
+ *  @return The pointer to the string without space.
  */
 olchar_t * jf_option_skipSpaceBeforeString(olchar_t * pstr);
 
@@ -187,8 +186,7 @@ olchar_t * jf_option_skipSpaceBeforeString(olchar_t * pstr);
  *
  *  @param pstr [in] The destination string.
  *
- *  @return The error code.
- *  @retval JF_ERR_NO_ERROR Valid float.
+ *  @return Void.
  */
 void jf_option_removeSpaceAfterString(olchar_t * pstr);
 

@@ -14,9 +14,10 @@
 #define JIUTAI_LISTHEAD_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stddef.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 
@@ -28,19 +29,29 @@
  */
 typedef struct jf_listhead
 {
+    /**Next list head.*/
     struct jf_listhead * jl_pjlNext;
+    /**Previous list head.*/
     struct jf_listhead * jl_pjlPrev;
 } jf_listhead_t;
 
-/* --- functional routines ---------------------------------------------------------------------- */
-
-/** Macro definition for initing the list head.
+/** Macro definition for initializing the list head.
  */
 #define JF_LISTHEAD_INIT(name) { &(name), &(name) }
 
+/** Macro definition for declaring the list head variable and initilizing it.
+ */
 #define JF_LISTHEAD(name) \
     jf_listhead_t name = JF_LISTHEAD_INIT(name)
 
+/* --- functional routines ---------------------------------------------------------------------- */
+
+/** Initialize a list head.
+ *
+ *  @param list [in] The list head to initialize.
+ *
+ *  @return Void.
+ */
 static inline void jf_listhead_init(jf_listhead_t * list)
 {
     list->jl_pjlNext = list;
@@ -48,7 +59,15 @@ static inline void jf_listhead_init(jf_listhead_t * list)
 }
 
 /** Insert a new entry between two known consecutive entries.
- *  This is only for internal list manipulation where we know the prev/next entries already!
+ *
+ *  @note
+ *  -# This is only for internal list manipulation where we know the prev/next entries already.
+ *
+ *  @param new [in] New entry to be added.
+ *  @param prev [in] Previous entry to add it after.
+ *  @param next [in] Next entry to add it before.
+ *
+ *  @return Void.
  */
 static inline void _listAdd(jf_listhead_t * new, jf_listhead_t * prev, jf_listhead_t * next)
 {
@@ -63,17 +82,19 @@ static inline void _listAdd(jf_listhead_t * new, jf_listhead_t * prev, jf_listhe
  *  @param head [in] List head to add it after.
  *  @param new [in] New entry to be added.
  *
+ *  @return Void.
  */
 static inline void jf_listhead_add(jf_listhead_t * head, jf_listhead_t * new)
 {
     _listAdd(new, head, head->jl_pjlNext);
 }
 
-/** Add a new entry, insert a new entry before the specified head.
+/** Add a new entry to the end of list.
  *
  *  @param head [in] List head to add it before.
  *  @param new [in] New entry to be added.
  * 
+ *  @return Void.
  */
 static inline void jf_listhead_addTail(jf_listhead_t * head, jf_listhead_t * new)
 {
@@ -83,11 +104,12 @@ static inline void jf_listhead_addTail(jf_listhead_t * head, jf_listhead_t * new
 /** Delete a list entry by making the prev/next entries point to each other.
  *
  *  @note
- *  -# This is only for internal list manipulation where we know the prev/next entries already!
+ *  -# This is only for internal list manipulation where we know the prev/next entries already.
  *
  *  @param prev [in] List head to delete it before.
  *  @param next [in] List head to delete it after.
  *
+ *  @return Void.
  */
 static inline void _listDel(jf_listhead_t * prev, jf_listhead_t * next)
 {
@@ -98,6 +120,8 @@ static inline void _listDel(jf_listhead_t * prev, jf_listhead_t * next)
 /** Deletes entry from list.
  *
  *  @param entry [in] The element to delete from the list.
+ *
+ *  @return Void.
  */
 static inline void jf_listhead_del(jf_listhead_t * entry)
 {
@@ -106,11 +130,12 @@ static inline void jf_listhead_del(jf_listhead_t * entry)
     entry->jl_pjlPrev = NULL;
 }
 
-/** Replace old entry by new one. if 'old' is empty, it will be overwritten.
+/** Replace old entry by new one.
  *
  *  @param old [in] The element to be replaced.
  *  @param new [in] The new element to insert.
  *
+ *  @return Void.
  */
 static inline void jf_listhead_replace(jf_listhead_t * old, jf_listhead_t * new)
 {
@@ -120,15 +145,27 @@ static inline void jf_listhead_replace(jf_listhead_t * old, jf_listhead_t * new)
     new->jl_pjlPrev->jl_pjlNext = new;
 }
 
+/** Replace old entry by new one.
+ *
+ *  @note
+ *  -# After replace, initialize the old entry.
+ *
+ *  @param old [in] The element to be replaced.
+ *  @param new [in] The new element to insert.
+ *
+ *  @return Void.
+ */
 static inline void jf_listhead_replaceInit(jf_listhead_t * old, jf_listhead_t * new)
 {
     jf_listhead_replace(old, new);
     jf_listhead_init(old);
 }
 
-/** Deletes entry from list and reinitialize it.
+/** Delete entry from list and reinitialize it.
  *
  *  @param entry [in] The element to delete from the list.
+ *
+ *  @return Void.
  */
 static inline void jf_listhead_delInit(jf_listhead_t * entry)
 {
@@ -136,10 +173,12 @@ static inline void jf_listhead_delInit(jf_listhead_t * entry)
     jf_listhead_init(entry);
 }
 
-/** Delete from one list and add as another's head.
+/** Delete entry from one list and add it to the head of another list.
  *
  *  @param head [in] The entry to move.
  *  @param list [in] The head that will precede our entry.
+ *
+ *  @return Void.
  */
 static inline void jf_listhead_move(jf_listhead_t * head, jf_listhead_t * list)
 {
@@ -147,10 +186,12 @@ static inline void jf_listhead_move(jf_listhead_t * head, jf_listhead_t * list)
     jf_listhead_add(head, list);
 }
 
-/** Delete from one list and add as another's tail.
+/** Delete entry from one list and add it to the tail of another list.
  *
  *  @param head [in] The head that will follow our entry.
  *  @param list [in] The entry to move.
+ *
+ *  @return Void.
  */
 static inline void jf_listhead_moveTail(jf_listhead_t * head, jf_listhead_t * list)
 {
@@ -158,35 +199,57 @@ static inline void jf_listhead_moveTail(jf_listhead_t * head, jf_listhead_t * li
     jf_listhead_addTail(head, list);
 }
 
-/** Tests whether 'list' is the last entry in list 'head'.
+/** Test whether the entry is the last entry of the list.
  *
  *  @param head [in] The head of the list.
- *  @param list [in] The entry to test.
+ *  @param entry [in] The entry to test.
+ *
+ *  @return The status of the entry.
+ *  @retval TRUE The entry is the last entry. 
+ *  @retval FALSE The entry is not the last entry. 
  */
-static inline boolean_t jf_listhead_isLast(const jf_listhead_t * head, const jf_listhead_t * list)
+static inline boolean_t jf_listhead_isLast(const jf_listhead_t * head, const jf_listhead_t * entry)
 {
-    return list->jl_pjlNext == head;
+    return entry->jl_pjlNext == head;
 }
 
-/** Tests whether 'list' is the first entry in list 'head'.
+/** Tests whether the entry is the first entry of the list.
  *
  *  @param head [in] The head of the list.
- *  @param list [in] The entry to test.
+ *  @param entry [in] The entry to test.
+ *
+ *  @return The status of the entry.
+ *  @retval TRUE The entry is the first entry. 
+ *  @retval FALSE The entry is not the first entry. 
  */
-static inline boolean_t jf_listhead_isFirst(const jf_listhead_t * head, const jf_listhead_t * list)
+static inline boolean_t jf_listhead_isFirst(const jf_listhead_t * head, const jf_listhead_t * entry)
 {
-    return list->jl_pjlPrev == head;
+    return entry->jl_pjlPrev == head;
 }
 
 /** Test whether a list is empty.
  * 
  *  @param head [in] The list to test.
+ *
+ *  @return The status of the list.
+ *  @retval TRUE The list is the empty. 
+ *  @retval FALSE The list is not empty.
  */
 static inline boolean_t jf_listhead_isEmpty(const jf_listhead_t * head)
 {
     return head->jl_pjlNext == head;
 }
 
+/** Join two lists, the list is joined at head.
+ *
+ *  @note
+ *  -# This is only for internal list manipulation.
+ *
+ *  @param head [in] The place to add it in the first list.
+ *  @param list [in] The new list to add.
+ *
+ *  @return Void.
+ */
 static inline void _listSplice(jf_listhead_t * head, jf_listhead_t * list)
 {
     jf_listhead_t * first = list->jl_pjlNext;
@@ -204,6 +267,8 @@ static inline void _listSplice(jf_listhead_t * head, jf_listhead_t * list)
  * 
  *  @param head [in] The place to add it in the first list.
  *  @param list [in] The new list to add.
+ *
+ *  @return Void.
  */
 static inline void jf_listhead_splice(jf_listhead_t * head, jf_listhead_t * list)
 {
@@ -214,6 +279,16 @@ static inline void jf_listhead_splice(jf_listhead_t * head, jf_listhead_t * list
     }
 }
 
+/** Join two lists, the list is joined at tail.
+ *
+ *  @note
+ *  -# This is only for internal list manipulation.
+ *
+ *  @param head [in] The place to add it in the first list.
+ *  @param list [in] The new list to add.
+ *
+ *  @return Void.
+ */
 static inline void _listSpliceTail(jf_listhead_t * head, jf_listhead_t * list)
 {
     jf_listhead_t * first = list->jl_pjlNext;
@@ -231,6 +306,8 @@ static inline void _listSpliceTail(jf_listhead_t * head, jf_listhead_t * list)
  * 
  *  @param head [in] The place to add it in the first list.
  *  @param list [in] The new list to add.
+ *
+ *  @return Void.
  */
 static inline void jf_listhead_spliceTail(jf_listhead_t * head, jf_listhead_t * list)
 {
@@ -244,11 +321,12 @@ static inline void jf_listhead_spliceTail(jf_listhead_t * head, jf_listhead_t * 
 /** Join two lists and reinitialise the emptied list.
  * 
  *  @note
- *  -# The list at 'list' is reinitialised.
+ *  -# The list is reinitialised.
  *
  *  @param head [in] The place to add it in the first list.
  *  @param list [in] The new list to add.
  *
+ *  @return Void.
  */
 static inline void jf_listhead_spliceInit(jf_listhead_t * head, jf_listhead_t * list)
 {
@@ -261,6 +339,12 @@ static inline void jf_listhead_spliceInit(jf_listhead_t * head, jf_listhead_t * 
 
 /** Split the 'head' at the position 'list' and add the removed part (exclude 'list') to 'newhead'
  *  After split, 'list' is added to 'head'.
+ *
+ *  @param head [in] The list to split.
+ *  @param list [in] The position to split.
+ *  @param newhead [in] The new list.
+ *
+ *  @return Void.
  */
 static inline void jf_listhead_split(
     jf_listhead_t * head, jf_listhead_t * list, jf_listhead_t * newhead)

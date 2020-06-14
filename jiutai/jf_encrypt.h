@@ -9,7 +9,7 @@
  *  @note
  *  -# Routines declared in this file are included in jf_encrypt library.
  *  -# On Linux platform, link with ssl and crypto library.
- *  -# Link with olstringparse and olfiles library
+ *  -# Link with olstringparse and olfiles library.
  *  -# Use AES as the encrypt algorithm, the length of the encrypt key should be 16 bytes long.
  *
  */
@@ -20,6 +20,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 #undef ENCRYPTAPI
@@ -54,6 +55,7 @@
  *   used.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_encrypt_encryptFile(
     olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey);
@@ -65,6 +67,7 @@ u32 jf_encrypt_encryptFile(
  *  @param pKey [in] Encryption key.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_encrypt_decryptFile(olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey);
 
@@ -75,6 +78,7 @@ u32 jf_encrypt_decryptFile(olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t *
  *  @param pKey [in] Encryption key.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_encrypt_encryptString(
     const olchar_t * pSrcStr, olchar_t ** ppDestStr, olchar_t * pKey);
@@ -86,6 +90,7 @@ u32 jf_encrypt_encryptString(
  *  @param pKey [in] Encryption key.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_encrypt_decryptString(
     const olchar_t * pSrcStr, olchar_t ** ppDestStr, olchar_t * pKey);
@@ -101,7 +106,3 @@ void jf_encrypt_freeString(olchar_t ** ppStr);
 #endif /*JIUFENG_ENCRYPT_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-
-
-

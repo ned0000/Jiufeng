@@ -105,19 +105,8 @@ static u32 _validateMessagingServerMsg(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t sBuf = sEndPointer - sBeginPointer;
-    olsize_t sMsg = 0;
 
-    if (sBuf < sizeof(jf_messaging_header_t))
-        u32Ret = JF_ERR_INCOMPLETE_DATA;
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        /*The full message size is header size plus payload size.*/
-        sMsg = getMessagingSize(pu8Buffer + sBeginPointer);
-
-        if (sBuf < sMsg)
-            u32Ret = JF_ERR_INCOMPLETE_DATA;
-    }
+    u32Ret = isMessagingFullMsg(pu8Buffer + sBeginPointer, sBuf);
 
     return u32Ret;
 }
@@ -157,7 +146,7 @@ static u32 _processMessagingServerMsg(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Receive full message.*/
-        sMsg = getMessagingSize(pu8Buffer + sBegin);
+        sMsg = getMessagingMsgSize(pu8Buffer + sBegin);
 
         u32Ret = _isMessagingServerMsgAllowed(pu8Buffer + sBegin, sMsg);
     }

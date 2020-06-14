@@ -10,16 +10,19 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_err.h"
 #include "common.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
 #define ERR_MSG_FORMAT      "ERR - (0x%X) %s"
 #define SYS_ERR_MSG_FORMAT  "ERR - (0x%X) %s\n      %d, %s"
 
@@ -95,11 +98,21 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_PROCESS_CREATED, "Process has been created. The program continues in background."},
     {JF_ERR_ALREADY_RUNNING, "The program is already running."},
     {JF_ERR_FAIL_CREATE_PROCESS, "Failed to create process."},
+    {JF_ERR_FAIL_GET_CWD, "Failed to get current working directory."},
+    {JF_ERR_FAIL_SET_CWD, "Failed to set current working directory."},
+    {JF_ERR_FAIL_TERMINATE_PROCESS, "Failed to terminate process."},
+    {JF_ERR_FAIL_WAIT_PROCESS_TERMINATION, "Failed to wait process termination."},
+    {JF_ERR_FAIL_INIT_SOCKET, "Failed to initialize socket."},
+    {JF_ERR_FAIL_FINI_SOCKET, "Failed to initialize socket."},
 /* thread error */
     {JF_ERR_FAIL_CREATE_THREAD, "Failed to create thread."},
+    {JF_ERR_FAIL_STOP_THREAD, "Failed to stop thread."},
+    {JF_ERR_FAIL_WAIT_THREAD_TERMINATION, "Failed to wait thread termination."},
+    {JF_ERR_FAIL_TERMINATE_THREAD, "Failed to terminate thread."},
 /* shared memory error */
     {JF_ERR_INVALID_SHAREDMEMORY_ID, "Invalid shared memory identifier."},
     {JF_ERR_FAIL_CREATE_SHAREDMEMORY, "Failed to create shared memory."},
+    {JF_ERR_FAIL_SET_SHAREDMEMORY_ATTR, "Failed to set shared memory attribute."},
     {JF_ERR_FAIL_ATTACH_SHAREDMEMORY, "Failed to attach shared memory."},
     {JF_ERR_FAIL_DETACH_SHAREDMEMORY, "Failed to detach shared memory."},
     {JF_ERR_FAIL_DESTROY_SHAREDMEMORY, "Failed to detroy shared memory."},
@@ -110,8 +123,8 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
 /* sem error */
     {JF_ERR_FAIL_CREATE_SEM, "Failed to create semaphore."},
     {JF_ERR_FAIL_DESTROY_SEM, "Failed to destroy semaphore."},
-    {JF_ERR_FAIL_ACQUIRE_SEM, "Failed to acquire semaphore."},
-    {JF_ERR_FAIL_RELEASE_SEM, "Failed to release semaphore."},
+    {JF_ERR_FAIL_DOWN_SEM, "Failed to down semaphore."},
+    {JF_ERR_FAIL_UP_SEM, "Failed to up semaphore."},
 /* dynlib error */
     {JF_ERR_FAIL_LOAD_DYNLIB, "Failed to load dynamic library."},
     {JF_ERR_FAIL_FREE_DYNLIB, "Failed to free dynamic library."},
@@ -288,6 +301,7 @@ void _getErrMsg(u32 u32Ret, olchar_t * pstrBuf, olsize_t sBuf)
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
+
 olchar_t * jf_err_getDescription(u32 u32ErrCode)
 {
     olchar_t * pstrDesc = ls_iecdErrorCodeDesc[1].iecd_pstrDesc;
@@ -331,28 +345,28 @@ olchar_t * jf_err_getDescription(u32 u32ErrCode)
     return pstrDesc;
 }
 
-void jf_err_getMsg(u32 u32Err, olchar_t * pstrBuf, olsize_t sBuf)
+void jf_err_readDescription(u32 u32ErrCode, olchar_t * pstrBuf, olsize_t sBuf)
 {
     assert((pstrBuf != NULL) && (sBuf > 0));
 
     memset(pstrBuf, 0, sBuf);
 
-    if (isSysErrorCode(u32Err))
-        _getSysErrMsg(u32Err, pstrBuf, sBuf);
+    if (isSysErrorCode(u32ErrCode))
+        _getSysErrMsg(u32ErrCode, pstrBuf, sBuf);
     else
-        _getErrMsg(u32Err, pstrBuf, sBuf);
+        _getErrMsg(u32ErrCode, pstrBuf, sBuf);
 }
 
-u32 jf_err_addCode(u32 u32Err, olchar_t * pstrDesc)
+u32 jf_err_addCode(u32 u32ErrCode, olchar_t * pstrDesc)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Code;
 
-    assert((u32Err >> JF_ERR_CODE_MODULE_SHIFT) == JF_ERR_VENDOR_SPEC_ERROR);
-    assert((u32Err & JF_ERR_CODE_CODE_MASK) < JF_ERR_MAX_VENDOR_SPEC_ERROR);
+    assert((u32ErrCode >> JF_ERR_CODE_MODULE_SHIFT) == JF_ERR_VENDOR_SPEC_ERROR);
+    assert((u32ErrCode & JF_ERR_CODE_CODE_MASK) < JF_ERR_MAX_VENDOR_SPEC_ERROR);
 
-    u32Code = u32Err & JF_ERR_CODE_CODE_MASK;
-    ls_iecdVendorSpecErrorCodeDesc[u32Code].iecd_u32ErrorCode = u32Err;
+    u32Code = u32ErrCode & JF_ERR_CODE_CODE_MASK;
+    ls_iecdVendorSpecErrorCodeDesc[u32Code].iecd_u32ErrorCode = u32ErrCode;
     ls_iecdVendorSpecErrorCodeDesc[u32Code].iecd_pstrDesc = pstrDesc;
 
     return u32Ret;

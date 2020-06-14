@@ -107,7 +107,7 @@ $(BIN_DIR)/conffile-test: conffile-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_files \
        -ljf_jiukun
 
-$(BIN_DIR)/menu-test: menu-test.o $(JIUTAI_DIR)/jf_menu.o
+$(BIN_DIR)/menu-test: menu-test.o $(JIUTAI_DIR)/jf_menu.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_string -ljf_jiukun \
        -ljf_logger
 

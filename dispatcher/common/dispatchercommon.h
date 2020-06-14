@@ -111,7 +111,13 @@ u32 initMessagingMsgHeader(u8 * pu8Msg, u16 u16MsgId, u8 u8MsgPrio, u32 u32Paylo
  *
  *  @return The message size.
  */
-olsize_t getMessagingSize(u8 * pu8Msg);
+olsize_t getMessagingMsgSize(u8 * pu8Msg);
+
+/** Get messaging message priority.
+ *
+ *  @return The message priority.
+ */
+u8 getMessagingMsgPrio(u8 * pu8Msg, olsize_t sMsg);
 
 /** Get messaging message ID.
  *
@@ -164,6 +170,13 @@ u32 getMessagingMsgTransactionId(u8 * pu8Msg, olsize_t sMsg);
  *  @return The error code.
  */
 u32 setMessagingMsgTransactionId(u8 * pu8Msg, u32 transactionId);
+
+/** Check if full message is received.
+ *
+ *  @return The error code.
+ */
+u32 isMessagingFullMsg(u8 * pu8Msg, olsize_t sMsg);
+
 
 #endif /*DISPATCHER_DISPATCHERCOMMON_H*/
 
