@@ -1,7 +1,7 @@
 /**
  *  @file resolve.c
  *
- *  @brief provide routine to resolve host name etc.
+ *  @brief Implementation file for routines to resolve host name etc.
  *
  *  @author Min Zhang
  *
@@ -10,10 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -74,5 +74,3 @@ u32 jf_network_getHostByName(
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-

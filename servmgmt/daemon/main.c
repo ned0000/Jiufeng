@@ -61,8 +61,9 @@ Usage: %s [-f] [-s setting file] [-V] [logger options]\n\
     -s specify the setting file.\n\
     -V show version information.\n\
 logger options:\n\
-    -T <0|1|2|3> the log level. 0: no log, 1: error only, 2: info, 3: all, 4: data.\n\
-    -F <log file> the log file.\n\
+    -T <0|1|2|3|4|5> the log level. 0: no log, 1: error, 2: warn, 3: info, 4: debug, 5: data.\n\
+    -O output the log to stdout.\n\
+    -F <log file> output the log to file.\n\
     -S <log file size> the size of log file. No limit if not specified.\n",
            ls_strDongyuanProgramName);
 
@@ -148,7 +149,7 @@ static u32 _serviceDongyuan(olint_t argc, char** argv)
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "DONGYUAN";
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DEBUG;
-    jlipParam.jlip_bLogToStdout = TRUE;
+//    jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_bLogToFile = TRUE;
 
     /*Initialize the parameter for jiukun library.*/

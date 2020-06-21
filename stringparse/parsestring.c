@@ -363,7 +363,7 @@ boolean_t jf_string_isBlankLine(const olchar_t * pstrLine)
         }
         else
         {
-            pstrLine++;
+            pstrLine ++;
         }
     }
 

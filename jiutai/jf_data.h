@@ -38,7 +38,7 @@
  *  @return Number of data copied.
  */
 static inline olsize_t jf_data_copyToBuffer(
-    olchar_t * pBuf, olsize_t sBuf, olsize_t sOffset, olchar_t * pData, olsize_t sData)
+    void * pBuf, olsize_t sBuf, olsize_t sOffset, void * pData, olsize_t sData)
 {
     olsize_t copy = 0;
 

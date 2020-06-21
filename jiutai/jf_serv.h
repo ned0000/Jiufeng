@@ -28,6 +28,7 @@
  *  @par Service Management Setting File
  *  -# The service which is supposed to be managed by daemon should provide following configuration
  *   in setting file.
+ *  -# The daemon starts the services one by one by the order specified in the setting file.
  *  -# The startupType is how to start the service. The service management daemon will start the
  *   service if the startup type is "automatic". The daemon will not start the service if the
  *   startup type is "manual".
@@ -36,13 +37,18 @@
  *   the configuration in setting file, the configuration name is "maxFailureRetryCount".
  *  -# The "cmdPath" is the path to the executable file of the service. The "cmdParam" is the
  *   parameter for starting the service.
+ *  -# Incase there is dependency between services, one service should be started and ready before
+ *   another service, the setting of the first service should be before another service. "pause" can
+ *   be used to make sure the first service is ready, it's time in second daemon will pause after
+ *   starting a service.
  *  @code
  *  <service>
  *    <name>zeus</name>
  *    <description>zeus service</description>
  *    <startupType>automatic</startupType>
  *    <cmdPath>olzeus</cmdPath>
- *    <cmdParam></cmdParam>
+ *    <cmdParam>-a -b -c xx</cmdParam>
+ *    <pause>3</pause>
  *  </service>
  *  @endcode
  *

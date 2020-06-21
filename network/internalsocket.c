@@ -500,7 +500,9 @@ u32 isSendWithTimeout(
             u32Ret = isSend(pis, pBuffer, &sSent);
         }
         else
+        {
             u32Ret = JF_ERR_FAIL_SEND_DATA;
+        }
     }
 
     if ((u32Ret == JF_ERR_NO_ERROR) && (sSent != *psSend))
@@ -581,7 +583,9 @@ u32 isSendnWithTimeout(
                 }
             }
             else
+            {
                 u32Ret = JF_ERR_FAIL_SEND_DATA;
+            }
         }
 
         tCur = time(NULL);

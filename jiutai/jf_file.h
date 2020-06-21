@@ -121,18 +121,26 @@
  */
 typedef struct
 {
+    /**File type and mode.*/
     u32 jfs_u32Mode;
+    /**ID of device containing file.*/
     u32 jfs_u32Dev;
+    /**Device ID (if special file)*/
     u32 jfs_u32RDev;
+    /**Inode number.*/
     u32 jfs_u32INode;
+    /**Total size, in bytes.*/
     u64 jfs_u64Size;
+    /**Number of hard links.*/
     u16 jfs_u16Link;
+    /**User ID of owner.*/
     u16 jfs_u16UserId;
+    /**Group ID of owner.*/
     u16 jfs_u16GroupId;
     u16 jfs_u16Reserved;
-    /**Access time in second from 00:00:00 UTC, January 1, 1970.*/
+    /**Last access time in second from 00:00:00 UTC, January 1, 1970.*/
     u64 jfs_u64AccessTime;
-    /**Modify time in second from 00:00:00 UTC, January 1, 1970.*/
+    /**Last modify time in second from 00:00:00 UTC, January 1, 1970.*/
     u64 jfs_u64ModifyTime;
     /**Create time in second from 00:00:00 UTC, January 1, 1970.*/
     u64 jfs_u64Createtime;

@@ -1,7 +1,7 @@
 #
 #  @file Makefile
 #
-#  @brief The makefile for network library
+#  @brief The makefile for network library.
 #
 #  @author Min Zhang
 #
@@ -13,9 +13,8 @@
 
 SONAME = jf_network
 
-SOURCES = internalsocket.c socket.c socketpair.c \
-    chain.c utimer.c asocket.c assocket.c acsocket.c \
-    adgram.c resolve.c network.c
+SOURCES = internalsocket.c socket.c socketpair.c chain.c utimer.c asocket.c assocket.c acsocket.c \
+    adgram.c resolve.c transfer.c network.c
 
 JIUTAI_SRCS = jf_mutex.c jf_time.c
 

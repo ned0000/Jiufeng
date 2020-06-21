@@ -110,7 +110,7 @@ static u32 _showOneIfInfo(jf_ifmgmt_if_t * pif)
     jf_string_getStringMacAddress(str, sizeof(str), pif->jii_u8Mac);
     ol_printf("  Mac: %s\n", str);
 
-    jf_ifmgmt_getStringIfFlags(str, pif);
+    jf_ifmgmt_getStringIfFlags(str, sizeof(str), pif);
     ol_printf("  Flags: %s\n", str);
  
     return u32Ret;

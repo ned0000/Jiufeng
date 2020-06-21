@@ -81,67 +81,35 @@ static u32 _initConfigMgrReqMsgHeader(
     return u32Ret;
 }
 
+static olsize_t _getFullConfigMgrMsgSize(void * pHeader, olsize_t sHeader)
+{
+    olsize_t size = 0;
+    config_mgr_msg_header_t * header = pHeader;
+
+    size = sizeof(*header) + header->cmmh_u32PayloadSize;
+
+    return size;
+}
+
 static u32 _sendRecvConfigMgrMsg(
     internal_config_t * pic, u8 * pSendMsg, olsize_t sSendMsg, u8 * pRecvMsg, olsize_t sRecvMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_network_socket_t * pSocket = NULL;
-    olsize_t sMsg = 0;
-    config_mgr_msg_header_t * pHeader = NULL;
+    jf_network_transfer_data_param_t jntdp;
 
-    /*Create the socket.*/
-    u32Ret = jf_network_createTypeStreamSocket(pic->ic_jiServer.ji_u8AddrType, &pSocket);
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        JF_LOGGER_DEBUG("socket created");
+    ol_bzero(&jntdp, sizeof(jntdp));
 
-        /*Connect to the remote server.*/
-        u32Ret = jf_network_connect(pSocket, &pic->ic_jiServer, 0);
-    }
+    jntdp.jntdp_bReply = TRUE;
+    jntdp.jntdp_pjiServer = &pic->ic_jiServer;
+    jntdp.jntdp_u32Timeout = pic->ic_u32Timeout;
+    jntdp.jntdp_pSendBuf = pSendMsg;
+    jntdp.jntdp_sSendBuf = sSendMsg;
+    jntdp.jntdp_pRecvBuf = pRecvMsg;
+    jntdp.jntdp_sRecvBuf = sRecvMsg;
+    jntdp.jntdp_sHeader = sizeof(config_mgr_msg_header_t);
+    jntdp.jntdp_fnGetFullDataSize = _getFullConfigMgrMsgSize;
 
-    /*Send the request message.*/
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        JF_LOGGER_DEBUG("send data, size: %d", sSendMsg);
-
-        sMsg = sSendMsg;
-        u32Ret = jf_network_sendnWithTimeout(pSocket, (void *)pSendMsg, &sMsg, pic->ic_u32Timeout);
-    }
-
-    /*Receive the header of the response message.*/
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        sMsg = sizeof(config_mgr_msg_header_t);
-
-        JF_LOGGER_DEBUG("recv header, size: %d", sMsg);
-
-        u32Ret = jf_network_recvnWithTimeout(pSocket, (void *)pRecvMsg, &sMsg, pic->ic_u32Timeout);
-    }
-
-    /*Receive the payload of the response message.*/
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        pHeader = (config_mgr_msg_header_t *)pRecvMsg;
-        pRecvMsg = (u8 *)pRecvMsg + sMsg;
-        sMsg = pHeader->cmmh_u32PayloadSize;
-
-        JF_LOGGER_DEBUG("recv payload, size: %d", sMsg);
-
-        if (sMsg != 0)
-            u32Ret = jf_network_recvnWithTimeout(
-                pSocket, (void *)pRecvMsg, &sMsg, pic->ic_u32Timeout);
-    }
-
-    if (u32Ret != JF_ERR_NO_ERROR)
-    {
-        JF_LOGGER_ERR(u32Ret, "send recv msg");
-    }
-
-    /*Destroy the socket.*/
-    if (pSocket != NULL)
-    {
-        jf_network_destroySocket(&pSocket);
-    }
+    u32Ret = jf_network_transferData(&jntdp);
 
     return u32Ret;
 }

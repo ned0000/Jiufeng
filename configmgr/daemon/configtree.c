@@ -46,8 +46,13 @@ typedef struct
 
     internal_config_mgr_setting_t * ict_picmsSetting;
 
+    /**Lock for the critical data.*/
     jf_mutex_t ict_jmLock;
+    /**Property tree for all config.*/
     jf_ptree_t * ict_pjpConfig;
+    /**Config is changed if TRUE.*/
+    boolean_t ict_bConfigChanged;
+    u8 ict_u8Reserved2[7];
 
     u16 ict_u16Reserved[3];
     u16 ict_u16NumOfTransaction;
@@ -124,9 +129,10 @@ u32 finiConfigTree(void)
         jf_jiukun_freeMemory((void **)&pict->ict_picttTransaction);
 
     /*Save config to persistency.*/
-    saveConfigToPersistency(
-        pict->ict_picmsSetting->icms_u8ConfigPersistencyType,
-        pict->ict_picmsSetting->icms_pstrConfigPersistencyLocation, pict->ict_pjpConfig);
+    if (pict->ict_bConfigChanged)
+        saveConfigToPersistency(
+            pict->ict_picmsSetting->icms_u8ConfigPersistencyType,
+            pict->ict_picmsSetting->icms_pstrConfigPersistencyLocation, pict->ict_pjpConfig);
 
     if (pict->ict_pjpConfig != NULL)
         jf_ptree_destroy(&pict->ict_pjpConfig);
@@ -195,6 +201,9 @@ u32 setConfigIntoConfigTree(
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_changeNodeValue(node, pstrValue, sValue);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        pict->ict_bConfigChanged = TRUE;
 
     jf_mutex_release(&pict->ict_jmLock);
 

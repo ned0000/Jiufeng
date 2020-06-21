@@ -38,6 +38,11 @@
 
 #if defined(WINDOWS)
 /** Convert the file time to seconds since Epoch.
+ *  
+ *  @param pTime [out] The file time.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_time_fileTimeToSecondsSince1970(FILETIME * pTime);
 #endif
@@ -47,6 +52,7 @@ u32 jf_time_fileTimeToSecondsSince1970(FILETIME * pTime);
  *  @param tv [out] The time value in second and microsecond since Epoch.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_time_getTimeOfDay(struct timeval * tv);
 
@@ -56,6 +62,7 @@ u32 jf_time_getTimeOfDay(struct timeval * tv);
  *  @param tp [out] The timespec structures.
  *
  *  @return The error code
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_time_getClockTime(clockid_t clkid, struct timespec * tp);
 
@@ -64,6 +71,7 @@ u32 jf_time_getClockTime(clockid_t clkid, struct timespec * tp);
  *  @param u32Seconds [in] The time to sleep.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_time_sleep(u32 u32Seconds);
 
@@ -72,6 +80,7 @@ u32 jf_time_sleep(u32 u32Seconds);
  *  @param u32MilliSeconds [in] The time to sleep.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_time_milliSleep(u32 u32MilliSeconds);
 
@@ -80,6 +89,7 @@ u32 jf_time_milliSleep(u32 u32MilliSeconds);
  *  @param u32MicroSeconds [in] The time to sleep.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_time_microSleep(u32 u32MicroSeconds);
 
@@ -88,6 +98,7 @@ u32 jf_time_microSleep(u32 u32MicroSeconds);
  *  @param u32NanoSeconds [in] The time to sleep.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_time_nanoSleep(u32 u32NanoSeconds);
 

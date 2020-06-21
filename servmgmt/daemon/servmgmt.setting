@@ -11,6 +11,7 @@
       <startupType>automatic</startupType>
       <cmdPath>olzeus</cmdPath>
       <cmdParam></cmdParam>
+      <pauseTime>3</pauseTime>
     </service>
     <service>
       <name>bio</name>

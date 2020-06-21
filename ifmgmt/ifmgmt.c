@@ -1,7 +1,7 @@
 /**
  *  @file ifmgmt.c
  *
- *  @brief The network interface management library
+ *  @brief The implementation file for network management interface. 
  *
  *  @author Min Zhang
  *
@@ -10,18 +10,20 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_logger.h"
 #include "jf_ifmgmt.h"
 #include "jf_filestream.h"
 #include "jf_string.h"
+#include "jf_data.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
 #define SYSTEM_NET_DEV_FILE   "/proc/net/dev"
 
 
@@ -364,34 +366,37 @@ u32 jf_ifmgmt_downIf(const olchar_t * pstrIfName)
     return u32Ret;
 }
 
-u32 jf_ifmgmt_getStringIfFlags(olchar_t * pstrFlags, jf_ifmgmt_if_t * pIf)
+u32 jf_ifmgmt_getStringIfFlags(olchar_t * pstrFlags, olsize_t sFlags, jf_ifmgmt_if_t * pIf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    olsize_t sOffset = 0;
 
-    pstrFlags[0] = '\0';
+    ol_bzero(pstrFlags, sFlags);
 
     if (pIf->jii_bUp)
-        ol_strcat(pstrFlags, "Up");
+        sOffset += jf_data_copyToBuffer(pstrFlags, sFlags, sOffset, "Up", 2);
     else
-        ol_strcat(pstrFlags, "Down");
+        sOffset += jf_data_copyToBuffer(pstrFlags, sFlags, sOffset, "Down", 4);
 
     if (pIf->jii_bBroadcast)
-        ol_strcat(pstrFlags, ", Broadcast");
+        sOffset += jf_data_copyToBuffer(pstrFlags, sFlags, sOffset, ", Broadcast", 11);
 
     if (pIf->jii_bPointToPoint)
-        ol_strcat(pstrFlags, ", PointToPoint");
+        sOffset += jf_data_copyToBuffer(pstrFlags, sFlags, sOffset, ", PointToPoint", 14);
 
     if (pIf->jii_bLoopback)
-        ol_strcat(pstrFlags, ", Loopback");
+        sOffset += jf_data_copyToBuffer(pstrFlags, sFlags, sOffset, ", Loopback", 10);
 
     if (pIf->jii_bRunning)
-        ol_strcat(pstrFlags, ", Running");
+        sOffset += jf_data_copyToBuffer(pstrFlags, sFlags, sOffset, ", Running", 9);
 
     if (pIf->jii_bPromisc)
-        ol_strcat(pstrFlags, ", Promisc");
+        sOffset += jf_data_copyToBuffer(pstrFlags, sFlags, sOffset, ", Promisc", 9);
 
     if (pIf->jii_bMulticast)
-        ol_strcat(pstrFlags, ", Multicast");
+        sOffset += jf_data_copyToBuffer(pstrFlags, sFlags, sOffset, ", Multicast", 11);
+
+    pstrFlags[sFlags - 1] = '\0';
 
     return u32Ret;
 }
@@ -459,5 +464,3 @@ u32 jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[JF_LIMIT_MAC_LEN])
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-

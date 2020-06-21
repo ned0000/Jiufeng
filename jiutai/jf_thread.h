@@ -36,7 +36,7 @@
  */
 typedef struct
 {
-    /**Detach the thread.*/
+    /**Detach the thread if it's TRUE.*/
     boolean_t jta_bDetached;
     u8 jta_u8Reserved[31];
 } jf_thread_attr_t;

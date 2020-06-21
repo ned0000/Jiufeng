@@ -129,6 +129,20 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_FAIL_LOAD_DYNLIB, "Failed to load dynamic library."},
     {JF_ERR_FAIL_FREE_DYNLIB, "Failed to free dynamic library."},
     {JF_ERR_FAIL_GET_SYMBOL_ADDR, "Failed to get symbol's address."},
+/* attask error */
+    {JF_ERR_ATTASK_ITEM_NOT_FOUND, "Attask item is not found."},
+/* hsm error */
+    {JF_ERR_HSM_STATE_NOT_FOUND, "HSM state is not found"},
+/* rwlock error */
+    {JF_ERR_FAIL_CREATE_RWLOCK, "Failed to create read-write lock."},
+    {JF_ERR_FAIL_DESTROY_RWLOCK, "Failed to destroy read-write lock."},
+    {JF_ERR_FAIL_ACQUIRE_RWLOCK, "Failed to acquire read-write lock."},
+    {JF_ERR_FAIL_RELEASE_RWLOCK, "Failed to release read-write lock."},
+/* user error */
+    {JF_ERR_FAIL_GET_USER_INFO, "Failed to get user information."},
+/* ptree error */
+    {JF_ERR_MAX_PTREE_NODE_FOUND, "Maximum property tree nodes have been found."},
+    {JF_ERR_PTREE_NODE_NOT_FOUND, "Property tree node is not found."},
 /* logger error */
     {JF_ERR_CALLER_NAME_TOO_LONG, "Length of the caller name is too long."},
 /* archive error */

@@ -57,30 +57,35 @@
 #define SMSN_SERVICE                          SMSN_SERVICE_SETTING ".service"
 #define SMSN_SERVICE_LEN                      ol_strlen(SMSN_SERVICE)
 
-/** The name of the setting name node.
+/** The service name node name.
  */
 #define SMSN_SERVICE_NAME                     "name"
 #define SMSN_SERVICE_NAME_LEN                 ol_strlen(SMSN_SERVICE_NAME)
 
-/** The name of the setting description node.
+/** The service description node name.
  */
 #define SMSN_SERVICE_DESCRIPTION              "description"
 #define SMSN_SERVICE_DESCRIPTION_LEN          ol_strlen(SMSN_SERVICE_DESCRIPTION)
 
-/** The name of the setting startup type node.
+/** The service startup type node name.
  */
-#define SMSN_SERVICE_STARTUPTYPE              "startupType"
-#define SMSN_SERVICE_STARTUPTYPE_LEN          ol_strlen(SMSN_SERVICE_STARTUPTYPE)
+#define SMSN_SERVICE_STARTUP_TYPE             "startupType"
+#define SMSN_SERVICE_STARTUP_TYPE_LEN         ol_strlen(SMSN_SERVICE_STARTUP_TYPE)
 
-/** The name of the setting command path node.
+/** The service command path node name.
  */
-#define SMSN_SERVICE_CMDPATH                  "cmdPath"
-#define SMSN_SERVICE_CMDPATH_LEN              ol_strlen(SMSN_SERVICE_CMDPATH)
+#define SMSN_SERVICE_CMD_PATH                 "cmdPath"
+#define SMSN_SERVICE_CMD_PATH_LEN             ol_strlen(SMSN_SERVICE_CMD_PATH)
 
-/** The name of the setting command parameter node.
+/** The service command parameter node name.
  */
-#define SMSN_SERVICE_CMDPARAM                 "cmdParam"
-#define SMSN_SERVICE_CMDPARAM_LEN             ol_strlen(SMSN_SERVICE_CMDPARAM)
+#define SMSN_SERVICE_CMD_PARAM                "cmdParam"
+#define SMSN_SERVICE_CMD_PARAM_LEN            ol_strlen(SMSN_SERVICE_CMD_PARAM)
+
+/** The delay node name, it's delay time in second after starting the service.
+ */
+#define SMSN_SERVICE_PAUSE_TIME               "pauseTime"
+#define SMSN_SERVICE_PAUSE_TIME_LEN           ol_strlen(SMSN_SERVICE_PAUSE_TIME)
 
 /* --- private routine section ------------------------------------------------------------------ */
 
@@ -125,6 +130,34 @@ static u32 _parseGlobalSetting(internal_serv_mgmt_setting_t * pisms)
 
 /** Parse one service node.
  */
+static u32 _processServiceNodePauseTime(
+    jf_ptree_t * pjpService, internal_service_info_t * pisi, jf_ptree_node_t * pNode)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_ptree_node_t * pChild = NULL;
+    olchar_t * pstrValue = NULL;
+    olsize_t sValue = 0;
+
+    u32Ret = jf_ptree_findChildNode(
+        pjpService, pNode, NULL, 0, SMSN_SERVICE_PAUSE_TIME, SMSN_SERVICE_PAUSE_TIME_LEN, &pChild);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_ptree_getNodeValue(pChild, &pstrValue, &sValue);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_string_getU8FromString(pstrValue, sValue, &pisi->isi_u8PauseTime);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        if (pisi->isi_u8PauseTime > MAX_SERVICE_PAUSE_TIME)
+            pisi->isi_u8PauseTime = MAX_SERVICE_PAUSE_TIME;
+    }
+
+    return u32Ret;
+}
+
+/** Parse one service node.
+ */
 static u32 _processServiceNode(
     jf_ptree_t * pjpService, internal_service_info_t * pisi, jf_ptree_node_t * pNode)
 {
@@ -151,7 +184,7 @@ static u32 _processServiceNode(
     /*Find the child node with service command path.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_findChildNode(
-            pjpService, pNode, NULL, 0, SMSN_SERVICE_CMDPATH, SMSN_SERVICE_CMDPATH_LEN, &pChild);
+            pjpService, pNode, NULL, 0, SMSN_SERVICE_CMD_PATH, SMSN_SERVICE_CMD_PATH_LEN, &pChild);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pChild, &pisi->isi_pstrCmdPath, NULL);
@@ -159,7 +192,7 @@ static u32 _processServiceNode(
     /*Find the child node with service command parameter.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_findChildNode(
-            pjpService, pNode, NULL, 0, SMSN_SERVICE_CMDPARAM, SMSN_SERVICE_CMDPARAM_LEN, &pChild);
+            pjpService, pNode, NULL, 0, SMSN_SERVICE_CMD_PARAM, SMSN_SERVICE_CMD_PARAM_LEN, &pChild);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pChild, &pisi->isi_pstrCmdParam, NULL);
@@ -167,7 +200,7 @@ static u32 _processServiceNode(
     /*Find the child node with service startup type.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_findChildNode(
-            pjpService, pNode, NULL, 0, SMSN_SERVICE_STARTUPTYPE, SMSN_SERVICE_STARTUPTYPE_LEN,
+            pjpService, pNode, NULL, 0, SMSN_SERVICE_STARTUP_TYPE, SMSN_SERVICE_STARTUP_TYPE_LEN,
             &pChild);
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -183,6 +216,10 @@ static u32 _processServiceNode(
         /*Parse the startup type string.*/
         u32Ret = getServStartupTypeFromString(pstrValue, &pisi->isi_u8StartupType);
     }
+
+    /*Find the child node with pause time. It's ok that pause time is not specified.*/
+    if (u32Ret == JF_ERR_NO_ERROR)
+        _processServiceNodePauseTime(pjpService, pisi, pNode);
 
     return u32Ret;
 }
@@ -212,11 +249,13 @@ static u32 _parseServiceSetting(internal_serv_mgmt_setting_t * pisms)
             {
                 pisms->isms_u16NumOfService ++;
 
-                jf_logger_logInfoMsg(
-                    "service name: %s, startup type: %s, cmdPath: %s",
+                JF_LOGGER_INFO(
+                    "name: %s, startupType: %s, cmdPath: %s, cmdParam: %s, pause: %u",
                     pisms->isms_isiService[u16Index].isi_pstrName,
                     getStringServStartupType(pisms->isms_isiService[u16Index].isi_u8StartupType),
-                    pisms->isms_isiService[u16Index].isi_pstrCmdPath);
+                    pisms->isms_isiService[u16Index].isi_pstrCmdPath,
+                    pisms->isms_isiService[u16Index].isi_pstrCmdParam,
+                    pisms->isms_isiService[u16Index].isi_u8PauseTime);
             }
         }
     }

@@ -45,6 +45,12 @@ typedef struct jf_listarray
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+/** Get the size of the list array.
+ *
+ *  @param u32NumOfNode [in] Number of node in the array.
+ *
+ *  @return Size of list array.
+ */
 static inline olsize_t jf_listarray_getSize(u32 u32NumOfNode)
 {
     assert(u32NumOfNode > 0);
@@ -52,6 +58,13 @@ static inline olsize_t jf_listarray_getSize(u32 u32NumOfNode)
     return u32NumOfNode * BYTES_PER_U32 + sizeof(jf_listarray_t);
 }
 
+/** Initialize a list array.
+ *
+ *  @param pla [in] The list array.
+ *  @param u32NumOfNode [in] Number of node in the array.
+ *
+ *  @return Void.
+ */
 static inline void jf_listarray_init(jf_listarray_t * pla, u32 u32NumOfNode)
 {
     u32 u32Index;
@@ -68,6 +81,12 @@ static inline void jf_listarray_init(jf_listarray_t * pla, u32 u32NumOfNode)
     JF_LISTARRAY_NODE(pla)[u32Index - 1] = JF_LISTARRAY_END;
 }
 
+/** Get a node from array.
+ *
+ *  @param pla [in] The list array.
+ *
+ *  @return The node index, or JF_LISTARRAY_END.
+ */
 static inline u32 jf_listarray_getNode(jf_listarray_t * pla)
 {
     u32 u32Node = pla->jl_u32Head;
@@ -80,6 +99,13 @@ static inline u32 jf_listarray_getNode(jf_listarray_t * pla)
     return u32Node;
 }
 
+/** Put a node.
+ *
+ *  @param pla [in] The list array.
+ *  @param u32Node [in] The node to put to array.
+ *
+ *  @return Void.
+ */
 static inline void jf_listarray_putNode(jf_listarray_t * pla, u32 u32Node)
 {
     assert(u32Node != JF_LISTARRAY_END);
@@ -89,6 +115,14 @@ static inline void jf_listarray_putNode(jf_listarray_t * pla, u32 u32Node)
     pla->jl_u32Head = u32Node;
 }
 
+/** Check if the array is end.
+ *
+ *  @param pla [in] The list array.
+ *
+ *  @return The end status.
+ *  @retval TRUE The array is end.
+ *  @retval FALSE The array is not end.
+ */
 static inline boolean_t jf_listarray_isEnd(jf_listarray_t * pla)
 {
     return (pla->jl_u32Head == JF_LISTARRAY_END);

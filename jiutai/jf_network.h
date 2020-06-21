@@ -98,9 +98,10 @@ typedef void  jf_network_chain_object_t;
  *  @param readset [in/out] Read fd set.
  *  @param writeset [in/out] Write fd set.
  *  @param errorset [in/out] Error fd set.
- *  @param pu32BlockTime [in/out] Timeout in millisecond for select().
+ *  @param pu32BlockTime [in/out] Timeout in millisecond for select.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_network_fnPreSelectChainObject_t)(
     jf_network_chain_object_t * pObject, fd_set * readset, fd_set * writeset, fd_set * errorset,
@@ -108,13 +109,14 @@ typedef u32 (* jf_network_fnPreSelectChainObject_t)(
 
 /** Callback function after select()
  *
- *  @param pObject [in] chain object.
- *  @param nReady [in] number of ready fd.
- *  @param readset [in] read fd set.
- *  @param writeset [in] write fd set.
- *  @param errorset [in] error fd set.
+ *  @param pObject [in] Chain object.
+ *  @param nReady [in] Number of ready fd.
+ *  @param readset [in] Read fd set.
+ *  @param writeset [in] Write fd set.
+ *  @param errorset [in] Error fd set.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_network_fnPostSelectChainObject_t)(
     jf_network_chain_object_t * pObject, olint_t nReady, fd_set * readset, fd_set * writeset,
@@ -124,7 +126,9 @@ typedef u32 (* jf_network_fnPostSelectChainObject_t)(
  */
 typedef struct
 {
+    /*The callback function which is called before entering select.*/
     jf_network_fnPreSelectChainObject_t jncoh_fnPreSelect;
+    /*The callback function which is called after exiting select.*/
     jf_network_fnPostSelectChainObject_t jncoh_fnPostSelect;
 } jf_network_chain_object_header_t;
 
@@ -133,10 +137,20 @@ typedef struct
 typedef void  jf_network_utimer_t;
 
 /** The callback function is called when the timer is triggerred.
+ *
+ *  @param pData [in] The argument for the callback function.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_network_fnCallbackOfUtimerItem_t)(void * pData);
 
 /** The callback function is called when the timer item is destroyed.
+ *
+ *  @param ppData [in/out] The argument for the callback function.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_network_fnDestroyUtimerItemData_t)(void ** ppData);
 
@@ -146,13 +160,35 @@ typedef u32 (* jf_network_fnDestroyUtimerItemData_t)(void ** ppData);
 /** The function is to notify upper layer there are incoming data.
  *
  *  @note
- *  -# The pUser is set by fnAssocketOnConnect_t when a new incoming connection is accepted.
+ *  -# The user object is set by fnAssocketOnConnect_t when a new incoming connection is accepted.
+ *  -# After process, the begin pointer should be set to end pointer so the buffer is recycled.
+ *  -# If the begin pointer is not changed, the data will be kept in buffer.
+ *
+ *  @param pAssocket [in] The async server socket.
+ *  @param pAsocket [in] The async socket representing the connection.
+ *  @param pu8Buffer [in] The buffer for the incoming data.
+ *  @param psBeginPointer [in/out] The begin pointer for the available data.
+ *  @param sEndPointer [in] The end pointer for the available data.
+ *  @param pUser [in] User object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_network_fnAssocketOnData_t)(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
     u8 * pu8Buffer, olsize_t * psBeginPointer, olsize_t sEndPointer, void * pUser);
 
 /** The function is to notify upper layer there are new connection.
+ *
+ *  @note
+ *  -# The connection is already accepted.
+ *
+ *  @param pAssocket [in] The async server socket.
+ *  @param pAsocket [in] The async socket representing the connection.
+ *  @param ppUser [out] User object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_network_fnAssocketOnConnect_t)(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket, void ** ppUser);
@@ -163,13 +199,34 @@ typedef u32 (* jf_network_fnAssocketOnConnect_t)(
  *  -# The access to the asocket being closed is not allowed.
  *  -# DO NOT use asDisconnect in this callback function as the connection is closed already.
  *
- *  @param u32Status [out] The reason why the connection is closed.
+ *  @param pAssocket [in] The async server socket.
+ *  @param pAsocket [in] The async socket representing the connection.
+ *  @param u32Status [in] The reason why the connection is closed.
+ *  @param pUser [in] User object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_network_fnAssocketOnDisconnect_t)(
-    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    u32 u32Status, void * pUser);
+    jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket, u32 u32Status,
+    void * pUser);
 
 /** The function is to notify upper layer the data is sent to peer successfully.
+ *
+ *  @note
+ *  -# The status should be checked for the send operation. The data is successfully sent if the
+ *   status is JF_ERR_NO_ERROR; otherwise it's failed.
+ *  -# The data content can be checked. And the buffer pointer is not the oririnal one. 
+ *
+ *  @param pAssocket [in] The async server socket.
+ *  @param pAsocket [in] The async socket representing the connection.
+ *  @param u32Status [in] The status of the send operation.
+ *  @param pu8Buffer [in] The sent buffer.
+ *  @param sBuf [in] The length of the buffer.
+ *  @param pUser [in] User object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_network_fnAssocketOnSendData_t)(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket, u32 u32Status,
@@ -184,6 +241,7 @@ typedef struct
     /**The max number of simultaneous connections that will be allowed.*/
     u32 jnacp_u32MaxConn;
     u32 jnacp_u32Reserved;
+    /**Address of server.*/
     jf_ipaddr_t jnacp_jiServer;
     /**The port number to bind to. 0 will select a random port.*/
     u16 jnacp_u16ServerPort;
@@ -203,12 +261,40 @@ typedef struct
  */
 
 /** The function is to notify upper layer there are incoming data.
+ *
+ *  @note
+ *  -# The user object is passed by jf_network_connectAcsocketTo() when trying to initiate a new
+ *   connection.
+ *  -# After process, the begin pointer should be set to end pointer so the buffer is recycled.
+ *  -# If the begin pointer is not changed, the data will be kept in buffer.
+ *
+ *  @param pAcsocket [in] The async client socket.
+ *  @param pAsocket [in] The async socket representing the connection.
+ *  @param pu8Buffer [in] The buffer for the incoming data.
+ *  @param psBeginPointer [in/out] The begin pointer for the available data.
+ *  @param sEndPointer [in] The end pointer for the available data.
+ *  @param pUser [in] User object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_network_fnAcsocketOnData_t)(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u8 * pu8Buffer,
     olsize_t * psBeginPointer, olsize_t sEndPointer, void * pUser);
 
 /** The function is to notify upper layer there are new connection.
+ *
+ *  @note
+ *  -# The status should be checked for the connection. The connection is successfully established
+ *   if the status is JF_ERR_NO_ERROR; otherwise it's failed.
+ *
+ *  @param pAcsocket [in] The async client socket.
+ *  @param pAsocket [in] The async socket representing the connection.
+ *  @param u32Status [in] The connection status.
+ *  @param pUser [in] User object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_network_fnAcsocketOnConnect_t)(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u32 u32Status,
@@ -220,13 +306,33 @@ typedef u32 (* jf_network_fnAcsocketOnConnect_t)(
  *  -# The access to the asocket being closed is not allowed.
  *  -# DO NOT use disconnectAsocket in this callback function as asocket can handle it by itself.
  *
+ *  @param pAcsocket [in] The async client socket.
+ *  @param pAsocket [in] The async socket representing the connection.
  *  @param u32Status [in] The reason why the connection is closed.
+ *  @param pUser [in] User object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_network_fnAcsocketOnDisconnect_t)(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u32 u32Status,
     void * pUser);
 
 /** The function is to notify upper layer the data is sent to peer successfully.
+ *
+ *  -# The status should be checked for the send operation. The data is successfully sent if the
+ *   status is JF_ERR_NO_ERROR; otherwise it's failed.
+ *  -# The data content can be checked. And the buffer pointer is not the oririnal one. 
+ *
+ *  @param pAcsocket [in] The async client socket.
+ *  @param pAsocket [in] The async socket representing the connection.
+ *  @param u32Status [in] The status of the send operation.
+ *  @param pu8Buffer [in] The sent buffer.
+ *  @param sBuf [in] The length of the buffer.
+ *  @param pUser [in] User object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_network_fnAcsocketOnSendData_t)(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u32 u32Status,
@@ -253,6 +359,42 @@ typedef struct
 } jf_network_acsocket_create_param_t;
 
 
+/* Data transfer */
+
+/** Callback function for getting full data size received from server based on the header.
+ */
+typedef olsize_t (* jf_network_fnGetFullDataSize_t)(void * pHeader, olsize_t sHeader);
+
+/** Define the parameter for transfering data.
+ */
+typedef struct
+{
+    /**Server should reply if it's TRUE.*/
+    boolean_t jntdp_bReply;
+    u8 jntdp_u8Reserved[7];
+    /**Server address.*/
+    jf_ipaddr_t * jntdp_pjiServer;
+    /**Server port.*/
+    u16 jntdp_u16Port;
+    u16 jntdp_u16Reserved;
+    /**Timeout for connecting to server, sending and receiving data.*/
+    u32 jntdp_u32Timeout;
+    /**Buffer for sending data.*/
+    void * jntdp_pSendBuf;
+    /**Size of sending data buffer.*/
+    olsize_t jntdp_sSendBuf;
+    /**Buffer for receiving data.*/
+    void * jntdp_pRecvBuf;
+    /**Size of receiving data buffer.*/
+    olsize_t jntdp_sRecvBuf;
+    /**Size of received data.*/
+    olsize_t jntdp_sRecvData;
+    /**Size of the header for receiving data.*/
+    olsize_t jntdp_sHeader;
+    /**Callback function to get full data size.*/
+    jf_network_fnGetFullDataSize_t jntdp_fnGetFullDataSize;
+} jf_network_transfer_data_param_t;
+
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /*  Network socket routine.
@@ -266,6 +408,8 @@ typedef struct
  *  @param ppSocket [out] The socket to be created and returned.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_CREATE_SOCKET Failed to create socket.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_createSocket(
     olint_t domain, olint_t type, olint_t protocol, jf_network_socket_t ** ppSocket);
@@ -275,6 +419,8 @@ NETWORKAPI u32 NETWORKCALL jf_network_createSocket(
  *  @param ppSocket [in/out] The socket to be destroyed.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_CLOSE_SOCKET Failed to close socket.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_destroySocket(jf_network_socket_t ** ppSocket);
 
@@ -291,6 +437,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_destroySocket(jf_network_socket_t ** ppSoc
  *  @param ppSocket [out] The created UDP socket.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_createDgramSocket(
     jf_ipaddr_t * pjiLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket);
@@ -309,6 +456,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_createDgramSocket(
  *  @param ppSocket [out] The created UDP socket.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_createStreamSocket(
     jf_ipaddr_t * pjiLocal, u16 * pu16Port, jf_network_socket_t ** ppSocket);
@@ -325,6 +473,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_createStreamSocket(
  *  @param ppSocket [out] The socket to be created and returned.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_createTypeStreamSocket(
     u8 u8AddrType, jf_network_socket_t ** ppSocket);
@@ -341,6 +490,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_createTypeStreamSocket(
  *  @param ppSocket [out] The socket to be created and returned.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_createTypeDgramSocket(
     u8 u8AddrType, jf_network_socket_t ** ppSocket);
@@ -352,6 +502,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_createTypeDgramSocket(
  *  @param pArg [in] Argument for the request.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_ioctlSocket(
     jf_network_socket_t * pSocket, olint_t req, void * pArg);
@@ -361,6 +512,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_ioctlSocket(
  *  @param pSocket [in] The socket to control.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_setSocketBlock(jf_network_socket_t * pSocket);
 
@@ -369,6 +521,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_setSocketBlock(jf_network_socket_t * pSock
  *  @param pSocket [in] The socket to control.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_setSocketNonblock(jf_network_socket_t * pSocket);
 
@@ -379,6 +532,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_setSocketNonblock(jf_network_socket_t * pS
  *  @param pjiMulticaseAddr [in] The multcast address.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_joinMulticastGroup(
     jf_network_socket_t * pSocket, jf_ipaddr_t * pjiAddr, jf_ipaddr_t * pjiMulticaseAddr);
@@ -388,19 +542,25 @@ NETWORKAPI u32 NETWORKCALL jf_network_joinMulticastGroup(
  *  @param pSocket [in] The socket to control.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_enableBroadcast(jf_network_socket_t * pSocket);
 
 /** Try to send all data but only send once.
  *
  *  @note
- *  -# The actual sent size is in psSend.
+ *  -# Data is send only once.
+ *  -# Data may be partially sent.
+ *  -# The send operation may be interrupted by signal, or full output queue.
+ *  -# If the socket is blocking, the routine will not return until error or all data are sent.
  *
  *  @param pSocket [in] The socket to send data.
  *  @param pBuffer [in] The data buffer.
  *  @param psSend [in/out] The buffer size as in parameter and actual sent size as out parameter.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_SEND_DATA Failed to send data.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_send(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend);
@@ -408,7 +568,10 @@ NETWORKAPI u32 NETWORKCALL jf_network_send(
 /** Try to send all data but only send once, the send operation will stop if timeout.
  *
  *  @note
- *  -# The actual sent size is in psSend.
+ *  -# Data is send only once.
+ *  -# Data may be partially sent.
+ *  -# The send operation may be interrupted by signal, or full output queue, or timeout.
+ *  -# The socket is watched to see if space is available for write by multiplexing.
  *
  *  @param pSocket [in] The socket to send data.
  *  @param pBuffer [in] The data buffer.
@@ -416,28 +579,40 @@ NETWORKAPI u32 NETWORKCALL jf_network_send(
  *  @param u32Timeout [in] The timeout value in second.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_SEND_DATA Failed to send data.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_sendWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend, u32 u32Timeout);
 
-/** Try to send all data with possible several round, until an error occurs.
+/** Try to send all data with possible several rounds, until an error occurs.
  *
  *  @note
- *  -# The actual sent size is in psSend.
+ *  -# Data is send with several rounds.
+ *  -# Data may be partially sent.
+ *  -# Signal is handled.
+ *  -# The send operation may be interrupted by other errors like full output queue.
+ *  -# If the socket is blocking, the routine will not return until error or all data are sent.
  *
  *  @param pSocket [in] The socket to send data.
  *  @param pBuffer [in] The data buffer.
  *  @param psSend [in/out] The buffer size as in parameter and actual sent size as out parameter.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_SEND_DATA Failed to send data.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_sendn(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend);
 
-/** Try to send all data with possible several round, until an error occurs or timeout.
+/** Try to send all data with possible several rounds, until an error occurs or timeout.
  *
  *  @note
- *  -# The actual sent size is in psSend.
+ *  -# Data is send with several rounds.
+ *  -# Data may be partially sent.
+ *  -# Signal is handled.
+ *  -# The send operation may be interrupted by other errors like full output queue or timeout.
+ *  -# The socket is watched to see if space is available for write by multiplexing.
  *
  *  @param pSocket [in] The socket to send data.
  *  @param pBuffer [in] The data buffer.
@@ -445,6 +620,8 @@ NETWORKAPI u32 NETWORKCALL jf_network_sendn(
  *  @param u32Timeout [in] The timeout value in second.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_SEND_DATA Failed to send data.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_sendnWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend, u32 u32Timeout);
@@ -452,7 +629,9 @@ NETWORKAPI u32 NETWORKCALL jf_network_sendnWithTimeout(
 /** Try to receive all data but only receive once.
  *
  *  @note
- *  -# The actual received size is in psRecv.
+ *  -# Data is received only once.
+ *  -# Data may be partially received due to signal, or other errors.
+ *  -# If the socket is blocking, the routine will not return until error or all data are received.
  *
  *  @param pSocket [in] The socket to receive data.
  *  @param pBuffer [in] The data buffer.
@@ -460,6 +639,8 @@ NETWORKAPI u32 NETWORKCALL jf_network_sendnWithTimeout(
  *   parameter.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_RECV_DATA Failed to receive data.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_recv(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv);
@@ -467,7 +648,9 @@ NETWORKAPI u32 NETWORKCALL jf_network_recv(
 /** Try to receive all data but only receive once, the receive operation will stop if timeout.
  *
  *  @note
- *  -# The actual received size is in psRecv.
+ *  -# Data is received only once.
+ *  -# Data may be partially received due to signal, timeout or other errors.
+ *  -# The socket is watched to see if data is available for read by multiplexing.
  *
  *  @param pSocket [in] The socket to receive data.
  *  @param pBuffer [in] The data buffer.
@@ -476,14 +659,19 @@ NETWORKAPI u32 NETWORKCALL jf_network_recv(
  *  @param u32Timeout [in] The timeout value in second.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_RECV_DATA Failed to receive data.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_recvWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv, u32 u32Timeout);
 
-/** Try to recveive all data with possible several round, until an error occurs.
+/** Try to receive all data with possible several round, until an error occurs.
  *
  *  @note
- *  -# The actual received size is in psRecv.
+ *  -# Data is received with several rounds.
+ *  -# Data may be partially received due to the errors.
+ *  -# Signal is handled.
+ *  -# If the socket is blocking, the routine will not return until error or all data are received.
  *
  *  @param pSocket [in] The socket to receive data.
  *  @param pBuffer [in] The data buffer.
@@ -491,6 +679,8 @@ NETWORKAPI u32 NETWORKCALL jf_network_recvWithTimeout(
  *   parameter.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_RECV_DATA Failed to receive data.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_recvn(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv);
@@ -498,7 +688,10 @@ NETWORKAPI u32 NETWORKCALL jf_network_recvn(
 /** Try to recveive all data with possible several round, until an error occurs or timeout.
  *
  *  @note
- *  -# The actual received size is in psRecv.
+ *  -# Data is received with several rounds.
+ *  -# Data may be partially received due to timeout or other errors.
+ *  -# Signal is handled.
+ *  -# The socket is watched to see if data is available for read by multiplexing.
  *
  *  @param pSocket [in] The socket to receive data.
  *  @param pBuffer [in] The data buffer.
@@ -507,6 +700,8 @@ NETWORKAPI u32 NETWORKCALL jf_network_recvn(
  *  @param u32Timeout [in] The timeout value in second.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_RECV_DATA Failed to receive data.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_recvnWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv, u32 u32Timeout);
@@ -526,6 +721,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_recvnWithTimeout(
  *  @param pu16Port [out] The data received from.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_recvfromWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv, u32 u32Timeout,
@@ -538,6 +734,8 @@ NETWORKAPI u32 NETWORKCALL jf_network_recvfromWithTimeout(
  *  @param u16Port [in] The remote server's port number.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_INITIATE_CONNECTION Failed to initiate connection.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_connect(
     jf_network_socket_t * pSocket, const jf_ipaddr_t * pji, u16 u16Port);
@@ -550,6 +748,8 @@ NETWORKAPI u32 NETWORKCALL jf_network_connect(
  *  @param u32Timeout [in] The timeout value in second.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_INITIATE_CONNECTION Failed to initiate connection.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_connectWithTimeout(
     jf_network_socket_t * pSocket, const jf_ipaddr_t * pji, u16 u16Port, u32 u32Timeout);
@@ -560,6 +760,8 @@ NETWORKAPI u32 NETWORKCALL jf_network_connectWithTimeout(
  *  @param backlog [in] Defines the maximum length to which the queue of pending connections.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_LISTEN_ON_SOCKET Failed to listen on socket.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_listen(jf_network_socket_t * pSocket, olint_t backlog);
 
@@ -571,6 +773,8 @@ NETWORKAPI u32 NETWORKCALL jf_network_listen(jf_network_socket_t * pSocket, olin
  *  @param ppSocket [out] The accepted socket.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_ACCEPT_CONNECTION Failed to accept connection.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_accept(
     jf_network_socket_t * pListen, jf_ipaddr_t * pji, u16 * pu16Port,
@@ -589,6 +793,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_accept(
  *  @param u16Port [out] The port data should send to.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_sendto(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend, const jf_ipaddr_t * pjiTo,
@@ -608,6 +813,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_sendto(
  *  @param pu16Port [out] The data received from.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_recvfrom(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv, jf_ipaddr_t * pjiFrom,
@@ -620,6 +826,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_recvfrom(
  *  @param psPair [out] The socket pair to be created and returned.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_createSocketPair(
     olint_t domain, olint_t type, jf_network_socket_t * psPair[2]);
@@ -629,6 +836,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_createSocketPair(
  *  @param psPair [in/out] The socket pair to be destroyed.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_destroySocketPair(jf_network_socket_t * psPair[2]);
 
@@ -641,6 +849,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_destroySocketPair(jf_network_socket_t * ps
  *  @param pu32Ready [out] Number of socket ready.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_select(
     fd_set * readfds, fd_set * writefds, fd_set * exceptfds, struct timeval * timeout,
@@ -653,6 +862,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_select(
  *  @param pnNameLen [out] The size of the buffer as in parameter and actual size as out parameter.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_getSocketName(
     jf_network_socket_t * pSocket, struct sockaddr * pName, olint_t * pnNameLen);
@@ -707,6 +917,7 @@ NETWORKAPI void NETWORKCALL jf_network_clearFdSet(fd_set * set);
  *   parameter.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_getSocketOption(
     jf_network_socket_t * pSocket, olint_t level, olint_t optname, void * pOptval,
@@ -721,6 +932,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_getSocketOption(
  *  @param sOptval [in] The option value size.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_setSocketOption(
     jf_network_socket_t * pSocket, olint_t level, olint_t optname, void * pOptval,
@@ -737,6 +949,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_setSocketOption(
  *  @param psOptval [out] The option value size.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_getAsocketOption(
     jf_network_asocket_t * pAsocket, olint_t level, olint_t optname, void * pOptval,
@@ -751,6 +964,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_getAsocketOption(
  *  @param sOptval [in] The option value size.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_setAsocketOption(
     jf_network_asocket_t * pAsocket, olint_t level, olint_t optname, void * pOptval,
@@ -764,6 +978,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_setAsocketOption(
  *  @param ppChain [out] The chain to create.
  * 
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_createChain(jf_network_chain_t ** ppChain);
 
@@ -772,6 +987,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_createChain(jf_network_chain_t ** ppChain)
  *  @param ppChain [in/out] The chain to destory.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_destroyChain(jf_network_chain_t ** ppChain);
 
@@ -792,6 +1008,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_destroyChain(jf_network_chain_t ** ppChain
  *  @param pObject [in] The link to add to the chain.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_appendToChain(
     jf_network_chain_t * pChain, jf_network_chain_object_t * pObject);
@@ -805,6 +1022,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_appendToChain(
  *  @param pChain [in] The chain to start.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_startChain(jf_network_chain_t * pChain);
 
@@ -817,6 +1035,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_startChain(jf_network_chain_t * pChain);
  *  @param pChain [in] The chain to stop.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_stopChain(jf_network_chain_t * pChain);
 
@@ -827,6 +1046,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_stopChain(jf_network_chain_t * pChain);
  *  @param pChain [in] The chain to stop.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_wakeupChain(jf_network_chain_t * pChain);
 
@@ -843,6 +1063,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_wakeupChain(jf_network_chain_t * pChain);
  *   callbacks, upon shutdown.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_addUtimerItem(
     jf_network_utimer_t * pUtimer, void * pData, u32 u32Seconds,
@@ -858,6 +1079,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_addUtimerItem(
  *  @param pData [in] The data object to remove.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_removeUtimerItem(jf_network_utimer_t * pUtimer, void * pData);
 
@@ -870,6 +1092,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_removeUtimerItem(jf_network_utimer_t * pUt
  *  @param ppUtimer [in/out] The utimer object.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_destroyUtimer(jf_network_utimer_t ** ppUtimer);
 
@@ -882,6 +1105,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_destroyUtimer(jf_network_utimer_t ** ppUti
  *  @param pstrName [in] The name of the utimer object.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_createUtimer(
     jf_network_chain_t * pChain, jf_network_utimer_t ** ppUtimer, const olchar_t * pstrName);
@@ -898,6 +1122,7 @@ NETWORKAPI void NETWORKCALL jf_network_dumpUtimerItem(jf_network_utimer_t * pUti
  *  @param pjnacp [in] The parameters for creating assocket.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_createAssocket(
     jf_network_chain_t * pChain, jf_network_assocket_t ** ppAssocket,
@@ -908,6 +1133,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_createAssocket(
  *  @param ppAssocket [in/out] The async server socket.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_destroyAssocket(jf_network_assocket_t ** ppAssocket);
 
@@ -951,6 +1177,7 @@ NETWORKAPI void NETWORKCALL jf_network_setTagOfAssocket(
  *  @param pAsocket [in] The async socket representing the connection.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_disconnectAssocket(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket);
@@ -966,6 +1193,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_disconnectAssocket(
  *  @param sBuf [in] The length of the buffer to send.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_sendAssocketData(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket, u8 * pu8Buffer,
@@ -980,6 +1208,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_sendAssocketData(
  *  @param pjnacp [in] The parameter for creating the async client socket.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_createAcsocket(
     jf_network_chain_t * pChain, jf_network_acsocket_t ** ppAcsocket,
@@ -996,6 +1225,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_createAcsocket(
  *  @param ppAcsocket [in/out] The async client socket.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_destroyAcsocket(jf_network_acsocket_t ** ppAcsocket);
 
@@ -1022,9 +1252,10 @@ NETWORKAPI void NETWORKCALL jf_network_setTagOfAcsocket(
  *  @param pAcsocket [in] The async client socket.
  *  @param pjiRemote [in] The remote interface to connect to.
  *  @param u16RemotePort [in] The remote port to connect to.
- *  @param pUser [in] User object that will be passed to other method.
+ *  @param pUser [in] User object that will be passed to the callback function.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_connectAcsocketTo(
     jf_network_acsocket_t * pAcsocket, jf_ipaddr_t * pjiRemote, u16 u16RemotePort, void * pUser);
@@ -1043,6 +1274,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_connectAcsocketTo(
  *  @param pAsocket [in] The async socket representing the connection.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_disconnectAcsocket(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket);
@@ -1060,6 +1292,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_disconnectAcsocket(
  *  @param sBuf [in] The length of the buffer to send.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_sendAcsocketData(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u8 * pu8Buffer,
@@ -1076,17 +1309,39 @@ NETWORKAPI u32 NETWORKCALL jf_network_sendAcsocketData(
 NETWORKAPI void NETWORKCALL jf_network_getLocalInterfaceOfAcsocket(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, jf_ipaddr_t * pjiAddr);
 
+/* Name resolution */
+
 /** Resolve host name to IP.
  *
  *  @param pstrName [in] The host name.
  *  @param ppHostent [out] The resolve result.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 NETWORKAPI u32 NETWORKCALL jf_network_getHostByName(
     const olchar_t * pstrName, struct hostent ** ppHostent);
 
+/* Data transfer */
+
+/** Transfer data to a specified address.
+ *
+ *  @note
+ *  -# Socket is created and connected to the server address, then data is sent and received.
+ *   The socket is closed after the session.
+ *  -# Reply from server is not necessary.
+ *  -# For the reply, it's divided into 2 parts. One is header with fixed length, another is
+ *   payload with variable length. A callback function should be provided to get full data size.
+ *
+ *  @param transfer [in] The data structure containing the detailed information of the transfer. 
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_SEND_DATA Failed to send data.
+ *  @retval JF_ERR_FAIL_RECV_DATA Failed to receive data.
+ */
+NETWORKAPI u32 NETWORKCALL jf_network_transferData(jf_network_transfer_data_param_t * transfer);
+
 #endif /*JIUFENG_NETWORK_H */
 
 /*------------------------------------------------------------------------------------------------*/
-

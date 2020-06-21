@@ -52,17 +52,17 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-/** IPV4 address type.
+/** Define the address type.
  */
-#define JF_IPADDR_TYPE_V4               (0x0)
-
-/** IPV6 address type.
- */
-#define JF_IPADDR_TYPE_V6               (0x1)
-
-/** Unix domain socket.
- */
-#define JF_IPADDR_TYPE_UDS              (0x2)
+enum
+{
+    /**IPV4 address type.*/
+    JF_IPADDR_TYPE_V4 = 0,
+    /**IPV6 address type.*/
+    JF_IPADDR_TYPE_V6,
+    /**Unix domain socket address type.*/
+    JF_IPADDR_TYPE_UDS,
+};
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -107,10 +107,10 @@ IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getLocalIpAddrList(
  *  @param nSaLen [in] Size of the socket address.
  *  @param pji [out] The ip address returned.
  *  @param pu16Port [out] The port returned.
-
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_INVALID_IP_ADDR_TYPE Invalid IP address type.
  */
 IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_convertSockAddrToIpAddr(
     const struct sockaddr * psa, const olint_t nSaLen, jf_ipaddr_t * pji, u16 * pu16Port);

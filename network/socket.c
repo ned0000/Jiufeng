@@ -188,8 +188,6 @@ u32 jf_network_enableBroadcast(jf_network_socket_t * pSocket)
     return u32Ret;
 }
 
-/** Try to send all data but only send once, the actual sent size is in psSend.
- */
 u32 jf_network_send(jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -202,8 +200,6 @@ u32 jf_network_send(jf_network_socket_t * pSocket, void * pBuffer, olsize_t * ps
     return u32Ret;
 }
 
-/** Try to send all data but only send once, unless timeout the actual sent size is in psSend.
- */
 u32 jf_network_sendWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend, u32 u32Timeout)
 {
@@ -217,9 +213,6 @@ u32 jf_network_sendWithTimeout(
     return u32Ret;
 }
 
-/** Try to send all data with possible several round, until an error occurs, the actual sent size
- *  is in psSend.
- */
 u32 jf_network_sendn(jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -232,9 +225,6 @@ u32 jf_network_sendn(jf_network_socket_t * pSocket, void * pBuffer, olsize_t * p
     return u32Ret;
 }
 
-/** Try to send all data with possible several round, until an error occurs or timeout, the actual
- *  sent size is in psSend.
- */
 u32 jf_network_sendnWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psSend, u32 u32Timeout)
 {
@@ -248,8 +238,6 @@ u32 jf_network_sendnWithTimeout(
     return u32Ret;
 }
 
-/** Try to recveive all data but only recveive once, the actual received size is in psRecv.
- */
 u32 jf_network_recv(jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -262,9 +250,6 @@ u32 jf_network_recv(jf_network_socket_t * pSocket, void * pBuffer, olsize_t * ps
     return u32Ret;
 }
 
-/** Try to recveive all data but only recveive once, unless timeout the actual received size is in
- *  psRecv.
- */
 u32 jf_network_recvWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv, u32 u32Timeout)
 {
@@ -278,9 +263,6 @@ u32 jf_network_recvWithTimeout(
     return u32Ret;
 }
 
-/** Try to recveive all data but only recveive once, unless timeout the actual received size is in
- *  psRecv.
- */
 u32 jf_network_recvfromWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv, u32 u32Timeout,
     jf_ipaddr_t * pjiFrom, u16 * pu16Port)
@@ -295,9 +277,6 @@ u32 jf_network_recvfromWithTimeout(
     return u32Ret;
 }
 
-/** Try to recveive all data with possible several round, until an error occurs, the actual
- *  recveived size is in psRecv.
- */
 u32 jf_network_recvn(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv)
 {
@@ -311,9 +290,6 @@ u32 jf_network_recvn(
     return u32Ret;
 }
 
-/** Try to recveive all data with possible several round, until an error occurs or timeout, the
- *  actual recveived size is in psRecv.
- */
 u32 jf_network_recvnWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv, u32 u32Timeout)
 {

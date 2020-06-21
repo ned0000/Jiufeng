@@ -39,23 +39,23 @@
 
 /** Maximum physical interface.
  */
-#define JF_IFMGMT_MAX_IF                (6)
+#define JF_IFMGMT_MAX_IF                             (6)
 
 /** Maximum interface name length.
  */
-#define JF_IFMGMT_MAX_IF_NAME_LEN       (16)
+#define JF_IFMGMT_MAX_IF_NAME_LEN                    (16)
 
 /** Maximum interface ip address length
  */
-#define JF_IFMGMT_MAX_IF_IP_LEN         (16)
+#define JF_IFMGMT_MAX_IF_IP_LEN                      (16)
 
 /** Maximum interface mac length.
  */
-#define JF_IFMGMT_MAC_LEN               (JF_LIMIT_MAC_LEN)
+#define JF_IFMGMT_MAC_LEN                            (JF_LIMIT_MAC_LEN)
 
 /** String size for interface flag.
  */
-#define JF_IFMGMT_IF_FLAGS_STR_SIZE     (128)
+#define JF_IFMGMT_IF_FLAGS_STR_SIZE                  (128)
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -132,14 +132,16 @@ IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_downIf(const olchar_t * pstrIfName);
 /** Get string for interface flags.
  *
  *  @note
- *  -# The size of string buffer should be more than IF_FLAGS_STR_SIZE bytes.
+ *  -# The size of string buffer should be more than JF_IFMGMT_IF_FLAGS_STR_SIZE bytes.
  *
  *  @param pstrFlags [out] The string buffer.
+ *  @param sFlags [in] The size of the string buffer.
  *  @param pjii [in] The interface.
  *
  *  @return The error code.
  */
-IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_getStringIfFlags(olchar_t * pstrFlags, jf_ifmgmt_if_t * pjii);
+IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_getStringIfFlags(
+    olchar_t * pstrFlags, olsize_t sFlags, jf_ifmgmt_if_t * pjii);
 
 /** Get MAC address of the first interface.
  *

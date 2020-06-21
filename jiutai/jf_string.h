@@ -134,7 +134,6 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_parse(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_OUT_OF_MEMORY Out of memeory.
- *
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_parseAdv(
     jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
@@ -156,13 +155,16 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_destroyParseResult(
  *  @param pstrDest [out] The output string after removing the blank spaces.
  *  @param pstrSource [in] The input string to be removed the blank spaces.
  *
- *  @return The error code.
- *  @retval JF_ERR_NO_ERROR Success.
+ *  @return Void.
  */
 STRINGPARSEAPI void STRINGPARSECALL jf_string_skipBlank(
     olchar_t * pstrDest, const olchar_t * pstrSource);
 
 /** Check if the line is blank.
+ *
+ *  @note
+ *  -# A line with all spaces is treated as blank line.
+ *  -# A line is started with '\n' or '\t' is treated as blank line.
  *
  *  @param pstrLine [in] The line to be checked.
  *
@@ -174,16 +176,23 @@ STRINGPARSEAPI boolean_t STRINGPARSECALL jf_string_isBlankLine(const olchar_t * 
 
 /** Duplicate the source string.
  *
+ *  @note
+ *  -# The terminating null byte '\0' is duplicated also.
+ *
  *  @param ppstrDest [out] The destination string.
  *  @param pstrSource [in] The source string.
  *
  *  @return The error status.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY Out of jiukun memory.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_duplicate(
     olchar_t ** ppstrDest, const olchar_t * pstrSource);
 
 /** Duplicate the source string with length.
+ *
+ *  @note
+ *  -# The terminating null byte '\0' is always appended to the destination string.
  *
  *  @param ppstrDest [out] The destination string.
  *  @param pstrSource [in] The source string.
@@ -191,6 +200,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_duplicate(
  *
  *  @return The error status.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY Out of jiukun memory.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_duplicateWithLen(
     olchar_t ** ppstrDest, const olchar_t * pstrSource, const olsize_t sSource);
@@ -305,6 +315,9 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_trimBlank(olchar_t * pstr);
 
 /** Break string to line with width, the line terminator is at the best suitable position. 
  *
+ *  @note
+ *  -# Only space will be replaced with line terminator.
+ *
  *  @param pstr [in/out] The string that should be wrapped.
  *  @param sWidth [in] The maximal column count of the wrapped string.
  *
@@ -320,8 +333,9 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_breakToLine(olchar_t * pstr, olsize
  *  @param ppstrLoc [out] Pointer to the beginning of the substring, or NULL if the substring is
  *   not found.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_SUBSTRING_NOT_FOUND Sub-string is not found.
  */
 STRINGPARSEAPI u32 STRINGPARSECALL jf_string_locateSubString(
     const olchar_t * pstr, const olchar_t * pstrSub, olchar_t ** ppstrLoc);
@@ -413,8 +427,8 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getStringU64(
  *  @param bTrue [in] The true status.
  *
  *  @return The string of the status.
- *  @retval TRUE True.
- *  @retval FALSE False.
+ *  @retval True True.
+ *  @retval False False.
  */
 STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringTrue(
     const boolean_t bTrue);

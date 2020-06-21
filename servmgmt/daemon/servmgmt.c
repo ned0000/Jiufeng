@@ -32,6 +32,8 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+/** Internal service management data structure.
+ */
 typedef struct
 {
     boolean_t ism_bInitialized;
@@ -44,9 +46,12 @@ typedef struct
 
 } internal_serv_mgmt_t;
 
+/** Define the internal service management variable.
+ */
 static internal_serv_mgmt_t ls_ismServMgmt;
 
-/*for utimer*/
+/** Argument for utimer callback function.
+ */
 typedef struct
 {
     internal_serv_mgmt_t * smu_pismServMgmt;
@@ -60,7 +65,7 @@ static u32 _readServMgmtSetting(internal_serv_mgmt_setting_t * pisms)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    JF_LOGGER_INFO("serv setting: %s", pisms->isms_strSettingFile);
+    JF_LOGGER_INFO("setting file: %s", pisms->isms_strSettingFile);
 
     u32Ret = readServMgmtSetting(pisms);
 
@@ -213,7 +218,16 @@ static u32 _startAllServices(internal_serv_mgmt_t * pism)
 
         /*Only start the service with automatic startup type.*/
         if (pisi->isi_u8StartupType == JF_SERV_STARTUP_TYPE_AUTOMATIC)
+        {
             u32Ret = _startServMgmtServ(pism, pisi);
+
+            /*Pause severals second if requested.*/
+            if ((u32Ret == JF_ERR_NO_ERROR) && (pisi->isi_u8PauseTime > 0))
+            {
+                JF_LOGGER_DEBUG("serv: %s, pause: %u", pisi->isi_pstrName, pisi->isi_u8PauseTime);
+                jf_time_sleep(pisi->isi_u8PauseTime);
+            }
+        }
     }
 
     return u32Ret;
