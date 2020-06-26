@@ -13,16 +13,16 @@
 #define CLIENG_IO_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdarg.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_clieng.h"
 #include "jf_string.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-#define MAX_OUTPUT_BUFFER_LEN    (512) 
 
 /* --- data structures -------------------------------------------------------------------------- */
 

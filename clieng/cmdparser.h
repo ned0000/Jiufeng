@@ -1,7 +1,7 @@
 /**
  *  @file cmdparser.h
  *
- *  @brief Implementation file of command parser module.
+ *  @brief Header file of CLI engine command parser module.
  *
  *  @author Min Zhang
  *
@@ -25,45 +25,41 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-typedef void  clieng_parser_t;
-
 typedef struct
 {
-    u32 cpp_u32MaxCmdSet;
-    u32 cpp_u32MaxCmd;
-    void * cpp_pMaster;
-} clieng_parser_param_t;
+    u32 cpip_u32MaxCmdSet;
+    u32 cpip_u32MaxCmd;
+    void * cpip_pMaster;
+} clieng_parser_init_param_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/** Create the CLI Parser.
+/** Initialize the CLI engine Parser.
  *
- *  @param ppcp [out] The parser to be created and returned.
- *  @param pcpp [in] The parameters to the parser.
+ *  @param pcpip [in] The parameters for initializing the parser.
  *
  *  @return The error code.
  */
-u32 createParser(clieng_parser_t ** ppcp, clieng_parser_param_t * pcpp);
+u32 initCliengParser(clieng_parser_init_param_t * pcpip);
 
-/** Destroy the CLI Parser.
- *
- *  @param ppcp [in/out] The parser to be destroyed.
+/** Finalize the CLI engine Parser.
  *
  *  @return The error code.
  */
-u32 destroyParser(clieng_parser_t ** ppcp);
+u32 finiCliengParser(void);
 
 /** Parse and process a command.
  *
- *  @param pcp [in] The parser.
  *  @param pstrCmd [in] A command string ended with a '\0'.
-*/
-u32 parseCmd(clieng_parser_t * pcp, olchar_t * pstrCmd);
+ *
+ *  @return The error code.
+ */
+u32 parseCliengCmd(olchar_t * pstrCmd);
 
-u32 newCmd(
-    clieng_parser_t * pcp, const olchar_t * pstrName,
-    jf_clieng_fnSetDefaultParam_t fnSetDefaultParam, jf_clieng_fnParseCmd_t fnParseCmd,
-    jf_clieng_fnProcessCmd_t fnProcessCmd, void * pParam, jf_clieng_cmd_t ** ppCmd);
+u32 newCliengCmd(
+    const olchar_t * pstrName, jf_clieng_fnSetDefaultParam_t fnSetDefaultParam,
+    jf_clieng_fnParseCmd_t fnParseCmd, jf_clieng_fnProcessCmd_t fnProcessCmd, void * pParam,
+    jf_clieng_cmd_t ** ppCmd);
 
 #endif /*CLIENG_CMDPARSER_H*/
 

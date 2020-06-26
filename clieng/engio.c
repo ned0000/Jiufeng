@@ -1,7 +1,7 @@
 /**
  *  @file engio.c
  *
- *  @brief The clieng io module.
+ *  @brief The clieng input/output module.
  *
  *  @author Min Zhang
  *
@@ -20,11 +20,13 @@
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_logger.h"
-#include "engio.h"
 #include "jf_hex.h"
+
+#include "engio.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -51,18 +53,22 @@ typedef struct
     u8 ici_u8Reserved[7];
     /**The default delimiter is ";".*/
 	olchar_t ici_strSpecialDelimit[8];
+
 	olchar_t ici_strNewLine[8];
-	olchar_t ici_strBlankSpaces[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
-    olchar_t ici_strOutputBuffer[MAX_OUTPUT_BUFFER_LEN];
     olsize_t ici_sNewLine;
+
+	olchar_t ici_strBlankSpaces[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
+
+    olchar_t ici_strOutputBuffer[JF_CLIENG_MAX_OUTPUT_BUFFER_SIZE];
+
 	u8 ici_u8MoreLines;
     u8 ici_u8Reserved4[3];
-    /**Is special delimit on? By default it is off, blank spaces are used for
-      delimit; when it is on, a semi-column is used.*/
+    /**Special delimit is enabled if it's TRUE. By default it is off, blank spaces are used for
+       delimit; when it is on, a semi-column is used.*/
 	boolean_t ici_bSpecialDelimit;
 	boolean_t ici_bMoreEnabled;
 	boolean_t ici_bMoreCancel;
-    u8 ici_u8Reserved2[3];
+    u8 ici_u8Reserved2[1];
     jf_filestream_t * ici_pjfOutput;
 } internal_clieng_io_t;
 
@@ -71,10 +77,6 @@ typedef struct
 #else
     #define MAX_MORE_LINES    (23)
 #endif
-
-/** Maximum number of command in command history.
- */
-#define MAX_CMD_HISTORY       (64)
 
 /** Use LEFT-SPACE-LEFT to implement backspace.
  */
@@ -297,7 +299,7 @@ static u32 _getInputLine(
     clieng_input_type_t *pType, olchar_t * pBuf,
     olsize_t * pLen, olsize_t sPrompt)
 {
-#define MAX_INPUT_LEN (2 * JF_CLIENG_MAX_COMMAND_LINE_SIZE)
+#define MAX_INPUT_LEN (2 * JF_CLIENG_MAX_COMMAND_LINE_LEN)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t string[MAX_INPUT_LEN + 8];
     olchar_t cur_char[3];
@@ -691,6 +693,81 @@ static u32 _checkCaption(const jf_clieng_caption_t * pjcc, u32 u32Count)
     return u32Ret;
 }
 
+static u32 _outputLineInEngIo(internal_clieng_io_t * pici, olchar_t * pstrOutput, olsize_t sOutput)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t strBuffer[JF_CLIENG_MAX_OUTPUT_LINE_LEN + 8];
+    olsize_t sLength = 0, sRestOutput = 0;
+    olchar_t * pstrLineBegin = 0;
+
+    pstrLineBegin = pstrOutput;
+    sRestOutput = sOutput;
+    if (sRestOutput == 0)
+    {
+        /*Print a empty line.*/
+        sRestOutput = 1;
+        pstrLineBegin[0] = ' ';
+        pstrLineBegin[1] = '\0';
+    }
+
+    while ((sRestOutput > 0) && (u32Ret == JF_ERR_NO_ERROR))
+    {
+        /*More is enabled.*/
+        if (pici->ici_bMoreEnabled)
+        {
+            if (pici->ici_bMoreCancel)
+            {
+                sRestOutput = 0;
+            }
+            else
+            {
+                if (pici->ici_u8MoreLines >= MAX_MORE_LINES)
+                {
+                    u32Ret = _waitForMore(pici);
+                    if (u32Ret == JF_ERR_NO_ERROR)
+                    {
+                        pici->ici_u8MoreLines = 0;
+                    }
+                    else if (u32Ret == JF_ERR_MORE_CANCELED)
+                    {
+                       pici->ici_bMoreCancel = TRUE;
+                       sRestOutput = 0;
+                       u32Ret = JF_ERR_NO_ERROR;
+                    }
+                }
+            }
+        }
+
+        if ((sRestOutput > 0) && (u32Ret == JF_ERR_NO_ERROR))
+        {
+            if (sRestOutput >= JF_CLIENG_MAX_OUTPUT_LINE_LEN)
+            {
+                ol_memcpy(strBuffer, pstrLineBegin, JF_CLIENG_MAX_OUTPUT_LINE_LEN);
+                sLength = JF_CLIENG_MAX_OUTPUT_LINE_LEN;
+            }
+            else
+            {
+                ol_memcpy(strBuffer, pstrLineBegin, sRestOutput);
+                sLength = sRestOutput;
+            }
+
+            pstrLineBegin += sLength;
+            sRestOutput -= sLength;
+            strBuffer[sLength] = 0;
+            sLength = sLength + pici->ici_sNewLine;
+            ol_strcat(strBuffer, pici->ici_strNewLine);
+
+            u32Ret = _postOutput(pici, cot_text, strBuffer, sLength);
+            if (u32Ret == JF_ERR_NO_ERROR)
+            {
+                (pici->ici_u8MoreLines)++;
+            }
+        }
+    }
+
+    return u32Ret;
+}
+
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 initCliengIo(clieng_io_param_t * pcip)
@@ -702,7 +779,7 @@ u32 initCliengIo(clieng_io_param_t * pcip)
     assert(pcip != NULL);
     assert(! pici->ici_bInitialized);
 
-    ol_memset(pici, 0, sizeof(internal_clieng_io_t));
+    ol_bzero(pici, sizeof(internal_clieng_io_t));
     pici->ici_bSpecialDelimit = FALSE;
     pici->ici_strSpecialDelimit[0] = ';';
     pici->ici_strSpecialDelimit[1] = 0;
@@ -759,79 +836,14 @@ u32 voutputLine(const olchar_t * fmt, va_list ap)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_io_t * pici = &ls_iciCliengIo;
-    olchar_t strBuffer[JF_CLIENG_MAX_OUTPUT_LINE_LEN + 8];
-    olsize_t sLength = 0, sRestOutput = 0;
-    olchar_t * pstrLineBegin = 0;
+    olsize_t sLength = 0;
 
     assert(fmt != NULL);
 
-    sLength = ol_vsnprintf(pici->ici_strOutputBuffer, MAX_OUTPUT_BUFFER_LEN, fmt, ap);
-    
-    pstrLineBegin = pici->ici_strOutputBuffer;
-    sRestOutput = sLength;
-    if (sRestOutput == 0)
-    {
-        /* to prolint_t a empty line */
-        sRestOutput = 1;
-        pstrLineBegin[0] = ' ';
-        pstrLineBegin[1] = 0;
-    }
-    
-    while ((sRestOutput > 0) && (u32Ret == JF_ERR_NO_ERROR))
-    {
-        /* before output */
-        if (pici->ici_bMoreEnabled)
-        {
-            if (pici->ici_bMoreCancel)
-            {
-                sRestOutput = 0;
-            }
-            else
-            {
-                if (pici->ici_u8MoreLines >= MAX_MORE_LINES)
-                {
-                    u32Ret = _waitForMore(pici);
-                    if (u32Ret == JF_ERR_NO_ERROR)
-                    {
-                        pici->ici_u8MoreLines = 0;
-                    }
-                    else if (u32Ret == JF_ERR_MORE_CANCELED)
-                    {
-                       pici->ici_bMoreCancel = TRUE;
-                       sRestOutput = 0;
-                       u32Ret = JF_ERR_NO_ERROR;
-                    }
-                }
-            }
-        }
+    sLength = ol_vsnprintf(pici->ici_strOutputBuffer, JF_CLIENG_MAX_OUTPUT_BUFFER_SIZE, fmt, ap);
 
-        if ((sRestOutput > 0) && (u32Ret == JF_ERR_NO_ERROR))
-        {
-            if (sRestOutput >= JF_CLIENG_MAX_OUTPUT_LINE_LEN)
-            {
-                ol_memcpy(strBuffer, pstrLineBegin, JF_CLIENG_MAX_OUTPUT_LINE_LEN);
-                sLength = JF_CLIENG_MAX_OUTPUT_LINE_LEN;
-            }
-            else
-            {
-                ol_memcpy(strBuffer, pstrLineBegin, sRestOutput);
-                sLength = sRestOutput;
-            }
-            
-            pstrLineBegin += sLength;
-            sRestOutput -= sLength;
-            strBuffer[sLength] = 0;
-            sLength = sLength + pici->ici_sNewLine;
-            ol_strcat(strBuffer, pici->ici_strNewLine);
-            
-            u32Ret = _postOutput(pici, cot_text, strBuffer, sLength);
-            if (u32Ret == JF_ERR_NO_ERROR)
-            {
-                (pici->ici_u8MoreLines)++;
-            }
-        }
-    }
-    
+    u32Ret = _outputLineInEngIo(pici, pici->ici_strOutputBuffer, sLength);
+
     return u32Ret;
 }
 
@@ -1256,82 +1268,15 @@ u32 jf_clieng_outputLine(const olchar_t * fmt, ...)
     return u32Ret;
 }
 
-u32 jf_clieng_outputRawLine(const olchar_t * line)
+u32 jf_clieng_outputRawLine(olchar_t * line)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_io_t * pici = &ls_iciCliengIo;
-    olchar_t strBuffer[JF_CLIENG_MAX_OUTPUT_LINE_LEN + 8];
-    olsize_t sLength = 0, sRestOutput = 0;
-    olchar_t * pstrLineBegin = 0;
+    olsize_t sLength = 0;
 
-    ol_strncpy(pici->ici_strOutputBuffer, line, MAX_OUTPUT_BUFFER_LEN);
+    sLength = ol_strlen(line);
 
-    sLength = ol_strlen(pici->ici_strOutputBuffer);
-
-    pstrLineBegin = pici->ici_strOutputBuffer;
-    sRestOutput = sLength;
-    if (sRestOutput == 0)
-    {
-        /* print a empty line */
-        sRestOutput = 1;
-        pstrLineBegin[0] = ' ';
-        pstrLineBegin[1] = 0;
-    }
-    
-    while ((sRestOutput > 0) && (u32Ret == JF_ERR_NO_ERROR))
-    {
-        /* before output */
-        if (pici->ici_bMoreEnabled)
-        {
-            if (pici->ici_bMoreCancel)
-            {
-                sRestOutput = 0;
-            }
-            else
-            {
-                if (pici->ici_u8MoreLines >= MAX_MORE_LINES)
-                {
-                    u32Ret = _waitForMore(pici);
-                    if (u32Ret == JF_ERR_NO_ERROR)
-                    {
-                        pici->ici_u8MoreLines = 0;
-                    }
-                    else if (u32Ret == JF_ERR_MORE_CANCELED)
-                    {
-                       pici->ici_bMoreCancel = TRUE;
-                       sRestOutput = 0;
-                       u32Ret = JF_ERR_NO_ERROR;
-                    }
-                }
-            }
-        }
-
-        if ((sRestOutput > 0) && (u32Ret == JF_ERR_NO_ERROR))
-        {
-            if (sRestOutput >= JF_CLIENG_MAX_OUTPUT_LINE_LEN)
-            {
-                ol_memcpy(strBuffer, pstrLineBegin, JF_CLIENG_MAX_OUTPUT_LINE_LEN);
-                sLength = JF_CLIENG_MAX_OUTPUT_LINE_LEN;
-            }
-            else
-            {
-                ol_memcpy(strBuffer, pstrLineBegin, sRestOutput);
-                sLength = sRestOutput;
-            }
-            
-            pstrLineBegin += sLength;
-            sRestOutput -= sLength;
-            strBuffer[sLength] = 0;
-            sLength = sLength + pici->ici_sNewLine;
-            ol_strcat(strBuffer, pici->ici_strNewLine);
-            
-            u32Ret = _postOutput(pici, cot_text, strBuffer, sLength);
-            if (u32Ret == JF_ERR_NO_ERROR)
-            {
-                pici->ici_u8MoreLines ++;
-            }
-        }
-    }
+    u32Ret = _outputLineInEngIo(pici, line, sLength);
 
     return u32Ret;
 }
@@ -1504,7 +1449,7 @@ u32 jf_clieng_printOneFullLine(
     const jf_clieng_caption_t * pjcc, const olchar_t * pstrValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strLine[MAX_OUTPUT_BUFFER_LEN];
+    olchar_t strLine[JF_CLIENG_MAX_OUTPUT_BUFFER_SIZE];
 
     strLine[0] = '\0';
 

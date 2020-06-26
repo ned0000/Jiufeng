@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The Makefile for cli.
+#  @brief The makefile for stringparse library.
 #
 #  @author Min Zhang
 #
@@ -11,18 +11,15 @@
 
 #---------------------------------------------------------------------------------------------------
 
-EXE = jf_cli
+SONAME = jf_string
 
-SOURCES = main.c clicmd.c
+JIUTAI_SRCS = jf_time.c jf_date.c jf_option.c
 
-JIUTAI_SRCS = jf_option.c
+SOURCES = parsestring.c scanstring.c printstring.c validatestring.c settingparse.c
 
-EXTRA_INC_DIR = 
+EXTRA_LIBS = -ljf_jiukun
 
-EXTRA_LIBS = -ljf_logger -ljf_clieng -ljf_string -ljf_jiukun -ljf_files
-
-include $(TOPDIR)/mak/lnxexe.mak
+include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-
 

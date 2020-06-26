@@ -73,6 +73,12 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_NOT_INITIALIZED, "Not initialized."},
     {JF_ERR_INVALID_NAME, "Invalid name."},
     {JF_ERR_INVALID_CALLBACK_FUNCTION, "Invalid callback function."},
+    {JF_ERR_INCOMPLETE_DATA, "Incomplete data."},
+    {JF_ERR_TERMINATED, "Terminated."},
+    {JF_ERR_INVALID_MESSAGE, "Invalid message."},
+    {JF_ERR_INVALID_OPTION, "Invalid option for the command."},
+/* stack error */
+
 /* queue error */
     {JF_ERR_FAIL_CREATE_QUEUE, "Failed to creat queue."},
 /* mem error */
@@ -172,6 +178,7 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_INVALID_COUNT, "Invalid count."},
     {JF_ERR_COMMENT_CMD, "Command line is for comments."},
     {JF_ERR_LINE_TOO_LONG, "Output line is too long."},
+    {JF_ERR_MORE_CANCELED, "More has been canceled by the user."},
 /* string error */
     {JF_ERR_INVALID_STRING, "Invalid string."},
     {JF_ERR_INVALID_SIZE, "Invalid size."},
@@ -255,14 +262,7 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_INVALID_DISPATCHER_SERVICE_CONFIG, "Invalid dispatcher service configuration."},
     {JF_ERR_DISPATCHER_UNAUTHORIZED_USER, "Unauthorized user for service in dispatcher."},
 /* cli error */
-    {JF_ERR_LOGOUT_REQUIRED, "Command cannot be processed in an active session. Please logout first."},
-    {JF_ERR_MORE_CANCELED, "More has been canceled by the user."},
-    {JF_ERR_CLI_TOO_MANY_OPTIONS, "Too many options."},
-    {JF_ERR_CLI_TERMINATED, "CLI is terminated."},
 
-    {JF_ERR_INVALID_ACTION, "Invalid action."},
-    {JF_ERR_ACTION_NOT_APPLY, "The specified action does not apply to the command."},
-    {JF_ERR_INVALID_OPTION, "Invalid option for the command or the action."},
 };
 
 static u32 ls_u32NumberOfErrorCodes = \

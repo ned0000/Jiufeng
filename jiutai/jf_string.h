@@ -20,20 +20,20 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 
-#undef STRINGPARSEAPI
-#undef STRINGPARSECALL
+#undef STRINGAPI
+#undef STRINGCALL
 #ifdef WINDOWS
     #include "windows.h"
-    #if defined(JIUFENG_STRINGPARSE_DLL)
-        #define STRINGPARSEAPI  __declspec(dllexport)
-        #define STRINGPARSECALL
+    #if defined(JIUFENG_STRING_DLL)
+        #define STRINGAPI  __declspec(dllexport)
+        #define STRINGCALL
     #else
-        #define STRINGPARSEAPI
-        #define STRINGPARSECALL __cdecl
+        #define STRINGAPI
+        #define STRINGCALL __cdecl
     #endif
 #else
-    #define STRINGPARSEAPI
-    #define STRINGPARSECALL
+    #define STRINGAPI
+    #define STRINGCALL
 #endif
 
 /* --- constant definitions --------------------------------------------------------------------- */
@@ -100,7 +100,7 @@ typedef struct jf_string_parse_result
  *  @retval JF_ERR_OUT_OF_MEMORY Out of meory.
  *
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_parse(
+STRINGAPI u32 STRINGCALL jf_string_parse(
     jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf,
     olchar_t * pstrDelimiter, olsize_t sDelimiter);
 
@@ -135,7 +135,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_parse(
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_OUT_OF_MEMORY Out of memeory.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_parseAdv(
+STRINGAPI u32 STRINGCALL jf_string_parseAdv(
     jf_string_parse_result_t ** ppResult, olchar_t * pstrBuf, olsize_t sOffset,
     olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter);
 
@@ -147,8 +147,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_parseAdv(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_destroyParseResult(
-    jf_string_parse_result_t ** ppResult);
+STRINGAPI u32 STRINGCALL jf_string_destroyParseResult(jf_string_parse_result_t ** ppResult);
 
 /** Remove the blank spaces from the left and the right of the string.
  *
@@ -157,14 +156,13 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_destroyParseResult(
  *
  *  @return Void.
  */
-STRINGPARSEAPI void STRINGPARSECALL jf_string_skipBlank(
-    olchar_t * pstrDest, const olchar_t * pstrSource);
+STRINGAPI void STRINGCALL jf_string_skipBlank(olchar_t * pstrDest, const olchar_t * pstrSource);
 
 /** Check if the line is blank.
  *
  *  @note
  *  -# A line with all spaces is treated as blank line.
- *  -# A line is started with '\n' or '\t' is treated as blank line.
+ *  -# A line started with '\\n' or '\\t' is treated as blank line.
  *
  *  @param pstrLine [in] The line to be checked.
  *
@@ -172,7 +170,7 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_skipBlank(
  *  @retval TRUE It's a blank line.
  *  @retval FALSE It's not a blank line.
  */
-STRINGPARSEAPI boolean_t STRINGPARSECALL jf_string_isBlankLine(const olchar_t * pstrLine);
+STRINGAPI boolean_t STRINGCALL jf_string_isBlankLine(const olchar_t * pstrLine);
 
 /** Duplicate the source string.
  *
@@ -186,8 +184,7 @@ STRINGPARSEAPI boolean_t STRINGPARSECALL jf_string_isBlankLine(const olchar_t * 
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY Out of jiukun memory.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_duplicate(
-    olchar_t ** ppstrDest, const olchar_t * pstrSource);
+STRINGAPI u32 STRINGCALL jf_string_duplicate(olchar_t ** ppstrDest, const olchar_t * pstrSource);
 
 /** Duplicate the source string with length.
  *
@@ -202,7 +199,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_duplicate(
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY Out of jiukun memory.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_duplicateWithLen(
+STRINGAPI u32 STRINGCALL jf_string_duplicateWithLen(
     olchar_t ** ppstrDest, const olchar_t * pstrSource, const olsize_t sSource);
 
 /** Free the string duplicated.
@@ -212,7 +209,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_duplicateWithLen(
  *  @return The error status.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_free(olchar_t ** ppstrStr);
+STRINGAPI u32 STRINGCALL jf_string_free(olchar_t ** ppstrStr);
 
 /** Filter the string with comment.
  *
@@ -228,7 +225,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_free(olchar_t ** ppstrStr);
  *
  *  @return Void.
  */
-STRINGPARSEAPI void STRINGPARSECALL jf_string_filterComment(
+STRINGAPI void STRINGCALL jf_string_filterComment(
     olchar_t * pstrDest, const olchar_t * pstrComment);
 
 /** Lower the string.
@@ -244,7 +241,7 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_filterComment(
  *
  *  @return Void.
  */
-STRINGPARSEAPI void STRINGPARSECALL jf_string_lower(olchar_t * pstr);
+STRINGAPI void STRINGCALL jf_string_lower(olchar_t * pstr);
 
 /** Upper the string.
  *
@@ -259,7 +256,7 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_lower(olchar_t * pstr);
  *
  *  @return Void.
  */
-STRINGPARSEAPI void STRINGPARSECALL jf_string_upper(olchar_t * pstr);
+STRINGAPI void STRINGCALL jf_string_upper(olchar_t * pstr);
 
 /** Remove the leading space of the string.
  *
@@ -277,7 +274,7 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_upper(olchar_t * pstr);
  *
  *  @return Void.
  */
-STRINGPARSEAPI void STRINGPARSECALL jf_string_removeLeadingSpace(olchar_t * pstr);
+STRINGAPI void STRINGCALL jf_string_removeLeadingSpace(olchar_t * pstr);
 
 /** Remove the traling space of the string.
  *
@@ -295,7 +292,7 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_removeLeadingSpace(olchar_t * pstr
  *
  *  @return Void.
  */
-STRINGPARSEAPI void STRINGPARSECALL jf_string_removeTailingSpace(olchar_t * pstr);
+STRINGAPI void STRINGCALL jf_string_removeTailingSpace(olchar_t * pstr);
 
 /** Removes all leading and tailing blankspaces, and replaces all multiple occurences of blank
  *  spaces with a single one.
@@ -311,7 +308,7 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_removeTailingSpace(olchar_t * pstr
  *
  *  @return Void.
  */
-STRINGPARSEAPI void STRINGPARSECALL jf_string_trimBlank(olchar_t * pstr);
+STRINGAPI void STRINGCALL jf_string_trimBlank(olchar_t * pstr);
 
 /** Break string to line with width, the line terminator is at the best suitable position. 
  *
@@ -324,7 +321,7 @@ STRINGPARSEAPI void STRINGPARSECALL jf_string_trimBlank(olchar_t * pstr);
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_breakToLine(olchar_t * pstr, olsize_t sWidth);
+STRINGAPI u32 STRINGCALL jf_string_breakToLine(olchar_t * pstr, olsize_t sWidth);
 
 /** Locate sub string.
  *
@@ -337,7 +334,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_breakToLine(olchar_t * pstr, olsize
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_SUBSTRING_NOT_FOUND Sub-string is not found.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_locateSubString(
+STRINGAPI u32 STRINGCALL jf_string_locateSubString(
     const olchar_t * pstr, const olchar_t * pstrSub, olchar_t ** ppstrLoc);
 
 /** Replaces the first occurence of needle in the source string with the substitute string.
@@ -355,7 +352,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_locateSubString(
  *  @return The occurence of needle.
  *  @retval NULL If no occurence of needle could be found in source string.
  */
-STRINGPARSEAPI olchar_t * STRINGPARSECALL jf_string_replace(
+STRINGAPI olchar_t * STRINGCALL jf_string_replace(
     olchar_t * pstrSrc, olsize_t sBuf, olchar_t * pstrNeedle, olchar_t * pstrSubst);
 
 /*string print*/
@@ -368,8 +365,7 @@ STRINGPARSEAPI olchar_t * STRINGPARSECALL jf_string_replace(
  *  @retval Yes Positive.
  *  @retval No Negative.
  */
-STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringPositive(
-    const boolean_t bPositive);
+STRINGAPI const olchar_t * STRINGCALL jf_string_getStringPositive(const boolean_t bPositive);
 
 /** Get the enable/disable status.
  *
@@ -379,8 +375,7 @@ STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringPositive(
  *  @retval Enabled Enabled.
  *  @retval Disabled Disabled.
  */
-STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringEnable(
-    const boolean_t bEnable);
+STRINGAPI const olchar_t * STRINGCALL jf_string_getStringEnable(const boolean_t bEnable);
 
 /** Get WWN(world wide name).
  *
@@ -391,7 +386,7 @@ STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringEnable(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getStringWWN(
+STRINGAPI u32 STRINGCALL jf_string_getStringWWN(
     olchar_t * pstrWwn, olsize_t sWwn, const u64 u64WWN);
 
 /** Get the version string in the format of "v.vv.vvvv.vv".
@@ -406,7 +401,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getStringWWN(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getStringVersion(
+STRINGAPI u32 STRINGCALL jf_string_getStringVersion(
     olchar_t * pstrVersion, olsize_t sVersion, const u8 u8Major, const u8 u8Minor,
     const u32 u32OEMCode, const u8 u8BuildNo);
 
@@ -419,7 +414,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getStringVersion(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getStringU64(
+STRINGAPI u32 STRINGCALL jf_string_getStringU64(
     olchar_t * pstrInteger, olsize_t sInteger, const u64 u64Integer);
 
 /** Get the string of true/false.
@@ -430,26 +425,25 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getStringU64(
  *  @retval True True.
  *  @retval False False.
  */
-STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringTrue(
-    const boolean_t bTrue);
+STRINGAPI const olchar_t * STRINGCALL jf_string_getStringTrue(const boolean_t bTrue);
 
 /** Get the string of unknown.
  *
  *  @return The string "Unknown".
  */
-STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringUnknown(void);
+STRINGAPI const olchar_t * STRINGCALL jf_string_getStringUnknown(void);
 
 /** Get the string of not applicable "N/A".
  *
  *  @return The string "N/A".
  */
-STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringNotApplicable(void);
+STRINGAPI const olchar_t * STRINGCALL jf_string_getStringNotApplicable(void);
 
 /** Get the string of not supported.
  *
  *  @return The string "Not Supported".
  */
-STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringNotSupported(void);
+STRINGAPI const olchar_t * STRINGCALL jf_string_getStringNotSupported(void);
 
 /** Get the string of MAC Address.
  *
@@ -460,7 +454,7 @@ STRINGPARSEAPI const olchar_t * STRINGPARSECALL jf_string_getStringNotSupported(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getStringMacAddress(
+STRINGAPI u32 STRINGCALL jf_string_getStringMacAddress(
     olchar_t * pstrMacAddr, olsize_t sMacAddr, const u8 * pu8Mac);
 
 /** Get the size string in TB, GB, MB, KB and B.
@@ -476,7 +470,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getStringMacAddress(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getByteStringSize(
+STRINGAPI u32 STRINGCALL jf_string_getByteStringSize(
     olchar_t * pstrSize, olsize_t sStrSize, const u64 u64Size);
 
 /** Get the size string in TB, GB, MB, KB and B.
@@ -492,7 +486,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getByteStringSize(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getByteStringSizeMax(
+STRINGAPI u32 STRINGCALL jf_string_getByteStringSizeMax(
     olchar_t * pstrSize, olsize_t sStrSize, const u64 u64Size);
 
 /** Get the size string based 1000 in TB, GB, MB, KB and B.
@@ -508,7 +502,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getByteStringSizeMax(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getByteStringSize1000Based(
+STRINGAPI u32 STRINGCALL jf_string_getByteStringSize1000Based(
     olchar_t * pstrSize, olsize_t sStrSize, const u64 u64Size);
 
 /*string validation*/
@@ -523,7 +517,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getByteStringSize1000Based(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateStringAlias(const olchar_t * pstrAlias);
+STRINGAPI u32 STRINGCALL jf_string_validateStringAlias(const olchar_t * pstrAlias);
 
 /** Validate the user name string.
  *
@@ -536,7 +530,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateStringAlias(const olchar_t 
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_INVALID_USER_NAME Invalid user name.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateStringUsername(const olchar_t * pstrUserName);
+STRINGAPI u32 STRINGCALL jf_string_validateStringUsername(const olchar_t * pstrUserName);
 
 /** Validate the hex string.
  *
@@ -550,7 +544,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateStringUsername(const olchar
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_INVALID_STRING Invalid string.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateHexString(
+STRINGAPI u32 STRINGCALL jf_string_validateHexString(
     const olchar_t * pstrHex, const olsize_t sHex);
 
 /** Validate the integer string.
@@ -565,7 +559,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateHexString(
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_INVALID_STRING Invalid string.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateIntegerString(
+STRINGAPI u32 STRINGCALL jf_string_validateIntegerString(
     const olchar_t * pstrInteger, const olsize_t sInteger);
 
 /** Validate the float string.
@@ -580,7 +574,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateIntegerString(
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_INVALID_STRING Invalid string.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateFloatString(
+STRINGAPI u32 STRINGCALL jf_string_validateFloatString(
     const olchar_t * pstrFloat, const olsize_t sFloat);
 
 /*string scan*/
@@ -594,7 +588,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateFloatString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getU8FromString(
+STRINGAPI u32 STRINGCALL jf_string_getU8FromString(
     const olchar_t * pstrInteger, const olsize_t size, u8 * pu8Value);
 
 /** Get unsigned shor from string.
@@ -606,7 +600,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getU8FromString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getU16FromString(
+STRINGAPI u32 STRINGCALL jf_string_getU16FromString(
     const olchar_t * pstrInteger, const olsize_t size, u16 * pu16Value);
 
 /** Get signed integer from string.
@@ -618,7 +612,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getU16FromString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getS32FromString(
+STRINGAPI u32 STRINGCALL jf_string_getS32FromString(
     const olchar_t * pstrInteger, const olsize_t size, s32 * ps32Value);
 
 /** Read signed integer from hex string.
@@ -637,7 +631,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getS32FromString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getS32FromHexString(
+STRINGAPI u32 STRINGCALL jf_string_getS32FromHexString(
     const olchar_t * pstrHex, const olsize_t size, s32 * ps32Value);
 
 /** Get unsigned integer from string.
@@ -649,7 +643,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getS32FromHexString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getU32FromString(
+STRINGAPI u32 STRINGCALL jf_string_getU32FromString(
     const olchar_t * pstrInteger, const olsize_t size, u32 * pu32Value);
 
 /** Get long value from a string.
@@ -661,7 +655,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getU32FromString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getLongFromString(
+STRINGAPI u32 STRINGCALL jf_string_getLongFromString(
     const olchar_t * pstrInteger, const olsize_t size, long * numeric);
 
 /** Get unsigned long value from a string.
@@ -673,7 +667,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getLongFromString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getUlongFromString(
+STRINGAPI u32 STRINGCALL jf_string_getUlongFromString(
     const olchar_t * pstrInteger, const olsize_t size, unsigned long * numeric);
 
 /** Read unsigned long long integer from string.
@@ -685,7 +679,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getUlongFromString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getU64FromString(
+STRINGAPI u32 STRINGCALL jf_string_getU64FromString(
     const olchar_t * pstrInteger, const olsize_t size, u64 * pu64Value);
 
 /** Read signed long long integer from string.
@@ -697,7 +691,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getU64FromString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getS64FromString(
+STRINGAPI u32 STRINGCALL jf_string_getS64FromString(
     const olchar_t * pstrInteger, const olsize_t size, s64 * ps64Value);
 
 /** Read binary from string.
@@ -710,7 +704,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getS64FromString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getBinaryFromString(
+STRINGAPI u32 STRINGCALL jf_string_getBinaryFromString(
     const olchar_t * pstr, const olsize_t size, u8 * pu8Binary, olsize_t * psBinary);
 
 /** Get boolean from string.
@@ -727,7 +721,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getBinaryFromString(
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_INVALID_PARAM The string is invalid.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getBooleanFromString(
+STRINGAPI u32 STRINGCALL jf_string_getBooleanFromString(
     const olchar_t * pstr, const olsize_t size, boolean_t * pbValue);
 
 /** Get the size from the byte string. The size string will be the format of "xxxx.xxTB|GB|MB|KB|B".
@@ -739,7 +733,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getBooleanFromString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSizeFromByteString(
+STRINGAPI u32 STRINGCALL jf_string_getSizeFromByteString(
     const olchar_t * pstr, const olsize_t size, u64 * pu64Size);
 
 /** Get MAC address from string.
@@ -750,7 +744,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSizeFromByteString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getMacAddressFromString(
+STRINGAPI u32 STRINGCALL jf_string_getMacAddressFromString(
     const olchar_t * pstrMacString, u8 * pu8Value);
 
 /** Get float from string.
@@ -762,7 +756,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getMacAddressFromString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getFloatFromString(
+STRINGAPI u32 STRINGCALL jf_string_getFloatFromString(
     const olchar_t * pstrFloat, const olsize_t size, olfloat_t * pflValue);
 
 /** Get double from string.
@@ -774,7 +768,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getFloatFromString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getDoubleFromString(
+STRINGAPI u32 STRINGCALL jf_string_getDoubleFromString(
 	const olchar_t * pstrDouble, const olsize_t size, oldouble_t * pdbValue);
 
 /** Get a unary array of ids from the string.
@@ -798,7 +792,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getDoubleFromString(
  *  @retval JF_ERR_NO_ERROR Success.
  *
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getIdListFromString(
+STRINGAPI u32 STRINGCALL jf_string_getIdListFromString(
     const olchar_t * pstrIdList, olid_t * pids, olsize_t * psId);
 
 /*setting parse*/
@@ -827,7 +821,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getIdListFromString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processSettings(
+STRINGAPI u32 STRINGCALL jf_string_processSettings(
     olchar_t * pstrSettings, olchar_t * pstrArray[], olsize_t * psArray);
 
 /** Break down the strings to an array pointing to each keyword setting.
@@ -856,7 +850,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processSettings(
  *  @retval JF_ERR_NO_ERROR Success.
  *
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processKeywordSettings(
+STRINGAPI u32 STRINGCALL jf_string_processKeywordSettings(
     u8 * pu8Settings, olsize_t sSettings, olchar_t * pstrStrArray[], olsize_t * psArray);
 
 /** Process setting string with format "name=value", the string is null-terminated.
@@ -871,7 +865,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processKeywordSettings(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processSettingString(
+STRINGAPI u32 STRINGCALL jf_string_processSettingString(
     olchar_t * pstrSetting, olchar_t ** ppstrName, olchar_t ** ppstrValue);
 
 /** Retrive settings from the string array.
@@ -887,7 +881,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_processSettingString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_retrieveSettings(
+STRINGAPI u32 STRINGCALL jf_string_retrieveSettings(
     olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrName, olchar_t * pstrValue,
     olsize_t sValue);
 
@@ -907,7 +901,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_retrieveSettings(
  *  @retval JF_ERR_NO_ERROR Success.
  *
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateSettings(
+STRINGAPI u32 STRINGCALL jf_string_validateSettings(
     olchar_t * pstrNameArray[], olsize_t sNameArray, olchar_t * pstrArray[], olsize_t sArray,
     olindex_t * piArray);
 
@@ -927,7 +921,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_validateSettings(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSettingsU32(
+STRINGAPI u32 STRINGCALL jf_string_getSettingsU32(
     olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
     const u32 u32DefaultValue, u32 * pu32Value);
 
@@ -947,7 +941,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSettingsU32(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSettingsU64(
+STRINGAPI u32 STRINGCALL jf_string_getSettingsU64(
     olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
     const u64 u64DefaultValue, u64 * pu64Value);
 
@@ -967,7 +961,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSettingsU64(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSettingsBoolean(
+STRINGAPI u32 STRINGCALL jf_string_getSettingsBoolean(
     olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
     const boolean_t bDefaultValue, boolean_t * pbValue);
 
@@ -988,7 +982,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSettingsBoolean(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSettingsString(
+STRINGAPI u32 STRINGCALL jf_string_getSettingsString(
     olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
     const olchar_t * pstrDefaultValue, olchar_t * pstrValue, olsize_t sValue);
 
@@ -1008,7 +1002,7 @@ STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSettingsString(
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getSettingsDouble(
+STRINGAPI u32 STRINGCALL jf_string_getSettingsDouble(
     olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
     const oldouble_t dbDefaultValue, oldouble_t * pdbValue);
 

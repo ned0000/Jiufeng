@@ -1,5 +1,5 @@
 #
-#  @file linux.mak
+#  @file windows.mak
 #
 #  @brief the makefile for stringparse library
 #
@@ -11,15 +11,20 @@
 
 #---------------------------------------------------------------------------------------------------
 
-SONAME = jf_string
-
-JIUTAI_SRCS = jf_time.c jf_date.c jf_option.c
+DLLNAME = jf_string
+RESOURCE = string
 
 SOURCES = parsestring.c scanstring.c printstring.c validatestring.c settingparse.c
 
-EXTRA_LIBS = -ljf_jiukun
+JIUTAI_SRCS = $(JIUTAI_DIR)\jf_time.c $(JIUTAI_DIR)\jf_date.c $(JIUTAI_DIR)\jf_option.c
 
-include $(TOPDIR)/mak/lnxlib.mak
+EXTRA_LIBS = ws2_32.lib jf_jiukun.lib
+
+EXTRA_DEFS = -DJIUFENG_STRING_DLL
+
+!include "$(TOPDIR)\mak\winlib.mak"
 
 #---------------------------------------------------------------------------------------------------
+
+
 

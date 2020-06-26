@@ -148,6 +148,7 @@
 #define JF_ERR_INCOMPLETE_DATA              (JF_ERR_GENERIC_ERROR_START + 0x1C)
 #define JF_ERR_TERMINATED                   (JF_ERR_GENERIC_ERROR_START + 0x1D)
 #define JF_ERR_INVALID_MESSAGE              (JF_ERR_GENERIC_ERROR_START + 0x1E)
+#define JF_ERR_INVALID_OPTION               (JF_ERR_GENERIC_ERROR_START + 0x1F)
 
 /* stack error */
 #define JF_ERR_STACK_ERROR_START            (JF_ERR_STACK_ERROR << JF_ERR_CODE_MODULE_SHIFT)
@@ -376,6 +377,7 @@
 #define JF_ERR_INVALID_COUNT                (JF_ERR_CLIENG_ERROR_START + 0x8)
 #define JF_ERR_COMMENT_CMD                  (JF_ERR_CLIENG_ERROR_START + 0x9)
 #define JF_ERR_LINE_TOO_LONG                (JF_ERR_CLIENG_ERROR_START + 0xA)
+#define JF_ERR_MORE_CANCELED                (JF_ERR_CLIENG_ERROR_START + 0xB)
 
 /* string error */
 #define JF_ERR_STRINGPARSE_ERROR_START      (JF_ERR_STRINGPARSE_ERROR << JF_ERR_CODE_MODULE_SHIFT)
@@ -534,16 +536,6 @@
 
 /* cli error */
 #define JF_ERR_CLI_ERROR_START              (JF_ERR_CLI_ERROR << JF_ERR_CODE_MODULE_SHIFT)
-
-#define JF_ERR_LOGOUT_REQUIRED              (JF_ERR_CLI_ERROR_START + 0x0)
-
-#define JF_ERR_MORE_CANCELED                (JF_ERR_CLI_ERROR_START + 0x2)
-#define JF_ERR_CLI_TOO_MANY_OPTIONS         (JF_ERR_CLI_ERROR_START + 0x3)
-#define JF_ERR_CLI_TERMINATED               (JF_ERR_CLI_ERROR_START + 0x4)
-
-#define JF_ERR_INVALID_ACTION               (JF_ERR_CLI_ERROR_START + 0x10)
-#define JF_ERR_ACTION_NOT_APPLY             (JF_ERR_CLI_ERROR_START + 0x11)
-#define JF_ERR_INVALID_OPTION               (JF_ERR_CLI_ERROR_START + 0x12)
 
 /** Vendor specific error.
  */

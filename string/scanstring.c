@@ -1,7 +1,7 @@
 /**
  *  @file scanstring.c
  *
- *  @brief routines for scanning string 
+ *  @brief Implementation file of routines for scanning string. 
  *
  *  @author Min Zhang
  *
@@ -208,7 +208,7 @@ u32 jf_string_getS64FromString(
     return u32Ret;
 }
 
-STRINGPARSEAPI u32 STRINGPARSECALL jf_string_getBooleanFromString(
+u32 jf_string_getBooleanFromString(
     const olchar_t * pstr, const olsize_t size, boolean_t * pbValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;

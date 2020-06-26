@@ -28,80 +28,77 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-#define DEFAULT_PROMPT         "cli> "
-#define MAX_PROMPT_LEN         (24)
+#define CLIENG_DEFAULT_PROMPT                     "cli> "
 
-#define MAX_USER_NAME_LEN      (24)
+#define CLIENG_MAX_PROMPT_LEN                     (24)
+
+#define CLIENG_CMD_HISTORY_SIZE                   (32)
 
 typedef struct
 {
     boolean_t ic_bInitialized;
-    u8 ic_u8Reserved[7];
-	clieng_cmd_history_t * ic_pcchCmdHistory;
-	clieng_parser_t * ic_pcpParser;
-    olsize_t ic_sMaxCmdLine;
-    olchar_t ic_strUsername[MAX_USER_NAME_LEN];
-    olchar_t ic_strInputBuffer[JF_CLIENG_MAX_COMMAND_LINE_SIZE];
-    olchar_t ic_strPrompt[MAX_PROMPT_LEN];
+    boolean_t ic_bTerminateClieng;
+    u8 ic_u8Reserved[6];
+
+    olchar_t ic_strInputBuffer[JF_CLIENG_MAX_COMMAND_LINE_LEN];
+    olchar_t ic_strPrompt[CLIENG_MAX_PROMPT_LEN];
+
     jf_clieng_fnPrintGreeting_t ic_fnPrintGreeting;
     jf_clieng_fnPreEnterLoop_t ic_fnPreEnterLoop;
     jf_clieng_fnPostExitLoop_t ic_fnPostExitLoop;
     void * ic_pMaster;
-    boolean_t  ic_bTerminateClieng;
+
     boolean_t ic_bEnableScriptEngine;
-    olchar_t ic_strInputCmd[JF_CLIENG_MAX_COMMAND_LINE_SIZE];
+    u8 ic_u8Reserved3[7];
+    olchar_t ic_strInputCmd[JF_CLIENG_MAX_COMMAND_LINE_LEN];
     u32 ic_u32Reserved[8];
 } internal_clieng_t;
 
 static olint_t ls_nTerminationSignal = -1;
+
 static internal_clieng_t ls_icClieng;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _createCmdHistory(
+static u32 _initCmdHistory(
     internal_clieng_t * pic, jf_clieng_init_param_t * pjcip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     clieng_cmd_history_param_t param;
-    
-    jf_logger_logInfoMsg("create cmd history");
 
-    param.cchp_sCmdHistroyBuf = pjcip->jcip_sCmdHistroyBuf;
-    param.cchp_sMaxCmdLine = pjcip->jcip_sMaxCmdLine;
+    param.cchp_sCmdHistroyBuf = CLIENG_CMD_HISTORY_SIZE;
+    param.cchp_sMaxCmdLine = JF_CLIENG_MAX_COMMAND_LINE_LEN;
     
-    u32Ret = createCommandHistory(&pic->ic_pcchCmdHistory, &param);
+    u32Ret = initCommandHistory(&param);
     
     return u32Ret;
 }
 
-static u32 _createInputOutput(internal_clieng_t * pic, jf_clieng_init_param_t * pjcip)
+static u32 _initCliengIo(
+    internal_clieng_t * pic, jf_clieng_init_param_t * pjcip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     clieng_io_param_t param;
-    
-    jf_logger_logInfoMsg("create input output");
     
     param.cip_pstrNewLine = pjcip->jcip_pstrNewLine;
     param.cip_pjfOutput = pjcip->jcip_pjfOutput;
 
     u32Ret = initCliengIo(&param);
-    
+
     return u32Ret;
 }
 
-static u32 _createParser(internal_clieng_t * pic, jf_clieng_init_param_t * pjcip)
+static u32 _initCliengParser(internal_clieng_t * pic, jf_clieng_init_param_t * pjcip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    clieng_parser_param_t param;
+    clieng_parser_init_param_t param;
     
-    jf_logger_logInfoMsg("create parser");
+    ol_bzero(&param, sizeof(param));
 
-    memset(&param, 0, sizeof(clieng_parser_param_t));
+    param.cpip_u32MaxCmdSet = pjcip->jcip_u32MaxCmdSet;
+    param.cpip_pMaster = pjcip->jcip_pMaster;
 
-    param.cpp_u32MaxCmdSet = pjcip->jcip_u32MaxCmdSet;
-    param.cpp_pMaster = pjcip->jcip_pMaster;
-
-    u32Ret = createParser(&(pic->ic_pcpParser), &param);
+    u32Ret = initCliengParser(&param);
     
     return u32Ret;
 }
@@ -127,7 +124,7 @@ static u32 _printPrompt(internal_clieng_t * pic)
     if (pic->ic_strPrompt[0] != '\0')
         u32Ret = engioOutput("%s", pic->ic_strPrompt);
     else
-        u32Ret = engioOutput("%s", DEFAULT_PROMPT);
+        u32Ret = engioOutput("%s", CLIENG_DEFAULT_PROMPT);
     
     return u32Ret;
 }
@@ -136,11 +133,11 @@ static u32 _cliengLoop(internal_clieng_t * pic)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     clieng_input_type_t citInputType = cit_unknown;
-    olsize_t length = JF_CLIENG_MAX_COMMAND_LINE_SIZE;
-    olchar_t cmd_str[JF_CLIENG_MAX_COMMAND_LINE_SIZE];
+    olsize_t length = JF_CLIENG_MAX_COMMAND_LINE_LEN;
+    olchar_t cmd_str[JF_CLIENG_MAX_COMMAND_LINE_LEN];
     olchar_t * pstrDesc = NULL;
     
-    /* Prompt */
+    /*Prompt.*/
     _printPrompt(pic);
 
     while (u32Ret == JF_ERR_NO_ERROR)
@@ -149,21 +146,21 @@ static u32 _cliengLoop(internal_clieng_t * pic)
             &citInputType, pic->ic_strInputBuffer, &length, ol_strlen(pic->ic_strPrompt));
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            /* navigation command */
+            /*Navigation command.*/
             if (citInputType == cit_navigation_cmd)
             {
-                /* Upper Arrow */
+                /*Upper arrow.*/
                 if (pic->ic_strInputBuffer[0] == 'A')
                 {
-                    getPreviousCommand(pic->ic_pcchCmdHistory, pic->ic_strInputBuffer, length);
+                    getPreviousCommand(pic->ic_strInputBuffer, length);
                 }    
-	    	    /* Down Arrow */
+	    	    /*Down arrow.*/
 		        else if (pic->ic_strInputBuffer[0] == 'B')
 		        {
-                    getNextCommand(pic->ic_pcchCmdHistory, pic->ic_strInputBuffer, length);
+                    getNextCommand(pic->ic_strInputBuffer, length);
                 }
             } 
-            /* regular command */
+            /*Regular command.*/
             else if (citInputType == cit_line)
             {
     	        break;
@@ -171,7 +168,7 @@ static u32 _cliengLoop(internal_clieng_t * pic)
             else 
             {
                 u32Ret = JF_ERR_NOT_IMPLEMENTED;
-                jf_logger_logErrMsg(u32Ret, "_cliengLoop() got input with type %d", citInputType);
+                JF_LOGGER_ERR(u32Ret, "input type: %d", citInputType);
     	        return u32Ret;
             }
         }
@@ -180,10 +177,10 @@ static u32 _cliengLoop(internal_clieng_t * pic)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
     	ol_strcpy(cmd_str, pic->ic_strInputBuffer);
-        u32Ret = parseCmd(pic->ic_pcpParser, pic->ic_strInputBuffer);
+        u32Ret = parseCliengCmd(pic->ic_strInputBuffer);
         if (u32Ret != JF_ERR_BLANK_CMD && u32Ret != JF_ERR_COMMENT_CMD)
 	    {
-	        appendCommand(pic->ic_pcchCmdHistory, cmd_str);
+	        appendCommand(cmd_str);
             engioOutput("");
     	}
     }
@@ -201,7 +198,7 @@ static u32 _processScriptCmd(internal_clieng_t * pic, olchar_t * pstrInput)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    u32Ret = parseCmd(pic->ic_pcpParser, pstrInput);   
+    u32Ret = parseCliengCmd(pstrInput);   
     
     return u32Ret;
 }
@@ -211,9 +208,9 @@ static u32 _processScriptCmd(internal_clieng_t * pic, olchar_t * pstrInput)
 u32 jf_clieng_clearCommandHistory(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_clieng_t * pic = &ls_icClieng;
+//    internal_clieng_t * pic = &ls_icClieng;
 
-    clearCommandHistory(pic->ic_pcchCmdHistory);
+    clearCommandHistory();
 
     return u32Ret;
 }
@@ -223,7 +220,7 @@ u32 jf_clieng_init(jf_clieng_init_param_t * pParam)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_t * pic = &ls_icClieng;
 
-    memset(pic, 0, sizeof(internal_clieng_t));
+    ol_bzero(pic, sizeof(internal_clieng_t));
 
     pic->ic_fnPrintGreeting = pParam->jcip_fnPrintGreeting;
     pic->ic_fnPreEnterLoop = pParam->jcip_fnPreEnterLoop;
@@ -232,22 +229,25 @@ u32 jf_clieng_init(jf_clieng_init_param_t * pParam)
     pic->ic_bEnableScriptEngine = pParam->jcip_bEnableScriptEngine;
     if (pic->ic_bEnableScriptEngine)
         ol_strncpy(
-            pic->ic_strInputCmd, pParam->jcip_strInputCmd,
-            JF_CLIENG_MAX_COMMAND_LINE_SIZE - 1);
+            pic->ic_strInputCmd, pParam->jcip_strInputCmd, JF_CLIENG_MAX_COMMAND_LINE_LEN - 1);
 
 #ifndef WINDOWS
     _registerSignalHandlers(pic);
 #endif       
 
-    u32Ret = _createCmdHistory(pic, pParam);
+    /*Create command history module.*/
+    u32Ret = _initCmdHistory(pic, pParam);
+
+    /*Create input/output module.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _createInputOutput(pic, pParam);
+        u32Ret = _initCliengIo(pic, pParam);
     }
         
+    /*Create command parser module.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _createParser(pic, pParam);
+        u32Ret = _initCliengParser(pic, pParam);
     }
         
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -263,7 +263,7 @@ u32 jf_clieng_run(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_t * pic = &ls_icClieng;
 
-    jf_logger_logInfoMsg("run clieng");
+    JF_LOGGER_INFO("run");
 
     /* Print greeting */
     if (pic->ic_fnPrintGreeting != NULL)
@@ -288,13 +288,11 @@ u32 jf_clieng_run(void)
         }
     }
 
-    jf_logger_logInfoMsg(
-        "Clieng receives a signal of %d and returns %d(0x%X)", 
-        ls_nTerminationSignal, u32Ret, u32Ret);
-
     if (pic->ic_fnPostExitLoop != NULL)
         pic->ic_fnPostExitLoop(pic->ic_pMaster);
     
+    JF_LOGGER_INFO("exit");
+
     return u32Ret;
 }
 
@@ -311,17 +309,15 @@ u32 jf_clieng_stop(void)
 u32 jf_clieng_fini(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_clieng_t * pic = &ls_icClieng;
+//    internal_clieng_t * pic = &ls_icClieng;
     
-    jf_logger_logInfoMsg("destroy clieng");
+    JF_LOGGER_INFO("fini");
 
-    if (pic->ic_pcpParser != NULL)
-        destroyParser(&(pic->ic_pcpParser));
+    finiCliengParser();
 
     finiCliengIo();
 
-    if (pic->ic_pcchCmdHistory != NULL)
-        destroyCommandHistory(&(pic->ic_pcchCmdHistory));
+    finiCommandHistory();
 
     return u32Ret;
 }
@@ -332,13 +328,12 @@ u32 jf_clieng_newCmd(
     jf_clieng_cmd_t ** ppCmd)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_clieng_t * pic = &ls_icClieng;
+//    internal_clieng_t * pic = &ls_icClieng;
 
     assert((pstrName != NULL) && (pParam != NULL) &&
            (fnParseCmd != NULL) && (fnProcessCmd != NULL));
 
-    u32Ret = newCmd(
-        pic->ic_pcpParser, pstrName, fnSetDefaultParam, fnParseCmd, fnProcessCmd, pParam, ppCmd);
+    u32Ret = newCliengCmd(pstrName, fnSetDefaultParam, fnParseCmd, fnProcessCmd, pParam, ppCmd);
 
     return u32Ret;
 }
@@ -364,7 +359,7 @@ u32 jf_clieng_setPrompt(const olchar_t * pstrPrompt)
 
     assert(pstrPrompt != NULL);
 
-    if (strlen(pstrPrompt) > MAX_PROMPT_LEN - 1)
+    if (strlen(pstrPrompt) > CLIENG_MAX_PROMPT_LEN - 1)
         u32Ret = JF_ERR_CLIENG_PROMPT_TOO_LONG;
 
     if (u32Ret == JF_ERR_NO_ERROR)
