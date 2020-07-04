@@ -1,0 +1,10 @@
+[Unit]
+Description=dongyuan service
+After=network.target
+
+[Service]
+ExecStart=/usr/local/jiufeng/bin/jf_dongyuan -s ../config/servmgmt.setting
+
+[Install]
+WantedBy=multi-user.target
+
