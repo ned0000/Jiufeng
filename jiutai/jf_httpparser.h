@@ -130,6 +130,7 @@ typedef struct jf_httpparser_packet_header
  *  @param ppHeader [out] The packet header to free.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyPacketHeader(
     jf_httpparser_packet_header_t ** ppHeader);
@@ -142,6 +143,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyPacketHeader(
  *  @param sBuf [in] The length of the buffer to parse.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parsePacketHeader(
     jf_httpparser_packet_header_t ** ppHeader, olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf);
@@ -155,6 +157,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parsePacketHeader(
  *  @param pHeader [in] The packet to clone from.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_clonePacketHeader(
     jf_httpparser_packet_header_t ** ppDest, jf_httpparser_packet_header_t * pHeader);
@@ -166,6 +169,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_clonePacketHeader(
  *  @param sVersion [in] The length of the version string.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setVersion(
     jf_httpparser_packet_header_t * pHeader, olchar_t * pstrVersion, olsize_t sVersion);
@@ -178,6 +182,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setVersion(
  *  @param sStatus [in] The length of the status string.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setStatusCode(
     jf_httpparser_packet_header_t * pHeader, olint_t nStatusCode, olchar_t * pstrStatus,
@@ -192,12 +197,21 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setStatusCode(
  *  @param sDirectiveObj [in] The length of the path component.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setDirective(
     jf_httpparser_packet_header_t * pHeader, olchar_t * pstrDirective, olsize_t sDirective,
     olchar_t * pstrDirectiveObj, olsize_t sDirectiveObj);
 
 /** Set the http body for a http packet.
+ *
+ *  @param pHeader [in/out] The packet to modify.
+ *  @param pu8Body [in] The body to set.
+ *  @param sBody [in] Size of the body.
+ *  @param bAlloc [in] Clone the body if it's TRUE.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setBody(
     jf_httpparser_packet_header_t * pHeader, u8 * pu8Body, olsize_t sBody, boolean_t bAlloc);
@@ -209,9 +223,10 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setBody(
  *  @param sName [in] The length of the header name.
  *  @param pstrData [in] The header value, eg: text/xml.
  *  @param sData [in] The length of the header value.
- *  @param bAlloc [in] if true, alloc memory for name and data string.
+ *  @param bAlloc [in] Allocate memory for name and data string if it's TRUE.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_addHeaderLine(
     jf_httpparser_packet_header_t * pHeader, olchar_t * pstrName, olsize_t sName,
@@ -219,13 +234,15 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_addHeaderLine(
 
 /** Converts a packet header structure into a raw buffer.
  *
- *  @note The returned buffer must be freed by jf_jiukun_freeMemory().
+ *  @note
+ *  -# The returned buffer must be freed by jf_jiukun_freeMemory().
  *
  *  @param pHeader [in] The packet header struture to convert.
  *  @param ppstrBuf [out] The output buffer.
  *  @param psBuf [out] The length of the output buffer.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getRawPacket(
     jf_httpparser_packet_header_t * pHeader, olchar_t ** ppstrBuf, olsize_t * psBuf);
@@ -235,20 +252,24 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getRawPacket(
  *  @param ppHeader [out] An empty packet.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_createEmptyPacketHeader(
     jf_httpparser_packet_header_t ** ppHeader);
 
 /** Retrieves the header value for a specified header name.
  *
- *  @note the result must be freed.
+ *  @note
+ *  -# When comparing the header name, ignore the case.
  *
- *  @param pHeader [in] The packet to introspect.
+ *  @param pHeader [in] The http packet.
  *  @param pstrName [in] The header name to lookup.
  *  @param sName [in] The length of the header name.
  *  @param ppField [out] The header field. NULL if not found.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_NOT_FOUND Header is not found.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getHeaderLine(
     jf_httpparser_packet_header_t * pHeader, olchar_t * pstrName, olsize_t sName,
@@ -257,39 +278,79 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getHeaderLine(
 /** Parses a URI string into its IP address, port number and path components.
  *
  *  @note
- *  -# The IP and path components must be freed.
+ *  -# The port is set to 80 if no port is specified.
+ *  -# Memory is allocated for the IP and path string, it must be freed by caller.
  *
- *  @param pstrUri [in] The URI to parse .
+ *  @param pstrUri [in] The URI to parse.
  *  @param ppstrIp [out] The IP address component in dotted quad format.
  *  @param pu16Port [out] The port component. Default is 80.
  *  @param ppstrPath [out] The path component.
  *
- *  @return Void.
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parseUri(
     olchar_t * pstrUri, olchar_t ** ppstrIp, u16 * pu16Port, olchar_t ** ppstrPath);
 
 /** Get the http transfer encoding stated in header field.
+ *
+ *  @note
+ *  -# The header field name is "transfer-encoding".
+ *
+ *  @param pHeader [in] The http packet header.
+ *  @param pu8Encoding [out] The transfer encoding.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parseHeaderTransferEncoding(
     jf_httpparser_packet_header_t * pHeader, u8 * pu8Encoding);
 
 /** Get the http content length stated in header field.
+ *
+ *  @note
+ *  -# The header field name is "content-length".
+ *
+ *  @param pHeader [in] The http packet header.
+ *  @param pnLength [out] The content length.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parseHeaderContentLength(
     jf_httpparser_packet_header_t * pHeader, olint_t * pnLength);
 
 /** Find the http header.
+ *
+ *  @param pu8Buffer [in] The buffer.
+ *  @param sOffset [in] The offset of the buffer to start finding.
+ *  @param sEnd [in] The end of the buffer.
+ *  @param psHeader [out] The returned pointer to the header.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_HTTP_HEADER_NOT_FOUND HTTP header is not found.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_findHeader(
     u8 * pu8Buffer, olsize_t sOffset, olsize_t sEnd, olsize_t * psHeader);
 
 /** Destroy the chunk processor.
+ *
+ *  @param ppProcessor [in/out] The chunk processor to be destroyed.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyChunkProcessor(
     jf_httpparser_chunk_processor_t ** ppProcessor);
 
 /** Create the chunk processor for chunked data in http body.
+ *
+ *  @param ppProcessor [out] The chunk processor to be created.
+ *  @param u32MallocSize [in] The memory size to be allocated for the chunked data.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_createChunkProcessor(
     jf_httpparser_chunk_processor_t ** ppProcessor, u32 u32MallocSize);
@@ -303,17 +364,29 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_createChunkProcessor(
  *  @param endPointer [in] The length of the buffer.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_processChunk(
     jf_httpparser_chunk_processor_t * pProcessor, jf_httpparser_packet_header_t * pjhph,
     u8 * buffer, olsize_t * psBeginPointer, olsize_t endPointer);
 
 /** Create the http data object.
+ *
+ *  @param ppDataobject [out] The data object to be created.
+ *  @param sBuffer [in] The buffer size of the data object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_createtDataobject(
     jf_httpparser_dataobject_t ** ppDataobject, olsize_t sBuffer);
 
 /** Destroy the http data object.
+ *
+ *  @param ppDataobject [out] The data object to be destroyed.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyDataobject(
     jf_httpparser_dataobject_t ** ppDataobject);
@@ -326,6 +399,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyDataobject(
  *  @param sEndPointer [in] The end pointer of the data.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_processDataobject(
     jf_httpparser_dataobject_t * pDataobject, u8 * pu8Buffer, olsize_t * psBeginPointer,
@@ -349,6 +423,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_reinitDataobject(
  *  @param ppPacket [in/out] The http packet parsed from received data.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getDataobjectFullPacket(
     jf_httpparser_dataobject_t * pDataobject, boolean_t * bFullPacket,

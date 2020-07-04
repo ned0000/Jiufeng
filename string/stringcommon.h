@@ -1,5 +1,5 @@
 /**
- *  @file stringparse/stringcommon.h
+ *  @file string/stringcommon.h
  *
  *  @brief Header file for common definitions and routines in string library.
  *

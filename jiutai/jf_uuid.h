@@ -2,7 +2,7 @@
  *  @file jf_uuid.h
  *
  *  @brief UUID (Universally Unique Identifier) header file which provides some functional routine
- *   to generate UUID (RFC 4122)
+ *   to generate UUID (RFC 4122).
  *
  *  @author Min Zhang
  *

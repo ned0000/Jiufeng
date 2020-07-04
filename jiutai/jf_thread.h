@@ -19,15 +19,23 @@
 #include <signal.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
+
 #if defined(LINUX)
-    #define jf_thread_getCurrentId()   pthread_self()
+    /** Get current thread id.
+     */
+    #define jf_thread_getCurrentId()          pthread_self()
 #elif defined(WINDOWS)
-    #define jf_thread_getCurrentId()   GetCurrentThreadId()
-    typedef DWORD pthread_t;
-    #define sleep(seconds)  Sleep(seconds * 1000)
+    /** Get current thread id.
+     */
+    #define jf_thread_getCurrentId()          GetCurrentThreadId()
+
+    /** Define the thread id data type.
+     */
+    typedef DWORD                             pthread_t;
 #endif
 
 /* --- data structures -------------------------------------------------------------------------- */

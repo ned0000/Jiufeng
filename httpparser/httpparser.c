@@ -583,7 +583,7 @@ u32 jf_httpparser_parseUri(
             ppstrPath, str1 + result2->jspr_pjsprfFirst->jsprf_sData, len2);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            /*.Parse port number.*/
+            /*Parse port number.*/
             u32Ret = jf_string_parse(
                 &result3, result2->jspr_pjsprfFirst->jsprf_pstrData, 0,
                 result2->jspr_pjsprfFirst->jsprf_sData, ":", 1);

@@ -230,16 +230,6 @@ static u32 _fnCopyXmlAttributeToPtree(jf_linklist_node_t * pNode, void * pArg)
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-/** Parse XML attributes from an XML node.
- *
- *  @note
- *  -# The first field in the parse result is the attribute string.
- *
- *  @param pElem [in] The element contain XML attribute.
- *  @param pLinklist [out] The linked list of attributes.
- *
- *  @return The error code.
- */
 u32 parseXmlAttributeList(jf_string_parse_result_t * pElem, jf_linklist_t * pLinklist)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;

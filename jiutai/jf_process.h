@@ -24,11 +24,17 @@
 /* --- constant definitions --------------------------------------------------------------------- */
 
 #if defined(LINUX)
-    #define jf_process_getCurrentId()  getpid()
+    /** Get current process id.
+     */
+    #define jf_process_getCurrentId()        getpid()
 #elif defined(WINDOWS)
-    #define jf_process_getCurrentId()  GetCurrentProcessId()
-    typedef DWORD pid_t;
-    #define sleep(seconds)  Sleep(seconds * 1000)
+    /** Get current process id.
+     */
+    #define jf_process_getCurrentId()        GetCurrentProcessId()
+
+    /** Define the process id data type.
+     */
+    typedef DWORD                            pid_t;
 #endif
 
 /* --- data structures -------------------------------------------------------------------------- */

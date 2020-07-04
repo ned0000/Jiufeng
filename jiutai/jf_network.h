@@ -107,7 +107,7 @@ typedef u32 (* jf_network_fnPreSelectChainObject_t)(
     jf_network_chain_object_t * pObject, fd_set * readset, fd_set * writeset, fd_set * errorset,
     u32 * pu32BlockTime);
 
-/** Callback function after select()
+/** Callback function after select().
  *
  *  @param pObject [in] Chain object.
  *  @param nReady [in] Number of ready fd.

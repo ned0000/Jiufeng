@@ -8,7 +8,7 @@
  *  @note
  *  -# Routines declared in this file are included in jf_attask object.
  *  -# The attask object is NOT thread safe.
- *  -# Link with xtime common object for time function.
+ *  -# Link with jf_time common object for time function.
  *  -# Link with jiukun library for memory allocation.
  */
 
