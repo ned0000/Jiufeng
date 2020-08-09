@@ -481,7 +481,7 @@ static u32 _preSelectDispatcherXferObject(
     {
         if (! pidxo->idxo_bFinConnect)
         {
-            JF_LOGGER_DEBUG("not connected, add to write set");
+            JF_LOGGER_DEBUG("%s, not connected, add to write set", pidxo->idxo_strName);
             /*Not Connected Yet.*/
             jf_network_setSocketToFdSet(pidxo->idxo_pjnsSocket, writeset);
             jf_network_setSocketToFdSet(pidxo->idxo_pjnsSocket, errorset);
@@ -614,7 +614,7 @@ static u32 _postSelectDispatcherXferObject(
         /*Close the connection if socket is in the errorset, maybe peer is closed*/
         if (jf_network_isSocketSetInFdSet(pidxo->idxo_pjnsSocket, errorset) != 0)
         {
-            JF_LOGGER_DEBUG("name: %s, in errorset", pidxo->idxo_strName);
+            JF_LOGGER_DEBUG("%s, in errorset", pidxo->idxo_strName);
 
             /*Connection failed.*/
             _disconnectDispatcherXferObject(pidxo);
@@ -624,7 +624,7 @@ static u32 _postSelectDispatcherXferObject(
                  (jf_network_isSocketSetInFdSet(pidxo->idxo_pjnsSocket, writeset) != 0))
         {
             /* Connected */
-            JF_LOGGER_DEBUG("name: %s, connected", pidxo->idxo_strName);
+            JF_LOGGER_DEBUG("%s, connected", pidxo->idxo_strName);
 
             jf_network_getSocketName(pidxo->idxo_pjnsSocket, psa, &nLen);
             jf_ipaddr_convertSockAddrToIpAddr(

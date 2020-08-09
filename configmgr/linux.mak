@@ -11,7 +11,7 @@
 
 #---------------------------------------------------------------------------------------------------
 
-SUBDIRS = config daemon configctl
+SUBDIRS = common config daemon configctl
 
 include $(TOPDIR)/mak/lnxsubdirs.mak
 

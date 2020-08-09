@@ -79,7 +79,7 @@ static u32 _parseNetworkTestCmdLineParam(
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFilePath = optarg;
+            pjlip->jlip_pstrLogFile = optarg;
             break;
         case 'S':
             u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);

@@ -228,15 +228,17 @@ static u32 _processServiceServerMsg(
             pdss->dss_fnQueueMsg(pu8Buffer + sBegin, sMsg);
     }
 
-    if (u32Ret == JF_ERR_MSG_NOT_IN_PUBLISHED_LIST)
-        /*Message is right, but it's not in the published list, the message is discarded.*/
-        *psBeginPointer = sMsg;
-    else if (u32Ret == JF_ERR_INCOMPLETE_DATA)
+    if (u32Ret == JF_ERR_INCOMPLETE_DATA)
+    {
         /*Message is not complete, need next round to get more data.*/
-        u32Ret = JF_ERR_NO_ERROR;
+        ;
+    }
     else
+    {
         /*For other else, discard the message.*/
-        *psBeginPointer = sMsg;
+        *psBeginPointer += sMsg;
+        u32Ret = JF_ERR_NO_ERROR;
+    }
 
     return u32Ret;
 }
@@ -250,8 +252,11 @@ static u32 _onDispatcherServiceServerData(
 
     JF_LOGGER_DEBUG("beginp: %d, endp: %d", *psBeginPointer, sEndPointer);
 
-    u32Ret = _processServiceServerMsg(
-        pdss, pAssocket, pAsocket, pu8Buffer, psBeginPointer, sEndPointer);
+    /*Process the dispatcher message. Quit until no more data can be processed, in case one
+      data buffer has several messages.*/
+    while (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = _processServiceServerMsg(
+            pdss, pAssocket, pAsocket, pu8Buffer, psBeginPointer, sEndPointer);
 
     return u32Ret;
 }

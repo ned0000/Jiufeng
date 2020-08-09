@@ -28,7 +28,17 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+
 /* --- private routine section ------------------------------------------------------------------ */
+
+static void _removeTrailingNewLineChar(olchar_t * pstrTime)
+{
+    olsize_t sTime = 0;
+
+    sTime = ol_strlen(pstrTime);
+    if ((sTime > 0) && pstrTime[sTime - 1] == '\n')
+        pstrTime[sTime - 1] = '\0';
+}
 
 /* --- public routine section ------------------------------------------------------------------- */
 
@@ -70,8 +80,8 @@ u32 jf_time_getTimeOfDay(struct timeval * tv)
     /*In macrosecond since January 1, 1970*/
     u64Time /= 10;
 
-    tv->tv_sec = (long)(u64Time / 1000000);
-    tv->tv_usec = (long)(u64Time % 1000000);
+    tv->tv_sec = (long)(u64Time / JF_TIME_SECOND_TO_MICROSECOND);
+    tv->tv_usec = (long)(u64Time % JF_TIME_SECOND_TO_MICROSECOND);
 
 #endif
 
@@ -351,6 +361,21 @@ u32 jf_time_getUtcTimeInSecond(u64 * pu64Sec)
     return u32Ret;
 }
 
+u32 jf_time_getUtcTimeInMicroSecond(u64 * pu64MicroSec)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    struct timeval tv;
+
+    *pu64MicroSec = 0;
+
+    u32Ret = jf_time_getTimeOfDay(&tv);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        *pu64MicroSec = (u64)tv.tv_sec * JF_TIME_SECOND_TO_MICROSECOND + (u64)tv.tv_usec;
+
+    return u32Ret;
+}
+
 u32 jf_time_getUtcTimeInSecondOfNextDay(const u64 u64Sec, u64 * pu64Next)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -379,15 +404,6 @@ u32 jf_time_getUtcTimeInSecondOfNextWeek(const u64 u64Sec, u64 * pu64Next)
     *pu64Next = (u64)mktime(&result);
 
     return u32Ret;
-}
-
-static void _removeTrailingNewLineChar(olchar_t * pstrTime)
-{
-    olsize_t sTime = 0;
-
-    sTime = ol_strlen(pstrTime);
-    if ((sTime > 0) && pstrTime[sTime - 1] == '\n')
-        pstrTime[sTime - 1] = '\0';
 }
 
 u32 jf_time_getStringLocalTime(olchar_t * pstrTime, olsize_t sStrTime, const u64 u64Sec)

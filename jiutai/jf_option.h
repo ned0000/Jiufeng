@@ -1,7 +1,7 @@
 /**
  *  @file jf_option.h
  *
- *  @brief Option header file which provide some functional routine for option manipulation.
+ *  @brief Header file which provide some functional routine for option manipulation.
  *
  *  @author Min Zhang
  *

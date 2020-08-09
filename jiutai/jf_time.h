@@ -23,16 +23,20 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-
-/* --- data structures -------------------------------------------------------------------------- */
-
 /** Define the INFINITE macro.
  */
 #if defined(LINUX)
-    #define INFINITE       0xFFFFFFFF
+    #define INFINITE                               (0xFFFFFFFF)
 #elif defined(WINDOWS)
 
 #endif
+
+/** Second to micro-second.
+ */
+#define JF_TIME_SECOND_TO_MICROSECOND              (1000000)
+
+/* --- data structures -------------------------------------------------------------------------- */
+
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
@@ -212,6 +216,15 @@ u32 jf_time_getUtcTimeInSecondFromTimeDate(
  *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_time_getUtcTimeInSecond(u64 * pu64Sec);
+
+/** Get current UTC time in micro-second since the Epoch, 1970-01-01 00:00:00 +0000 (UTC).
+ *
+ *  @param pu64MicroSec [out] The UTC time in micro-second.
+ * 
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+u32 jf_time_getUtcTimeInMicroSecond(u64 * pu64MicroSec);
 
 /** Get UTC time in second of next day based on the given UTC time.
  *

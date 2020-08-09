@@ -1,0 +1,60 @@
+
+LINUX
+===========================================
+
+int snprintf(char *str, size_t size, const char *format, ...);
+
+Return Value
+-------------------------------------------
+Upon successful return, these functions return the number of characters printed (excluding the null
+byte used to end output to strings).
+
+The functions snprintf() and vsnprintf() do not write more than size bytes (including the
+terminating null byte ('\0')). If the output was truncated due to this limit, then the return
+value is the number of characters (excluding the terminating null byte) which would have been
+written to the final string if enough space had been available. Thus, a return value of size or
+more means that the output was truncated.
+
+If an output error is encountered, a negative value is returned.
+
+
+WINDOWS
+===========================================
+
+int snprintf(
+   char *buffer,
+   size_t count,
+   const char *format [,
+   argument] ...
+);
+
+int _snprintf(
+   char *buffer,
+   size_t count,
+   const char *format [,
+   argument] ...
+);
+
+Return Value
+-------------------------------------------
+Let len be the length of the formatted data string, not including the terminating null. Both len and
+count are in bytes for snprintf and _snprintf, wide characters for _snwprintf.
+
+For all functions, if len < count, len characters are stored in buffer, a null-terminator is
+appended, and len is returned.
+
+The snprintf function truncates the output when len is greater than or equal to count, by placing
+a null-terminator at buffer[count-1]. The value returned is len, the number of characters that would
+have been output if count was large enough. The snprintf function returns a negative value if an
+encoding error occurs.
+
+For all functions other than snprintf, if len = count, len characters are stored in buffer,
+no null-terminator is appended, and len is returned. If len > count, count characters are stored in
+buffer, no null-terminator is appended, and a negative value is returned.
+
+Remarks
+-------------------------------------------
+The snprintf function and the _snprintf family of functions format and store count or fewer
+characters in buffer. The snprintf function always stores a terminating null character, truncating
+the output if necessary. The _snprintf family of functions only appends a terminating null character
+if the formatted string length is strictly less than count characters. 

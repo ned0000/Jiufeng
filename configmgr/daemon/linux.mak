@@ -17,7 +17,7 @@ CONFIG_FILES = configmgr.setting jiufeng.conf
 SOURCES = ../common/configmgrcommon.c configmgrsetting.c configpersistency.c configtree.c \
     configmgr.c main.c
 
-JIUTAI_SRCS = jf_process.c jf_mutex.c jf_thread.c jf_option.c jf_ptree.c
+JIUTAI_SRCS = jf_process.c jf_mutex.c jf_thread.c jf_option.c jf_ptree.c jf_rand.c
 
 EXTRA_LIBS = -ljf_string -ljf_files -ljf_logger -ljf_ifmgmt -ljf_network -ljf_jiukun -ljf_xmlparser
 

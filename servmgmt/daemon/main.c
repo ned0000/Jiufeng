@@ -57,14 +57,14 @@ static void _printDongyuanUsage(void)
 {
     ol_printf("\
 Usage: %s [-f] [-s setting file] [-V] [logger options]\n\
-    -f running in foreground.\n\
-    -s specify the setting file.\n\
-    -V show version information.\n\
-logger options:\n\
-    -T <0|1|2|3|4|5> the log level. 0: no log, 1: error, 2: warn, 3: info, 4: debug, 5: data.\n\
-    -O output the log to stdout.\n\
-    -F <log file> output the log to file.\n\
-    -S <log file size> the size of log file. No limit if not specified.\n",
+  -f: running in foreground.\n\
+  -s: specify the setting file.\n\
+  -V: show version information.\n\
+logger options: [-T <0|1|2|3|4|5>] [-O] [-F log file] [-S log file size] \n\
+  -T: log level. 0: no log, 1: error, 2: warn, 3: info, 4: debug, 5: data.\n\
+  -O: output the log to stdout.\n\
+  -F: output the log to file.\n\
+  -S: the size of log file. No limit if not specified.\n",
            ls_strDongyuanProgramName);
 
     ol_printf("\n");
@@ -101,7 +101,7 @@ static u32 _parseDongyuanCmdLineParam(
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFilePath = optarg;
+            pjlip->jlip_pstrLogFile = optarg;
             break;
         case 'O':
             pjlip->jlip_bLogToStdout = TRUE;

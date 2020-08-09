@@ -8,8 +8,27 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_logger library.
- *  -# The logger can be used to print logs to the stdout, syslog, a log file and a specified TTY.
+ *  -# The logger can be used to print logs to the stdout, syslog, log file, specified TTY and log
+ *   server.
  *  -# Log to stdout is NOT thread safe.
+ *
+ *  @par Log Server Daemon
+ *  -# The daemon's name is "jf_logserver", it's will wait for the logs from other modules and save
+ *   the logs to specified log location. The log location can be stdout, log file and specified TTY.
+ *  -# The daemon's log can only be saved to log file, it's a different log location for the logs
+ *   from other modules.
+ *  -# The default listening address is set to accept any incoming messages. The default listening
+ *   port is 23456.
+ *  @code
+ *  Run the daemon with a specified listening port and save the logs to log file:
+ *  jf_logserver -p 12345 -f all.log
+ *  Run the daemon with loopback network interface and save the logs to stdout:
+ *  jf_logserver -a 127.0.0.1 -o
+ *  Run the daemon and save the log to TTY:
+ *  jf_logserver -t /dev/pts/3
+ *  Show the version information:
+ *  jf_logserver -V
+ *  @endcode
  */
 
 #ifndef JIUFENG_LOGGER_H
@@ -18,6 +37,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 #undef LOGGERAPI
@@ -37,6 +57,22 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
+/** Maximum caller name length.
+ */
+#define JF_LOGGER_MAX_CALLER_NAME_LEN                    (16)
+
+/* Maximum message size.
+ */
+#define JF_LOGGER_MAX_MSG_SIZE                           (512)
+
+/** Default log server address, local loopback interface.
+ */
+#define JF_LOGGER_DEFAULT_SERVER_ADDRESS                 "127.0.0.1"
+
+/** Default log server port.
+ */
+#define JF_LOGGER_DEFAULT_SERVER_PORT                    (23456)
+
 /** Define the logger trace level.
  */
 typedef enum
@@ -54,10 +90,6 @@ typedef enum
     /**Data trace level.*/
     JF_LOGGER_TRACE_LEVEL_DATA,
 } jf_logger_trace_level_t;
-
-/* Maximum message size.
- */
-#define JF_LOGGER_MAX_MSG_SIZE    (512)
 
 /** The helper function to output error message with function name and line number.
  */
@@ -91,31 +123,44 @@ typedef enum
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-/** Define the parameter data type for creating logger.
+/** Define the parameters for initializing logger.
  */
 typedef struct
 {
     /**Log to the stdout.*/
     boolean_t jlip_bLogToStdout;
-    /**Log to the system log.*/
-    boolean_t jlip_bLogToSysLog;
-    /**Log to a file. If yes, jlip_pstrLogFilePath must be specified.*/
+    /**Log to the system log, for Linux only now.*/
+    boolean_t jlip_bLogToSystemLog;
+    /**Log to a file.*/
     boolean_t jlip_bLogToFile;
-    /**Log to the specified TTY. If yes, jlip_pstrTTY must be specified. NOT SUPPORTED for now.*/
-    boolean_t jlip_bLogToTTY;
+    /**Log to the specified TTY, for Linux only. If TRUE, tty path must be specified.*/
+    boolean_t jlip_bLogToTty;
+    /**Log to the server. If TRUE, server address and port must be specified. Other log location
+       will be ignored when logging to server is enabled.*/
+    boolean_t jlip_bLogToServer;
+    u8 jlip_u8Reserved[3];
+
     /**Trace level.*/
     u8 jlip_u8TraceLevel;
-    u8 jlip_u8Reserved[3];
+    u8 jlip_u8Reserved2[7];
+
+    /**The name of the caller. The length should not exceed JF_LOGGER_MAX_CALLER_NAME_LEN.*/
+    olchar_t * jlip_pstrCallerName;
+
+    /**The log file name, the log file will be "callername.log" if it's not specified.*/
+    olchar_t * jlip_pstrLogFile;
     /**The size of the log file in byte. If 0, no limit.*/
     olsize_t jlip_sLogFile;
-    /**The IP address of the remote machine. Not supported for now.*/
-    u8 * jlip_pu8RemoteMachineIP;
-    /**The path to the log file.*/
-    olchar_t * jlip_pstrLogFilePath;
-    /**The path to the TTY. Not supported for now.*/
-    olchar_t * jlip_pstrTTY;
-    /**The name of the caller. The length should not exceed 15 characters.*/
-    olchar_t * jlip_pstrCallerName;
+
+    /**The TTY file name.*/
+    olchar_t * jlip_pstrTtyFile;
+
+    /**The address of the log server, only IPv4 is supported now.*/
+    olchar_t * jlip_pstrServerAddress;
+    /**The port of the log server.*/
+    u16 jlip_u16ServerPort;
+    u16 jlip_u16Reserved[3];
+
 } jf_logger_init_param_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */
@@ -207,5 +252,3 @@ LOGGERAPI u32 LOGGERCALL jf_logger_logDataMsgWithAscii(
 #endif /*JIUFENG_LOGGER_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

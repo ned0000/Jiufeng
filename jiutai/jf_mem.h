@@ -1,7 +1,7 @@
 /**
  *  @file jf_mem.h
  *
- *  @brief Memory allocation header file which provide some functional routine to allocate memeory.
+ *  @brief Header file which provide some functional routines to allocate and free memory.
  *
  *  @author Min Zhang
  *  
@@ -10,12 +10,13 @@
  *
  */
 
-#ifndef JIUTAI_XMALLOC_H
-#define JIUTAI_XMALLOC_H
+#ifndef JIUTAI_MEM_H
+#define JIUTAI_MEM_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
@@ -83,7 +84,7 @@ u32 jf_mem_free(void ** pptr);
  */
 u32 jf_mem_duplicate(void ** pptr, const u8 * pu8Buffer, const olsize_t size);
 
-#endif /*JIUTAI_XMALLOC_H*/
+#endif /*JIUTAI_MEM_H*/
 
 /*------------------------------------------------------------------------------------------------*/
 

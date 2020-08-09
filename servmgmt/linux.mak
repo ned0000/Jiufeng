@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The Makefile for servmgmt library and daemon
+#  @brief The Makefile for service management library and daemon.
 #
 #  @author Min Zhang
 #
@@ -11,7 +11,7 @@
 
 #---------------------------------------------------------------------------------------------------
 
-SUBDIRS = serv daemon servctl
+SUBDIRS = common serv daemon servctl
 
 include $(TOPDIR)/mak/lnxsubdirs.mak
 

@@ -10,15 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -44,11 +39,11 @@
 
 /** Default config manager setting file.
  */
-#define CONFIG_MGR_DEFAULT_SETTING_FILE             "../config/configmgr.setting"
+#define CONFIG_MGR_DEFAULT_SETTING_FILE               "../config/configmgr.setting"
 
-/** Default number of transaction.
+/** Default maximum number of transaction.
  */
-#define CONFIG_MGR_DEFAULT_NUM_TRANSACTION          (10)
+#define CONFIG_MGR_DEFAULT_MAX_TRANSACTION            (10)
 
 /** Define the internal config manager data type.
  */
@@ -66,7 +61,7 @@ typedef struct
 
 } internal_config_mgr_t;
 
-/** The internal config manager instance.
+/** Define the internal config manager instance.
  */
 static internal_config_mgr_t ls_icmConfigMgr;
 
@@ -119,7 +114,7 @@ static u32 _initConfigMgrRespMsgHeader(
 
 static u32 _procesConfigMgrMsgGetConfig(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket, u8 * pu8Buffer,
-    olsize_t u32Size)
+    olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     config_mgr_get_config_req_t * pReq = (config_mgr_get_config_req_t *)pu8Buffer;
@@ -131,7 +126,7 @@ static u32 _procesConfigMgrMsgGetConfig(
     JF_LOGGER_DEBUG("get config");
 
     /*Check the size of the specified message.*/
-    if (u32Size < sizeof(config_mgr_get_config_req_t) + pReq->cmgcr_u16NameLen)
+    if (sMsg < sizeof(config_mgr_get_config_req_t) + pReq->cmgcr_u16NameLen)
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -167,7 +162,7 @@ static u32 _procesConfigMgrMsgGetConfig(
 
 static u32 _procesConfigMgrMsgSetConfig(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t u32Size)
+    u8 * pu8Buffer, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     config_mgr_set_config_req_t * pReq = (config_mgr_set_config_req_t *)pu8Buffer;
@@ -178,7 +173,7 @@ static u32 _procesConfigMgrMsgSetConfig(
     JF_LOGGER_DEBUG("set config");
 
     /*Check the size of the specified message.*/
-    if (u32Size < sizeof(config_mgr_set_config_req_t) + pReq->cmscr_u16NameLen + pReq->cmscr_u16ValueLen)
+    if (sMsg < sizeof(config_mgr_set_config_req_t) + pReq->cmscr_u16NameLen + pReq->cmscr_u16ValueLen)
         u32Ret = JF_ERR_INCOMPLETE_DATA;
     
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -212,7 +207,7 @@ static u32 _procesConfigMgrMsgSetConfig(
 
 static u32 _procesConfigMgrMsgStartTransaction(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t u32Size)
+    u8 * pu8Buffer, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     config_mgr_start_transaction_req_t * pReq = (config_mgr_start_transaction_req_t *)pu8Buffer;
@@ -221,7 +216,7 @@ static u32 _procesConfigMgrMsgStartTransaction(
     JF_LOGGER_DEBUG("start transaction");
 
     /*Check the size of the specified message.*/
-    if (u32Size < sizeof(config_mgr_start_transaction_req_t))
+    if (sMsg < sizeof(config_mgr_start_transaction_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -243,7 +238,7 @@ static u32 _procesConfigMgrMsgStartTransaction(
 
 static u32 _procesConfigMgrMsgCommitTransaction(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t u32Size)
+    u8 * pu8Buffer, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     config_mgr_commit_transaction_req_t * pReq = (config_mgr_commit_transaction_req_t *)pu8Buffer;
@@ -252,7 +247,7 @@ static u32 _procesConfigMgrMsgCommitTransaction(
     jf_logger_logDebugMsg("commit transaction");
 
     /*Check the size of the specified message.*/
-    if (u32Size < sizeof(config_mgr_commit_transaction_req_t))
+    if (sMsg < sizeof(config_mgr_commit_transaction_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -274,7 +269,7 @@ static u32 _procesConfigMgrMsgCommitTransaction(
 
 static u32 _procesConfigMgrMsgRollbackTransaction(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t u32Size)
+    u8 * pu8Buffer, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     config_mgr_rollback_transaction_req_t * pReq = (config_mgr_rollback_transaction_req_t *)pu8Buffer;
@@ -283,7 +278,7 @@ static u32 _procesConfigMgrMsgRollbackTransaction(
     JF_LOGGER_DEBUG("rollback transaction");
 
     /*Check the size of the specified message.*/
-    if (u32Size < sizeof(config_mgr_rollback_transaction_req_t))
+    if (sMsg < sizeof(config_mgr_rollback_transaction_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -304,16 +299,23 @@ static u32 _procesConfigMgrMsgRollbackTransaction(
 }
 
 static u32 _validateConfigMgrReqMsg(
-    u8 * pu8Buffer, olsize_t * pu32BeginPointer, olsize_t u32EndPointer)
+    u8 * pu8Buffer, olsize_t * psBeginPointer, olsize_t sEndPointer)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Begin = *pu32BeginPointer;
-    u32 u32Size = u32EndPointer - u32Begin;
-    config_mgr_msg_header_t * pHeader = (config_mgr_msg_header_t *)(pu8Buffer + u32Begin);
+    olsize_t sBegin = *psBeginPointer;
+    olsize_t sMsg = sEndPointer - sBegin;
+    config_mgr_msg_header_t * pHeader = (config_mgr_msg_header_t *)(pu8Buffer + sBegin);
 
     /*The size should more than header size.*/
-    if (u32Size < sizeof(config_mgr_msg_header_t))
+    if (sMsg < sizeof(config_mgr_msg_header_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
+
+    /*Check the size of the message.*/
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        if (sMsg < getConfigMgrMsgSize(pHeader))
+            u32Ret = JF_ERR_INCOMPLETE_DATA;
+    }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -329,38 +331,37 @@ static u32 _validateConfigMgrReqMsg(
 
 static u32 _procesConfigMgrMsg(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket, u8 * pu8Buffer,
-    olsize_t * pu32BeginPointer, olsize_t u32EndPointer)
+    olsize_t * psBeginPointer, olsize_t sEndPointer)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Begin = 0, u32Size = 0;
+    olsize_t sMsg = 0;
     config_mgr_msg_header_t * pHeader = NULL;
 
     /*Validate the config manager message.*/
-    u32Ret = _validateConfigMgrReqMsg(pu8Buffer, pu32BeginPointer, u32EndPointer);
+    u32Ret = _validateConfigMgrReqMsg(pu8Buffer, psBeginPointer, sEndPointer);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        pu8Buffer += *psBeginPointer;
         pHeader = (config_mgr_msg_header_t *)pu8Buffer;
-        u32Begin = *pu32BeginPointer;
-        pu8Buffer += u32Begin;
-        u32Size = u32EndPointer - u32Begin;
+        sMsg = getConfigMgrMsgSize(pHeader);
 
         /*Process the message according to the message id.*/
         switch (pHeader->cmmh_u8MsgId)
         {
         case CMMI_GET_CONFIG_REQ:
-            u32Ret = _procesConfigMgrMsgGetConfig(pAssocket, pAsocket, pu8Buffer, u32Size);
+            u32Ret = _procesConfigMgrMsgGetConfig(pAssocket, pAsocket, pu8Buffer, sMsg);
             break;
         case CMMI_SET_CONFIG_REQ:
-            u32Ret = _procesConfigMgrMsgSetConfig(pAssocket, pAsocket, pu8Buffer, u32Size);
+            u32Ret = _procesConfigMgrMsgSetConfig(pAssocket, pAsocket, pu8Buffer, sMsg);
             break;
         case CMMI_START_TRANSACTION_REQ:
-            u32Ret = _procesConfigMgrMsgStartTransaction(pAssocket, pAsocket, pu8Buffer, u32Size);
+            u32Ret = _procesConfigMgrMsgStartTransaction(pAssocket, pAsocket, pu8Buffer, sMsg);
             break;
         case CMMI_COMMIT_TRANSACTION_REQ:
-            u32Ret = _procesConfigMgrMsgCommitTransaction(pAssocket, pAsocket, pu8Buffer, u32Size);
+            u32Ret = _procesConfigMgrMsgCommitTransaction(pAssocket, pAsocket, pu8Buffer, sMsg);
             break;
         case CMMI_ROLLBACK_TRANSACTION_REQ:
-            u32Ret = _procesConfigMgrMsgRollbackTransaction(pAssocket, pAsocket, pu8Buffer, u32Size);
+            u32Ret = _procesConfigMgrMsgRollbackTransaction(pAssocket, pAsocket, pu8Buffer, sMsg);
             break;
         default:
             jf_logger_logInfoMsg("received unkwown msg, id: %u", pHeader->cmmh_u8MsgId);
@@ -370,28 +371,31 @@ static u32 _procesConfigMgrMsg(
 
     if (u32Ret == JF_ERR_NO_ERROR)
         /*The message is handled without error, clear the data.*/
-        *pu32BeginPointer = u32EndPointer;
+        *psBeginPointer += sMsg;
     else if (u32Ret == JF_ERR_INVALID_DATA)
-        /*Invalid data, discard the data.*/
-        *pu32BeginPointer = u32EndPointer;
+        /*Invalid data, discard all data.*/
+        *psBeginPointer = sEndPointer;
     else if (u32Ret == JF_ERR_INCOMPLETE_DATA)
         /*Incomplete data, waiting for more data.*/
-        u32Ret = JF_ERR_NO_ERROR;
+        ;
+    else
+        /*For other errors, discard all data.*/
+        *psBeginPointer = sEndPointer;
 
     return u32Ret;
 }
 
 static u32 _onConfigMgrData(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t * pu32BeginPointer, olsize_t u32EndPointer, void * pUser)
+    u8 * pu8Buffer, olsize_t * psBeginPointer, olsize_t sEndPointer, void * pUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Begin = *pu32BeginPointer;
+    olsize_t sBegin = *psBeginPointer;
 
-    JF_LOGGER_DEBUG("begin: %d, end: %d", u32Begin, u32EndPointer);
+    JF_LOGGER_DEBUG("begin: %d, end: %d", sBegin, sEndPointer);
 
     /*Process the config  manager message.*/
-    u32Ret = _procesConfigMgrMsg(pAssocket, pAsocket, pu8Buffer, pu32BeginPointer, u32EndPointer);
+    u32Ret = _procesConfigMgrMsg(pAssocket, pAsocket, pu8Buffer, psBeginPointer, sEndPointer);
 
     return u32Ret;
 }
@@ -411,7 +415,7 @@ static u32 _createConfigMgrAssocket(internal_config_mgr_t * picm, config_mgr_par
     jnacp.jnacp_fnOnDisconnect = _onConfigMgrDisconnect;
     jnacp.jnacp_fnOnSendData = _onConfigMgrSendData;
     jnacp.jnacp_fnOnData = _onConfigMgrData;
-    jnacp.jnacp_pstrName = "configmgr";
+    jnacp.jnacp_pstrName = CONFIG_MGR_NAME;
 
     /*Creat the async server socket.*/
     u32Ret = jf_network_createAssocket(
@@ -463,7 +467,7 @@ u32 initConfigMgr(config_mgr_param_t * pcmp)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (picm->icm_icmsSetting.icms_u16MaxNumOfTransaction == 0)
-            picm->icm_icmsSetting.icms_u16MaxNumOfTransaction = CONFIG_MGR_DEFAULT_NUM_TRANSACTION;
+            picm->icm_icmsSetting.icms_u16MaxNumOfTransaction = CONFIG_MGR_DEFAULT_MAX_TRANSACTION;
         if (picm->icm_icmsSetting.icms_u16MaxNumOfConnection == 0)
             picm->icm_icmsSetting.icms_u16MaxNumOfTransaction = CONFIG_MGR_DEFAULT_NUM_OF_CONN;
     }

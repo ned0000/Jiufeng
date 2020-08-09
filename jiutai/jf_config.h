@@ -91,6 +91,10 @@
  */
 #define JF_CONFIG_INVALID_TRANSACTION_ID               (0)
 
+/** The transaction time out value in second.
+ */
+#define JF_CONFIG_DEFAULT_TRANSACTION_TIME_OUT         (60)
+
 /* --- data structures -------------------------------------------------------------------------- */
 
 /** Define the config initialization parameter data type.
@@ -133,6 +137,9 @@ CONFIGAPI u32 CONFIGCALL jf_config_get(
     u32 u32TransactionId, const olchar_t * pstrName, olchar_t * pstrValue, olsize_t sValue);
 
 /** Set config.
+ *
+ *  @note
+ *  -# The config to be set must be existing. No config is created anyway.
  *
  *  @param u32TransactionId [in] The transaction ID. Use invalid transaction id if this routine is
  *   not called during tansaction.

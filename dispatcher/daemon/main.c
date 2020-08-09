@@ -43,13 +43,13 @@ static void _printDispatcherUsage(void)
 {
     ol_printf("\
 Usage: %s [-s config dir] [-V] [logger options]\n\
-    -s specify the directory containing service manifest file.\n\
-    -V show version information.\n\
-logger options:\n\
-    -T <0|1|2|3|4|5> the log level. 0: no log, 1: error, 2: warn, 3: info, 4: debug, 5: data.\n\
-    -O output the log to stdout.\n\
-    -F <log file> output the log to file.\n\
-    -S <log file size> the size of log file. No limit if not specified.\n",
+  -s: specify the directory containing service manifest file.\n\
+  -V: show version information.\n\
+logger options: [-T <0|1|2|3|4|5>] [-O] [-F log file] [-S log file size] \n\
+  -T: the log level. 0: no log, 1: error, 2: warn, 3: info, 4: debug, 5: data.\n\
+  -O: output the log to stdout.\n\
+  -F: output the log to file.\n\
+  -S: the size of log file. No limit if not specified.\n",
            ls_strDispatcherProgramName);
 
     ol_printf("\n");
@@ -81,7 +81,7 @@ static u32 _parseDispatcherCmdLineParam(
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFilePath = optarg;
+            pjlip->jlip_pstrLogFile = optarg;
             break;
         case 'O':
             pjlip->jlip_bLogToStdout = TRUE;
@@ -141,8 +141,10 @@ static u32 _serviceDispatcher(olint_t argc, char** argv)
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "DISPATCHER";
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DEBUG;
-//    jlipParam.jlip_bLogToStdout = TRUE;
-    jlipParam.jlip_bLogToFile = TRUE;
+//    jlipParam.jlip_bLogToFile = TRUE;
+    jlipParam.jlip_bLogToServer = TRUE;
+    jlipParam.jlip_pstrServerAddress = JF_LOGGER_DEFAULT_SERVER_ADDRESS;
+    jlipParam.jlip_u16ServerPort = JF_LOGGER_DEFAULT_SERVER_PORT;
 
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;

@@ -51,13 +51,13 @@ static void _printConfigMgrUsage(void)
 {
     ol_printf("\
 Usage: %s [-s setting file] [-V] [logger options]\n\
-    -s specify the setting file.\n\
-    -V show version information.\n\
-logger options:\n\
-    -T <0|1|2|3|4|5> the log level. 0: no log, 1: error, 2: warn, 3: info, 4: debug, 5: data.\n\
-    -O output the log to stdout.\n\
-    -F <log file> output the log to file.\n\
-    -S <log file size> the size of log file. No limit if not specified.\n",
+  -s: specify the setting file.\n\
+  -V: show version information.\n\
+logger options: [-T <0|1|2|3|4|5>] [-O] [-F log file] [-S log file size] \n\
+  -T: the log level. 0: no log, 1: error, 2: warn, 3: info, 4: debug, 5: data.\n\
+  -O: output the log to stdout.\n\
+  -F: output the log to file.\n\
+  -S: the size of log file. No limit if not specified.\n",
            ls_strConfigMgrProgramName);
 
     ol_printf("\n");
@@ -91,7 +91,7 @@ static u32 _parseConfigMgrCmdLineParam(
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFilePath = optarg;
+            pjlip->jlip_pstrLogFile = optarg;
             break;
         case 'O':
             pjlip->jlip_bLogToStdout = TRUE;
@@ -137,10 +137,10 @@ static u32 _serviceConfigMgr(olint_t argc, char** argv)
 
     /*Initialize the parameter for logger library.*/
     ol_bzero(&jlipParam, sizeof(jlipParam));
-    jlipParam.jlip_pstrCallerName = "CONFIGMGR";
+    jlipParam.jlip_pstrCallerName = CONFIG_MGR_NAME;
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
-//    jlipParam.jlip_bLogToStdout = TRUE;
-    jlipParam.jlip_bLogToFile = TRUE;
+    jlipParam.jlip_bLogToStdout = TRUE;
+//    jlipParam.jlip_bLogToFile = TRUE;
 
     /*Initialize the parameter for jiukun library.*/
     ol_bzero(&jjip, sizeof(jjip));

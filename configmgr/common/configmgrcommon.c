@@ -1,7 +1,7 @@
 /**
- *  @file servmgmtcommon.c
+ *  @file configmgrcommon.c
  *
- *  @brief The service management common routine
+ *  @brief Implementation file for config manager common routine.
  *
  *  @author Min Zhang
  *
@@ -26,6 +26,14 @@
 
 /* --- private routine section ------------------------------------------------------------------ */
 
+/** Define the string of config persistency type.
+ */
+static olchar_t * ls_pstrConfigPersistencyType[CMCPT_MAX + 1] =
+{
+    "conf_file",
+    "sqlite_db",
+    "unknown",
+};
 
 /* --- public routine section ------------------------------------------------------------------- */
 
@@ -33,14 +41,27 @@ u32 getConfigPersistencyTypeFromString(const olchar_t * pstrType, u8 * pu8Type)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    if (strcmp(pstrType, "conf_file") == 0)
+    if (ol_strcmp(pstrType, ls_pstrConfigPersistencyType[CMCPT_CONF_FILE]) == 0)
         *pu8Type = CMCPT_CONF_FILE;
-    else if (strcmp(pstrType, "sqlite_db") == 0)
+    else if (ol_strcmp(pstrType, ls_pstrConfigPersistencyType[CMCPT_SQLITE_DB]) == 0)
         *pu8Type = CMCPT_SQLITE_DB;
     else
         u32Ret = JF_ERR_INVALID_PARAM;
 
     return u32Ret;
+}
+
+const olchar_t * getStringConfigPersistencyType(u8 u8Type)
+{
+    if (u8Type > CMCPT_MAX)
+        u8Type = CMCPT_MAX;
+
+    return ls_pstrConfigPersistencyType[u8Type];
+}    
+
+olsize_t getConfigMgrMsgSize(config_mgr_msg_header_t * pHeader)
+{
+    return sizeof(*pHeader) + (olsize_t)pHeader->cmmh_u32PayloadSize;
 }
 
 /*------------------------------------------------------------------------------------------------*/

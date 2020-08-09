@@ -1,7 +1,7 @@
 /**
  *  @file jf_rand.h
  *
- *  @brief The header file which defines interface for random number.
+ *  @brief Header file which defines interface for random number.
  *
  *  @author Min Zhang
  *  
@@ -15,6 +15,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
@@ -33,6 +34,11 @@
  */
 u32 jf_rand_getU32InRange(u32 u32Lower, u32 u32Upper);
 
+/** Get random unsigned integer.
+ *
+ *  @return The random unsigned integer.
+ */
+u32 jf_rand_getU32(void);
 
 #endif /*JIUTAI_RAND_H*/
 

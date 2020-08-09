@@ -79,7 +79,7 @@ static u32 _parseWebclientTestCmdLineParam(
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFilePath = optarg;
+            pjlip->jlip_pstrLogFile = optarg;
             break;
         case 'O':
             pjlip->jlip_bLogToStdout = TRUE;

@@ -12,13 +12,13 @@
  *  -# Link with jf_jiukun library for memory allocation.
  */
 
-/*------------------------------------------------------------------------------------------------*/
 #ifndef JIUTAI_HASH_H
 #define JIUTAI_HASH_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 
@@ -339,4 +339,3 @@ static inline unsigned long jf_hashtable_hashPtr(void * ptr, u32 bits)
 #endif /*JIUTAI_HASH_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-

@@ -20,6 +20,9 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
+/** Define the name of config manager.
+ */
+#define CONFIG_MGR_NAME                       "configmgr"
 
 /* --- data structures -------------------------------------------------------------------------- */
 

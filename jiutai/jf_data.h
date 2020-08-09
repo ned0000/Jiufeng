@@ -1,7 +1,7 @@
 /**
- *  @file jf_datavec.h
+ *  @file jf_data.h
  *
- *  @brief Header file defines the data vector.
+ *  @brief Header file defines the routines for data buffer operations.
  *
  *  @author Min Zhang
  *

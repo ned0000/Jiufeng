@@ -47,6 +47,8 @@ typedef struct asocket_send_data
     u8 asd_u8Reserved[8];
 } asocket_send_data_t;
 
+/** Define the internal async socket data type.
+ */
 typedef struct
 {
     /**The network chain object header. MUST BE the first field.*/
@@ -57,43 +59,62 @@ typedef struct
     /**Name of the object.*/
     olchar_t ia_strName[JF_NETWORK_MAX_NAME_LEN];
 
+    /**Total data which have been sent.*/
     olsize_t ia_sTotalSendData;
+    /**Total bytes which have been sent.*/
     olsize_t ia_sTotalBytesSent;
 
+    /**Network socket of this async socket.*/
     jf_network_socket_t * ia_pjnsSocket;
 
+    /**Remote address of the connection.*/
     jf_ipaddr_t ia_jiRemote;    
+    /**Remote port of the connection.*/
     u16 ia_u16RemotePort;
     u16 ia_u16Reserved[3];
 
+    /**Local address of the connection.*/
     jf_ipaddr_t ia_jiLocal;
+    /**Local port of the connection.*/
     u16 ia_u16LocalPort;
     u16 ia_u16Reserved2[3];
 
+    /**Pointer to the user data.*/
     void * ia_pUser;
 
+    /**Internal timer of async socket.*/
     jf_network_utimer_t * ia_pjnuUtimer;
 
+    /**List of data to be sent.*/
     jf_listhead_t ia_jlSendData;
 
     /**Connection is established.*/
     boolean_t ia_bFinConnect;
     u8 ia_u8Reserved2[7];
 
+    /**Buffer for the data.*/
     u8 * ia_pu8Buffer;
-    olsize_t ia_sMalloc;
+    /**Size of the buffer.*/
+    olsize_t ia_sBuffer;
     /**Index used by async server socket and async client socket. Asocket should not touch it.*/
     u32 ia_u32Index;
 
+    /**Begin pointer of the data in the buffer.*/
     olsize_t ia_sBeginPointer;
+    /**End pointer of the data in the buffer.*/
     olsize_t ia_sEndPointer;
 
+    /**Saved error code.*/
     u32 ia_u32Status;
     u32 ia_u32Reserved3;
 
+    /**Callback function for incoming data.*/
     fnAsocketOnData_t ia_fnOnData;
+    /**Callback function for connection.*/
     fnAsocketOnConnect_t ia_fnOnConnect;
+    /**Callback function for disconnection.*/
     fnAsocketOnDisconnect_t ia_fnOnDisconnect;
+    /**Callback function for sent data.*/
     fnAsocketOnSendData_t ia_fnOnSendData;
 
     /**Accessed by outside, asocket should not touch it.*/
@@ -234,7 +255,7 @@ static u32 _processAsocket(internal_asocket_t * pia)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t bytesReceived;
 
-    JF_LOGGER_DEBUG("name: %s", pia->ia_strName);
+    bytesReceived = pia->ia_sBuffer - pia->ia_sEndPointer;
 
     u32Ret = _asRecvn(
         pia->ia_pjnsSocket, pia->ia_pu8Buffer + pia->ia_sEndPointer, &bytesReceived);
@@ -243,10 +264,12 @@ static u32 _processAsocket(internal_asocket_t * pia)
         /*Data was read, so increment our counters*/
         pia->ia_sEndPointer += bytesReceived;
 
-        JF_LOGGER_DEBUG("name: %s, endp: %d", pia->ia_strName, pia->ia_sEndPointer);
-
         pia->ia_fnOnData(
             pia, pia->ia_pu8Buffer, &pia->ia_sBeginPointer, pia->ia_sEndPointer, pia->ia_pUser);
+
+        JF_LOGGER_DEBUG(
+            "name: %s, beginp: %d, endp: %d", pia->ia_strName, pia->ia_sBeginPointer,
+            pia->ia_sEndPointer);
 
         if (pia->ia_sBeginPointer == pia->ia_sEndPointer)
         {
@@ -264,7 +287,7 @@ static u32 _processAsocket(internal_asocket_t * pia)
             pia->ia_sEndPointer -= pia->ia_sBeginPointer;
             pia->ia_sBeginPointer = 0;
         }
-        else if (pia->ia_sMalloc == pia->ia_sEndPointer)
+        else if (pia->ia_sBuffer == pia->ia_sEndPointer)
         {
             /*buffer is full, clear the buffer*/
             JF_LOGGER_ERR(
@@ -370,7 +393,7 @@ static u32 _asPostSelectSendData(internal_asocket_t * pia)
 
     JF_LOGGER_DEBUG("name: %s", pia->ia_strName);
 
-    /*Keep trying to send data, until we are told we can't*/
+    /*Keep trying to send data, until we are told we can't.*/
     jf_listhead_forEachSafe(&pia->ia_jlSendData, pos, temppos)
     {
         pasd = jf_listhead_getEntry(pos, asocket_send_data_t, asd_jlList);
@@ -416,15 +439,15 @@ static u32 _asPostSelectSendData(internal_asocket_t * pia)
     return u32Ret;
 }
 
-/** Post select handler for chain
+/** Post select handler for chain.
  *
- *  @param pAsocket [in] the async socket
- *  @param slct [in] number of ready socket 
- *  @param readset [in] the read fd set
- *  @param writeset [in] the write fd set
- *  @param errorset [in] the error fd set
+ *  @param pAsocket [in] The async socket.
+ *  @param slct [in] Number of ready socket. 
+ *  @param readset [in] The read fd set.
+ *  @param writeset [in] The write fd set.
+ *  @param errorset [in] The error fd set.
  *
- *  @return the error code
+ *  @return The error code.
  */
 static u32 _postSelectAsocket(
     jf_network_chain_object_t * pAsocket, olint_t slct,
@@ -613,7 +636,7 @@ u32 destroyAsocket(jf_network_asocket_t ** ppAsocket)
     if (pia->ia_pu8Buffer != NULL)
     {
         jf_jiukun_freeMemory((void **)&pia->ia_pu8Buffer);
-        pia->ia_sMalloc = 0;
+        pia->ia_sBuffer = 0;
     }
 
     jf_mutex_fini(&pia->ia_jmLock);
@@ -649,7 +672,7 @@ u32 createAsocket(
         jf_listhead_init(&pia->ia_jlSendData);
         jf_listhead_init(&pia->ia_jlWaitData);
         _setInternalCallbackFunction(pia, pacp);
-        pia->ia_sMalloc = pacp->acp_sInitialBuf;
+        pia->ia_sBuffer = pacp->acp_sInitialBuf;
         ol_strncpy(pia->ia_strName, pacp->acp_pstrName, JF_NETWORK_MAX_NAME_LEN - 1);
 
         u32Ret = jf_jiukun_allocMemory(

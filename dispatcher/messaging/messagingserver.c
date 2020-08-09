@@ -166,14 +166,17 @@ static u32 _processMessagingServerMsg(
         }
     }
 
-    if (u32Ret == JF_ERR_NO_ERROR)
-        /*Message is processed, discard the message.*/
-        *psBeginPointer = sMsg;
-    else if (u32Ret == JF_ERR_INCOMPLETE_DATA)
-        /*Incomplete data.*/
+    if (u32Ret == JF_ERR_INCOMPLETE_DATA)
+    {
+        /*Incomplete data, waiting for more data.*/
+        ;
+    }
+    else
+    {
+        /*For other errors, just discard the message.*/
+        *psBeginPointer += sMsg;
         u32Ret = JF_ERR_NO_ERROR;
-    else  /*For other errors, just discard the data.*/
-        *psBeginPointer = sMsg;
+    }
 
     return u32Ret;
 }
@@ -185,11 +188,13 @@ static u32 _onDispatcherMessagingServerData(
     u32 u32Ret = JF_ERR_NO_ERROR;
     dispatcher_messaging_server_t * pdms = jf_network_getTagOfAssocket(pAssocket);
 
-    JF_LOGGER_DEBUG(
-        "begin: %d, end: %d", *psBeginPointer, sEndPointer);
+    JF_LOGGER_DEBUG("begin: %d, end: %d", *psBeginPointer, sEndPointer);
 
-    u32Ret = _processMessagingServerMsg(
-        pdms, pAssocket, pAsocket, pu8Buffer, psBeginPointer, sEndPointer);
+    /*Process the dispatcher message. Quit until no more data can be processed, in case one
+      data buffer has several messages.*/
+    while (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = _processMessagingServerMsg(
+            pdms, pAssocket, pAsocket, pu8Buffer, psBeginPointer, sEndPointer);
 
     return u32Ret;
 }

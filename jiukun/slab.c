@@ -699,7 +699,9 @@ static u32 _destroySlabCache(internal_jiukun_slab_t * pijs, slab_cache_t * psc)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logInfoMsg("destroy jiukun cache %s", psc->sc_strName);
+#if DEBUG_JIUKUN_VERBOSE
+    JF_LOGGER_INFO("name: %s", psc->sc_strName);
+#endif
 
     _destroySlabCacheSlabs(pijs, psc, &psc->sc_jlFree);
 
@@ -731,16 +733,18 @@ static u32 _createSlabCache(
     jf_jiukun_cache_create_param_t * pjjccp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t left_over, slab_size;
+    olsize_t left_over = 0, slab_size = 0;
     slab_cache_t * pCache = NULL;
     u32 realobjsize = pjjccp->jjccp_sObj;
 #ifdef DEBUG_JIUKUN
-    jf_listhead_t * pjl;
+    jf_listhead_t * pjl = NULL;
 #endif
 
-    jf_logger_logInfoMsg(
-        "create slab cache, %s, size: %u, flag: 0x%llX",
+#if DEBUG_JIUKUN_VERBOSE
+    JF_LOGGER_INFO(
+        "name, %s, size: %u, flag: 0x%llX",
         pjjccp->jjccp_pstrName, pjjccp->jjccp_sObj, pjjccp->jjccp_jfCache);
+#endif
 
 #if DEBUG_JIUKUN
     /*Do not red zone large object, causes severe fragmentation.*/
@@ -807,14 +811,16 @@ static u32 _createSlabCache(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_logger_logInfoMsg(
-            "create slab cache, %s, size: %u, order: %u, num: %u",
+#if DEBUG_JIUKUN_VERBOSE
+        JF_LOGGER_INFO(
+            "name, %s, size: %u, order: %u, num: %u",
             pjjccp->jjccp_pstrName, pjjccp->jjccp_sObj, pCache->sc_u32Order, pCache->sc_u32Num);
+#endif
 
         if (pCache->sc_u32Num == 0)
         {
             u32Ret = JF_ERR_FAIL_CREATE_JIUKUN_CACHE;
-            jf_logger_logErrMsg(u32Ret, "create slab cache, couldn't create cache");
+            JF_LOGGER_ERR(u32Ret, "couldn't create cache: %s", pjjccp->jjccp_pstrName);
         }
     }
 

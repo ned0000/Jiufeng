@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The Makefile for common object file in dispatcher
+#  @brief The Makefile for common object file in dispatcher.
 #
 #  @author Min Zhang
 #

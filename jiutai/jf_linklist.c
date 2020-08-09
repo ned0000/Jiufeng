@@ -105,6 +105,42 @@ u32 jf_linklist_appendTo(jf_linklist_t * pList, void * pData)
     return u32Ret;
 }
 
+u32 jf_linklist_remove(jf_linklist_t * pList, void * pData)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_linklist_node_t * pNext = NULL, * pjln = NULL;
+
+    assert(pList != NULL);
+
+    if (pList->jl_pjlnHead == NULL)
+        return u32Ret;
+
+    if (pList->jl_pjlnHead->jln_pData == pData)
+    {
+        pjln = pList->jl_pjlnHead;
+        pList->jl_pjlnHead = pjln->jln_pjlnNext;
+        jf_jiukun_freeMemory((void **)&pjln);
+        return u32Ret;
+    }
+
+	pjln = pList->jl_pjlnHead;
+    pNext = pjln->jln_pjlnNext;
+    while (pNext != NULL)
+    {
+        if (pNext->jln_pData == pData)
+        {
+            pjln->jln_pjlnNext = pNext->jln_pjlnNext;
+            jf_jiukun_freeMemory((void **)&pNext);
+            break;
+        }
+
+        pjln = pjln->jln_pjlnNext;
+        pNext = pjln->jln_pjlnNext;
+    }
+
+    return u32Ret;
+}
+
 u32 jf_linklist_insertTo(jf_linklist_t * pList, void * pData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;

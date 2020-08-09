@@ -71,7 +71,7 @@ static u32 _parseLinklistTestCmdLineParam(
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFilePath = optarg;
+            pjlip->jlip_pstrLogFile = optarg;
             break;
         case 'S':
             u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
@@ -124,27 +124,50 @@ static u32 _fnFreeTestLinklistNodeData(void ** ppData)
     return u32Ret;
 }
 
+#define NUM_OF_TEST_LINKLIST_DATA           (10)
+
 static u32 _testLinklist(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    test_linklist_t * ptl = NULL;
+    test_linklist_t * ptl[NUM_OF_TEST_LINKLIST_DATA];
     jf_linklist_t jlList;
-    u32 u32MsgIdStart = 1, u32MsgIdEnd = 280;
+    u32 index = 0;
 
+    ol_printf("---------------------------------------------------------------------------\n");
+    ol_printf("Initialize the linked list.\n");
     jf_linklist_init(&jlList);
+    jf_linklist_iterate(&jlList, _showLinklistEntry, NULL);
 
-    while ((u32MsgIdStart < u32MsgIdEnd) && (u32Ret == JF_ERR_NO_ERROR))
+    ol_printf("---------------------------------------------------------------------------\n");
+    ol_printf("Remove the first data.\n");
+    jf_linklist_remove(&jlList, ptl[0]);
+    jf_linklist_iterate(&jlList, _showLinklistEntry, NULL);
+
+    ol_printf("---------------------------------------------------------------------------\n");
+    ol_printf("Create data and append to list.\n");
+    while ((index < NUM_OF_TEST_LINKLIST_DATA) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        u32Ret = _createTestLinklist(&ptl, u32MsgIdStart);
+        u32Ret = _createTestLinklist(&ptl[index], index + 1);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            u32Ret = jf_linklist_appendTo(&jlList, ptl);
-            ol_printf("MsgId: %u\n", u32MsgIdStart);
+            u32Ret = jf_linklist_appendTo(&jlList, ptl[index]);
+            ol_printf("MsgId: %u\n", index + 1);
 
-            u32MsgIdStart ++;
+            index ++;
         }
     }
+    jf_linklist_iterate(&jlList, _showLinklistEntry, NULL);
 
+    ol_printf("---------------------------------------------------------------------------\n");
+    ol_printf("Remove the first data.\n");
+    jf_linklist_remove(&jlList, ptl[0]);
+    _fnFreeTestLinklistNodeData((void **)&ptl[0]);
+    jf_linklist_iterate(&jlList, _showLinklistEntry, NULL);
+
+    ol_printf("---------------------------------------------------------------------------\n");
+    ol_printf("Remove the 5th data.\n");
+    jf_linklist_remove(&jlList, ptl[4]);
+    _fnFreeTestLinklistNodeData((void **)&ptl[4]);
     jf_linklist_iterate(&jlList, _showLinklistEntry, NULL);
 
     jf_linklist_finiListAndData(&jlList, _fnFreeTestLinklistNodeData);

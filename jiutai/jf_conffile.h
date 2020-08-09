@@ -76,22 +76,22 @@ typedef u32 (* jf_conffile_fnHandleConfig_t)(olchar_t * pstrTag, olchar_t * pstr
 
 /** Open a configuration file according to the file path.
  *
- *  @param pParam [in] the parameter for opening conf file
- *  @param ppConffile [out] the configuration file object to be created and returned.
+ *  @param pParam [in] The parameter for opening conf file.
+ *  @param ppConffile [out] The configuration file object to be created and returned.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 FILESAPI u32 FILESCALL jf_conffile_open(
     jf_conffile_open_param_t * pParam, jf_conffile_t ** ppConffile);
 
 /** Close the configuration file object.
  *
- *  @param ppConffile [in/out] the configuration file object to be destroyed.
- *   After destruction, it will be set to NULL.
+ *  @param ppConffile [in/out] The configuration file object to be destroyed. After destruction, it
+ *   will be set to NULL.
  *
- *  @return the error code
- *  @retval JF_ERR_NO_ERROR success
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 FILESAPI u32 FILESCALL jf_conffile_close(jf_conffile_t ** ppConffile);
 
@@ -112,7 +112,7 @@ FILESAPI u32 FILESCALL jf_conffile_write(
  *
  *  @note
  *  -# If the tag name is set to NULL, or the config is not found, the default value will be
- *     returned.
+ *    returned.
  *
  *  @param pConffile [in] The configuration file object.
  *  @param pstrTag [in] The config tag name.
@@ -129,7 +129,7 @@ FILESAPI u32 FILESCALL jf_conffile_getInt(
  *
  *  @note
  *  -# If the tag name is set to NULL, or the config is not found, the default value will be
- *     returned.
+ *   returned.
  *
  *  @param pConffile [in] The configuration file object.
  *  @param pstrTag [in] The config tag name.

@@ -8,7 +8,7 @@ E_BUILD_ERROR=67
 
 debug=no
 
-bin_files="jf_genuuid jf_dongyuan jf_servctl jf_dispatcher jf_configmgr jf_configctl"
+bin_files="jf_dongyuan jf_servctl jf_logserver jf_logctl jf_dispatcher jf_configmgr jf_configctl jf_genuuid jf_errcode"
 
 help_gen_jtk()
 {
@@ -159,8 +159,7 @@ done
 cd $destdir
 echo ""
 echo "Create symbolic link for mak and template directory"
-unlink mak
-unlink template
+
 ln -sf jtk/mak/ mak
 ln -sf jtk/template/ template
 

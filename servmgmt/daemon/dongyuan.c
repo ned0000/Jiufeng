@@ -118,7 +118,7 @@ static u32 _initServMgmtRespMsgHeader(
 
 static u32 _procesServMgmtMsgGetInfo(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t u32Size)
+    u8 * pu8Buffer, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     servmgmt_get_info_req_t * pReq = (servmgmt_get_info_req_t *)pu8Buffer;
@@ -127,7 +127,7 @@ static u32 _procesServMgmtMsgGetInfo(
     JF_LOGGER_DEBUG("process msg, get info");
     
     /*Check the size of the specified message.*/
-    if (u32Size < sizeof(servmgmt_get_info_req_t))
+    if (sMsg < sizeof(servmgmt_get_info_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -148,7 +148,7 @@ static u32 _procesServMgmtMsgGetInfo(
 
 static u32 _procesServMgmtMsgGetInfoList(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t u32Size)
+    u8 * pu8Buffer, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     servmgmt_get_info_list_req_t * pReq = (servmgmt_get_info_list_req_t *)pu8Buffer;
@@ -156,7 +156,7 @@ static u32 _procesServMgmtMsgGetInfoList(
     servmgmt_get_info_list_resp_t * pResp = (servmgmt_get_info_list_resp_t *)u8Buffer;
 
     /*Check the size of the specified message.*/
-    if (u32Size < sizeof(servmgmt_get_info_list_req_t))
+    if (sMsg < sizeof(servmgmt_get_info_list_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
     JF_LOGGER_DEBUG("process msg, get info list");
@@ -184,14 +184,14 @@ static u32 _procesServMgmtMsgGetInfoList(
 
 static u32 _procesServMgmtMsgStartServ(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t u32Size)
+    u8 * pu8Buffer, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     servmgmt_start_serv_req_t * pReq = (servmgmt_start_serv_req_t *)pu8Buffer;
     servmgmt_start_serv_resp_t resp;
 
     /*Check the size of the specified message.*/
-    if (u32Size < sizeof(servmgmt_start_serv_req_t))
+    if (sMsg < sizeof(servmgmt_start_serv_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
     JF_LOGGER_DEBUG("process msg, start serv");
@@ -214,14 +214,14 @@ static u32 _procesServMgmtMsgStartServ(
 
 static u32 _procesServMgmtMsgStopServ(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t u32Size)
+    u8 * pu8Buffer, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     servmgmt_stop_serv_req_t * pReq = (servmgmt_stop_serv_req_t *)pu8Buffer;
     servmgmt_stop_serv_resp_t resp;
 
     /*Check the size of the specified message.*/
-    if (u32Size < sizeof(servmgmt_stop_serv_req_t))
+    if (sMsg < sizeof(servmgmt_stop_serv_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
     JF_LOGGER_DEBUG("process msg, stop serv");
@@ -244,14 +244,14 @@ static u32 _procesServMgmtMsgStopServ(
 
 static u32 _procesServMgmtMsgSetStartupType(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t u32Size)
+    u8 * pu8Buffer, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     servmgmt_set_startup_type_req_t * pReq = (servmgmt_set_startup_type_req_t *)pu8Buffer;
     servmgmt_set_startup_type_resp_t resp;
 
     /*Check the size of the specified message.*/
-    if (u32Size < sizeof(servmgmt_set_startup_type_req_t))
+    if (sMsg < sizeof(servmgmt_set_startup_type_req_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
     JF_LOGGER_DEBUG("process msg, set startup type");
@@ -274,15 +274,15 @@ static u32 _procesServMgmtMsgSetStartupType(
 }
 
 static u32 _validateServMgmtReqMsg(
-    u8 * pu8Buffer, olsize_t * pu32BeginPointer, olsize_t u32EndPointer)
+    u8 * pu8Buffer, olsize_t * psBeginPointer, olsize_t sEndPointer)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Begin = *pu32BeginPointer;
-    u32 u32Size = u32EndPointer - u32Begin;
-    servmgmt_msg_header_t * pHeader = (servmgmt_msg_header_t *)(pu8Buffer + u32Begin);
+    olsize_t sBegin = *psBeginPointer;
+    olsize_t sMsg = sEndPointer - sBegin;
+    servmgmt_msg_header_t * pHeader = (servmgmt_msg_header_t *)(pu8Buffer + sBegin);
 
     /*The size should more than header size.*/
-    if (u32Size < sizeof(servmgmt_msg_header_t))
+    if (sMsg < sizeof(servmgmt_msg_header_t))
         u32Ret = JF_ERR_INCOMPLETE_DATA;
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -299,38 +299,38 @@ static u32 _validateServMgmtReqMsg(
 
 static u32 _procesServMgmtMsg(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t * pu32BeginPointer, olsize_t u32EndPointer)
+    u8 * pu8Buffer, olsize_t * psBeginPointer, olsize_t sEndPointer)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Begin = 0, u32Size = 0;
+    olsize_t sBegin = 0, sMsg = 0;
     servmgmt_msg_header_t * pHeader = NULL;
 
     /*Validate the service management message.*/
-    u32Ret = _validateServMgmtReqMsg(pu8Buffer, pu32BeginPointer, u32EndPointer);
+    u32Ret = _validateServMgmtReqMsg(pu8Buffer, psBeginPointer, sEndPointer);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pHeader = (servmgmt_msg_header_t *)pu8Buffer;
-        u32Begin = *pu32BeginPointer;
-        pu8Buffer += u32Begin;
-        u32Size = u32EndPointer - u32Begin;
+        sBegin = *psBeginPointer;
+        pu8Buffer += sBegin;
+        sMsg = sEndPointer - sBegin;
 
         /*Process the message according to the message id.*/
         switch (pHeader->smh_u8MsgId)
         {
         case SERVMGMT_MSG_ID_GET_INFO_REQ:
-            u32Ret = _procesServMgmtMsgGetInfo(pAssocket, pAsocket, pu8Buffer, u32Size);
+            u32Ret = _procesServMgmtMsgGetInfo(pAssocket, pAsocket, pu8Buffer, sMsg);
             break;
         case SERVMGMT_MSG_ID_GET_INFO_LIST_REQ:
-            u32Ret = _procesServMgmtMsgGetInfoList(pAssocket, pAsocket, pu8Buffer, u32Size);
+            u32Ret = _procesServMgmtMsgGetInfoList(pAssocket, pAsocket, pu8Buffer, sMsg);
             break;
         case SERVMGMT_MSG_ID_START_SERV_REQ:
-            u32Ret = _procesServMgmtMsgStartServ(pAssocket, pAsocket, pu8Buffer, u32Size);
+            u32Ret = _procesServMgmtMsgStartServ(pAssocket, pAsocket, pu8Buffer, sMsg);
             break;
         case SERVMGMT_MSG_ID_STOP_SERV_REQ:
-            u32Ret = _procesServMgmtMsgStopServ(pAssocket, pAsocket, pu8Buffer, u32Size);
+            u32Ret = _procesServMgmtMsgStopServ(pAssocket, pAsocket, pu8Buffer, sMsg);
             break;
         case SERVMGMT_MSG_ID_SET_STARTUP_TYPE_REQ:
-            u32Ret = _procesServMgmtMsgSetStartupType(pAssocket, pAsocket, pu8Buffer, u32Size);
+            u32Ret = _procesServMgmtMsgSetStartupType(pAssocket, pAsocket, pu8Buffer, sMsg);
             break;
         default:
             jf_logger_logInfoMsg("received unkwown msg, id: %u", pHeader->smh_u8MsgId);
@@ -340,10 +340,10 @@ static u32 _procesServMgmtMsg(
 
     if (u32Ret == JF_ERR_NO_ERROR)
         /*The message is handled without error, clear the data.*/
-        *pu32BeginPointer = u32EndPointer;
+        *psBeginPointer = sEndPointer;
     else if (u32Ret == JF_ERR_INVALID_DATA)
         /*Invalid data, discard the data.*/
-        *pu32BeginPointer = u32EndPointer;
+        *psBeginPointer = sEndPointer;
     else if (u32Ret == JF_ERR_INCOMPLETE_DATA)
         /*Incomplete data, waiting for more data.*/
         u32Ret = JF_ERR_NO_ERROR;
@@ -353,15 +353,15 @@ static u32 _procesServMgmtMsg(
 
 static u32 _onDongyuanData(
     jf_network_assocket_t * pAssocket, jf_network_asocket_t * pAsocket,
-    u8 * pu8Buffer, olsize_t * pu32BeginPointer, olsize_t u32EndPointer, void * pUser)
+    u8 * pu8Buffer, olsize_t * psBeginPointer, olsize_t sEndPointer, void * pUser)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Begin = *pu32BeginPointer;
+    olsize_t sBegin = *psBeginPointer;
 
-    JF_LOGGER_DEBUG("begin: %d, end: %d", u32Begin, u32EndPointer);
+    JF_LOGGER_DEBUG("begin: %d, end: %d", sBegin, sEndPointer);
 
     /*Process the service management message.*/
-    u32Ret = _procesServMgmtMsg(pAssocket, pAsocket, pu8Buffer, pu32BeginPointer, u32EndPointer);
+    u32Ret = _procesServMgmtMsg(pAssocket, pAsocket, pu8Buffer, psBeginPointer, sEndPointer);
 
     return u32Ret;
 }

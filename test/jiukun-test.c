@@ -123,7 +123,7 @@ static u32 _parseJiukunTestCmdLineParam(olint_t argc, olchar_t ** argv, jf_logge
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFilePath = optarg;
+            pjlip->jlip_pstrLogFile = optarg;
             break;
         case 'S':
             if (sscanf(optarg, "%d", &u32Value) == 1)
@@ -801,7 +801,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
     memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
 
     jlipParam.jlip_pstrCallerName = "JIUKUN-TEST";
-//    jlipParam.jlip_pstrLogFilePath = "jiukun-test.log";
+//    jlipParam.jlip_pstrLogFile = "jiukun-test.log";
     jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
 

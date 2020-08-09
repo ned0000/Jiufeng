@@ -28,19 +28,19 @@
 
 /** List config.
  */
-static boolean_t ls_bListConfigs = FALSE;
+static boolean_t ls_bConfigCtlListConfig = FALSE;
 
 /** Get config operation.
  */
-static boolean_t ls_bGetConfig = FALSE;
+static boolean_t ls_bConfigCtlGetConfig = FALSE;
 
 /** Set config operation.
  */
-static boolean_t ls_bSetConfig = FALSE;
+static boolean_t ls_bConfigCtlSetConfig = FALSE;
 
 /** The config name string.
  */
-static olchar_t * ls_pstrConfigName = NULL;
+static olchar_t * ls_pstrConfigCtlConfigName = NULL;
 
 /** Use transaction.
  */
@@ -48,11 +48,11 @@ static boolean_t ls_bTransaction = FALSE;
 
 /** The transaction ID.
  */
-static u32 ls_u32TransactionId = JF_CONFIG_INVALID_TRANSACTION_ID;
+static u32 ls_u32ConfigCtlTransactionId = JF_CONFIG_INVALID_TRANSACTION_ID;
 
 /** The config value string.
  */
-static olchar_t * ls_pstrConfigValue = NULL;
+static olchar_t * ls_pstrConfigCtlConfigValue = NULL;
 
 /** The name of the executable file for this utility.
  */
@@ -67,19 +67,19 @@ static const olchar_t * ls_pstrConfigCtlVersion = "1.0.0";
 static void _printConfigCtlUsage(void)
 {
     ol_printf("\
-Usage: %s [-l] [-g] [-s] [-n config-name] [-v config-value] [-t]  [-V] [logger options]\n\
-    -l list all configs.\n\
-    -g get config.\n\
-    -s set config.\n\
-    -n specify the config name.\n\
-    -v specify the config value.\n\
-    -t start a transaction to get or set config.\n\
-    -V show version information.\n\
-logger options:\n\
-    -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug, 4: data.\n\
-    -O output the log to stdout.\n\
-    -F <log file> the log file.\n\
-    -S <log file size> the size of log file. No limit if not specified.\n",
+Usage: %s [-l] [-g] [-s] [-n config-name] [-v config-value] [-t] [-V] [logger options]\n\
+  -l: list all configs.\n\
+  -g: get config.\n\
+  -s: set config.\n\
+  -n: specify the config name.\n\
+  -v: specify the config value.\n\
+  -t: start a transaction to get or set config.\n\
+  -V: show version information.\n\
+logger options: [-T <0|1|2|3|4|5>] [-O] [-F log file] [-S log file size] \n\
+  -T: the log level. 0: no log, 1: error, 2: info, 3: debug, 4: data.\n\
+  -O: output the log to stdout.\n\
+  -F: the log file.\n\
+  -S: the size of log file. No limit if not specified.\n",
               ls_strConfigCtlProgramName);
 
     ol_printf("\n");
@@ -102,22 +102,22 @@ static u32 _parseConfigCtlCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger
             exit(0);
             break;
         case 'g':
-            ls_bGetConfig = TRUE;
+            ls_bConfigCtlGetConfig = TRUE;
             break;
         case 's':
-            ls_bSetConfig = TRUE;
+            ls_bConfigCtlSetConfig = TRUE;
             break;
         case 'l':
-            ls_bListConfigs = TRUE;
+            ls_bConfigCtlListConfig = TRUE;
             break;
         case 'n':
-            ls_pstrConfigName = optarg;
+            ls_pstrConfigCtlConfigName = optarg;
             break;
         case 't':
             ls_bTransaction = TRUE;
             break;
         case 'v':
-            ls_pstrConfigValue = optarg;
+            ls_pstrConfigCtlConfigValue = optarg;
             break;
         case ':':
             u32Ret = JF_ERR_MISSING_PARAM;
@@ -130,7 +130,7 @@ static u32 _parseConfigCtlCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFilePath = optarg;
+            pjlip->jlip_pstrLogFile = optarg;
             break;
         case 'O':
             pjlip->jlip_bLogToStdout = TRUE;
@@ -170,7 +170,7 @@ static u32 _getConfig(olchar_t * pstrName)
     {
         ol_bzero(value, sizeof(value));
 
-        u32Ret = jf_config_get(ls_u32TransactionId, pstrName, value, sizeof(value));
+        u32Ret = jf_config_get(ls_u32ConfigCtlTransactionId, pstrName, value, sizeof(value));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -196,16 +196,16 @@ static u32 _setConfig(olchar_t * pstrName, olchar_t * pstrValue)
     {
         if (! ls_bTransaction)
         {
-            u32Ret = jf_config_set(ls_u32TransactionId, pstrName, pstrValue);
+            u32Ret = jf_config_set(ls_u32ConfigCtlTransactionId, pstrName, pstrValue);
         }
         else
         {
-            u32Ret = jf_config_startTransaction(&ls_u32TransactionId);
+            u32Ret = jf_config_startTransaction(&ls_u32ConfigCtlTransactionId);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                u32Ret = jf_config_set(ls_u32TransactionId, pstrName, pstrValue);
+                u32Ret = jf_config_set(ls_u32ConfigCtlTransactionId, pstrName, pstrValue);
 
-                jf_config_commitTransaction(ls_u32TransactionId);
+                jf_config_commitTransaction(ls_u32ConfigCtlTransactionId);
             }
         }
     }
@@ -224,15 +224,15 @@ static u32 _processConfigCtlCommand(void)
     u32Ret = jf_config_init(&jcip);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (ls_bGetConfig)
+        if (ls_bConfigCtlGetConfig)
         {
-            u32Ret = _getConfig(ls_pstrConfigName);
+            u32Ret = _getConfig(ls_pstrConfigCtlConfigName);
         }
-        else if (ls_bSetConfig)
+        else if (ls_bConfigCtlSetConfig)
         {
-            u32Ret = _setConfig(ls_pstrConfigName, ls_pstrConfigValue);
+            u32Ret = _setConfig(ls_pstrConfigCtlConfigName, ls_pstrConfigCtlConfigValue);
         }
-        else if (ls_bListConfigs)
+        else if (ls_bConfigCtlListConfig)
         {
             u32Ret = _listConfigs();
         }
@@ -279,7 +279,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            /*Process the service control command.*/
+            /*Process the config control command.*/
             u32Ret = _processConfigCtlCommand();
 
             jf_jiukun_fini();

@@ -182,7 +182,8 @@ void jf_date_getDateToday(olint_t * year, olint_t * mon, olint_t * day);
  *  @param mon [in] The month of the year.
  *  @param day [in] The day of the month.
  *
- *  @return Void.
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_date_getStringDate(
     olchar_t * pstrDate, olsize_t sDate, const olint_t year, const olint_t mon, const olint_t day);

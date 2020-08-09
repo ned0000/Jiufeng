@@ -1,7 +1,7 @@
 /**
  *  @file jf_hashtree.c
  *
- *  @brief The implementation file for hash tree.
+ *  @brief Implementation file for hash tree.
  *
  *  @author Min Zhang
  *  
@@ -10,18 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-#if defined(WINDOWS)
 
-#elif defined(LINUX)
-    #include <unistd.h>
-#endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_jiukun.h"
@@ -280,4 +272,3 @@ u32 jf_hashtree_deleteEntry(jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsiz
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

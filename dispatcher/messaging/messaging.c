@@ -188,7 +188,10 @@ u32 jf_messaging_sendMsg(u8 * pu8Msg, olsize_t sMsg)
 
     /*Destroy the message if the message queue is full.*/
     if (u32Ret == JF_ERR_MSG_QUEUE_FULL)
+    {
+        JF_LOGGER_DEBUG("msg queue full");
         freeDispatcherMsg(&pdm);
+    }
 
     return u32Ret;
 }
@@ -209,7 +212,10 @@ u32 jf_messaging_sendInternalMsg(u8 * pu8Msg, olsize_t sMsg)
 
     /*Destroy the message if the message queue is full.*/
     if (u32Ret == JF_ERR_MSG_QUEUE_FULL)
+    {
+        JF_LOGGER_DEBUG("msg queue full");
         freeDispatcherMsg(&pdm);
+    }
 
     return u32Ret;
 }

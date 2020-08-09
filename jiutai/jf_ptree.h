@@ -33,6 +33,10 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
+/** Maximum full name length of property tree node.
+ */
+#define JF_PTREE_NODE_MAX_FULL_NAME_LEN                  (512)          
+
 /** Define the property tree data type.
  */
 typedef void  jf_ptree_t;
@@ -65,6 +69,10 @@ typedef u32 (* jf_ptree_fnOpAttribute_t)(jf_ptree_node_attribute_t * pAttr, void
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+/*--------------------------------------------------------------------------*/
+/*Functions for property tree.*/
+/*--------------------------------------------------------------------------*/
+
 /** Creates a property tree with root node.
  *  
  *  @param ppPtree [out] The property tree to create.
@@ -81,9 +89,67 @@ u32 jf_ptree_create(jf_ptree_t ** ppPtree);
  */
 u32 jf_ptree_destroy(jf_ptree_t ** ppPtree);
 
+/** Merge 2 property trees.
+ *
+ *  @note
+ *  -# After merge, the source property tree will keep unchanged.
+ *
+ *  @param pPtreeDest [in] The destination property tree.
+ *  @param pPtreeSource [in] The source property tree.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+u32 jf_ptree_merge(jf_ptree_t * pPtreeDest, jf_ptree_t * pPtreeSource);
+
+/** Traverse property tree.
+ *
+ *  @note
+ *  -# The callback function is called from parent to children.
+ *  -# The traversal will stop if return code of callback function is not JF_ERR_NO_ERROR.
+ *
+ *  @param pPtree [in] The property tree.
+ *  @param fnOpNode [in] The callback function for each node.
+ *  @param pArg [in] The argument for the callback function.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+u32 jf_ptree_traverse(jf_ptree_t * pPtree, jf_ptree_fnOpNode_t fnOpNode, void * pArg);
+
+/** Dump property tree.
+ *
+ *  @param pPtree [in] The property tree.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+u32 jf_ptree_dump(jf_ptree_t * pPtree);
+
 /*--------------------------------------------------------------------------*/
 /*Functions for node.*/
 /*--------------------------------------------------------------------------*/
+
+/** Add node to property tree with key.
+ *
+ *  @note
+ *  -# The key cannot be NULL.
+ *  -# The key uses "." as the separator by default.
+ *  -# If the node with same namespace and name is already existing in the tree, the old node
+ *     is modified with the new value. Otherwise a new node is created.
+ *
+ *  @param pPtree [in] The property tree.
+ *  @param pstrKey [in] The key in string.
+ *  @param sKey [in] The length of the key.
+ *  @param pstrValue [in] The value of the node.
+ *  @param sValue [in] The size of the value.
+ *  @param ppNode [out] The node to be added, it can be NULL.
+ *
+ *  @return The error code.
+ */
+u32 jf_ptree_replaceNode(
+    jf_ptree_t * pPtree, olchar_t * pstrKey, olsize_t sKey, const olchar_t * pstrValue,
+    olsize_t sValue, jf_ptree_node_t ** ppNode);
 
 /** Find node of property tree with key.
  *
@@ -103,27 +169,6 @@ u32 jf_ptree_destroy(jf_ptree_t ** ppPtree);
  */
 u32 jf_ptree_findNode(
     jf_ptree_t * pPtree, olchar_t * pstrKey, olsize_t sKey, jf_ptree_node_t ** ppNode);
-
-/** Add node to property tree with key.
- *
- *  @note
- *  -# The key cannot be NULL.
- *  -# The key uses "." as the separator by default.
- *  -# If the node with same namespace and name is already existing in the tree, the old node
- *     is modified with the new value. Otherwise a new node is created.
- *
- *  @param pPtree [in] The property tree.
- *  @param pstrKey [in] The key in string.
- *  @param sKey [in] The length of the key.
- *  @param pstrValue [in] The value of the node.
- *  @param sValue [in] The size of the value.
- *  @param ppNode [out] The node to be added.
- *
- *  @return The error code.
- */
-u32 jf_ptree_replaceNode(
-    jf_ptree_t * pPtree, olchar_t * pstrKey, olsize_t sKey, const olchar_t * pstrValue,
-    olsize_t sValue, jf_ptree_node_t ** ppNode);
 
 /** Find all nodes of property tree with key.
  *
@@ -146,6 +191,21 @@ u32 jf_ptree_findAllNode(
     jf_ptree_t * pPtree, olchar_t * pstrKey, olsize_t sKey, jf_ptree_node_t ** ppNode,
     u16 * pu16NumOfNode);
 
+/** Iterate the children nodes of the specified node.
+ *
+ *  @note
+ *  -# The iteration will stop if return code of callback function is not JF_ERR_NO_ERROR.
+ *
+ *  @param pPtree [in] The property tree to iterate.
+ *  @param pNode [in] The property tree node.
+ *  @param fnOpNode [in] The callback function for each child node.
+ *  @param pArg [in] The argument for the callback function.
+ *
+ *  @return The error code.
+ */
+u32 jf_ptree_iterateNode(
+    jf_ptree_t * pPtree, jf_ptree_node_t * pNode, jf_ptree_fnOpNode_t fnOpNode, void * pArg);
+
 /** Find child node of the parent node by node name.
  *
  *  @note
@@ -165,21 +225,6 @@ u32 jf_ptree_findAllNode(
 u32 jf_ptree_findChildNode(
     jf_ptree_t * pPtree, jf_ptree_node_t * pNode, olchar_t * pstrNs, olsize_t sNs,
     olchar_t * pstrName, olsize_t sName, jf_ptree_node_t ** ppChild);
-
-/** Iterate the children nodes of the specified node.
- *
- *  @note
- *  -# The iteration will stop if return code of callback function is not JF_ERR_NO_ERROR.
- *
- *  @param pPtree [in] The property tree to iterate.
- *  @param pNode [in] The property tree node.
- *  @param fnOpNode [in] The callback function for each child node.
- *  @param pArg [in] The argument for the callback function.
- *
- *  @return The error code.
- */
-u32 jf_ptree_iterateNode(
-    jf_ptree_t * pPtree, jf_ptree_node_t * pNode, jf_ptree_fnOpNode_t fnOpNode, void * pArg);
 
 /** Add child node to node.
  *
@@ -313,6 +358,27 @@ jf_ptree_node_t * jf_ptree_getSiblingNode(jf_ptree_node_t * pNode);
 /*Functions for node attribute.*/
 /*--------------------------------------------------------------------------*/
 
+/** Add node attribute.
+ *
+ *  @note
+ *  -# If the attribute with same prefix and name is already existing in the node, the value of the
+ *   attribute is updated. Otherwise a new attribute is created.
+ *
+ *  @param pNode [in] The node to add attribute.
+ *  @param pstrPrefix [in] The attribute prefix.
+ *  @param sPrefix [in] The size of the attribute prefix string.
+ *  @param pstrName [in] The name of the attribute.
+ *  @param sName [in] The size of the attribute name string.
+ *  @param pstrValue [in] The value of the attribute.
+ *  @param sValue [in] The size of the attribute value string.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+u32 jf_ptree_addNodeAttribute(
+    jf_ptree_node_t * pNode, const olchar_t * pstrPrefix, olsize_t sPrefix,
+    const olchar_t * pstrName, olsize_t sName, const olchar_t * pstrValue, olsize_t sValue);
+
 /** Find attribute of the node.
  *
  *  @note
@@ -369,6 +435,28 @@ u32 jf_ptree_getNodeAttributeName(
 u32 jf_ptree_getNodeAttributeValue(
     jf_ptree_node_attribute_t * pAttr, olchar_t ** ppstrValue, olsize_t * psValue);
 
+/** Change node attribute value.
+ *
+ *  @param pAttr [in] The node attribute.
+ *  @param pstrValue [in] The value of the attribute.
+ *  @param sValue [in] The size of the attribute value string.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+u32 jf_ptree_changeNodeAttributeValue(
+    jf_ptree_node_attribute_t * pAttr, const olchar_t * pstrValue, olsize_t sValue);
+
+/** Delete node attribute.
+ *
+ *  @param pNode [in] The property tree node.
+ *  @param pAttr [in] The node attribute.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+u32 jf_ptree_deleteNodeAttribute(jf_ptree_node_t * pNode, jf_ptree_node_attribute_t * pAttr);
+
 /** Iterate the attribute of the node.
  *
  *  @note
@@ -379,84 +467,10 @@ u32 jf_ptree_getNodeAttributeValue(
  *  @param pArg [in] The argument for the callback function.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_ptree_iterateNodeAttribute(
     jf_ptree_node_t * pNode, jf_ptree_fnOpAttribute_t fnOpAttribute, void * pArg);
-
-/** Delete node attribute.
- *
- *  @param pNode [in] The property tree node.
- *  @param pstrPrefix [in] The attribute prefix.
- *  @param sPrefix [in] The size of the attribute prefix string.
- *  @param pstrName [in] The attribute name.
- *  @param sName [in] The size of the attribute name string.
- *
- *  @return The error code.
- */
-u32 jf_ptree_deleteNodeAttribute(
-    jf_ptree_node_t * pNode, const olchar_t * pstrPrefix, olsize_t sPrefix,
-    const olchar_t * pstrName, olsize_t sName);
-
-/** Add node attribute.
- *
- *  @param pNode [in] The node to add attribute.
- *  @param pstrPrefix [in] The attribute prefix.
- *  @param sPrefix [in] The size of the attribute prefix string.
- *  @param pstrName [in] The name of the attribute.
- *  @param sName [in] The size of the attribute name string.
- *  @param pstrValue [in] The value of the attribute.
- *  @param sValue [in] The size of the attribute value string.
- *
- *  @return The error code.
- */
-u32 jf_ptree_addNodeAttribute(
-    jf_ptree_node_t * pNode, const olchar_t * pstrPrefix, olsize_t sPrefix,
-    const olchar_t * pstrName, olsize_t sName, const olchar_t * pstrValue, olsize_t sValue);
-
-/** Change node attribute.
- *
- *  @param pNode [in] The node to change attribute.
- *  @param pstrPrefix [in] The attribute prefix.
- *  @param sPrefix [in] The size of the attribute prefix string.
- *  @param pstrName [in] The attribute name string.
- *  @param sName [in] The size of the attribute name string.
- *  @param pstrValue [in] The value of the attribute.
- *  @param sValue [in] The size of the attribute value string.
- *
- *  @return The error code.
- */
-u32 jf_ptree_changeNodeAttribute(
-    jf_ptree_node_t * pNode, const olchar_t * pstrPrefix, olsize_t sPrefix,
-    const olchar_t * pstrName, olsize_t sName, const olchar_t * pstrValue, olsize_t sValue);
-
-/*--------------------------------------------------------------------------*/
-/*Functions for traversing property tree.*/
-/*--------------------------------------------------------------------------*/
-
-/** Traverse property tree.
- *
- *  @note
- *  -# The callback function is called from parent to children.
- *
- *  @param pPtree [in] The property tree.
- *  @param fnOpNode [in] The callback function for each node.
- *  @param pArg [in] The argument for the callback function.
- *
- *  @return The error code.
- */
-u32 jf_ptree_traverse(jf_ptree_t * pPtree, jf_ptree_fnOpNode_t fnOpNode, void * pArg);
-
-/*--------------------------------------------------------------------------*/
-/*Functions for debug property tree.*/
-/*--------------------------------------------------------------------------*/
-
-/** Dump property tree.
- *
- *  @param pPtree [in] The property tree.
- *
- *  @return The error code.
- */
-u32 jf_ptree_dump(jf_ptree_t * pPtree);
 
 /*--------------------------------------------------------------------------*/
 /*Functions for name space of node.*/
@@ -470,6 +484,7 @@ u32 jf_ptree_dump(jf_ptree_t * pPtree);
  *  @param ppstr [out] The resolved namespace, NULL if unable to resolve.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_ptree_lookupNamespace(
     jf_ptree_node_t * pNode, olchar_t * pstrPrefix, olsize_t sPrefix, olchar_t ** ppstr);
@@ -479,6 +494,7 @@ u32 jf_ptree_lookupNamespace(
  *  @param pPtree [in] The property tree.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_ptree_buildNamespaceTable(jf_ptree_t * pPtree);
 
@@ -487,6 +503,10 @@ u32 jf_ptree_buildNamespaceTable(jf_ptree_t * pPtree);
 /*--------------------------------------------------------------------------*/
 
 /** Add attribute to the declaration of the property tree.
+ *
+ *  @note
+ *  -# If the attribute with same prefix and name is already existing in the node, the value of the
+ *   attribute is updated. Otherwise a new attribute is created.
  *
  *  @param pPtree [in] The property tree.
  *  @param pstrPrefix [in] The attribute prefix.
@@ -497,6 +517,7 @@ u32 jf_ptree_buildNamespaceTable(jf_ptree_t * pPtree);
  *  @param sValue [in] The size of the value string.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_ptree_addDeclarationAttribute(
     jf_ptree_t * pPtree, const olchar_t * pstrPrefix, olsize_t sPrefix,
@@ -504,11 +525,15 @@ u32 jf_ptree_addDeclarationAttribute(
 
 /** Iterate the attibute of the property tree declaration.
  *
+ *  @note
+ *  -# The iteration will stop if the return code of callback function is not JF_ERR_NO_ERROR.
+ *
  *  @param pPtree [in] The property tree.
  *  @param fnOpAttribute [in] The callback function for each attribute.
  *  @param pArg [in] The argument for the callback function.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_ptree_iterateDeclarationAttribute(
     jf_ptree_t * pPtree, jf_ptree_fnOpAttribute_t fnOpAttribute, void * pArg);
@@ -518,14 +543,29 @@ u32 jf_ptree_iterateDeclarationAttribute(
 /*--------------------------------------------------------------------------*/
 
 /** Attach private data to property tree node.
+ *
+ *  @param pNode [in] The property tree node.
+ *  @param pPrivate [in] The private data.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_ptree_attachPrivate(jf_ptree_node_t * pNode, void * pPrivate);
 
 /** Detach private data from property tree node.
+ *
+ *  @param pNode [in] The property tree node.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_ptree_detachPrivate(jf_ptree_node_t * pNode);
 
 /** Get private data of property tree node.
+ *
+ *  @param pNode [in] The property tree node.
+ *
+ *  @return The private data.
  */
 void * jf_ptree_getPrivate(jf_ptree_node_t * pNode);
 

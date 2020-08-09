@@ -74,7 +74,7 @@ static u32 _parseDispatcherTestBgadCmdLineParam(
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFilePath = optarg;
+            pjlip->jlip_pstrLogFile = optarg;
             break;
         case 'S':
             u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
@@ -92,7 +92,7 @@ static u32 _bgadProcessMsg(u8 * pu8Msg, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 //    jf_messaging_header_t * pHeader = (jf_messaging_header_t *)pu8Msg;
-    u32 u32MsgId = jf_messaging_getMsgId(pu8Msg, sMsg);
+    u16 u16MsgId = jf_messaging_getMsgId(pu8Msg, sMsg);
     bgad_activity_status_msg basm;
     sysctld_system_info_msg * pssim;
 
@@ -100,32 +100,32 @@ static u32 _bgadProcessMsg(u8 * pu8Msg, olsize_t sMsg)
         (u8 *)&basm, BGAD_MSG_ID_ACTIVITY_STATUS, JF_MESSAGING_PRIO_MID,
         sizeof(basm.basm_basmpPayload));
 
-    switch (u32MsgId)
+    switch (u16MsgId)
     {
     case BGAD_MSG_ID_START_ACTIVITY:
-        ol_printf("receive message, BGAD_MSG_ID_START_ACTIVITY\n");
+        JF_LOGGER_INFO("receive message, %u, BGAD_MSG_ID_START_ACTIVITY", u16MsgId);
 
         u32Ret = jf_messaging_sendMsg((u8 *)&basm, sizeof(basm));
 
         break;
     case BGAD_MSG_ID_STOP_ACTIVITY:
-        ol_printf("receive message, BGAD_MSG_ID_STOP_ACTIVITY\n");
+        JF_LOGGER_INFO("receive message, %u, BGAD_MSG_ID_STOP_ACTIVITY", u16MsgId);
 
         u32Ret = jf_messaging_sendMsg((u8 *)&basm, sizeof(basm));
 
         break;
     case SYSCTLD_MSG_ID_SYSTEM_INFO:
-        ol_printf("receive message, SYSCTLD_MSG_ID_SYSTEM_INFO\n");
+        JF_LOGGER_INFO("receive message, %u, SYSCTLD_MSG_ID_SYSTEM_INFO", u16MsgId);
         pssim = (sysctld_system_info_msg *)pu8Msg;
-        ol_printf("system info: %s\n", (olchar_t *)pssim->ssim_ssimpPayload.ssimp_u8Payload);
+        JF_LOGGER_INFO("system info: %s", (olchar_t *)pssim->ssim_ssimpPayload.ssimp_u8Payload);
 
         break;
     case BGAD_MSG_ID_INTERNAL_1:
-        ol_printf("receive internal message, BGAD_MSG_ID_INTERNAL_1\n");
+        JF_LOGGER_INFO("receive internal message, %u, BGAD_MSG_ID_INTERNAL_1", u16MsgId);
 
         break;
     default:
-        ol_printf("unsupported subscribed message\n");
+        JF_LOGGER_INFO("unsupported subscribed message, %u", u16MsgId);
         break;
     }
 
@@ -215,9 +215,10 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "DSPT-TEST-BGAD";
-    jlipParam.jlip_bLogToStdout = TRUE;
-    jlipParam.jlip_bLogToFile = TRUE;
-    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DEBUG;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
+    jlipParam.jlip_bLogToServer = TRUE;
+    jlipParam.jlip_pstrServerAddress = JF_LOGGER_DEFAULT_SERVER_ADDRESS;
+    jlipParam.jlip_u16ServerPort = JF_LOGGER_DEFAULT_SERVER_PORT;
 
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;

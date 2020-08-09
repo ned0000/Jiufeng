@@ -98,7 +98,7 @@ void jf_linklist_finiListAndData(jf_linklist_t * pList, jf_linklist_fnFreeNodeDa
  */
 u32 jf_linklist_iterate(jf_linklist_t * pList, jf_linklist_fnOpNode_t fnOpNode, void * pArg);
 
-/** Append to the tail of the linked list.
+/** Append the data to the tail of the linked list.
  *
  *  @param pList [in] The linked list to append data.
  *  @param pData [in] The data to be appended.
@@ -108,7 +108,17 @@ u32 jf_linklist_iterate(jf_linklist_t * pList, jf_linklist_fnOpNode_t fnOpNode, 
  */
 u32 jf_linklist_appendTo(jf_linklist_t * pList, void * pData);
 
-/** Intert to the head of the linked list.
+/** Remove the data from the linked list.
+ *
+ *  @param pList [in] The linked list to append data.
+ *  @param pData [in] The data to be removed.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+u32 jf_linklist_remove(jf_linklist_t * pList, void * pData);
+
+/** Intert the data to the head of the linked list.
  *
  *  @param pList [in] The linked list to insert data.
  *  @param pData [in] The data to be inserted.

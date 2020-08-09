@@ -120,7 +120,7 @@ static u32 _parseServCtlCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_i
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFilePath = optarg;
+            pjlip->jlip_pstrLogFile = optarg;
             break;
         case 'O':
             pjlip->jlip_bLogToStdout = TRUE;

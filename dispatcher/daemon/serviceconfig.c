@@ -433,8 +433,13 @@ u32 scanDispatcherConfigDir(scan_dispatcher_config_dir_param_t * pParam)
 
     /*Parse the config directory.*/
     if (u32Ret == JF_ERR_NO_ERROR)
+    {
         u32Ret = jf_dir_parse(
             pParam->sdcdp_pstrConfigDir, _handleDispatcherConfigDirEntry, (void *)pParam);
+
+        if (u32Ret != JF_ERR_NO_ERROR)
+            JF_LOGGER_ERR(u32Ret, "failed to parse config dir: %s", pParam->sdcdp_pstrConfigDir);
+    }
 
     return u32Ret;
 }

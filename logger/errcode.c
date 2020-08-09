@@ -77,6 +77,8 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_TERMINATED, "Terminated."},
     {JF_ERR_INVALID_MESSAGE, "Invalid message."},
     {JF_ERR_INVALID_OPTION, "Invalid option for the command."},
+    {JF_ERR_REACH_MAX_TRANSACTION, "Maximum number of transaction is reached."},
+    {JF_ERR_TRANSACTION_NOT_FOUND, "Transaction is not found."},
 /* stack error */
 
 /* queue error */
@@ -386,8 +388,8 @@ u32 jf_err_addCode(u32 u32ErrCode, olchar_t * pstrDesc)
     return u32Ret;
 } 
 
-#if DEBUG
-void checkErrCode(void)
+#if defined(DEBUG_LOGGER)
+void jf_err_checkErrCode(void)
 {
     u32 u32Index;
     u32 u32Min = 0;
@@ -416,5 +418,3 @@ void checkErrCode(void)
 #endif
 
 /*------------------------------------------------------------------------------------------------*/
-
-

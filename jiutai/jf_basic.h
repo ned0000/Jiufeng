@@ -204,6 +204,8 @@ typedef time_t                       oltime_t;
     #define ol_vsprintf              vsprintf
     #define ol_printf                printf
     #define ol_fprintf               fprintf
+    #define ol_fflush                fflush
+    #define ol_dprintf               dprintf
     #define ol_sscanf                sscanf
     #define ol_strcpy                strcpy
     #define ol_strncpy               strncpy

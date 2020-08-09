@@ -1,0 +1,16 @@
+Tested on Ubuntu 18.04 desktop version.
+
+1. Install gcc tool.
+sudo apt install gcc
+
+2. Install git tool.
+sudo apt install git
+
+3. Install command line interface for SQLite 3.
+sudo apt install sqlite3
+
+4. Install development files (sqlite3 library) of SQLite 3.
+sudo apt install libsqlite3-dev
+
+5. Install development files (ssl and crypto library) of secure sockets layer toolkit.
+sudo apt install libssl-dev

@@ -83,12 +83,9 @@ static u32 _initConfigMgrReqMsgHeader(
 
 static olsize_t _getFullConfigMgrMsgSize(void * pHeader, olsize_t sHeader)
 {
-    olsize_t size = 0;
     config_mgr_msg_header_t * header = pHeader;
 
-    size = sizeof(*header) + header->cmmh_u32PayloadSize;
-
-    return size;
+    return getConfigMgrMsgSize(header);
 }
 
 static u32 _sendRecvConfigMgrMsg(

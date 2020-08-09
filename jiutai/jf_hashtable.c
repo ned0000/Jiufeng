@@ -1,7 +1,7 @@
 /**
  *  @file jf_hashtable.c
  *
- *  @brief Hash table implementation file
+ *  @brief Implementation files for hash table.
  *
  *  @author Min Zhang
  *
@@ -24,6 +24,7 @@
 #include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
 typedef struct hash_table_bucket
 {
     void * htb_pEntry;
@@ -546,6 +547,4 @@ olint_t jf_hashtable_hashPJW(void * pKey)
     return h > 0 ? h : -h;  // no modulo but positive
 }
 
-
 /*------------------------------------------------------------------------------------------------*/
-

@@ -22,8 +22,8 @@ PROGRAMS = xmalloc-test hashtree-test listhead-test hlisthead-test              
     prng-test encode-test xmlparser-test rand-test persistency-test                   \
     archive-test user-test httpparser-test network-test linklist-test                 \
     network-test-server network-test-client network-test-client-chain                 \
-    matrix-test webclient-test sqlite-test hex-test                                   \
-    utimer-test dispatcher-test-bgad dispatcher-test-sysctld
+    matrix-test webclient-test sqlite-test hex-test utimer-test                       \
+    configmgr-test dispatcher-test-bgad dispatcher-test-sysctld
 
 SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c hlisthead-test.c                       \
     listarray-test.c logger-test.c process-test.c hashtable-test.c mutex-test.c                 \
@@ -35,8 +35,8 @@ SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c hlisthead-test.c       
     prng-test.c encode-test.c xmlparser-test.c rand-test.c persistency-test.c                   \
     archive-test.c user-test.c httpparser-test.c network-test.c linklist-test.c                 \
     network-test-server.c network-test-client.c network-test-client-chain.c                     \
-    matrix-test.c webclient-test.c sqlite-test.c hex-test.c                                     \
-    utimer-test.c dispatcher-test-bgad.c dispatcher-test-sysctld.c
+    matrix-test.c webclient-test.c sqlite-test.c hex-test.c utimer-test.c                       \
+    configmgr-test.c dispatcher-test-bgad.c dispatcher-test-sysctld.c
 
 include $(TOPDIR)/mak/lnxobjdef.mak
 
@@ -69,7 +69,7 @@ $(BIN_DIR)/hlisthead-test: hlisthead-test.o $(JIUTAI_DIR)/jf_option.o $(JIUTAI_D
 $(BIN_DIR)/user-test: user-test.o $(JIUTAI_DIR)/jf_user.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger
 
-$(BIN_DIR)/logger-test: logger-test.o
+$(BIN_DIR)/logger-test: logger-test.o $(JIUTAI_DIR)/jf_option.o $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger
 
 $(BIN_DIR)/process-test: process-test.o $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_thread.o
@@ -197,6 +197,11 @@ $(BIN_DIR)/httpparser-test: httpparser-test.o $(JIUTAI_DIR)/jf_option.o
 $(BIN_DIR)/dispatcher-test-bgad: dispatcher-test-bgad.o $(JIUTAI_DIR)/jf_option.o \
        $(JIUTAI_DIR)/jf_time.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -lm -ljf_messaging \
+       -ljf_logger -ljf_jiukun
+
+$(BIN_DIR)/configmgr-test: configmgr-test.o $(JIUTAI_DIR)/jf_option.o $(JIUTAI_DIR)/jf_time.o \
+       $(JIUTAI_DIR)/jf_time.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -lm -ljf_config \
        -ljf_logger -ljf_jiukun
 
 $(BIN_DIR)/dispatcher-test-sysctld: dispatcher-test-sysctld.o $(JIUTAI_DIR)/jf_option.o \

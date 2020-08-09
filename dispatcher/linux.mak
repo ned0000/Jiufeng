@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The Makefile for messaging library and dispatcher daemon
+#  @brief The Makefile for messaging library and dispatcher daemon.
 #
 #  @author Min Zhang
 #

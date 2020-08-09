@@ -72,7 +72,7 @@ static u32 _parseDispatcherTestSysctldCmdLineParam(
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFilePath = optarg;
+            pjlip->jlip_pstrLogFile = optarg;
             break;
         case 'S':
             u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
@@ -89,29 +89,29 @@ static u32 _parseDispatcherTestSysctldCmdLineParam(
 static u32 _sysctldProcessMsg(u8 * pu8Msg, olsize_t sMsg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32MsgId = jf_messaging_getMsgId(pu8Msg, sMsg);
+    u16 u16MsgId = jf_messaging_getMsgId(pu8Msg, sMsg);
     sysctld_system_info_msg ssim;
 
     jf_messaging_initMsgHeader(
         (u8 *)&ssim, SYSCTLD_MSG_ID_SYSTEM_INFO, JF_MESSAGING_PRIO_HIGH,
         sizeof(ssim.ssim_ssimpPayload));
 
-    switch (u32MsgId)
+    switch (u16MsgId)
     {
     case BGAD_MSG_ID_ACTIVITY_INFO:
-        ol_printf("receive message, BGAD_MSG_ID_ACTIVITY_INFO\n");
+        JF_LOGGER_INFO("receive message, %u, BGAD_MSG_ID_ACTIVITY_INFO", u16MsgId);
         ol_strcpy((olchar_t *)ssim.ssim_ssimpPayload.ssimp_u8Payload, "activity info");
         u32Ret = jf_messaging_sendMsg((u8 *)&ssim, sizeof(ssim));
 
         break;
     case BGAD_MSG_ID_ACTIVITY_STATUS:
-        ol_printf("receive message, BGAD_MSG_ID_ACTIVITY_STATUS\n");
+        JF_LOGGER_INFO("receive message, %u, BGAD_MSG_ID_ACTIVITY_STATUS", u16MsgId);
         ol_strcpy((olchar_t *)ssim.ssim_ssimpPayload.ssimp_u8Payload, "activity status");
         u32Ret = jf_messaging_sendMsg((u8 *)&ssim, sizeof(ssim));
 
         break;
     default:
-        ol_printf("unsupported subscribed message\n");
+        JF_LOGGER_INFO("unsupported subscribed message", u16MsgId);
         break;
     }
 
@@ -220,9 +220,10 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "DSPT-TEST-SYSCTLD";
-    jlipParam.jlip_bLogToStdout = TRUE;
-    jlipParam.jlip_bLogToFile = TRUE;
-    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DEBUG;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
+    jlipParam.jlip_bLogToServer = TRUE;
+    jlipParam.jlip_pstrServerAddress = JF_LOGGER_DEFAULT_SERVER_ADDRESS;
+    jlipParam.jlip_u16ServerPort = JF_LOGGER_DEFAULT_SERVER_PORT;
 
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
