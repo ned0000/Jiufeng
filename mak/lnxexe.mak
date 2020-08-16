@@ -1,7 +1,7 @@
 #
-#  @file
+#  @file lnxexe.mak
 #
-#  @brief The Makefile for building executable file on Linux platform
+#  @brief The Makefile for building executable file on Linux platform.
 #
 #  @author Min Zhang
 #

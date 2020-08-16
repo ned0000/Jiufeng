@@ -1,0 +1,16 @@
+Tested with Visual Studio 2019 on Win10.
+
+1. Use Visual Studio Installer to install "Using the Visual Studio IDE for C++ Desktop Development"
+   with following optional package:
+     MSVC
+     Windows 10 SDK
+
+2. Run command tool "X64 Native Tools Command Prompt for VS2019".
+
+3. Enter the Jiufen directory.
+
+4. Set environment variable "TOPDIR" (use "chdir" in command shell to get current working directory):
+     set TOPDIR=D:/Jiufeng.
+
+5. Use nmake to build Jiufeng.
+     nmake /f windows.mak

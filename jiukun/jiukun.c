@@ -76,7 +76,8 @@ u32 jf_jiukun_init(jf_jiukun_init_param_t * pjjip)
         bp.bp_u8MaxOrder ++;
 
     JF_LOGGER_INFO(
-        "size: %u, page: %u, order: %u", pjjip->jjip_sPool, u32NumOfPages, bp.bp_u8MaxOrder);
+        "size: %u, num of page: %u, max order: %u", pjjip->jjip_sPool, u32NumOfPages,
+        bp.bp_u8MaxOrder);
 
     u32Ret = initJiukunBuddy(&bp);
     if (u32Ret == JF_ERR_NO_ERROR)

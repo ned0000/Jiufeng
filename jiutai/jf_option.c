@@ -10,8 +10,8 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -20,6 +20,7 @@
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -27,9 +28,53 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+/** End of option array.
+ */
+#define JF_OPTION_END_OF_ARGV                     (-1)
+
+/** Option returned when there are unknown option.
+ */
+#define JF_OPTION_UNKNOWN                         '?'
+
+/** Option returned when options has a missing argument.
+ */
+#define JF_OPTION_MISSING_ARG                     ':'
+
+/** Option prefix.
+ */
+#define JF_OPTION_PREFIX                          '-'
+
+/** Index of the option array, ignore the first entry in array which is command itself.
+ */
+static olint_t ls_nArgvIndex = 1;
+
+/** The argument of the option.
+ */
+static olchar_t * ls_pstrOptionArg = NULL;
+
+/** Index of the currently parsed option, ignore the first character '-'. For the options like
+ *  "-xyz".
+ */
+static olint_t ls_nOptionIndex = 1;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
+static void _printErrorOption(const olchar_t * pstrCmd, olchar_t * pstrError, int nOpt)
+{
+    olchar_t erropt[2];
+
+    erropt[0] = (olchar_t)nOpt;
+    erropt[1] = '\0';
+
+    ol_fprintf(stderr, "%s: %s -- '%s'\n", pstrCmd, pstrError, erropt);
+}
+
+static void _resetOptionVar(void)
+{
+    ls_nArgvIndex = 1;
+    ls_pstrOptionArg = NULL;
+    ls_nOptionIndex = 1;
+}
 
 /* --- public routine section ------------------------------------------------------------------- */
 
@@ -347,6 +392,95 @@ void jf_option_removeSpaceAfterString(olchar_t * pstr)
             end --;
         *(end + 1) = '\0';
     }
+}
+
+olint_t jf_option_get(olint_t argc, olchar_t ** const argv, const olchar_t * stropt)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olint_t nOpt = JF_OPTION_END_OF_ARGV;
+    olchar_t * arg = NULL;
+
+    /*End of argument array.*/
+    if (ls_nArgvIndex >= argc)
+        u32Ret = JF_ERR_OPERATION_FAIL;
+
+    if ((u32Ret == JF_ERR_NO_ERROR) && (ls_nOptionIndex == 1))
+    {
+        /*The option should be started with '-'.*/
+        if ((argv[ls_nArgvIndex][0] != JF_OPTION_PREFIX) || (ol_strlen(argv[ls_nArgvIndex]) <= 1))
+        {
+            _printErrorOption(argv[0], "illegal option", argv[ls_nArgvIndex][0]);
+            nOpt = JF_OPTION_UNKNOWN;
+            u32Ret = JF_ERR_OPERATION_FAIL;
+        }
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        /*':' cannot be an option.*/
+        nOpt = argv[ls_nArgvIndex][ls_nOptionIndex];
+        if (nOpt == ':')
+        {
+            _printErrorOption(argv[0], "illegal option", nOpt);
+            nOpt = JF_OPTION_UNKNOWN;
+            u32Ret = JF_ERR_OPERATION_FAIL;
+        }
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        /*Not specified option.*/
+        arg = ol_strchr(stropt, nOpt);
+        if (arg == NULL)
+        {
+            _printErrorOption(argv[0], "illegal option", nOpt);
+            nOpt = JF_OPTION_UNKNOWN;
+            u32Ret = JF_ERR_OPERATION_FAIL;
+        }
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ++ arg;
+        if (*arg == ':')
+        {
+            /*The option has an argument.*/
+            ++ ls_nArgvIndex;
+            if (ls_nArgvIndex >= argc)
+            {
+                _printErrorOption(argv[0], "option requires an argument", nOpt);
+                nOpt = JF_OPTION_MISSING_ARG;
+                u32Ret = JF_ERR_OPERATION_FAIL;
+            }
+            else
+            {
+                ls_pstrOptionArg = argv[ls_nArgvIndex];
+                ++ ls_nArgvIndex;
+                ls_nOptionIndex = 1;
+            }
+        }
+        else
+        {
+            /*The option has no argument*/
+            ++ ls_nOptionIndex;
+            if (argv[ls_nArgvIndex][ls_nOptionIndex] == '\0')
+            {
+                /*End of the option, move to the next entry in array.*/
+                ++ ls_nArgvIndex;
+                ls_nOptionIndex = 1;
+            }
+        }
+    }
+
+    if (u32Ret != JF_ERR_NO_ERROR)
+        _resetOptionVar();
+
+    return nOpt;
+}
+
+olchar_t * jf_option_getArg(void)
+{
+    return ls_pstrOptionArg;
 }
 
 /*------------------------------------------------------------------------------------------------*/

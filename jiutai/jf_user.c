@@ -27,6 +27,9 @@
 u32 jf_user_getUidGid(const olchar_t * pstrName, uid_t * pUid, gid_t * pGid)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+#if defined(WINDOWS)
+    u32Ret = JF_ERR_NOT_IMPLEMENTED;
+#elif defined(LINUX)
     struct passwd * pUserinfo = NULL;
 
     pUserinfo = getpwnam(pstrName);
@@ -40,6 +43,8 @@ u32 jf_user_getUidGid(const olchar_t * pstrName, uid_t * pUid, gid_t * pGid)
         *pUid = pUserinfo->pw_uid;
         *pGid = pUserinfo->pw_gid;
     }
-
+#endif
     return u32Ret;
 }
+
+/*------------------------------------------------------------------------------------------------*/

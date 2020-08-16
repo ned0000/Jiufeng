@@ -1,0 +1,8 @@
+Tested on Ubuntu 18.04 and 20.04 x86_64 version.
+
+1. Install necessary packages, refer to document "linux-package-dependency.txt".
+
+2. Enter the Jiufen directory.
+
+3. Use make to build Jiufeng.
+     make -f linux.mak

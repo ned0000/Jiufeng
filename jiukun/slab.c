@@ -570,7 +570,7 @@ static inline void _freeOneObj(
     /*make sure the page is used by slab, otherwise abort.*/
     if (! isJpSlab(page))
     {
-        jf_logger_logErrMsg(JF_ERR_JIUKUN_BAD_POINTER, "check page, bad ptr %lxh.", (ulong)objp);
+        JF_LOGGER_ERR(JF_ERR_JIUKUN_BAD_POINTER, "check page, bad ptr %p", objp);
         abort();
     }
 #endif
@@ -978,15 +978,15 @@ static void * _getMemoryEndAddr(internal_jiukun_slab_t * pijs, void * pMem)
     pCache = GET_PAGE_CACHE(pap);
     slabp = GET_PAGE_SLAB(pap);
 
-    objnr = (pMem - slabp->s_pMem) / pCache->sc_u32ObjSize;
+    objnr = ((u8 *)pMem - (u8 *)slabp->s_pMem) / pCache->sc_u32ObjSize;
     /*start address of the memory*/
     pRet = (u8 *)slabp->s_pMem + objnr * pCache->sc_u32ObjSize;
 
     /*end address of the memory*/
-    pRet += pCache->sc_u32RealObjSize;
+    pRet = (u8 *)pRet + pCache->sc_u32RealObjSize;
 
     if (JF_FLAG_GET(pCache->sc_jfCache, SC_FLAG_RED_ZONE))
-        pRet += SLAB_ALIGN_SIZE;
+        pRet = (u8 *)pRet + SLAB_ALIGN_SIZE;
 
     return pRet;
 }
@@ -1250,7 +1250,7 @@ u32 jf_jiukun_memcpy(void * pDest, const void * pSource, olsize_t size)
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if DEBUG_JIUKUN
     internal_jiukun_slab_t * pijs = &ls_iasSlab;
-    void * pEnd = pDest + size;
+    void * pEnd = (u8 *)pDest + size;
     void * pMemEnd = NULL;
 
     assert((pDest != NULL) && (pSource != NULL) && (size > 0));
@@ -1258,7 +1258,7 @@ u32 jf_jiukun_memcpy(void * pDest, const void * pSource, olsize_t size)
     pMemEnd = _getMemoryEndAddr(pijs, pDest);
     if (pEnd > pMemEnd)
     {
-        jf_logger_logErrMsg(JF_ERR_JIUKUN_MEMORY_OUT_OF_BOUND, "jiukun memcpy");
+        JF_LOGGER_ERR(JF_ERR_JIUKUN_MEMORY_OUT_OF_BOUND, "jiukun memcpy");
         abort();
     }
     else

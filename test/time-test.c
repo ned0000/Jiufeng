@@ -87,37 +87,37 @@ static u32 _parseTimeTestCmdLineParam(olint_t argc, olchar_t ** argv)
 static u32 _testTimeClock(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    struct timespec tp;
-    olint_t rawtime = 0;
+    jf_time_spec_t jts;
+    u64 rawtime = 0;
 
     jf_time_getMonotonicRawTimeInSecond(&rawtime);
-    u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &tp);
+    u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &jts);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_printf("clock time, tv_sec: %ld, tv_nsec: %ld\n", tp.tv_sec, tp.tv_nsec);
-        ol_printf("raw time: %d\n", rawtime);
+        ol_printf("clock time, tv_sec: %llu, tv_nsec: %llu\n", jts.jts_u64Second, jts.jts_u64NanoSecond);
+        ol_printf("raw time: %llu\n", rawtime);
 
         jf_time_sleep(5);
 
         jf_time_getMonotonicRawTimeInSecond(&rawtime);
-        u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &tp);
+        u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &jts);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_printf("clock time, tv_sec: %ld, tv_nsec: %ld\n", tp.tv_sec, tp.tv_nsec);
-        ol_printf("raw time: %d\n", rawtime);
+        ol_printf("clock time, tv_sec: %llu, tv_nsec: %llu\n", jts.jts_u64Second, jts.jts_u64NanoSecond);
+        ol_printf("raw time: %llu\n", rawtime);
 
         jf_time_sleep(3);
 
         jf_time_getMonotonicRawTimeInSecond(&rawtime);
-        u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &tp);
+        u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &jts);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_printf("clock time, tv_sec: %ld, tv_nsec: %ld\n", tp.tv_sec, tp.tv_nsec);
-        ol_printf("raw time: %d\n", rawtime);
+        ol_printf("clock time, tv_sec: %llu, tv_nsec: %llu\n", jts.jts_u64Second, jts.jts_u64NanoSecond);
+        ol_printf("raw time: %llu\n", rawtime);
     }
 
     ol_printf("\n");

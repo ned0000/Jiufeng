@@ -1,7 +1,7 @@
 #
-#  @file
+#  @file wincfg.mak
 #
-#  @brief The configuration file for Windows platform 
+#  @brief The configuration file for Windows platform.
 #
 #  @author Min Zhang
 #
@@ -10,26 +10,51 @@
 
 #---------------------------------------------------------------------------------------------------
 
-!include <ntwin32.mak>
+JIUFENG_64BIT = yes
 
+# Set variable depending on 64bit version or 32bit version.
+!if "$(JIUFENG_64BIT)" == "yes"
+CPU = X64
+!else
+CPU = X86
+!endif
+
+# Utility for nmake.
+CC = cl
+CXX = cl
+LINK = link
+RC = rc
+CVTRES = cvtres
+IMPLIB = lib
 CP = copy
 
+# Directory for binary and library files.
 JIUTAI_DIR = $(TOPDIR)\jiutai
 BUILD_DIR = $(TOPDIR)\build
 BIN_DIR = $(BUILD_DIR)
 LIB_DIR = $(BUILD_DIR)
+CONFIG_DIR = $(BUILD_DIR)/config
 
+# For including header files.
 INCLUDES = -I$(JIUTAI_DIR) -I.\
 
-CFLAGS = -DWIN32 -D_WIN32 -DWINDOWS $(EXTRA_DEFS) /Zp8
+# C flags.
+CFLAGS = -DWINDOWS $(EXTRA_DEFS) /Zp8
 
-LDFLAGS = /nologo
+# Set C flags depending on 64bit version or 32bit version.
+!if "$(JIUFENG_64BIT)" == "yes"
+CFLAGS = $(CFLAGS) -DJIUFENG_64BIT -DWIN64
+!else
+CFLAGS = $(CFLAGS) -DWIN32 -D_WIN32
+!endif
 
-DLLFLAGS = /SUBSYSTEM:windows /nologo /machine:$(CPU) \
-           /LIBPATH:$(LIB_DIR) \
-	   /INCREMENTAL:NO /NOLOGO -entry:_DllMainCRTStartup@12 -dll
+# Link flags.
+LDFLAGS = /NOLOGO
 
-# Debug flags
+# DLL flags.
+DLLFLAGS = /MACHINE:$(CPU) /LIBPATH:$(LIB_DIR) /INCREMENTAL:NO /NOLOGO /DLL
+
+# Debug flags.
 !if "$(DEBUG_JIUFENG)" == "yes"
 CFLAGS = $(CFLAGS) /Zi /MTd
 LDFLAGS = $(LDFLAGS) /DEBUG
@@ -40,15 +65,17 @@ LDFLAGS = $(LDFLAGS) /RELEASE
 DLLFLAGS = $(DLLFLAGS) /RELEASE
 !endif
 
+# C++ flags.
 CXXFLAGS = $(CFLAGS)
 
-SYSLIBS = kernel32.lib advapi32.lib user32.lib
+# System library.
+SYSLIBS =
 
-# for rc tools
+# For rc tools.
 RFLAGS =
 
-# for cvtres tools 
-CVFLAGS = -$(CPU)
+# For cvtres tools.
+CVFLAGS = /machine:$(CPU)
 
 #---------------------------------------------------------------------------------------------------
 

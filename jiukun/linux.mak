@@ -1,7 +1,7 @@
 #
 #  @file linux.mak
 #
-#  @brief The makefile for jiukun library
+#  @brief The makefile for jiukun library.
 #
 #  @author Min Zhang
 #

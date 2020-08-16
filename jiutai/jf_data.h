@@ -48,7 +48,7 @@ static inline olsize_t jf_data_copyToBuffer(
         if (copy > sData)
             copy = sData;
 
-        ol_memcpy(pBuf + sOffset, pData, copy);
+        ol_memcpy((u8 *)pBuf + sOffset, pData, copy);
     }
 
     return copy;

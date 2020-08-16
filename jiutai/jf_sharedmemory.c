@@ -10,6 +10,7 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stdio.h>
 #include <string.h>
 #if defined(LINUX)
@@ -18,6 +19,7 @@
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -40,6 +42,7 @@
 #endif
 
 /* --- private routine section ------------------------------------------------------------------ */
+
 #if defined(LINUX)
 static u32 _getShmId(jf_sharedmemory_id_t * pjsi, olint_t * pnShmId)
 {
@@ -54,13 +57,13 @@ static u32 _getShmId(jf_sharedmemory_id_t * pjsi, olint_t * pnShmId)
 static u32 _getShmId(jf_sharedmemory_id_t * pjsi)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    uuid_param_t up;
+    jf_uuid_param_t jup;
 
-	ol_memset(&up, 0, sizeof(uuid_param_t));
+	ol_bzero(&jup, sizeof(jup));
 
-	up.up_ufFmt = UUID_FMT_HEX;
+	jup.jup_ufFmt = JF_UUID_FMT_HEX;
 
-	u32Ret = getUuid(pjsi, JF_SHAREDMEMORY_ID_LEN, UUID_VER_1, &up);
+	u32Ret = jf_uuid_get(pjsi, JF_SHAREDMEMORY_ID_LEN, JF_UUID_VER_1, &jup);
     if (u32Ret != JF_ERR_NO_ERROR)
 	{
 		u32Ret = JF_ERR_FAIL_CREATE_SHAREDMEMORY;

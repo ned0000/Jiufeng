@@ -44,9 +44,12 @@
 
 #if defined(WINDOWS)
     typedef void (WINAPI *PGNSI)(LPSYSTEM_INFO);
+
+    #ifndef SM_SERVERR2
+        #define SM_SERVERR2              (89)
+    #endif
+    #define BUFSIZE                      (80)
 #endif
-#define SM_SERVERR2              (89)
-#define BUFSIZE                  (80)
 
 /* --- private funciton routines ---------------------------------------------------------------- */
 

@@ -10,6 +10,18 @@
  *  -# For option handling, use functions in jf_option object, not jf_string library.
  *  -# No memory allocation in jf_option object, so it's safe to use it before memory is initialized.
  *  
+ *  @par Rules for Option
+ *  -# Only short options are supported.
+ *  -# Options are started with '-'.
+ *  -# ':' after option is used to indicate that the option has an argument.
+ *  -# Multiple options can follow one '-'.
+ *  -# Space should be there between option and argument.
+ *  @code
+ *  command -x
+ *  command -xy
+ *  command -z value
+ *  command -xyz value
+ *  @endcode
  */
 
 #ifndef JIUTAI_OPTION_H
@@ -190,6 +202,31 @@ olchar_t * jf_option_skipSpaceBeforeString(olchar_t * pstr);
  */
 void jf_option_removeSpaceAfterString(olchar_t * pstr);
 
+/** Get an option from the argument array.
+ *
+ *  @note
+ *  -# The option string contains all the supported options. If the option has argument followed,
+ *   ':' is used.
+ *  -# '?' and ':' is returned for error, the parse should not continue as all internal variables
+ *   inside this function are reset.
+ *
+ *  @param argc [in] Number of elements in the argument array.
+ *  @param argv [in] The argument array.
+ *  @param stropt [in] The option string.
+ *
+ *  @return The option or the parse result.
+ *  @retval option Option has been successfully found.
+ *  @retval -1 All options have been parsed.
+ *  @retval ? Unknown option which is not in option string.
+ *  @retval ':' The option is with a missing argument.
+ */
+olint_t jf_option_get(olint_t argc, olchar_t ** const argv, const olchar_t * stropt);
+
+/** Get argument of current option parsed.
+ *
+ *  @return The option argument.
+ */
+olchar_t * jf_option_getArg(void);
 
 #endif /*JIUTAI_OPTION_H*/
 

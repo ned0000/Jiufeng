@@ -66,7 +66,7 @@ typedef struct jiukun_page
 #define setJpZoneId(page, zoneid) (JF_FLAG_SET_VALUE(page->jp_jfPage, 63, 56, zoneid))
 #define getJpZoneId(page) (JF_FLAG_GET_VALUE(page->jp_jfPage, 63, 56))
 
-#define pageToIndex(page, base) ((u32)(page - base))
+#define pageToIndex(page, base) ((olint_t)(page - base))
 
 typedef struct
 {

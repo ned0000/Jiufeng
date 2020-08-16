@@ -1,7 +1,7 @@
 /**
  *  @file jf_thread.c
  *
- *  @brief Thread implementation file. Provide some functional routine for managing thread
+ *  @brief Thread implementation file. Provide some functional routine for managing thread.
  *
  *  @author Min Zhang
  *  
@@ -10,29 +10,28 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <signal.h>
+
 #include <stdlib.h>
 #if defined(LINUX)
     #include <sys/types.h>
-    #include <unistd.h>
     #include <sys/stat.h>
     #include <fcntl.h>
     #include <sys/wait.h>
 #elif defined(WINDOWS)
     #include <time.h>
     #include <process.h>
-    #include <psapi.h>
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_thread.h"
 #include "jf_err.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
+#if defined(LINUX)
 
 typedef struct
 {
@@ -41,6 +40,8 @@ typedef struct
 } signal_handler_arg;
 
 static signal_handler_arg ls_shaSignalArg;
+
+#endif
 
 /* --- private routine section ------------------------------------------------------------------ */
 
@@ -202,10 +203,19 @@ u32 jf_thread_waitForThreadTermination(jf_thread_id_t threadId, u32 * pu32RetCod
 u32 jf_thread_registerSignalHandlers(jf_thread_fnSignalHandler_t fnSignalHandler)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-#if defined(WINDOWS)
-    u32Ret = JF_ERR_NOT_IMPLEMENTED;
-#elif defined(LINUX)
     olint_t nIndex = 0;
+#if defined(WINDOWS)
+    olint_t nSignals[] = {SIGTERM, SIGINT};
+    olint_t nSignalCount = 2;
+
+    while ((u32Ret == JF_ERR_NO_ERROR) && (nIndex < nSignalCount))
+    {
+        signal(nSignals[nIndex], fnSignalHandler);
+        nIndex ++;
+    }
+
+#elif defined(LINUX)
+
     olint_t nSignals[] = {SIGABRT, SIGHUP, SIGPIPE, SIGQUIT, SIGTERM, SIGTSTP, SIGINT, SIGCHLD};
     olint_t nRet = 0, nSignalCount = 8;
     sigset_t ssSignalSet;

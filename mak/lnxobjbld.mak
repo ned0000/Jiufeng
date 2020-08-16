@@ -1,7 +1,7 @@
 #
-#  @file
+#  @file lnxobjbld.mak
 #
-#  @brief The Makefile for object rules on Linux platform
+#  @brief The Makefile for object rules on Linux platform.
 #
 #  @author Min Zhang
 #

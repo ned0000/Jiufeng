@@ -1,7 +1,7 @@
 #
-#  @file
+#  @file lnxlib.mak
 #
-#  @brief The Makefile for building dynamic library on Linux platform
+#  @brief The Makefile for building dynamic library on Linux platform.
 #
 #  @author Min Zhang
 #

@@ -88,7 +88,7 @@ static u32 _connectToLogServer(olchar_t * pstrAddress, u16 u16Port, olint_t * pn
             u32Ret = JF_ERR_INVALID_IP;
 #elif defined(WINDOWS)
         addr.sin_addr.s_addr = inet_addr(pstrAddress);
-        if (pji->ji_uAddr.ju_nAddr == INADDR_NONE)
+        if (addr.sin_addr.s_addr == INADDR_NONE)
             u32Ret = JF_ERR_INVALID_IP;
 #endif
     }

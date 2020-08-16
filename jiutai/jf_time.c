@@ -28,8 +28,20 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-
 /* --- private routine section ------------------------------------------------------------------ */
+
+static u32 _getLocalTime(time_t * ptSec, struct tm * pResult)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+#if defined(WINDOWS)
+    localtime_s(pResult, ptSec);
+#elif defined(LINUX)
+    localtime_r(ptSec, pResult);
+#endif
+
+    return u32Ret;
+}
 
 static void _removeTrailingNewLineChar(olchar_t * pstrTime)
 {
@@ -88,17 +100,23 @@ u32 jf_time_getTimeOfDay(struct timeval * tv)
     return u32Ret;
 }
 
-u32 jf_time_getClockTime(clockid_t clkid, struct timespec * tp)
+u32 jf_time_getClockTime(clockid_t clkid, jf_time_spec_t * pjts)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-
+    struct timespec tp;
 #if defined(LINUX)
     s32 ret = 0;
 
-    ret = clock_gettime(clkid, tp);
+    ret = clock_gettime(clkid, &tp);
     if (ret == -1)
+    {
         u32Ret = JF_ERR_FAIL_GET_CLOCK_TIME;
-
+    }
+    else
+    {
+        pjts->jts_u64Second = (u64)tp.tv_sec;
+        pjts->jts_u64NanoSecond = (u64)tp.tv_nsec;
+    }
 #elif defined(WINDOWS)
     u32Ret = JF_ERR_NOT_IMPLEMENTED;
 #endif
@@ -139,7 +157,7 @@ u32 jf_time_microSleep(u32 u32MicroSeconds)
 #if defined(LINUX)
     usleep(u32MicroSeconds);
 #elif defined(WINDOWS)
-    TO_BE_DONE;
+    u32Ret = JF_ERR_NOT_IMPLEMENTED;
 #endif
 
     return u32Ret;
@@ -155,7 +173,7 @@ u32 jf_time_nanoSleep(u32 u32NanoSeconds)
     ts.tv_nsec = u32NanoSeconds;
     nanosleep(&ts, NULL);
 #elif defined(WINDOWS)
-    TO_BE_DONE;
+    u32Ret = JF_ERR_NOT_IMPLEMENTED;
 #endif
 
     return u32Ret;
@@ -220,10 +238,11 @@ u32 jf_time_getTimeFromString(
     const olchar_t * pstrTime, olint_t * pHour, olint_t * pMin, olint_t * pSec)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t * firstChar, * psubStr, cCol = ':';
+    olchar_t * firstChar = NULL, * psubStr = NULL;
+    olint_t cCol = ':';
     olchar_t strTime[100];
-    u32 u32Value;
-    olsize_t size;
+    u32 u32Value = 0;
+    olsize_t size = 0;
 
     ol_memset(strTime, 0, sizeof(strTime));
     ol_strncpy(strTime, pstrTime, sizeof(strTime) - 1);
@@ -311,17 +330,17 @@ u32 jf_time_getStringTime(
     return u32Ret;
 }
 
-u32 jf_time_getMonotonicRawTimeInSecond(olint_t * pSec)
+u32 jf_time_getMonotonicRawTimeInSecond(u64 * pu64Sec)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    struct timespec tp;
-    olint_t rawtime = 0;
+    jf_time_spec_t jts;
+    u64 rawtime = 0;
 
-    u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &tp);
+    u32Ret = jf_time_getClockTime(JF_TIME_CLOCK_MONOTONIC_RAW, &jts);
     if (u32Ret == JF_ERR_NO_ERROR)
-        rawtime = (olint_t)tp.tv_sec;
+        rawtime = jts.jts_u64Second;
 
-    *pSec = rawtime;
+    *pu64Sec = rawtime;
 
     return u32Ret;
 }
@@ -383,7 +402,8 @@ u32 jf_time_getUtcTimeInSecondOfNextDay(const u64 u64Sec, u64 * pu64Next)
     struct tm result;
 
     /*Use local time instead utc time as mktime() needs local broken-down time.*/
-    localtime_r(&tSec, &result);
+    _getLocalTime(&tSec, &result);
+
     result.tm_mday ++;
     /*mktime() take local broken-down time as parameter and return utc time.*/
     *pu64Next = (u64)mktime(&result);
@@ -398,7 +418,8 @@ u32 jf_time_getUtcTimeInSecondOfNextWeek(const u64 u64Sec, u64 * pu64Next)
     struct tm result;
 
     /*Use local time instead utc time as mktime() needs local broken-down time.*/
-    localtime_r(&tSec, &result);
+    _getLocalTime(&tSec, &result);
+
     result.tm_mday += 7;
     /*mktime() take local broken-down time as parameter and return utc time.*/
     *pu64Next = (u64)mktime(&result);
@@ -418,7 +439,11 @@ u32 jf_time_getStringLocalTime(olchar_t * pstrTime, olsize_t sStrTime, const u64
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+#if defined(WINDOWS)
+        ctime_s(pstrTime, sStrTime, &tSec);
+#elif defined(LINUX)
         ctime_r(&tSec, pstrTime);
+#endif
         /*Remove the '\n' at the end of string.*/
         _removeTrailingNewLineChar(pstrTime);
     }
@@ -439,8 +464,13 @@ u32 jf_time_getStringUtcTime(olchar_t * pstrTime, olsize_t sStrTime, const u64 u
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+#if defined(WINDOWS)
+        gmtime_s(&result, &tSec);
+        asctime_s(pstrTime, sStrTime, &result);
+#elif defined(LINUX)
         gmtime_r(&tSec, &result);
         asctime_r(&result, pstrTime);
+#endif
         /*Remove the '\n' at the end of string.*/
         _removeTrailingNewLineChar(pstrTime);
     }

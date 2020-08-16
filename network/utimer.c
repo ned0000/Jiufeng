@@ -25,7 +25,7 @@
 /* --- private data/data structure section ------------------------------------------------------ */
 typedef struct utimer_item
 {
-    u32 ui_u32Expire;
+    u64 ui_u64Expire;
     void * ui_pData;
     jf_network_fnCallbackOfUtimerItem_t ui_fnCallback;
     jf_network_fnDestroyUtimerItemData_t ui_fnDestroy;
@@ -78,7 +78,7 @@ static u32 _destroyUtimerItems(internal_utimer_t * piu, jf_listhead_t * list, bo
             temp->ui_fnCallback(temp->ui_pData);
 
 #if defined(DEBUG_UTIMER)
-        JF_LOGGER_DEBUG("utimer: %s, expire: %d", piu->iu_strName, temp->ui_u32Expire);
+        JF_LOGGER_DEBUG("utimer: %s, expire: %llu", piu->iu_strName, temp->ui_u64Expire);
 #endif
 
         _freeUtimerItem(&temp);
@@ -102,20 +102,22 @@ static u32 _checkUtimer(
     u32 * pu32Blocktime)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    struct timespec tp;
+    jf_time_spec_t jts;
     utimer_item_t * temp = NULL;
-    u32 nexttick, current;
+    u32 nexttick = 0;
+    u64 current = 0;
     internal_utimer_t * piu = (internal_utimer_t *)pObject;
     jf_listhead_t * pos = NULL, * temppos = NULL;
     JF_LISTHEAD(jlTriggerItem);
 
     /*Get the current time for reference*/
-    u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &tp);
+    u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &jts);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        current = (tp.tv_sec * 1000) + (tp.tv_nsec / 1000000);
+        current = (jts.jts_u64Second * JF_TIME_SECOND_TO_MILLISECOND) + 
+            (jts.jts_u64NanoSecond / JF_TIME_SECOND_TO_MICROSECOND);
 #if defined(DEBUG_UTIMER)
-        JF_LOGGER_DEBUG("utimer: %s, current: %d", piu->iu_strName, current);
+        JF_LOGGER_DEBUG("utimer: %s, current: %llu", piu->iu_strName, current);
 #endif
         jf_mutex_acquire(&piu->iu_jmLock);
 
@@ -123,7 +125,7 @@ static u32 _checkUtimer(
         {
             temp = jf_listhead_getEntry(pos, utimer_item_t, ui_jlList);
 
-            if (temp->ui_u32Expire <= current)
+            if (temp->ui_u64Expire <= current)
             {
                 /*temp should be triggered*/
                 jf_listhead_moveTail(&jlTriggerItem, pos);
@@ -139,7 +141,7 @@ static u32 _checkUtimer(
         {
             temp = jf_listhead_getEntry(piu->iu_jlItem.jl_pjlNext, utimer_item_t, ui_jlList);
 
-            nexttick = temp->ui_u32Expire - current;
+            nexttick = (u32)(temp->ui_u64Expire - current);
             if (nexttick < *pu32Blocktime)
             {
                 *pu32Blocktime = nexttick;
@@ -225,7 +227,7 @@ static u32 _insertUtimerItem(internal_utimer_t * piu, utimer_item_t * pui)
             temp = jf_listhead_getEntry(pos, utimer_item_t, ui_jlList);
 
             /*There are already triggers, so we just insert this one in sorted order*/
-            if (pui->ui_u32Expire < temp->ui_u32Expire)
+            if (pui->ui_u64Expire < temp->ui_u64Expire)
             {
                 jf_listhead_addTail(pos, &pui->ui_jlList);
                 break;
@@ -249,7 +251,7 @@ u32 jf_network_addUtimerItem(
     jf_network_fnCallbackOfUtimerItem_t fnCallback, jf_network_fnDestroyUtimerItemData_t fnDestroy)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    struct timespec tp;
+    jf_time_spec_t jts;
     utimer_item_t * pui;
     internal_utimer_t * piu = (internal_utimer_t *) pUtimer;
 
@@ -262,16 +264,18 @@ u32 jf_network_addUtimerItem(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Get the current time for reference*/
-        u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &tp);
+        u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &jts);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(pui, 0, sizeof(utimer_item_t));
         /*Set the trigger time*/
-        pui->ui_u32Expire = (tp.tv_sec * 1000) + (tp.tv_nsec / 1000000) + (u32Seconds * 1000);
+        pui->ui_u64Expire = (jts.jts_u64Second * JF_TIME_SECOND_TO_MILLISECOND) +
+            (jts.jts_u64NanoSecond / JF_TIME_SECOND_TO_MICROSECOND) +
+            (u32Seconds * JF_TIME_SECOND_TO_MILLISECOND);
 #if defined(DEBUG_UTIMER)
-        JF_LOGGER_DEBUG("utimer: %s, expire at: %d", piu->iu_strName, pui->ui_u32Expire);
+        JF_LOGGER_DEBUG("utimer: %s, expire at: %llu", piu->iu_strName, pui->ui_u64Expire);
 #endif
         pui->ui_pData = pData;
         /*Set the callback handlers*/
@@ -371,7 +375,7 @@ void jf_network_dumpUtimerItem(jf_network_utimer_t * pUtimer)
     {
         temp = jf_listhead_getEntry(pos, utimer_item_t, ui_jlList);
 
-        ol_printf("%02d, expire: %d\n", u32Index, temp->ui_u32Expire);
+        ol_printf("%02d, expire: %llu\n", u32Index, temp->ui_u64Expire);
         u32Index ++;
     }
 

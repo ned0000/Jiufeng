@@ -1,7 +1,7 @@
 #
-#  @file
+#  @file winobjbld.mak
 #
-#  @brief The Makefile for object rules on Windows platform
+#  @brief The Makefile for object rules on Windows platform.
 #
 #  @author Min Zhang
 #

@@ -1,7 +1,7 @@
 #
-#  @file
+#  @file winobj.mak
 # 
-#  @brief The Makefile for building object file on Windows platform
+#  @brief The Makefile for building object file on Windows platform.
 #
 #  @author Min Zhang
 #

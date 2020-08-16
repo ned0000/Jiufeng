@@ -1,7 +1,7 @@
 #
-#  @file
+#  @file winexe.mak
 #
-#  @brief The Makefile for building executable file on Windows platform
+#  @brief The Makefile for building executable file on Windows platform.
 #
 #  @author Min Zhang
 #
@@ -22,7 +22,7 @@ all: $(PROGRAM)
 
 $(PROGRAM): $(OBJECTS) $(JIUTAI_OBJS)
 	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
-	$(link) $(LDFLAGS) $(EXTRA_LDFLAGS) /libpath:$(LIB_DIR) \
+	$(LINK) $(LDFLAGS) $(EXTRA_LDFLAGS) /libpath:$(LIB_DIR) \
 	    /out:$@ $** $(SYSLIBS) $(EXTRA_LIBS)
 
 clean:

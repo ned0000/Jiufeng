@@ -243,7 +243,7 @@ boolean_t jf_hashtable_isEndOfIterator(jf_hashtable_iterator_t * pIterator);
 /** Hash function for zero terminated entry (f.e. strings).
  *
  *  @note
- *  -# It is from the `dragon book' and should work very well especially for strings as keys.
+ *  -# It is from the 'dragon book' and should work very well especially for strings as keys.
  *
  *  @param pKey [in] The key to hash.
  *
@@ -251,7 +251,8 @@ boolean_t jf_hashtable_isEndOfIterator(jf_hashtable_iterator_t * pIterator);
  */
 olint_t jf_hashtable_hashPJW(void * pKey);
 
-
+/** Define bits per long for different architecture.
+ */
 #ifndef BITS_PER_LONG
     #if defined(JIUFENG_64BIT)
         #define BITS_PER_LONG  64
@@ -261,18 +262,18 @@ olint_t jf_hashtable_hashPJW(void * pKey);
 #endif
 
 /* 2^31 + 2^29 - 2^25 + 2^22 - 2^19 - 2^16 + 1 */
-#define JF_HASHTABLE_GOLDEN_RATIO_PRIME_32 0x9e370001UL
+#define JF_HASHTABLE_GOLDEN_RATIO_PRIME_32         (0x9e370001UL)
 /*  2^63 + 2^61 - 2^57 + 2^54 - 2^51 - 2^18 + 1 */
-#define JF_HASHTABLE_GOLDEN_RATIO_PRIME_64 0x9e37fffffffc0001UL
+#define JF_HASHTABLE_GOLDEN_RATIO_PRIME_64         (0x9e37fffffffc0001UL)
 
 /** Define the function to hash long integer.
  */
 #if BITS_PER_LONG == 32
-    #define JF_HASHTABLE_GOLDEN_RATIO_PRIME  JF_HASHTABLE_GOLDEN_RATIO_PRIME_32
-    #define jf_hashtable_hashLong(val, bits) jf_hashtable_hashU32(val, bits)
+    #define jf_hashtable_hashLong(val, bits)       jf_hashtable_hashU32((u32)val, bits)
+    #define JF_HASHTABLE_GOLDEN_RATIO_PRIME        JF_HASHTABLE_GOLDEN_RATIO_PRIME_32
 #elif BITS_PER_LONG == 64
-    #define jf_hashtable_hashLong(val, bits) jf_hashtable_hashU64(val, bits)
-    #define JF_HASHTABLE_GOLDEN_RATIO_PRIME  JF_HASHTABLE_GOLDEN_RATIO_PRIME_64
+    #define jf_hashtable_hashLong(val, bits)       jf_hashtable_hashU64((u64)val, bits)
+    #define JF_HASHTABLE_GOLDEN_RATIO_PRIME        JF_HASHTABLE_GOLDEN_RATIO_PRIME_64
 #else
     #error Wordsize not 32 or 64
 #endif
@@ -332,7 +333,7 @@ static inline u32 jf_hashtable_hashU32(u32 val, u32 bits)
  */
 static inline unsigned long jf_hashtable_hashPtr(void * ptr, u32 bits)
 {
-    return jf_hashtable_hashLong((unsigned long)ptr, bits);
+    return jf_hashtable_hashLong(ptr, bits);
 }
 
 

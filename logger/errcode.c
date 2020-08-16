@@ -76,7 +76,6 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_INCOMPLETE_DATA, "Incomplete data."},
     {JF_ERR_TERMINATED, "Terminated."},
     {JF_ERR_INVALID_MESSAGE, "Invalid message."},
-    {JF_ERR_INVALID_OPTION, "Invalid option for the command."},
     {JF_ERR_REACH_MAX_TRANSACTION, "Maximum number of transaction is reached."},
     {JF_ERR_TRANSACTION_NOT_FOUND, "Transaction is not found."},
 /* stack error */
@@ -151,6 +150,9 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
 /* ptree error */
     {JF_ERR_MAX_PTREE_NODE_FOUND, "Maximum property tree nodes have been found."},
     {JF_ERR_PTREE_NODE_NOT_FOUND, "Property tree node is not found."},
+/* option error */
+    {JF_ERR_INVALID_OPTION, "Invalid option for the command."},
+    {JF_ERR_MISSING_OPTION_ARG, "Option argument is missing."},
 /* logger error */
     {JF_ERR_CALLER_NAME_TOO_LONG, "Length of the caller name is too long."},
 /* archive error */

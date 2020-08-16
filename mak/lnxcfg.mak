@@ -1,7 +1,7 @@
 #
-#  @file
+#  @file lnxcfg.mak
 #
-#  @brief The configuration file for Linux platform 
+#  @brief The configuration file for Linux platform.
 #
 #  @author Min Zhang
 #
@@ -10,7 +10,7 @@
 
 #---------------------------------------------------------------------------------------------------
 
-# Utility for make
+# Utility for make.
 CC = gcc
 CXX = g++
 LD = ld
@@ -19,36 +19,36 @@ AR = ar
 RANLIB = ranlib
 CP = cp
 
-# C flags
+# C flags.
 CFLAGS = -Wall -DLINUX -D_REENTRANT -fPIC -Wno-format-truncation
 
-# for 64bit version
+# for 64bit version.
 CFLAGS += -DJIUFENG_64BIT
 
-# Debug flags
+# Debug flags.
 ifeq ("$(DEBUG_JIUFENG)", "yes")
     CFLAGS += -g -DDEBUG
 else
     CFLAGS += -DNDEBUG
 endif
 
-# C++ flags
+# C++ flags.
 CXXFLAGS = $(CFLAGS)
 
-# Link flags
+# Link flags.
 LDFLAGS = -Wl,-rpath $(LIB_DIR)
 
-# Directory for make
+# Directory for binary, library and config files.
 JIUTAI_DIR = $(TOPDIR)/jiutai
 BUILD_DIR = $(TOPDIR)/build
 BIN_DIR = $(BUILD_DIR)/bin
 LIB_DIR = $(BUILD_DIR)/lib
 CONFIG_DIR = $(BUILD_DIR)/config
 
-# Directory for header files
+# For including header files.
 INCLUDES = -I$(JIUTAI_DIR) -I./
 
-# System library
+# System library.
 SYSLIBS = -lpthread
 
 #---------------------------------------------------------------------------------------------------

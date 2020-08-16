@@ -372,22 +372,8 @@ static inline void jf_listhead_split(
 #elif defined(WINDOWS)
     typedef long LONG;
 
-    #if defined(WIN64)
-        typedef s64 LONG_PTR; 
-    #else
-        typedef long LONG_PTR;
-    #endif
-
     typedef olchar_t CHAR;
     typedef CHAR *PCHAR;
-
-    #if defined(WIN64)
-        typedef u64 ULONG_PTR;
-    #else
-        typedef unsigned long ULONG_PTR;
-    #endif
-
-//  #define offsetof(type, field)    ((LONG)(LONG_PTR)&(((type *)0)->field))
 
     #define container_of(address, type, field) ((type *)( \
        (PCHAR)(address) - offsetof(type, field)))

@@ -1,7 +1,7 @@
 #
-#  @file
+#  @file lnxobjdef.mak
 #
-#  @brief The object definition file for Linux system 
+#  @brief The object definition file for Linux system.
 #
 #  @author Min Zhang
 #

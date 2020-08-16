@@ -72,7 +72,7 @@ static olsize_t _getLogTimeStamp(olchar_t * pstrStamp, olsize_t sStamp)
     u32Ret = jf_time_getTimeOfDay(&tv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        tmLocal = localtime(&tv.tv_sec);
+        tmLocal = localtime((const oltime_t *)&tv.tv_sec);
 
         if (tmLocal != NULL)
             sStr = _getStringTimeStamp(tmLocal, (u32)tv.tv_usec, pstrStamp, sStamp);

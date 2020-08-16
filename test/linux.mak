@@ -12,7 +12,7 @@
 
 include $(TOPDIR)/mak/lnxcfg.mak
 
-PROGRAMS = xmalloc-test hashtree-test listhead-test hlisthead-test                    \
+PROGRAMS = mem-test option-test hashtree-test listhead-test hlisthead-test            \
     listarray-test logger-test process-test hashtable-test mutex-test                 \
     rwlock-test sem-test date-test time-test string-test                              \
     bitarray-test conffile-test menu-test crc-test dynlib-test                        \
@@ -25,7 +25,7 @@ PROGRAMS = xmalloc-test hashtree-test listhead-test hlisthead-test              
     matrix-test webclient-test sqlite-test hex-test utimer-test                       \
     configmgr-test dispatcher-test-bgad dispatcher-test-sysctld
 
-SOURCES = xmalloc-test.c hashtree-test.c listhead-test.c hlisthead-test.c                       \
+SOURCES = mem-test.c option-test.c hashtree-test.c listhead-test.c hlisthead-test.c             \
     listarray-test.c logger-test.c process-test.c hashtable-test.c mutex-test.c                 \
     rwlock-test.c sem-test.c date-test.c time-test.c string-test.c                              \
     bitarray-test.c conffile-test.c menu-test.c crc-test.c dynlib-test.c                        \
@@ -57,8 +57,12 @@ $(BIN_DIR)/date-test: date-test.o $(JIUTAI_DIR)/jf_date.o
 $(BIN_DIR)/hashtree-test: hashtree-test.o $(JIUTAI_DIR)/jf_hashtree.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun
 
+$(BIN_DIR)/option-test: option-test.o $(JIUTAI_DIR)/jf_option.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun \
+       -ljf_string
+
 $(BIN_DIR)/listhead-test: listhead-test.o $(JIUTAI_DIR)/jf_option.o
-	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger
 
 $(BIN_DIR)/listarray-test: listarray-test.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun
@@ -75,7 +79,7 @@ $(BIN_DIR)/logger-test: logger-test.o $(JIUTAI_DIR)/jf_option.o $(JIUTAI_DIR)/jf
 $(BIN_DIR)/process-test: process-test.o $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger
 
-$(BIN_DIR)/xmalloc-test: xmalloc-test.o $(JIUTAI_DIR)/jf_mem.o
+$(BIN_DIR)/mem-test: mem-test.o $(JIUTAI_DIR)/jf_mem.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS)
 
 $(BIN_DIR)/sem-test: sem-test.o $(JIUTAI_DIR)/jf_sem.o $(JIUTAI_DIR)/jf_process.o \
@@ -152,7 +156,7 @@ $(BIN_DIR)/ptree-test: ptree-test.o $(JIUTAI_DIR)/jf_ptree.o $(JIUTAI_DIR)/jf_op
        -ljf_string
 
 $(BIN_DIR)/jiukun-test: jiukun-test.o $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_mutex.o \
-       $(JIUTAI_DIR)/jf_thread.o
+       $(JIUTAI_DIR)/jf_thread.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun
 
 $(BIN_DIR)/cghash-test: cghash-test.o

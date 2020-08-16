@@ -23,17 +23,47 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
+#if defined(LINUX)
 /** Define the INFINITE macro.
  */
-#if defined(LINUX)
-    #define INFINITE                               (0xFFFFFFFF)
+    #define INFINITE                                   (0xFFFFFFFF)
 #elif defined(WINDOWS)
-
+/** Define the clock id data type.
+ */
+    typedef olint_t                                    clockid_t;
 #endif
+
+enum
+{
+    /**Real time clock id.*/
+    JF_TIME_CLOCK_REALTIME = 0,
+    /**Monotonic clock id.*/
+    JF_TIME_CLOCK_MONOTONIC,
+    /**Process cputime id.*/
+    JF_TIME_CLOCK_PROCESS_CPUTIME_ID,
+    /**Thread cputime id.*/
+    JF_TIME_CLOCK_THREAD_CPUTIME_ID,
+    /**Monotonic raw clock id.*/
+    JF_TIME_CLOCK_MONOTONIC_RAW,
+};
+
+/** Second to milli-second.
+ */
+#define JF_TIME_SECOND_TO_MILLISECOND              (1000)
 
 /** Second to micro-second.
  */
 #define JF_TIME_SECOND_TO_MICROSECOND              (1000000)
+
+/** Define the time spec data type.
+ */
+typedef struct jf_time_spec
+{
+    /**Second.*/
+    u64 jts_u64Second;
+    /**Nanosecond.*/
+    u64 jts_u64NanoSecond;
+} jf_time_spec_t;
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -63,12 +93,12 @@ u32 jf_time_getTimeOfDay(struct timeval * tv);
 /** Get clock time.
  *
  *  @param clkid [in] Identifier of the particular clock.
- *  @param tp [out] The timespec structures.
+ *  @param pjts [out] The time spec data structures.
  *
  *  @return The error code
  *  @retval JF_ERR_NO_ERROR Success.
  */
-u32 jf_time_getClockTime(clockid_t clkid, struct timespec * tp);
+u32 jf_time_getClockTime(clockid_t clkid, jf_time_spec_t * pjts);
 
 /** Sleep some time in seconds.
  *
@@ -180,12 +210,12 @@ u32 jf_time_getStringTime(
  *  -# The time is not affected by discontinuous jumps in the system time (Eg. system administrator
  *   manually changes the clock), and not affected by incremental adjustments performed by adjtime.
  *
- *  @param pSec [out] The monotonic raw time in second.
+ *  @param pu64Second [out] The monotonic raw time in second.
  * 
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-u32 jf_time_getMonotonicRawTimeInSecond(olint_t * pSec);
+u32 jf_time_getMonotonicRawTimeInSecond(u64 * pu64Second);
 
 /** Get UTC time in second since the Epoch, 1970-01-01 00:00:00 +0000 (UTC) from broken-down time
  *  and date.

@@ -12,10 +12,15 @@
 #define JIUTAI_USER_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <sys/types.h>
-#include <pwd.h>
+
+#if defined(WINDOWS)
+
+#elif defined(LINUX)
+    #include <pwd.h>
+#endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 
@@ -27,6 +32,17 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
+#if defined(WINDOWS)
+/** Define the user id data type.
+ */
+    typedef  olint_t                    uid_t;
+
+/** Define the group id data type.
+ */
+    typedef  olint_t                    gid_t;
+#elif defined(LINUX)
+
+#endif
 
 /* --- functional routines ---------------------------------------------------------------------- */
 

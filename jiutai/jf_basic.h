@@ -38,9 +38,9 @@
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #if defined(WINDOWS)
-    #include "getopt.h"
-    #define optarg getoptarg()
+
 #elif defined(LINUX)
 
 #else
@@ -152,27 +152,28 @@ typedef time_t                       oltime_t;
     #define ol_memcpy                memcpy
     #define ol_memcmp                memcmp
     #define ol_memchr                memchr
-    #define ol_bzero                 bzero
+    #define ol_bzero(s, n)           memset(s, 0, n)
     #define ol_strcmp                strcmp
     #define ol_strncmp               strncmp
     #define ol_strcasecmp            _stricmp
     #define ol_strncasecmp           _strnicmp
-    #define ol_strtol                _strtol
-    #define ol_strtoul               _strtoul
+    #define ol_strtol                strtol
+    #define ol_strtoul               strtoul
     #define ol_strtoull              _strtoui64
     #define ol_strtoll               _strtoi64
-    #define ol_sprintf               _sprintf
-    #define ol_snprintf              _snprintf
-    #define ol_vsnprintf             _vsnprintf
-    #define ol_printf                _printf
-    #define ol_fprintf               _fprintf
-    #define ol_sscanf                _sscanf
-    #define ol_strcpy                _strcpy
-    #define ol_strncpy               _strncpy
-    #define ol_strcat                _strcat
-    #define ol_strncat               _strncat
-    #define ol_strlen                _strlen
-    #define ol_strchr                _strchr
+    #define ol_sprintf               sprintf
+    #define ol_snprintf              snprintf
+    #define ol_vsnprintf             vsnprintf
+    #define ol_printf                printf
+    #define ol_fprintf               fprintf
+    #define ol_fflush                fflush
+    #define ol_sscanf                sscanf
+    #define ol_strcpy                strcpy
+    #define ol_strncpy               strncpy
+    #define ol_strcat                strcat
+    #define ol_strncat               strncat
+    #define ol_strlen                strlen
+    #define ol_strchr                strchr
     #define ol_strerror              _strerror
     #define ol_random()              rand()
     #define ol_srand                 srand
@@ -182,6 +183,7 @@ typedef time_t                       oltime_t;
     #define ol_close                 close
     #define ol_read                  read
     #define ol_write                 write
+    #define ol_sleep(s)              Sleep(s * 1000)
     #define __attribute__(__X__)
 #elif defined(LINUX)
     #define ol_memset                memset
@@ -225,6 +227,7 @@ typedef time_t                       oltime_t;
     #define ol_close                 close
     #define ol_read                  read
     #define ol_write                 write
+    #define ol_sleep(s)              sleep(s)
 #else
     #error "Unsupported platform."
 #endif

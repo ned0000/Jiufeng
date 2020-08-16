@@ -1,7 +1,7 @@
 #
-#  @file
+#  @file winsubdirs.mak
 #
-#  @brief The makefile for sub-directory on Windows platform 
+#  @brief The makefile for sub-directory on Windows platform.
 #
 #  @author Min Zhang
 #

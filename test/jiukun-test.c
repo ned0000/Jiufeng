@@ -19,6 +19,7 @@
 #include "jf_err.h"
 #include "jf_jiukun.h"
 #include "jf_thread.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -53,48 +54,51 @@ static void _printJiukunTestUsage(void)
     ol_printf("\
 Usage: jiukun-test [-t] [-j page|memory|object] [stress testing option] [allocate without free] \n\
     [double free option] [unallocated free option] [out of bound option] [logger options]\n\
-    -t test in multi-threading environment.\n\
-    -j specify the test target.\n\
+  -t: test in multi-threading environment.\n\
+  -j: specify the test target.\n\
 double free option:\n\
-    -d test double free.\n\
+  -d: test double free.\n\
 unallocated free option:\n\
-    -u test unallocated free.\n\
+  -u: test unallocated free.\n\
 allocate without free:\n\
-    -w test allocate without free.\n\
+  -w: test allocate without free.\n\
 out of bound option:\n\
-    -b test out of bound.\n\
+  -b: test out of bound.\n\
 stress testing option:\n\
-    -s stress testing.\n\
-logger options:\n\
-    -T <0|1|2|3> the log level. 0: no log, 1: error only, 2: info, 3: all.\n\
-    -F <log file> the log file.\n\
-    -S <trace file size> the size of log file. No limit if not specified.\n\
-    If no parameter is specified, jiukun basic function is tested.\n");
+  -s: stress testing.\n\
+logger options: [-T <0|1|2|3|4|5>] [-O] [-F log file] [-S log file size] \n\
+  -T: the log level. 0: no log, 1: error, 2: warn, 3: info, 4: debug, 5: data.\n\
+  -O: output the log to stdout.\n\
+  -F: the log file.\n\
+  -S: the size of log file. No limit if not specified.\n\
+  If no parameter is specified, jiukun basic function is tested.\n");
 
     ol_printf("\n");
 }
 
-static u32 _parseJiukunTestCmdLineParam(olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
+static u32 _parseJiukunTestCmdLineParam(
+    olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olint_t nOpt;
-    u32 u32Value;
+    olint_t nOpt = 0;
 
-    while (((nOpt = getopt(argc, argv, "bwj:tsduOT:F:S:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) &&
+           ((nOpt = jf_option_get(argc, argv, "bwj:tsduOT:F:S:h")) != -1))
     {
         switch (nOpt)
         {
+        case ':':
         case '?':
         case 'h':
             _printJiukunTestUsage();
-            exit(u32Ret);
+            exit(0);
             break;
         case 'j':
-            if (ol_strcmp(optarg, "page") == 0)
+            if (ol_strcmp(jf_option_getArg(), "page") == 0)
                 ls_u8TestTarget = TEST_JIUKUN_TARGET_PAGE;
-            else if (ol_strcmp(optarg, "memory") == 0)
+            else if (ol_strcmp(jf_option_getArg(), "memory") == 0)
                 ls_u8TestTarget = TEST_JIUKUN_TARGET_MEMORY;
-            else if (ol_strcmp(optarg, "object") == 0)
+            else if (ol_strcmp(jf_option_getArg(), "object") == 0)
                 ls_u8TestTarget = TEST_JIUKUN_TARGET_OBJECT;
             break;
         case 't':
@@ -116,20 +120,14 @@ static u32 _parseJiukunTestCmdLineParam(olint_t argc, olchar_t ** argv, jf_logge
             ls_bAllocateWithoutFree = TRUE;
             break;
         case 'T':
-            if (sscanf(optarg, "%d", &u32Value) == 1)
-                pjlip->jlip_u8TraceLevel = (u8)u32Value;
-            else
-                u32Ret = JF_ERR_INVALID_PARAM;
+            u32Ret = jf_option_getU8FromString(jf_option_getArg(), &pjlip->jlip_u8TraceLevel);
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFile = optarg;
+            pjlip->jlip_pstrLogFile = jf_option_getArg();
             break;
         case 'S':
-            if (sscanf(optarg, "%d", &u32Value) == 1)
-                pjlip->jlip_sLogFile = u32Value;
-            else
-                u32Ret = JF_ERR_INVALID_PARAM;
+            u32Ret = jf_option_getS32FromString(jf_option_getArg(), &pjlip->jlip_sLogFile);
             break;
         case 'O':
             pjlip->jlip_bLogToStdout = TRUE;
@@ -455,12 +453,12 @@ static u32 _testJiukunInThread(void)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("main thread, sleeping for 5 minutes\n");
-        sleep(300);
+        ol_sleep(300);
         ol_printf("prepare to exit\n");
     }
 
     ls_bToTerminate = TRUE;
-    sleep(1);
+    ol_sleep(1);
 
     jf_jiukun_destroyCache(&ls_pacCache);
 
@@ -798,10 +796,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_jiukun_init_param_t jjip;
     jf_logger_init_param_t jlipParam;
 
-    memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
+    ol_bzero(&jlipParam, sizeof(jlipParam));
 
     jlipParam.jlip_pstrCallerName = "JIUKUN-TEST";
-//    jlipParam.jlip_pstrLogFile = "jiukun-test.log";
     jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
 
@@ -815,7 +812,6 @@ olint_t main(olint_t argc, olchar_t ** argv)
     {
         ol_memset(&jjip, 0, sizeof(jjip));
         jjip.jjip_sPool = (1 << MAX_JIUKUN_TEST_ORDER) * JF_JIUKUN_PAGE_SIZE;
-//        jjip.jjip_bNoGrow = TRUE;
 
         u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == JF_ERR_NO_ERROR)

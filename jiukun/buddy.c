@@ -88,7 +88,7 @@ static inline ulong _getPageOrder(jiukun_page_t * page)
     return getJpOrder(page);
 }
 
-static jiukun_page_t * _expand(
+static jiukun_page_t * _expandPageList(
     buddy_zone_t * zone, jiukun_page_t * page, olint_t low, olint_t high, free_area_t * area)
 {
     ulong size = 1 << high;
@@ -98,7 +98,7 @@ static jiukun_page_t * _expand(
         area--;
         high--;
         size >>= 1;
-        /** Add the last half part of the page to the free list */
+        /*Add the last half part of the page to the free list.*/
         jf_listhead_add(&(area->fa_jlFree), &(page[size].jp_jlLru));
         area->fa_u32Free++;
         _setPageOrder(&page[size], high);
@@ -128,21 +128,20 @@ static jiukun_page_t * _rmqueue(buddy_zone_t * zone, u32 order)
         area->fa_u32Free--;
         zone->bz_u32FreePages -= 1UL << order;
 
-        return _expand(zone, page, order, current_order, area);
+        return _expandPageList(zone, page, order, current_order, area);
     }
 
     return NULL;
 }
 
-static inline ulong _getBuddyIndex(ulong page_idx, u32 order)
+static inline olint_t _getBuddyIndex(olint_t page_idx, u32 order)
 {
     return page_idx ^ (1 << order);
 }
 
-static inline jiukun_page_t * _findBuddyPage(
-    jiukun_page_t * page, ulong page_idx, u32 order)
+static inline jiukun_page_t * _findBuddyPage(jiukun_page_t * page, olint_t page_idx, u32 order)
 {
-    ulong buddy_idx = _getBuddyIndex(page_idx, order);
+    olint_t buddy_idx = _getBuddyIndex(page_idx, order);
 
     return page + (buddy_idx - page_idx);
 }
@@ -167,11 +166,10 @@ static inline boolean_t _isBuddyPage(jiukun_page_t * page, olint_t order)
 static inline void _freeOnePage(
     buddy_zone_t * zone, jiukun_page_t * page, u32 order)
 {
-    ulong page_idx;
+    olint_t page_idx = 0, buddy_idx = 0;
     olint_t order_size = 1 << order;
-    ulong buddy_idx;
-    free_area_t * area;
-    jiukun_page_t * buddy;
+    free_area_t * area = NULL;
+    jiukun_page_t * buddy = NULL;
 
     clearJpAllocated(page);
     page_idx = pageToIndex(page, zone->bz_papPage) & ((1 << zone->bz_u32MaxOrder) - 1);
@@ -358,7 +356,7 @@ static void _dumpBuddyZone(buddy_zone_t * pbz)
             jf_listhead_forEach(&(pfa->fa_jlFree), pjl)
             {
                 pap = jf_listhead_getEntry(pjl, jiukun_page_t, jp_jlLru);
-                jf_logger_logInfoMsg("        %u, %p", pageToIndex(pap, pbz->bz_papPage), pap);
+                jf_logger_logInfoMsg("        %d, %p", pageToIndex(pap, pbz->bz_papPage), pap);
             }
         }
 
@@ -407,7 +405,7 @@ u32 initJiukunBuddy(buddy_param_t * pbp)
            (pbp->bp_u8MaxOrder > 0));
     assert(! piab->ijb_bInitialized);
 
-    jf_logger_logInfoMsg("init jiukun buddy");
+    JF_LOGGER_INFO("max order: %u, no grow: %u", pbp->bp_u8MaxOrder, pbp->bp_bNoGrow);
 
     piab->ijb_u32MaxOrder = pbp->bp_u8MaxOrder + 1;
     piab->ijb_bNoGrow = pbp->bp_bNoGrow;
@@ -488,7 +486,7 @@ u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, jf_flag_t flag)
     assert(ppPage != NULL);
 
 #if defined(DEBUG_JIUKUN)
-    jf_logger_logDebugMsg("get jiukun page, order: %u, flag 0x%llX", u32Order, flag);
+    JF_LOGGER_DEBUG("order: %u, flag 0x%llX", u32Order, flag);
 #endif
 
     *ppPage = NULL;
@@ -506,7 +504,7 @@ u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, jf_flag_t flag)
             reapJiukun(TRUE);
 
             if (retrycount > 0)
-                sleep(retrycount);
+                ol_sleep(retrycount);
 
             retrycount ++;
         }
@@ -522,7 +520,7 @@ u32 getJiukunPage(jiukun_page_t ** ppPage, u32 u32Order, jf_flag_t flag)
         setJpAllocated(pap);
         *ppPage = pap;
 #if defined(DEBUG_JIUKUN)
-        jf_logger_logDebugMsg("get jiukun page, page: %p", pap);
+        JF_LOGGER_DEBUG("page: %p", pap);
 #endif
     }
 
@@ -541,12 +539,12 @@ void putJiukunPage(jiukun_page_t ** ppPage)
     u32Order = getJpOrder((*ppPage));
 
 #if defined(DEBUG_JIUKUN)
-    jf_logger_logInfoMsg("put jiukun page, paga addr: %p, order: %u", *ppPage, u32Order);
+    JF_LOGGER_DEBUG("paga: %p, order: %u", *ppPage, u32Order);
 #endif
 
     if (! isJpAllocated((*ppPage)))
     {
-        jf_logger_logErrMsg(JF_ERR_JIUKUN_FREE_UNALLOCATED, "put jiukun page");
+        JF_LOGGER_ERR(JF_ERR_JIUKUN_FREE_UNALLOCATED, "page: %p");
         abort();
     }
 

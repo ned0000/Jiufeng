@@ -1,7 +1,7 @@
 #
-#  @file
+#  @file lnxobj.mak
 #
-#  @brief The Makefile for building object file on Linux platform
+#  @brief The Makefile for building object file on Linux platform.
 #
 #  @author Min Zhang
 #

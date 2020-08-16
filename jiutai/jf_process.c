@@ -1,7 +1,7 @@
 /**
  *  @file jf_process.c
  *
- *  @brief Implementation file provide some functional routine for managing process
+ *  @brief Implementation file provide some functional routine for managing process.
  *
  *  @author Min Zhang
  *  
@@ -10,13 +10,11 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
+
 #include <signal.h>
 #include <stdlib.h>
 #if defined(LINUX)
     #include <sys/types.h>
-    #include <unistd.h>
     #include <sys/stat.h>
     #include <fcntl.h>
     #include <sys/wait.h>
@@ -24,10 +22,10 @@
 #elif defined(WINDOWS)
     #include <time.h>
     #include <process.h>
-    #include <psapi.h>
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_process.h"
@@ -329,20 +327,20 @@ boolean_t jf_process_isAlreadyRunning(olchar_t * pstrDaemonName)
         if (dwProcesses[u32Index] != 0)
         {
             /* Get a handle to the process */
-            hProcess = OpenProcess(PROCESS_QUERY_INFORMATION |
-               PROCESS_VM_READ, FALSE, dwProcesses[u32Index]);
+            hProcess = OpenProcess(
+                PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcesses[u32Index]);
+
             /* Get the process name */
             if (hProcess != NULL)
             {
-                if (EnumProcessModules(hProcess, &hMod, sizeof(hMod), 
-                    &dwNeeded))
+                if (EnumProcessModules(hProcess, &hMod, sizeof(hMod), &dwNeeded))
                 {
-                    GetModuleBaseName(hProcess, hMod, u8ProcessName, 
-                        sizeof(u8ProcessName)/sizeof(u8));
+                    GetModuleBaseNameA(
+                        hProcess, hMod, u8ProcessName, sizeof(u8ProcessName) / sizeof(u8));
                 }
             }
 
-            if ((strcmp(u8ProcessName, pstrDaemonName) == 0) &&
+            if ((ol_strcmp(u8ProcessName, pstrDaemonName) == 0) &&
                 (dwProcesses[u32Index] != dwPid))
             {
                 bRunning = TRUE;
@@ -455,12 +453,14 @@ u32 jf_process_terminate(jf_process_handle_t * pHandle)
 
     bRet = TerminateProcess(pHandle->jpi_hProcess, u32ExitCode);
     if (! bRet)
+    {
         u32Ret = JF_ERR_FAIL_TERMINATE_PROCESS;
+    }
     else
     {
         CloseHandle(pHandle->jpi_hProcess);
 
-        jf_process_initId(pHandle);
+        jf_process_initHandle(pHandle);
     }
 #endif
 
@@ -551,6 +551,7 @@ u32 jf_process_waitForChildProcessTermination(
     }
 
     u32Wait = WaitForMultipleObjects(u32HandleCount, hHandle, FALSE, u32BlockTime);
+
     if ((u32Wait == WAIT_FAILED) || (u32Wait == WAIT_ABANDONED))
         u32Ret = JF_ERR_FAIL_WAIT_PROCESS_TERMINATION;
     else if ((u32Wait >= WAIT_OBJECT_0) && (u32Wait < WAIT_OBJECT_0 + u32Count))
@@ -703,7 +704,7 @@ u32 jf_process_initSocket(void)
     err = WSAStartup(wVersionRequested, &wsaData);
     if (err != 0)
     {
-        u32Ret = JF_ERR_FAIL_INIT_NET_LIB;
+        u32Ret = JF_ERR_FAIL_INIT_SOCKET;
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -716,7 +717,7 @@ u32 jf_process_initSocket(void)
         {
             /*Tell the user that we could not find a usable WinSock DLL.*/
             WSACleanup();
-            u32Ret = JF_ERR_FAIL_INIT_NET_LIB;
+            u32Ret = JF_ERR_FAIL_INIT_SOCKET;
         }
     }
 

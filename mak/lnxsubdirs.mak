@@ -1,7 +1,7 @@
 #
-#  @file
+#  @file lnxsubdirs.mak.
 #
-#  @brief The makefile for sub-directory on Linux platform 
+#  @brief The makefile for sub-directory on Linux platform.
 #
 #  @author Min Zhang
 #

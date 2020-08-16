@@ -48,7 +48,8 @@ static u32 _parseLoggerTestCmdLineParam(
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "of:t:sa:p:vh")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) &&
+           ((nOpt = jf_option_get(argc, argv, "of:t:sa:p:vh")) != -1))
     {
         switch (nOpt)
         {
@@ -57,26 +58,27 @@ static u32 _parseLoggerTestCmdLineParam(
             break;
         case 'f':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFile = optarg;
+            pjlip->jlip_pstrLogFile = jf_option_getArg();
             break;
         case 't':
             pjlip->jlip_bLogToTty = TRUE;
-            pjlip->jlip_pstrTtyFile = optarg;
+            pjlip->jlip_pstrTtyFile = jf_option_getArg();
             break;
         case 's':
             pjlip->jlip_bLogToSystemLog = TRUE;
             break;
         case 'a':
             pjlip->jlip_bLogToServer = TRUE;
-            pjlip->jlip_pstrServerAddress = optarg;
+            pjlip->jlip_pstrServerAddress = jf_option_getArg();
             break;
         case 'p':
             pjlip->jlip_bLogToServer = TRUE;
-            u32Ret = jf_option_getU16FromString(optarg, &pjlip->jlip_u16ServerPort);
+            u32Ret = jf_option_getU16FromString(jf_option_getArg(), &pjlip->jlip_u16ServerPort);
             break;
         case 'v':
             ls_bTestLoggerVendorErrorCode = TRUE;
             break;
+        case ':':
         case '?':
         case 'h':
             _printLoggerTestUsage();
@@ -265,6 +267,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
         jf_logger_fini();
     }
+
+    if (u32Ret != JF_ERR_NO_ERROR)
+        ol_printf("ERR: %s\n", jf_err_getDescription(u32Ret));
 
     return u32Ret;
 }

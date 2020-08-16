@@ -134,38 +134,6 @@ typedef struct
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static void _printPtreeNodeAttributeList(jf_linklist_t * pLinklist)
-{
-    olchar_t value[64];
-    jf_linklist_node_t * pNode = NULL;
-    internal_ptree_node_attribute_t * pAttr = NULL;
-    ol_printf("(");
-
-    pNode = jf_linklist_getFirstNode(pLinklist);
-    while (pNode != NULL)
-    {
-        pAttr = jf_linklist_getDataFromNode(pNode);
-
-        if (pAttr->ipna_sPrefix > 0)
-        {
-            ol_memcpy(value, pAttr->ipna_pstrPrefix, pAttr->ipna_sPrefix);
-            value[pAttr->ipna_sPrefix] = '\0';
-            ol_printf("%s:", value);
-        }
-
-        ol_memcpy(value, pAttr->ipna_pstrName, pAttr->ipna_sName);
-        value[pAttr->ipna_sName] = '\0';
-        ol_printf("%s=", value);
-
-        ol_memcpy(value, pAttr->ipna_pstrValue, pAttr->ipna_sValue);
-        value[pAttr->ipna_sValue] = '\0';
-        ol_printf("%s ", value);
-
-        pNode = jf_linklist_getNextNode(pNode);
-    }
-    ol_printf(")");
-}
-
 static u32 _destroyPtreeNodeAttribute(internal_ptree_node_attribute_t ** ppAttribute)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -230,6 +198,40 @@ static u32 _fnFreePtreeNodeAttribute(void ** ppData)
     return u32Ret;
 }
 
+#if defined(DEBUG_PTREE)
+
+static void _printPtreeNodeAttributeList(jf_linklist_t * pLinklist)
+{
+    olchar_t value[64];
+    jf_linklist_node_t * pNode = NULL;
+    internal_ptree_node_attribute_t * pAttr = NULL;
+    ol_printf("(");
+
+    pNode = jf_linklist_getFirstNode(pLinklist);
+    while (pNode != NULL)
+    {
+        pAttr = jf_linklist_getDataFromNode(pNode);
+
+        if (pAttr->ipna_sPrefix > 0)
+        {
+            ol_memcpy(value, pAttr->ipna_pstrPrefix, pAttr->ipna_sPrefix);
+            value[pAttr->ipna_sPrefix] = '\0';
+            ol_printf("%s:", value);
+        }
+
+        ol_memcpy(value, pAttr->ipna_pstrName, pAttr->ipna_sName);
+        value[pAttr->ipna_sName] = '\0';
+        ol_printf("%s=", value);
+
+        ol_memcpy(value, pAttr->ipna_pstrValue, pAttr->ipna_sValue);
+        value[pAttr->ipna_sValue] = '\0';
+        ol_printf("%s ", value);
+
+        pNode = jf_linklist_getNextNode(pNode);
+    }
+    ol_printf(")");
+}
+
 static void _printPtreeNodeIndentSpace(u16 u16Indent)
 {
     u16 u16Index = 0;
@@ -271,6 +273,8 @@ static void _printPtreeNodeList(internal_ptree_node_t * pixxn, u16 u16Indent)
         temp = temp->ipn_pipnSibling;
     }
 }
+
+#endif
 
 static u32 _destroyPtreeNode(internal_ptree_node_t ** ppNode)
 {
@@ -924,6 +928,7 @@ u32 jf_ptree_traverse(jf_ptree_t * pPtree, jf_ptree_fnOpNode_t fnOpNode, void * 
 u32 jf_ptree_dump(jf_ptree_t * pPtree)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+#if defined(DEBUG_PTREE)
     internal_ptree_t * pip = (internal_ptree_t *)pPtree;
 
     ol_printf("-----------------------------------------------------------------------\n");
@@ -931,7 +936,7 @@ u32 jf_ptree_dump(jf_ptree_t * pPtree)
     _printPtreeNodeAttributeList(&pip->ip_jlDeclaration);
     ol_printf("\n");
     _printPtreeNodeList(pip->ip_pipnRoot, 0);
-
+#endif
     return u32Ret;
 }
 

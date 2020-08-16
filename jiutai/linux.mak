@@ -19,7 +19,7 @@ SOURCES = jf_option.c jf_hex.c jf_process.c jf_thread.c jf_time.c jf_date.c  \
 EXTRA_CFLAGS = -D_GNU_SOURCE
 
 ifeq ("$(DEBUG_JIUFENG)", "yes")
-    EXTRA_CFLAGS += -DDEBUG_RADIXTREE -DDEBUG_PRIOTREE -DDEBUG_WAITQUEUE -DDEBUG_WORKQUEUE
+    EXTRA_CFLAGS += -DDEBUG_PTREE
 endif
 
 EXTRA_INC_DIR = 

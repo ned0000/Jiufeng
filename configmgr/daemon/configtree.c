@@ -31,7 +31,7 @@ typedef struct
 {
     u32 ictt_u32TransactionId;
     jf_ptree_t * ictt_pjpConfig;
-    olint_t ictt_nStartTime;
+    u64 ictt_u64StartTime;
 } internal_config_tree_transaction_t;
 
 typedef struct
@@ -107,7 +107,7 @@ static u32 _initConfigTreeTransaction(internal_config_tree_transaction_t * pictt
     u32Ret = jf_ptree_create(&pictt->ictt_pjpConfig);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_time_getMonotonicRawTimeInSecond(&pictt->ictt_nStartTime);
+        u32Ret = jf_time_getMonotonicRawTimeInSecond(&pictt->ictt_u64StartTime);
 
     /*Clear the transaction ID if there is error.*/
     if (u32Ret != JF_ERR_NO_ERROR)
@@ -126,7 +126,7 @@ static u32 _finiConfigTreeTransaction(internal_config_tree_transaction_t * pictt
         u32Ret = jf_ptree_destroy(&pictt->ictt_pjpConfig);
 
     pictt->ictt_u32TransactionId = JF_CONFIG_INVALID_TRANSACTION_ID;
-    pictt->ictt_nStartTime = 0;
+    pictt->ictt_u64StartTime = 0;
 
     return u32Ret;
 }
@@ -136,13 +136,13 @@ static boolean_t _isExpiredConfigTreeTransaction(
 {
     boolean_t bRet = FALSE;
     u32 u32Ret = JF_ERR_NOT_FOUND;
-    olint_t nCurTime = 0;
+    u64 u64CurTime = 0;
 
-    u32Ret = jf_time_getMonotonicRawTimeInSecond(&nCurTime);
+    u32Ret = jf_time_getMonotonicRawTimeInSecond(&u64CurTime);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (pictt->ictt_nStartTime + pict->ict_nTransactionTimeOut < nCurTime)
+        if (pictt->ictt_u64StartTime + pict->ict_nTransactionTimeOut < u64CurTime)
             bRet = TRUE;
     }
 

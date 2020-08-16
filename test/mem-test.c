@@ -1,7 +1,7 @@
 /**
- *  @file xmalloc-test.c
+ *  @file mem-test.c
  *
- *  @brief test file for xmalloc object
+ *  @brief Test file for jf_mem commonn object.
  *
  *  @author Min Zhang
  *
@@ -15,6 +15,7 @@
 #include <stdlib.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -39,8 +40,8 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (pu8Buffer != NULL)
     {
-        ol_printf("free the memory\n");
-        jf_mem_free((void **)pu8Buffer);
+        ol_printf("Free the memory\n");
+        jf_mem_free((void **)&pu8Buffer);
     }
 
     return u32Ret;

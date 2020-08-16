@@ -1,7 +1,7 @@
 #
-#  @file
+#  @file winobjdef.mak
 #
-#  @brief The object definition file for Windows system 
+#  @brief The object definition file for Windows system.
 #
 #  @author Min Zhang
 #
