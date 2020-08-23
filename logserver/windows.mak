@@ -1,5 +1,5 @@
 #
-#  @file windows.mak
+#  @file logserver/windows.mak
 #
 #  @brief The main Makefile for log server control utility and daemon.
 #
@@ -11,11 +11,8 @@
 
 #---------------------------------------------------------------------------------------------------
 
-SUBDIRS = daemon logserverctl
+SUBDIRS = common daemon logctl
 
 !include "$(TOPDIR)\mak\winsubdirs.mak"
 
 #---------------------------------------------------------------------------------------------------
-
-
-

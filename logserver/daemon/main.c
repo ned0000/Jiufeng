@@ -78,34 +78,35 @@ static u32 _parseLogServerCmdLineParam(
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "a:p:c:of:s:t:VT:F:S:h")) != -1) &&
-           (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) &&
+           ((nOpt = jf_option_get(argc, argv, "a:p:c:of:s:t:VT:F:S:h")) != -1))
     {
         switch (nOpt)
         {
         case 'a':
-            plsip->lsip_pstrServerAddress = optarg;
+            plsip->lsip_pstrServerAddress = jf_option_getArg();
             break;
         case 'p':
-            u32Ret = jf_option_getU16FromString(optarg, &plsip->lsip_u16ServerPort);
+            u32Ret = jf_option_getU16FromString(jf_option_getArg(), &plsip->lsip_u16ServerPort);
             break;
         case 'c':
-            u32Ret = jf_option_getU16FromString(optarg, &plsip->lsip_u16MaxLogClient);
+            u32Ret = jf_option_getU16FromString(jf_option_getArg(), &plsip->lsip_u16MaxLogClient);
             break;
         case 'o':
             plsip->lsip_bLogToStdout = TRUE;
             break;
         case 'f':
             plsip->lsip_bLogToFile = TRUE;
-            plsip->lsip_pstrLogFile = optarg;
+            plsip->lsip_pstrLogFile = jf_option_getArg();
             break;
         case 's':
-            u32Ret = jf_option_getS32FromString(optarg, &plsip->lsip_sLogFile);
+            u32Ret = jf_option_getS32FromString(jf_option_getArg(), &plsip->lsip_sLogFile);
             break;
         case 't':
             plsip->lsip_bLogToTty = TRUE;
-            plsip->lsip_pstrTtyFile = optarg;
+            plsip->lsip_pstrTtyFile = jf_option_getArg();
             break;
+        case ':':
         case '?':
         case 'h':
             _printLogServerUsage();
@@ -115,14 +116,14 @@ static u32 _parseLogServerCmdLineParam(
             ol_printf("%s %s\n", ls_strLogServerProgramName, ls_pstrLogServerVersion);
             exit(0);
         case 'T':
-            u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
+            u32Ret = jf_option_getU8FromString(jf_option_getArg(), &pjlip->jlip_u8TraceLevel);
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFile = optarg;
+            pjlip->jlip_pstrLogFile = jf_option_getArg();
             break;
         case 'S':
-            u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
+            u32Ret = jf_option_getS32FromString(jf_option_getArg(), &pjlip->jlip_sLogFile);
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;

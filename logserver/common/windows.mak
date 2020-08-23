@@ -1,7 +1,7 @@
 #
-#  @file logserver/common/linux.mak
+#  @file logserver/common/windows.make
 #
-#  @brief The Makefile for common object file in log server.
+#  @brief The makefile for common object file in log server.
 #
 #  @author Min Zhang
 #
@@ -15,10 +15,8 @@ SOURCES = logservercommon.c
 
 EXTRA_CFLAGS =
 
-EXTRA_INC_DIR = -I../../logger
+EXTRA_INC_DIR = /I..\..\logger
 
-include $(TOPDIR)/mak/lnxobj.mak
+!include "$(TOPDIR)\mak\winobj.mak"
 
 #---------------------------------------------------------------------------------------------------
-
-

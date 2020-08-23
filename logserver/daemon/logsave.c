@@ -185,11 +185,11 @@ static u32 _flushSavedLog(internal_log_save_t * pils, u64 u64Expire)
         if (pils->ils_bLogToStdout)
             saveLogToStdout(
                 pils->ils_pjlllStdout, plsl->lsl_u64Time, plsl->lsl_pstrBanner, plsl->lsl_pstrLog);
-
+#if defined(LINUX)
         if (pils->ils_bLogToTty)
             saveLogToTty(
                 pils->ils_pjlllTty, plsl->lsl_u64Time, plsl->lsl_pstrBanner, plsl->lsl_pstrLog);
-
+#endif
         if (pils->ils_bLogToFile)
             saveLogToFile(
                 pils->ils_pjlllFile, plsl->lsl_u64Time, plsl->lsl_pstrBanner, plsl->lsl_pstrLog);
@@ -305,6 +305,7 @@ static u32 _createSaveLogLocation(internal_log_save_t * pils, log_save_init_para
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
+#if defined(LINUX)
     if (plsip->lsip_bLogToTty)
     {
         create_tty_log_location_param_t ctllp;
@@ -316,6 +317,7 @@ static u32 _createSaveLogLocation(internal_log_save_t * pils, log_save_init_para
 
         u32Ret = createTtyLogLocation(&ctllp, &pils->ils_pjlllTty);
     }
+#endif
 
     if (plsip->lsip_bLogToStdout)
     {
@@ -395,8 +397,11 @@ u32 finiLogSave(void)
         destroyStdoutLogLocation(&pils->ils_pjlllStdout);
     if (pils->ils_pjlllFile != NULL)
         destroyFileLogLocation(&pils->ils_pjlllFile);
+
+#if defined(LINUX)
     if (pils->ils_pjlllTty != NULL)
         destroyTtyLogLocation(&pils->ils_pjlllTty);
+#endif
 
     jf_mutex_fini(&pils->ils_jmLock);
 
