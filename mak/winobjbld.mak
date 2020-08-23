@@ -11,10 +11,10 @@
 #---------------------------------------------------------------------------------------------------
 
 {$S}.c{$O}.obj::
-	$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(INCLUDES) $(EXTRA_INC_DIR) -Fd$O\ -c $<
+	@$(CC) $(CFLAGS) $(EXTRA_CFLAGS) $(INCLUDES) $(EXTRA_INC_DIR) /Fd$O\ /c $<
 	
 {$S}.cpp{$O}.obj::
-	$(CXX) $(CXXFLAGS) $(EXTRA_CXXFLAGS) $(INCLUDES) $(EXTRA_INC_DIR) -Fd$O\ -c $<
+	@$(CXX) $(CXXFLAGS) $(EXTRA_CXXFLAGS) $(INCLUDES) $(EXTRA_INC_DIR) /Fd$O\ /c $<
 
 #---------------------------------------------------------------------------------------------------
 

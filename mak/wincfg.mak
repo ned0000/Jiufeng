@@ -36,16 +36,16 @@ LIB_DIR = $(BUILD_DIR)
 CONFIG_DIR = $(BUILD_DIR)/config
 
 # For including header files.
-INCLUDES = -I$(JIUTAI_DIR) -I.\
+INCLUDES = /I$(JIUTAI_DIR) /I.\
 
 # C flags.
-CFLAGS = -DWINDOWS $(EXTRA_DEFS) /Zp8
+CFLAGS = /DWINDOWS $(EXTRA_DEFS) /Zp8
 
 # Set C flags depending on 64bit version or 32bit version.
 !if "$(JIUFENG_64BIT)" == "yes"
-CFLAGS = $(CFLAGS) -DJIUFENG_64BIT -DWIN64
+CFLAGS = $(CFLAGS) /DJIUFENG_64BIT /DWIN64
 !else
-CFLAGS = $(CFLAGS) -DWIN32 -D_WIN32
+CFLAGS = $(CFLAGS) /DWIN32 /D_WIN32
 !endif
 
 # Link flags.
