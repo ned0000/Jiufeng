@@ -1,5 +1,5 @@
 #
-#  @file linux.mak
+#  @file string/linux.mak
 #
 #  @brief The makefile for stringparse library.
 #
@@ -22,4 +22,3 @@ EXTRA_LIBS = -ljf_jiukun
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-

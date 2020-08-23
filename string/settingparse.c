@@ -150,7 +150,7 @@ u32 jf_string_validateSettings(
             for (j = 0; j < sNameArray; j++)
             {
                 sLen = ol_strlen(pstrNameArray[j]);
-                if (strncasecmp(pstrArray[i], pstrNameArray[j], sLen) == 0)
+                if (ol_strncasecmp(pstrArray[i], pstrNameArray[j], sLen) == 0)
                 {
                     if (sTagLen == sLen)
                     {

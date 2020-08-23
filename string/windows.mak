@@ -1,7 +1,7 @@
 #
-#  @file windows.mak
+#  @file string/windows.mak
 #
-#  @brief the makefile for stringparse library
+#  @brief The makefile for string library.
 #
 #  @author Min Zhang
 #
@@ -20,11 +20,8 @@ JIUTAI_SRCS = $(JIUTAI_DIR)\jf_time.c $(JIUTAI_DIR)\jf_date.c $(JIUTAI_DIR)\jf_o
 
 EXTRA_LIBS = ws2_32.lib jf_jiukun.lib
 
-EXTRA_DEFS = -DJIUFENG_STRING_DLL
+EXTRA_DEFS = /DJIUFENG_STRING_DLL
 
 !include "$(TOPDIR)\mak\winlib.mak"
 
 #---------------------------------------------------------------------------------------------------
-
-
-
