@@ -1,7 +1,7 @@
 #
-#  @file Makefile
+#  @file archive/linux.mak
 #
-#  @brief The Makefile for archive library
+#  @brief The Makefile for archive library.
 #
 #  @author Min Zhang
 #
@@ -23,4 +23,3 @@ EXTRA_INC_DIR =
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-

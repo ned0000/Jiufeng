@@ -212,7 +212,7 @@ static u32 _extractRegularFile(archive_header_t * pah, file_handler_t * pfh)
 static u32 _extractDir(archive_header_t * pah, file_handler_t * pfh)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    mode_t mode = 0;
+    jf_file_mode_t mode = 0;
 
     if (! pfh->fh_bListArchive)
     {
