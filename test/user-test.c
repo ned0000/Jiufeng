@@ -18,6 +18,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_user.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -31,9 +32,9 @@ static void _printUserTestUsage(void)
 {
     ol_printf("\
 Usage: user-test [-s] [-u user-name] [-h] \n\
-    -s: show user information.\n\
-    -u: specify the user name.\n\
-    -h: show this help information.\n\
+  -s: show user information.\n\
+  -u: specify the user name.\n\
+  -h: show this help information.\n\
          \n");
     ol_printf("\n");
 }
@@ -43,7 +44,7 @@ static u32 _parseUserTestCmdLineParam(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "su:h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "su:h?")) != -1))
     {
         switch (nOpt)
         {
@@ -55,7 +56,7 @@ static u32 _parseUserTestCmdLineParam(olint_t argc, olchar_t ** argv)
             ls_bShowUserInfo = TRUE;
             break;
         case 'u':
-            ls_pstrUserName = (olchar_t *)optarg;
+            ls_pstrUserName = jf_option_getArg();
             break;
         case ':':
             u32Ret = JF_ERR_MISSING_PARAM;

@@ -58,12 +58,14 @@ static void _printXmlparserTestUsage(void)
 {
     ol_printf("\
 Usage: xmlparser-test [-f xml-file] [-h] [logger options] \n\
-    -f specify the XML file.\n\
-    -h print the usage.\n\
-logger options:\n\
-    -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug, 4: data.\n\
-    -F <log file> the log file.\n\
-    -S <log file size> the size of log file. No limit if not specified.\n\
+  -f: specify the XML file.\n\
+  -h: print the usage.\n\
+logger options: [-T <0|1|2|3|4|5>] [-O] [-F log file] [-S log file size] \n\
+  -T: the log level. 0: no log, 1: error, 2: warn, 3: info, 4: debug, 5: data.\n\
+  -O: output the log to stdout.\n\
+  -F: output the log to file.\n\
+  -S: the size of log file. No limit if not specified.\n\
+  By default, basic function is tested.\n\
     ");
 
     ol_printf("\n");
@@ -75,8 +77,8 @@ static u32 _parseXmlparserTestCmdLineParam(
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "f:T:F:S:h")) != -1) &&
-           (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "f:T:F:S:h")) != -1))
+           
     {
         switch (nOpt)
         {
@@ -86,17 +88,17 @@ static u32 _parseXmlparserTestCmdLineParam(
             exit(0);
             break;
         case 'f':
-            ls_pstrXmlFileName = optarg;
+            ls_pstrXmlFileName = jf_option_getArg();
             break;
         case 'T':
-            u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
+            u32Ret = jf_option_getU8FromString(jf_option_getArg(), &pjlip->jlip_u8TraceLevel);
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFile = optarg;
+            pjlip->jlip_pstrLogFile = jf_option_getArg();
             break;
         case 'S':
-            u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
+            u32Ret = jf_option_getS32FromString(jf_option_getArg(), &pjlip->jlip_sLogFile);
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;

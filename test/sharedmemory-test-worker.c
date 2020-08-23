@@ -19,6 +19,7 @@
 #include "jf_err.h"
 #include "jf_sharedmemory.h"
 #include "jf_jiukun.h"
+#include "jf_uuid.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -27,7 +28,6 @@
 static u32 _sharedmemoryTestWorker(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-
     jf_sharedmemory_id_t * pjsi;
     olchar_t * pstrShared;
 
@@ -50,7 +50,7 @@ static u32 _sharedmemoryTestWorker(void)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("Sleep ....\n");
-        sleep(60);
+        ol_sleep(60);
 
         u32Ret = jf_sharedmemory_detach((void **)&pstrShared);
     }
@@ -85,7 +85,14 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32Ret = jf_jiukun_init(&jjip);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _sharedmemoryTestWorker();
+        u32Ret = jf_uuid_init();
+
+        if (u32Ret == JF_ERR_NO_ERROR)
+        {
+            u32Ret = _sharedmemoryTestWorker();
+
+            jf_uuid_fini();
+        }
 
         jf_jiukun_fini();
     }

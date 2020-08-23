@@ -20,6 +20,7 @@
 #include "jf_time.h"
 #include "jf_string.h"
 #include "jf_date.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -31,15 +32,18 @@ static boolean_t ls_bTimeTestRecur = FALSE;
 
 static boolean_t ls_bTimeTestString = FALSE;
 
+static boolean_t ls_bTimeTestSystemTime = FALSE;
+
 /* --- private routine section ------------------------------------------------------------------ */
 
 static void _printTimeTestUsage(void)
 {
     ol_printf("\
-Usage: time-test [-c] [-p] [-r] [-s]\n\
+Usage: time-test [-c] [-p] [-r] [-t] [-s]\n\
     -c test clock time.\n\
     -p test time period.\n\
     -r test time recur.\n\
+    -t test system time.\n\
     -s test time string.\n");
 
     ol_printf("\n");
@@ -51,7 +55,7 @@ static u32 _parseTimeTestCmdLineParam(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "cprsh?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "cprtsh?")) != -1))
     {
         switch (nOpt)
         {
@@ -69,11 +73,14 @@ static u32 _parseTimeTestCmdLineParam(olint_t argc, olchar_t ** argv)
         case 'r':
             ls_bTimeTestRecur = TRUE;
             break;
+        case 't':
+            ls_bTimeTestSystemTime = TRUE;
+            break;
         case 's':
             ls_bTimeTestString = TRUE;
             break;
         case ':':
-            u32Ret = JF_ERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_OPTION_ARG;
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;
@@ -91,7 +98,7 @@ static u32 _testTimeClock(void)
     u64 rawtime = 0;
 
     jf_time_getMonotonicRawTimeInSecond(&rawtime);
-    u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &jts);
+    u32Ret = jf_time_getClockTime(JF_TIME_CLOCK_MONOTONIC_RAW, &jts);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("clock time, tv_sec: %llu, tv_nsec: %llu\n", jts.jts_u64Second, jts.jts_u64NanoSecond);
@@ -100,7 +107,7 @@ static u32 _testTimeClock(void)
         jf_time_sleep(5);
 
         jf_time_getMonotonicRawTimeInSecond(&rawtime);
-        u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &jts);
+        u32Ret = jf_time_getClockTime(JF_TIME_CLOCK_MONOTONIC_RAW, &jts);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -111,7 +118,7 @@ static u32 _testTimeClock(void)
         jf_time_sleep(3);
 
         jf_time_getMonotonicRawTimeInSecond(&rawtime);
-        u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &jts);
+        u32Ret = jf_time_getClockTime(JF_TIME_CLOCK_MONOTONIC_RAW, &jts);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -259,6 +266,52 @@ static u32 _testTimeRecur(void)
     return u32Ret;
 }
 
+static u32 _testTimeSystemTime(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_time_val_t jtv;
+    struct tm tmLocal;
+    oltime_t time = 0;
+#if defined(WINDOWS)
+    olint_t err = 0;
+#elif defined(LINUX)
+
+#endif
+
+    u32Ret = jf_time_getTimeOfDay(&jtv);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_printf("Second      : %llu\n", jtv.jtv_u64Second);
+        ol_printf("Microsecond : %llu\n", jtv.jtv_u64MicroSecond);
+
+        /*Necessary, incase localtime() returns error. On windows, time_t may not be 64 bits*/
+        time = (oltime_t)jtv.jtv_u64Second;
+
+#if defined(WINDOWS)
+        err = localtime_s(&tmLocal, &time);
+        if (err == 0)
+        {
+            ol_printf("tm_mon: %d\n", tmLocal.tm_mon);
+            ol_printf("tm_year: %d\n", tmLocal.tm_year);
+        }
+        else
+        {
+            ol_printf("localtime error\n");
+        }
+#elif defined(LINUX)
+        localtime_r(&time, &tmLocal);
+
+        ol_printf("tm_mon: %d\n", tmLocal.tm_mon);
+        ol_printf("tm_year: %d\n", tmLocal.tm_year);
+#endif
+    }
+
+    ol_printf("\n");
+
+    return u32Ret;
+}
+
 /* --- public routine section ------------------------------------------------------------------- */
 
 olint_t main(olint_t argc, olchar_t ** argv)
@@ -277,6 +330,8 @@ olint_t main(olint_t argc, olchar_t ** argv)
             u32Ret = _testTimePeriod();
         else if (ls_bTimeTestRecur)
             u32Ret = _testTimeRecur();
+        else if (ls_bTimeTestSystemTime)
+            u32Ret = _testTimeSystemTime();
         else
             _printTimeTestUsage();
     }

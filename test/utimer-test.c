@@ -301,7 +301,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                jf_time_sleep(3);
+                ol_sleep(3);
 
                 u32Ret = _addUtUtimerItem();
             }
@@ -315,7 +315,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
             {
                 while (! ls_bToTerminateUt)
                 {
-                    jf_time_sleep(3);
+                    ol_sleep(3);
                 }
             }
 
