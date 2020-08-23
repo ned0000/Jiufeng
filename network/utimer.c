@@ -111,7 +111,7 @@ static u32 _checkUtimer(
     JF_LISTHEAD(jlTriggerItem);
 
     /*Get the current time for reference*/
-    u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &jts);
+    u32Ret = jf_time_getClockTime(JF_TIME_CLOCK_MONOTONIC_RAW, &jts);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         current = (jts.jts_u64Second * JF_TIME_SECOND_TO_MILLISECOND) + 
@@ -264,7 +264,7 @@ u32 jf_network_addUtimerItem(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Get the current time for reference*/
-        u32Ret = jf_time_getClockTime(CLOCK_MONOTONIC_RAW, &jts);
+        u32Ret = jf_time_getClockTime(JF_TIME_CLOCK_MONOTONIC_RAW, &jts);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

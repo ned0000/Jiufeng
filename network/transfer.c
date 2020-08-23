@@ -64,7 +64,7 @@ static u32 _recvOtherDataFromServer(
         sData = sFull - transfer->jntdp_sHeader;
 
         u32Ret = jf_network_recvnWithTimeout(
-            pSocket, transfer->jntdp_pRecvBuf + transfer->jntdp_sRecvData, &sData,
+            pSocket, (u8 *)transfer->jntdp_pRecvBuf + transfer->jntdp_sRecvData, &sData,
             transfer->jntdp_u32Timeout);
     }
 

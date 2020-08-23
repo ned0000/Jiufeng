@@ -1,5 +1,5 @@
 #
-#  @file Makefile
+#  @file network/linux.mak
 #
 #  @brief The makefile for network library.
 #
@@ -29,4 +29,3 @@ endif
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-

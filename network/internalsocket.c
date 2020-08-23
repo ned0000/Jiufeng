@@ -608,7 +608,7 @@ u32 isSendnWithTimeout(
 u32 isRecv(internal_socket_t * pis, void * pBuffer, olsize_t * psRecv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    ssize_t recved;
+    olssize_t recved = 0;
 
     assert(pis != NULL);
 
@@ -624,9 +624,13 @@ u32 isRecv(internal_socket_t * pis, void * pBuffer, olsize_t * psRecv)
             u32Ret = JF_ERR_FAIL_RECV_DATA;
     }
     else if (recved == 0)
+    {
         u32Ret = JF_ERR_SOCKET_PEER_CLOSED;
+    }
     else
+    {
         *psRecv = recved;
+    }
 
     return u32Ret;
 }
