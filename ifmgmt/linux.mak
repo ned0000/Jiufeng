@@ -1,7 +1,7 @@
 #
-#  @file Makefile
+#  @file ifmgmt/linux.mak
 #
-#  @brief The Makefile for network interface management library
+#  @brief The Makefile for network interface management library.
 #
 #  @author Min Zhang
 #
@@ -25,4 +25,3 @@ endif
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-

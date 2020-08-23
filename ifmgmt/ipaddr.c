@@ -1,7 +1,7 @@
 /**
  *  @file ipaddr.c
  *
- *  @brief The functions to manipulate ip address
+ *  @brief Implementation file for functions to manipulate ip address.
  *
  *  @author Min Zhang
  *
@@ -161,7 +161,7 @@ static u32 _getIpV4LocalIpAddrList(jf_ipaddr_t * pAddr, u16 * pu16Count)
         for (u16Index = 0; u16Index < u16Count; u16Index ++)
         {
             pAddr[u16Index].ji_u8AddrType = JF_IPADDR_TYPE_V4;
-            pAddr[u16Index].ji_uAddr.iu_nAddr = tempresults[u16Index];
+            pAddr[u16Index].ji_uAddr.ju_nAddr = tempresults[u16Index];
         }
 
         *pu16Count = u16Count;
