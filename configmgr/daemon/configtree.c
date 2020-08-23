@@ -66,13 +66,14 @@ static u32 _initConfigTree(internal_config_tree_t * pict, config_tree_init_param
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t sMem = 0;
+    internal_config_mgr_setting_t * picms = pctip->ctip_picmsSetting;
 
     ol_bzero(pict, sizeof(*pict));
-    pict->ict_picmsSetting = pctip->ctip_picmsSetting;
+    pict->ict_picmsSetting = picms;
     pict->ict_nTransactionTimeOut = JF_CONFIG_DEFAULT_TRANSACTION_TIME_OUT;
 
-    assert(pict->ict_picmsSetting->icms_u16MaxNumOfTransaction > 0);
-    sMem = sizeof(internal_config_tree_transaction_t) * pict->ict_picmsSetting->icms_u16MaxNumOfTransaction;
+    assert(picms->icms_u16MaxNumOfTransaction > 0);
+    sMem = sizeof(internal_config_tree_transaction_t) * picms->icms_u16MaxNumOfTransaction;
 
     u32Ret = jf_jiukun_allocMemory((void **)&pict->ict_picttTransaction, sMem);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -90,8 +91,8 @@ static u32 _initConfigTree(internal_config_tree_t * pict, config_tree_init_param
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = loadConfigFromPersistency(
-            pict->ict_picmsSetting->icms_u8ConfigPersistencyType,
-            pict->ict_picmsSetting->icms_pstrConfigPersistencyLocation, pict->ict_pjpConfig);
+            picms->icms_u8ConfigPersistencyType, picms->icms_pstrConfigPersistencyLocation,
+            pict->ict_pjpConfig);
 
     return u32Ret;
 }

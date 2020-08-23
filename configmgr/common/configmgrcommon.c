@@ -28,11 +28,11 @@
 
 /** Define the string of config persistency type.
  */
-static olchar_t * ls_pstrConfigPersistencyType[CMCPT_MAX + 1] =
+static olchar_t * ls_pstrConfigPersistencyType[CMCPT_MAX] =
 {
+    "unknown",
     "conf_file",
     "sqlite_db",
-    "unknown",
 };
 
 /* --- public routine section ------------------------------------------------------------------- */
@@ -40,6 +40,8 @@ static olchar_t * ls_pstrConfigPersistencyType[CMCPT_MAX + 1] =
 u32 getConfigPersistencyTypeFromString(const olchar_t * pstrType, u8 * pu8Type)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+
+    *pu8Type = CMCPT_UNKNOWN;
 
     if (ol_strcmp(pstrType, ls_pstrConfigPersistencyType[CMCPT_CONF_FILE]) == 0)
         *pu8Type = CMCPT_CONF_FILE;
@@ -53,8 +55,8 @@ u32 getConfigPersistencyTypeFromString(const olchar_t * pstrType, u8 * pu8Type)
 
 const olchar_t * getStringConfigPersistencyType(u8 u8Type)
 {
-    if (u8Type > CMCPT_MAX)
-        u8Type = CMCPT_MAX;
+    if (u8Type >= CMCPT_MAX)
+        u8Type = CMCPT_UNKNOWN;
 
     return ls_pstrConfigPersistencyType[u8Type];
 }    

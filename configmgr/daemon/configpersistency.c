@@ -134,9 +134,9 @@ u32 loadConfigFromPersistency(u8 u8Type, const olchar_t * pstrLocation, jf_ptree
     JF_LOGGER_INFO("type: %u, location: %s", u8Type, pstrLocation);
 
     if (u8Type == CMCPT_CONF_FILE)
-    {
         u32Ret = _loadConfigFromPersistencyFile(pstrLocation, pjpConfig);
-    }
+    else
+        u32Ret = JF_ERR_UNSUPPORTED_PERSISTENCY_TYPE;
 
     return u32Ret;
 }

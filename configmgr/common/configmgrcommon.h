@@ -26,7 +26,8 @@
  */
 typedef enum
 {
-    CMCPT_CONF_FILE = 0,
+    CMCPT_UNKNOWN = 0,
+    CMCPT_CONF_FILE,
     CMCPT_SQLITE_DB,
     CMCPT_MAX,
 } config_mgr_config_persistency_type_t;

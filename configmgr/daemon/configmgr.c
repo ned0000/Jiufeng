@@ -440,6 +440,7 @@ u32 initConfigMgr(config_mgr_param_t * pcmp)
     internal_config_mgr_t * picm = &ls_icmConfigMgr;
     config_tree_init_param_t ctip;
     olchar_t strExecutablePath[JF_LIMIT_MAX_PATH_LEN];
+    internal_config_mgr_setting_t * picms = NULL;
 
     assert(pcmp != NULL);
     assert(! picm->icm_bInitialized);
@@ -448,8 +449,9 @@ u32 initConfigMgr(config_mgr_param_t * pcmp)
         "cmd line: %s, setting file: %s", pcmp->cmp_pstrCmdLine, pcmp->cmp_pstrSettingFile);
 
     ol_bzero(picm, sizeof(internal_config_mgr_t));
+    picms = &picm->icm_icmsSetting;
 
-    /*Change the working directory.*/
+    /*Change the working directory to the one of executable file.*/
     jf_file_getDirectoryName(
         strExecutablePath, sizeof(strExecutablePath), pcmp->cmp_pstrCmdLine);
     if (strlen(strExecutablePath) > 0)
@@ -459,17 +461,18 @@ u32 initConfigMgr(config_mgr_param_t * pcmp)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_strncpy(
-            picm->icm_icmsSetting.icms_strSettingFile, pcmp->cmp_pstrSettingFile, JF_LIMIT_MAX_PATH_LEN - 1);
+            picms->icms_strSettingFile, pcmp->cmp_pstrSettingFile, JF_LIMIT_MAX_PATH_LEN - 1);
 
-        u32Ret = readConfigMgrSetting(&picm->icm_icmsSetting);
+        u32Ret = readConfigMgrSetting(picms);
     }
 
+    /*Set the default settings if they are not defined in setting file.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (picm->icm_icmsSetting.icms_u16MaxNumOfTransaction == 0)
-            picm->icm_icmsSetting.icms_u16MaxNumOfTransaction = CONFIG_MGR_DEFAULT_MAX_TRANSACTION;
-        if (picm->icm_icmsSetting.icms_u16MaxNumOfConnection == 0)
-            picm->icm_icmsSetting.icms_u16MaxNumOfTransaction = CONFIG_MGR_DEFAULT_NUM_OF_CONN;
+        if (picms->icms_u16MaxNumOfTransaction == 0)
+            picms->icms_u16MaxNumOfTransaction = CONFIG_MGR_DEFAULT_MAX_TRANSACTION;
+        if (picms->icms_u16MaxNumOfConnection == 0)
+            picms->icms_u16MaxNumOfTransaction = CONFIG_MGR_DEFAULT_NUM_OF_CONN;
     }
 
     /*Initialize the config tree module.*/
@@ -477,7 +480,7 @@ u32 initConfigMgr(config_mgr_param_t * pcmp)
     {
         ol_bzero(&ctip, sizeof(ctip));
 
-        ctip.ctip_picmsSetting = &picm->icm_icmsSetting;
+        ctip.ctip_picmsSetting = picms;
 
         u32Ret = initConfigTree(&ctip);
     }

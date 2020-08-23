@@ -139,8 +139,6 @@ static u32 _serviceConfigMgr(olint_t argc, char** argv)
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = CONFIG_MGR_NAME;
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
-    jlipParam.jlip_bLogToStdout = TRUE;
-//    jlipParam.jlip_bLogToFile = TRUE;
 
     /*Initialize the parameter for jiukun library.*/
     ol_bzero(&jjip, sizeof(jjip));
@@ -187,7 +185,12 @@ static u32 _serviceConfigMgr(olint_t argc, char** argv)
     }
 
     if (u32Ret != JF_ERR_NO_ERROR)
-        JF_LOGGER_ERR(u32Ret, "quit configmgr");
+    {
+        olchar_t strErrMsg[300];
+
+        jf_err_readDescription(u32Ret, strErrMsg, sizeof(strErrMsg));
+        ol_printf("%s\n", strErrMsg);
+    }
         
     return u32Ret;
 }

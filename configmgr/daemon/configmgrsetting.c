@@ -128,7 +128,7 @@ static u32 _parseConfigMgrConfigSetting(internal_config_mgr_setting_t * picms)
     olsize_t sValue = 0;
     jf_ptree_node_attribute_t * pAttr = NULL;
 
-    /*Find the child node with max num transaction.*/
+    /*Find the child node of config persistency.*/
     u32Ret = jf_ptree_findNode(
         picms->icms_pjpSetting, CMSN_PERSISTENCY, CMSN_PERSISTENCY_LEN, &pNode);
 
@@ -178,7 +178,9 @@ u32 readConfigMgrSetting(internal_config_mgr_setting_t * picms)
         JF_LOGGER_INFO("max number of transaction: %u", picms->icms_u16MaxNumOfTransaction);
         JF_LOGGER_INFO("max number of connection: %u", picms->icms_u16MaxNumOfConnection);
         JF_LOGGER_INFO(
-            "config persistency type: %u", picms->icms_u8ConfigPersistencyType);
+            "config persistency type: %s(%u)",
+            getStringConfigPersistencyType(picms->icms_u8ConfigPersistencyType),
+            picms->icms_u8ConfigPersistencyType);
         JF_LOGGER_INFO(
             "config persistency location: %s", picms->icms_pstrConfigPersistencyLocation);
     }
