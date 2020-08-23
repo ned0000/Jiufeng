@@ -1,5 +1,5 @@
 #
-#  @file logger\windows.mak
+#  @file logger/windows.mak
 #
 #  @brief The makefile for logger library on Windows platform.
 #
@@ -17,15 +17,12 @@ SOURCES = common.c log2stdout.c log2systemlog.c log2file.c log2server.c logger.c
 
 JIUTAI_SRCS = $(JIUTAI_DIR)\jf_hex.c $(JIUTAI_DIR)\jf_time.c $(JIUTAI_DIR)\jf_mem.c
 
-EXTRA_DEFS = -DJIUFENG_LOGGER_DLL
+EXTRA_DEFS = /DJIUFENG_LOGGER_DLL
 
 EXTRA_INC_DIR = 
 
-EXTRA_LIBS = ws2_32.lib # Iphlpapi.lib
+EXTRA_LIBS = ws2_32.lib
 
 !include "$(TOPDIR)\mak\winlib.mak"
 
 #---------------------------------------------------------------------------------------------------
-
-
-

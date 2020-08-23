@@ -1,5 +1,5 @@
 #
-#  @file linux.mak
+#  @file logger/linux.mak
 #
 #  @brief The makefile for logger library.
 #
@@ -26,4 +26,3 @@ endif
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-

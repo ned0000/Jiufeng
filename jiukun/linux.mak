@@ -1,5 +1,5 @@
 #
-#  @file linux.mak
+#  @file jiukun/linux.mak
 #
 #  @brief The makefile for jiukun library.
 #
@@ -27,4 +27,3 @@ endif
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-

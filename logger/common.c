@@ -66,18 +66,25 @@ static olsize_t _getLogTimeStamp(olchar_t * pstrStamp, olsize_t sStamp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t sStr = 0;
-    struct timeval tv;
-    struct tm * tmLocal = NULL;
+    jf_time_val_t jtv;
+    struct tm tmLocal;
+    oltime_t time = 0;
 
-    u32Ret = jf_time_getTimeOfDay(&tv);
+    u32Ret = jf_time_getTimeOfDay(&jtv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        tmLocal = localtime((const oltime_t *)&tv.tv_sec);
+        time = jtv.jtv_u64Second;
 
-        if (tmLocal != NULL)
-            sStr = _getStringTimeStamp(tmLocal, (u32)tv.tv_usec, pstrStamp, sStamp);
-        else
-            u32Ret = JF_ERR_INVALID_TIME;
+#if defined(WINDOWS)
+        if (localtime_s(&tmLocal, &time) != 0)
+            u32Ret = JF_ERR_FAIL_GET_TIME;
+#elif defined(LINUX)
+        if (localtime_r(&time, &tmLocal) == NULL)
+            u32Ret = JF_ERR_FAIL_GET_TIME;
+#endif
+
+        if (u32Ret == JF_ERR_NO_ERROR)
+            sStr = _getStringTimeStamp(&tmLocal, (u32)jtv.jtv_u64MicroSecond, pstrStamp, sStamp);
     }
 
     if (u32Ret != JF_ERR_NO_ERROR)

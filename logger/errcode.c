@@ -260,6 +260,11 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
 
 /* matrix error */
     {JF_ERR_MATRIX_SINGULAR, "Matrix is singular."},
+/* persistency error */
+    {JF_ERR_SQL_EVAL_ERROR, "SQL statement evaluation error."},
+    {JF_ERR_PERSISTENCY_INIT_ERROR, "Persistency initialization error."},
+    {JF_ERR_SQL_COMPILE_ERROR, "SQL statement compile error."},
+    {JF_ERR_UNSUPPORTED_PERSISTENCY_TYPE, "Unsupported persistency type."},
 /* servmgmt error */
     {JF_ERR_SERV_NOT_FOUND, "Service is not found."},
 /* dispatcher error */
@@ -367,7 +372,7 @@ void jf_err_readDescription(u32 u32ErrCode, olchar_t * pstrBuf, olsize_t sBuf)
 {
     assert((pstrBuf != NULL) && (sBuf > 0));
 
-    memset(pstrBuf, 0, sBuf);
+    ol_bzero(pstrBuf, sBuf);
 
     if (isSysErrorCode(u32ErrCode))
         _getSysErrMsg(u32ErrCode, pstrBuf, sBuf);
