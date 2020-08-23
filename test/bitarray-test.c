@@ -18,6 +18,7 @@
 #include "jf_err.h"
 #include "jf_bitarray.h"
 #include "jf_string.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -29,8 +30,9 @@ static void _printBitarrayTestUsage(void)
 {
     ol_printf("\
 Usage: bitarray-test [-h] [-t]\n\
-    -h show this usage\n\
-    -t test sizeof on local machine\n");
+  -h: show this usage\n\
+  -t: test sizeof on local machine\n\
+  By default, basic function of bit array is tested.\n");
     ol_printf("\n");
 }
 
@@ -39,7 +41,7 @@ static u32 _parseBitarrayTestCmdLineParam(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "th?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "th?")) != -1))
     {
         switch (nOpt)
         {
@@ -247,11 +249,11 @@ static void _testSizeof(void)
     jf_bitarray_t a[20];
     jf_bitarray_t b[6][40];
 
-    ol_printf("a[20]\n");
+    ol_printf("jf_bitarray_t a[20]\n");
     ol_printf("sizeof(a) = %d\n", (s32)sizeof(a));
     ol_printf("sizeof(a[0]) = %d\n", (s32)sizeof(a[0]));
 
-    ol_printf("b[6][40]\n");
+    ol_printf("jf_bitarray_t b[6][40]\n");
     ol_printf("sizeof(b) = %d\n", (s32)sizeof(b));
     ol_printf("sizeof(b[0]) = %d\n", (s32)sizeof(b[0]));
     ol_printf("sizeof(b[1]) = %d\n", (s32)sizeof(b[1]));
@@ -259,6 +261,7 @@ static void _testSizeof(void)
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
+
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;

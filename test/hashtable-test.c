@@ -20,6 +20,7 @@
 #include "jf_hashtable.h"
 #include "jf_process.h"
 #include "jf_jiukun.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -39,8 +40,8 @@ Usage: hashtable-test [-u] [-t] [-h]\n\
     -u hash u32\n\
     -t hash table\n\
     -h print the usage\n");
-    ol_printf("\n");
 
+    ol_printf("\n");
 }
 
 static u32 _parseHashTableTestCmdLineParam(
@@ -49,7 +50,7 @@ static u32 _parseHashTableTestCmdLineParam(
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "uth?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "uth?")) != -1))
     {
         switch (nOpt)
         {
@@ -86,7 +87,7 @@ static void _terminate(olint_t signal)
 static u32 _hashU32(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 rand;
+    u32 u32Rand;
     olint_t bits = TEST_HASHTABLE_HASHU32_BITS;
     u32 count[TEST_HASHTABLE_HASHU32_HIT_COUNT];
     u32 index = 0, result = 0, total = 0;
@@ -96,20 +97,20 @@ static u32 _hashU32(void)
     u32Ret = jf_process_registerSignalHandlers(_terminate);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        srandom(time(NULL));
+        ol_srand(time(NULL));
 
         ls_bTerminateFlag = FALSE;
 
         while (! ls_bTerminateFlag)
         {
-            rand = random();
+            u32Rand = ol_random();
 
-            result = jf_hashtable_hashU32(rand, bits);
-            ol_printf("hash random number %u to %d\n", rand, result);
+            result = jf_hashtable_hashU32(u32Rand, bits);
+            ol_printf("hash random number %u to %d\n", u32Rand, result);
             count[result] ++;
 
             total ++;
-//            sleep(1);
+//            ol_sleep(1);
         }
 
         for (index = 0; index < TEST_HASHTABLE_HASHU32_HIT_COUNT; index ++)
@@ -139,21 +140,45 @@ static olint_t _testHtCmpKeys(void * pKey1, void * pKey2)
 
 static olint_t _testHtHashKey(void * pKey)
 {
-
-    return (olint_t)(ulong)pKey;
+    olint_t ret = jf_hashtable_hashPJW(pKey);
+    ol_printf("key: %s, hash: %d\n", (olchar_t *)pKey, ret);
+    return ret;
 }
 
 static void * _testHtGetKeyFromEntry(void * pEntry)
 {
     test_hash_entry_t * entry = (test_hash_entry_t *)pEntry;
 
-    return (void *)(ulong)entry->the_nKey;
+    return entry->the_pstrKey;
+}
+
+static u32 _testHashTableIterator(jf_hashtable_t * pjh)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_hashtable_iterator_t iter;
+    test_hash_entry_t * pEntry = NULL;
+
+    ol_printf("---- iterate hash table start\n");
+
+    jf_hashtable_setupIterator(pjh, &iter);
+
+    while (! jf_hashtable_isEndOfIterator(&iter))
+    {
+        pEntry = jf_hashtable_getEntryFromIterator(&iter);
+        ol_printf("entry: %s\n", pEntry->the_pstrKey);
+
+        jf_hashtable_incrementIterator(&iter);
+    }
+
+    ol_printf("---- iterate hash table end\n");
+
+    return u32Ret;
 }
 
 static u32 _testHashTable(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_hashtable_t * pjh;
+    jf_hashtable_t * pjh = NULL;
     jf_hashtable_create_param_t jhcp;
     test_hash_entry_t entry1, entry2;
 
@@ -169,26 +194,44 @@ static u32 _testHashTable(void)
         return u32Ret;
 
     ol_printf("hash table is created\n");
+    _testHashTableIterator(pjh);
 
     ol_bzero(&entry1, sizeof(test_hash_entry_t));
+    entry1.the_pstrKey = "entry1";
+
     ol_bzero(&entry2, sizeof(test_hash_entry_t));
+    entry2.the_pstrKey = "entry2";
 
-    entry1.the_nKey = 1;
-    entry2.the_nKey = 1;
-
-    entry1.the_nId = 1;
-    entry2.the_nId = 1;
-
-    u32Ret = jf_hashtable_insertEntry(pjh, &entry1);
     if (u32Ret == JF_ERR_NO_ERROR)
-        ol_printf("hash table entry is inserted\n");
+        u32Ret = jf_hashtable_insertEntry(pjh, &entry1);
 
-    u32Ret = jf_hashtable_insertEntry(pjh, &entry2);
     if (u32Ret == JF_ERR_NO_ERROR)
-        ol_printf("hash table entry is inserted\n");
+    {
+        ol_printf("entry is inserted: %s\n", entry1.the_pstrKey);
+        _testHashTableIterator(pjh);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_hashtable_insertEntry(pjh, &entry2);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_printf("entry is inserted: %s\n", entry2.the_pstrKey);
+        _testHashTableIterator(pjh);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_hashtable_removeEntry(pjh, &entry1);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_printf("entry is removed: %s\n", entry1.the_pstrKey);
+        _testHashTableIterator(pjh);
+    }
 
     ol_printf("hash table entry is destroyed\n");
-    jf_hashtable_destroy(&pjh);
+    if (pjh != NULL)
+        jf_hashtable_destroy(&pjh);
 
     return u32Ret;
 }

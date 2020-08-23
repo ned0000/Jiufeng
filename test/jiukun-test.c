@@ -402,24 +402,24 @@ JF_THREAD_RETURN_VALUE _allocFree(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strErrMsg[300];
-    u32 u32Index = (u32)(ulong)pArg;
+    u32 u32Id = *(u32 *)pArg;
 
-    jf_logger_logInfoMsg("alloc-free thread %u starts", u32Index);
+    jf_logger_logInfoMsg("alloc-free thread %u starts", u32Id);
 
     while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
-        jf_logger_logInfoMsg("alloc-free thread %u starts testing", u32Index);
+        jf_logger_logInfoMsg("alloc-free thread %u starts testing", u32Id);
 
         u32Ret = _testJiukunCache();
     }
 
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        jf_logger_logInfoMsg("alloc-free thread %u quits", u32Index);
+        jf_logger_logInfoMsg("alloc-free thread %u quits", u32Id);
     else
     {
         jf_err_readDescription(u32Ret, strErrMsg, 300);
-        jf_logger_logInfoMsg("alloc-free thread %u quits, %s", u32Index, strErrMsg);
+        jf_logger_logInfoMsg("alloc-free thread %u quits, %s", u32Id, strErrMsg);
     }
 
     JF_THREAD_RETURN(u32Ret);
@@ -428,8 +428,12 @@ JF_THREAD_RETURN_VALUE _allocFree(void * pArg)
 static u32 _testJiukunInThread(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Index;
+    u32 u32Index = 0;
+    u32 u32Id[MAX_THREAD_COUNT];
     jf_jiukun_cache_create_param_t jjccp;
+
+    for (u32Index = 0; u32Index < MAX_THREAD_COUNT; ++ u32Index)
+        u32Id[u32Index] = u32Index + 1;
 
     ol_memset(&jjccp, 0, sizeof(jjccp));
     jjccp.jjccp_pstrName = TEST_CACHE;
@@ -445,8 +449,7 @@ static u32 _testJiukunInThread(void)
              ((u32Index < MAX_THREAD_COUNT) && (u32Ret == JF_ERR_NO_ERROR));
              u32Index ++)
         {
-            u32Ret = jf_thread_create(
-                NULL, NULL, _allocFree, (void *)(ulong)(u32Index + 1));
+            u32Ret = jf_thread_create(NULL, NULL, _allocFree, &u32Id[MAX_THREAD_COUNT]);
         }
     }
 

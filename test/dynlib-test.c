@@ -22,15 +22,42 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+#if defined(WINDOWS)
+static olchar_t * ls_pstrDynLib = "jf_string.dll";
+#elif defined(LINUX)
+static olchar_t * ls_pstrDynLib = "/lib/x86_64-linux-gnu/libm.so.6";
+#endif
+
 /* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _testDynlib(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+#if defined(WINDOWS)
+    jf_dynlib_t * pjd = NULL;
+    const olchar_t * (*getStringTrue)(const boolean_t bTrue);
+    oldouble_t (*pow)(oldouble_t x, oldouble_t y);
+
+    u32Ret = jf_dynlib_load(ls_pstrDynLib, &pjd);
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = jf_dynlib_getSymbolAddress(pjd, "jf_string_getStringTrue", (void **)&getStringTrue);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_printf("%s\n", (*getStringTrue)(TRUE));
+        ol_printf("%s\n", (*getStringTrue)(FALSE));
+    }
+
+    if (pjd != NULL)
+        jf_dynlib_unload(&pjd);
+
+#elif defined(LINUX)
     jf_dynlib_t * pjd = NULL;
     oldouble_t (*pow)(oldouble_t x, oldouble_t y);
 
-    u32Ret = jf_dynlib_load("/lib/x86_64-linux-gnu/libm.so.6", &pjd);
+    u32Ret = jf_dynlib_load(ls_pstrDynLib, &pjd);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_dynlib_getSymbolAddress(pjd, "pow", (void **)&pow);
@@ -43,6 +70,7 @@ static u32 _testDynlib(void)
 
     if (pjd != NULL)
         jf_dynlib_unload(&pjd);
+#endif
 
     return u32Ret;
 }

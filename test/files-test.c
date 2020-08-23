@@ -21,6 +21,7 @@
 #include "jf_filestream.h"
 #include "jf_dir.h"
 #include "jf_thread.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -34,7 +35,7 @@ static boolean_t ls_bAppendFile = FALSE;
 static void _printFilesTestUsage(void)
 {
     ol_printf("\
-Usage: files-test [-d <directory>] [-l] [-s filename] [-a]\n\
+Usage: files-test [-d directory] [-l] [-s filename] [-a]\n\
     -d list directory.\n\
     -a append file.\n\
     -l lock file test.\n\
@@ -49,7 +50,7 @@ static u32 _parseFilesTestCmdLineParam(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "lad:s:h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "lad:s:h?")) != -1))
     {
         switch (nOpt)
         {
@@ -65,13 +66,13 @@ static u32 _parseFilesTestCmdLineParam(olint_t argc, olchar_t ** argv)
             ls_bLockFile = TRUE;
             break;
         case 's':
-            ls_pstrFileName = optarg;
+            ls_pstrFileName = jf_option_getArg();
             break;
         case 'd':
-            ls_pstrDirName = optarg;
+            ls_pstrDirName = jf_option_getArg();
             break;
         case ':':
-            u32Ret = JF_ERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_OPTION_ARG;
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;
@@ -134,19 +135,20 @@ static olchar_t * ls_pstrLockFile = "lockfile";
 JF_THREAD_RETURN_VALUE _testLockFileThread(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olint_t id = (olint_t)(ulong)pArg;
+    olint_t id = *(olint_t *)pArg;
     jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
 
-    ol_printf("thread %d\n", id);
+    ol_printf("thread %d starts\n", id);
 
     u32Ret = jf_file_open(ls_pstrLockFile, O_RDONLY, &fd);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_printf("lock file\n");
         u32Ret = jf_file_lock(fd);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_printf("thread %d acquire the lock\n", id);
-            sleep(10);
+            ol_sleep(10);
 
             jf_file_unlock(fd);
             ol_printf("thread %d release the lock\n", id);
@@ -155,6 +157,8 @@ JF_THREAD_RETURN_VALUE _testLockFileThread(void * pArg)
         jf_file_close(&fd);
     }
 
+    ol_printf("thread %d quits\n", id);
+
     JF_THREAD_RETURN(u32Ret);
 }
 
@@ -162,6 +166,7 @@ static u32 _testLockFile(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
+    olint_t index1 = 1, index2 = 2;
 
     u32Ret = jf_file_openWithMode(
         ls_pstrLockFile, O_WRONLY | O_CREAT, JF_FILE_MODE_RUSR | JF_FILE_MODE_WUSR, &fd);
@@ -170,13 +175,13 @@ static u32 _testLockFile(void)
         jf_file_writen(fd, "12345678", 8);
         jf_file_close(&fd);
 
-        u32Ret = jf_thread_create(NULL, NULL, _testLockFileThread, (void *)1);
+        u32Ret = jf_thread_create(NULL, NULL, _testLockFileThread, (void *)&index1);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_thread_create(NULL, NULL, _testLockFileThread, (void *)2);
+        u32Ret = jf_thread_create(NULL, NULL, _testLockFileThread, (void *)&index2);
 
-    sleep(30);
+    ol_sleep(30);
     jf_file_remove(ls_pstrLockFile);
 
     return u32Ret;

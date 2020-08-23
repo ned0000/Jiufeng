@@ -19,6 +19,7 @@
 #include "jf_err.h"
 #include "jf_date.h"
 #include "jf_string.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -56,7 +57,7 @@ static u32 _parseDateTestCmdLineParam(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "lawtdsh?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "lawtdsh?")) != -1))
     {
         switch (nOpt)
         {
@@ -84,7 +85,7 @@ static u32 _parseDateTestCmdLineParam(olint_t argc, olchar_t ** argv)
             ls_bTestDateString = TRUE;
             break;
         case ':':
-            u32Ret = JF_ERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_OPTION_ARG;
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;

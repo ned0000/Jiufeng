@@ -19,6 +19,7 @@
 #include "jf_err.h"
 #include "jf_conffile.h"
 #include "jf_jiukun.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -42,7 +43,7 @@ static void _printConffileTestUsage(void)
 {
     ol_printf("\
 Usage: conffile-test [-h] conffile\n\
-         ");
+  -h: show this usage\n");
 
     ol_printf("\n");
 }
@@ -53,7 +54,7 @@ static u32 _parseConffileTestCmdLineParam(
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "h?")) != -1))
     {
         switch (nOpt)
         {
@@ -155,7 +156,9 @@ static u32 _fnTestConffileHandleConfig(
     olchar_t str[JF_CONFFILE_MAX_LINE_LEN];
     olsize_t sStr;
 
-    ol_printf("name: %s(%ld), value: %s(%ld)\n", pstrName, ol_strlen(pstrName), pstrValue, ol_strlen(pstrValue));
+    ol_printf(
+        "name: %s(%d), value: %s(%d)\n", pstrName, (olint_t)ol_strlen(pstrName), pstrValue,
+        (olint_t)ol_strlen(pstrValue));
 
     sStr = snprintf(str, sizeof(str), "%s=%s\n", pstrName, pstrValue);
 

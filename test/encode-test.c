@@ -17,9 +17,7 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "jf_encrypt.h"
-#include "jf_hex.h"
-#include "jf_string.h"
+#include "jf_option.h"
 #include "jf_encode.h"
 #include "jf_filestream.h"
 #include "jf_jiukun.h"
@@ -36,12 +34,14 @@ static olchar_t * ls_pstrFile = NULL;
 static void _printEncodeTestUsage(void)
 {
     ol_printf("\
-Usage: encode-test [-b] [-m filename] [-c] \n\
-  for base64 encode\n\
-    -b test base64\n\
-  for huffman code\n\
-    -m test huffman coding\n\
-    -c generate canonical huffman code");
+Usage: encode-test [base64 encode options] [huffman code options] [-h] \n\
+  -h: show this usage.\n\
+base64 encode option: [-b]\n\
+  -b: test base64.\n\
+huffman code option: [-m filename] [-c] \n\
+  -m: test huffman coding.\n\
+  -c: generate canonical huffman code.\n");
+
     ol_printf("\n");
 }
 
@@ -50,8 +50,7 @@ static u32 _parseEncodeTestCmdLineParam(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv,
-        "cm:bh?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "cm:bh?")) != -1))
     {
         switch (nOpt)
         {
@@ -62,7 +61,7 @@ static u32 _parseEncodeTestCmdLineParam(olint_t argc, olchar_t ** argv)
             break;
         case 'm':
             ls_bHuffman = TRUE;
-            ls_pstrFile = optarg;
+            ls_pstrFile = jf_option_getArg();
             break;
         case 'b':
             ls_bBase64 = TRUE;
@@ -264,7 +263,7 @@ static u32 _testGenHuffmanCode(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_encode_huffman_code_t pjehc[NUM_SYMBOL];
     u16 u16Index = 0;
-    jf_filestream_t * fp;
+    jf_filestream_t * fp = NULL;
     olint_t c;
 
     if (ls_bCanonicalHuffman)
@@ -280,9 +279,10 @@ static u32 _testGenHuffmanCode(void)
     }
 
     u32Ret = jf_filestream_open(ls_pstrFile, "r", &fp);
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        while ((c = fgetc(fp)) != EOF)
+        while ((c = jf_filestream_getChar(fp)) != EOF)
         {
             if (pjehc[c].jehc_u32Freq < 0xFFFFFFFF)
             {

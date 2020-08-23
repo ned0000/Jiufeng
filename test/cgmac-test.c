@@ -20,6 +20,7 @@
 #include "jf_cgmac.h"
 #include "jf_hex.h"
 #include "jf_string.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -32,9 +33,9 @@ static void _printCgmacTestUsage(void)
 {
     ol_printf("\
 Usage: cgmac-test [-k] [-a] [-h] \n\
-    -h show this usage\n\
-    -k test HMAC-SHA1\n\
-    -a test HMAC-MD5\n");
+  -h: show this usage\n\
+  -k: test HMAC-SHA1\n\
+  -a: test HMAC-MD5\n");
     ol_printf("\n");
 }
 
@@ -43,7 +44,7 @@ static u32 _parseCgmacTestCmdLineParam(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "kah?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "kah?")) != -1))
     {
         switch (nOpt)
         {

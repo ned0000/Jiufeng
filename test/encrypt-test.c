@@ -18,7 +18,7 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_encrypt.h"
-#include "jf_hex.h"
+#include "jf_option.h"
 #include "jf_string.h"
 #include "jf_jiukun.h"
 
@@ -34,9 +34,9 @@ static void _printEncryptTestUsage(void)
 {
     ol_printf("\
 Usage: encrypt-test [-s] [-f file] [-h] \n\
-    -h: show this usage\n\
-    -s: encrypt string\n\
-    -f: encrypt file\n");
+  -h: show this usage\n\
+  -s: encrypt string\n\
+  -f: encrypt file\n");
     ol_printf("\n");
 }
 
@@ -45,7 +45,7 @@ static u32 _parseEncryptTestCmdLineParam(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "sf:h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "sf:h?")) != -1))
     {
         switch (nOpt)
         {
@@ -59,7 +59,7 @@ static u32 _parseEncryptTestCmdLineParam(olint_t argc, olchar_t ** argv)
             break;
         case 'f':
             ls_bTestEncryptFile = TRUE;
-            ls_pstrSrcFile = (olchar_t *)optarg;
+            ls_pstrSrcFile = jf_option_getArg();
             break;
         case ':':
             u32Ret = JF_ERR_MISSING_PARAM;

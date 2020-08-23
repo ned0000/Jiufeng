@@ -42,7 +42,7 @@ static u32 _parseHashTreeTestCmdLineParam(
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "tT:F:S:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "tT:F:S:h")) != -1))
     {
         switch (nOpt)
         {
@@ -55,14 +55,14 @@ static u32 _parseHashTreeTestCmdLineParam(
             ls_bHashTree = TRUE;
             break;
         case 'T':
-            u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
+            u32Ret = jf_option_getU8FromString(jf_option_getArg(), &pjlip->jlip_u8TraceLevel);
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFile = optarg;
+            pjlip->jlip_pstrLogFile = jf_option_getArg();
             break;
         case 'S':
-            u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
+            u32Ret = jf_option_getS32FromString(jf_option_getArg(), &pjlip->jlip_sLogFile);
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;

@@ -1,7 +1,7 @@
 /**
  *  @file bitop-test.c
  *
- *  @brief Test file for bit operation defined in jf_bitop common object.
+ *  @brief Test file for bit operation defined in jf_bitop header file.
  *
  *  @author Min Zhang
  *
@@ -16,9 +16,9 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "jf_hex.h"
 #include "jf_bitop.h"
 #include "jf_string.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -29,7 +29,7 @@ static void _printBitopTestUsage(void)
 {
     ol_printf("\
 Usage: bitop-test [-h]\n\
-    -h show this usage.\n");
+  -h: show this usage.\n");
     ol_printf("\n");
 }
 
@@ -38,17 +38,16 @@ static u32 _parseBitopTestCmdLineParam(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv,
-        "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "h?")) != -1))
     {
         switch (nOpt)
         {
         case '?':
         case 'h':
             _printBitopTestUsage();
-            break;
+            exit(0);
         case ':':
-            u32Ret = JF_ERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_OPTION_ARG;
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;

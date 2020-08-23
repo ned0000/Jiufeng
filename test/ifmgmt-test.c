@@ -24,6 +24,7 @@
 #include "jf_err.h"
 #include "jf_string.h"
 #include "jf_process.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -41,12 +42,12 @@ static void _printIfmgmtTestUsage(void)
 {
     ol_printf("\
 Usage: ifmgmt-test [-i] [-f if-name] [-u if-name] [-d if-name] [-a] \n\
-    -i: show IP information and MAC address of first interface.\n\
-    -a: show all interface information.\n\
-    -f: show interface information.\n\
-    -u: up interface\n\
-    -d: down interface\n\
-         \n");
+  -i: show IP information and MAC address of first interface.\n\
+  -a: show all interface information.\n\
+  -f: show interface information.\n\
+  -u: up interface\n\
+  -d: down interface");
+
     ol_printf("\n");
 }
 
@@ -55,8 +56,7 @@ static u32 _parseIfmgmtTestCmdLineParam(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv,
-        "au:d:f:iph?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "au:d:f:iph?")) != -1))
     {
         switch (nOpt)
         {
@@ -69,21 +69,21 @@ static u32 _parseIfmgmtTestCmdLineParam(olint_t argc, olchar_t ** argv)
             break;
         case 'f':
             ls_bShowIfInfo = TRUE;
-            ls_pstrIfName = (olchar_t *)optarg;
+            ls_pstrIfName = jf_option_getArg();
             break;
         case 'a':
             ls_bShowAllIfInfo = TRUE;
             break;
         case 'u':
             ls_bUpIf = TRUE;
-            ls_pstrIfName = (olchar_t *)optarg;
+            ls_pstrIfName = jf_option_getArg();
             break;
         case 'd':
             ls_bDownIf = TRUE;
-            ls_pstrIfName = (olchar_t *)optarg;
+            ls_pstrIfName = jf_option_getArg();
             break;
         case ':':
-            u32Ret = JF_ERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_OPTION_ARG;
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;

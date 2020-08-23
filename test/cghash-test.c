@@ -20,6 +20,7 @@
 #include "jf_cghash.h"
 #include "jf_hex.h"
 #include "jf_string.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -34,10 +35,10 @@ static void _printCghashTestUsage(void)
 {
     ol_printf("\
 Usage: cghash-test [-m] [-s] [-a string] [-h] \n\
-    -a hash string by sha1\n\
-    -m test MD5\n\
-    -s test sha1\n\
-    -h show this usage\n");
+  -a: hash string by sha1\n\
+  -m: test MD5\n\
+  -s: test sha1\n\
+  -h: show this usage\n");
     ol_printf("\n");
 }
 
@@ -46,7 +47,7 @@ static u32 _parseCghashTestCmdLineParam(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "va:msh?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "va:msh?")) != -1))
     {
         switch (nOpt)
         {
@@ -55,7 +56,7 @@ static u32 _parseCghashTestCmdLineParam(olint_t argc, olchar_t ** argv)
             ls_bVerbose = TRUE;
             break;
         case 'a':
-            ls_pstrSource = optarg;
+            ls_pstrSource = jf_option_getArg();
             break;
         case 'h':
             _printCghashTestUsage();
