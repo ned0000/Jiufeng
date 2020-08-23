@@ -10,15 +10,15 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_string.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -42,9 +42,9 @@ static u32 _scanErrorCode(olchar_t * strcode)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    if (strlen(strcode) > 2)
+    if (ol_strlen(strcode) > 2)
     {
-        if (strncasecmp(strcode, "0x", 2) == 0)
+        if (ol_strncasecmp(strcode, "0x", 2) == 0)
             ol_sscanf(strcode + 2, "%x", &ls_u32ErrorCode);
         else
             ol_sscanf(strcode, "%d", &ls_u32ErrorCode);
@@ -60,9 +60,9 @@ static u32 _scanErrorCode(olchar_t * strcode)
 static u32 _parseErrcodeCmdLineParam(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olint_t nOpt;
+    olint_t nOpt = 0;
 
-    while (((nOpt = getopt(argc, argv, "c:h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "c:h")) != -1))
     {
         switch (nOpt)
         {
@@ -73,7 +73,7 @@ static u32 _parseErrcodeCmdLineParam(olint_t argc, olchar_t ** argv)
             break;
         case 'c':
             ls_bErrorCode = TRUE;
-            u32Ret = _scanErrorCode(optarg);
+            u32Ret = _scanErrorCode(jf_option_getArg());
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;
