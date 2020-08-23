@@ -1,7 +1,7 @@
 #
-#  @file windows.mak
+#  @file xmlparser/windows.mak
 #
-#  @brief the makefile for XML Parser library
+#  @brief The makefile for XML Parser library.
 #
 #  @author Min Zhang
 #
@@ -13,18 +13,17 @@
 DLLNAME = jf_xmlparser
 RESOURCE = xmlparser
 
-SOURCES = xmlparser.c
-JIUTAI_SRCS = $(JIUTAI_DIR)\jf_stack.c $(JIUTAI_DIR)\jf_hashtree.c
+SOURCES = xmlcommon.c xmlattr.c xmlparser.c xmlprint.c xmlfile.c
 
-EXTRA_LIBS = $(LIB_DIR)\jf_string.lib $(LIB_DIR)\jf_files.lib $(LIB_DIR)\jf_jiukun.lib
+JIUTAI_SRCS = $(JIUTAI_DIR)\jf_stack.c $(JIUTAI_DIR)\jf_hashtree.c $(JIUTAI_DIR)\jf_linklist.c \
+    $(JIUTAI_DIR)\jf_ptree.c
+
+EXTRA_LIBS = jf_string.lib jf_files.lib jf_jiukun.lib jf_logger.lib
 
 EXTRA_INC_DIR =
 
-EXTRA_DEFS = -DJIUFENG_XMLPARSER_DLL
+EXTRA_DEFS = /DJIUFENG_XMLPARSER_DLL
 
 !include "$(TOPDIR)\mak\winlib.mak"
 
 #---------------------------------------------------------------------------------------------------
-
-
-

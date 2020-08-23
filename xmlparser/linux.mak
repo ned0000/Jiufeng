@@ -1,7 +1,7 @@
 #
-#  @file linux.mak
+#  @file xmlparser/linux.mak
 #
-#  @brief the makefile for xml parser library
+#  @brief The makefile for xml parser library.
 #
 #  @author Min Zhang
 #
@@ -19,7 +19,7 @@ JIUTAI_SRCS = jf_stack.c jf_hashtree.c jf_linklist.c jf_ptree.c
 
 EXTRA_LIBS = -ljf_string -ljf_files -ljf_jiukun
 
-EXTRA_INC_DIR = -I../kinc
+EXTRA_INC_DIR =
 
 ifeq ("$(DEBUG_JIUFENG)", "yes")
 #    EXTRA_CFLAGS += -DDEBUG_XML_DOC
@@ -28,4 +28,3 @@ endif
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-
