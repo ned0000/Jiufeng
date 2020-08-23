@@ -1,7 +1,7 @@
 #
 #  @file 
 #
-#  @brief The Makefile for building executable file
+#  @brief The Makefile for building executable file.
 #
 #  @author Min Zhang
 #
@@ -33,5 +33,3 @@ EXTRA_LIBS = -ljf_logger
 include $(TOPDIR)/mak/lnxexe.mak
 
 #---------------------------------------------------------------------------------------------------
-
-

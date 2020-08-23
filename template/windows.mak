@@ -1,7 +1,7 @@
 #
 #  @file
 #
-#  @brief the template makefile for Windows
+#  @brief The template makefile for Windows.
 #
 #  @author Min Zhang
 #
@@ -24,6 +24,3 @@ EXTRA_LIBS =
 !include "$(TOPDIR)\mak\winlib.mak"
 
 #---------------------------------------------------------------------------------------------------
-
-
-

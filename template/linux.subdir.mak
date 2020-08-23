@@ -1,7 +1,7 @@
 #
 #  @file 
 #
-#  @brief The makefile for building sub-directory
+#  @brief The makefile for building sub-directory.
 #
 #  @author Min Zhang
 #
@@ -19,5 +19,3 @@ SUBDIRS = aaa bbb ccc ddd
 include $(TOPDIR)/mak/lnxsubdirs.mak
 
 #---------------------------------------------------------------------------------------------------
-
-

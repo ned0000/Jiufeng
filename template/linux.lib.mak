@@ -1,7 +1,7 @@
 #
 #  @file
 #
-#  @brief The template makefile for Linux
+#  @brief The template makefile for Linux.
 #
 #  @author Min Zhang
 #
@@ -32,4 +32,3 @@ EXTRA_LIBS = -ljf_logger
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-
