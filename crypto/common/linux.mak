@@ -1,7 +1,7 @@
 #
-#  @file linux.mak
+#  @file crypto/common/linux.mak
 #
-#  @brief The Makefile for common object file of crypto library
+#  @brief The Makefile for common object file of crypto library.
 #
 #  @author Min Zhang
 #
@@ -18,5 +18,3 @@ EXTRA_CFLAGS =
 include $(TOPDIR)/mak/lnxobj.mak
 
 #---------------------------------------------------------------------------------------------------
-
-

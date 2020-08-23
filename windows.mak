@@ -17,7 +17,7 @@
 
 !else
 
-SUBDIRS = jiutai logger jiukun string files ifmgmt test
+SUBDIRS = jiutai logger jiukun string files ifmgmt crypto test
 
 !include "$(TOPDIR)\mak\winsubdirs.mak"
 

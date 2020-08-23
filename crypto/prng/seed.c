@@ -1,7 +1,7 @@
 /**
  *  @file seed.c
  *
- *  @brief get PRNG seed from OS
+ *  @brief Get PRNG seed from OS.
  *
  *  @author Min Zhang
  *
@@ -10,8 +10,8 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stdio.h>
-#include <string.h>
 #if defined(LINUX)
     #include <sys/socket.h>
     #include <netinet/in.h>
@@ -30,15 +30,19 @@
     #include <windows.h>
     #include <lm.h>
     #include <Tlhelp32.h>
+    #include <bcrypt.h>
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_prng.h"
 #include "jf_file.h"
 #include "jf_time.h"
+#include "jf_process.h"
+#include "jf_thread.h"
 
 #include "prngcommon.h"
 #include "clrmem.h"
@@ -57,15 +61,15 @@
 static u32 _getSeedFromSystem(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-#if defined(LINUX)
     u8 tmpbuf[ENTROPY_NEEDED];
+#if defined(LINUX)
     olchar_t * randomfiles[] = { RANDOM_DEV };
     u32 u32NumOfRandomFile = ARRAY_SIZE(randomfiles);
     jf_file_stat_t filestats[ARRAY_SIZE(randomfiles)];
     jf_file_t fd;
     u32 i, j;
     olint_t usec = 10 * 1000; /* spend 10ms on each file */
-    jf_file_stat_t * st;
+    jf_file_stat_t * st = NULL;
     olsize_t sread = 0, sleft = 0;
     struct timeval tv;
 
@@ -123,7 +127,14 @@ static u32 _getSeedFromSystem(void)
     }
 
 #elif defined(WINDOWS)
+    HRESULT hr = S_OK;
 
+    hr = BCryptGenRandom(NULL, tmpbuf, ENTROPY_NEEDED, BCRYPT_USE_SYSTEM_PREFERRED_RNG);
+
+    if (FAILED(hr))
+        u32Ret = JF_ERR_PRNG_NOT_SEEDED;
+    else
+        u32Ret = jf_prng_seed(tmpbuf, sizeof(tmpbuf), ENTROPY_NEEDED);
 
 #endif
 
@@ -133,16 +144,17 @@ static u32 _getSeedFromSystem(void)
 static u32 _getSeedFromProcess(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    pid_t pid = jf_process_getCurrentId();
+    pthread_t threadid = jf_thread_getCurrentId();
 #if defined(LINUX)
-    pid_t pid = getpid();
     uid_t uid = getuid();
+#endif
 
     jf_prng_seed((u8 *)&pid, sizeof(pid), 0.0);
+    jf_prng_seed((u8 *)&threadid, sizeof(threadid), 0.0);
+
+#if defined(LINUX)
     jf_prng_seed((u8 *)&uid, sizeof(uid), 0.0);
-
-#elif defined(WINDOWS)
-
-
 #endif
 
     return u32Ret;
@@ -151,23 +163,14 @@ static u32 _getSeedFromProcess(void)
 static u32 _getSeedFromTime(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-#if defined(LINUX)
-    struct timeval tv;
+    jf_time_val_t jtv;
 
-    u32Ret = jf_time_getTimeOfDay(&tv);
+    u32Ret = jf_time_getTimeOfDay(&jtv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_prng_seed((u8 *)&tv.tv_sec, sizeof(tv.tv_sec), 0.0);
-        jf_prng_seed((u8 *)&tv.tv_usec, sizeof(tv.tv_usec), 0.0);
+        jf_prng_seed((u8 *)&jtv.jtv_u64Second, sizeof(jtv.jtv_u64Second), 0.0);
+        jf_prng_seed((u8 *)&jtv.jtv_u64MicroSecond, sizeof(jtv.jtv_u64MicroSecond), 0.0);
     }
-    else
-    {
-        u32Ret = JF_ERR_NO_ERROR;
-    }
-#elif defined(WINDOWS)
-
-
-#endif
 
     return u32Ret;
 }
@@ -177,23 +180,17 @@ static u32 _getSeedFromTime(void)
 u32 getSeed(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-#if defined(LINUX)
 
+    /*The seed from system has entropy.*/
     u32Ret = _getSeedFromSystem();
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        u32Ret = _getSeedFromProcess();
-    }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _getSeedFromTime();
+        /*It's ok to failed to seed from process and time.*/
+        _getSeedFromProcess();
+
+        _getSeedFromTime();
     }
-
-#elif defined(WINDOWS)
-
-
-#endif
 
     return u32Ret;
 }

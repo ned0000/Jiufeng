@@ -1,8 +1,7 @@
 /**
  *  @file encrypt.c
  *
- *  @brief Encryption header file, provide function to en/decrypt file and
- *   string
+ *  @brief Encryption header file, provide function to en/decrypt file and string.
  *
  *  @author Min Zhang
  *  
@@ -11,13 +10,20 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <stdio.h>
-#include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include <openssl/aes.h>
+
+#if defined(WINDOWS)
+
+#elif defined(LINUX)
+    #include <unistd.h>
+    #include <openssl/aes.h>
+#endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_encrypt.h"
@@ -33,6 +39,8 @@
 /* --- private data/data structure section ------------------------------------------------------ */
 
 /* --- private routine section ------------------------------------------------------------------ */
+
+#if defined(LINUX)
 
 static void _setEncryptIv(u8 * piv)
 {
@@ -79,12 +87,17 @@ static u32 _setDecryptKey(olchar_t * pKey, AES_KEY * pAesKey)
     return u32Ret;
 }
 
+#endif
+
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 jf_encrypt_encryptFile(
     olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+#if defined(WINDOWS)
+    u32Ret = JF_ERR_NOT_IMPLEMENTED;
+#elif defined(LINUX)
     AES_KEY aeskey;
     FILE * fpSrc = NULL;
     FILE * fpDest = NULL;
@@ -129,8 +142,7 @@ u32 jf_encrypt_encryptFile(
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 sread = ALIGN_CEIL(sread, 16);
-                AES_cbc_encrypt(
-                    (u8 *)pBuf, (u8 *)pBuf, sread, &aeskey, iv, AES_ENCRYPT);
+                AES_cbc_encrypt((u8 *)pBuf, (u8 *)pBuf, sread, &aeskey, iv, AES_ENCRYPT);
 
                 u32Ret = jf_filestream_writen(fpDest, pBuf, sread);
             }
@@ -147,6 +159,7 @@ u32 jf_encrypt_encryptFile(
         jf_filestream_close(&fpSrc);
     if (fpDest != NULL)
         jf_filestream_close(&fpDest);
+#endif
 
     return u32Ret; 
 }
@@ -155,6 +168,9 @@ u32 jf_encrypt_decryptFile(
     olchar_t * pSrcFile, olchar_t * pDestFile, olchar_t * pKey)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+#if defined(WINDOWS)
+    u32Ret = JF_ERR_NOT_IMPLEMENTED;
+#elif defined(LINUX)
     AES_KEY aeskey;
     FILE * fpSrc = NULL;
     FILE * fpDest = NULL;
@@ -195,8 +211,7 @@ u32 jf_encrypt_decryptFile(
             u32Ret = jf_filestream_readn(fpSrc, pBuf, &sread);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                AES_cbc_encrypt(
-                    (u8 *)pBuf, (u8 *)pBuf, sread, &aeskey, iv, AES_DECRYPT);
+                AES_cbc_encrypt((u8 *)pBuf, (u8 *)pBuf, sread, &aeskey, iv, AES_DECRYPT);
 
                 if (sread > sleft)
                     sread = sleft;
@@ -221,6 +236,7 @@ u32 jf_encrypt_decryptFile(
         jf_filestream_close(&fpSrc);
     if (fpDest != NULL)
         jf_filestream_close(&fpDest);
+#endif
 
     return u32Ret;   
 }
@@ -229,6 +245,9 @@ u32 jf_encrypt_encryptString(
     const olchar_t * pSrcStr, olchar_t ** ppDestStr, olchar_t * pKey)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+#if defined(WINDOWS)
+    u32Ret = JF_ERR_NOT_IMPLEMENTED;
+#elif defined(LINUX)
     AES_KEY aeskey;
     u8 * pstr = NULL;
     olchar_t * pDestStr = NULL;
@@ -267,6 +286,7 @@ u32 jf_encrypt_encryptString(
         *ppDestStr = pDestStr;
     else if (pDestStr != NULL)
         jf_jiukun_freeMemory((void **)&pDestStr);
+#endif
 
     return u32Ret;   
 }
@@ -275,6 +295,9 @@ u32 jf_encrypt_decryptString(
     const olchar_t * pSrcStr, olchar_t ** ppDestStr, olchar_t * pKey)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+#if defined(WINDOWS)
+    u32Ret = JF_ERR_NOT_IMPLEMENTED;
+#elif defined(LINUX)
     AES_KEY aeskey;
     olchar_t * pDestStr = NULL;
     olsize_t outlen = ol_strlen(pSrcStr) / 2;
@@ -293,15 +316,15 @@ u32 jf_encrypt_decryptString(
             pSrcStr, ol_strlen(pSrcStr), (u8 *)pDestStr, outlen);
 
         _setEncryptIv(iv);
-        AES_cbc_encrypt(
-            (u8 *)pDestStr, (u8 *)pDestStr, outlen, &aeskey, iv, AES_DECRYPT);
+        AES_cbc_encrypt((u8 *)pDestStr, (u8 *)pDestStr, outlen, &aeskey, iv, AES_DECRYPT);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
         *ppDestStr = pDestStr;
     else if (pDestStr != NULL)
         jf_jiukun_freeMemory((void **)&pDestStr);
-    
+#endif    
+
     return u32Ret; 
 }
 
@@ -311,6 +334,3 @@ void jf_encrypt_freeString(olchar_t ** ppStr)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-
-

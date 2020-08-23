@@ -1,7 +1,7 @@
 #
-#  @file windows.mak
+#  @file crypto/common/windows.mak
 #
-#  @brief The Makefile for common object of crypto library
+#  @brief The Makefile for common object of crypto library.
 #
 #  @author Min Zhang
 #
@@ -18,5 +18,3 @@ EXTRA_CFLAGS =
 !include "$(TOPDIR)\mak\winobj.mak"
 
 #---------------------------------------------------------------------------------------------------
-
-

@@ -1,7 +1,7 @@
 #
-#  @file linux.mak
+#  @file crypto/encrypt/linux.mak
 #
-#  @brief The Makefile for encrypt library
+#  @brief The Makefile for encrypt library.
 #
 #  @author Min Zhang
 #
@@ -22,4 +22,3 @@ SONAME = jf_encrypt
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-

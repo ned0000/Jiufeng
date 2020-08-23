@@ -1,7 +1,7 @@
 #
-#  @file linux.mak
+#  @file crypto/linux.mak
 #
-#  @brief The Makefile for libraries related to cryptography
+#  @brief The Makefile for libraries related to cryptography.
 #
 #  @author Min Zhang
 #
@@ -16,5 +16,3 @@ SUBDIRS = common cghash cgmac encrypt prng
 include $(TOPDIR)/mak/lnxsubdirs.mak
 
 #---------------------------------------------------------------------------------------------------
-
-

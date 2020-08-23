@@ -1,7 +1,7 @@
 #
-#  @file windows.mak
+#  @file crypto/windows.mak
 #
-#  @brief The main Makefile for libraries related to cryptography
+#  @brief The main Makefile for libraries related to cryptography.
 #
 #  @author Min Zhang
 #
@@ -11,11 +11,8 @@
 
 #---------------------------------------------------------------------------------------------------
 
-SUBDIRS = common cghash cgmac
+SUBDIRS = common cghash cgmac encrypt prng
 
 !include "$(TOPDIR)\mak\winsubdirs.mak"
 
 #---------------------------------------------------------------------------------------------------
-
-
-

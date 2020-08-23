@@ -1,7 +1,7 @@
 #
-#  @file windows.mak
+#  @file crypto/cghash/windows.mak
 #
-#  @brief The main Makefile for hash function library
+#  @brief The main Makefile for hash function library.
 #
 #  @author Min Zhang
 #
@@ -20,10 +20,8 @@ JIUTAI_SRCS =
 
 EXTRA_LIBS = 
 
-EXTRA_DEFS = -DJIUFENG_CGHASH_DLL
+EXTRA_DEFS = /DJIUFENG_CGHASH_DLL
 
 !include "$(TOPDIR)\mak\winlib.mak"
 
 #---------------------------------------------------------------------------------------------------
-
-

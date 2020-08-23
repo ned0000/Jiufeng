@@ -1,7 +1,7 @@
 #
-#  @file linux.mak
+#  @file crypto/prng/linux.mak
 #
-#  @brief The makefile for pseudo random number generator library
+#  @brief The makefile for pseudo random number generator library.
 #
 #  @author Min Zhang
 #
@@ -24,4 +24,3 @@ EXTRA_LIBS = -ljf_cghash -ljf_files
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-

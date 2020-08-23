@@ -1,7 +1,7 @@
 #
-#  @file linux.mak
+#  @file crypto/cgmac/linux.mak
 #
-#  @brief The Makefile for cryptographic message authentication code
+#  @brief The Makefile for cryptographic message authentication code.
 #
 #  @author Min Zhang
 #

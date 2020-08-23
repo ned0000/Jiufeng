@@ -1,7 +1,7 @@
 #
-#  @file windows.mak
+#  @file crypto/encrypt/windows.mak
 #
-#  @brief The main Makefile for encrypt library
+#  @brief The main Makefile for encrypt library.
 #
 #  @author Min Zhang
 #
@@ -18,12 +18,10 @@ SOURCES = encrypt.c
 
 JIUTAI_SRCS = 
 
-EXTRA_LIBS = 
+EXTRA_LIBS = jf_jiukun.lib
 
-EXTRA_DEFS = -DJIUFENG_ENCRYPT_DLL
+EXTRA_DEFS = /DJIUFENG_ENCRYPT_DLL
 
 !include "$(TOPDIR)\mak\winlib.mak"
 
 #---------------------------------------------------------------------------------------------------
-
-

@@ -1,7 +1,7 @@
 #
-#  @file linux.mak
+#  @file crypto/cghash/linux.mak
 #
-#  @brief The Makefile for hash function library
+#  @brief The Makefile for hash function library.
 #
 #  @author Min Zhang
 #
@@ -21,4 +21,3 @@ SONAME = jf_cghash
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-
