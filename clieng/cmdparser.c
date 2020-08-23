@@ -35,7 +35,7 @@
 #include "cmdparser.h"
 
 #if defined(WINDOWS)
-    #include "getopt.h"
+
 #endif
 
 /* --- private data/data structure section ------------------------------------------------------ */

@@ -1,5 +1,5 @@
 #
-#  @file linux.mak
+#  @file clieng/linux.mak
 #
 #  @brief The makefile for cli engine library.
 #
@@ -22,4 +22,3 @@ EXTRA_LIBS = -ljf_logger -ljf_string -ljf_files -ljf_jiukun
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-
