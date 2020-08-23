@@ -1,7 +1,7 @@
 #
-#  @file linux.mak
+#  @file files/linux.mak
 #
-#  @brief the makefile for files library
+#  @brief The makefile for files library.
 #
 #  @author Min Zhang
 #
@@ -24,4 +24,3 @@ EXTRA_INC_DIR =
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-

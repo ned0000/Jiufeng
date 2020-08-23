@@ -150,7 +150,7 @@ u32 _setFileStat(jf_file_stat_t * pStat, WIN32_FILE_ATTRIBUTE_DATA * pFileInfo)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    memset(pStat, 0, sizeof(jf_file_stat_t));
+    ol_bzero(pStat, sizeof(jf_file_stat_t));
 
     if (pFileInfo->dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY)
         pStat->jfs_u32Mode |= JF_FILE_MODE_TDIR;
@@ -159,9 +159,9 @@ u32 _setFileStat(jf_file_stat_t * pStat, WIN32_FILE_ATTRIBUTE_DATA * pFileInfo)
 
     pStat->jfs_u64Size = (((u64)pFileInfo->nFileSizeHigh) << 32) + pFileInfo->nFileSizeLow;
 
-    pStat->jfs_u32Createtime = fileTimeToSecondsSince1970(&(pFileInfo->ftCreationTime));
-    pStat->jfs_u32AccessTime = fileTimeToSecondsSince1970(&(pFileInfo->ftLastAccessTime));
-    pStat->jfs_u32ModifyTime = fileTimeToSecondsSince1970(&(pFileInfo->ftLastWriteTime));
+    pStat->jfs_u64Createtime = jf_time_fileTimeToSecondsSince1970(&(pFileInfo->ftCreationTime));
+    pStat->jfs_u64AccessTime = jf_time_fileTimeToSecondsSince1970(&(pFileInfo->ftLastAccessTime));
+    pStat->jfs_u64ModifyTime = jf_time_fileTimeToSecondsSince1970(&(pFileInfo->ftLastWriteTime));
 
     return u32Ret;
 }
@@ -325,7 +325,7 @@ u32 jf_file_open(const olchar_t * pstrFilename, olint_t flags, jf_file_t * pFile
     else
         u32CreateFlags = OPEN_EXISTING;
 
-    *pFile = CreateFile(
+    *pFile = CreateFileA(
         pstrFilename, u32Flags, u32ShareMode, NULL, u32CreateFlags, FILE_ATTRIBUTE_NORMAL, NULL);
     if (*pFile == INVALID_HANDLE_VALUE)
         u32Ret = JF_ERR_FAIL_OPEN_FILE;
@@ -338,15 +338,15 @@ u32 jf_file_openWithMode(
     const olchar_t * pstrFilename, olint_t flags, jf_file_mode_t mode, jf_file_t * pFile)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-#if defined(LINUX)
 
     assert((pstrFilename != NULL) && (pFile != NULL));
 
+#if defined(LINUX)
     *pFile = open(pstrFilename, flags, mode);
     if (*pFile == -1)
         u32Ret = JF_ERR_FAIL_OPEN_FILE;
 #elif defined(WINDOWS)
-    u32Ret = openFile(pstrFilename, flags, pFile);
+    u32Ret = jf_file_open(pstrFilename, flags, pFile);
 #endif
 
     return u32Ret;
@@ -425,9 +425,9 @@ u32 jf_file_lock(jf_file_t fd)
 
 #elif defined(WINDOWS)
     boolean_t bRet;
+    OVERLAPPED overlap;
 
-    bRet = LockFileEx(fd, LOCKFILE_EXCLUSIVE_LOCK, 0,
-       0xFFFFFFFF, 0xFFFFFFFF, NULL);
+    bRet = LockFileEx(fd, LOCKFILE_EXCLUSIVE_LOCK, 0, 0xFFFFFFFF, 0xFFFFFFFF, &overlap);
     if (! bRet)
         u32Ret = JF_ERR_FAIL_LOCK_FILE;
 

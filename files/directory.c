@@ -1,8 +1,7 @@
 /**
  *  @file directory.c
  *
- *  @brief Files implementation files, provide common routines to manipulate
- *   directory
+ *  @brief Files implementation files, provide common routines to manipulate directory.
  *
  *  @author Min Zhang
  *  
@@ -11,7 +10,7 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
+
 #include <string.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -20,14 +19,18 @@
 #elif defined(LINUX)
     #include <sys/types.h>
     #include <dirent.h>
-    #include <stdlib.h>
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_dir.h"
 #include "jf_err.h"
+
+#if defined(WINDOWS)
+    #include "jf_mem.h"
+#endif
 
 #include "common.h"
 
@@ -204,7 +207,7 @@ u32 jf_dir_open(const olchar_t * pstrDirName, jf_dir_t ** ppDir)
     else
         u32Ret = JF_ERR_FAIL_OPEN_DIR;
 #elif defined(WINDOWS)
-    u32Ret = xmalloc(&pDir, sizeof(internal_dir_t));
+    u32Ret = jf_mem_alloc(&pDir, sizeof(internal_dir_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         memset(pDir, 0, sizeof(internal_dir_t));
@@ -214,13 +217,12 @@ u32 jf_dir_open(const olchar_t * pstrDirName, jf_dir_t ** ppDir)
         if (pDir->id_hDir == INVALID_HANDLE_VALUE)
         {
             u32Ret = JF_ERR_FAIL_OPEN_DIR;
-            xfree(&pDir);
+            jf_mem_free(&pDir);
         }
         else
         {
             pDir->id_hFind = INVALID_HANDLE_VALUE;
-            ol_strncpy(
-                pDir->id_strDirName, pstrDirName, JF_LIMIT_MAX_PATH_LEN - 1);
+            ol_strncpy(pDir->id_strDirName, pstrDirName, JF_LIMIT_MAX_PATH_LEN - 1);
             *ppDir = (jf_dir_t *)pDir;
         }
     }
@@ -245,7 +247,7 @@ u32 jf_dir_close(jf_dir_t ** ppDir)
     CloseHandle(pDir->id_hDir);
     if (pDir->id_hFind != INVALID_HANDLE_VALUE)
         FindClose(pDir->id_hFind);
-    xfree(ppDir);
+    jf_mem_free(ppDir);
     *ppDir = NULL;
 #endif
 
