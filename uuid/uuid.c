@@ -1,7 +1,7 @@
 /**
  *  @file uuid.c
  *
- *  @brief The UUID library to generate UUID(Universally Unique Identifier)
+ *  @brief Implementation file for generating UUID(Universally Unique Identifier).
  *
  *  @author Min Zhang
  *  
@@ -31,124 +31,127 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/** maximum number of 100ns ticks of the actual resolution of system clock
- *  which in our case is 1us (= 1000ns) because we use getTimeOfDay
+/** Maximum number of 100ns ticks of the actual resolution of system clock which in our case is
+ *  1us (= 1000ns) because we use getTimeOfDay
  */
-#define UUIDS_PER_TICK    (10)
+#define UUIDS_PER_TICK               (10)
 
-/** time offset between UUID and Unix Epoch time according to standards.
+/** Time offset between UUID and Unix Epoch time according to standards.
  *  UUID UTC base time is October 15, 1582
  *  Unix UTC base time is January  1, 1970
  */
 static const u64 ls_u64UuidTimeOffset = 122192928000000000LL;
 
-/** IEEE 802 MAC address encoding/decoding bit fields
+/* IEEE 802 MAC address encoding/decoding bit fields
  */
+
 /** 0: individual address(unicast), 1: global address(mulcast)
  */
-#define IEEE_MAC_MCBIT   JF_BITOP_OCTET(0,0,0,0,0,0,0,1)
+#define IEEE_MAC_MCBIT               JF_BITOP_OCTET(0,0,0,0,0,0,0,1)
+
 /** 0: universally administered address, 1: locally administered address
  */
-#define IEEE_MAC_LOBIT   JF_BITOP_OCTET(0,0,0,0,0,0,1,0)
+#define IEEE_MAC_LOBIT               JF_BITOP_OCTET(0,0,0,0,0,0,1,0)
 
-/** uuid generation data structure
+/** Define the UUID generation data type.
  */
 typedef struct
 {
-    /** inlined UUID object */
+    /**Inlined UUID object.*/
     uuid_obj_t ug_uoObj;
-    /** if it's initialized */
+    /**UUID library is initialized if it's TRUE.*/
     boolean_t ug_bInitialized;
     u8 ug_u8Reserved[7];
 
-    /** for V1 */
-    /** pre-determined MAC address */
+    /* For V1 */
+    /**Pre-determined MAC address.*/
     uuid_uint8_t ug_u8Mac[JF_LIMIT_MAC_LEN];
-    /** use multi-cast MAC address */
+    /**Use multi-cast MAC address if it's TRUE.*/
     boolean_t ug_bMulticastMac;
     u8 ug_u8Reserved2;
-    /** last retrieved timestamp */
-    struct timeval ug_tvLast;
-    /** last timestamp sequence counter */
+    /**Last retrieved timestamp.*/
+    jf_time_val_t ug_jtvLast;
+    /**Last timestamp sequence counter.*/
     u32 ug_u32TimeSeq;
 
-    /** for V3 and V5 */
-    /** MD5 sub-object */
+    /* For V3 and V5 */
+    /**MD5 sub-object.*/
     jf_cghash_md5_t ug_jcmMd5;
+    /**SHA1 sub-object.*/
     jf_cghash_sha1_t ug_jcsSha1;
-    /** Name, null-terminated string */
+    /**Name, null-terminated string.*/
     olchar_t * ug_pstrName;
-    /** Name space UUID, MUST BE UUID_LEN_BIN length */
+    /**Name space UUID, MUST BE UUID_LEN_BIN length.*/
     u8 * ug_pu8NameSpace;
 
 } uuid_gen_t;
 
-/* static data structure for generation of UUID
+/* Define the UUID generation instance.
  */
 static uuid_gen_t ls_ugUuidGen;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-/* brand UUID with version and variant */
+/** Brand UUID with version and variant
+ */
 static void _brandUuid(uuid_gen_t * pug, jf_uuid_ver_t version)
 {
-    /* set version (as given) */
+    /*Set version (as given).*/
     JF_BITOP_SET(pug->ug_uoObj.uo_u16TimeHiAndVersion, 15, 12, version);
 
-    /* set variant (always DCE 1.1 only) */
+    /*Set variant (always DCE 1.1 only).*/
     JF_BITOP_SET(pug->ug_uoObj.uo_u8ClockSeqHiAndReserved, 7, 6, 0x2);
 }
 
 static u32 _makeUuidV1(uuid_gen_t * pug)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    struct timeval time_now;
-    u64 t;
+    jf_time_val_t time_now;
+    u64 t = 0;
     uuid_uint16_t clck = 0;
 
-    /* determine current system time and sequence counter */
+    /*Determine current system time and sequence counter.*/
     for ( ; u32Ret == JF_ERR_NO_ERROR; )
     {
-        /* determine current system time */
+        /*Determine current system time.*/
         u32Ret = jf_time_getTimeOfDay(&time_now);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            /* check whether system time changed since last retrieve */
-            if (! ((time_now.tv_sec == pug->ug_tvLast.tv_sec) &&
-                   (time_now.tv_usec == pug->ug_tvLast.tv_usec)))
+            /*Check whether system time changed since last retrieve.*/
+            if (! ((time_now.jtv_u64Second == pug->ug_jtvLast.jtv_u64Second) &&
+                   (time_now.jtv_u64MicroSecond == pug->ug_jtvLast.jtv_u64MicroSecond)))
             {
-                /* reset time sequence counter and continue */
+                /*Reset time sequence counter and continue.*/
                 pug->ug_u32TimeSeq = 0;
                 break;
             }
 
-            /* until we are out of UUIDs per tick, increment the time/tick
-               sequence counter and continue */
+            /*Until we are out of UUIDs per tick, increment the time/tick sequence counter and
+              continue.*/
             if (pug->ug_u32TimeSeq < UUIDS_PER_TICK)
             {
                 pug->ug_u32TimeSeq++;
                 break;
             }
-            /* stall the UUID generation until the system clock catches up.
-               getTimeOfDay has resolution of 1us. Sleep for 500ns (1/2us) */
+            /*Stall the UUID generation until the system clock catches up. getTimeOfDay has
+              resolution of 1us. Sleep for 500ns (1/2us).*/
             jf_time_nanoSleep(500);
         }
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /* convert from timeval (sec,usec) to u64 (microsecond) format */
-        t = (u64)time_now.tv_sec;
+        /*Convert from timeval (sec, usec) to u64 (microsecond) format.*/
+        t = time_now.jtv_u64Second;
         t *= 1000000;
-        t += (u64)time_now.tv_usec;
-        /* 100-nanosecond */
+        t += time_now.jtv_u64MicroSecond;
+        /*100-nanosecond.*/
         t *= 10;
 
-        /* adjust for offset between UUID and Unix Epoch time */
+        /*Adjust for offset between UUID and Unix Epoch time.*/
         t += ls_u64UuidTimeOffset;
 
-        /* compensate for low resolution system clock by adding
-           the time/tick sequence counter */
+        /*Compensate for low resolution system clock by adding the time/tick sequence counter.*/
         if (pug->ug_u32TimeSeq > 0)
             t += (u64)pug->ug_u32TimeSeq;
 
@@ -159,18 +162,17 @@ static u32 _makeUuidV1(uuid_gen_t * pug)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /* retrieve current clock sequence */
+        /*Retrieve current clock sequence.*/
         JF_BITOP_SET(
-            clck, 13, 8,
-            JF_BITOP_GET((u64)pug->ug_uoObj.uo_u8ClockSeqHiAndReserved, 5, 0));
+            clck, 13, 8, JF_BITOP_GET((u64)pug->ug_uoObj.uo_u8ClockSeqHiAndReserved, 5, 0));
         JF_BITOP_SET(clck, 7, 0, pug->ug_uoObj.uo_u8ClockSeqLow);
 
-        /* generate new random clock sequence (initially or if the time has
-           stepped backwards) or else just increase it */
+        /*Generate new random clock sequence (initially or if the time has stepped backwards) or
+          else just increase it.*/
         if ((clck == 0) ||
-            ((time_now.tv_sec < pug->ug_tvLast.tv_sec) ||
-             ((time_now.tv_sec == pug->ug_tvLast.tv_sec) &&
-              (time_now.tv_usec < pug->ug_tvLast.tv_usec))))
+            ((time_now.jtv_u64Second < pug->ug_jtvLast.jtv_u64Second) ||
+             ((time_now.jtv_u64Second == pug->ug_jtvLast.jtv_u64Second) &&
+              (time_now.jtv_u64MicroSecond < pug->ug_jtvLast.jtv_u64MicroSecond))))
             u32Ret = jf_prng_getData((void *)&clck, sizeof(clck));
         else
             clck++;
@@ -180,24 +182,20 @@ static u32 _makeUuidV1(uuid_gen_t * pug)
     {
         clck %= JF_BITOP_POW2(14);
 
-        /* store back new clock sequence */
+        /*Store back new clock sequence.*/
         JF_BITOP_SET(
-            pug->ug_uoObj.uo_u8ClockSeqHiAndReserved, 5, 0,
-            JF_BITOP_GET(clck, 13, 8));
+            pug->ug_uoObj.uo_u8ClockSeqHiAndReserved, 5, 0, JF_BITOP_GET(clck, 13, 8));
         pug->ug_uoObj.uo_u8ClockSeqLow = JF_BITOP_GET(clck, 7, 0);
     }
 
-    /*  Use a random multi-cast MAC address instead of the real MAC address
-     */
+    /*Use a random multi-cast MAC address instead of the real MAC address.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if ((pug->ug_bMulticastMac) ||
-            (pug->ug_u8Mac[0] & IEEE_MAC_MCBIT))
+        if ((pug->ug_bMulticastMac) || (pug->ug_u8Mac[0] & IEEE_MAC_MCBIT))
         {
-            /* generate random IEEE 802 local multicast MAC address */
+            /*Generate random IEEE 802 local multicast MAC address.*/
             u32Ret = jf_prng_getData(
-                (void *)&(pug->ug_uoObj.uo_u8Node),
-                sizeof(pug->ug_uoObj.uo_u8Node));
+                (void *)&(pug->ug_uoObj.uo_u8Node), sizeof(pug->ug_uoObj.uo_u8Node));
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 pug->ug_uoObj.uo_u8Node[0] |= IEEE_MAC_MCBIT;
@@ -206,18 +204,18 @@ static u32 _makeUuidV1(uuid_gen_t * pug)
         }
         else
         {
-            /* use real regular MAC address */
+            /*Use real regular MAC address.*/
             memcpy(pug->ug_uoObj.uo_u8Node, pug->ug_u8Mac, sizeof(pug->ug_u8Mac));
         }
     }
 
-    /* remember current system time for next iteration */
+    /*Remember current system time for next iteration.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        pug->ug_tvLast.tv_sec  = time_now.tv_sec;
-        pug->ug_tvLast.tv_usec = time_now.tv_usec;
+        pug->ug_jtvLast.jtv_u64Second  = time_now.jtv_u64Second;
+        pug->ug_jtvLast.jtv_u64MicroSecond = time_now.jtv_u64MicroSecond;
 
-        /* brand with version and variant */
+        /*Brand with version and variant.*/
         _brandUuid(pug, JF_UUID_VER_1);
     }
 
@@ -228,20 +226,18 @@ static u32 _makeUuidV3(uuid_gen_t * pug)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    /* initialize MD5 context */
+    /*Initialize MD5 context.*/
     jf_cghash_initMd5(&pug->ug_jcmMd5);
 
-    /* load the namespace UUID into MD5 context */
-    jf_cghash_updateMd5(
-        &pug->ug_jcmMd5, pug->ug_pu8NameSpace, JF_UUID_LEN_BIN);
-    /* load the argument name string into MD5 context */
-    jf_cghash_updateMd5(
-        &pug->ug_jcmMd5, (u8 *)pug->ug_pstrName, ol_strlen(pug->ug_pstrName));
+    /*Load the namespace UUID into MD5 context.*/
+    jf_cghash_updateMd5(&pug->ug_jcmMd5, pug->ug_pu8NameSpace, JF_UUID_LEN_BIN);
+    /*Load the argument name string into MD5 context.*/
+    jf_cghash_updateMd5(&pug->ug_jcmMd5, (u8 *)pug->ug_pstrName, ol_strlen(pug->ug_pstrName));
 
-    /* store MD5 result into UUID */
+    /*Store MD5 result into UUID.*/
     jf_cghash_finalMd5(&pug->ug_jcmMd5, (u8 *)&pug->ug_uoObj);
 
-    /* brand UUID with version and variant */
+    /*Brand UUID with version and variant.*/
     _brandUuid(pug, JF_UUID_VER_3);
 
     return u32Ret;
@@ -254,7 +250,7 @@ static u32 _makeUuidV4(uuid_gen_t * pug)
     u32Ret = jf_prng_getData((void *)&pug->ug_uoObj, sizeof(pug->ug_uoObj));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /* brand UUID with version and variant */
+        /*Brand UUID with version and variant.*/
         _brandUuid(pug, JF_UUID_VER_4);
     }
     
@@ -266,29 +262,29 @@ static u32 _makeUuidV5(uuid_gen_t * pug)
     u32 u32Ret = JF_ERR_NO_ERROR;
     u8 u8Sha1[JF_CGHASH_SHA1_DIGEST_LEN];
 
-    /* initialize SHA1 context */
+    /*Initialize SHA1 context.*/
     jf_cghash_initSha1(&pug->ug_jcsSha1);
 
-    /* load the namespace UUID into SHA1 context */
-    u32Ret = jf_cghash_updateSha1(
-        &pug->ug_jcsSha1, pug->ug_pu8NameSpace, JF_UUID_LEN_BIN);
+    /*Load the namespace UUID into SHA1 context.*/
+    u32Ret = jf_cghash_updateSha1(&pug->ug_jcsSha1, pug->ug_pu8NameSpace, JF_UUID_LEN_BIN);
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /* load the argument name string into SHA1 context */
+        /*Load the argument name string into SHA1 context.*/
         u32Ret = jf_cghash_updateSha1(
             &pug->ug_jcsSha1, (u8 *)pug->ug_pstrName, ol_strlen(pug->ug_pstrName));
     }
     
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /* store SHA1 result into UUID */
+        /*Store SHA1 result into UUID.*/
         u32Ret = jf_cghash_finalSha1(&pug->ug_jcsSha1, u8Sha1);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memcpy((u8 *)&pug->ug_uoObj, u8Sha1, sizeof(pug->ug_uoObj));
-        /* brand UUID with version and variant */
+        /*Brand UUID with version and variant.*/
         _brandUuid(pug, JF_UUID_VER_5);
     }
 
@@ -300,6 +296,7 @@ static u32 _initUuidGenV1(uuid_gen_t * pug)
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     u32Ret = jf_ifmgmt_getMacOfFirstIf(pug->ug_u8Mac);
+
     if (u32Ret != JF_ERR_NO_ERROR)
     {
         ol_bzero(pug->ug_u8Mac, JF_LIMIT_MAC_LEN);
@@ -337,19 +334,14 @@ static void _copyUuidParam(uuid_gen_t * pug, jf_uuid_param_t * pjup)
     pug->ug_pu8NameSpace = pjup->jup_pu8NameSpace;
 }
 
-static u32 _initUuidGen(
-    uuid_gen_t * pug, jf_uuid_ver_t version, jf_uuid_param_t * pjup)
+static u32 _initUuidGen(uuid_gen_t * pug)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-
-    _copyUuidParam(pug, pjup);
-
-    if (pug->ug_bInitialized)
-        return u32Ret;
     
-    memset(pug, 0, sizeof(uuid_gen_t));
+    ol_bzero(pug, sizeof(*pug));
 
     u32Ret = _initUuidGenV1(pug);
+
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _initUuidGenV3(pug);
 
@@ -358,12 +350,6 @@ static u32 _initUuidGen(
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _initUuidGenV5(pug);
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        _copyUuidParam(pug, pjup);
-        pug->ug_bInitialized = TRUE;
-    }
 
     return u32Ret;
 }
@@ -417,20 +403,17 @@ static u32 _checkParam(u32 u32Len, jf_uuid_ver_t version, jf_uuid_param_t * pjup
 }
 
 static u32 _genUuid(
-    u8 * pu8Uuid, u32 u32Len, jf_uuid_ver_t version, jf_uuid_param_t * pjup)
+    uuid_gen_t * pug, u8 * pu8Uuid, u32 u32Len, jf_uuid_ver_t version, jf_uuid_param_t * pjup)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    uuid_gen_t * pug = &ls_ugUuidGen;
     jf_uuid_fmt_t fmt = JF_UUID_FMT_BIN;
 
     u32Ret = _checkParam(u32Len, version, pjup);
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        u32Ret = _initUuidGen(pug, version, pjup);
-    }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        _copyUuidParam(pug, pjup);
+
         if (version == JF_UUID_VER_1)
         {
             u32Ret = _makeUuidV1(pug);
@@ -461,18 +444,51 @@ static u32 _genUuid(
 
 /* --- public routine section ------------------------------------------------------------------- */
 
+u32 jf_uuid_init(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    uuid_gen_t * pug = &ls_ugUuidGen;
+
+    u32Ret = _initUuidGen(pug);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_prng_init();
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        pug->ug_bInitialized = TRUE;
+    else
+        jf_uuid_fini();
+
+    return u32Ret;
+}
+
+u32 jf_uuid_fini(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    uuid_gen_t * pug = &ls_ugUuidGen;
+
+    jf_prng_fini();
+
+    pug->ug_bInitialized = FALSE;
+
+    return u32Ret;
+}
+
 u32 jf_uuid_get(
     u8 * pu8Uuid, u32 u32Len, jf_uuid_ver_t version, jf_uuid_param_t * pjup)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    uuid_gen_t * pug = &ls_ugUuidGen;
 
     assert(pjup != NULL);
 
-    u32Ret = _genUuid(pu8Uuid, u32Len, version, pjup);
+    if (! pug->ug_bInitialized)
+        u32Ret = JF_ERR_NOT_INITIALIZED;
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = _genUuid(pug, pu8Uuid, u32Len, version, pjup);
 
     return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-
