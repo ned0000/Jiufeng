@@ -22,7 +22,9 @@
 #include "jf_jiukun.h"
 
 #include "persistencycommon.h"
-#include "sqlitepersistency.h"
+#if defined(LINUX)
+    #include "sqlitepersistency.h"
+#endif
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -33,13 +35,12 @@
 /* --- private routine section ------------------------------------------------------------------ */
 
 u32 jf_persistency_create(
-    jf_persistency_type_t type, jf_persistency_config_t * ppc,
-    jf_persistency_t ** ppPersist)
+    jf_persistency_type_t type, jf_persistency_config_t * ppc, jf_persistency_t ** ppPersist)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = NULL;
 
-    jf_logger_logInfoMsg("create persistency");
+    JF_LOGGER_INFO("type: %s", getStringPersistencyType(type));
 
     u32Ret = jf_jiukun_allocMemory((void **)&ppm, sizeof(persistency_manager_t));
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -48,11 +49,13 @@ u32 jf_persistency_create(
     
         switch (type)
         {
+#if defined(LINUX)
         case JF_PERSISTENCY_TYPE_SQLITE:
             u32Ret = initSqlitePersistency(ppm, &ppc->jpc_pcsConfigSqlite);
             break;
+#endif
         default:
-            u32Ret = JF_ERR_INVALID_PARAM;
+            u32Ret = JF_ERR_UNSUPPORTED_PERSISTENCY_TYPE;
             break;
         }
     }
@@ -63,14 +66,9 @@ u32 jf_persistency_create(
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        ppm->pm_bInitialized = TRUE;
         *ppPersist = ppm;
-    }
     else if (ppm != NULL)
-    {
         jf_persistency_destroy((jf_persistency_t **)&ppm);
-    }
     
     return u32Ret;
 }
@@ -80,7 +78,8 @@ u32 jf_persistency_destroy(jf_persistency_t ** ppPersist)
     u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)*ppPersist;
 
-    u32Ret = ppm->pm_fnFini(ppm);
+    if (ppm->pm_fnFini != NULL)
+        u32Ret = ppm->pm_fnFini(ppm);
 
     jf_mutex_fini(&ppm->pm_jmLock);
     

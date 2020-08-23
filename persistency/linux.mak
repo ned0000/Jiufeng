@@ -1,7 +1,7 @@
 #
-#  @file linux.mak
+#  @file persistency/linux.mak
 #
-#  @brief the makefile for persistency library
+#  @brief The makefile for persistency library.
 #
 #  @author Min Zhang
 #
@@ -13,17 +13,16 @@
 
 SONAME = jf_persistency
 
-SOURCES = persistency.c sqlitepersistency.c
+SOURCES = persistencycommon.c persistency.c sqlitepersistency.c
 
 JIUTAI_SRCS = jf_time.c jf_rand.c jf_mutex.c jf_sqlite.c
 
 EXTRA_INC_DIR = 
 
-EXTRA_LIBS = -ljf_jiukun
+EXTRA_LIBS = -ljf_jiukun -ljf_logger
 
 SYSLIBS = -lsqlite3
 
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-
