@@ -96,7 +96,7 @@ JF_THREAD_RETURN_VALUE _respoolTestProducerThread(void * pArg)
 
         jf_sem_up(&ls_jsRespoolTestSem);
 
-        sleep(2);
+        ol_sleep(2);
     }
 
     jf_logger_logDebugMsg("quit respool test producer thread");
@@ -253,14 +253,14 @@ olint_t main(olint_t argc, olchar_t ** argv)
         {
             while (! ls_bRespoolTestTerminateProducer)
             {
-                sleep(1);
+                ol_sleep(1);
             }
         }
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             _releaseRespoolTestResource();
-            sleep(3);
+            ol_sleep(3);
         }
 
         jf_jiukun_fini();

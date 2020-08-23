@@ -21,6 +21,7 @@
 #include "jf_string.h"
 #include "jf_prng.h"
 #include "jf_jiukun.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -31,7 +32,9 @@ boolean_t ls_bMd5 = FALSE;
 static void _printPrngTestUsage(void)
 {
     ol_printf("\
-Usage: prng-test \n");
+Usage: prng-test [-h]\n\
+  -h: show this usage.\n");
+
     ol_printf("\n");
 }
 
@@ -40,7 +43,7 @@ static u32 _parsePrngTestCmdLineParam(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "h?")) != -1))
     {
         switch (nOpt)
         {

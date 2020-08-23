@@ -21,7 +21,6 @@
 #include "jf_err.h"
 #include "jf_option.h"
 #include "jf_jiukun.h"
-#include "jf_string.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -82,6 +81,8 @@ static u32 _parseOptionTestCmdLineParam(
             ls_pstrOptionTestSettingFile = jf_option_getArg();
             break;
         case ':':
+            u32Ret = JF_ERR_MISSING_OPTION_ARG;
+            break;
         case '?':
         case 'h':
             _printOptionTestUsage();
@@ -111,11 +112,19 @@ static u32 _parseOptionTestCmdLineParam(
     return u32Ret;
 }
 
+static const olchar_t * _getOptionTestStringPositive(boolean_t bPos)
+{
+    if (bPos)
+        return "Yes";
+    else
+        return "No";
+}
+
 static u32 _checkOptionTestOptions(jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    ol_printf("Active           : %s\n", jf_string_getStringPositive(ls_bOptionTestActive));
+    ol_printf("Active           : %s\n", _getOptionTestStringPositive(ls_bOptionTestActive));
     ol_printf("Port             : %u\n", ls_u16OptionTestPort);
 
     if (ls_pstrOptionTestSettingFile == NULL)
@@ -129,8 +138,8 @@ static u32 _checkOptionTestOptions(jf_logger_init_param_t * pjlip)
         ol_printf("Dir              : %s\n", ls_pstrOptionTestDir);
 
     ol_printf("Log Level        : %u\n", pjlip->jlip_u8TraceLevel);
-    ol_printf("Log To Stdout    : %s\n", jf_string_getStringPositive(pjlip->jlip_bLogToStdout));
-    ol_printf("Log To File      : %s\n", jf_string_getStringPositive(pjlip->jlip_bLogToFile));
+    ol_printf("Log To Stdout    : %s\n", _getOptionTestStringPositive(pjlip->jlip_bLogToStdout));
+    ol_printf("Log To File      : %s\n", _getOptionTestStringPositive(pjlip->jlip_bLogToFile));
     ol_printf("Size Of Log File : %d\n", pjlip->jlip_sLogFile);
 
     return u32Ret;

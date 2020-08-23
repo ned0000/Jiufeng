@@ -41,10 +41,10 @@ JF_THREAD_RETURN_VALUE consumer(void * pArg)
     while ((! ls_bToTerminate) && (u32Ret == JF_ERR_NO_ERROR))
     {
         jf_mutex_acquire(&ls_jmLock);
-        sleep(5);
+        ol_sleep(5);
         nMutex --;
         ol_printf("consumer mutex %d\n", nMutex);
-        sleep(5);
+        ol_sleep(5);
         jf_mutex_release(&ls_jmLock);
     }
 
@@ -106,7 +106,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_printf("main thread, sleeping for 1 minutes\n");
-            sleep(30);
+            ol_sleep(30);
             ol_printf("prepare to exit\n");
         }
 
@@ -114,7 +114,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
         ls_bToTerminate = TRUE;
 
-        sleep(20);
+        ol_sleep(20);
 
         jf_mutex_fini(&ls_jmLock);
 

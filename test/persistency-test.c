@@ -1,26 +1,27 @@
 /**
  *  @file persistency-test.c
  *
- *  @brief The test file for persistency library
+ *  @brief The test file for persistency library.
  *
  *  @author Min Zhang
  *  
- *  @note Create DB with command: sqlite3 env.db
- *  @note Create table with sql statement: CREATE TABLE env(key TEXT PRIMARY KEY, value TEXT);
+ *  @note
+ *  -# Create DB with command: sqlite3 env.db
+ *  -# Create table with sql statement: CREATE TABLE env(key TEXT PRIMARY KEY, value TEXT);
  *
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_persistency.h"
 #include "jf_jiukun.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -30,20 +31,26 @@
 static void _printPersistencyTestUsage(void)
 {
     ol_printf("\
-Usage: persistency-test [-h] \n\
-    -h show this usage.\n\
+Usage: persistency-test [-h] [logger options] \n\
+  -h: show this usage.\n\
+logger options: [-T <0|1|2|3|4|5>] [-O] [-F log file] [-S log file size] \n\
+  -T: the log level. 0: no log, 1: error, 2: warn, 3: info, 4: debug, 5: data.\n\
+  -O: output the log to stdout.\n\
+  -F: output the log to file.\n\
+  -S: the size of log file. No limit if not specified.\n\
+  By default, basic function is tested.\n\
     ");
 
     ol_printf("\n");
 }
 
-static u32 _parsePersistencyTestCmdLineParam(olint_t argc, olchar_t ** argv)
+static u32 _parsePersistencyTestCmdLineParam(
+    olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv,
-        "?h")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "?hT:F:S:O")) != -1))
     {
         switch (nOpt)
         {
@@ -51,6 +58,19 @@ static u32 _parsePersistencyTestCmdLineParam(olint_t argc, olchar_t ** argv)
         case 'h':
             _printPersistencyTestUsage();
             exit(0);
+        case 'T':
+            u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
+            break;
+        case 'F':
+            pjlip->jlip_bLogToFile = TRUE;
+            pjlip->jlip_pstrLogFile = optarg;
+            break;
+        case 'O':
+            pjlip->jlip_bLogToStdout = TRUE;
+            break;
+        case 'S':
+            u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
+            break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;
             break;
@@ -146,13 +166,14 @@ static u32 _testPersistency(void)
     jf_persistency_t * pPersist = NULL;
     jf_persistency_config_t config;
 
-    memset(&config, 0, sizeof(jf_persistency_config_t));
+    ol_bzero(&config, sizeof(config));
     ol_strcpy(config.jpc_pcsConfigSqlite.jpcs_strDbName, "env.db");
     ol_strcpy(config.jpc_pcsConfigSqlite.jpcs_strTableName, "env");
     ol_strcpy(config.jpc_pcsConfigSqlite.jpcs_strKeyColumnName, "key");
     ol_strcpy(config.jpc_pcsConfigSqlite.jpcs_strValueColumnName, "value");
 
     u32Ret = jf_persistency_create(JF_PERSISTENCY_TYPE_SQLITE, &config, &pPersist);
+
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _testRwPersistency(pPersist);
 
@@ -173,21 +194,11 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_logger_init_param_t jlipParam;
     jf_jiukun_init_param_t jjip;
 
-    if (argc < 1)
-    {
-        _printPersistencyTestUsage();
-        u32Ret = JF_ERR_MISSING_PARAM;
-    }
+    ol_bzero(&jlipParam, sizeof(jf_logger_init_param_t));
+    jlipParam.jlip_pstrCallerName = "PERSISTENCY-TEST";
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
 
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        ol_bzero(&jlipParam, sizeof(jf_logger_init_param_t));
-        jlipParam.jlip_pstrCallerName = "PERSISTENCY";
-        jlipParam.jlip_bLogToStdout = TRUE;
-        jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
-
-        u32Ret = _parsePersistencyTestCmdLineParam(argc, argv);
-    }
+    u32Ret = _parsePersistencyTestCmdLineParam(argc, argv, &jlipParam);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -199,7 +210,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            _testPersistency();
+            u32Ret = _testPersistency();
 
             jf_jiukun_fini();
         }
@@ -209,12 +220,10 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-        ol_printf("Err (0x%X) %s\n", u32Ret, jf_err_getDescription(u32Ret));
+        ol_printf("Err: (0x%X) %s\n", u32Ret, jf_err_getDescription(u32Ret));
     }
 
     return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-

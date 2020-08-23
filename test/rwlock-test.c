@@ -18,7 +18,6 @@
 #include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_rwlock.h"
-#include "jf_process.h"
 #include "jf_thread.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -43,7 +42,7 @@ JF_THREAD_RETURN_VALUE consumer1(void * pArg)
         jf_rwlock_acquireReadlock(&ls_jrLock);
         ol_printf("consumer 1 readlock %d\n", nRwlock);
         jf_rwlock_releaseReadlock(&ls_jrLock);
-        sleep(4);
+        ol_sleep(4);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -69,7 +68,7 @@ JF_THREAD_RETURN_VALUE consumer2(void * pArg)
         jf_rwlock_acquireReadlock(&ls_jrLock);
         ol_printf("consumer 2 readlock %d\n", nRwlock);
         jf_rwlock_releaseReadlock(&ls_jrLock);
-        sleep(1);
+        ol_sleep(1);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -98,7 +97,7 @@ JF_THREAD_RETURN_VALUE producer(void * pArg)
         ol_printf("producer writelock %d\n", nRwlock);
 
         jf_rwlock_releaseWritelock(&ls_jrLock);
-        sleep(1);
+        ol_sleep(1);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -132,7 +131,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_printf("main thread, sleeping for 1 minutes\n");
-            sleep(30);
+            ol_sleep(30);
             ol_printf("prepare to exit\n");
         }
 
@@ -140,7 +139,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
         ls_bToTerminate = TRUE;
 
-        sleep(20);
+        ol_sleep(20);
 
         jf_rwlock_fini(&ls_jrLock);
 

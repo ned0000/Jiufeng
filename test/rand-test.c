@@ -20,6 +20,7 @@
 #include "jf_rand.h"
 #include "jf_string.h"
 #include "jf_logger.h"
+#include "jf_option.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -29,7 +30,10 @@ static void _printRandTestUsage(void)
 {
     ol_printf("\
 Usage: randnum-test [-h] \n\
-    -h print the usage\n");
+  -h: show the usage.\n\
+  By default, basic function is tested.\n\
+    ");
+
     ol_printf("\n");
 }
 
@@ -38,7 +42,7 @@ static u32 _parseRandTestCmdLineParam(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "h?")) != -1))
     {
         switch (nOpt)
         {
@@ -48,7 +52,7 @@ static u32 _parseRandTestCmdLineParam(olint_t argc, olchar_t ** argv)
             exit(0);
             break;
         case ':':
-            u32Ret = JF_ERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_OPTION_ARG;
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;

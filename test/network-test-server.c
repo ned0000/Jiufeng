@@ -45,11 +45,12 @@ static void _printNetworkTestServerUsage(void)
 {
     ol_printf("\
 Usage: network-test-server [-h] [logger options] \n\
-    -h print the usage.\n\
-logger options:\n\
-    -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug, 4: data.\n\
-    -F <log file> the log file.\n\
-    -S <log file size> the size of log file. No limit if not specified.\n\
+  -h: print the usage.\n\
+logger options: [-T <0|1|2|3|4|5>] [-O] [-F log file] [-S log file size] \n\
+  -T: the log level. 0: no log, 1: error, 2: warn, 3: info, 4: debug, 5: data.\n\
+  -O: output the log to stdout.\n\
+  -F: output the log to file.\n\
+  -S: the size of log file. No limit if not specified.\n\
     ");
 
     ol_printf("\n");
@@ -61,10 +62,10 @@ static u32 _parseNetworkTestServerCmdLineParam(
     olint_t argc, olchar_t ** argv, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olint_t nOpt;
+    olint_t nOpt = 0;
 
-    while (((nOpt = getopt(argc, argv, "T:F:S:h")) != -1) &&
-           (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "T:F:OS:h")) != -1))
+           
     {
         switch (nOpt)
         {
@@ -77,14 +78,17 @@ static u32 _parseNetworkTestServerCmdLineParam(
             u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case 'T':
-            u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
+            u32Ret = jf_option_getU8FromString(jf_option_getArg(), &pjlip->jlip_u8TraceLevel);
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFile = optarg;
+            pjlip->jlip_pstrLogFile = jf_option_getArg();
+            break;
+        case 'O':
+            pjlip->jlip_bLogToStdout = TRUE;
             break;
         case 'S':
-            u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
+            u32Ret = jf_option_getS32FromString(jf_option_getArg(), &pjlip->jlip_sLogFile);
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;
@@ -249,7 +253,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
                 {
                     while (! ls_bToTerminateNts)
                     {
-                        jf_time_sleep(3);
+                        ol_sleep(3);
                     }
                 }
 

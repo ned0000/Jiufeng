@@ -39,9 +39,9 @@ static void _printNetworkTestUsage(void)
 {
     ol_printf("\
 Usage: network-test [-o] [-s server ip] [-p port]\n\
-    -o test socket pair.\n\
-    -s specify the server ip to connect to.\n\
-    -p specify the server port.\n");
+  -o: test socket pair.\n\
+  -s: specify the server ip to connect to.\n\
+  -p: specify the server port.\n");
     ol_printf("\n");
 
 }
@@ -52,8 +52,8 @@ static u32 _parseNetworkTestCmdLineParam(
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "s:p:o?T:F:S:h")) != -1) &&
-           (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "s:p:o?T:F:S:h")) != -1))
+           
     {
         switch (nOpt)
         {
@@ -66,23 +66,23 @@ static u32 _parseNetworkTestCmdLineParam(
             ls_bSocketPair = TRUE;
             break;
         case 's':
-            ls_pstrServerIp = optarg;
+            ls_pstrServerIp = jf_option_getArg();
             break;
         case 'p':
-            ol_sscanf(optarg, "%hu", &ls_u16Port); 
+            u32Ret = jf_option_getU16FromString(jf_option_getArg(), &ls_u16Port);
             break;
         case ':':
             u32Ret = JF_ERR_MISSING_PARAM;
             break;
         case 'T':
-            u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
+            u32Ret = jf_option_getU8FromString(jf_option_getArg(), &pjlip->jlip_u8TraceLevel);
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFile = optarg;
+            pjlip->jlip_pstrLogFile = jf_option_getArg();
             break;
         case 'S':
-            u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
+            u32Ret = jf_option_getS32FromString(jf_option_getArg(), &pjlip->jlip_sLogFile);
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;
@@ -104,8 +104,8 @@ JF_THREAD_RETURN_VALUE _socketPairRead(void * pArg)
 
     while (! ls_bToTerminate)
     {
-        sleep(5);
-        memset(u8Buffer, 0, 100);
+        ol_sleep(5);
+        ol_memset(u8Buffer, 0, 100);
         u32Count = 100;
         u32Ret = jf_network_recv(psRead, u8Buffer, &u32Count);
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -128,7 +128,7 @@ JF_THREAD_RETURN_VALUE _socketPairWrite(void * pArg)
 
     while (! ls_bToTerminate)
     {
-        sleep(5);
+        ol_sleep(5);
         u32Count = ol_sprintf(buffer, "%s", "hello");
         u32Ret = jf_network_send(psWrite, buffer, &u32Count);
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -158,7 +158,7 @@ static u32 _testSocketPair(void)
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = jf_thread_create(&tiwrite, NULL, _socketPairWrite, (void *)psPair[1]);
 
-        sleep(100);
+        ol_sleep(100);
 
         ls_bToTerminate = TRUE;
 
@@ -168,7 +168,7 @@ static u32 _testSocketPair(void)
         if (jf_thread_isValidId(&tiwrite))
             jf_thread_terminate(&tiwrite);
 
-        sleep(1);
+        ol_sleep(1);
 
         jf_network_destroySocketPair(psPair);
     }
@@ -200,7 +200,7 @@ static u32 _testConnectServer(void)
         {
             ol_printf("connected, press CTRL-x to return\n");
             while (! ls_bToTerminate)
-                sleep(1);
+                ol_sleep(1);
         }
 
         jf_network_destroySocket(&client);

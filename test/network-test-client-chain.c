@@ -128,6 +128,7 @@ JF_THREAD_RETURN_VALUE _networkTestClientChainThread(void * pArg)
         jnacp.jnacp_fnOnDisconnect = _ntccOnDisconnect;
         jnacp.jnacp_fnOnData = _ntccOnData;
         jnacp.jnacp_fnOnSendData = _ntccOnSendData;
+        jnacp.jnacp_pstrName = NETWORK_TEST_CLIENT_CHAIN;
 
         u32Ret = jf_network_createAcsocket(ls_pjncNtccChain, &ls_pjnaNtccAcsocket, &jnacp);
     }
@@ -181,7 +182,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                jf_time_sleep(3);
+                ol_sleep(3);
                 jf_ipaddr_getIpAddrFromString("127.0.0.1", JF_IPADDR_TYPE_V4, &serveraddr);
 
                 u32Ret = jf_network_connectAcsocketTo(
@@ -192,7 +193,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
             {
                 while (! ls_bToTerminateNtcc)
                 {
-                    jf_time_sleep(3);
+                    ol_sleep(3);
                 }
             }
 
