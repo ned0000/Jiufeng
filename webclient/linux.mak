@@ -1,7 +1,7 @@
 #
-#  @file linux.mak
+#  @file webclient/linux.mak
 #
-#  @brief the makefile for webclient library
+#  @brief The makefile for webclient library.
 #
 #  @author Min Zhang
 #
@@ -21,4 +21,3 @@ EXTRA_LIBS = -ljf_httpparser -ljf_network -ljf_string -ljf_jiukun -ljf_logger
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-

@@ -1,7 +1,7 @@
 #
-#  @file windows.mak
+#  @file webclient/windows.mak
 #
-#  @brief the makefile for webclient library
+#  @brief The makefile for webclient library.
 #
 #  @author Min Zhang
 #
@@ -13,17 +13,16 @@
 DLLNAME = jf_webclient
 RESOURCE = webclient
 
-SOURCES = webclient.c
-JIUTAI_SRCS = $(JIUTAI_DIR)\bases.c $(JIUTAI_DIR)\jf_mutex.c $(JIUTAI_DIR)\xtime.c
+SOURCES = common.c webclientrequest.c dataobjectpool.c webclient.c
 
-EXTRA_LIBS = ws2_32.lib $(LIB_DIR)\jf_logger.lib $(LIB_DIR)\jf_ifmgmt.lib $(LIB_DIR)\jf_jiukun.lib \
-    $(LIB_DIR)\jf_httpparser.lib $(LIB_DIR)\jf_network.lib $(LIB_DIR)\jf_string.lib
+JIUTAI_SRCS = $(JIUTAI_DIR)\jf_hashtree.c $(JIUTAI_DIR)\jf_queue.c $(JIUTAI_DIR)\jf_mutex.c \
+    $(JIUTAI_DIR)\jf_time.c $(JIUTAI_DIR)\jf_hsm.c
 
-EXTRA_DEFS = -DJIUFENG_WEBCLIENT_DLL
+EXTRA_LIBS = ws2_32.lib jf_logger.lib jf_ifmgmt.lib jf_jiukun.lib jf_httpparser.lib \
+    jf_network.lib jf_string.lib
+
+EXTRA_DEFS = /DJIUFENG_WEBCLIENT_DLL
 
 !include "$(TOPDIR)\mak\winlib.mak"
 
 #---------------------------------------------------------------------------------------------------
-
-
-
