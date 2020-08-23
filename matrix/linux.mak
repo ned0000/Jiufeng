@@ -1,7 +1,7 @@
 #
-#  @file linux.mak
+#  @file matrix/linux.mak
 #
-#  @brief The makefile for matrix library
+#  @brief The makefile for matrix library.
 #
 #  @author Min Zhang
 #

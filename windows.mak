@@ -19,7 +19,7 @@
 
 SUBDIRS = jiutai logger jiukun string files ifmgmt crypto encode uuid \
     persistency archive xmlparser httpparser network webclient clieng \
-    test
+    matrix test
 
 !include "$(TOPDIR)\mak\winsubdirs.mak"
 
