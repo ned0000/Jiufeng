@@ -68,7 +68,7 @@ u32 jf_option_validateFloatString(const olchar_t * pstrFloat, const olsize_t siz
 
 /*string scan*/
 
-/** Reads an unsigned char from a string.
+/** Read an unsigned char from a string.
  *
  *  @param pstrInteger [in] The integer string with NULL terminated.
  *  @param pu8Value [out] The unsigned char read from string.
@@ -80,7 +80,7 @@ u32 jf_option_validateFloatString(const olchar_t * pstrFloat, const olsize_t siz
  */
 u32 jf_option_getU8FromString(const olchar_t * pstrInteger, u8 * pu8Value);
 
-/** Reads an unsigned short from a string.
+/** Read an unsigned short from a string.
  *
  *  @param pstrInteger [in] The integer string with NULL terminated.
  *  @param pu16Value [out] The unsigned char read from string.
@@ -92,7 +92,7 @@ u32 jf_option_getU8FromString(const olchar_t * pstrInteger, u8 * pu8Value);
  */
 u32 jf_option_getU16FromString(const olchar_t * pstrInteger, u16 * pu16Value);
 
-/** Reads a signed int from a string.
+/** Read a signed int from a string.
  *
  *  @param pstrInteger [in] The integer string with NULL terminated.
  *  @param ps32Value [out] The unsigned char read from string.
@@ -103,7 +103,7 @@ u32 jf_option_getU16FromString(const olchar_t * pstrInteger, u16 * pu16Value);
  */
 u32 jf_option_getS32FromString(const olchar_t * pstrInteger, s32 * ps32Value);
 
-/** Reads an unsigned int from a string.
+/** Read an unsigned int from a string.
  *
  *  @param pstrInteger [in] The integer string with NULL terminated.
  *  @param pu32Value [out] The unsigned char read from string.
@@ -114,7 +114,7 @@ u32 jf_option_getS32FromString(const olchar_t * pstrInteger, s32 * ps32Value);
  */
 u32 jf_option_getU32FromString(const olchar_t * pstrInteger, u32 * pu32Value);
 
-/** Reads a long value from a string
+/** Read a long value from a string
  *
  *  @param pstrInteger [in] the string to read from 
  *  @param numeric [out] the long value extracted from the string 
@@ -125,7 +125,7 @@ u32 jf_option_getU32FromString(const olchar_t * pstrInteger, u32 * pu32Value);
  */
 u32 jf_option_getLongFromString(const olchar_t * pstrInteger, slong * numeric);
 
-/** Reads an unsigned long value from a string.
+/** Read an unsigned long value from a string.
  *
  *  @param pstrInteger [in] The string to read from.
  *  @param numeric [out] The unsigned long value extracted from the string.
@@ -136,7 +136,7 @@ u32 jf_option_getLongFromString(const olchar_t * pstrInteger, slong * numeric);
  */
 u32 jf_option_getUlongFromString(const olchar_t * pstrInteger, ulong * numeric);
 
-/** Reads an unsigned long long value from a string.
+/** Read an unsigned long long value from a string.
  *
  *  @param pstrInteger [in] The integer string with NULL terminated.
  *  @param pu64Value [out] The unsigned char read from string.
@@ -147,7 +147,7 @@ u32 jf_option_getUlongFromString(const olchar_t * pstrInteger, ulong * numeric);
  */
 u32 jf_option_getU64FromString(const olchar_t * pstrInteger, u64 * pu64Value);
 
-/** Reads a signed long long value from a string.
+/** Read a signed long long value from a string.
  *
  *  @param pstrInteger [in] The integer string with NULL terminated.
  *  @param ps64Value [out] The unsigned char read from string.
@@ -158,7 +158,7 @@ u32 jf_option_getU64FromString(const olchar_t * pstrInteger, u64 * pu64Value);
  */
 u32 jf_option_getS64FromString(const olchar_t * pstrInteger, s64 * ps64Value);
 
-/** Reads a float from a string.
+/** Read a float from a string.
  *
  *  @param pstrFloat [in] The float string.
  *  @param pflValue [out] The size of the float string.
@@ -169,7 +169,7 @@ u32 jf_option_getS64FromString(const olchar_t * pstrInteger, s64 * ps64Value);
  */
 u32 jf_option_getFloatFromString(const olchar_t * pstrFloat, olfloat_t * pflValue);
 
-/** Reads a double from a string.
+/** Read a double from a string.
  *
  *  @param pstrDouble [in] The float string.
  *  @param pdbValue [out] The size of the float string.
@@ -202,6 +202,8 @@ olchar_t * jf_option_skipSpaceBeforeString(olchar_t * pstr);
  */
 void jf_option_removeSpaceAfterString(olchar_t * pstr);
 
+/* Functions for parsing argument array. */
+
 /** Get an option from the argument array.
  *
  *  @note
@@ -227,6 +229,13 @@ olint_t jf_option_get(olint_t argc, olchar_t ** const argv, const olchar_t * str
  *  @return The option argument.
  */
 olchar_t * jf_option_getArg(void);
+
+/** Reset the option parse.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+u32 jf_option_reset(void);
 
 #endif /*JIUTAI_OPTION_H*/
 

@@ -152,7 +152,7 @@ typedef struct
 #if defined(LINUX)
     typedef mode_t    jf_file_mode_t;
 #elif defined(WINDOWS)
-    typedef u16       jf_file_mode_t;
+    typedef u32       jf_file_mode_t;
 #endif
 
 /** Define the default create mode for creating file.

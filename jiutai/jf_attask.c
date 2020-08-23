@@ -10,10 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_attask.h"
@@ -21,9 +21,13 @@
 #include "jf_jiukun.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
+/** Define the attask item data type.
+ */
 typedef struct attask_item
 {
-    u32 ai_u32Expire;
+    /**Expire time in milli-second.*/
+    u64 ai_u64Expire;
     void * ai_pData;
     jf_attask_fnCallbackOfItem_t ai_fnCallback;
     jf_attask_fnDestroyItem_t ai_fnDestroy;
@@ -73,9 +77,9 @@ static u32 _flushAttask(internal_attask_t * piu)
 u32 jf_attask_check(jf_attask_t * pAttask, u32 * pu32Blocktime)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    struct timeval tv;
+    jf_time_val_t jtv;
     attask_item_t * temp = NULL, * evt = NULL, * last = NULL;
-    u32 current;
+    u64 current = 0;
     internal_attask_t * pia = (internal_attask_t *)pAttask;
 
     assert(pia != NULL);
@@ -83,12 +87,12 @@ u32 jf_attask_check(jf_attask_t * pAttask, u32 * pu32Blocktime)
     if (pia->ia_paiItems != NULL)
     {
         /*Get the current tick count for reference*/
-        jf_time_getTimeOfDay(&tv);
+        jf_time_getTimeOfDay(&jtv);
         /*Current tick in Millisecond*/
-        current = (tv.tv_sec * 1000) + (tv.tv_usec / 1000);
+        current = (jtv.jtv_u64Second * 1000) + (jtv.jtv_u64MicroSecond / 1000);
         temp = pia->ia_paiItems;
         /*Keep looping until we find a node that doesn't need to be triggered*/
-        while (temp != NULL && temp->ai_u32Expire <= current)
+        while ((temp != NULL) && (temp->ai_u64Expire <= current))
         {
             /*Since these are in sorted order, evt will always point to 
               the first node that needs to be triggered. last will point 
@@ -137,7 +141,7 @@ u32 jf_attask_check(jf_attask_t * pAttask, u32 * pu32Blocktime)
         /*If there are more triggers that need to be fired later, we need to 
           recalculate what the max block time for our select should be*/
         if (pia->ia_paiItems != NULL)
-            *pu32Blocktime = pia->ia_paiItems->ai_u32Expire - current;
+            *pu32Blocktime = (u32)(pia->ia_paiItems->ai_u64Expire - current);
         else
             *pu32Blocktime = INFINITE;
     }
@@ -150,8 +154,8 @@ u32 jf_attask_addItem(
     jf_attask_fnCallbackOfItem_t fnCallback, jf_attask_fnDestroyItem_t fnDestroy)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    struct timeval tv;
-    attask_item_t * pai, * temp;
+    jf_time_val_t jtv;
+    attask_item_t * pai = NULL, * temp = NULL;
     internal_attask_t * pia = (internal_attask_t *) pAttask;
 
     u32Ret = jf_jiukun_allocMemory((void **)&pai, sizeof(attask_item_t));
@@ -159,11 +163,11 @@ u32 jf_attask_addItem(
     {
         ol_bzero(pai, sizeof(attask_item_t));
         /*Get the current time for reference*/
-        jf_time_getTimeOfDay(&tv);
+        jf_time_getTimeOfDay(&jtv);
 
         /*Set the trigger time*/
         pai->ai_pData = pData;
-        pai->ai_u32Expire = (tv.tv_sec * 1000) + (tv.tv_usec / 1000) + 
+        pai->ai_u64Expire = (jtv.jtv_u64Second * 1000) + (jtv.jtv_u64MicroSecond / 1000) +
             u32Milliseconds;
 
         /*Set the callback handlers*/
@@ -183,7 +187,7 @@ u32 jf_attask_addItem(
             temp = pia->ia_paiItems;
             while (temp != NULL)
             {
-                if (pai->ai_u32Expire <= temp->ai_u32Expire)
+                if (pai->ai_u64Expire <= temp->ai_u64Expire)
                 {
                     pai->ai_paiNext = temp;
                     if (temp->ai_paiPrev == NULL)

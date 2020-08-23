@@ -7,8 +7,9 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_process object.
- *  -# For linux, link with stringparse library.
- *  -# For Windows, link with psapi.lib.
+ *  -# Link with jf_string library for string function on Linux platform.
+ *  -# link with Psapi.lib for process function on Windows platform.
+ *  -# link with ws2_32.lib for socket function on Windows platform.
  *  -# Process handle and process id are 2 different concepts.
  *  
  */

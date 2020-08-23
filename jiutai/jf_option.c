@@ -69,6 +69,20 @@ static void _printErrorOption(const olchar_t * pstrCmd, olchar_t * pstrError, in
     ol_fprintf(stderr, "%s: %s -- '%s'\n", pstrCmd, pstrError, erropt);
 }
 
+static void _moveOptionIndex(olint_t argc, olchar_t ** const argv)
+{
+    if (ls_nArgvIndex >= argc)
+        return;
+
+    ++ ls_nOptionIndex;
+    if (argv[ls_nArgvIndex][ls_nOptionIndex] == '\0')
+    {
+        /*End of the option, move to the next entry in array.*/
+        ++ ls_nArgvIndex;
+        ls_nOptionIndex = 1;
+    }
+}
+
 static void _resetOptionVar(void)
 {
     ls_nArgvIndex = 1;
@@ -402,7 +416,7 @@ olint_t jf_option_get(olint_t argc, olchar_t ** const argv, const olchar_t * str
 
     /*End of argument array.*/
     if (ls_nArgvIndex >= argc)
-        u32Ret = JF_ERR_OPERATION_FAIL;
+        u32Ret = JF_ERR_INVALID_OPTION;
 
     if ((u32Ret == JF_ERR_NO_ERROR) && (ls_nOptionIndex == 1))
     {
@@ -411,7 +425,7 @@ olint_t jf_option_get(olint_t argc, olchar_t ** const argv, const olchar_t * str
         {
             _printErrorOption(argv[0], "illegal option", argv[ls_nArgvIndex][0]);
             nOpt = JF_OPTION_UNKNOWN;
-            u32Ret = JF_ERR_OPERATION_FAIL;
+            u32Ret = JF_ERR_INVALID_OPTION;
         }
     }
 
@@ -423,7 +437,7 @@ olint_t jf_option_get(olint_t argc, olchar_t ** const argv, const olchar_t * str
         {
             _printErrorOption(argv[0], "illegal option", nOpt);
             nOpt = JF_OPTION_UNKNOWN;
-            u32Ret = JF_ERR_OPERATION_FAIL;
+            u32Ret = JF_ERR_INVALID_OPTION;
         }
     }
 
@@ -435,7 +449,7 @@ olint_t jf_option_get(olint_t argc, olchar_t ** const argv, const olchar_t * str
         {
             _printErrorOption(argv[0], "illegal option", nOpt);
             nOpt = JF_OPTION_UNKNOWN;
-            u32Ret = JF_ERR_OPERATION_FAIL;
+            u32Ret = JF_ERR_INVALID_OPTION;
         }
     }
 
@@ -450,7 +464,7 @@ olint_t jf_option_get(olint_t argc, olchar_t ** const argv, const olchar_t * str
             {
                 _printErrorOption(argv[0], "option requires an argument", nOpt);
                 nOpt = JF_OPTION_MISSING_ARG;
-                u32Ret = JF_ERR_OPERATION_FAIL;
+                u32Ret = JF_ERR_MISSING_OPTION_ARG;
             }
             else
             {
@@ -462,18 +476,13 @@ olint_t jf_option_get(olint_t argc, olchar_t ** const argv, const olchar_t * str
         else
         {
             /*The option has no argument*/
-            ++ ls_nOptionIndex;
-            if (argv[ls_nArgvIndex][ls_nOptionIndex] == '\0')
-            {
-                /*End of the option, move to the next entry in array.*/
-                ++ ls_nArgvIndex;
-                ls_nOptionIndex = 1;
-            }
+            _moveOptionIndex(argc, argv);
         }
     }
-
-    if (u32Ret != JF_ERR_NO_ERROR)
-        _resetOptionVar();
+    else
+    {
+        _moveOptionIndex(argc, argv);
+    }
 
     return nOpt;
 }
@@ -481,6 +490,15 @@ olint_t jf_option_get(olint_t argc, olchar_t ** const argv, const olchar_t * str
 olchar_t * jf_option_getArg(void)
 {
     return ls_pstrOptionArg;
+}
+
+u32 jf_option_reset(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    _resetOptionVar();
+
+    return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/

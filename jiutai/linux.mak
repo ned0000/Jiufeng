@@ -1,7 +1,7 @@
 #
-#  @file linux.mak
+#  @file jiutai/linux.mak
 #
-#  @brief The makefile for Jiutai
+#  @brief The makefile for jiutai.
 #
 #  @author Min Zhang
 #
@@ -27,5 +27,3 @@ EXTRA_INC_DIR =
 include $(TOPDIR)/mak/lnxobj.mak
 
 #---------------------------------------------------------------------------------------------------
-
-

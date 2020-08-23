@@ -8,8 +8,9 @@
  *  @note
  *  -# Routines declared in this file are included in jf_host object.
  *  -# Link with jf_ifmgmt, jf_string library.
- *  -# For windows, link with Iphlpapi.lib.
- *  
+ *  -# Link with Iphlpapi.lib for adapter information of local machine on Windows platform.
+ *  -# Link with User32.lib for system metric or system configuration setting on Windows platform.
+ *  -# Link with Advapi32.lib for registry operation on Windows platform.
  */
 
 #ifndef JIUTAI_HOST_H

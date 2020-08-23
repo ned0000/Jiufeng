@@ -88,16 +88,14 @@ static u32 ls_u32CrcTable[256] =
     0xBE2DA0A5L, 0x4C4623A6L, 0x5F16D052L, 0xAD7D5351L
 };
 
-#define TB_INIT 0xFFFFFFFF
-#define TB_INIT_REFLECTED 0xFFFFFFFF
-#define TB_XOROT 0xFFFFFFFF
+#define TB_INIT                    (0xFFFFFFFF)
+#define TB_INIT_REFLECTED          (0xFFFFFFFF)
+#define TB_XOROT                   (0xFFFFFFFF)
 
 /* --- private routine section ------------------------------------------------------------------ */
 
 /* --- public routine section ------------------------------------------------------------------- */
-/*if restart has CRC32C_FLAG_INIT_RESULT set, initialize the accumulator */
-/*if restart has CRC32C_FLAG_NETWORK_BYTE_ORDER set,
-  save result in network byte order */
+
 void jf_crc_crc32c(u8 *pu8Data, u32 u32Len, u32 u32Flags, u32 * pu32Result)
 {
     u32 u32Crc;

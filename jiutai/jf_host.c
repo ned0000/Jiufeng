@@ -53,6 +53,129 @@
 
 /* --- private funciton routines ---------------------------------------------------------------- */
 
+#if defined(WINDOWS)
+
+static u32 _getWindowsOsNameForMajorVer10(
+    jf_host_info_t * pjhi, BOOL bOsVersionInfoEx, OSVERSIONINFOEX * posvi)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t * pstrOsName = "Microsoft Windows Major Version 10 ";
+
+    if (posvi->dwMajorVersion != 10)
+        return u32Ret;
+
+    if (! bOsVersionInfoEx)
+    {
+        ol_strcat(pjhi->jhi_strOSName, pstrOsName);
+    }
+    else if (posvi->dwMinorVersion == 0)
+    {
+        if (posvi->wProductType == VER_NT_WORKSTATION)
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows 10 ");
+        else
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows Server 2016 ");
+    }
+    else
+    {
+        ol_strcat(pjhi->jhi_strOSName, pstrOsName);
+    }
+
+    return u32Ret;
+}
+
+static u32 _getWindowsOsNameForMajorVer6(
+    jf_host_info_t * pjhi, BOOL bOsVersionInfoEx, OSVERSIONINFOEX * posvi)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t * pstrOsName = "Microsoft Windows Major Version 6 ";
+
+    if (posvi->dwMajorVersion != 6)
+        return u32Ret;
+
+    if (! bOsVersionInfoEx)
+    {
+        ol_strcat(pjhi->jhi_strOSName, pstrOsName);
+    }
+    else if (posvi->dwMinorVersion == 3)
+    {
+        if (posvi->wProductType == VER_NT_WORKSTATION)
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows 8.1 ");
+        else
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows Server 2012 R2");
+    }
+    else if (posvi->dwMinorVersion == 2)
+    {
+        if (posvi->wProductType == VER_NT_WORKSTATION)
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows 8 ");
+        else
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows Server 2012 ");
+    }
+    else if (posvi->dwMinorVersion == 1)
+    {
+        if (posvi->wProductType == VER_NT_WORKSTATION)
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows 7 ");
+        else
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows Server 2008 R2 ");
+    }
+    else if (posvi->dwMinorVersion == 0)
+    {
+        if (posvi->wProductType == VER_NT_WORKSTATION)
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows Server 2008 ");
+        else if (posvi->wProductType == VER_NT_SERVER)
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows Vista ");
+        else
+            ol_strcat(pjhi->jhi_strOSName, "Windows Server \"Longhorn\" ");
+    }
+    else
+    {
+        ol_strcat(pjhi->jhi_strOSName, pstrOsName);
+    }
+
+    return u32Ret;
+}
+
+static u32 _getWindowsOsNameForMajorVer5(
+    jf_host_info_t * pjhi, BOOL bOsVersionInfoEx, OSVERSIONINFOEX * posvi, SYSTEM_INFO * psi)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t * pstrOsName = "Microsoft Windows Major Version 5 ";
+
+    if (posvi->dwMajorVersion != 5)
+        return u32Ret;
+
+    if (! bOsVersionInfoEx)
+    {
+        ol_strcat(pjhi->jhi_strOSName, pstrOsName);
+    }
+
+    if (posvi->dwMinorVersion == 2)
+    {
+        if (GetSystemMetrics(SM_SERVERR2))
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows Server 2003 \"R2\" ");
+        else if (posvi->wProductType == VER_NT_WORKSTATION &&
+                 psi->wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows XP Professional x64 Edition ");
+        else
+            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows Server 2003, ");
+    }
+    else if (posvi->dwMinorVersion == 1)
+    {
+        ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows XP ");
+    }
+    else if (posvi->dwMinorVersion == 0)
+    {
+        ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows 2000 ");
+    }
+    else
+    {
+        ol_strcat(pjhi->jhi_strOSName, pstrOsName);
+    }
+
+    return u32Ret;
+}
+
+#endif
+
 static u32 _getHostVersion(jf_host_info_t * pjhi)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -82,86 +205,52 @@ static u32 _getHostVersion(jf_host_info_t * pjhi)
     u32 u32HostNameLen;
 
     /*get host name*/
-    memset(u8HostName, 0, MAX_COMPUTERNAME_LENGTH + 1);
-    u32HostNameLen = MAX_COMPUTERNAME_LENGTH + 1;
+    ol_bzero(u8HostName, sizeof(u8HostName));
+    u32HostNameLen = sizeof(u8HostName);
     if (GetComputerName(u8HostName, &u32HostNameLen))
-    {
-        ol_strncpy(
-            pjhi->jhi_strHostName, u8HostName, JF_HOST_MAX_HOST_NAME_LEN - 1);
-    }
+        ol_strncpy(pjhi->jhi_strHostName, u8HostName, JF_HOST_MAX_HOST_NAME_LEN - 1);
     else
-    {
         ol_strcpy(pjhi->jhi_strHostName, jf_string_getStringUnknown());
-    }
 
-    /*get OS name*/
+    /*Get OS name.*/
     ZeroMemory(&si, sizeof(SYSTEM_INFO));
     ZeroMemory(&osvi, sizeof(OSVERSIONINFOEX));
-    
-    // Try calling GetVersionEx using the OSVERSIONINFOEX structure.
-    // If that fails, try using the OSVERSIONINFO structure.
+
+    /*Try calling GetVersionEx using the OSVERSIONINFOEX structure. If that fails, try using the
+      OSVERSIONINFO structure.*/
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-    if (! (bOsVersionInfoEx = GetVersionEx ((OSVERSIONINFO *) &osvi)))
+    if (! (bOsVersionInfoEx = GetVersionEx((OSVERSIONINFO *)&osvi)))
     {
-        osvi.dwOSVersionInfoSize = sizeof (OSVERSIONINFO);
-        if (! GetVersionEx ( (OSVERSIONINFO *) &osvi) ) 
+        osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
+        if (! GetVersionEx((OSVERSIONINFO *) &osvi))
             return FALSE;
     }
-    
-    // Call GetNativeSystemInfo if supported or GetSystemInfo otherwise.
-    pGNSI = (PGNSI) GetProcAddress(
-        GetModuleHandle(TEXT("kernel32.dll")), 
-        "GetNativeSystemInfo");
-    if(NULL != pGNSI)
+
+    /*Call GetNativeSystemInfo if supported or GetSystemInfo otherwise.*/
+    pGNSI = (PGNSI) GetProcAddress(GetModuleHandle(TEXT("kernel32.dll")), "GetNativeSystemInfo");
+    if (pGNSI != NULL)
         pGNSI(&si);
     else
         GetSystemInfo(&si);
-    
+
+//    ol_printf("dwPlatformId: %d, Version: %d:%d\n", osvi.dwPlatformId, osvi.dwMajorVersion, osvi.dwMinorVersion);
     switch (osvi.dwPlatformId)
     {
     case VER_PLATFORM_WIN32_NT:
-        // Test for the Windows NT product family.
-        // Test for the specific product.
-        if (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 0)
-        {
-            if (osvi.wProductType == VER_NT_WORKSTATION)
-                ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows Vista ");
-            else if (osvi.wProductType == VER_NT_SERVER)
-                ol_strcat(pjhi->jhi_strOSName, "Windows Server 2008 ");
-            else
-                ol_strcat(pjhi->jhi_strOSName, "Windows Server \"Longhorn\" ");
-        }
-    
-        if ((osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 2) ||
-            (osvi.dwMajorVersion == 6 && osvi.dwMinorVersion == 0))
-        {
-            if (GetSystemMetrics(SM_SERVERR2))
-                ol_strcat(
-                    pjhi->jhi_strOSName, "Microsoft Windows Server 2003 \"R2\" ");
-            else if (osvi.wProductType == VER_NT_WORKSTATION &&
-                     si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
-            {
-                ol_strcat(
-                    pjhi->jhi_strOSName,
-                    "Microsoft Windows XP Professional x64 Edition ");
-            }
-            else
-                ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows Server 2003, ");
-        }
-    
-        if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 1)
-            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows XP ");
-    
-        if (osvi.dwMajorVersion == 5 && osvi.dwMinorVersion == 0)
-            ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows 2000 ");
-    
-        if (osvi.dwMajorVersion <= 4)
+        /*Test for the Windows NT product family. Test for the specific product.*/
+        if (osvi.dwMajorVersion == 10)
+            _getWindowsOsNameForMajorVer10(pjhi, bOsVersionInfoEx, &osvi);
+        else if (osvi.dwMajorVersion == 6)
+            _getWindowsOsNameForMajorVer6(pjhi, bOsVersionInfoEx, &osvi);
+        else if (osvi.dwMajorVersion == 5)
+            _getWindowsOsNameForMajorVer5(pjhi, bOsVersionInfoEx, &osvi, &si);
+        else
             ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows NT ");
     
-        // Test for specific product on Windows NT 4.0 SP6 and later.
+        /*Test for specific product on Windows NT 4.0 SP6 and later.*/
         if (bOsVersionInfoEx)
         {
-            // Test for the workstation type.
+            /*Test for the workstation type.*/
             if (osvi.wProductType == VER_NT_WORKSTATION &&
                 si.wProcessorArchitecture != PROCESSOR_ARCHITECTURE_AMD64)
             {
@@ -169,10 +258,10 @@ static u32 _getHostVersion(jf_host_info_t * pjhi)
                     ol_strcat(pjhi->jhi_strOSName,  "Workstation 4.0 ");
                 else if (osvi.wSuiteMask & VER_SUITE_PERSONAL)
                     ol_strcat(pjhi->jhi_strOSName,  "Home Edition ");
-                else ol_strcat(pjhi->jhi_strOSName,  "Professional ");
+                else
+                    ol_strcat(pjhi->jhi_strOSName,  "Professional ");
             }
-              
-            // Test for the server type.
+            /*Test for the server type.*/
             else if (osvi.wProductType == VER_NT_SERVER || 
                      osvi.wProductType == VER_NT_DOMAIN_CONTROLLER)
             {
@@ -189,7 +278,6 @@ static u32 _getHostVersion(jf_host_info_t * pjhi)
                                 pjhi->jhi_strOSName,
                                 "Enterprise Edition for Itanium-based Systems ");
                     }
-    
                     else if (si.wProcessorArchitecture == PROCESSOR_ARCHITECTURE_AMD64)
                     {
                         if (osvi.wSuiteMask & VER_SUITE_DATACENTER )
@@ -220,7 +308,7 @@ static u32 _getHostVersion(jf_host_info_t * pjhi)
                     else
                         ol_strcat(pjhi->jhi_strOSName, "Server ");
                 }
-                else  // Windows NT 4.0 
+                else  /*Windows NT 4.0.*/
                 {
                     if (osvi.wSuiteMask & VER_SUITE_ENTERPRISE)
                         ol_strcat(pjhi->jhi_strOSName, "Server 4.0, Enterprise Edition ");
@@ -231,7 +319,7 @@ static u32 _getHostVersion(jf_host_info_t * pjhi)
         }
         else  
         {
-            // Test for specific product on Windows NT 4.0 SP5 and earlier
+            /*Test for specific product on Windows NT 4.0 SP5 and earlier.*/
             HKEY hKey;
             TCHAR szProductType[BUFSIZE];
             DWORD dwBufLen=BUFSIZE*sizeof(TCHAR);
@@ -261,41 +349,42 @@ static u32 _getHostVersion(jf_host_info_t * pjhi)
                 osvi.dwMajorVersion, osvi.dwMinorVersion );
         }
     
-        // Display service pack (if any) and build number.
+        /*Display service pack (if any) and build number.*/
         if (osvi.dwMajorVersion == 4 &&
             lstrcmpi(osvi.szCSDVersion, TEXT("Service Pack 6")) == 0)
         { 
             HKEY hKey;
             LONG lRet;
     
-            // Test for SP6 versus SP6a.
-            lRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE,
+            /*Test for SP6 versus SP6a.*/
+            lRet = RegOpenKeyEx(
+                HKEY_LOCAL_MACHINE,
                 TEXT("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\Hotfix\\Q246009"),
                 0, KEY_QUERY_VALUE, &hKey );
             if (lRet == ERROR_SUCCESS)
+            {
                 ol_sprintf(
                     pjhi->jhi_strOSName, "%s Service Pack 6a (Build %d)",
                     pjhi->jhi_strOSName, osvi.dwBuildNumber & 0xFFFF);
-            else // Windows NT 4.0 prior to SP6a
+            }
+            else /*Windows NT 4.0 prior to SP6a.*/
             {
-                ol_sprintf(pjhi->jhi_strOSName, "%s%s (Build %d)",
-                        pjhi->jhi_strOSName,
-                        osvi.szCSDVersion,
-                        osvi.dwBuildNumber & 0xFFFF);
+                ol_sprintf(
+                    pjhi->jhi_strOSName, "%s%s (Build %d)", pjhi->jhi_strOSName, osvi.szCSDVersion,
+                    osvi.dwBuildNumber & 0xFFFF);
             }
     
             RegCloseKey(hKey);
         }
-        else // not Windows NT 4.0 
+        else /*Not Windows NT 4.0.*/
         {
-            ol_sprintf(pjhi->jhi_strOSName, "%s%s (Build %d)",
-                    pjhi->jhi_strOSName,
-                    osvi.szCSDVersion,
-                    osvi.dwBuildNumber & 0xFFFF);
+            ol_sprintf(
+                pjhi->jhi_strOSName, "%s%s (Build %d)", pjhi->jhi_strOSName, osvi.szCSDVersion,
+                osvi.dwBuildNumber & 0xFFFF);
         }
         break;
     case VER_PLATFORM_WIN32_WINDOWS:
-        // Test for the Windows Me/98/95.
+        /*Test for the Windows Me/98/95.*/
         if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0)
         {
             ol_strcat(pjhi->jhi_strOSName, "Microsoft Windows 95 ");

@@ -1,5 +1,5 @@
 #
-#  @file windows.mak
+#  @file jiutai/windows.mak
 #
 #  @brief The Makefile for Jiutai.
 #
@@ -17,7 +17,7 @@ SOURCES = jf_option.c jf_hex.c jf_process.c jf_thread.c jf_time.c jf_date.c \
     jf_attask.c
 
 !if "$(DEBUG_JIUFENG)" == "yes"
-EXTRA_CFLAGS = $(EXTRA_CFLAGS) -DDEBUG_PTREE
+EXTRA_CFLAGS = $(EXTRA_CFLAGS) /DDEBUG_PTREE
 !endif
 
 EXTRA_INC_DIR = 
@@ -25,5 +25,3 @@ EXTRA_INC_DIR =
 !include "$(TOPDIR)\mak\winobj.mak"
 
 #---------------------------------------------------------------------------------------------------
-
-

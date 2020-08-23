@@ -8,7 +8,7 @@
  *  @note
  *  -# Routines declared in this file are included in jf_persistency library.
  *  -# If fails to set persistency value, user should rollback transaction if transaction started.
- *  -# Link with sqlite3 library as sqlite3 is used as backend database.
+ *  -# Link with sqlite3 library as sqlite3 is used as backend database on Linux platform.
  */
  
 #ifndef JIUFENG_PERSISTENCY_H
@@ -27,8 +27,12 @@
  */
 typedef enum jf_persistency_type
 {
+    /**Unknown persistency type.*/
+    JF_PERSISTENCY_TYPE_UNKNOWN = 0,
     /**Sqlite persistency.*/ 
-	JF_PERSISTENCY_TYPE_SQLITE = 0,
+	JF_PERSISTENCY_TYPE_SQLITE,
+    /**Maximum persistency type.*/
+    JF_PERSISTENCY_TYPE_MAX,
 } jf_persistency_type_t;
 
 /** Define the persistency config data type for sqlite backend.
@@ -133,4 +137,3 @@ u32 jf_persistency_rollbackTransaction(jf_persistency_t * pPersist);
 #endif  /*JIUFENG_PERSISTENCY_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-

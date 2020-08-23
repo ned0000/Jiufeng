@@ -8,8 +8,8 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_uuid library.
- *  -# Link with jf_prng library, call jf_prng_init() to init the library.
- *  -# Link with jf_cghash library.
+ *  -# Link with jf_prng library to get random data.
+ *  -# Link with jf_cghash library to use MD5 or SHA1 hash function.
  *  
  */
 
@@ -103,6 +103,20 @@ typedef struct
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+/** Initialize UUID library.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+UUIDAPI u32 UUIDCALL jf_uuid_init(void);
+
+/** Finalize UUID library.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+UUIDAPI u32 UUIDCALL jf_uuid_fini(void);
+
 /** Get UUID.
  *
  *  @param pu8Uuid [out] The data buffer for the UUID.
@@ -111,6 +125,8 @@ typedef struct
  *  @param pjup [in] Parameter for generating UUID.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_NOT_INITIALIZED UUID library is not initialized.
  */
 UUIDAPI u32 UUIDCALL jf_uuid_get(
     u8 * pu8Uuid, u32 u32Len, jf_uuid_ver_t version, jf_uuid_param_t * pjup);
@@ -118,5 +134,3 @@ UUIDAPI u32 UUIDCALL jf_uuid_get(
 #endif /*JIUFENG_UUID_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

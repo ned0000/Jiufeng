@@ -17,6 +17,7 @@
 #include <assert.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <stdlib.h>
 #if defined(WINDOWS)
     #include <Winsock2.h>
     #include <windows.h>
@@ -29,7 +30,6 @@
     #include <unistd.h>
     #include <getopt.h>
     #include <arpa/inet.h>
-    #include <stdlib.h>
     #include <stdio.h>
     #include <stdarg.h>
     #include <stddef.h>
@@ -133,6 +133,9 @@ typedef double                       oldouble_t;
 typedef s32                          olsize_t;
 #define OLSIZE_MAX                   S32_MAX
 
+typedef s32                          olssize_t;
+#define OLSSIZE_MAX                  S32_MAX
+
 typedef u8                           boolean_t;
 #ifndef TRUE
     #define TRUE                     (0x1)
@@ -152,6 +155,7 @@ typedef time_t                       oltime_t;
     #define ol_memcpy                memcpy
     #define ol_memcmp                memcmp
     #define ol_memchr                memchr
+    #define ol_memmove               memmove
     #define ol_bzero(s, n)           memset(s, 0, n)
     #define ol_strcmp                strcmp
     #define ol_strncmp               strncmp
@@ -177,6 +181,8 @@ typedef time_t                       oltime_t;
     #define ol_strerror              _strerror
     #define ol_random()              rand()
     #define ol_srand                 srand
+    #define ol_htonl                 htonl
+    #define ol_ntohl                 ntohl
     #define ol_time                  time
     #define ol_unlink                unlink
     #define ol_open                  open

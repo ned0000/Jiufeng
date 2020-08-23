@@ -8,7 +8,7 @@
  *  @note
  *  -# Routines declared in this file are included in jf_files library.
  *  -# The file contains lines with configuration in "tag=value" pair format.
- *  -# Comment is supported. '#' is the identificatio of comment.
+ *  -# Comment is supported. '#' is the identification of comment.
  *
  *  <HR>
  *

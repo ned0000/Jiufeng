@@ -69,8 +69,13 @@ typedef struct jf_hlisthead
 #define jf_hlisthead_forEach(head, pos)    \
     for (pos = (head)->jh_pjhnFirst; pos; pos = pos->jhn_pjhnNext)
 
+#if defined(WINDOWS)
+#define jf_hlisthead_forEachSafe(head, pos, n)    \
+    for (pos = (head)->jh_pjhnFirst; pos && ((n = pos->jhn_pjhnNext) ? 1 : 1); pos = n)
+#elif defined(LINUX)
 #define jf_hlisthead_forEachSafe(head, pos, n)    \
     for (pos = (head)->jh_pjhnFirst; pos && ({ n = pos->jhn_pjhnNext; 1; }); pos = n)
+#endif
 
 /** Iterate over list of given type.
  *

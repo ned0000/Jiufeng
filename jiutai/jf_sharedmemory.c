@@ -32,13 +32,13 @@
 /* --- private data/data structure section ------------------------------------------------------ */
 
 #if defined(LINUX)
-    #define SV_W    0400
-    #define SV_R    0200
+    #define SV_W        (0400)
+    #define SV_R        (0200)
 
     #define SVMSG_MODE  (SV_W | SV_R | (SV_W >> 3) | (SV_R >> 3) | (SV_W >> 6) | (SV_R >> 6))
-    #define SVSHM_MODE  SVMSG_MODE
+    #define SVSHM_MODE  (SVMSG_MODE)
 #elif defined(WINDOWS)
-    #define DEFAULT_SHARED_MEMORY_SIZE 4000
+    #define DEFAULT_SHARED_MEMORY_SIZE      (4000)
 #endif
 
 /* --- private routine section ------------------------------------------------------------------ */
@@ -64,10 +64,6 @@ static u32 _getShmId(jf_sharedmemory_id_t * pjsi)
 	jup.jup_ufFmt = JF_UUID_FMT_HEX;
 
 	u32Ret = jf_uuid_get(pjsi, JF_SHAREDMEMORY_ID_LEN, JF_UUID_VER_1, &jup);
-    if (u32Ret != JF_ERR_NO_ERROR)
-	{
-		u32Ret = JF_ERR_FAIL_CREATE_SHAREDMEMORY;
-	}
 
 	return u32Ret;
 }
@@ -96,10 +92,8 @@ u32 jf_sharedmemory_create(jf_sharedmemory_id_t ** ppShmId, u32 u32MemorySize)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /* remove the shared memory id to avoid memory leak due to
-         * ungraceful client exit or crash
-         * if it is attached, it will remain there until the last detachment
-         */
+        /*Remove the shared memory id to avoid memory leak due to ungraceful client exit or crash.
+          if it is attached, it will remain there until the last detachment.*/
 //        nRet = shmctl(nShmId, IPC_RMID, NULL);
 
         ol_snprintf(pjsi, JF_SHAREDMEMORY_ID_LEN - 1, "%d", nShmId);
@@ -164,16 +158,15 @@ u32 jf_sharedmemory_destroy(jf_sharedmemory_id_t ** ppShmId)
     pjsi = *ppShmId;
 
     hMap = CreateFileMapping(
-        INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0,
-        DEFAULT_SHARED_MEMORY_SIZE, pjsi);
+        INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, DEFAULT_SHARED_MEMORY_SIZE, pjsi);
 	if (hMap == NULL)
 		u32Ret = JF_ERR_FAIL_DESTROY_SHAREDMEMORY;
 	else
 	{
 		if (GetLastError() != ERROR_ALREADY_EXISTS)
 		{
-			/* The shared memory must exist before, otherwise we were creating 
-			   a new shared memory, close it and return an error */
+			/*The shared memory must exist before, otherwise we were creating a new shared memory,
+              close it and return an error.*/
 			CloseHandle(hMap);
 			u32Ret = JF_ERR_INVALID_SHAREDMEMORY_ID;
 		}
@@ -193,8 +186,8 @@ u32 jf_sharedmemory_attach(jf_sharedmemory_id_t * pShmId, void ** ppMapAddress)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    void * pMap;
-    olint_t nShmId;
+    void * pMap = NULL;
+    olint_t nShmId = 0;
 
     assert(pShmId != NULL);
 
@@ -223,16 +216,15 @@ u32 jf_sharedmemory_attach(jf_sharedmemory_id_t * pShmId, void ** ppMapAddress)
     assert(pShmId != NULL);
 
     hMap = CreateFileMapping(
-        INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0,
-        DEFAULT_SHARED_MEMORY_SIZE, pShmId);
+        INVALID_HANDLE_VALUE, NULL, PAGE_READWRITE, 0, DEFAULT_SHARED_MEMORY_SIZE, pShmId);
 	if (hMap == NULL)
 		u32Ret = JF_ERR_INVALID_SHAREDMEMORY_ID;
 	else
 	{
 		if (GetLastError() != ERROR_ALREADY_EXISTS)
 		{
-			/* The shared memory must exist before, otherwise we were creating 
-			   a new shared memory, close it and return an error */
+			/*The shared memory must exist before, otherwise we were creating a new shared memory,
+              close it and return an error.*/
 			CloseHandle(hMap);
 			u32Ret = JF_ERR_INVALID_SHAREDMEMORY_ID;
 		}

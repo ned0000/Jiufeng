@@ -52,10 +52,9 @@ static void _removeTrailingNewLineChar(olchar_t * pstrTime)
         pstrTime[sTime - 1] = '\0';
 }
 
-/* --- public routine section ------------------------------------------------------------------- */
-
 #if defined(WINDOWS)
-u32 jf_time_fileTimeToSecondsSince1970(FILETIME * pTime)
+
+static u64 _fileTimeTo100NanoSecondsSince1970(FILETIME * pTime)
 {
 	u64 u64Time;
 
@@ -63,37 +62,60 @@ u32 jf_time_fileTimeToSecondsSince1970(FILETIME * pTime)
     u64Time = ((u64)pTime->dwHighDateTime << 32) + pTime->dwLowDateTime;
     /*In 100-nanosecond since January 1, 1970*/
     u64Time -= 116444736000000000;
+
+	return u64Time;
+}
+
+#endif
+
+/* --- public routine section ------------------------------------------------------------------- */
+
+#if defined(WINDOWS)
+
+u64 jf_time_fileTimeToSecondsSince1970(FILETIME * pTime)
+{
+	u64 u64Time;
+
+    /*In 100-nanosecond since January 1, 1970*/
+    u64Time = _fileTimeTo100NanoSecondsSince1970(pTime);
     /*In second since January 1, 1970*/
     u64Time /= 10000000;
 
-	return (u32)u64Time;
+	return u64Time;
 }
+
 #endif
 
-u32 jf_time_getTimeOfDay(struct timeval * tv)
+u32 jf_time_getTimeOfDay(jf_time_val_t * pjtv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    olint_t nRet;
+    olint_t nRet = 0;
+    struct timeval tv;
 
-    nRet = gettimeofday(tv, NULL);
+    nRet = gettimeofday(&tv, NULL);
     if (nRet == -1)
+    {
         u32Ret = JF_ERR_FAIL_GET_TIME;
+    }
+    else
+    {
+        pjtv->jtv_u64Second = (u64)tv.tv_sec;
+        pjtv->jtv_u64MicroSecond = (u64)tv.tv_usec;
+    }
 #elif defined(WINDOWS)
     FILETIME systime;
-    u64 u64Time;
+    u64 u64Time = 0;
 
     GetSystemTimeAsFileTime(&systime);
 
-    /*In 100-nanosecond since January 1, 1601*/
-    u64Time = ((u64)systime.dwHighDateTime << 32) + systime.dwLowDateTime;
     /*In 100-nanosecond since January 1, 1970*/
-    u64Time -= 116444736000000000;
+    u64Time = _fileTimeTo100NanoSecondsSince1970(&systime);
     /*In macrosecond since January 1, 1970*/
     u64Time /= 10;
 
-    tv->tv_sec = (long)(u64Time / JF_TIME_SECOND_TO_MICROSECOND);
-    tv->tv_usec = (long)(u64Time % JF_TIME_SECOND_TO_MICROSECOND);
+    pjtv->jtv_u64Second = u64Time / JF_TIME_SECOND_TO_MICROSECOND;
+    pjtv->jtv_u64MicroSecond = u64Time % JF_TIME_SECOND_TO_MICROSECOND;
 
 #endif
 
@@ -118,7 +140,17 @@ u32 jf_time_getClockTime(clockid_t clkid, jf_time_spec_t * pjts)
         pjts->jts_u64NanoSecond = (u64)tp.tv_nsec;
     }
 #elif defined(WINDOWS)
-    u32Ret = JF_ERR_NOT_IMPLEMENTED;
+    u64 u64Time = 0;
+
+    if ((clkid == JF_TIME_CLOCK_MONOTONIC) || (clkid == JF_TIME_CLOCK_MONOTONIC_RAW))
+    {
+        /*Retrieves the number of milliseconds that have elapsed since the system was started.*/
+        u64Time = (u64)GetTickCount64();
+
+        pjts->jts_u64Second = u64Time / JF_TIME_SECOND_TO_MILLISECOND;
+        pjts->jts_u64NanoSecond = (u64Time % JF_TIME_SECOND_TO_MILLISECOND) *
+            JF_TIME_MILLISECOND_TO_NANOSECOND;
+    }
 #endif
 
     return u32Ret;
@@ -383,14 +415,14 @@ u32 jf_time_getUtcTimeInSecond(u64 * pu64Sec)
 u32 jf_time_getUtcTimeInMicroSecond(u64 * pu64MicroSec)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    struct timeval tv;
+    jf_time_val_t jtv;
 
     *pu64MicroSec = 0;
 
-    u32Ret = jf_time_getTimeOfDay(&tv);
+    u32Ret = jf_time_getTimeOfDay(&jtv);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        *pu64MicroSec = (u64)tv.tv_sec * JF_TIME_SECOND_TO_MICROSECOND + (u64)tv.tv_usec;
+        *pu64MicroSec = jtv.jtv_u64Second * JF_TIME_SECOND_TO_MICROSECOND + jtv.jtv_u64MicroSecond;
 
     return u32Ret;
 }

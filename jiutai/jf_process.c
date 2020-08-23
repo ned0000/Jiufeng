@@ -163,14 +163,15 @@ static boolean_t _isProcessAlreadyRunning(olchar_t * pstrPidFile, olchar_t * pst
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-#if defined(LINUX)
 void jf_process_getPidFilename(
     olchar_t * pstrPidFilename, olsize_t sFile, olchar_t * pstrDaemonName)
 {
+    pstrPidFilename[0] = '\0';
+#if defined(LINUX)
     ol_snprintf(pstrPidFilename, sFile - 1, "/var/run/%s.pid", pstrDaemonName);
     pstrPidFilename[sFile - 1] = '\0';
-}
 #endif
+}
 
 u32 jf_process_formCmdLineArguments(
     olchar_t * pstrCmd, olsize_t * psArgc, olchar_t * argv[])

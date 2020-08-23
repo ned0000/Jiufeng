@@ -33,8 +33,20 @@
     typedef olint_t                                    clockid_t;
 #endif
 
-enum
+enum jf_time_clock_t
 {
+#if defined(LINUX)
+    /**Real time clock id.*/
+    JF_TIME_CLOCK_REALTIME = CLOCK_REALTIME,
+    /**Monotonic clock id.*/
+    JF_TIME_CLOCK_MONOTONIC = CLOCK_MONOTONIC,
+    /**Process cputime id.*/
+    JF_TIME_CLOCK_PROCESS_CPUTIME_ID = CLOCK_PROCESS_CPUTIME_ID,
+    /**Thread cputime id.*/
+    JF_TIME_CLOCK_THREAD_CPUTIME_ID = CLOCK_THREAD_CPUTIME_ID,
+    /**Monotonic raw clock id.*/
+    JF_TIME_CLOCK_MONOTONIC_RAW = CLOCK_MONOTONIC_RAW,
+#elif defined(WINDOWS)
     /**Real time clock id.*/
     JF_TIME_CLOCK_REALTIME = 0,
     /**Monotonic clock id.*/
@@ -45,6 +57,7 @@ enum
     JF_TIME_CLOCK_THREAD_CPUTIME_ID,
     /**Monotonic raw clock id.*/
     JF_TIME_CLOCK_MONOTONIC_RAW,
+#endif
 };
 
 /** Second to milli-second.
@@ -54,6 +67,10 @@ enum
 /** Second to micro-second.
  */
 #define JF_TIME_SECOND_TO_MICROSECOND              (1000000)
+
+/** Milli-second to nano-second.
+ */
+#define JF_TIME_MILLISECOND_TO_NANOSECOND          (1000000)
 
 /** Define the time spec data type.
  */
@@ -65,6 +82,16 @@ typedef struct jf_time_spec
     u64 jts_u64NanoSecond;
 } jf_time_spec_t;
 
+/** Define the time val data type.
+ */
+typedef struct jf_time_val
+{
+    /**Second.*/
+    u64 jtv_u64Second;
+    /**Microsecond.*/
+    u64 jtv_u64MicroSecond;
+} jf_time_val_t;
+
 /* --- data structures -------------------------------------------------------------------------- */
 
 
@@ -75,20 +102,19 @@ typedef struct jf_time_spec
  *  
  *  @param pTime [out] The file time.
  *
- *  @return The error code.
- *  @retval JF_ERR_NO_ERROR Success.
+ *  @return The seconds since 1970, Epoch.
  */
-u32 jf_time_fileTimeToSecondsSince1970(FILETIME * pTime);
+u64 jf_time_fileTimeToSecondsSince1970(FILETIME * pTime);
 #endif
 
 /** Get time of day.
  *  
- *  @param tv [out] The time value in second and microsecond since Epoch.
+ *  @param pjtv [out] The time value in second and microsecond since Epoch.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-u32 jf_time_getTimeOfDay(struct timeval * tv);
+u32 jf_time_getTimeOfDay(jf_time_val_t * pjtv);
 
 /** Get clock time.
  *
