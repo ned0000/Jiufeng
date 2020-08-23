@@ -18,7 +18,7 @@
 !else
 
 SUBDIRS = jiutai logger jiukun string files ifmgmt crypto encode uuid \
-    persistency archive xmlparser test
+    persistency archive xmlparser httpparser test
 
 !include "$(TOPDIR)\mak\winsubdirs.mak"
 

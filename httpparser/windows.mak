@@ -1,7 +1,7 @@
 #
-#  @file windows.mak
+#  @file httpparser/windows.mak
 #
-#  @brief the makefile for HTTP Parser library
+#  @brief The makefile for HTTP Parser library.
 #
 #  @author Min Zhang
 #
@@ -13,16 +13,14 @@
 DLLNAME = jf_httpparser
 RESOURCE = httpparser
 
-SOURCES = httpparser.c
-JIUTAI_SRCS = $(JIUTAI_DIR)\jf_mem.c $(JIUTAI_DIR)\bases.c
+SOURCES = httpparser.c chunkprocessor.c dataobject.c
 
-EXTRA_LIBS = $(LIB_DIR)\jf_string.lib $(LIB_DIR)\jf_jiukun.lib
+JIUTAI_SRCS =
 
-EXTRA_DEFS = -DJIUFENG_HTTPPARSER_DLL
+EXTRA_LIBS = jf_string.lib jf_jiukun.lib jf_logger.lib
+
+EXTRA_DEFS = /DJIUFENG_HTTPPARSER_DLL
 
 !include "$(TOPDIR)\mak\winlib.mak"
 
 #---------------------------------------------------------------------------------------------------
-
-
-

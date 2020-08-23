@@ -1,7 +1,7 @@
 #
-#  @file linux.mak
+#  @file httpparser/linux.mak
 #
-#  @brief the makefile for HTTP parser library
+#  @brief The makefile for HTTP parser library.
 #
 #  @author Min Zhang
 #
@@ -14,11 +14,10 @@ SONAME = jf_httpparser
 
 SOURCES = httpparser.c chunkprocessor.c dataobject.c
 
-EXTRA_LIBS = -ljf_string -ljf_jiukun
+EXTRA_LIBS = -ljf_string -ljf_jiukun -ljf_logger
 
 JIUTAI_SRCS =
 
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-
