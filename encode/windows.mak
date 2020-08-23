@@ -1,7 +1,7 @@
 #
-#  @file windows.mak
+#  @file encode/windows.mak
 #
-#  @brief the makefile for encode-decode library
+#  @brief The makefile for encode-decode library.
 #
 #  @author Min Zhang
 #
@@ -20,7 +20,7 @@ JIUTAI_SRCS =
 
 EXTRA_LIBS = $(LIB_DIR)\jf_jiukun.lib
 
-EXTRA_DEFS = -DJIUFENG_ENCODE_DLL
+EXTRA_DEFS = /DJIUFENG_ENCODE_DLL
 
 !include "$(TOPDIR)\mak\winlib.mak"
 

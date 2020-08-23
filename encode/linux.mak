@@ -1,7 +1,7 @@
 #
-#  @file linux.mak
+#  @file encode/linux.mak
 #
-#  @brief The Makefile for encode-decode library
+#  @brief The Makefile for encode-decode library.
 #
 #  @author Min Zhang
 #
@@ -22,4 +22,3 @@ EXTRA_LIBS = -ljf_jiukun
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------
-
