@@ -1,5 +1,5 @@
 #
-#  @file linux.mak
+#  @file cli/linux.mak
 #
 #  @brief The Makefile for cli.
 #

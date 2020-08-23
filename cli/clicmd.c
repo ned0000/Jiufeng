@@ -1,7 +1,7 @@
 /**
- *  @file clicmd.c
+ *  @file cli/clicmd.c
  *
- *  @brief cli command
+ *  @brief Implementation file for cli command.
  *
  *  @author Min Zhang
  *  
@@ -17,8 +17,10 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "clicmd.h"
+#include "jf_option.h"
 #include "jf_string.h"
+
+#include "clicmd.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -51,12 +53,11 @@ static u32 _parseUser(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_user_param_t * pcup = (cli_user_param_t *)pParam;
 //    jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
-    olint_t nOpt;
+    olint_t nOpt = 0;
 
-    optind = 0;  /* initialize the opt index */
+    jf_option_reset();
 
-    while (((nOpt = getopt(argc, argv, "lu:hv?")) != -1) &&
-           (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "lu:hv?")) != -1))
     {
         switch (nOpt)
         {
@@ -65,10 +66,10 @@ static u32 _parseUser(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
             break;
         case 'u':
             pcup->cup_u8Action = CLI_ACTION_ADD_USER;
-            ol_strncpy(pcup->cup_strUsername, optarg, MAX_USER_NAME_LEN - 1);
+            ol_strncpy(pcup->cup_strUsername, jf_option_getArg(), MAX_USER_NAME_LEN - 1);
             break;		
         case ':':
-            u32Ret = JF_ERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_OPTION_ARG;
             break;
         case 'v':
             pcup->cup_bVerbose = TRUE;
@@ -242,15 +243,14 @@ static u32 _parseExit(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
 //    jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
     olint_t nOpt;
 
-    optind = 0;  /* initialize the opt index */
+    jf_option_reset();
 
-    while (((nOpt = getopt(argc, argv, "h?")) != -1) &&
-           (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "h?")) != -1))
     {
         switch (nOpt)
         {
         case ':':
-            u32Ret = JF_ERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_OPTION_ARG;
             break;
         case '?':
         case 'h':
@@ -296,17 +296,16 @@ static u32 _parseHelp(void * pMaster, olint_t argc, olchar_t ** argv, void * pPa
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_help_param_t * pchp = (cli_help_param_t *)pParam;
 //    jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
-    olint_t nOpt;
+    olint_t nOpt = 0;
 
-    optind = 0;  /* initialize the opt index */
+    jf_option_reset();
 
-    while (((nOpt = getopt(argc, argv,
-        "h?")) != -1) && (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "h?")) != -1))
     {
         switch (nOpt)
         {
         case ':':
-            u32Ret = JF_ERR_MISSING_PARAM;
+            u32Ret = JF_ERR_MISSING_OPTION_ARG;
             break;
         case '?':
         case 'h':

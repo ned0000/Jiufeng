@@ -52,14 +52,14 @@ logger options:\n\
     ol_printf("\n");
 }
 
-static u32 _parseCliCmdLineParam(olint_t argc, olchar_t ** argv, 
-    jf_clieng_init_param_t * pjcip, jf_logger_init_param_t * pjlip)
+static u32 _parseCliCmdLineParam(
+    olint_t argc, olchar_t ** argv, jf_clieng_init_param_t * pjcip, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while (((nOpt = getopt(argc, argv, "T:F:S:Oh")) != -1) &&
-           (u32Ret == JF_ERR_NO_ERROR))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "T:F:S:Oh")) != -1))
+
     {
         switch (nOpt)
         {
@@ -68,17 +68,17 @@ static u32 _parseCliCmdLineParam(olint_t argc, olchar_t ** argv,
             _printCliUsage();
             exit(0);
         case 'T':
-            u32Ret = jf_option_getU8FromString(optarg, &pjlip->jlip_u8TraceLevel);
+            u32Ret = jf_option_getU8FromString(jf_option_getArg(), &pjlip->jlip_u8TraceLevel);
             break;
         case 'F':
             pjlip->jlip_bLogToFile = TRUE;
-            pjlip->jlip_pstrLogFile = optarg;
+            pjlip->jlip_pstrLogFile = jf_option_getArg();
             break;
         case 'O':
             pjlip->jlip_bLogToStdout = TRUE;
             break;
         case 'S':
-            u32Ret = jf_option_getS32FromString(optarg, &pjlip->jlip_sLogFile);
+            u32Ret = jf_option_getS32FromString(jf_option_getArg(), &pjlip->jlip_sLogFile);
             break;
         default:
             u32Ret = JF_ERR_INVALID_OPTION;

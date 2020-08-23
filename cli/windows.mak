@@ -1,7 +1,7 @@
 #
-#  @file windows.mak
+#  @file cli/windows.mak
 #
-#  @brief The main Makefile for cli
+#  @brief The main Makefile for cli.
 #
 #  @author Min Zhang
 #
@@ -10,14 +10,13 @@
 
 #---------------------------------------------------------------------------------------------------
 
-EXE = olcli.exe
+EXE = jf_cli.exe
 
 SOURCES = main.c clicmd.c
 
-JIUTAI_SRCS = $(JIUTAI_DIR)\bases.c $(JIUTAI_DIR)\getopt.c
+JIUTAI_SRCS = $(JIUTAI_DIR)\jf_option.c
 
-EXTRA_LIBS = $(LIB_DIR)\jf_clieng.lib $(LIB_DIR)\jf_logger.lib $(LIB_DIR)\jf_jiukun.lib \
-    $(LIB_DIR)\jf_string.lib
+EXTRA_LIBS = jf_clieng.lib jf_logger.lib jf_jiukun.lib jf_string.lib jf_files.lib
 
 !include "$(TOPDIR)\mak\winexe.mak"
 
