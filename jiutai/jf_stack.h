@@ -17,9 +17,9 @@
 #define JIUTAI_STACK_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stddef.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 
@@ -63,6 +63,7 @@ void jf_stack_init(jf_stack_t ** ppStack);
  *  @param pData [in] The data to push onto the stack. 
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_stack_push(jf_stack_t ** ppStack, void * pData);
 

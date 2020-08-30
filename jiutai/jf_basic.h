@@ -18,6 +18,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <stdlib.h>
+#include <stddef.h>
+
 #if defined(WINDOWS)
     #include <Winsock2.h>
     #include <windows.h>
@@ -32,7 +34,6 @@
     #include <arpa/inet.h>
     #include <stdio.h>
     #include <stdarg.h>
-    #include <stddef.h>
 #else
     #error "Unsupported platform."
 #endif

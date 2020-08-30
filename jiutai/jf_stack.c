@@ -10,20 +10,14 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <errno.h>
-#include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include <string.h>
-#if defined(WINDOWS)
-
-#elif defined(LINUX)
-    #include <unistd.h>
-#endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_stack.h"
 #include "jf_jiukun.h"
@@ -31,9 +25,7 @@
 /* --- private data/data structure section ------------------------------------------------------ */
 
 
-
 /* --- private routine section ------------------------------------------------------------------ */
-
 
 
 /* --- public routine section ------------------------------------------------------------------- */
@@ -63,13 +55,15 @@ u32 jf_stack_push(jf_stack_t ** ppStack, void * data)
 void * jf_stack_pop(jf_stack_t ** ppStack)
 {
     void * retval = NULL;
-    void * temp;
+    void * temp = NULL;
 
     if (*ppStack != NULL)
     {
         retval = ((jf_stack_node_t *) *ppStack)->jsn_pData;
         temp = *ppStack;
+        /*Move the stack pointer to the next node.*/
         *ppStack = ((jf_stack_node_t *) *ppStack)->jsn_pjsnNext;
+        /*Free the stack node.*/
         jf_jiukun_freeMemory((void **)&temp);
     }
 
@@ -100,4 +94,3 @@ void jf_stack_clear(jf_stack_t ** ppStack)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
