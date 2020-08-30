@@ -10,17 +10,19 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_rwlock.h"
 #include "jf_err.h"
+#include "jf_time.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
 /* --- private routine section ------------------------------------------------------------------ */
+
 #if defined(WINDOWS)
 static u32 _acquireSyncReadlock(jf_rwlock_t * pRwlock, u32 u32Timeout)
 {
@@ -212,7 +214,7 @@ u32 jf_rwlock_acquireReadlock(jf_rwlock_t * pRwlock)
 
 	assert(pRwlock != NULL);
 
-	u32Ret = _acquireSyncReadlock(pRwlock, INFINITE);
+	u32Ret = _acquireSyncReadlock(pRwlock, JF_TIME_INFINITE);
 
 #elif defined(LINUX)
     olint_t nRet = 0;
@@ -340,7 +342,7 @@ u32 jf_rwlock_acquireWritelock(jf_rwlock_t * pRwlock)
 
     assert(pRwlock != NULL);
     
-    u32Ret = _acquireSyncWritelock(pRwlock, INFINITE);
+    u32Ret = _acquireSyncWritelock(pRwlock, JF_TIME_INFINITE);
 
 #elif defined(LINUX)
     olint_t nRet = 0;

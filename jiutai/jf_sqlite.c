@@ -6,15 +6,13 @@
  *  @author Min Zhang
  *
  *  @note
- *  -# Routines declared in this file are included in jf_sqlite object.
- *  
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -26,43 +24,40 @@
 
 /** The wait time in milli-second when DB is locked.
  */
-#define DB_LOCK_WAIT                 (100)
+#define JF_SQLITE_DB_LOCK_WAIT                           (100)
 
 /** The retry count when transaction fails.
  */
-#define MAX_TRANSACTION_RETRY        (20)
+#define JF_SQLITE_MAX_TRANSACTION_RETRY                  (20)
 
 /** Minimal time in millisecond for transaction retry.
  */
-#define TRANSACTION_RETRY_MIN_TIME   (100)
+#define JF_SQLITE_TRANSACTION_RETRY_MIN_TIME             (100)
 
 /** Maximum time in millisecond for transaction retry.
  */
-#define TRANSACTION_RETRY_MAX_TIME   (2000)
+#define JF_SQLITE_TRANSACTION_RETRY_MAX_TIME             (2000)
 
 /* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _jtSqliteEvalSqlStmt(
-    jf_sqlite_t * pjs, boolean_t bTransaction, olchar_t * pstrResult, olsize_t sResult,
-    sqlite3_stmt * pStatement)
+    jf_sqlite_t * pjs, boolean_t bTransaction, jf_sqlite_fnHandleRowData_t fnHandleRowData,
+    void * pArg, sqlite3_stmt * pStmt)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     boolean_t bKeepOnTrying = TRUE;
     olint_t nRet = SQLITE_OK;
 
-    pstrResult[0] = '\0';
-
-    while (bKeepOnTrying)
+    while (bKeepOnTrying && (u32Ret == JF_ERR_NO_ERROR))
     {
-        nRet = sqlite3_step(pStatement);
+        nRet = sqlite3_step(pStmt);
         switch (nRet)
         {
         case SQLITE_ROW:
-            /*Success and data is returned.*/
+            /*Success and data is returned, after retrieving all data, SQLITE_DONE is returned.*/
             JF_LOGGER_DEBUG("sqlite3_step return SQLITE_ROW");
-            ol_strncpy(pstrResult, (olchar_t *)sqlite3_column_text(pStatement, 0), sResult - 1);
-            pstrResult[sResult - 1] = '\0';
-            bKeepOnTrying = FALSE;
+            if (fnHandleRowData != NULL)
+                u32Ret = fnHandleRowData(pStmt, pArg);
             break;
         case SQLITE_BUSY:
         case SQLITE_LOCKED:
@@ -72,13 +67,14 @@ static u32 _jtSqliteEvalSqlStmt(
             {
                 /*Do not retry for trasaction.*/
                 bKeepOnTrying = FALSE;
+                u32Ret = JF_ERR_BUSY;
             }
-            else
+            else /*Sleep certain time.*/
             {
-                jf_time_milliSleep(DB_LOCK_WAIT);
+                jf_time_milliSleep(JF_SQLITE_DB_LOCK_WAIT);
             }
             /*Reset the statement.*/
-            sqlite3_reset(pStatement);
+            sqlite3_reset(pStmt);
             break;
         case SQLITE_DONE:
             /*Success and no data is returned.*/
@@ -87,7 +83,7 @@ static u32 _jtSqliteEvalSqlStmt(
             break;
         default:
             JF_LOGGER_INFO("sqlite3_step return %d", nRet);
-            sqlite3_reset(pStatement);
+            sqlite3_reset(pStmt);
             bKeepOnTrying = FALSE;
             u32Ret = JF_ERR_SQL_EVAL_ERROR;
             break;
@@ -98,18 +94,17 @@ static u32 _jtSqliteEvalSqlStmt(
 }
 
 static u32 _jtSqliteExecSql(
-    jf_sqlite_t * pjs, olchar_t * pstrSql, boolean_t bTransaction, olchar_t * pstrResult,
-    olsize_t sResult)
+    jf_sqlite_t * pjs, olchar_t * pstrSql, boolean_t bTransaction,
+    jf_sqlite_fnHandleRowData_t fnHandleRowData, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    sqlite3_stmt * pStatement = NULL;
+    sqlite3_stmt * pStmt = NULL;
     olint_t nRet = SQLITE_OK;
 
     JF_LOGGER_DEBUG("sql: %s", pstrSql);
 
-    pstrResult[0] = '\0';
-
-    nRet = sqlite3_prepare_v2(pjs->js_psSqlite, pstrSql, -1, &pStatement, NULL);
+    /*Compile the SQL statement into a byte-code program.*/
+    nRet = sqlite3_prepare_v2(pjs->js_psSqlite, pstrSql, -1, &pStmt, NULL);
     if (nRet != SQLITE_OK)
     {
         u32Ret = JF_ERR_SQL_COMPILE_ERROR;
@@ -118,12 +113,12 @@ static u32 _jtSqliteExecSql(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _jtSqliteEvalSqlStmt(pjs, bTransaction, pstrResult, sResult, pStatement);
+        u32Ret = _jtSqliteEvalSqlStmt(pjs, bTransaction, fnHandleRowData, pArg, pStmt);
     }
 
     /*Finilize the statement.*/
-    if (pStatement != NULL)
-        sqlite3_finalize(pStatement);
+    if (pStmt != NULL)
+        sqlite3_finalize(pStmt);
 
     return u32Ret;
 }
@@ -132,21 +127,28 @@ static u32 _jtSqliteExecSqlTransaction(jf_sqlite_t * pjs, olchar_t * pSql)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nAttempt = 0;
-    olchar_t strRet[128];
-    u32 u32Value;
+    u32 u32Value = 0;
     
     do
     {
-        u32Ret = _jtSqliteExecSql(pjs, pSql, TRUE, strRet, sizeof(strRet));
-        if ((u32Ret == JF_ERR_NO_ERROR) || (nAttempt == MAX_TRANSACTION_RETRY))
+        u32Ret = _jtSqliteExecSql(pjs, pSql, TRUE, NULL, NULL);
+
+        /*Quit the loop if no error.*/
+        if (u32Ret == JF_ERR_NO_ERROR)
+            break;
+
+        /*Quit the loop if the error is not busy.*/
+        if (u32Ret != JF_ERR_BUSY)
             break;
 
 		/*Get random number for sleep time in millisecond.*/
-        u32Value = jf_rand_getU32InRange(TRANSACTION_RETRY_MIN_TIME, TRANSACTION_RETRY_MAX_TIME);
+        u32Value = jf_rand_getU32InRange(
+            JF_SQLITE_TRANSACTION_RETRY_MIN_TIME, JF_SQLITE_TRANSACTION_RETRY_MAX_TIME);
         JF_LOGGER_DEBUG("attemp: %d, sleep: %u", nAttempt, u32Value);
+
 		jf_time_milliSleep(u32Value);
 		nAttempt++;
-	} while (u32Ret != JF_ERR_NO_ERROR);
+    } while (nAttempt < JF_SQLITE_MAX_TRANSACTION_RETRY);
 
     return u32Ret;
 }    
@@ -156,8 +158,7 @@ static u32 _jtSqliteExecSqlTransaction(jf_sqlite_t * pjs, olchar_t * pSql)
 u32 jf_sqlite_init(jf_sqlite_t * pjs, jf_sqlite_init_param_t * param)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strRet[128];
-    olint_t ret;
+    olint_t ret = 0;
 
     ol_bzero(pjs, sizeof(*pjs));
 
@@ -184,8 +185,8 @@ u32 jf_sqlite_init(jf_sqlite_t * pjs, jf_sqlite_init_param_t * param)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Set journal mode to persist.*/
-        u32Ret = _jtSqliteExecSql(
-            pjs, "PRAGMA journal_mode=PERSIST;", FALSE, strRet, sizeof(strRet));
+        u32Ret = _jtSqliteExecSql(pjs, "PRAGMA journal_mode=PERSIST;", FALSE, NULL, NULL);
+
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             ret = sqlite3_busy_timeout(pjs->js_psSqlite, 500);
@@ -284,17 +285,31 @@ u32 jf_sqlite_commitTransaction(jf_sqlite_t * pjs)
 }
 
 u32 jf_sqlite_execSql(
-    jf_sqlite_t * pjs, olchar_t * pstrSql, olchar_t * pstrResult, olsize_t sResult)
+    jf_sqlite_t * pjs, olchar_t * pstrSql, jf_sqlite_fnHandleRowData_t fnHandleRowData, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     if (! pjs->js_bInitialized)
         return JF_ERR_NOT_INITIALIZED;
 
-    u32Ret = _jtSqliteExecSql(pjs, pstrSql, FALSE, pstrResult, sResult);
+    u32Ret = _jtSqliteExecSql(pjs, pstrSql, FALSE, fnHandleRowData, pArg);
 
     return u32Ret;
 }
 
-/*------------------------------------------------------------------------------------------------*/
+olchar_t * jf_sqlite_getColumnText(jf_sqlite_stmt_t * pStmt, olint_t nCol)
+{
+    return (olchar_t *)sqlite3_column_text(pStmt, nCol);
+}
 
+olint_t jf_sqlite_getColumnInt(jf_sqlite_stmt_t * pStmt, olint_t nCol)
+{
+    return sqlite3_column_int(pStmt, nCol);
+}
+
+oldouble_t jf_sqlite_getColumnDouble(jf_sqlite_stmt_t * pStmt, olint_t nCol)
+{
+    return sqlite3_column_double(pStmt, nCol);
+}
+
+/*------------------------------------------------------------------------------------------------*/

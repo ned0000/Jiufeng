@@ -82,12 +82,12 @@ static void _printHashTree(jf_hashtree_t * pHashtree)
 
     /*Iterate through all the WebDataobjects*/
     jf_hashtree_initEnumerator(pHashtree, &en);
-    while (! jf_hashtree_isEnumeratorEmptyNode(&en))
+    while (! jf_hashtree_isEndOfEnumerator(&en))
     {
         /*Free the WebDataobject*/
-        jf_hashtree_getEnumeratorValue(&en, &pstrKey, &sKey, (void **)&data);
+        jf_hashtree_getEnumeratorNodeData(&en, &pstrKey, &sKey, (void **)&data);
         ol_printf("Entry %s, key %s\n", data, pstrKey);
-        jf_hashtree_moveEnumeratorNext(&en);
+        jf_hashtree_moveEnumerator(&en);
     }
     jf_hashtree_finiEnumerator(&en);
 }

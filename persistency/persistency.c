@@ -22,6 +22,7 @@
 #include "jf_jiukun.h"
 
 #include "persistencycommon.h"
+#include "filepersistency.h"
 #if defined(LINUX)
     #include "sqlitepersistency.h"
 #endif
@@ -51,9 +52,12 @@ u32 jf_persistency_create(
         {
 #if defined(LINUX)
         case JF_PERSISTENCY_TYPE_SQLITE:
-            u32Ret = initSqlitePersistency(ppm, &ppc->jpc_pcsConfigSqlite);
+            u32Ret = initSqlitePersistency(ppm, &ppc->jpc_jpcsConfigSqlite);
             break;
 #endif
+        case JF_PERSISTENCY_TYPE_FILE:
+            u32Ret = initFilePersistency(ppm, &ppc->jpc_jpcfConfigFile);
+            break;
         default:
             u32Ret = JF_ERR_UNSUPPORTED_PERSISTENCY_TYPE;
             break;
@@ -94,6 +98,8 @@ u32 jf_persistency_getValue(
     u32 u32Ret = JF_ERR_NO_ERROR;
     persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
 
+    value[0] = '\0';
+
     jf_mutex_acquire(&ppm->pm_jmLock);
 
     u32Ret = ppm->pm_fnGetValue(ppm, key, value, valuelen);
@@ -127,6 +133,9 @@ u32 jf_persistency_startTransaction(jf_persistency_t * pPersist)
 
     u32Ret = ppm->pm_fnStartTransaction(ppm);
 
+    if (u32Ret == JF_ERR_NO_ERROR)
+        ppm->pm_bTransactionStarted = TRUE;
+
     jf_mutex_release(&ppm->pm_jmLock);
 
     return u32Ret;
@@ -140,6 +149,8 @@ u32 jf_persistency_commitTransaction(jf_persistency_t * pPersist)
     jf_mutex_acquire(&ppm->pm_jmLock);
     
     u32Ret = ppm->pm_fnCommitTransaction(ppm);
+
+    ppm->pm_bTransactionStarted = FALSE;
 
     jf_mutex_release(&ppm->pm_jmLock);
 
@@ -155,12 +166,27 @@ u32 jf_persistency_rollbackTransaction(jf_persistency_t * pPersist)
 
     u32Ret = ppm->pm_fnRollbackTransaction(ppm);
 
+    ppm->pm_bTransactionStarted = FALSE;
+
+    jf_mutex_release(&ppm->pm_jmLock);
+
+    return u32Ret;
+}
+
+u32 jf_persistency_traverse(
+    jf_persistency_t * pPersist, jf_persistency_fnHandleKeyValue_t fnHandleKeyValue, void * pArg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    persistency_manager_t * ppm = (persistency_manager_t *)pPersist;
+
+    jf_mutex_acquire(&ppm->pm_jmLock);
+
+    u32Ret = ppm->pm_fnTraverse(ppm, fnHandleKeyValue, pArg);
+
     jf_mutex_release(&ppm->pm_jmLock);
 
     return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-
-

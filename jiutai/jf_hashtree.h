@@ -42,7 +42,7 @@ typedef struct jf_hashtree_node
     /**The key after hash.*/
     olint_t jhn_nKey;
     /**The key string.*/
-    olchar_t * jhn_pstrKeyValue;
+    olchar_t * jhn_pstrKey;
     /**The length of the key string.*/
     olsize_t jhn_sKey;
     /**The application data.*/
@@ -184,22 +184,20 @@ static inline void jf_hashtree_initEnumerator(
  *
  *  @return Void.
  */
-static inline void jf_hashtree_finiEnumerator(
-    jf_hashtree_enumerator_t * pEnumerator)
+static inline void jf_hashtree_finiEnumerator(jf_hashtree_enumerator_t * pEnumerator)
 {
     ol_memset(pEnumerator, 0, sizeof(jf_hashtree_enumerator_t));
 }
 
-/** Check if the node in enumerator is empty.
+/** Check if it's the end of the enumerator.
  *
  *  @param pEnumerator [in] The enumerator to check.
  *
  *  @return The status.
- *  @retval TRUE The enumerator node is empty.
- *  @retval FALSE The enumerator node is not empty.
+ *  @retval TRUE The enumerator reach the end.
+ *  @retval FALSE The enumerator is not the end.
  */
-static inline boolean_t jf_hashtree_isEnumeratorEmptyNode(
-    jf_hashtree_enumerator_t * pEnumerator)
+static inline boolean_t jf_hashtree_isEndOfEnumerator(jf_hashtree_enumerator_t * pEnumerator)
 {
     return ((pEnumerator->jhe_pjhnNode == NULL) ? TRUE : FALSE);
 }
@@ -212,8 +210,7 @@ static inline boolean_t jf_hashtree_isEnumeratorEmptyNode(
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_END_OF_HASHTREE End of hash tree.
  */
-static inline u32 jf_hashtree_moveEnumeratorNext(
-    jf_hashtree_enumerator_t * pEnumerator)
+static inline u32 jf_hashtree_moveEnumerator(jf_hashtree_enumerator_t * pEnumerator)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -232,7 +229,7 @@ static inline u32 jf_hashtree_moveEnumeratorNext(
     return u32Ret;
 }
 
-/** Read from the current item of an enumerator.
+/** Get data from current node of an enumerator.
  *
  *  @param pEnumerator [in] The enumerator to read from.
  *  @param ppstrKey [out] The key of the current item. 
@@ -241,13 +238,13 @@ static inline u32 jf_hashtree_moveEnumeratorNext(
  *
  *  @return Void.
  */
-static inline void jf_hashtree_getEnumeratorValue(
+static inline void jf_hashtree_getEnumeratorNodeData(
     jf_hashtree_enumerator_t * pEnumerator, olchar_t ** ppstrKey, olsize_t * psKey, void ** ppData)
 {
     /*All we do, is just assign the pointers.*/
     if (ppstrKey != NULL)
     {
-        *ppstrKey = pEnumerator->jhe_pjhnNode->jhn_pstrKeyValue;
+        *ppstrKey = pEnumerator->jhe_pjhnNode->jhn_pstrKey;
     }
     if (psKey != NULL)
     {

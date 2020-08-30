@@ -115,7 +115,7 @@ static u32 _checkUtimer(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         current = (jts.jts_u64Second * JF_TIME_SECOND_TO_MILLISECOND) + 
-            (jts.jts_u64NanoSecond / JF_TIME_SECOND_TO_MICROSECOND);
+            (jts.jts_u64NanoSecond / JF_TIME_MILLISECOND_TO_NANOSECOND);
 #if defined(DEBUG_UTIMER)
         JF_LOGGER_DEBUG("utimer: %s, current: %llu", piu->iu_strName, current);
 #endif
@@ -272,7 +272,7 @@ u32 jf_network_addUtimerItem(
         ol_memset(pui, 0, sizeof(utimer_item_t));
         /*Set the trigger time*/
         pui->ui_u64Expire = (jts.jts_u64Second * JF_TIME_SECOND_TO_MILLISECOND) +
-            (jts.jts_u64NanoSecond / JF_TIME_SECOND_TO_MICROSECOND) +
+            (jts.jts_u64NanoSecond / JF_TIME_MILLISECOND_TO_NANOSECOND) +
             (u32Seconds * JF_TIME_SECOND_TO_MILLISECOND);
 #if defined(DEBUG_UTIMER)
         JF_LOGGER_DEBUG("utimer: %s, expire at: %llu", piu->iu_strName, pui->ui_u64Expire);

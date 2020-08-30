@@ -78,7 +78,7 @@ static u32 _newHashtreeEntry(
         ol_bzero(node, sizeof(jf_hashtree_node_t));
 
         /*Clone the key in string.*/
-        u32Ret = jf_jiukun_cloneMemory((void **)&node->jhn_pstrKeyValue, pKey, sKey);
+        u32Ret = jf_jiukun_cloneMemory((void **)&node->jhn_pstrKey, pKey, sKey);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             node->jhn_nKey = value;
@@ -127,7 +127,7 @@ static u32 _findHashtreeEntry(
         {
             /*Verify this is really a match*/
             if (current->jhn_sKey == sKey &&
-                ol_memcmp(current->jhn_pstrKeyValue, pKey, sKey) == 0)
+                ol_memcmp(current->jhn_pstrKey, pKey, sKey) == 0)
             {
                 *ppNode = current;
                 u32Ret = JF_ERR_NO_ERROR;
@@ -150,8 +150,7 @@ static u32 _findHashtreeEntry(
 
 void jf_hashtree_fini(jf_hashtree_t * pHashtree)
 {
-    jf_hashtree_node_t * pjhn;
-    jf_hashtree_node_t * pNode;
+    jf_hashtree_node_t * pjhn = NULL, * pNode = NULL;
 
     assert(pHashtree != NULL);
 
@@ -160,20 +159,20 @@ void jf_hashtree_fini(jf_hashtree_t * pHashtree)
     {
         /*Iterate through each node, and free all the resources.*/
         pNode = pjhn->jhn_pjhnNext;
-        if (pjhn->jhn_pstrKeyValue != NULL)
-        {
-            jf_jiukun_freeMemory((void **)&(pjhn->jhn_pstrKeyValue));
-        }
+        if (pjhn->jhn_pstrKey != NULL)
+            jf_jiukun_freeMemory((void **)&(pjhn->jhn_pstrKey));
+
         jf_jiukun_freeMemory((void **)&pjhn);
         pjhn = pNode;
     }
+
+    jf_hashtree_init(pHashtree);
 }
 
 void jf_hashtree_finiHashtreeAndData(
     jf_hashtree_t * pHashtree, jf_hashtree_fnFreeData_t fnFreeData)
 {
-    jf_hashtree_node_t * pjhn;
-    jf_hashtree_node_t * pNode;
+    jf_hashtree_node_t * pjhn = NULL, * pNode = NULL;
 
     assert((pHashtree != NULL) && (fnFreeData != NULL));
 
@@ -186,20 +185,21 @@ void jf_hashtree_finiHashtreeAndData(
         if (pjhn->jhn_pData != NULL)
             fnFreeData(&pjhn->jhn_pData);
 
-        if (pjhn->jhn_pstrKeyValue != NULL)
-        {
-            jf_jiukun_freeMemory((void **)&pjhn->jhn_pstrKeyValue);
-        }
+        if (pjhn->jhn_pstrKey != NULL)
+            jf_jiukun_freeMemory((void **)&pjhn->jhn_pstrKey);
+
         jf_jiukun_freeMemory((void **)&pjhn);
 
         pjhn = pNode;
     }
+
+    jf_hashtree_init(pHashtree);
 }
 
 boolean_t jf_hashtree_hasEntry(jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey)
 {
     boolean_t bRet = FALSE;
-    jf_hashtree_node_t * pjhn;
+    jf_hashtree_node_t * pjhn = NULL;
     u32 u32Ret = JF_ERR_NO_ERROR;
 
     /*This can be duplicated by calling Find entry, but setting the create flag to false.*/
@@ -215,11 +215,12 @@ u32 jf_hashtree_addEntry(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     /*This can be duplicated by calling FindEntry, and setting create to true*/
-    jf_hashtree_node_t * pjhn;
+    jf_hashtree_node_t * pjhn = NULL;
 
     assert(sKey > 0);
 
     u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, TRUE, &pjhn);
+
     if (u32Ret == JF_ERR_NO_ERROR)
         pjhn->jhn_pData = value;
 
@@ -235,10 +236,9 @@ u32 jf_hashtree_getEntry(
     jf_hashtree_node_t * pjhn = NULL;
 
     u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, FALSE, &pjhn);
+
     if (u32Ret == JF_ERR_NO_ERROR)
-    {
         *ppData = pjhn->jhn_pData;
-    }
 
     return u32Ret;
 }
@@ -246,7 +246,7 @@ u32 jf_hashtree_getEntry(
 u32 jf_hashtree_deleteEntry(jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsize_t sKey)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_hashtree_node_t * pjhn;
+    jf_hashtree_node_t * pjhn = NULL;
 
     u32Ret = _findHashtreeEntry(pHashtree, pstrKey, sKey, FALSE, &pjhn);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -264,7 +264,7 @@ u32 jf_hashtree_deleteEntry(jf_hashtree_t * pHashtree, olchar_t * pstrKey, olsiz
             if (pjhn->jhn_pjhnNext != NULL)
                 pjhn->jhn_pjhnNext->jhn_pjhnPrev = pjhn->jhn_pjhnPrev;
         }
-        jf_jiukun_freeMemory((void **)&pjhn->jhn_pstrKeyValue);
+        jf_jiukun_freeMemory((void **)&pjhn->jhn_pstrKey);
         jf_jiukun_freeMemory((void **)&pjhn);
     }
 

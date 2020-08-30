@@ -10,6 +10,7 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #include <string.h>
 #if defined(LINUX)
     #include <sys/types.h>
@@ -18,14 +19,17 @@
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_sem.h"
 #include "jf_err.h"
+#include "jf_time.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
 #if defined(LINUX)
-    #define SV_W    0400
-    #define SV_R    0200
+    #define SV_W      (0400)
+    #define SV_R      (0200)
 
     #define SEM_FLAG  (SV_W | SV_R | (SV_W >> 3) | (SV_R >> 3) | (SV_W >> 6) | (SV_R >> 6))
 #endif
@@ -132,7 +136,7 @@ u32 jf_sem_down(jf_sem_t * pSem)
 
     assert(pSem != NULL);
 
-    dwRet = WaitForSingleObject(pSem->js_hSem, INFINITE);
+    dwRet = WaitForSingleObject(pSem->js_hSem, JF_TIME_INFINITE);
     if (dwRet == WAIT_FAILED)
     {
         u32Ret = JF_ERR_FAIL_DOWN_SEM;

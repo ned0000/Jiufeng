@@ -18,9 +18,9 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_jiukun.h"
-#include "jf_conffile.h"
 #include "jf_mutex.h"
 #include "jf_ptree.h"
+#include "jf_persistency.h"
 
 #include "configmgrcommon.h"
 #include "configpersistency.h"
@@ -30,8 +30,33 @@
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-static u32 _fnAddConfigToTree(
-    olchar_t * pstrName, olchar_t * pstrValue, void * pArg)
+static u32 _convertConfigPersistencyType(
+    u8 u8Type, const olchar_t * pstrLocation, jf_persistency_type_t * pType,
+    jf_persistency_config_t * pjpc)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    *pType = JF_PERSISTENCY_TYPE_UNKNOWN;
+
+    if (u8Type == CMCPT_CONF_FILE)
+    {
+        *pType = JF_PERSISTENCY_TYPE_FILE;
+        ol_strcpy(pjpc->jpc_jpcfConfigFile.jpcf_strFile, pstrLocation);
+    }
+    else if (u8Type == CMCPT_SQLITE_DB)
+    {
+        *pType = JF_PERSISTENCY_TYPE_SQLITE;
+        ol_strcpy(pjpc->jpc_jpcsConfigSqlite.jpcs_strSqliteDb, pstrLocation);
+    }
+    else
+    {
+        u32Ret = JF_ERR_UNSUPPORTED_PERSISTENCY_TYPE;
+    }
+
+    return u32Ret;
+}
+
+static u32 _fnAddConfigToTree(olchar_t * pstrName, olchar_t * pstrValue, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_ptree_t * pjpConfig = pArg;
@@ -47,22 +72,11 @@ static u32 _fnAddConfigToTree(
     return u32Ret;
 }
 
-static u32 _loadConfigFromPersistencyFile(const olchar_t * pstrLocation, jf_ptree_t * pjpConfig)
+static u32 _loadConfigFromPersistency(jf_persistency_t * pPersistency, jf_ptree_t * pjpConfig)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_conffile_t * pjc = NULL;
-    jf_conffile_open_param_t jcop;
 
-    ol_bzero(&jcop, sizeof(jcop));
-    jcop.jcop_pstrFile = (olchar_t *)pstrLocation;
-
-    u32Ret = jf_conffile_open(&jcop, &pjc);
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        u32Ret = jf_conffile_traverse(pjc, _fnAddConfigToTree, pjpConfig);
-
-        jf_conffile_close(&pjc);
-    }
+    u32Ret = jf_persistency_traverse(pPersistency, _fnAddConfigToTree, pjpConfig);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         jf_ptree_dump(pjpConfig);
@@ -70,14 +84,13 @@ static u32 _loadConfigFromPersistencyFile(const olchar_t * pstrLocation, jf_ptre
     return u32Ret;
 }
 
-static u32 _fnAddConfigToFile(jf_ptree_t * pPtree, jf_ptree_node_t * pNode, void * pArg)
+static u32 _fnAddConfigToPersistency(jf_ptree_t * pPtree, jf_ptree_node_t * pNode, void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_conffile_t * pjc = pArg;
+    jf_persistency_t * pPersistency = pArg;
     olchar_t * pstrValue = NULL;
-    olchar_t str[JF_CONFFILE_MAX_LINE_LEN];
-    olchar_t strName[JF_CONFFILE_MAX_LINE_LEN / 2];
-    olsize_t sName = 0, sValue = 0, sStr = 0;
+    olchar_t strName[JF_CONFIG_MAX_CONFIG_NAME_LEN];
+    olsize_t sName = 0, sValue = 0;
 
     if (! jf_ptree_isLeafNode(pNode))
         return u32Ret;
@@ -93,34 +106,27 @@ static u32 _fnAddConfigToFile(jf_ptree_t * pPtree, jf_ptree_node_t * pNode, void
         JF_LOGGER_DEBUG(
             "name: %s(%ld), value: %s(%ld)", strName, sName, pstrValue, sValue);
 
-        if (pstrValue == NULL)
-            sStr = snprintf(str, sizeof(str), "%s=\n", strName);
-        else
-            sStr = snprintf(str, sizeof(str), "%s=%s\n", strName, pstrValue);
-
-        u32Ret = jf_conffile_write(pjc, str, sStr);
+        u32Ret = jf_persistency_setValue(pPersistency, strName, pstrValue);
     }
 
     return u32Ret;
 }
 
-static u32 _saveConfigToPersistencyFile(const olchar_t * pstrLocation, jf_ptree_t * pjpConfig)
+static u32 _saveConfigToPersistency(jf_persistency_t * pPersistency, jf_ptree_t * pjpConfig)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_conffile_t * pjc = NULL;
-    jf_conffile_open_param_t jcop;
 
-    ol_bzero(&jcop, sizeof(jcop));
-    jcop.jcop_pstrFile = (olchar_t *)pstrLocation;
-    jcop.jcop_bWrite = TRUE;
-
-    u32Ret = jf_conffile_open(&jcop, &pjc);
+    u32Ret = jf_persistency_startTransaction(pPersistency);
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_traverse(pjpConfig, _fnAddConfigToFile, pjc);
+    {
+        u32Ret = jf_ptree_traverse(pjpConfig, _fnAddConfigToPersistency, pPersistency);
 
-    if (pjc != NULL)
-        jf_conffile_close(&pjc);
+        if (u32Ret == JF_ERR_NO_ERROR)
+            u32Ret = jf_persistency_commitTransaction(pPersistency);
+        else
+            u32Ret = jf_persistency_rollbackTransaction(pPersistency);
+    }
 
     return u32Ret;
 }
@@ -130,13 +136,22 @@ static u32 _saveConfigToPersistencyFile(const olchar_t * pstrLocation, jf_ptree_
 u32 loadConfigFromPersistency(u8 u8Type, const olchar_t * pstrLocation, jf_ptree_t * pjpConfig)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_persistency_t * pPersistency = NULL;
+    jf_persistency_config_t config;
+    jf_persistency_type_t ptype = 0;
 
-    JF_LOGGER_INFO("type: %u, location: %s", u8Type, pstrLocation);
+    JF_LOGGER_INFO("type: %s, location: %s", getStringConfigPersistencyType(u8Type), pstrLocation);
 
-    if (u8Type == CMCPT_CONF_FILE)
-        u32Ret = _loadConfigFromPersistencyFile(pstrLocation, pjpConfig);
-    else
-        u32Ret = JF_ERR_UNSUPPORTED_PERSISTENCY_TYPE;
+    u32Ret = _convertConfigPersistencyType(u8Type, pstrLocation, &ptype, &config);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_persistency_create(ptype, &config, &pPersistency);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = _loadConfigFromPersistency(pPersistency, pjpConfig);;
+
+    if (pPersistency != NULL)
+        jf_persistency_destroy(&pPersistency);
 
     return u32Ret;
 }
@@ -145,12 +160,24 @@ u32 saveConfigToPersistency(u8 u8Type, const olchar_t * pstrLocation, jf_ptree_t
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    JF_LOGGER_INFO("type: %u, location: %s", u8Type, pstrLocation);
+    JF_LOGGER_INFO("type: %s, location: %s", getStringConfigPersistencyType(u8Type), pstrLocation);
 
-    if (u8Type == CMCPT_CONF_FILE)
-    {
-        u32Ret = _saveConfigToPersistencyFile(pstrLocation, pjpConfig);
-    }
+    jf_persistency_t * pPersistency = NULL;
+    jf_persistency_config_t config;
+    jf_persistency_type_t ptype = 0;
+
+    JF_LOGGER_INFO("type: %s, location: %s", getStringConfigPersistencyType(u8Type), pstrLocation);
+
+    u32Ret = _convertConfigPersistencyType(u8Type, pstrLocation, &ptype, &config);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = jf_persistency_create(ptype, &config, &pPersistency);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = _saveConfigToPersistency(pPersistency, pjpConfig);;
+
+    if (pPersistency != NULL)
+        jf_persistency_destroy(&pPersistency);
 
     return u32Ret;
 }

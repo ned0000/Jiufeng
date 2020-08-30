@@ -18,7 +18,7 @@ SOURCES = files.c directory.c conffile.c
 
 JIUTAI_SRCS = $(JIUTAI_DIR)\jf_time.c $(JIUTAI_DIR)\jf_option.c $(JIUTAI_DIR)\jf_mem.c
 
-EXTRA_LIBS = $(LIB_DIR)\jf_jiukun.lib
+EXTRA_LIBS = jf_jiukun.lib jf_logger.lib
 
 EXTRA_INC_DIR =
 

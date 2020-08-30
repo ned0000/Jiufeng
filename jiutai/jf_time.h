@@ -24,13 +24,17 @@
 /* --- constant definitions --------------------------------------------------------------------- */
 
 #if defined(LINUX)
-/** Define the INFINITE macro.
- */
-    #define INFINITE                                   (0xFFFFFFFF)
+    /** Define the INFINITE macro.
+     */
+    #define JF_TIME_INFINITE                           (0xFFFFFFFF)
 #elif defined(WINDOWS)
-/** Define the clock id data type.
- */
+    /** Define the clock id data type.
+     */
     typedef olint_t                                    clockid_t;
+
+    /** Define the INFINITE macro.
+     */
+    #define JF_TIME_INFINITE                           (INFINITE)
 #endif
 
 enum jf_time_clock_t

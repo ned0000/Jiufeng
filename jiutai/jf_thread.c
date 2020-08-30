@@ -28,6 +28,7 @@
 #include "jf_limit.h"
 #include "jf_thread.h"
 #include "jf_err.h"
+#include "jf_time.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -192,7 +193,7 @@ u32 jf_thread_waitForThreadTermination(jf_thread_id_t threadId, u32 * pu32RetCod
 #elif defined(WINDOWS)
     u32 u32Wait;
 
-    u32Wait = WaitForSingleObject(threadId.jti_hThread, INFINITE);
+    u32Wait = WaitForSingleObject(threadId.jti_hThread, JF_TIME_INFINITE);
     if (u32Wait != WAIT_OBJECT_0)
         u32Ret = JF_ERR_FAIL_WAIT_THREAD_TERMINATION;
 #endif

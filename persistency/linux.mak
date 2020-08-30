@@ -13,13 +13,13 @@
 
 SONAME = jf_persistency
 
-SOURCES = persistencycommon.c persistency.c sqlitepersistency.c
+SOURCES = persistencycommon.c sqlitepersistency.c filepersistency.c persistency.c
 
-JIUTAI_SRCS = jf_time.c jf_rand.c jf_mutex.c jf_sqlite.c
+JIUTAI_SRCS = jf_time.c jf_rand.c jf_mutex.c jf_sqlite.c jf_hashtree.c
 
 EXTRA_INC_DIR = 
 
-EXTRA_LIBS = -ljf_jiukun -ljf_logger
+EXTRA_LIBS = -ljf_jiukun -ljf_logger -ljf_files -ljf_string -lsqlite3
 
 SYSLIBS = -lsqlite3
 

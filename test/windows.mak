@@ -17,7 +17,8 @@ PROGRAMS = $(BIN_DIR)\mem-test.exe $(BIN_DIR)\option-test.exe $(BIN_DIR)\hashtre
     $(BIN_DIR)\logger-test.exe $(BIN_DIR)\process-test.exe $(BIN_DIR)\thread-test.exe             \
     $(BIN_DIR)\hashtable-test.exe $(BIN_DIR)\mutex-test.exe $(BIN_DIR)\rwlock-test.exe            \
     $(BIN_DIR)\sem-test.exe $(BIN_DIR)\date-test.exe $(BIN_DIR)\time-test.exe                     \
-    $(BIN_DIR)\string-test.exe $(BIN_DIR)\bitarray-test.exe $(BIN_DIR)\conffile-test.exe          \
+    $(BIN_DIR)\string-test.exe $(BIN_DIR)\attask-test.exe $(BIN_DIR)\bitarray-test.exe            \
+    $(BIN_DIR)\conffile-test.exe                                                                  \
     $(BIN_DIR)\menu-test.exe $(BIN_DIR)\crc-test.exe $(BIN_DIR)\dynlib-test.exe                   \
     $(BIN_DIR)\ifmgmt-test.exe $(BIN_DIR)\sharedmemory-test-consumer.exe                          \
     $(BIN_DIR)\sharedmemory-test-worker.exe $(BIN_DIR)\files-test.exe $(BIN_DIR)\hsm-test.exe     \
@@ -34,7 +35,7 @@ PROGRAMS = $(BIN_DIR)\mem-test.exe $(BIN_DIR)\option-test.exe $(BIN_DIR)\hashtre
 
 SOURCES = mem-test.c option-test.c hashtree-test.c listhead-test.c hlisthead-test.c           \
     listarray-test.c logger-test.c process-test.c thread-test.c hashtable-test.c mutex-test.c \
-    rwlock-test.c sem-test.c date-test.c time-test.c string-test.c                            \
+    rwlock-test.c sem-test.c date-test.c time-test.c string-test.c attask-test.c              \
     bitarray-test.c conffile-test.c menu-test.c crc-test.c dynlib-test.c                      \
     ifmgmt-test.c sharedmemory-test-consumer.c sharedmemory-test-worker.c                     \
     files-test.c hsm-test.c host-test.c respool-test.c bitop-test.c ptree-test.c              \
@@ -112,6 +113,11 @@ $(BIN_DIR)\time-test.exe: time-test.obj $(JIUTAI_DIR)\jf_option.obj $(JIUTAI_DIR
 $(BIN_DIR)\string-test.exe: string-test.obj $(JIUTAI_DIR)\jf_option.obj
 	@$(LINK) $(LDFLAGS) $(EXTRA_LDFLAGS) /LIBPATH:$(LIB_DIR) /OUT:$@ $** $(SYSLIBS) jf_logger.lib \
        jf_jiukun.lib jf_string.lib
+
+$(BIN_DIR)\attask-test.exe: attask-test.obj $(JIUTAI_DIR)\jf_attask.obj $(JIUTAI_DIR)\jf_time.obj \
+       $(JIUTAI_DIR)\jf_process.obj $(JIUTAI_DIR)\jf_rand.obj
+	@$(LINK) $(LDFLAGS) $(EXTRA_LDFLAGS) /LIBPATH:$(LIB_DIR) /OUT:$@ $** $(SYSLIBS) jf_logger.lib \
+       jf_jiukun.lib ws2_32.lib Psapi.lib
 
 $(BIN_DIR)\bitarray-test.exe: bitarray-test.obj $(JIUTAI_DIR)\jf_option.obj
 	@$(LINK) $(LDFLAGS) $(EXTRA_LDFLAGS) /LIBPATH:$(LIB_DIR) /OUT:$@ $** $(SYSLIBS) jf_logger.lib \

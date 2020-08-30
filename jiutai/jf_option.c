@@ -6,7 +6,6 @@
  *  @author Min Zhang
  *
  *  @note
- *
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
@@ -59,6 +58,8 @@ static olint_t ls_nOptionIndex = 1;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
+/** Print error message to stderr for the option.
+ */
 static void _printErrorOption(const olchar_t * pstrCmd, olchar_t * pstrError, int nOpt)
 {
     olchar_t erropt[2];
@@ -69,6 +70,8 @@ static void _printErrorOption(const olchar_t * pstrCmd, olchar_t * pstrError, in
     ol_fprintf(stderr, "%s: %s -- '%s'\n", pstrCmd, pstrError, erropt);
 }
 
+/** Move option index to the next.
+ */
 static void _moveOptionIndex(olint_t argc, olchar_t ** const argv)
 {
     if (ls_nArgvIndex >= argc)
@@ -83,6 +86,8 @@ static void _moveOptionIndex(olint_t argc, olchar_t ** const argv)
     }
 }
 
+/** Reset the variable of option parse.
+ */
 static void _resetOptionVar(void)
 {
     ls_nArgvIndex = 1;
@@ -249,12 +254,10 @@ u32 jf_option_getLongFromString(const olchar_t * pstrInteger, slong * numeric)
     *numeric = ol_strtol(pstrInteger, (olchar_t **)&stop_str, 10);
     if (*stop_str != '\0')
     {
-        // If strtol stopped somewhere other than the end, there was an error
         u32Ret = JF_ERR_INVALID_INTEGER;
     }
     else
     {
-        // Now just check errno to see if there was an error reported
 #if defined(LINUX)
         if (errno == ERANGE)
         {
@@ -299,7 +302,7 @@ u32 jf_option_getUlongFromString(const olchar_t * pstrInteger, ulong * numeric)
 u32 jf_option_getU64FromString(const olchar_t * pstrInteger, u64 * pu64Value)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t * stop_str;
+    olchar_t * stop_str = NULL;
 
     *pu64Value = ol_strtoull(pstrInteger, &stop_str, 10);
     if (*stop_str != '\0')

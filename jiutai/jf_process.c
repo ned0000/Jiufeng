@@ -482,7 +482,7 @@ u32 jf_process_waitForChildProcessTermination(
     *pu32Index = 0;
     u32Reason = JF_PROCESS_TERMINATION_REASON_UNKNOWN;
 
-    if (u32BlockTime == INFINITE)
+    if (u32BlockTime == JF_TIME_INFINITE)
     {
         pid = wait(&nStatus);
     }

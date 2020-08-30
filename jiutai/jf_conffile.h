@@ -15,8 +15,8 @@
  *  @par Example
  *  @code
  *   # this is an exmaple of the configuration file
- *   config-tag1=value1 # this is an example of configuration
- *   config-tag2=value2
+ *   tag1=value1 # this is an example of configuration
+ *   tag2=value2
  *   # the end of the configuration file
  *  @endcode
  *
@@ -51,9 +51,7 @@ typedef struct
 {
     /**The configuration file.*/
     olchar_t * jcop_pstrFile;
-    /**Open the file for write.*/
-    boolean_t jcop_bWrite;
-    u8 jcop_u8Reserved[7];
+    u8 jcop_u8Reserved[8];
     u32 jcop_u32Reserved[6];
 } jf_conffile_open_param_t;
 
@@ -125,11 +123,11 @@ FILESAPI u32 FILESCALL jf_conffile_write(
 FILESAPI u32 FILESCALL jf_conffile_getInt(
     jf_conffile_t * pConffile, const olchar_t * pstrTag, olint_t nDefault, olint_t * pnValue);
 
-/** Get an string type config from the configuration file.
+/** Get value of config from the configuration file.
  *
  *  @note
  *  -# If the tag name is set to NULL, or the config is not found, the default value will be
- *   returned.
+ *   returned if it's not NULL, otherwise error will be returned.
  *
  *  @param pConffile [in] The configuration file object.
  *  @param pstrTag [in] The config tag name.
@@ -139,10 +137,23 @@ FILESAPI u32 FILESCALL jf_conffile_getInt(
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_NOT_FOUND Tag is not found.
  */
-FILESAPI u32 FILESCALL jf_conffile_getString(
+FILESAPI u32 FILESCALL jf_conffile_get(
     jf_conffile_t * pConffile, const olchar_t * pstrTag, const olchar_t * pstrDefault,
     olchar_t * pstrValueBuf, olsize_t sBuf);
+
+/** Set value of config to the configuration file.
+ *
+ *  @param pConffile [in] The configuration file object.
+ *  @param pstrTag [in] The config tag name.
+ *  @param pstrValue [in] The config value.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+FILESAPI u32 FILESCALL jf_conffile_set(
+    jf_conffile_t * pConffile, const olchar_t * pstrTag, const olchar_t * pstrValue);
 
 /** Traverse configuration file.
  *

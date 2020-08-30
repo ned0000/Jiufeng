@@ -1,21 +1,21 @@
 /**
  *  @file sqlite-test.c
  *
- *  @brief The test file for jf_sqlite common object
+ *  @brief The test file for jf_sqlite common object.
  *
  *  @author Min Zhang
  *
- *  @note Create DB with command: sqlite3 env.db
- *  @note Create table with sql statement: CREATE TABLE env(key TEXT PRIMARY KEY, value TEXT);
+ *  @note
+ *  -# Create DB with command: sqlite3 env.db
+ *  -# Create table with sql statement: CREATE TABLE env(key TEXT PRIMARY KEY, value TEXT);
  *
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -64,7 +64,6 @@ static u32 _setJtSqliteValue(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t * pstrSql = NULL;
-    olchar_t strRet[128];
     olsize_t nsize = ol_strlen(pValue) + ol_strlen(pKey) + 256;
 
     u32Ret = jf_jiukun_allocMemory((void **)&pstrSql, nsize);
@@ -73,11 +72,22 @@ static u32 _setJtSqliteValue(
         /*update or insert the value into the DB*/
         ol_snprintf(
             pstrSql, nsize, "REPLACE INTO env(key, value) VALUES ('%s', '%s');", pKey, pValue);
-        u32Ret = jf_sqlite_execSql(pjs, pstrSql, strRet, sizeof(strRet));
+
+        u32Ret = jf_sqlite_execSql(pjs, pstrSql, NULL, NULL);
     }
     
     if (pstrSql != NULL)
         jf_jiukun_freeMemory((void **)&pstrSql);
+
+    return u32Ret;
+}
+
+static u32 _fnGetJtSqliteValue(jf_sqlite_stmt_t * pStmt, void * pArg)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t * pValue = pArg;
+
+    ol_strcpy(pValue, jf_sqlite_getColumnText(pStmt, 0));
 
     return u32Ret;
 }
@@ -89,7 +99,8 @@ static u32 _getJtSqliteValue(
     olchar_t strSql[512];
 
     ol_snprintf(strSql, sizeof(strSql), "SELECT value FROM env WHERE key='%s';", pKey);
-    u32Ret = jf_sqlite_execSql(pjs, strSql, pValue, sValue);
+
+    u32Ret = jf_sqlite_execSql(pjs, strSql, _fnGetJtSqliteValue, pValue);
 
     return u32Ret;
 }
@@ -103,13 +114,14 @@ static u32 _testRwJtSqlite(jf_sqlite_t * pjs)
     olchar_t * tuesday = "tuesday";
     olchar_t value[512];
 
-    ol_printf("Testing jt sqlite common object \n");
+    ol_printf("Testing jf_sqlite common object \n");
 
     ol_printf("set, %s = %s\n", key, monday);
     u32Ret = _setJtSqliteValue(pjs, key, monday);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = _getJtSqliteValue(pjs, key, value, 512);
+        value[0] = '\0';
+        u32Ret = _getJtSqliteValue(pjs, key, value, sizeof(value));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -122,6 +134,7 @@ static u32 _testRwJtSqlite(jf_sqlite_t * pjs)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        value[0] = '\0';
         u32Ret = _getJtSqliteValue(pjs, key, value, 512);
     }
 
@@ -129,6 +142,7 @@ static u32 _testRwJtSqlite(jf_sqlite_t * pjs)
     {
         ol_printf("get, %s = %s\n", key, value);
 
+        value[0] = '\0';
         u32Ret = _getJtSqliteValue(pjs, no_such_key, value, 512);
     }
 
@@ -144,7 +158,7 @@ static u32 _testJtSqliteTransaction(jf_sqlite_t * pjs)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    ol_printf("Start jt sqlite transaction\n");
+    ol_printf("Start jf_sqlite transaction\n");
     u32Ret = jf_sqlite_startTransaction(pjs);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -152,13 +166,13 @@ static u32 _testJtSqliteTransaction(jf_sqlite_t * pjs)
         _setJtSqliteValue(pjs, "name", "min");
         _setJtSqliteValue(pjs, "age", "32");
 
-        ol_printf("Commit jt sqlite transaction\n");
+        ol_printf("Commit jf_sqlite transaction\n");
         jf_sqlite_commitTransaction(pjs);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_printf("Start jt sqlite transaction\n");
+        ol_printf("Start jf_sqlite transaction\n");
         u32Ret = jf_sqlite_startTransaction(pjs);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
@@ -166,7 +180,7 @@ static u32 _testJtSqliteTransaction(jf_sqlite_t * pjs)
             _setJtSqliteValue(pjs, "book2", "2");
             _setJtSqliteValue(pjs, "book3", "3");
 
-            ol_printf("Rollback jt sqlite transaction\n");
+            ol_printf("Rollback jf_sqlite transaction\n");
             jf_sqlite_rollbackTransaction(pjs);
         }
     }
@@ -179,6 +193,7 @@ static u32 _testJtSqlite(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_sqlite_t js;
     jf_sqlite_init_param_t config;
+    olchar_t strSql[256];
 
     ol_bzero(&config, sizeof(jf_sqlite_init_param_t));
     config.jsip_pstrDbName = "env.db";
@@ -186,6 +201,11 @@ static u32 _testJtSqlite(void)
     u32Ret = jf_sqlite_init(&js, &config);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        ol_sprintf(
+            strSql, "CREATE TABLE IF NOT EXISTS env(key TEXT PRIMARY KEY, value TEXT);");
+
+        u32Ret = jf_sqlite_execSql(&js, strSql, NULL, NULL);
+
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = _testRwJtSqlite(&js);
 
@@ -216,8 +236,8 @@ olint_t main(olint_t argc, olchar_t ** argv)
     {
         memset(&jlipParam, 0, sizeof(jf_logger_init_param_t));
         jlipParam.jlip_pstrCallerName = "SQLITE-TEST";
-        jlipParam.jlip_bLogToFile = FALSE;
-        jlipParam.jlip_bLogToStdout = TRUE;
+//        jlipParam.jlip_bLogToFile = FALSE;
+//        jlipParam.jlip_bLogToStdout = TRUE;
         jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DATA;
 
         u32Ret = _parseSqliteTestCmdLineParam(argc, argv);
@@ -250,5 +270,3 @@ olint_t main(olint_t argc, olchar_t ** argv)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-

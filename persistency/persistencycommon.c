@@ -29,6 +29,7 @@ static olchar_t * ls_pstrPersistencyType[JF_PERSISTENCY_TYPE_MAX] =
 {
     "unknown",
     "sqlite",
+    "file"
 };
 
 /* --- public routine section ------------------------------------------------------------------- */

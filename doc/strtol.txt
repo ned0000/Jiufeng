@@ -1,0 +1,39 @@
+
+LINUX
+===========================================
+
+#include <stdlib.h>
+
+unsigned long int strtoul(const char *nptr, char **endptr, int base);
+
+unsigned long long int strtoull(const char *nptr, char **endptr, int base);
+
+If endptr is not NULL, strtoul() stores the address of the first invalid character in *endptr.
+If there were no digits at all, strtoul() stores the original value of nptr in *endptr (and returns 0).
+In particular, if *nptr is not '\0' but endptr is '\0' on return, the entire string is valid.
+The strtoull() function works just like the strtoul() function but returns an unsigned long long int value.
+
+Return Value
+-------------------------------------------
+The strtoul() function returns either the result of the conversion or, if there was a leading minus sign, the negation of
+the result of the conversion represented as an unsigned value, unless the original (nonnegated) value would overflow; in
+the latter case, strtoul() returns ULONG_MAX and sets errno to ERANGE. Precisely the same holds for strtoull() (with
+ULLONG_MAX instead of ULONG_MAX).
+
+
+long int strtol(const char *nptr, char **endptr, int base);
+
+long long int strtoll(const char *nptr, char **endptr, int base);
+
+If endptr is not NULL, strtol() stores the address of the first invalid character in *endptr.
+If there were no digits at all, strtol() stores the original value of nptr in *endptr (and returns 0).
+In particular, if *nptr is not '\0' but **endptr is '\0' on return, the entire string is valid.
+The strtoll() function works just like the strtol() function but returns a long long integer value.
+
+Return Value
+-------------------------------------------
+The strtol() function returns the result of the conversion, unless the value would underflow or overflow.
+If an underflow occurs, strtol() returns LONG_MIN. If an overflow occurs, strtol() returns LONG_MAX.
+In both cases, errno is set to ERANGE. Precisely the same holds for strtoll() (with LLONG_MIN and LLONG_MAX
+instead of LONG_MIN and LONG_MAX).
+

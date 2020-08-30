@@ -22,52 +22,85 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+/** Default block time in second.
+ */
+#define JF_ATTASK_DEF_BLOCK_TIME         (10 * JF_TIME_SECOND_TO_MILLISECOND);
+
 /** Define the attask item data type.
  */
 typedef struct attask_item
 {
     /**Expire time in milli-second.*/
     u64 ai_u64Expire;
+    /**The user's data.*/
     void * ai_pData;
+    /**The callback function when the time is expired.*/
     jf_attask_fnCallbackOfItem_t ai_fnCallback;
+    /**The callback function to destroy user's data.*/
     jf_attask_fnDestroyItem_t ai_fnDestroy;
+    /**Previous item in the list.*/
     struct attask_item * ai_paiPrev;
+    /**Next item in the list.*/
     struct attask_item * ai_paiNext;
 } attask_item_t;
 
+/** Define the internal attask data type.
+ */
 typedef struct attask
 {
+    /**The head of item list.*/
     attask_item_t * ia_paiItems;
 } internal_attask_t;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-/** Flushes all task from the attask
+/** Free attask item list.
  *
- *  @note Before destroying the attask item structure, (* destroy)( ) is called
+ *  @param item [in] The attask item list.
+ *  @param bCallback [in] Call the callback function if it's TRUE.
  *
- *  @param piu [in] the attask
+ *  @return Void.
+ */
+static void _freeAttaskItemList(attask_item_t * item, boolean_t bCallback)
+{
+    attask_item_t * pai = item, * temp = NULL;
+
+    while (pai != NULL)
+    {
+        temp = pai->ai_paiNext;
+
+        if (bCallback)
+            pai->ai_fnCallback(pai->ai_pData);
+
+        if (pai->ai_fnDestroy != NULL)
+            pai->ai_fnDestroy(&pai->ai_pData);
+
+        jf_jiukun_freeMemory((void **)&pai);
+
+        pai = temp;
+    }
+
+}
+
+/** Flushes all task from the attask.
  *
- *  @return the error code
+ *  @note
+ *  -# Before destroying the attask item structure, the item data is destroyed by callback function
+ *   if it's available.
+ *
+ *  @param piu [in] The internal attask object.
+ *
+ *  @return The error code.
  */
 static u32 _flushAttask(internal_attask_t * piu)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    attask_item_t *temp, *temp2;
+    attask_item_t * temp = NULL;
 
     temp = piu->ia_paiItems;
     piu->ia_paiItems = NULL;
 
-    while (temp != NULL)
-    {
-        temp2 = temp->ai_paiNext;
-        if (temp->ai_fnDestroy != NULL)
-        {
-            temp->ai_fnDestroy(&(temp->ai_pData));
-        }
-        jf_jiukun_freeMemory((void **)&temp);
-        temp = temp2;
-    }
+    _freeAttaskItemList(temp, FALSE);
 
     return u32Ret;
 }
@@ -77,27 +110,33 @@ static u32 _flushAttask(internal_attask_t * piu)
 u32 jf_attask_check(jf_attask_t * pAttask, u32 * pu32Blocktime)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_time_val_t jtv;
+    jf_time_spec_t jts;
     attask_item_t * temp = NULL, * evt = NULL, * last = NULL;
     u64 current = 0;
     internal_attask_t * pia = (internal_attask_t *)pAttask;
 
     assert(pia != NULL);
 
-    if (pia->ia_paiItems != NULL)
+    *pu32Blocktime = JF_ATTASK_DEF_BLOCK_TIME;
+
+    /*Return if the item list is empty.*/
+    if (pia->ia_paiItems == NULL)
+        return u32Ret;
+
+    /*Get the current tick count for reference.*/
+    u32Ret = jf_time_getClockTime(JF_TIME_CLOCK_MONOTONIC_RAW, &jts);
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /*Get the current tick count for reference*/
-        jf_time_getTimeOfDay(&jtv);
-        /*Current tick in Millisecond*/
-        current = (jtv.jtv_u64Second * 1000) + (jtv.jtv_u64MicroSecond / 1000);
+        /*Current tick in Millisecond.*/
+        current = (jts.jts_u64Second * JF_TIME_SECOND_TO_MILLISECOND) + 
+            (jts.jts_u64NanoSecond / JF_TIME_MILLISECOND_TO_NANOSECOND);
         temp = pia->ia_paiItems;
-        /*Keep looping until we find a node that doesn't need to be triggered*/
+        /*Keep looping until we find a node that doesn't need to be triggered.*/
         while ((temp != NULL) && (temp->ai_u64Expire <= current))
         {
-            /*Since these are in sorted order, evt will always point to 
-              the first node that needs to be triggered. last will point 
-              to the last node that needs to be triggered. temp will point 
-              to the first node that doesn't need to be triggered.*/
+            /*Since these are in sorted order, evt will always point to the first node that needs to
+              be triggered. last will point to the last node that needs to be triggered. temp will
+              point to the first node that doesn't need to be triggered.*/
             evt = pia->ia_paiItems;
             last = temp;
             temp = temp->ai_paiNext;
@@ -107,9 +146,8 @@ u32 jf_attask_check(jf_attask_t * pAttask, u32 * pu32Blocktime)
         {
             if (temp != NULL)
             {
-                /*There are still nodes that will need to be triggered 
-                  later, so reset it.
-                  temp point to the node that need to be triggered*/
+                /*There are still nodes that will need to be triggered later, so reset it.
+                  temp point to the node that need to be triggered.*/
                 pia->ia_paiItems = temp;
                 pia->ia_paiItems->ai_paiPrev = NULL;
                 last->ai_paiNext = NULL;
@@ -122,28 +160,12 @@ u32 jf_attask_check(jf_attask_t * pAttask, u32 * pu32Blocktime)
         }
 
         /*Iterate through all the triggers that we need to fire*/
-        while (evt != NULL)
-        {
-            temp = evt->ai_paiNext;
-            /*ToDo: We may want to check the table below first, 
-              before we start triggering*/
-            evt->ai_fnCallback(evt->ai_pData);
+        _freeAttaskItemList(evt, TRUE);
 
-            if (evt->ai_fnDestroy != NULL)
-            {
-                evt->ai_fnDestroy(&(evt->ai_pData));
-            }
-            jf_jiukun_freeMemory((void **)&evt);
-
-            evt = temp;
-        }
-
-        /*If there are more triggers that need to be fired later, we need to 
-          recalculate what the max block time for our select should be*/
+        /*If there are more triggers that need to be fired later, we need to recalculate what the
+          max block time for our select should be.*/
         if (pia->ia_paiItems != NULL)
             *pu32Blocktime = (u32)(pia->ia_paiItems->ai_u64Expire - current);
-        else
-            *pu32Blocktime = INFINITE;
     }
 
     return u32Ret;
@@ -154,36 +176,38 @@ u32 jf_attask_addItem(
     jf_attask_fnCallbackOfItem_t fnCallback, jf_attask_fnDestroyItem_t fnDestroy)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_time_val_t jtv;
+    jf_time_spec_t jts;
     attask_item_t * pai = NULL, * temp = NULL;
     internal_attask_t * pia = (internal_attask_t *) pAttask;
 
     u32Ret = jf_jiukun_allocMemory((void **)&pai, sizeof(attask_item_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Get the current time for reference.*/
+        u32Ret = jf_time_getClockTime(JF_TIME_CLOCK_MONOTONIC_RAW, &jts);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
         ol_bzero(pai, sizeof(attask_item_t));
-        /*Get the current time for reference*/
-        jf_time_getTimeOfDay(&jtv);
-
-        /*Set the trigger time*/
+        /*Set the trigger time.*/
+        pai->ai_u64Expire = (jts.jts_u64Second * JF_TIME_SECOND_TO_MILLISECOND) +
+            (jts.jts_u64NanoSecond / JF_TIME_MILLISECOND_TO_NANOSECOND) + u32Milliseconds;
         pai->ai_pData = pData;
-        pai->ai_u64Expire = (jtv.jtv_u64Second * 1000) + (jtv.jtv_u64MicroSecond / 1000) +
-            u32Milliseconds;
 
-        /*Set the callback handlers*/
+        /*Set the callback handlers.*/
         pai->ai_fnCallback = fnCallback;
         pai->ai_fnDestroy = fnDestroy;
 
         if (pia->ia_paiItems == NULL)
         {
-            /*There are no current triggers, so this is the first, which also
-              means, the select timeout may not be short enough*/
+            /*There are no current triggers, so this is the first, which also means, the select
+              timeout may not be short enough.*/
             pia->ia_paiItems = pai;
         }
         else
         {
-            /*There are already triggers, so we just insert this one in sorted
-              order*/
+            /*There are already triggers, so we just insert this one in sorted order.*/
             temp = pia->ia_paiItems;
             while (temp != NULL)
             {
@@ -192,17 +216,16 @@ u32 jf_attask_addItem(
                     pai->ai_paiNext = temp;
                     if (temp->ai_paiPrev == NULL)
                     {
-                        /*This is the shortest trigger, so again, the select
-                          timeout may not be short enough, so we need to force
-                          unblock, to recalculate the timeout for the select*/
+                        /*This is the shortest trigger, so again, the select timeout may not be
+                          short enough, so we need to force unblock, to recalculate the timeout for
+                          the select.*/
                         pia->ia_paiItems = pai;
                         temp->ai_paiPrev = pai;
                     }
                     else
                     {
-                        /*This isn't the shortest trigger, so we are 
-                          gauranteed that the thread will 
-                          unblock in time to reset the timeouts*/
+                        /*This isn't the shortest trigger, so we are gauranteed that the thread will 
+                          unblock in time to reset the timeouts.*/
                         pai->ai_paiPrev = temp->ai_paiPrev;
                         temp->ai_paiPrev->ai_paiNext = pai;
                         temp->ai_paiPrev = pai;
@@ -211,8 +234,8 @@ u32 jf_attask_addItem(
                 }
                 else if (temp->ai_paiNext == NULL)
                 {
-                    /*If there aren't any more triggers left, this means 
-                      we have the largest trigger, so just tack it on the end*/
+                    /*If there aren't any more triggers left, this means we have the largest
+                      trigger, so just tack it on the end.*/
                     pai->ai_paiNext = NULL;
                     pai->ai_paiPrev = temp;
                     temp->ai_paiNext = pai;
@@ -230,7 +253,7 @@ u32 jf_attask_removeItem(jf_attask_t * pAttask, void * pData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_attask_t * pia = (internal_attask_t *) pAttask;
-    attask_item_t *first, *last, *evt;
+    attask_item_t * first = NULL, * last = NULL, * evt = NULL;
 
     evt = last = NULL;
 
@@ -239,7 +262,7 @@ u32 jf_attask_removeItem(jf_attask_t * pAttask, void * pData)
     {
         if (first->ai_pData == pData)
         {
-            /*Found a match, now remove it from the list*/
+            /*Found a match, now remove it from the list.*/
             if (first->ai_paiPrev == NULL)
             {
                 pia->ia_paiItems = first->ai_paiNext;
@@ -257,15 +280,16 @@ u32 jf_attask_removeItem(jf_attask_t * pAttask, void * pData)
                 }
             }
 
+            /*Add the removed item to temporary item list.*/
             if (evt == NULL)
             {
-                /*If this is the first match, create a new list*/
+                /*If this is the first match, create a new list.*/
                 evt = last = first;
                 evt->ai_paiPrev = evt->ai_paiNext = NULL;
             }
             else
             {
-                /*Attach this match to the end of the list of matches*/
+                /*Attach this match to the end of the list of matches.*/
                 last->ai_paiNext = first;
                 first->ai_paiPrev = last;
                 first->ai_paiNext = NULL;
@@ -275,24 +299,11 @@ u32 jf_attask_removeItem(jf_attask_t * pAttask, void * pData)
         first = first->ai_paiNext;
     }
 
-    /*Iterate through each node that is to be removed*/
+    /*Iterate through each node that is to be removed.*/
     if (evt == NULL)
-    {
         u32Ret = JF_ERR_ATTASK_ITEM_NOT_FOUND;
-    }
     else
-    {
-        while (evt != NULL)
-        {
-            first = evt->ai_paiNext;
-            if (evt->ai_fnDestroy != NULL)
-            {
-                evt->ai_fnDestroy(&(evt->ai_pData));
-            }
-            jf_jiukun_freeMemory((void **)&evt);
-            evt = first;
-        }
-    }
+        _freeAttaskItemList(evt, FALSE);
 
     return u32Ret;
 }
@@ -300,7 +311,7 @@ u32 jf_attask_removeItem(jf_attask_t * pAttask, void * pData)
 u32 jf_attask_destroy(jf_attask_t ** ppAttask)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_attask_t * pia;
+    internal_attask_t * pia = NULL;
 
     assert((ppAttask != NULL) && (*ppAttask != NULL));
 
@@ -309,7 +320,6 @@ u32 jf_attask_destroy(jf_attask_t ** ppAttask)
     _flushAttask(pia);
 
     jf_jiukun_freeMemory(ppAttask);
-    *ppAttask = NULL;
 
     return u32Ret;
 }

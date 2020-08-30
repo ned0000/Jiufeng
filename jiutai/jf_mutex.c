@@ -10,13 +10,14 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <string.h>
-#include <stdio.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_mutex.h"
 #include "jf_err.h"
+#include "jf_time.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -96,7 +97,7 @@ u32 jf_mutex_acquire(jf_mutex_t * pMutex)
 
     assert(pMutex != NULL);
     
-    dwRet = WaitForSingleObject(pMutex->jm_hMutex, INFINITE);
+    dwRet = WaitForSingleObject(pMutex->jm_hMutex, JF_TIME_INFINITE);
     if (dwRet == WAIT_FAILED)
     {
         u32Ret = JF_ERR_FAIL_ACQUIRE_MUTEX;

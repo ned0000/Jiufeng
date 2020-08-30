@@ -1,7 +1,7 @@
 #
-#  @file windows.mak
+#  @file configmgr/daemon/windows.mak
 #
-#  @brief The main makefile for dongyuan
+#  @brief The makefile for config manager daemon.
 #
 #  @author Min Zhang
 #
@@ -11,16 +11,19 @@
 
 #---------------------------------------------------------------------------------------------------
 
-EXE = jf_dongyuan.exe
+EXE = jf_configmgr.exe
 
-SOURCES = ../common/configmgrcommon.c configmgrsetting.c configtree.c configmgr.c main.c
+CONFIG_FILES = configmgr.setting jiufeng.conf
 
-JIUTAI_SRCS = $(JIUTAI_DIR)\getopt.c $(JIUTAI_DIR)\jf_process.c
+SOURCES = ..\common\configmgrcommon.c configmgrsetting.c configpersistency.c \
+    configtree.c configmgr.c main.c
 
-EXTRA_INC_DIR =
+JIUTAI_SRCS = $(JIUTAI_DIR)\jf_option.c $(JIUTAI_DIR)\jf_process.c $(JIUTAI_DIR)\jf_ptree.c
 
-EXTRA_LIBS = psapi.lib $(LIB_DIR)\jf_logger.lib $(LIB_DIR)\jf_string.lib $(LIB_DIR)\jf_jiukun.lib \
-    $(LIB_DIR)\olfiles.lib $(LIB_DIR)\jf_servmgmt.lib
+EXTRA_INC_DIR = /I..\common
+
+EXTRA_LIBS = psapi.lib jf_logger.lib jf_string.lib jf_jiukun.lib jf_xmlparser.lib \
+    jf_persistency.lib jf_ifmgmt.lib jf_network.lib
 
 !include "$(TOPDIR)\mak\winexe.mak"
 

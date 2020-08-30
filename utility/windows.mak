@@ -27,11 +27,11 @@ EXTRA_INC_DIR =
 all: $(FULL_PROGRAMS)
 
 $(BIN_DIR)\jf_errcode.exe: errcode.obj $(JIUTAI_DIR)\jf_option.obj
-	$(LINK) $(LDFLAGS) $(EXTRA_LDFLAGS) /LIBPATH:$(LIB_DIR) /OUT:$@ $** $(SYSLIBS) jf_logger.lib \
+	@$(LINK) $(LDFLAGS) $(EXTRA_LDFLAGS) /LIBPATH:$(LIB_DIR) /OUT:$@ $** $(SYSLIBS) jf_logger.lib \
        jf_string.lib
 
 $(BIN_DIR)\jf_genuuid.exe: genuuid.obj $(JIUTAI_DIR)\jf_time.obj $(JIUTAI_DIR)\jf_option.obj
-	$(LINK) $(LDFLAGS) $(EXTRA_LDFLAGS) /LIBPATH:$(LIB_DIR) /OUT:$@ $** $(SYSLIBS) jf_logger.lib \
+	@$(LINK) $(LDFLAGS) $(EXTRA_LDFLAGS) /LIBPATH:$(LIB_DIR) /OUT:$@ $** $(SYSLIBS) jf_logger.lib \
        jf_uuid.lib jf_prng.lib jf_string.lib jf_jiukun.lib
 
 !include $(TOPDIR)\mak\winobjbld.mak

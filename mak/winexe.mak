@@ -22,7 +22,7 @@ all: $(PROGRAM)
 
 $(PROGRAM): $(OBJECTS) $(JIUTAI_OBJS)
 	@if not exist $(BIN_DIR) mkdir $(BIN_DIR)
-	$(LINK) $(LDFLAGS) $(EXTRA_LDFLAGS) /LIBPATH:$(LIB_DIR) /OUT:$@ $** $(SYSLIBS) $(EXTRA_LIBS)
+	@$(LINK) $(LDFLAGS) $(EXTRA_LDFLAGS) /LIBPATH:$(LIB_DIR) /OUT:$@ $** $(SYSLIBS) $(EXTRA_LIBS)
 
 clean:
 	@if exist $(PROGRAM) del $(PROGRAM)
