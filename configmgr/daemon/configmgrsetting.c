@@ -10,14 +10,12 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "jf_serv.h"
 #include "jf_string.h"
 #include "jf_xmlparser.h"
 #include "jf_jiukun.h"

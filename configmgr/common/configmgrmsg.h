@@ -15,9 +15,6 @@
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
-#include "jf_err.h"
-#include "jf_sharedmemory.h"
-#include "jf_serv.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
