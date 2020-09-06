@@ -6,7 +6,8 @@
  *  @author Min Zhang
  *
  *  @note
- *  
+ *  -# Link with jf_files library for reading random device files on Linux platform.
+ *  -# Link with Bcrypt.lib for random data on Windows platform.
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */

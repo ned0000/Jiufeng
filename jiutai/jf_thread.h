@@ -7,9 +7,7 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_thread object.
- *  -# For linux, link with jf_string library.
- *  -# For Windows, link with psapi.lib.
- *  
+ *  -# Link with psapi.lib on Windows platform.
  */
 
 #ifndef JIUTAI_THREAD_H
@@ -159,5 +157,3 @@ u32 jf_thread_registerSignalHandlers(jf_thread_fnSignalHandler_t fnSignalHandler
 #endif /*JIUTAI_THREAD_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

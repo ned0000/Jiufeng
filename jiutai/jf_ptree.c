@@ -11,21 +11,10 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-#if defined(WINDOWS)
-
-#elif defined(LINUX)
-    #include <unistd.h>
-#endif
 
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_jiukun.h"
 #include "jf_err.h"
 #include "jf_ptree.h"
@@ -281,7 +270,7 @@ static u32 _destroyPtreeNode(internal_ptree_node_t ** ppNode)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ptree_node_t * pipn = *ppNode;
     
-    /*If there was a namespace table, delete it*/
+    /*If there was a namespace table, delete it.*/
     jf_hashtree_fini(&pipn->ipn_jhNameSpace);
     jf_linklist_finiListAndData(&pipn->ipn_jlAttribute, _fnFreePtreeNodeAttribute);
 
@@ -437,12 +426,12 @@ static u32 _addPtreeChildNode(internal_ptree_node_t * pNode, internal_ptree_node
     pipn->ipn_pipnParent = pNode;
     if (pNode->ipn_pipnChildren == NULL)
     {
-        /*If child node is NULL, set the child node to the new node*/
+        /*If child node is NULL, set the child node to the new node.*/
         pNode->ipn_pipnChildren = pipn;
     }
     else
     {
-        /*If child node is not NULL, add the new node to the end of sibling node*/
+        /*If child node is not NULL, add the new node to the end of sibling node.*/
         _addPtreeSiblingNode(pNode->ipn_pipnChildren, pipn);
     }
 
@@ -619,7 +608,7 @@ static u32 _matchPtreeNode(jf_ptree_t * pPtree, jf_ptree_node_t * pNode, void * 
     return JF_ERR_NO_ERROR;
 }
 
-/** Builds the namespace hash tree.
+/** Build the namespace hash tree.
  *
  *  @param pPtree [in] The property tree to build name space table.
  *  @param pNode [in] This node to build hash tree.
@@ -777,7 +766,7 @@ static u32 _addPtreeNode(
             if (u32Ret == JF_ERR_NO_ERROR)
                 u32Ret = jf_ptree_findChildNode(pPtree, parent, pstrNs, sNs, pstrName, sName, &child);
 
-            /*Not found, create one*/
+            /*Not found, create one.*/
             if (u32Ret == JF_ERR_PTREE_NODE_NOT_FOUND)
                 u32Ret = jf_ptree_addChildNode(
                     pPtree, parent, pstrNs, sNs, pstrName, sName, NULL, 0, &child);
@@ -1150,6 +1139,7 @@ u32 jf_ptree_getNodeFullName(
         pipn = jf_stack_pop(&pjsNode);
         while (pipn != NULL)
         {
+            /*Copy name space string and add separator.*/
             if (pipn->ipn_pstrNs != NULL)
             {
                 sOffset += jf_data_copyToBuffer(
@@ -1158,6 +1148,7 @@ u32 jf_ptree_getNodeFullName(
                     pstrName, sName, sOffset, pip->ip_pstrNsSeparator, pip->ip_sNsSeparator);
             }
 
+            /*Copy name string.*/
             sOffset += jf_data_copyToBuffer(
                 pstrName, sName, sOffset, pipn->ipn_pstrName, pipn->ipn_sName);
             /*No key separator if this is the last node.*/

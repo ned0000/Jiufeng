@@ -1,7 +1,7 @@
 /**
  *  @file jf_hsm.c
  *
- *  @brief The hierarchical statemachine implementation file
+ *  @brief The hierarchical statemachine implementation file.
  *
  *  @author Min Zhang
  *
@@ -9,12 +9,11 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_hsm.h"
 #include "jf_jiukun.h"
@@ -22,36 +21,44 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+/** Define the internal HSM state transition table data type.
+ */
 typedef struct internal_hsm_state_transition_table
 {
     /**The state id for the transition table, if the state id is JF_HSM_LAST_STATE_ID, the state 
-     transition table is the top table, otherwise it's the table for the state*/
+       transition table is the top table, otherwise it's the table for the state.*/
     jf_hsm_state_id_t ihstt_jhsiStateId;
-    /**The initial state id, current state is set to initial state id when entering this state*/
+    /**The initial state id, current state is set to initial state id when entering this state.*/
     jf_hsm_state_id_t ihstt_jhsiInitialStateId;
-    /**linked list for state definition*/
+    /**Linked list for state definition.*/
     jf_listhead_t ihstt_jlList;
-    /**Current state id*/
+    /**Current state id.*/
     jf_hsm_state_id_t ihstt_jhsiCurrentStateId;
-    /**State transition table*/
+    /**State transition table.*/
     jf_hsm_transition_t ihstt_jhtTransition[];
 } internal_hsm_state_transition_table_t;
 
+/** Define the internal HSM state callback data type.
+ */
 typedef struct internal_hsm_state_callback
 {
+    /**The state id for the callback functions..*/
     jf_hsm_state_id_t ihsc_jhsiStateId;
-
+    /**The callback function on entry of the state.*/
     jf_hsm_fnOnEntry ihsc_fnOnEntry;
+    /**The callback function on exit of the state.*/
     jf_hsm_fnOnExit ihsc_fnOnExit;
-
+    /**Linked list for HSM state callback.*/
     jf_listhead_t ihsc_jlList;
 } internal_hsm_state_callback_t;
 
+/** Define the internal HSM data type.
+ */
 typedef struct
 {
-
+    /**The top level state transition table.*/
     jf_listhead_t ih_jlStateTransitionTable;
-
+    /**The state callback list.*/
     jf_listhead_t ih_jlStateCallback;
 
 } internal_hsm_t;
@@ -230,20 +237,21 @@ inline static u32 _postHsmStateTransition(
     if ((pjht->jht_jhsiNextStateId != JF_HSM_LAST_EVENT_ID) &&
         (pjht->jht_jhsiNextStateId != pjht->jht_jhsiCurrentStateId))
     {
-        /*execute the callback function for exiting the old state*/
+        /*Execute the callback function for exiting the old state.*/
         _getInternalHsmStateCallback(pih, pihstt->ihstt_jhsiCurrentStateId, &pihsc);
         if (pihsc != NULL)
             pihsc->ihsc_fnOnExit(pihsc->ihsc_jhsiStateId, pEvent);
 
-        /*transit to next state*/
+        /*Transit to next state.*/
         pihstt->ihstt_jhsiCurrentStateId = pjht->jht_jhsiNextStateId;
 
-        /*execute the callback function for entering the new state*/
+        /*Execute the callback function for entering the new state.*/
         _getInternalHsmStateCallback(pih, pihstt->ihstt_jhsiCurrentStateId, &pihsc);
         if (pihsc != NULL)
             pihsc->ihsc_fnOnEntry(pihsc->ihsc_jhsiStateId, pEvent);
 
-        /*set current state to initial state if the new state has lower level state transition table*/
+        /*Set current state to initial state if the new state has lower level state transition
+          table.*/
         _getInternalHsmStateTransitionTable(pih, pihstt->ihstt_jhsiCurrentStateId, &pihsttNew);
         if (pihsttNew != NULL)
             pihsttNew->ihstt_jhsiCurrentStateId = pihsttNew->ihstt_jhsiInitialStateId;
@@ -259,6 +267,7 @@ static u32 _processHsmEvent(
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_hsm_transition_t * pjht = NULL;
 
+    /*Check the entry one by one in the state transition table.*/
     pjht = pihstt->ihstt_jhtTransition;
     while (pjht->jht_jheiEventId != JF_HSM_LAST_EVENT_ID)
     {
@@ -269,7 +278,7 @@ static u32 _processHsmEvent(
 
             if ((pjht->jht_fnGuard == NULL) || pjht->jht_fnGuard(pEvent))
             {
-                /*execute the callback action function*/
+                /*Execute the callback action function.*/
                 u32Ret = _executeHsmStateAction(pjht, pEvent);
 
                 _postHsmStateTransition(pih, pihstt, pEvent, pjht);
@@ -294,6 +303,7 @@ u32 jf_hsm_destroy(jf_hsm_t ** ppHsm)
     internal_hsm_state_transition_table_t * pihstt = NULL;
     internal_hsm_state_callback_t * pihsc = NULL;
 
+    /*Destroy all state transition tables.*/
     jf_listhead_forEachSafe(&pih->ih_jlStateTransitionTable, pos, next)
     {
         pihstt = jf_listhead_getEntry(pos, internal_hsm_state_transition_table_t, ihstt_jlList);
@@ -301,6 +311,7 @@ u32 jf_hsm_destroy(jf_hsm_t ** ppHsm)
         _destroyInternalHsmStateTransitionTable(&pihstt);
     }
 
+    /*Destroy all state callbacks.*/
     jf_listhead_forEachSafe(&pih->ih_jlStateCallback, pos, next)
     {
         pihsc = jf_listhead_getEntry(pos, internal_hsm_state_callback_t, ihsc_jlList);
@@ -326,6 +337,7 @@ u32 jf_hsm_create(
         jf_listhead_init(&pih->ih_jlStateTransitionTable);
         jf_listhead_init(&pih->ih_jlStateCallback);
 
+        /*Create top level state transition table.*/
         u32Ret = _createInternalHsmStateTransitionTable(
             &pihstt, JF_HSM_LAST_STATE_ID, pTransition, initialStateId);
     }
@@ -352,12 +364,12 @@ jf_hsm_state_id_t jf_hsm_getCurrentStateId(jf_hsm_t * pjh)
 
     assert(! jf_listhead_isEmpty(&pih->ih_jlStateTransitionTable));
 
-    /*get current state in top level state transition table */
+    /*Get current state in top level state transition table.*/
     pihstt = jf_listhead_getEntry(
         pih->ih_jlStateTransitionTable.jl_pjlNext, internal_hsm_state_transition_table_t, ihstt_jlList);
     stateId = pihstt->ihstt_jhsiCurrentStateId;
 
-    /*if the state has transition table, return the current state in lower level transiton table */
+    /*If the state has transition table, return the current state in lower level transiton table.*/
     u32Ret = _getInternalHsmStateTransitionTable(pih, stateId, &pihstt);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -376,26 +388,29 @@ u32 jf_hsm_processEvent(jf_hsm_t * pjh, jf_hsm_event_t * pEvent)
     internal_hsm_state_transition_table_t * pihstt = NULL;
     jf_hsm_state_id_t stateId = JF_HSM_LAST_STATE_ID;
 
+    /*The top level state transition table is the first table in the list.*/
     jf_listhead_forEach(&pih->ih_jlStateTransitionTable, pos)
     {
         pihstt = jf_listhead_getEntry(pos, internal_hsm_state_transition_table_t, ihstt_jlList);
 
         if (pihstt->ihstt_jhsiStateId == JF_HSM_LAST_STATE_ID)
         {
-            /*top level state transition table*/
+            /*Top level state transition table.*/
             stateId = pihstt->ihstt_jhsiCurrentStateId;
             _processHsmEvent(pih, pihstt, pEvent, &bHit);
-            /*hit, we can quit*/
+            /*Hit, we can quit. The state id and event id are match with one entry in state
+              transition table.*/
             if (bHit)
                 break;
         }
         else
         {
-            /*lower level state transition table*/
+            /*Lower level state transition table. The state id must be the same.*/
             if (pihstt->ihstt_jhsiStateId == stateId)
             {
                 _processHsmEvent(pih, pihstt, pEvent, &bHit);
-                /*hit, we can quit*/
+                /*Hit, we can quit. The state id and event id are match with one entry in state
+                  transition table.*/
                 if (bHit)
                     break;
             }
@@ -415,15 +430,18 @@ u32 jf_hsm_addStateTransition(
 
     assert(stateId != JF_HSM_LAST_STATE_ID);
     
+    /*Get state transition table for the state.*/
     u32Ret = _getInternalHsmStateTransitionTable(pih, stateId, &pihstt);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Free the old state transition table.*/
         jf_listhead_del(&pihstt->ihstt_jlList);
         _destroyInternalHsmStateTransitionTable(&pihstt);
     }
 
     if ((u32Ret == JF_ERR_NO_ERROR) || (u32Ret == JF_ERR_HSM_STATE_NOT_FOUND))
     {
+        /*Create state transition table and add to the list.*/
         u32Ret = _createInternalHsmStateTransitionTable(
             &pihstt, stateId, pTransition, initialStateId);
         if (u32Ret == JF_ERR_NO_ERROR)
@@ -445,14 +463,17 @@ u32 jf_hsm_addStateCallback(
 
     assert((fnOnEntry != NULL) && (fnOnEntry != NULL));
 
+    /*Get callback for the state.*/
     u32Ret = _getInternalHsmStateCallback(pih, stateId, &pihsc);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*The callback is already existing, overwrite the old one.*/
         pihsc->ihsc_fnOnEntry = fnOnEntry;
         pihsc->ihsc_fnOnExit = fnOnExit;
     }
     else if (u32Ret == JF_ERR_HSM_STATE_NOT_FOUND)
     {
+        /*The callback is not found, create one and add to the list.*/
         u32Ret = _createInternalHsmStateCallback(&pihsc, stateId, fnOnEntry, fnOnExit);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
@@ -464,4 +485,3 @@ u32 jf_hsm_addStateCallback(
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

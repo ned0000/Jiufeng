@@ -16,9 +16,10 @@
 #define JIUTAI_LINKLIST_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stddef.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 
@@ -45,6 +46,11 @@ typedef struct jf_linklist
 } jf_linklist_t;
 
 /** The callback function for freeing the node data.
+ *
+ *  @param ppData [in/out] The data to be freed.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_linklist_fnFreeNodeData_t)(void ** ppData);
 
@@ -53,7 +59,11 @@ typedef u32 (* jf_linklist_fnFreeNodeData_t)(void ** ppData);
  *  @note
  *  -# The iteration will stop if the return code is not JF_ERR_NO_ERROR.
  *
+ *  @param pNode [in] The currrent node.
+ *  @param pArg [in] The argument of the callback function.
+ *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_linklist_fnOpNode_t)(jf_linklist_node_t * pNode, void * pArg);
 
@@ -179,4 +189,3 @@ static inline void * jf_linklist_getDataFromNode(jf_linklist_node_t * pNode)
 #endif /*JIUTAI_LINKLIST_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-

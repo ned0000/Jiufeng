@@ -8,7 +8,6 @@
  *  @note
  *  -# Routines declared in this file are included in jf_prng library.
  *  -# The prng library is thread safe.
- *  -# Link with jf_files library.
  *  -# The library is written based on openssl rand function.
  */
 
@@ -16,9 +15,10 @@
 #define JIUFENG_PRNG_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 #undef PRNGAPI
@@ -84,5 +84,3 @@ PRNGAPI u32 PRNGCALL jf_prng_getPseudoData(u8 * pu8Data, u32 u32Len);
 #endif /*JIUFENG_PRNG_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

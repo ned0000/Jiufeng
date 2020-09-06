@@ -16,6 +16,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
@@ -83,15 +84,21 @@ olsize_t jf_hex_convertByteDataToStringWithAscii(
  *
  *  @note
  *  -# All data are dumped.
+ *  -# The data are converted to string with ASCII and print to stdout.
  *
  *  @param pu8Data [in] The data buffer.
  *  @param sLen [in] The length of the data buffer.
  *
- *  @return void
+ *  @return Void.
  */
 void jf_hex_dumpByteDataBuffer(const u8 * pu8Data, const olsize_t sLen);
 
 /** Convert the string to byte hex.
+ *
+ *  @note
+ *  -# 2 characters are converted to 1 byte hex. Eg. string "a5" is converted to 0xa5.
+ *  -# The hex array must be large enough to hold all hex data, otherwise only part of hex string
+ *   are converted.
  *
  *  @param pstr [in] The hex string.
  *  @param sStr [in] The length of the hex string.
@@ -104,6 +111,11 @@ olsize_t jf_hex_convertStringToHex(
     const olchar_t * pstr, const olsize_t sStr, u8 * pu8Hex, olsize_t sHex);
 
 /** Convert the hex data to string.
+ *
+ *  @note
+ *  -# 1 byte hex is converted to 2 characters. Eg. 0xa5 is converted to string "a5".
+ *  -# The string buffer must be large enough to hold all hex string, otherwise only part of hex
+ *   data are converted.
  *
  *  @param pstr [out] The hex string.
  *  @param sStr [in] The length of the hex string.
@@ -118,5 +130,3 @@ olsize_t jf_hex_convertHexToString(
 #endif /*JIUTAI_HEX_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

@@ -11,8 +11,6 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
-#include <stdio.h>
-#include <string.h>
 #if defined(LINUX)
     #include <sys/time.h>
 #elif defined(WINDOWS)
@@ -122,7 +120,7 @@ u32 jf_time_getTimeOfDay(jf_time_val_t * pjtv)
     return u32Ret;
 }
 
-u32 jf_time_getClockTime(clockid_t clkid, jf_time_spec_t * pjts)
+u32 jf_time_getClockTime(jf_time_clock_t clkid, jf_time_spec_t * pjts)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     struct timespec tp;
@@ -383,9 +381,12 @@ u32 jf_time_getUtcTimeInSecondFromTimeDate(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     struct tm result;
+    oltime_t rettime = 0;
+
+    *pu64Sec = 0;
 
     if (year < 1900)
-        u32Ret = JF_ERR_INVALID_DATE;
+        u32Ret = JF_ERR_INVALID_TIME;
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -397,8 +398,14 @@ u32 jf_time_getUtcTimeInSecondFromTimeDate(
         result.tm_mon = mon - 1;
         result.tm_mday = day;
 
-        *pu64Sec = (u64)mktime(&result);
+        rettime = mktime(&result);
+
+        if (rettime == -1)
+          u32Ret = JF_ERR_INVALID_TIME;  
     }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        *pu64Sec = (u64)rettime;
 
     return u32Ret;
 }
@@ -430,7 +437,7 @@ u32 jf_time_getUtcTimeInMicroSecond(u64 * pu64MicroSec)
 u32 jf_time_getUtcTimeInSecondOfNextDay(const u64 u64Sec, u64 * pu64Next)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    time_t tSec = (time_t)u64Sec;
+    oltime_t tSec = (time_t)u64Sec;
     struct tm result;
 
     /*Use local time instead utc time as mktime() needs local broken-down time.*/
@@ -446,7 +453,7 @@ u32 jf_time_getUtcTimeInSecondOfNextDay(const u64 u64Sec, u64 * pu64Next)
 u32 jf_time_getUtcTimeInSecondOfNextWeek(const u64 u64Sec, u64 * pu64Next)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    time_t tSec = (time_t)u64Sec;
+    oltime_t tSec = (time_t)u64Sec;
     struct tm result;
 
     /*Use local time instead utc time as mktime() needs local broken-down time.*/
@@ -462,7 +469,7 @@ u32 jf_time_getUtcTimeInSecondOfNextWeek(const u64 u64Sec, u64 * pu64Next)
 u32 jf_time_getStringLocalTime(olchar_t * pstrTime, olsize_t sStrTime, const u64 u64Sec)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    const time_t tSec = (time_t)u64Sec;
+    const oltime_t tSec = (time_t)u64Sec;
 
     ol_bzero(pstrTime, sStrTime);
 
@@ -486,7 +493,7 @@ u32 jf_time_getStringLocalTime(olchar_t * pstrTime, olsize_t sStrTime, const u64
 u32 jf_time_getStringUtcTime(olchar_t * pstrTime, olsize_t sStrTime, const u64 u64Sec)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    const time_t tSec = (time_t)u64Sec;
+    const oltime_t tSec = (time_t)u64Sec;
     struct tm result;
 
     ol_bzero(pstrTime, sStrTime);

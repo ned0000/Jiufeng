@@ -11,15 +11,14 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
-#include <stdlib.h>
-#if defined(LINUX)
+#if defined(WINDOWS)
+    #include <time.h>
+    #include <process.h>
+#elif defined(LINUX)
     #include <sys/types.h>
     #include <sys/stat.h>
     #include <fcntl.h>
     #include <sys/wait.h>
-#elif defined(WINDOWS)
-    #include <time.h>
-    #include <process.h>
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
@@ -34,12 +33,16 @@
 
 #if defined(LINUX)
 
+/** Define the signal handler argument.
+ */
 typedef struct
 {
     sigset_t sha_ssSet;
     jf_thread_fnSignalHandler_t sha_fnHandler;
 } signal_handler_arg;
 
+/** Define the signal handler argument instance.
+ */
 static signal_handler_arg ls_shaSignalArg;
 
 #endif
@@ -65,8 +68,8 @@ static u32 _setThreadAttr(jf_thread_attr_t * pjta, pthread_attr_t * ppa)
  *
  *  @note
  *  -# If the signal(not real signal) is sent to this process more than once at the same time,
- *   there is possibility that only 1 signal is received and others are missed.
- *   for SIGCHLD, this problem will cause the defunct process cannot be handled by parent process.
+ *   there is possibility that only 1 signal is received and others are missed. For SIGCHLD, this
+ *   problem will cause the defunct process which cannot be handled by parent process.
  */
 JF_THREAD_RETURN_VALUE _signalHandlerThread(void * pArg)
 {
@@ -97,7 +100,7 @@ JF_THREAD_RETURN_VALUE _signalHandlerThread(void * pArg)
 
 void jf_thread_initId(jf_thread_id_t * pThreadId)
 {
-    ol_memset(pThreadId, 0, sizeof(jf_thread_id_t));
+    ol_bzero(pThreadId, sizeof(jf_thread_id_t));
 }
 
 boolean_t jf_thread_isValidId(jf_thread_id_t * pThreadId)
@@ -247,4 +250,3 @@ u32 jf_thread_registerSignalHandlers(jf_thread_fnSignalHandler_t fnSignalHandler
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

@@ -9,7 +9,7 @@
  *  -# Routines declared in this file are included in jf_array object.
  *  -# It is NOT thread safe. The caller should provide synchronization for the array if necessary.
  *  -# Link with jf_jiukun library for memory allocation.
- *  -# The array element can be the pointer to any type of data.
+ *  -# The array element is a pointer to any type of data.
  */
 
 #ifndef JIUTAI_ARRAY_H
@@ -18,6 +18,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
@@ -30,18 +31,38 @@ typedef void jf_array_element_t;
 
 /** Define the array data type.
  */
-typedef void jf_array_t;;
+typedef void jf_array_t;
 
 /** Define the function data type which is used to destroy element.
+ *
+ *  @param ppjae [in/out] The element to be destroyed.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_array_fnDestroyElement_t)(jf_array_element_t ** ppjae);
 
-/** Define the function data type which is used to find element. If the return value is TRUE, the
- *  element is found.
+/** Define the function data type which is used to find element.
+ *
+ *  @param pjae [in] The element to be checked.
+ *  @param pKey [in] The argument of the callback function.
+ *
+ *  @return The status of finding.
+ *  @retval TRUE The element is found.
+ *  @retval FALSE The element is not found.
  */
 typedef boolean_t (* jf_array_fnFindElement_t)(jf_array_element_t * pjae, void * pKey);
 
 /** Define the function data type which is used to do operation on element.
+ *
+ *  @note
+ *  -# The traversal will stop if the return code is not JF_ERR_NO_ERROR.
+ *
+ *  @param pjae [in] The element to operate.
+ *  @param pData [in] The argument of the callback function.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_array_fnOpOnElement_t)(jf_array_element_t * pjae, void * pData);
 
@@ -169,7 +190,7 @@ u32 jf_array_destroyArrayAndElements(
  *
  *  @param pja [in] The pointer to the array.
  *  @param ppElement [out] The pointer to the element found.
- *  @param fnFindElement [in] The callback function to find elements, if TRUE, the element is found.
+ *  @param fnFindElement [in] The callback function to check elements.
  *  @param pKey [in] The argument for the callback function.
  *
  *  @return The error code.
@@ -180,6 +201,9 @@ u32 jf_array_findElement(
     void * pKey);
 
 /** Traverse array and do operation to each elements.
+ *
+ *  @note
+ *  -# The traversal will stop if return code of callback function is not JF_ERR_NO_ERROR.
  *
  *  @param pja [in] The pointer to the array.
  *  @param fnOpOnElement [out] The callback operation function.
@@ -193,5 +217,3 @@ u32 jf_array_traverse(jf_array_t * pja, jf_array_fnOpOnElement_t fnOpOnElement, 
 #endif /*JIUTAI_ARRAY_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

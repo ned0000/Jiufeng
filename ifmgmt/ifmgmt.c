@@ -6,7 +6,8 @@
  *  @author Min Zhang
  *
  *  @note
- *  
+ *  -# Link with jf_files for reading network device file.
+ *  -# Link with jf_string library for string operation.
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
@@ -24,15 +25,14 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-#define SYSTEM_NET_DEV_FILE   "/proc/net/dev"
+#define SYSTEM_NET_DEV_FILE                  "/proc/net/dev"
 
 
 /* --- private routine section ------------------------------------------------------------------ */
 
 #if defined(LINUX)
 
-static u32 _getIfmgmtIfAddr(
-    const olchar_t * name, olint_t sock, olint_t req, jf_ipaddr_t * pji)
+static u32 _getIfmgmtIfAddr(const olchar_t * name, olint_t sock, olint_t req, jf_ipaddr_t * pji)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     struct ifreq ifr;
@@ -45,10 +45,7 @@ static u32 _getIfmgmtIfAddr(
         u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
 
     if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        jf_ipaddr_convertSockAddrToIpAddr(
-            &ifr.ifr_addr, sizeof(ifr.ifr_addr), pji, NULL);
-    }
+        jf_ipaddr_convertSockAddrToIpAddr(&ifr.ifr_addr, sizeof(ifr.ifr_addr), pji, NULL);
 
     return u32Ret;
 }
@@ -107,9 +104,7 @@ static u32 _getIfmgmtIfHwAddr(olint_t sock, jf_ifmgmt_if_t * pIf)
         u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
 
     if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        memcpy(pIf->jii_u8Mac, ifr.ifr_hwaddr.sa_data, JF_LIMIT_MAC_LEN);
-    }
+        ol_memcpy(pIf->jii_u8Mac, ifr.ifr_hwaddr.sa_data, JF_LIMIT_MAC_LEN);
 
     return u32Ret;
 }
@@ -128,9 +123,8 @@ static u32 _getIfmgmtIf(const olchar_t * pstrIfName, jf_ifmgmt_if_t * pif)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(pif, 0, sizeof(*pif));
-        ol_strncpy(
-            pif->jii_strName, pstrIfName, JF_IFMGMT_MAX_IF_NAME_LEN);
+        ol_bzero(pif, sizeof(*pif));
+        ol_strncpy(pif->jii_strName, pstrIfName, JF_IFMGMT_MAX_IF_NAME_LEN);
 
         u32Ret = _getIfmgmtIfFlag(sock, pif);
     }
@@ -140,16 +134,13 @@ static u32 _getIfmgmtIf(const olchar_t * pstrIfName, jf_ifmgmt_if_t * pif)
         if (pif->jii_bUp && pif->jii_bRunning)
         {
             if (u32Ret == JF_ERR_NO_ERROR)
-                u32Ret = _getIfmgmtIfAddr(
-                    pstrIfName, sock, SIOCGIFADDR, &pif->jii_jiAddr);
+                u32Ret = _getIfmgmtIfAddr(pstrIfName, sock, SIOCGIFADDR, &pif->jii_jiAddr);
 
             if (u32Ret == JF_ERR_NO_ERROR)
-                u32Ret = _getIfmgmtIfAddr(
-                    pstrIfName, sock, SIOCGIFNETMASK, &pif->jii_jiNetmask);
+                u32Ret = _getIfmgmtIfAddr(pstrIfName, sock, SIOCGIFNETMASK, &pif->jii_jiNetmask);
 
             if (u32Ret == JF_ERR_NO_ERROR)
-                u32Ret = _getIfmgmtIfAddr(
-                    pstrIfName, sock, SIOCGIFBRDADDR, &pif->jii_jiBroadcast);
+                u32Ret = _getIfmgmtIfAddr(pstrIfName, sock, SIOCGIFBRDADDR, &pif->jii_jiBroadcast);
         }
     }
 
@@ -191,14 +182,16 @@ u32 jf_ifmgmt_getAllIf(jf_ifmgmt_if_t * pif, u32 * pu32NumOfIf)
     u32 u32If = 0;
     jf_filestream_t * pjf = NULL;
     olchar_t buf[1024], * pName;
-    olsize_t sbyte;
+    olsize_t sbyte = 0;
     olchar_t strName[32];
 
-    ol_memset(pif, 0, sizeof(jf_ifmgmt_if_t) * (*pu32NumOfIf));
+    ol_bzero(pif, sizeof(jf_ifmgmt_if_t) * (*pu32NumOfIf));
 
+    /*Open the network device file in /proc file system.*/
     u32Ret = jf_filestream_open(SYSTEM_NET_DEV_FILE, "r", &pjf);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Ignore the first 2 line which are titles.*/
         sbyte = sizeof(buf);
         jf_filestream_readLine(pjf, buf, &sbyte);
         sbyte = sizeof(buf);
@@ -256,7 +249,7 @@ u32 jf_ifmgmt_getIf(const olchar_t * pstrIfName, jf_ifmgmt_if_t * pif)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    memset(pif, 0, sizeof(jf_ifmgmt_if_t));
+    ol_bzero(pif, sizeof(jf_ifmgmt_if_t));
 
     u32Ret = _getIfmgmtIf(pstrIfName, pif);
 
@@ -280,6 +273,7 @@ u32 jf_ifmgmt_upIf(const olchar_t * pstrIfName)
     {
         ol_strcpy(ifr.ifr_name, pstrIfName);
 
+        /*Get interface's flags.*/
         ret = ioctl(sock, SIOCGIFFLAGS, &ifr);
         if (ret != 0)
             u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
@@ -289,7 +283,7 @@ u32 jf_ifmgmt_upIf(const olchar_t * pstrIfName)
     {
         if (ifr.ifr_flags & IFF_UP)
         {
-            /*the interface is up already*/
+            /*The interface is up already.*/
             close(sock);
             return u32Ret;
         }
@@ -300,6 +294,7 @@ u32 jf_ifmgmt_upIf(const olchar_t * pstrIfName)
         ifr.ifr_flags |= IFF_UP;
         ifr.ifr_flags |= IFF_RUNNING;
 
+        /*Set interface's flags.*/
         ret = ioctl(sock, SIOCSIFFLAGS, &ifr);
         if (ret != 0)
             u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
@@ -331,6 +326,7 @@ u32 jf_ifmgmt_downIf(const olchar_t * pstrIfName)
     {
         ol_strcpy(ifr.ifr_name, pstrIfName);
 
+        /*Get interface's flags.*/
         ret = ioctl(sock, SIOCGIFFLAGS, &ifr);
         if (ret != 0)
             u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
@@ -340,7 +336,7 @@ u32 jf_ifmgmt_downIf(const olchar_t * pstrIfName)
     {
         if (! (ifr.ifr_flags & IFF_UP))
         {
-            /*the interface is already down*/
+            /*The interface is already down.*/
             close(sock);
             return u32Ret;
         }
@@ -351,6 +347,7 @@ u32 jf_ifmgmt_downIf(const olchar_t * pstrIfName)
         ifr.ifr_flags &= ~IFF_UP;
         ifr.ifr_flags &= ~IFF_RUNNING;
 
+        /*Set interface's flags.*/
         ret = ioctl(sock, SIOCSIFFLAGS, &ifr);
         if (ret != 0)
             u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
@@ -401,9 +398,6 @@ u32 jf_ifmgmt_getStringIfFlags(olchar_t * pstrFlags, olsize_t sFlags, jf_ifmgmt_
     return u32Ret;
 }
 
-/* Return the Media Access Control (MAC) address of the first network interface
- * card (NIC)
- */
 u32 jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[JF_LIMIT_MAC_LEN])
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -435,7 +429,7 @@ u32 jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[JF_LIMIT_MAC_LEN])
     u8 u8Buffer[6000];
     PIP_ADAPTER_INFO pAdapter;
     u32 u32Len = 6000;
-    DWORD dwRet;
+    DWORD dwRet = 0;
 
     dwRet = GetAdaptersInfo((PIP_ADAPTER_INFO)u8Buffer, &u32Len);
     if (dwRet != ERROR_SUCCESS)
@@ -455,7 +449,7 @@ u32 jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[JF_LIMIT_MAC_LEN])
         if (pAdapter == NULL)
             u32Ret = JF_ERR_ETHERNET_ADAPTER_NOT_FOUND;
         else
-            memcpy(u8Mac, pAdapter->Address, JF_LIMIT_MAC_LEN);
+            ol_memcpy(u8Mac, pAdapter->Address, JF_LIMIT_MAC_LEN);
     }
 
 #endif

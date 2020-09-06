@@ -10,6 +10,8 @@
  *  -# The file contains lines with configuration in "tag=value" pair format.
  *  -# One line specifies one "tag-value" pair.
  *  -# Comment is supported. '#' is the identification of comment.
+ *  -# This object doesn't use any memory to keep config. Use hash table for the case to read/write
+ *   tag-value pair in memory.
  *
  *  <HR>
  *
@@ -96,22 +98,25 @@ FILESAPI u32 FILESCALL jf_conffile_close(jf_conffile_t ** ppConffile);
 
 /** Write configuration to file.
  *
+ *  @note
+ *  -# This function just write the tag-value pair to the configuration file.
+ *
  *  @param pConffile [in] The configuration file object to write.
- *  @param pstrData [in] The data to write.
- *  @param sData [in] Size of the data.
+ *  @param pstrTag [in] The config tag name.
+ *  @param pstrValue [in] The config value.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
 FILESAPI u32 FILESCALL jf_conffile_write(
-    jf_conffile_t * pConffile, const olchar_t * pstrData, olsize_t sData);
+    jf_conffile_t * pConffile, const olchar_t * pstrTag, const olchar_t * pstrValue);
 
 
 /** Get an integer type config from the configuration file.
  *
  *  @note
  *  -# If the tag name is set to NULL, or the config is not found, the default value will be
- *    returned.
+ *   returned.
  *
  *  @param pConffile [in] The configuration file object.
  *  @param pstrTag [in] The config tag name.
@@ -127,6 +132,7 @@ FILESAPI u32 FILESCALL jf_conffile_getInt(
 /** Get value of config from the configuration file.
  *
  *  @note
+ *  -# This function will search the tag in the configuration file.
  *  -# If the tag name is set to NULL, or the config is not found, the default value will be
  *   returned if it's not NULL, otherwise error will be returned.
  *
@@ -145,6 +151,10 @@ FILESAPI u32 FILESCALL jf_conffile_get(
     olchar_t * pstrValueBuf, olsize_t sBuf);
 
 /** Set value of config to the configuration file.
+ *
+ *  @note
+ *  -# This function will open a temporary configuration file, save all configs including the new
+ *   one into to file and then move the temporary file to original one.
  *
  *  @param pConffile [in] The configuration file object.
  *  @param pstrTag [in] The config tag name.

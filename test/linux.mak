@@ -15,7 +15,7 @@ include $(TOPDIR)/mak/lnxcfg.mak
 PROGRAMS = mem-test option-test hashtree-test listhead-test hlisthead-test            \
     listarray-test logger-test process-test thread-test hashtable-test mutex-test     \
     rwlock-test sem-test date-test time-test string-test attask-test                  \
-    bitarray-test conffile-test menu-test crc-test dynlib-test                        \
+    bitarray-test conffile-test menu-test crc-test dynlib-test array-test             \
     ifmgmt-test sharedmemory-test-consumer sharedmemory-test-worker                   \
     files-test hsm-test host-test respool-test bitop-test ptree-test                  \
     jiukun-test cghash-test cgmac-test encrypt-test dlinklist-test                    \
@@ -28,7 +28,7 @@ PROGRAMS = mem-test option-test hashtree-test listhead-test hlisthead-test      
 SOURCES = mem-test.c option-test.c hashtree-test.c listhead-test.c hlisthead-test.c             \
     listarray-test.c logger-test.c process-test.c thread-test.c hashtable-test.c mutex-test.c   \
     rwlock-test.c sem-test.c date-test.c time-test.c string-test.c attask-test.c                \
-    bitarray-test.c conffile-test.c menu-test.c crc-test.c dynlib-test.c                        \
+    bitarray-test.c conffile-test.c menu-test.c crc-test.c dynlib-test.c array-test.c           \
     ifmgmt-test.c sharedmemory-test-consumer.c sharedmemory-test-worker.c                       \
     files-test.c hsm-test.c host-test.c respool-test.c bitop-test.c ptree-test.c                \
     jiukun-test.c cghash-test.c cgmac-test.c encrypt-test.c dlinklist-test.c                    \
@@ -128,6 +128,9 @@ $(BIN_DIR)/crc-test: crc-test.o $(JIUTAI_DIR)/jf_crc.o $(JIUTAI_DIR)/jf_hex.o
 
 $(BIN_DIR)/dynlib-test: dynlib-test.o $(JIUTAI_DIR)/jf_dynlib.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ldl -ljf_logger -ljf_jiukun
+
+$(BIN_DIR)/array-test: array-test.o $(JIUTAI_DIR)/jf_array.o $(JIUTAI_DIR)/jf_option.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun
 
 $(BIN_DIR)/sharedmemory-test-worker: sharedmemory-test-worker.o $(JIUTAI_DIR)/jf_sharedmemory.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun \

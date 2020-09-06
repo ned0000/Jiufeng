@@ -7,8 +7,6 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_ifmgmt library.
- *  -# Link with olfiles and olstringparse library.
- *
  */
 
 /*------------------------------------------------------------------------------------------------*/
@@ -17,7 +15,10 @@
 #define JIUFENG_IPADDR_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#if defined(LINUX)
+
+#if defined(WINDOWS)
+    #include <Iphlpapi.h>
+#elif defined(LINUX)
     #include <sys/socket.h>
     #include <netinet/in.h>
     #include <netinet/ip.h>
@@ -25,13 +26,11 @@
     #include <netdb.h>
     #include <net/if.h>
     #include <sys/ioctl.h>
-#elif defined(WINDOWS)
-    #include <Iphlpapi.h>
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_err.h"
 
 #undef IFMGMTAPI
@@ -97,6 +96,7 @@ typedef struct
  *   parameter.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getLocalIpAddrList(
     u8 u8AddrType, jf_ipaddr_t * pAddr, u16 * pu16Count);
@@ -247,4 +247,3 @@ IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getIpAddrPortFromString(
 #endif /*JIUFENG_IPADDR_H */
 
 /*------------------------------------------------------------------------------------------------*/
-

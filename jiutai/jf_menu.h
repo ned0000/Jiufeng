@@ -25,6 +25,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
@@ -50,6 +51,9 @@ typedef u32 (* jf_menu_fnHandler_t)(void * pArg);
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Create the top menu.
+ *
+ *  @note
+ *  -# Signal is ignored in this function. Use quit entry to exit menu.
  *
  *  @param fnPreShow [in] Routine invoked before showing the menu.
  *  @param fnPostShow [in] Routine invoked after showing the menu.

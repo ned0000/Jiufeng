@@ -31,6 +31,8 @@
  *  @endcode
  *
  *  @par Rules for State Transition Table
+ *  -# State may have a sub-state transition table.
+ *  -# The event ID and state ID must be unique wherever it's in top level table or sub-table.
  *  -# The transition table must be ended by following line:
  *  @code
  *  {JF_HSM_LAST_STATE_ID, JF_HSM_LAST_EVENT_ID, NULL, NULL, JF_HSM_LAST_STATE_ID},
@@ -46,6 +48,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
@@ -96,7 +99,7 @@ typedef u32 (*jf_hsm_fnOnEntry)(jf_hsm_state_id_t stateId, jf_hsm_event_t * pEve
  */
 typedef u32 (*jf_hsm_fnOnExit)(jf_hsm_state_id_t stateId, jf_hsm_event_t * pEvent);
 
-/** The state transition data structure. 
+/** Define the state transition data type. 
  */
 typedef struct jf_hsm_transition
 {
@@ -113,6 +116,8 @@ typedef struct jf_hsm_transition
     jf_hsm_state_id_t jht_jhsiNextStateId;
 } jf_hsm_transition_t;
 
+/** Define the hsm data type. 
+ */
 typedef void  jf_hsm_t;
 
 /* --- functional routines ---------------------------------------------------------------------- */

@@ -8,7 +8,8 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_respool object.
- *  -# Link with jf_mutex and jf_array common object.
+ *  -# Link with jf_mutex common object for mutex data type.
+ *  -# Link with jf_array common object for array data type.
  *  -# Link with jiukun library for memory allocation.
  *  -# The object is thread safe.
  *
@@ -20,6 +21,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_logger.h"
 
@@ -141,4 +143,3 @@ u32 jf_respool_putResource(jf_respool_t * pjr, jf_respool_resource_t ** ppRes);
 #endif /*JIUTAI_RESPOOL_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-

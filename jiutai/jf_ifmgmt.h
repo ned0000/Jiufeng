@@ -7,8 +7,6 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_ifmgmt library.
- *  =# Link with olfiles and olstringparse library.
- *
  */
 
 /*------------------------------------------------------------------------------------------------*/
@@ -17,6 +15,7 @@
 #define JIUFENG_IFMGMT_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 #if defined(LINUX)
     #include <sys/socket.h>
     #include <netinet/in.h>
@@ -37,7 +36,7 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-/** Maximum physical interface.
+/** Maximum physical network interface.
  */
 #define JF_IFMGMT_MAX_IF                             (6)
 
@@ -88,7 +87,7 @@ typedef struct jf_ifmgmt_if
     jf_ipaddr_t jii_jiBroadcast;
     /**The MAC address.*/
     u8 jii_u8Mac[JF_LIMIT_MAC_LEN];
-    /*mac address is 6 byte long, to align the mac address*/
+    /**MAC address is 6 byte long, to align the mac address.*/
     u8 jii_u8Reserved2[2];
 } jf_ifmgmt_if_t;
 
@@ -101,6 +100,7 @@ typedef struct jf_ifmgmt_if
  *   parameter.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_getAllIf(jf_ifmgmt_if_t * pjii, u32 * pu32NumOfIf);
 
@@ -110,22 +110,25 @@ IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_getAllIf(jf_ifmgmt_if_t * pjii, u32 * pu32Num
  *  @param pjii [out] The interface configuration.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_getIf(const olchar_t * pstrIfName, jf_ifmgmt_if_t * pjii);
 
-/** Up an interface.
+/** Up an network interface.
  *
  *  @param pstrIfName [in] The name of the interface.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_upIf(const olchar_t * pstrIfName);
 
-/** Down an interface.
+/** Down an network interface.
  *
  *  @param pstrIfName [in] The name of the interface.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_downIf(const olchar_t * pstrIfName);
 
@@ -139,15 +142,17 @@ IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_downIf(const olchar_t * pstrIfName);
  *  @param pjii [in] The interface.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_getStringIfFlags(
     olchar_t * pstrFlags, olsize_t sFlags, jf_ifmgmt_if_t * pjii);
 
-/** Get MAC address of the first interface.
+/** Get MAC address of the first network interface.
  *
  *  @param u8Mac [out] The buffer for MAC address.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 IFMGMTAPI u32 IFMGMTCALL jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[JF_LIMIT_MAC_LEN]);
 

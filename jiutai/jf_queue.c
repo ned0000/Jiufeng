@@ -10,20 +10,11 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <errno.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
-#if defined(WINDOWS)
 
-#elif defined(LINUX)
-    #include <unistd.h>
-#endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_queue.h"
 #include "jf_jiukun.h"
@@ -145,4 +136,3 @@ void * jf_queue_peek(jf_queue_t * pQueue)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

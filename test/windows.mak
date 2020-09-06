@@ -18,8 +18,8 @@ PROGRAMS = $(BIN_DIR)\mem-test.exe $(BIN_DIR)\option-test.exe $(BIN_DIR)\hashtre
     $(BIN_DIR)\hashtable-test.exe $(BIN_DIR)\mutex-test.exe $(BIN_DIR)\rwlock-test.exe            \
     $(BIN_DIR)\sem-test.exe $(BIN_DIR)\date-test.exe $(BIN_DIR)\time-test.exe                     \
     $(BIN_DIR)\string-test.exe $(BIN_DIR)\attask-test.exe $(BIN_DIR)\bitarray-test.exe            \
-    $(BIN_DIR)\conffile-test.exe                                                                  \
-    $(BIN_DIR)\menu-test.exe $(BIN_DIR)\crc-test.exe $(BIN_DIR)\dynlib-test.exe                   \
+    $(BIN_DIR)\conffile-test.exe $(BIN_DIR)\menu-test.exe $(BIN_DIR)\crc-test.exe                 \
+    $(BIN_DIR)\dynlib-test.exe $(BIN_DIR)\array-test.exe                                          \
     $(BIN_DIR)\ifmgmt-test.exe $(BIN_DIR)\sharedmemory-test-consumer.exe                          \
     $(BIN_DIR)\sharedmemory-test-worker.exe $(BIN_DIR)\files-test.exe $(BIN_DIR)\hsm-test.exe     \
     $(BIN_DIR)\host-test.exe $(BIN_DIR)\respool-test.exe $(BIN_DIR)\bitop-test.exe                \
@@ -36,7 +36,7 @@ PROGRAMS = $(BIN_DIR)\mem-test.exe $(BIN_DIR)\option-test.exe $(BIN_DIR)\hashtre
 SOURCES = mem-test.c option-test.c hashtree-test.c listhead-test.c hlisthead-test.c           \
     listarray-test.c logger-test.c process-test.c thread-test.c hashtable-test.c mutex-test.c \
     rwlock-test.c sem-test.c date-test.c time-test.c string-test.c attask-test.c              \
-    bitarray-test.c conffile-test.c menu-test.c crc-test.c dynlib-test.c                      \
+    bitarray-test.c conffile-test.c menu-test.c crc-test.c dynlib-test.c array-test.c         \
     ifmgmt-test.c sharedmemory-test-consumer.c sharedmemory-test-worker.c                     \
     files-test.c hsm-test.c host-test.c respool-test.c bitop-test.c ptree-test.c              \
     jiukun-test.c cghash-test.c cgmac-test.c encrypt-test.c dlinklist-test.c                  \
@@ -136,6 +136,10 @@ $(BIN_DIR)\crc-test.exe: crc-test.obj $(JIUTAI_DIR)\jf_crc.obj $(JIUTAI_DIR)\jf_
        ws2_32.lib
 
 $(BIN_DIR)\dynlib-test.exe: dynlib-test.obj $(JIUTAI_DIR)\jf_dynlib.obj
+	@$(LINK) $(LDFLAGS) $(EXTRA_LDFLAGS) /LIBPATH:$(LIB_DIR) /OUT:$@ $** $(SYSLIBS) jf_logger.lib \
+       jf_jiukun.lib
+
+$(BIN_DIR)\array-test.exe: array-test.obj $(JIUTAI_DIR)\jf_option.obj $(JIUTAI_DIR)\jf_array.obj
 	@$(LINK) $(LDFLAGS) $(EXTRA_LDFLAGS) /LIBPATH:$(LIB_DIR) /OUT:$@ $** $(SYSLIBS) jf_logger.lib \
        jf_jiukun.lib
 

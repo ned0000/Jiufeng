@@ -15,11 +15,11 @@
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_rand.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
+
 
 /* --- private routine section ------------------------------------------------------------------ */
 

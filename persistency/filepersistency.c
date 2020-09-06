@@ -219,14 +219,8 @@ static u32 _writeOneKeyValueToConfFile(
     jf_conffile_t * pjc, const olchar_t * pstrKey, const olchar_t * pstrValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t strLine[JF_CONFFILE_MAX_LINE_LEN];
-    olsize_t sLine = 0;
 
-    ol_snprintf(strLine, sizeof(strLine), "%s=%s\n", pstrKey, pstrValue);
-    strLine[JF_CONFFILE_MAX_LINE_LEN - 1] = '\0';
-    sLine = ol_strlen(strLine);
-
-    u32Ret = jf_conffile_write(pjc, strLine, sLine);
+    u32Ret = jf_conffile_write(pjc, pstrKey, pstrValue);
 
     return u32Ret;
 }

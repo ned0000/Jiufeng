@@ -24,20 +24,18 @@
 /* --- constant definitions --------------------------------------------------------------------- */
 
 #if defined(LINUX)
-    /** Define the INFINITE macro.
+    /** Define the INFINITE macro for Linux platform.
      */
     #define JF_TIME_INFINITE                           (0xFFFFFFFF)
 #elif defined(WINDOWS)
-    /** Define the clock id data type.
-     */
-    typedef olint_t                                    clockid_t;
-
-    /** Define the INFINITE macro.
+    /** Define the INFINITE macro for Windows platform.
      */
     #define JF_TIME_INFINITE                           (INFINITE)
 #endif
 
-enum jf_time_clock_t
+/** Define the time clock data type.
+ */
+typedef enum
 {
 #if defined(LINUX)
     /**Real time clock id.*/
@@ -62,7 +60,7 @@ enum jf_time_clock_t
     /**Monotonic raw clock id.*/
     JF_TIME_CLOCK_MONOTONIC_RAW,
 #endif
-};
+} jf_time_clock_t;
 
 /** Second to milli-second.
  */
@@ -86,7 +84,7 @@ typedef struct jf_time_spec
     u64 jts_u64NanoSecond;
 } jf_time_spec_t;
 
-/** Define the time val data type.
+/** Define the time value data type.
  */
 typedef struct jf_time_val
 {
@@ -103,7 +101,11 @@ typedef struct jf_time_val
 
 #if defined(WINDOWS)
 /** Convert the file time to seconds since Epoch.
- *  
+ *
+ *  @note
+ *  -# The file time contains a 64-bit value representing the number of 100-nanosecond intervals
+ *   since January 1, 1601 (UTC).
+ *
  *  @param pTime [out] The file time.
  *
  *  @return The seconds since 1970, Epoch.
@@ -128,7 +130,7 @@ u32 jf_time_getTimeOfDay(jf_time_val_t * pjtv);
  *  @return The error code
  *  @retval JF_ERR_NO_ERROR Success.
  */
-u32 jf_time_getClockTime(clockid_t clkid, jf_time_spec_t * pjts);
+u32 jf_time_getClockTime(jf_time_clock_t clkid, jf_time_spec_t * pjts);
 
 /** Sleep some time in seconds.
  *

@@ -11,10 +11,6 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
-#include <errno.h>
-#include <stdio.h>
-#include <time.h>
-
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"

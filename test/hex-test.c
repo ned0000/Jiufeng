@@ -144,8 +144,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 	olchar_t strErrMsg[300];
 
     ol_bzero(&jlipParam, sizeof(jlipParam));
-    jlipParam.jlip_pstrCallerName = "HEXTEST";
-    jlipParam.jlip_bLogToStdout = TRUE;
+    jlipParam.jlip_pstrCallerName = "HEX-TEST";
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DEBUG;
 
     u32Ret = _parseHexTestCmdLineParam(argc, argv, &jlipParam);

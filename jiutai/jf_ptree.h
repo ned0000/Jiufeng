@@ -55,6 +55,7 @@ typedef void  jf_ptree_node_attribute_t;
  *  -# The iteration will stop if the return code is not JF_ERR_NO_ERROR.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_ptree_fnOpNode_t)(jf_ptree_t * pPtree, jf_ptree_node_t * pNode, void * pArg);
 
@@ -64,6 +65,7 @@ typedef u32 (* jf_ptree_fnOpNode_t)(jf_ptree_t * pPtree, jf_ptree_node_t * pNode
  *  -# The iteration will stop if the return code is not JF_ERR_NO_ERROR.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_ptree_fnOpAttribute_t)(jf_ptree_node_attribute_t * pAttr, void * pArg);
 
@@ -78,6 +80,7 @@ typedef u32 (* jf_ptree_fnOpAttribute_t)(jf_ptree_node_attribute_t * pAttr, void
  *  @param ppPtree [out] The property tree to create.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_ptree_create(jf_ptree_t ** ppPtree);
 
@@ -86,6 +89,7 @@ u32 jf_ptree_create(jf_ptree_t ** ppPtree);
  *  @param ppPtree [in/out] The property tree to destroy.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_ptree_destroy(jf_ptree_t ** ppPtree);
 
@@ -271,7 +275,11 @@ u32 jf_ptree_changeNodeValue(jf_ptree_node_t * pNode, const olchar_t * pstrValue
  */
 u32 jf_ptree_getNodeNs(jf_ptree_node_t * pNode, olchar_t ** ppstrNs, olsize_t * psNs);
 
-/** Get full name of the node. The full name is from the top node to current node.
+/** Get full name of the node.
+ *
+ *  @note
+ *  -# The full name is from the top node to current node.
+ *  -# The seperator of node is ".".
  *
  *  @param pPtree [in] The property tree.
  *  @param pNode [in] The property tree node.

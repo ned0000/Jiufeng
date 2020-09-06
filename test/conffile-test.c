@@ -172,16 +172,12 @@ static u32 _fnTestConffileHandleConfig(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_conffile_t * pjcWrite = (jf_conffile_t *)pArg;
-    olchar_t str[JF_CONFFILE_MAX_LINE_LEN];
-    olsize_t sStr;
 
     ol_printf(
         "name: %s(%d), value: %s(%d)\n", pstrName, (olint_t)ol_strlen(pstrName), pstrValue,
         (olint_t)ol_strlen(pstrValue));
 
-    sStr = snprintf(str, sizeof(str), "%s=%s\n", pstrName, pstrValue);
-
-    u32Ret = jf_conffile_write(pjcWrite, str, sStr);
+    u32Ret = jf_conffile_write(pjcWrite, pstrName, pstrValue);
 
     return u32Ret;
 }
@@ -191,9 +187,11 @@ static u32 _testTraversalConfFile(const olchar_t * pstrFilename)
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_conffile_t * pjc = NULL, * pjcWrite = NULL;
     jf_conffile_open_param_t jcop;
+    olchar_t * pstrFile = "conf.temp";
 
     ol_printf("--------------------------------------------\n");
     ol_printf("tranverse config file: %s\n", pstrFilename);
+    ol_printf("write config to file: %s\n", pstrFile);
 
     ol_bzero(&jcop, sizeof(jcop));
     jcop.jcop_pstrFile = (olchar_t *)pstrFilename;
@@ -203,7 +201,7 @@ static u32 _testTraversalConfFile(const olchar_t * pstrFilename)
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(&jcop, sizeof(jcop));
-        jcop.jcop_pstrFile = "temp.conf";
+        jcop.jcop_pstrFile = pstrFile;
 
         u32Ret = jf_conffile_open(&jcop, &pjcWrite);
     }

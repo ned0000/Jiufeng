@@ -7,6 +7,7 @@
  *  
  *  @note
  *  -# Routines declared in this file are included in jf_rand object.
+ *  -# Pseudo random number are generated.
  */
 
 #ifndef JIUTAI_RAND_H

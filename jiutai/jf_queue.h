@@ -17,9 +17,10 @@
 #define JIUTAI_QUEUE_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stddef.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 
@@ -48,6 +49,11 @@ typedef struct jf_queue
 } jf_queue_t;
 
 /** The callback function for freeing the queue data.
+ *
+ *  @param ppData [in/out] The data to be freed.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_queue_fnFreeData_t)(void ** ppData);
 
@@ -97,6 +103,7 @@ boolean_t jf_queue_isEmpty(jf_queue_t * pQueue);
  *  @param data [in] The data to add to the queue.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_queue_enqueue(jf_queue_t * pQueue, void * data);
 

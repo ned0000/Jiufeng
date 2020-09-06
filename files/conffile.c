@@ -344,12 +344,13 @@ u32 jf_conffile_close(jf_conffile_t ** ppConffile)
     return u32Ret;
 }
 
-u32 jf_conffile_write(jf_conffile_t * pConffile, const olchar_t * pstrData, olsize_t sData)
+u32 jf_conffile_write(
+    jf_conffile_t * pConffile, const olchar_t * pstrTag, const olchar_t * pstrValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jf_conffile_t * pijc = (internal_jf_conffile_t *)pConffile;
 
-    u32Ret = jf_filestream_writen(pijc->ijc_pjfConfFile, pstrData, sData);
+    u32Ret = _writeConfigToConfFile(pijc->ijc_pjfConfFile, pstrTag, pstrValue);
 
     return u32Ret;
 }

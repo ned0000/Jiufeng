@@ -12,16 +12,16 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 #include <signal.h>
-#include <stdlib.h>
-#if defined(LINUX)
+
+#if defined(WINDOWS)
+    #include <time.h>
+    #include <process.h>
+#elif defined(LINUX)
     #include <sys/types.h>
     #include <sys/stat.h>
     #include <fcntl.h>
     #include <sys/wait.h>
     #include <errno.h>
-#elif defined(WINDOWS)
-    #include <time.h>
-    #include <process.h>
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
@@ -43,7 +43,7 @@ static u32 _runCommandLine(olchar_t * pstrCommandLine)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olsize_t argc = 80;
     olchar_t * argv[80];
-    olint_t ret;
+    olint_t ret = 0;
 
     u32Ret = jf_process_formCmdLineArguments(pstrCommandLine, &argc, argv);
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -58,10 +58,12 @@ static u32 _runCommandLine(olchar_t * pstrCommandLine)
 
 static void _setProcessTerminationReason(olint_t nStatus, u32 * pu32Reason)
 {
-    olint_t nSignal;
+    olint_t nSignal = 0;
 
     if (WIFEXITED(nStatus))
+    {
         *pu32Reason = JF_PROCESS_TERMINATION_REASON_EXITED;
+    }
     else if (WIFSIGNALED(nStatus))
     {
         nSignal = WTERMSIG(nStatus);
@@ -75,11 +77,14 @@ static void _setProcessTerminationReason(olint_t nStatus, u32 * pu32Reason)
             *pu32Reason = JF_PROCESS_TERMINATION_REASON_SIGNALED;
     }
     else
+    {
         *pu32Reason = JF_PROCESS_TERMINATION_REASON_UNKNOWN;
+    }
 }
 #endif
 
 #if defined(LINUX)
+
 /** Get the process name by PID.
  *
  *  @note
@@ -320,18 +325,18 @@ boolean_t jf_process_isAlreadyRunning(olchar_t * pstrDaemonName)
     if (! EnumProcesses(dwProcesses, sizeof(dwProcesses), &dwNeeded))
         bRunning = FALSE;
 
-    /* Calculate how many process identifiers were returned */
+    /*Calculate how many process identifiers were returned.*/
     dwNrOfProcess = dwNeeded / sizeof(DWORD);
 
-    /* Print the name and process identifier for each process */
+    /*Print the name and process identifier for each process.*/
     for (u32Index = 0; u32Index < dwNrOfProcess; u32Index++)
         if (dwProcesses[u32Index] != 0)
         {
-            /* Get a handle to the process */
+            /*Get a handle to the process.*/
             hProcess = OpenProcess(
                 PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwProcesses[u32Index]);
 
-            /* Get the process name */
+            /*Get the process name.*/
             if (hProcess != NULL)
             {
                 if (EnumProcessModules(hProcess, &hMod, sizeof(hMod), &dwNeeded))
@@ -405,8 +410,7 @@ u32 jf_process_create(
     si.cb = sizeof(si);
     ol_memset(&pi, 0, sizeof(pi));
 
-    bRet = CreateProcess(
-        NULL, pstrCommandLine, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
+    bRet = CreateProcess(NULL, pstrCommandLine, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi);
     if (! bRet)
         u32Ret = JF_ERR_FAIL_CREATE_PROCESS;
 
@@ -713,8 +717,7 @@ u32 jf_process_initSocket(void)
         /*Confirm that the WinSock DLL supports 2.0.*/
         /*Note that if the DLL supports versions greater than 2.0 in addition to 2.0, it will still
           return. 2.0 in wVersion since that is the version we requested.*/
-        if (LOBYTE(wsaData.wVersion ) != 2 ||
-            HIBYTE(wsaData.wVersion ) != 0)
+        if (LOBYTE(wsaData.wVersion ) != 2 || HIBYTE(wsaData.wVersion ) != 0)
         {
             /*Tell the user that we could not find a usable WinSock DLL.*/
             WSACleanup();
@@ -740,5 +743,3 @@ u32 jf_process_finiSocket(void)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-
