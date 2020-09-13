@@ -165,7 +165,7 @@ typedef struct
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
-/** Initialize the looger according to the specified parameters.
+/** Initialize the logger according to the specified parameters.
  *
  *  @param pjlip [in] The pointer to the logger parameter.
  *

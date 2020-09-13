@@ -18,6 +18,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_bitarray.h"
@@ -50,7 +51,7 @@
  */
 typedef struct jf_encode_huffman_code
 {
-    /**Symbol, max 65536 symbols.*/
+    /**Symbol, maximum 65536 symbols.*/
     u16 jehc_u16Symbol;
     /**Code length.*/
     u16 jehc_u16CodeLen;
@@ -69,8 +70,9 @@ typedef struct jf_encode_huffman_code
  *  @param pu8Input [in] The stream to encode.
  *  @param sInput [in] The length of the stream to encode.
  *  @param ppstrOutput [out] The encoded stream.
-
+ *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 ENCODEAPI u32 ENCODECALL jf_encode_encodeBase64(
     const u8 * pu8Input, const olsize_t sInput, olchar_t ** ppstrOutput);
@@ -82,6 +84,7 @@ ENCODEAPI u32 ENCODECALL jf_encode_encodeBase64(
  *  @param psOutput [out] The length of the decoded stream.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 ENCODEAPI u32 ENCODECALL jf_encode_decodeBase64(
     const olchar_t * pstrInput, u8 ** ppu8Output, olsize_t * psOutput);
@@ -91,6 +94,7 @@ ENCODEAPI u32 ENCODECALL jf_encode_decodeBase64(
  *  @param ppu8Buffer [in/out] The buffer to free.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 ENCODEAPI u32 ENCODECALL jf_encode_freeBase64Buffer(u8 ** ppu8Buffer);
 
@@ -103,6 +107,7 @@ ENCODEAPI u32 ENCODECALL jf_encode_freeBase64Buffer(u8 ** ppu8Buffer);
  *  @param u16NumOfCode [in] Number of code in the array.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 ENCODEAPI u32 ENCODECALL jf_encode_genHuffmanCode(
     jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode);
@@ -114,6 +119,7 @@ ENCODEAPI u32 ENCODECALL jf_encode_genHuffmanCode(
  *  @param u16NumOfCode [in] Number of code in the array.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 ENCODEAPI u32 ENCODECALL jf_encode_genCanonicalHuffmanCode(
     jf_encode_huffman_code_t * pjehc, u16 u16NumOfCode);
@@ -121,5 +127,3 @@ ENCODEAPI u32 ENCODECALL jf_encode_genCanonicalHuffmanCode(
 #endif /*JIUFENG_ENCODE_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

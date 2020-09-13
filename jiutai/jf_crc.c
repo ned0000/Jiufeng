@@ -10,12 +10,11 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_crc.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -120,22 +119,17 @@ void jf_crc_crc32cVec(
     u32 u32Crc;
     u32 index;
 
-    assert(pjccv != NULL && u32Count > 0);
+    assert((pjccv != NULL) && (u32Count > 0));
 
-    jf_crc_crc32c(
-        pjccv[0].jccv_pu8Buffer, pjccv[0].jccv_u32Len, u32Flags, &u32Crc);
+    jf_crc_crc32c(pjccv[0].jccv_pu8Buffer, pjccv[0].jccv_u32Len, u32Flags, &u32Crc);
     u32Flags &= ~JF_CRC_CRC32C_FLAG_INIT_RESULT;
 
     for (index = 1; index < u32Count; index ++)
     {
-        jf_crc_crc32c(
-            pjccv[index].jccv_pu8Buffer, pjccv[index].jccv_u32Len, u32Flags,
-            &u32Crc);
+        jf_crc_crc32c(pjccv[index].jccv_pu8Buffer, pjccv[index].jccv_u32Len, u32Flags, &u32Crc);
     }
 
     *pu32Result = u32Crc;
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-

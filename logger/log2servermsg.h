@@ -36,10 +36,15 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
+/** Define the log to server message ID.
+ */
 typedef enum
 {
+    /**Unknown message ID.*/
     L2SMI_UNKNOWN = 0,
+    /**Save log service message ID.*/
     L2SMI_SAVE_LOG_SVC,
+    /**Maximum message ID.*/
     L2SMI_MAX,
 } log_2_server_msg_id_t;
 

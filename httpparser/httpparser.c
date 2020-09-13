@@ -55,7 +55,7 @@ static u32 _parseHttpStartLine(
         if (nret == 0)
         {
             /*If the start line starts with HTTP/, then this is a response packet.
-              We parse on the '/' character to determine the version, as it follows. 
+              We parse on the '/' character to determine the version, as it follows.
               eg: HTTP/1.1 200 OK*/
             u32Ret = jf_string_parse(
                 &result, startline->jspr_pjsprfFirst->jsprf_pstrData, 0,
@@ -131,10 +131,10 @@ static u32 _parseHttpHeaderLine(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_field_t * headerline = field;
-    jf_httpparser_packet_header_field_t * node;
+    jf_httpparser_packet_header_field_t * node = NULL;
     olint_t i = 0;
-    olint_t FLNWS = -1;
-    olint_t FTNWS = -1;
+    olint_t flnws = -1;
+    olint_t ftnws = -1;
 
     /*Header line starts with the second token. Then we iterate through the rest of the tokens.*/
     while (headerline != NULL)
@@ -151,6 +151,7 @@ static u32 _parseHttpHeaderLine(
         {
             ol_bzero(node, sizeof(jf_httpparser_packet_header_field_t));
 
+            /*Find ':' in the line.*/
             for (i = 0; i < headerline->jsprf_sData; ++i)
             {
                 if (*((headerline->jsprf_pstrData) + i) == ':')
@@ -162,6 +163,7 @@ static u32 _parseHttpHeaderLine(
                     break;
                 }
             }
+            /*':' is not found, the name and data are empty, it's an invalid line.*/
             if ((node->jhphf_pstrName == NULL) || (node->jhphf_sName == 0))
             {
                 jf_jiukun_freeMemory((void **)&node);
@@ -170,14 +172,14 @@ static u32 _parseHttpHeaderLine(
             }
 
             /*We need to do white space processing, because we need to ignore them in the headers.*/
-            FLNWS = 0;
-            FTNWS = node->jhphf_sData - 1;
+            flnws = 0;
+            ftnws = node->jhphf_sData - 1;
             for (i = 0; i < node->jhphf_sData; ++i)
             {
                 if (*((node->jhphf_pstrData) + i) != ' ')
                 {
                     /*The first non-whitespace character.*/
-                    FLNWS = i;
+                    flnws = i;
                     break;
                 }
             }
@@ -186,14 +188,14 @@ static u32 _parseHttpHeaderLine(
                 if (*(node->jhphf_pstrData + i) != ' ')
                 {
                     /*The last non-whitespace character.*/
-                    FTNWS = i;
+                    ftnws = i;
                     break;
                 }
             }
 
             /*We are basically doing a 'trim' operation.*/
-            node->jhphf_pstrData += FLNWS;
-            node->jhphf_sData = (FTNWS - FLNWS) + 1;
+            node->jhphf_pstrData += flnws;
+            node->jhphf_sData = (ftnws - flnws) + 1;
 
             /*Since we are parsing an existing string, we set this flag to zero, so that it doesn't
               get freed.*/
@@ -225,8 +227,8 @@ u32 jf_httpparser_destroyPacketHeader(jf_httpparser_packet_header_t ** ppHeader)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_httpparser_packet_header_t * packet = *ppHeader;
-    jf_httpparser_packet_header_field_t *node = packet->jhph_pjhphfFirst;
-    jf_httpparser_packet_header_field_t *nextnode;
+    jf_httpparser_packet_header_field_t * node = packet->jhph_pjhphfFirst;
+    jf_httpparser_packet_header_field_t * nextnode = NULL;
 
     /*Iterate through all the headers.*/
     while (node != NULL)
@@ -295,8 +297,7 @@ olint_t jf_httpparser_escapeHttpData(u8 * outdata, const u8 * data)
             data[x] == 64 || data[x] == 61 || data[x] == 43 || data[x] == 36 ||
             data[x] == 45 || data[x] == 95 || data[x] == 46 || data[x] == 42)
         {
-            /* These are all the allowed values for HTTP. If it's one of these
-               characters, we're ok */
+            /*These are all the allowed values for HTTP. If it's one of these characters, we're ok.*/
             outdata[i] = data[x];
             ++i;
         }
@@ -373,7 +374,7 @@ olint_t jf_httpparser_unescapeHttpData(olchar_t * data)
     {
         if (strncmp(data + src_x, "%", 1) == 0)
         {
-            /* Since we encountered a '%' we know this is an escaped character*/
+            /*Since we encountered a '%' we know this is an escaped character.*/
             hex[0] = data[src_x + 1];
             hex[1] = data[src_x + 2];
             data[dst_x] = (u8) strtol(hex, (olchar_t **)&stp, 16);
@@ -382,16 +383,15 @@ olint_t jf_httpparser_unescapeHttpData(olchar_t * data)
         }
         else if (src_x != dst_x)
         {
-            /* This doesn't need to be unescaped. If we didn't unescape anything
-               previously there is no need to copy the string either */
+            /*This doesn't need to be unescaped. If we didn't unescape anything previously there is
+              no need to copy the string either.*/
             data[dst_x] = data[src_x];
             src_x += 1;
             dst_x += 1;
         }
         else
         {
-            /* This doesn't need to be unescaped, however we need to copy the
-               string */
+            /*This doesn't need to be unescaped, however we need to copy the string.*/
             src_x += 1;
             dst_x += 1;
         }
@@ -411,10 +411,11 @@ u32 jf_httpparser_parsePacketHeader(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(retval, sizeof(jf_httpparser_packet_header_t));
-        /* All the headers are delineated with a CRLF, so we parse on that */
+        /*All the headers are delimited with a CRLF.*/
         u32Ret = jf_string_parse(&pPacket, pstrBuf, sOffset, sBuf, "\r\n", 2);
     }
 
+    /*Parse the start line which is the first line of http header.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         field = pPacket->jspr_pjsprfFirst;
@@ -423,6 +424,7 @@ u32 jf_httpparser_parsePacketHeader(
         u32Ret = _parseHttpStartLine(retval, field);
     }
 
+    /*Parse other lines in header.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _parseHttpHeaderLine(retval, headerline);
@@ -470,7 +472,7 @@ u32 jf_httpparser_getRawPacket(
     while (node != NULL)
     {
         /*A conservative estimate adding the lengths of the header name and value, plus 4
-          characters for the ':' and CRLF */
+          characters for the ':' and CRLF.*/
         sBuffer += node->jhphf_sName + node->jhphf_sData + 4;
         node = node->jhphf_pjhphfNext;
     }
@@ -661,6 +663,7 @@ u32 jf_httpparser_clonePacketHeader(
     jf_httpparser_packet_header_t *retval;
     jf_httpparser_packet_header_field_t *n;
 
+    /*Create an empty packet header.*/
     u32Ret = jf_httpparser_createEmptyPacketHeader(&retval);
     if (u32Ret != JF_ERR_NO_ERROR)
         return u32Ret;
@@ -684,6 +687,7 @@ u32 jf_httpparser_clonePacketHeader(
         n = n->jhphf_pjhphfNext;
     }
 
+    /*Copy the body.*/
     if (pjhph->jhph_pu8Body != NULL)
         u32Ret = jf_httpparser_setBody(retval, pjhph->jhph_pu8Body, pjhph->jhph_sBody, TRUE);
 
@@ -949,4 +953,3 @@ u32 jf_httpparser_findHeader(u8 * pu8Buffer, olsize_t sOffset, olsize_t sEnd, ol
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

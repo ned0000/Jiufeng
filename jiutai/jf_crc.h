@@ -19,6 +19,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
@@ -65,11 +66,8 @@ void jf_crc_crc32c(u8 * pu8Data, u32 u32Len, u32 u32Flags, u32 * pu32Result);
  *
  *  @return Void.
  */
-void jf_crc_crc32cVec(
-    jf_crc_crc32c_vec_t * pjccv, u32 u32Count, u32 u32Flags, u32 * pu32Result);
+void jf_crc_crc32cVec(jf_crc_crc32c_vec_t * pjccv, u32 u32Count, u32 u32Flags, u32 * pu32Result);
 
 #endif /*JIUTAI_CRC_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

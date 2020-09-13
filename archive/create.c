@@ -10,10 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_archive.h"
@@ -442,7 +442,7 @@ u32 writeToArchive(
         if (jf_file_isDirFile(filestat.jfs_u32Mode))
         {
             ol_strcpy(fh.fh_strFullpath, strName);
-            u32Ret = jf_dir_traversal(strName, _handleMemberFile, (void *)&fh);
+            u32Ret = jf_dir_traverse(strName, _handleMemberFile, (void *)&fh);
         }
     }
 
@@ -450,5 +450,3 @@ u32 writeToArchive(
 } 
 
 /*------------------------------------------------------------------------------------------------*/
-
-

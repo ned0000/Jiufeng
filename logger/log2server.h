@@ -44,11 +44,35 @@ typedef struct
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+/** Create the server log location.
+ *
+ *  @param pParam [in] The parameter for creating the log location.
+ *  @param ppLocation [out] The log location created.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 u32 createServerLogLocation(
     create_server_log_location_param_t * pParam, jf_logger_log_location_t ** ppLocation);
 
+/** Destroy the server log location.
+ *
+ *  @param ppLocation [in/out] The log location to be destroyed.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 u32 destroyServerLogLocation(jf_logger_log_location_t ** ppLocation);
 
+/** Log message to log server.
+ *
+ *  @param pLocation [in] The log location object.
+ *  @param pstrLog [in] The log message.
+ *  @param sLog [in] The size of log message.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 u32 logToServer(jf_logger_log_location_t * pLocation, olchar_t * pstrLog, olsize_t sLog);
 
 #endif /*JIUFENG_LOGGER_LOG2SERVER_H*/

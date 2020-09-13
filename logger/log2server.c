@@ -153,6 +153,7 @@ static u32 _logToServer(
 
     jf_time_getUtcTimeInMicroSecond(&msg.l2ssls_u64Time);
 
+    /*Set source to the message.*/
     _getLog2ServerSaveLogMsgSource(
         plsll->lsll_strCallerName, msg.l2ssls_strSource, sizeof(msg.l2ssls_strSource));
 
@@ -160,14 +161,17 @@ static u32 _logToServer(
     /*Add '\0' to the end of the log.*/
     if (sLog < JF_LOGGER_MAX_MSG_SIZE)
     {
+        /*The message size is less than the maximum message size.*/
         msg.l2ssls_strLog[sLog] = '\0';
         sLog ++;
     }
     else
     {
+        /*The message size reaches maximum message size.*/
         msg.l2ssls_strLog[sLog - 1] = '\0';
     }
 
+    /*Send the message with real size, not the size of the data type.*/
     sMsg = sizeof(msg) - sizeof(msg.l2ssls_strLog) + sLog;
     sPayload = sMsg - sizeof(msg.l2ssls_l2smhHeader);
 
@@ -178,15 +182,19 @@ static u32 _logToServer(
 
     while (retry < count)
     {
+        /*Connect to log server.*/
         u32Ret = _connectToLogServer(
             plsll->lsll_strServerAddress, plsll->lsll_u16ServerPort, &plsll->lsll_nSocket);
 
+        /*Send mesage to log server.*/
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = _sendLogToServer(plsll->lsll_nSocket, &msg, sMsg);
 
+        /*Quit if no error.*/
         if (u32Ret == JF_ERR_NO_ERROR)
             break;
 
+        /*Error handling.*/
         close(plsll->lsll_nSocket);
         plsll->lsll_nSocket = -1;
 

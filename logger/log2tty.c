@@ -99,6 +99,7 @@ u32 createTtyLogLocation(
             pltll->ltll_strTtyFileName, pParam->ctllp_pstrTtyFile,
             sizeof(pltll->ltll_strTtyFileName) - 1);
 
+        /*Open the tty device file.*/
         pltll->ltll_nTtyFd = open(pltll->ltll_strTtyFileName, O_WRONLY);
         if (pltll->ltll_nTtyFd < 0)
         {

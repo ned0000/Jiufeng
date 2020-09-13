@@ -74,13 +74,14 @@ static void _printErrorOption(const olchar_t * pstrCmd, olchar_t * pstrError, in
  */
 static void _moveOptionIndex(olint_t argc, olchar_t ** const argv)
 {
+    /*Return if this is the end of argument array.*/
     if (ls_nArgvIndex >= argc)
         return;
 
     ++ ls_nOptionIndex;
     if (argv[ls_nArgvIndex][ls_nOptionIndex] == '\0')
     {
-        /*End of the option, move to the next entry in array.*/
+        /*End of the option, move to the next entry in array, for the case with option like "-xyz".*/
         ++ ls_nArgvIndex;
         ls_nOptionIndex = 1;
     }
@@ -90,8 +91,10 @@ static void _moveOptionIndex(olint_t argc, olchar_t ** const argv)
  */
 static void _resetOptionVar(void)
 {
+    /*Ignore the first entry as it's the command itself.*/
     ls_nArgvIndex = 1;
     ls_pstrOptionArg = NULL;
+    /*Ignore the first entry as it's the character '-'.*/
     ls_nOptionIndex = 1;
 }
 
@@ -407,6 +410,7 @@ void jf_option_removeSpaceAfterString(olchar_t * pstr)
         end = pstr + ol_strlen(pstr) - 1;
         while ((end >= pstr) && (*end == ' '))
             end --;
+        /*Truncate the string to remove trailing spaces.*/
         *(end + 1) = '\0';
     }
 }
@@ -465,12 +469,14 @@ olint_t jf_option_get(olint_t argc, olchar_t ** const argv, const olchar_t * str
             ++ ls_nArgvIndex;
             if (ls_nArgvIndex >= argc)
             {
+                /*Argument is not found.*/
                 _printErrorOption(argv[0], "option requires an argument", nOpt);
                 nOpt = JF_OPTION_MISSING_ARG;
                 u32Ret = JF_ERR_MISSING_OPTION_ARG;
             }
             else
             {
+                /*Argument is found.*/
                 ls_pstrOptionArg = argv[ls_nArgvIndex];
                 ++ ls_nArgvIndex;
                 ls_nOptionIndex = 1;

@@ -74,14 +74,29 @@ typedef void  jf_clieng_cmd_t;
 typedef void  jf_clieng_cmd_set_t;
 
 /** Callback function which is called to print greeting.
+ *
+ *  @param pMaster [in] The master object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_clieng_fnPrintGreeting_t)(void * pMaster);
 
 /** Callback function which is called before entering loop.
+ *
+ *  @param pMaster [in] The master object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_clieng_fnPreEnterLoop_t)(void * pMaster);
 
 /** Callback function which is called before exiting loop.
+ *
+ *  @param pMaster [in] The master object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_clieng_fnPostExitLoop_t)(void * pMaster);
 
@@ -123,15 +138,35 @@ typedef struct
 } jf_clieng_caption_t;
 
 /** Callback function to set default parameters of command.
+ *
+ *  @param pMaster [in] The master object.
+ *  @param pParam [out] The parameter of the command.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_clieng_fnSetDefaultParam_t)(void * pMaster, void * pParam);
 
 /** Callback function to parse the parameters of command.
+ *
+ *  @param pMaster [in] The master object.
+ *  @param argc [in] Number of argument.
+ *  @param argv [in] The argument array.
+ *  @param pParam [out] The parameter of the command.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_clieng_fnParseCmd_t)(
     void * pMaster, olint_t argc, olchar_t ** argv, void * pParam);
 
 /** Callback function to process command.
+ *
+ *  @param pMaster [in] The master object.
+ *  @param pParam [out] The parameter of the command.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_clieng_fnProcessCmd_t)(void * pMaster, void * pParam);
 
@@ -385,4 +420,3 @@ CLIENGAPI void CLIENGCALL jf_clieng_appendBriefColumn(
 #endif /*JIUFENG_CLIEN_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-

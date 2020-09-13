@@ -102,7 +102,7 @@ static u32 _listDir(const olchar_t * pstrDir)
     {
         if (jf_file_isDirFile(filestat.jfs_u32Mode))
         {
-            u32Ret = jf_dir_traversal(ls_pstrDirName, _handleFile, NULL);
+            u32Ret = jf_dir_traverse(ls_pstrDirName, _handleFile, NULL);
         }
         else
         {

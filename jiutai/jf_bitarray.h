@@ -33,9 +33,13 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
+
+/** Define the bitarray data type.
+ */
 typedef u8  jf_bitarray_t;
 
 
@@ -398,4 +402,3 @@ static inline boolean_t jf_bitarray_testClearBit(jf_bitarray_t * ba, u32 pos)
 #endif /*JIUTAI_BITARRAY_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-

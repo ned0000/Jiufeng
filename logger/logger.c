@@ -198,6 +198,7 @@ static u32 _createOtherLogLocation(internal_logger_t * pil, jf_logger_init_param
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
+    /*Create file log location.*/
     if (pParam->jlip_bLogToFile)
     {
         create_file_log_location_param_t cfllp;
@@ -212,6 +213,7 @@ static u32 _createOtherLogLocation(internal_logger_t * pil, jf_logger_init_param
         u32Ret = createFileLogLocation(&cfllp, &pil->il_pjlllFile);
     }
 
+    /*Create stdout log location.*/
     if ((u32Ret == JF_ERR_NO_ERROR) && (pParam->jlip_bLogToStdout))
     {
         create_stdout_log_location_param_t csllp;
@@ -224,6 +226,7 @@ static u32 _createOtherLogLocation(internal_logger_t * pil, jf_logger_init_param
         u32Ret = createStdoutLogLocation(&csllp, &pil->il_pjlllStdout);
     }
 
+    /*Create system log log location.*/
     if ((u32Ret == JF_ERR_NO_ERROR) && (pParam->jlip_bLogToSystemLog))
     {
         create_systemlog_log_location_param_t csllp;
@@ -236,6 +239,7 @@ static u32 _createOtherLogLocation(internal_logger_t * pil, jf_logger_init_param
     }
 
 #if defined(LINUX)
+    /*Create TTY log location.*/
     if ((u32Ret == JF_ERR_NO_ERROR) && (pParam->jlip_bLogToTty))
     {
         create_tty_log_location_param_t ctllp;
@@ -276,6 +280,7 @@ u32 jf_logger_init(jf_logger_init_param_t * pParam)
 
     if (pParam->jlip_bLogToServer)
     {
+        /*Create server log location.*/
         create_server_log_location_param_t csllp;
 
         pil->il_u8LogMask |= JF_LOGGER_MASK_SERVER;
@@ -289,6 +294,7 @@ u32 jf_logger_init(jf_logger_init_param_t * pParam)
     }
     else
     {
+        /*Create other log location.*/
         u32Ret = _createOtherLogLocation(pil, pParam);
     }
 

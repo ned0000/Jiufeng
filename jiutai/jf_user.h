@@ -33,12 +33,12 @@
 /* --- data structures -------------------------------------------------------------------------- */
 
 #if defined(WINDOWS)
-/** Define the user id data type.
- */
+    /** Define the user id data type.
+     */
     typedef  olint_t                    uid_t;
 
-/** Define the group id data type.
- */
+    /** Define the group id data type.
+     */
     typedef  olint_t                    gid_t;
 #elif defined(LINUX)
 
@@ -61,5 +61,3 @@ u32 jf_user_getUidGid(const olchar_t * pstrName, uid_t * pUid, gid_t * pGid);
 #endif /*JIUTAI_USER_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

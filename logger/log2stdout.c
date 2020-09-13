@@ -32,23 +32,11 @@ typedef struct
 
 } logger_stdout_log_location_t;
 
-
-
 /* --- private routine section ------------------------------------------------------------------ */
-
 
 
 /* --- public routine section ------------------------------------------------------------------- */
 
-/** Log the message log to the specified output of the logger.
- *
- *  @param pLocation [in] The log location handle.
- *  @param bBanner [in] Include banner if it's TRUE.
- *  @param pstrLog [in] The log message.
- *
- *  @return The error code.
- *  @retval JF_ERR_NO_ERROR Success.
- */
 u32 logToStdout(jf_logger_log_location_t * pLocation, boolean_t bBanner, olchar_t * pstrLog)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;

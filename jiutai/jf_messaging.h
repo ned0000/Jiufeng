@@ -55,6 +55,12 @@
 /* --- data structures -------------------------------------------------------------------------- */
 
 /** The callback function to process the incoming message.
+ *
+ *  @param pu8Msg [in] The message to be processed.
+ *  @param sMsg [in] The message size.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_messaging_fnProcessMsg_t)(u8 * pu8Msg, olsize_t sMsg);
 

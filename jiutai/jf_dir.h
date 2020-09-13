@@ -13,8 +13,6 @@
 #define JIUFENG_DIR_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
 
 #if defined(LINUX)
     #include <dirent.h>
@@ -24,23 +22,26 @@
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_file.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-/** Define the directory data type.
- */
 #if defined(LINUX)
+    /** Define the directory data type for Linux platform, it's DIR data type.
+     */
     typedef DIR      jf_dir_t;
 #elif defined(WINDOWS)
+    /** Define the directory data type for Windows platform, it's void data type.
+     */
     typedef void     jf_dir_t;
 #endif
 
 /** Define the default create mode when creating directory with jf_dir_create().
  */
-#define JF_DIR_DEFAULT_CREATE_MODE     (0755)
+#define JF_DIR_DEFAULT_CREATE_MODE                 (0755)
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -57,17 +58,43 @@ typedef struct
 
 /** Define the function data type which is used to handle files in directory. The function is
  *  used in directory parse.
+ *
+ *  @param pstrFullpath [in] The full path of the file.
+ *  @param pStat [in] The file statistics.
+ *  @param pArg [in] The argument for the callback function.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_dir_fnHandleFile_t)(
     const olchar_t * pstrFullpath, jf_file_stat_t * pStat, void * pArg);
 
-/** Define the function data type which is used to filter files in directory. The function is
- *  used in directory parse. When the function returns TRUE, the entry is ignored.
+/** Define the function data type which is used to filter files in directory.
+ *
+ *  @note
+ *  -# The function is used in directory parse.
+ *  -# When the function returns TRUE, the entry is ignored.
+ *
+ *  @param entry [in] The directory entry.
+ *
+ *  @return The filter result.
+ *  @retval TRUE The entry should be ignored.
+ *  @retval FALSE The entry should not be ignored.
  */
 typedef boolean_t (* jf_dir_fnFilterDirEntry_t)(jf_dir_entry_t * entry);
 
-/** Define the function data type which is used to compare entry of directory. The function is
- *  used in directory parse. When the function returns TRUE, the entry is ignored.
+/** Define the function data type which is used to compare entry of directory.
+ *
+ *  @note
+ *  -# The function is used for scanning directory to sort directory entry.
+ *
+ *  @param a [in] The first directory entry.
+ *  @param b [in] The second directory entry.
+ *
+ *  @return The compare result.
+ *  @retval <0 The first entry is considered to be less than the second entry.
+ *  @retval 0 The first entry is considered to be equal to the second entry.
+ *  @retval >0 The first entry is considered to be greater than the second entry.
  */
 typedef olint_t (* jf_dir_fnCompareDirEntry_t)(const void * a, const void * b);
 
@@ -144,6 +171,7 @@ FILESAPI u32 FILESCALL jf_dir_getNextDirEntry(jf_dir_t * pDir, jf_dir_entry_t * 
  *
  *  @note
  *  -# The function traverses the directory recursively, the sub-directory are traversed also.
+ *  -# The traversal will stop if return code of callback function is not JF_ERR_NO_ERROR.
  *
  *  @param pstrDirName [in] The pointer to the directory name.
  *  @param fnHandleFile [in] The callback function for each entry in directory.
@@ -153,7 +181,7 @@ FILESAPI u32 FILESCALL jf_dir_getNextDirEntry(jf_dir_t * pDir, jf_dir_entry_t * 
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_FAIL_OPEN_DIR Failed to open directory.
  */
-FILESAPI u32 FILESCALL jf_dir_traversal(
+FILESAPI u32 FILESCALL jf_dir_traverse(
     const olchar_t * pstrDirName, jf_dir_fnHandleFile_t fnHandleFile, void * pArg);
 
 /** Parse directory.
@@ -196,20 +224,19 @@ FILESAPI u32 FILESCALL jf_dir_scan(
 
 /** The helper function for comparing entry.
  *
- *  @note The function can be used as fnCompare in jf_dir_scan().
+ *  @note
+ *  -# The function can be used as fnCompare in jf_dir_scan().
  *
  *  @param a [in] The first entry.
  *  @param b [in] The second entry.
  *
  *  @return The compare result.
- *  @retval >0 a is greater than b.
- *  @retval =0 a is equal to b.
- *  @retval <0 a is less than b.
+ *  @retval <0 The first entry is considered to be less than the second entry.
+ *  @retval 0 The first entry is considered to be equal to the second entry.
+ *  @retval >0 The first entry is considered to be greater than the second entry.
  */
 FILESAPI olint_t FILESCALL jf_dir_compareDirEntry(const void * a, const void * b);
-
 
 #endif /*JIUFENG_DIR_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-

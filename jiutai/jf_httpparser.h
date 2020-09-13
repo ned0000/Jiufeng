@@ -9,6 +9,18 @@
  *  -# Routines declared in this file are included in jf_httpparser library.
  *  -# Link with jf_jiukun library for memory allocation.
  *  -# Link with jf_string library for string parse.
+ *
+ *  @par HTTP packet with chuned data
+ *  -# Chunk size is a hexadecimal string.
+ *  -# If the chunk size is 0, it's end of chunk.
+ *  @code
+ *   chunk-size\r\n
+ *   chunk-data\r\n
+ *   chunk-size\r\n
+ *   chunk-data\r\n
+ *   0\r\n
+ *   \r\n
+ *  @endcode
  */
 
 #ifndef JIUFENG_HTTPPARSER_H
@@ -17,6 +29,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 #undef HTTPPARSERAPI
@@ -137,6 +150,10 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyPacketHeader(
 
 /** Parses the HTTP headers from a buffer, into a packetheader structure.
  *
+ *  @note
+ *  -# This routine doesn't copy any data, the pointers in packet header are pointing to the
+ *   original buffer. The buffer should be there when using the packet header.
+ *
  *  @param ppHeader [out] The parsed packet header structure.
  *  @param pstrBuf [in] The buffer to parse.
  *  @param sOffset [in] The offset of the buffer to start parsing.
@@ -144,14 +161,16 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyPacketHeader(
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_INVALID_HTTP_HEADER_START_LINE Invalid HTTP header start line.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parsePacketHeader(
     jf_httpparser_packet_header_t ** ppHeader, olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf);
 
 /** Clones a packet header.
  *
- *  @note jf_httpparser_parsePacketHeader() does not copy any data, the data will become invalid
- *   once the data is flushed. This method is used to preserve the data.
+ *  @note
+ *  -# This routine copies the data to the new packet header. The original header can be released
+ *   after cloning.
  *
  *  @param ppDest [out] A cloned packet structure.
  *  @param pHeader [in] The packet to clone from.
@@ -405,9 +424,12 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_processDataobject(
     jf_httpparser_dataobject_t * pDataobject, u8 * pu8Buffer, olsize_t * psBeginPointer,
     olsize_t sEndPointer);
 
-/** Reinit the data object so it can handle data again.
+/** Reinitialize the data object so it can handle data again.
  *
  *  @param pDataobject [in] The httparser data object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_reinitDataobject(
     jf_httpparser_dataobject_t * pDataobject);
@@ -432,5 +454,3 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getDataobjectFullPacket(
 #endif /*JIUFENG_HTTPPARSER_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

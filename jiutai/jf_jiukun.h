@@ -20,9 +20,9 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "jf_bitarray.h"
 #include "jf_flag.h"
 
 #undef JIUKUNAPI
@@ -77,6 +77,8 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
+/** Define the parameters for initializing jiukun.
+ */
 typedef struct
 {
     /**The memory pool size in byte, when the pool is full, jiukun will create another pool with the
@@ -89,11 +91,11 @@ typedef struct
     u32 jjip_u32Reserved[7];
 } jf_jiukun_init_param_t;
 
-/** Jiukun cache data structure.
+/** Define the jiukun cache data type.
  */
 typedef void  jf_jiukun_cache_t;
 
-/** Jiukun cache flag, possible values for the field 'jjccp_fCache' in
+/** Define the jiukun cache flag, possible values for the field 'jjccp_fCache' in
  *  jf_jiukun_cache_create_param_t data structure.
  */
 typedef enum jf_jiukun_cache_create_flag
@@ -112,7 +114,7 @@ typedef enum jf_jiukun_cache_create_flag
     JF_JIUKUN_CACHE_CREATE_FLAG_WAIT,
 } jf_jiukun_cache_create_flag_t;
 
-/** Parameter for creating jiukun cache.
+/** Parameters for creating jiukun cache.
  */
 typedef struct
 {

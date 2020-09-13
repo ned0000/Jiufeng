@@ -40,6 +40,8 @@ typedef struct
 /* --- private routine section ------------------------------------------------------------------ */
 
 #if defined(LINUX)
+/** Convert the internal log level to system log level.
+ */
 static olint_t _convertLogLevelForSyslog(u8 u8LogLevel)
 {
     olint_t nLevel = LOG_INFO;
@@ -81,6 +83,7 @@ u32 logToSystemlog(
 #elif defined(LINUX)
     olint_t nLevel = _convertLogLevelForSyslog(u8LogLevel);
 
+    /*No timestamp and caller name as system log will handle them by itself.*/
     if (bBanner)
         syslog(nLevel, "[%lu] %s", jf_thread_getCurrentId(), pstrLog);
     else

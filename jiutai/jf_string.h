@@ -16,7 +16,9 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
+
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 
@@ -38,6 +40,8 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
+/** Define the string for "not applicable".
+ */
 #define JF_STRING_NOT_APPLICABLE              "N/A"
 
 /* --- data structures -------------------------------------------------------------------------- */
