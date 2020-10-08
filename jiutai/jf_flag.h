@@ -23,24 +23,24 @@
 
 /** Init the 'flag' with 'value'.
  */
-#define JF_FLAG_INIT(flag)        (flag = 0)
+#define JF_FLAG_INIT(flag)                           (flag = 0)
 
 /** Generate a bitmask consisting of 1 bits from (and including) bit position 'left' to
  *  (and including) bit position 'right'.
  */
-#define JF_FLAG_MASK(pos)         (1ull << pos)
+#define JF_FLAG_MASK(pos)                            (1ull << pos)
 
 /** Extract 1 bit from 'flag' at position 'pos'.
  */
-#define JF_FLAG_GET(flag, pos)    JF_BITOP_GET(flag, pos, pos)
+#define JF_FLAG_GET(flag, pos)                       JF_BITOP_GET(flag, pos, pos)
 
 /** Set bit at position 'pos' to 1 of 'flag'.
  */
-#define JF_FLAG_SET(flag, pos)    JF_BITOP_SET(flag, pos, pos, 1)
+#define JF_FLAG_SET(flag, pos)                       JF_BITOP_SET(flag, pos, pos, 1)
 
 /** Clear bit at position 'pos' to 0 of 'flag'.
  */
-#define JF_FLAG_CLEAR(flag, pos)  JF_BITOP_CLEAR(flag, pos, pos)
+#define JF_FLAG_CLEAR(flag, pos)                     JF_BITOP_CLEAR(flag, pos, pos)
 
 /** Insert 'value' into 'flag' at position 'left' to 'right'.
  */
@@ -48,7 +48,7 @@
 
 /** Extract value from 'flag' at position 'left' to 'right' and return value.
  */
-#define JF_FLAG_GET_VALUE(flag, left, right)  JF_BITOP_GET(flag, left, right)
+#define JF_FLAG_GET_VALUE(flag, left, right)         JF_BITOP_GET(flag, left, right)
 
 
 /* --- data structures -------------------------------------------------------------------------- */
@@ -62,5 +62,3 @@ typedef u64    jf_flag_t;
 #endif /*JIUTAI_FLAG_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

@@ -1,7 +1,7 @@
 /**
  *  @file jiukun.c
  *
- *  @brief The jiukun library
+ *  @brief Implementation file for the jiukun library.
  *
  *  @author Min Zhang
  *
@@ -14,6 +14,7 @@
 #include <string.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_jiukun.h"
@@ -24,6 +25,8 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+/** The order primes array.
+ */
 static u32 ls_u32OrderPrimes[] = {
     1, 3, 7, 15, 31,
     63, 127, 255, 511, 1023,
@@ -34,22 +37,27 @@ static u32 ls_u32OrderPrimes[] = {
     2147483647, 4294967295UL,
 };
 
+/** Define the internal jiukun data type.
+ */
 typedef struct
 {
+    /**Jiukun is initialized if it's TRUE.*/
     boolean_t ia_bInitialized;
     u8 ia_u8Reserved[7];
 
     u32 ia_u32Reserved[4];
 } internal_jiukun_t;
 
+/** Declare the internal jiukun object.
+ */
 static internal_jiukun_t ls_iaJiukun;
 
-/** minimal pool size
- *
+/** Minimal pool size.
  */
-#define MIN_JIUKUN_POOL_SIZE  (1UL << 20)
+#define MIN_JIUKUN_POOL_SIZE                      (1UL << 20)
 
 /* --- private routine section ------------------------------------------------------------------ */
+
 
 /* --- public routine section ------------------------------------------------------------------- */
 
@@ -57,7 +65,7 @@ u32 jf_jiukun_init(jf_jiukun_init_param_t * pjjip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_jiukun_t * pia = &ls_iaJiukun;
-    u32 u32NumOfPages;
+    u32 u32NumOfPages = 0;
     buddy_param_t bp;
     slab_param_t sp;
 
@@ -79,11 +87,14 @@ u32 jf_jiukun_init(jf_jiukun_init_param_t * pjjip)
         "size: %u, num of page: %u, max order: %u", pjjip->jjip_sPool, u32NumOfPages,
         bp.bp_u8MaxOrder);
 
+    /*Initialize jiukun page allocator.*/
     u32Ret = initJiukunBuddy(&bp);
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(&sp, 0, sizeof(slab_param_t));
+        ol_bzero(&sp, sizeof(slab_param_t));
 
+        /*Initialize the jiukun slab.*/
         u32Ret = initJiukunSlab(&sp);
     }
 
@@ -104,8 +115,10 @@ u32 jf_jiukun_fini(void)
     JF_LOGGER_INFO("fini");
 #endif
 
+    /*Finalize the jiukun slab.*/
     finiJiukunSlab();
 
+    /*Finalize jiukun page allocator.*/
     finiJiukunBuddy();
 
     pia->ia_bInitialized = FALSE;
@@ -120,7 +133,9 @@ u32 reapJiukun(boolean_t bNoWait)
 
     assert(ls_iaJiukun.ia_bInitialized);
 
+    /*Reap jiukun slabs.*/
     ret = reapJiukunSlab(bNoWait);
+
 #if defined(DEBUG_JIUKUN)
     JF_LOGGER_INFO("%u slabs are reaped", ret);
     jf_jiukun_dump();
@@ -147,5 +162,3 @@ void jf_jiukun_dump(void)
 #endif
 
 /*------------------------------------------------------------------------------------------------*/
-
-

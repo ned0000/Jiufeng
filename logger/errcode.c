@@ -252,7 +252,7 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_FAIL_REAP_JIUKUN, "Failed to reap jiukun memory."},
     {JF_ERR_JIUKUN_FREE_UNALLOCATED, "Free an unallocated jiukun memory."},
     {JF_ERR_JIUKUN_DOUBLE_FREE, "Double free jiukun memory is detected."},
-    {JF_ERR_JIUKUN_BAD_POINTER, "Bad jiukun memory pointer."},
+    {JF_ERR_INVALID_JIUKUN_ADDRESS, "Invalid jiukun memory address."},
     {JF_ERR_JIUKUN_MEMORY_LEAK, "Jiukun memory leak is detected."},
     {JF_ERR_JIUKUN_MEMORY_CORRUPTED, "Jiukun memory is corrupted."},
     {JF_ERR_JIUKUN_MEMORY_OUT_OF_BOUND, "Jiukun memory access is out of bound."},

@@ -158,21 +158,26 @@ JIUKUNAPI u32 JIUKUNCALL jf_jiukun_fini(void);
 
 /** Get memory from jiukun page allocator.
  *
- *  @param pptr [out] A pointer to the page allocated.
+ *  @param pptr [out] A pointer to the memory address allocated.
  *  @param u32Order [in] The order of the page.
  *  @param flag [in] Flag of the allocation.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_JIUKUN_OUT_OF_MEMORY Out of memory.
+ *  @retval JF_ERR_INVALID_JIUKUN_PAGE_ORDER Invalid page order.
  */
 JIUKUNAPI u32 JIUKUNCALL jf_jiukun_allocPage(void ** pptr, u32 u32Order, jf_flag_t flag);
 
 /** Free memory to jiukun page allocator.
  *
- *  @param pptr [in/out] A pointer to the allocated page.
+ *  @note
+ *  -# The library will abort if the unallocated pages are freed.
+ *  -# The library will abort if the memory address is invalid.
  *
- *  @return The error code.
- *  @retval JF_ERR_NO_ERROR Success.
+ *  @param pptr [in/out] A pointer to the memory address.
+ *
+ *  @return Void.
  */
 JIUKUNAPI void JIUKUNCALL jf_jiukun_freePage(void ** pptr);
 

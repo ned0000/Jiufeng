@@ -1,7 +1,7 @@
 /**
  *  @file slab.c
  *
- *  @brief The slab memory allocation system
+ *  @brief Implentation file for the slab memory allocation system.
  *
  *  @author Min Zhang
  *
@@ -10,12 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <limits.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_mem.h"
@@ -29,7 +27,7 @@
 /** Maximum size of an obj (in 2^order pages) and absolute limit for the page order. The size
  *  should be more than the maximum size of general cache. Up to 8Mb.
  */
-#define MAX_JP_ORDER      (11)
+#define MAX_JP_ORDER             (11)
 
 /** Bufctl's are used for linking objs within a slab linked offsets.
  *
@@ -39,32 +37,33 @@
  *  (not a cache) can contain when off-slab bufctls are used. The limit is the size of the largest
  *  general cache that does not use off-slab slabs.
  */
-typedef u32 slab_bufctl_t;
-#define BUFCTL_END  (((slab_bufctl_t)(~0U)) - 0)
-#define BUFCTL_FREE (((slab_bufctl_t)(~0U)) - 1)
-#define SLAB_LIMIT  (((slab_bufctl_t)(~0U)) - 2)
+typedef u32                      slab_bufctl_t;
+#define BUFCTL_END               (((slab_bufctl_t)(~0U)) - 0)
+#define BUFCTL_FREE              (((slab_bufctl_t)(~0U)) - 1)
+#define SLAB_LIMIT               (((slab_bufctl_t)(~0U)) - 2)
 
-/** Manages the objs in a slab. Placed either at the beginning of mem allocated for a slab, or
- *  allocated from an general cache.
- *  Slabs are chained into three list: fully used, partial, fully free slabs.
+/** Manages the objects in a slab. Placed either at the beginning of memory allocated for a slab,
+ *  or allocated from an general cache.
  */
 typedef struct
 {
+    /**List entry, chained into three list: fully used, partial, fully free slabs.*/
     jf_listhead_t s_jlList;
     /**Pointer to objects.*/
     void * s_pMem;
-    /**Num of objs active in slab.*/
+    /**Number of objs active in slab.*/
     u32 s_u32InUse;
+    /**Free object array.*/
     slab_bufctl_t s_sbFree;
 } slab_t;
 
-#define slab_bufctl(slabp)  ((slab_bufctl_t *)(((slab_t*)slabp) + 1))
+#define slab_bufctl(slabp)       ((slab_bufctl_t *)(((slab_t*)slabp) + 1))
 
-/** Max name length for a slab cache.
+/** Maximum name length for a slab cache.
  */
-#define CACHE_NAME_LEN     (24)
+#define CACHE_NAME_LEN           (24)
 
-/** Internal flags for slab_cache.
+/** Define the internal flags for slab cache.
  */
 typedef enum slab_cache_flag
 {
@@ -81,6 +80,8 @@ typedef enum slab_cache_flag
     SC_FLAG_LOCKED,
 } slab_cache_flag_t;
 
+/** Define the internal slab cache data type.
+ */
 typedef struct slab_cache
 {
     /**Object size including red zone.*/
@@ -126,8 +127,8 @@ typedef struct slab_cache
 } slab_cache_t;
 
 
-#define OFF_SLAB(x) (JF_FLAG_GET((x)->sc_jfCache, SC_FLAG_OFF_SLAB))
-#define GROWN(x)    (JF_FLAG_GET((x)->sc_jfCache, AF_FLAGS_GROWN))
+#define OFF_SLAB(x)              (JF_FLAG_GET((x)->sc_jfCache, SC_FLAG_OFF_SLAB))
+#define GROWN(x)                 (JF_FLAG_GET((x)->sc_jfCache, AF_FLAGS_GROWN))
 
 #if DEBUG_JIUKUN_STAT
     #define STATS_INC_ACTIVE(x)  ((x)->sc_ulNumActive++)
@@ -151,18 +152,26 @@ typedef struct slab_cache
 #endif
 
 #if DEBUG_JIUKUN
-/** Magic nums for obj red zoning. Placed in the first word before and the first word after an obj.
+
+/** Magic number of active object for red zoning. Placed in the first word before and the first
+ *  word after an object.
  */
-#define RED_MAGIC1  0x5A2CF071UL    /* when obj is active */
-#define RED_MAGIC2  0x170FC2A5UL    /* when obj is inactive */
+#define RED_MAGIC1               (0x5A2CF071UL)
+
+/** Magic number of inactive object for red zoning. Placed in the first word before and the first
+ *  word after an object.
+ */
+#define RED_MAGIC2               (0x170FC2A5UL)
 
 #endif
 
-/** General caches.
+/** Define the general cache data type.
  */
 typedef struct general_cache
 {
+    /**Size of the cache.*/
     olsize_t gc_sSize;
+    /**The cache object.*/
     slab_cache_t * gc_pscCache;
 } general_cache_t;
 
@@ -174,47 +183,60 @@ static olsize_t ls_sCacheSize[] =
 #include "cachesizes.h"
     CACHE(OLSIZE_MAX)
 #undef CACHE
-} ;
+};
 
-#define MAX_NUM_OF_GENERAL_CACHE  20
+/** Maximum number of general cache.
+ */
+#define MAX_NUM_OF_GENERAL_CACHE (20)
 
+/** Define the internal jiukun slab data type.
+ */
 typedef struct internal_jiukun_slab
 {
+    /**Slab system is initialized if it's TRUE.*/
     boolean_t ijs_bInitialized;
     u8 ijs_u8Reserved[7];
-    /**New caches are linked to ijs_scCacheCache.sc_jlNext.*/
+    /**The cache for internal use. New caches are linked to ijs_scCacheCache.sc_jlNext.*/
     slab_cache_t ijs_scCacheCache;
 
+    /**Limit for off-slab cache.*/
     u32 ijs_u32OffSlabLimit;
 
+    /**Mutex lock for slab system.*/
     jf_mutex_t ijs_smLock;
 
     u8 ijs_u8Reserved2[16];
 
     u16 ijs_u16Reserved[4];
+
+    /*The general cache.*/
     general_cache_t ijs_gcGeneral[MAX_NUM_OF_GENERAL_CACHE];
 } internal_jiukun_slab_t;
 
 /** Byte aligned size.
  */
-#define SLAB_ALIGN_SIZE   (BYTES_PER_POINTER)
+#define SLAB_ALIGN_SIZE          (BYTES_PER_POINTER)
 
 /* Macros for storing/retrieving the cache and slab from the page structure.
  * These are used to find the cache and slab an obj belongs to.
  */
-#define SET_PAGE_CACHE(pg, x) ((pg)->jp_jlLru.jl_pjlNext = (jf_listhead_t *)(x))
-#define GET_PAGE_CACHE(pg)    ((slab_cache_t *)(pg)->jp_jlLru.jl_pjlNext)
-#define SET_PAGE_SLAB(pg, x)  ((pg)->jp_jlLru.jl_pjlPrev = (jf_listhead_t *)(x))
-#define GET_PAGE_SLAB(pg)     ((slab_t *)(pg)->jp_jlLru.jl_pjlPrev)
+#define SET_PAGE_CACHE(pg, x)    ((pg)->jp_jlLru.jl_pjlNext = (jf_listhead_t *)(x))
+#define GET_PAGE_CACHE(pg)       ((slab_cache_t *)(pg)->jp_jlLru.jl_pjlNext)
+#define SET_PAGE_SLAB(pg, x)     ((pg)->jp_jlLru.jl_pjlPrev = (jf_listhead_t *)(x))
+#define GET_PAGE_SLAB(pg)        ((slab_t *)(pg)->jp_jlLru.jl_pjlPrev)
 
+/** Declare the internal jiukun slab object.
+ */
 static internal_jiukun_slab_t ls_iasSlab;
 
 /* --- private routine section ------------------------------------------------------------------ */
+
 #if defined(DEBUG_JIUKUN)
+
 void _dumpSlabCache(slab_cache_t * pCache)
 {
-    jf_listhead_t * q;
-    slab_t * slabp;
+    jf_listhead_t * q = NULL;
+    slab_t * slabp = NULL;
     u32 full_objs = 0, partial_objs = 0, free_objs = 0;
     u32 full_slabs = 0, partial_slabs = 0, free_slabs = 0;
     u32 full_use_objs = 0, partial_use_objs = 0, free_use_objs = 0;
@@ -567,10 +589,10 @@ static inline void _freeOneObj(
     jiukun_page_t * page = addrToJiukunPage(objp);
 
 #if DEBUG_JIUKUN
-    /*make sure the page is used by slab, otherwise abort.*/
+    /*Make sure the page is used by slab, otherwise abort.*/
     if (! isJpSlab(page))
     {
-        JF_LOGGER_ERR(JF_ERR_JIUKUN_BAD_POINTER, "check page, bad ptr %p", objp);
+        JF_LOGGER_ERR(JF_ERR_INVALID_JIUKUN_ADDRESS, "address: %p", objp);
         abort();
     }
 #endif
@@ -993,6 +1015,7 @@ static void * _getMemoryEndAddr(internal_jiukun_slab_t * pijs, void * pMem)
 #endif
 
 /* --- public routine section ------------------------------------------------------------------- */
+
 u32 initJiukunSlab(slab_param_t * psp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
