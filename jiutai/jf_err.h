@@ -32,12 +32,20 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-/** System error code if this flag is set.
+/** Error code is related to system call if this flag is set.
  */
 #define JF_ERR_CODE_FLAG_SYSTEM             (0x800000)
 
+/** Error code module mask.
+ */
 #define JF_ERR_CODE_MODULE_MASK             (0xFF000000)
+
+/** Error code module shift.
+ */
 #define JF_ERR_CODE_MODULE_SHIFT            (24)
+
+/** Error code code mask.
+ */
 #define JF_ERR_CODE_CODE_MASK               (0xFFFF)
 
 /* error code definition */
@@ -554,9 +562,18 @@
  */
 #define JF_ERR_MAX_VENDOR_SPEC_ERROR        (200)
 
+/** Maximum size for the description, it should be large enough to hold the error description plus
+ *  system error code and error string.
+ */
+#define JF_ERR_MAX_DESCRIPTION_SIZE         (256)
+
+
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Get the description of the specified error code.
+ *
+ *  @note
+ *  -# Only error description is returned even the error is related to system call.
  *
  *  @param u32ErrCode [in] The specified error code.
  *
@@ -564,7 +581,12 @@
  */
 LOGGERAPI olchar_t * LOGGERCALL jf_err_getDescription(u32 u32ErrCode);
 
-/** Get the description of the specified error code, the description is returned in argument.
+/** Read description of the specified error code, the description is returned in argument.
+ *
+ *  @note
+ *  -# For error which is related to system call, the system error code and error string are
+ *   appended.
+ *  -# The size of the buffer should be more than JF_ERR_MAX_DESCRIPTION_SIZE.
  *
  *  @param u32ErrCode [in] The specified error code.
  *  @param pstrBuf [out] The buffer for the description.
@@ -583,6 +605,18 @@ LOGGERAPI void LOGGERCALL jf_err_readDescription(u32 u32ErrCode, olchar_t * pstr
  */
 LOGGERAPI u32 LOGGERCALL jf_err_addCode(u32 u32ErrCode, olchar_t * pstrDesc);
 
+#if defined(DEBUG_LOGGER)
+
+/** Check error code and description. It's for debugging purpose.
+ *
+ *  @note
+ *  -# It will be checked that the error codes are sorted in the ascending order.
+ *
+ *  @return Void.
+ */
+LOGGERAPI void LOGGERCALL jf_err_checkErrCode(void);
+
+#endif /*DEBUG_LOGGER*/
 
 #endif /*JIUFENG_ERR_H*/
 

@@ -161,19 +161,22 @@ u32 createFileLogLocation(
         }
     }
 
+    /*Open the log file.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         plfll->lfll_fpLogFile = fopen(plfll->lfll_strLogFileName, "w");
         if (plfll->lfll_fpLogFile == NULL)
         {
-#if defined(WINDOWS)
-            ol_fprintf(stderr, "Init logger failed, cannot open file - (%d)\n", GetLastError());
-#elif defined(LINUX)
-            ol_fprintf(
-                stderr, "Init logger failed, cannot open file - (%d) - %s\n", errno, strerror(errno));
-#endif
-            ol_fflush(stderr);
+            /*Failed to open log file.*/
+            olchar_t strDesc[JF_ERR_MAX_DESCRIPTION_SIZE];
+
             u32Ret = JF_ERR_FAIL_OPEN_FILE;
+            jf_err_readDescription(u32Ret, strDesc, sizeof(strDesc));
+
+            ol_fprintf(
+                stderr, "Failed to Initialize logger, log file \"%s\" - %s\n",
+                plfll->lfll_strLogFileName, strDesc);
+            ol_fflush(stderr);
         }
     }
 

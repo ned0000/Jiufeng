@@ -77,6 +77,8 @@ static u32 _parseLoggerTestCmdLineParam(
             break;
         case 'v':
             ls_bTestLoggerVendorErrorCode = TRUE;
+            /*Need to save log to stdout, otherwise test result cannot be checked.*/
+            pjlip->jlip_bLogToStdout = TRUE;
             break;
         case ':':
         case '?':
@@ -250,7 +252,9 @@ olint_t main(olint_t argc, olchar_t ** argv)
     {
         jf_logger_init(&jlipParam);
 
-        if (jlipParam.jlip_bLogToStdout)
+        if (ls_bTestLoggerVendorErrorCode)
+            u32Ret = _testLoggerVendorErrCode();
+        else if (jlipParam.jlip_bLogToStdout)
             u32Ret = _testLoggerToStdout();
         else if (jlipParam.jlip_bLogToFile)
             u32Ret = _testLoggerToFile();
@@ -260,8 +264,6 @@ olint_t main(olint_t argc, olchar_t ** argv)
             u32Ret = _testLoggerToTty();
         else if (jlipParam.jlip_bLogToServer)
             u32Ret = _testLoggerToServer();
-        else if (ls_bTestLoggerVendorErrorCode)
-            u32Ret = _testLoggerVendorErrCode();
         else
             _printLoggerTestUsage();
 

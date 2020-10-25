@@ -11,26 +11,32 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <errno.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
 
+#include "jf_basic.h"
 #include "jf_err.h"
+
 #include "common.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-#define ERR_MSG_FORMAT      "ERR - (0x%X) %s"
-#define SYS_ERR_MSG_FORMAT  "ERR - (0x%X) %s\n      %d, %s"
+/** Define the error message format for normal error code.
+ */
+#define ERR_MSG_FORMAT      "(0x%X) %s"
+
+/** Define the error message format for error code related to system call.
+ */
+#define SYS_ERR_MSG_FORMAT  "(0x%X) %s\n      %d, %s"
 
 /** Define the error code description data type.
  */
 typedef struct
 {
+    /**The error code.*/
     u32 iecd_u32ErrorCode;
+    /**The error description.*/
     olchar_t * iecd_pstrDesc;
 } internal_error_code_desc_t;
 
@@ -274,53 +280,59 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
 
 };
 
+/** Number of error code in the array.
+ */
 static u32 ls_u32NumberOfErrorCodes = \
     sizeof(ls_iecdErrorCodeDesc) / sizeof(internal_error_code_desc_t);
 
+/** The vendor specific error code description array.
+ */
 static internal_error_code_desc_t ls_iecdVendorSpecErrorCodeDesc[JF_ERR_MAX_VENDOR_SPEC_ERROR];
 
 /* --- private routine section ------------------------------------------------------------------ */
+
 static void _getSysErrMsg(u32 u32Ret, olchar_t * pstrBuf, olsize_t sBuf)
 {
-    olchar_t strMsg[128 + 1];
 #if defined(WINDOWS)
-    DWORD dwErrorCode = 0, dwRet = 0;
+    olchar_t strMsg[128];
+    DWORD dwErrorCode = 0;
+
+    /*Get error code from OS.*/
+    dwErrorCode = GetLastError();
+
+    /*Get the error message based on the error code.*/
+    FormatMessage(
+        FORMAT_MESSAGE_FROM_SYSTEM, NULL, dwErrorCode, 0, strMsg, sizeof(strMsg), NULL);
+    strMsg[sizeof(strMsg) - 1] = '\0';
+
+    /*Generate the message.*/
+    ol_snprintf(
+        pstrBuf, sBuf, SYS_ERR_MSG_FORMAT, u32Ret, jf_err_getDescription(u32Ret), dwErrorCode,
+        strMsg);
+
 #elif defined(LINUX)
     olint_t errno_save = 0;
-#endif
 
-#if defined(LINUX)
+    /*Save error code from OS.*/
     errno_save = errno;
-#elif defined(WINDOWS)
-    dwErrorCode = GetLastError();
+
+    /*Generate the message.*/
+    ol_snprintf(
+        pstrBuf, sBuf, SYS_ERR_MSG_FORMAT, u32Ret, jf_err_getDescription(u32Ret), errno_save,
+        strerror(errno_save));
+
 #endif
 
-    memset(strMsg, 0, 128 + 1);
-    pstrBuf[0] = '\0';
-#if defined(LINUX)
-    ol_snprintf(
-        pstrBuf, sBuf - 1, SYS_ERR_MSG_FORMAT, u32Ret, jf_err_getDescription(u32Ret), errno_save,
-        strerror(errno_save));
-#elif defined(WINDOWS)
-    FormatMessage(
-        FORMAT_MESSAGE_FROM_SYSTEM, NULL, dwErrorCode, 0, strMsg, 128, NULL);
-    ol_snprintf(
-        pstrBuf, sBuf - 1, SYS_ERR_MSG_FORMAT, u32Ret, jf_err_getDescription(u32Ret), dwErrorCode,
-        strMsg);
-#endif
+    pstrBuf[sBuf - 1] = '\0';
 }
 
-void _getErrMsg(u32 u32Ret, olchar_t * pstrBuf, olsize_t sBuf)
+static void _getErrMsg(u32 u32Ret, olchar_t * pstrBuf, olsize_t sBuf)
 {
-    memset(pstrBuf, 0, sBuf);
+    /*Generate message for the error code.*/
+    ol_snprintf(
+        pstrBuf, sBuf, ERR_MSG_FORMAT, u32Ret, jf_err_getDescription(u32Ret));
 
-#if defined(LINUX)
-    ol_snprintf(
-        pstrBuf, sBuf - 1, ERR_MSG_FORMAT, u32Ret, jf_err_getDescription(u32Ret));
-#elif defined(WINDOWS)
-    ol_snprintf(
-        pstrBuf, sBuf - 1, ERR_MSG_FORMAT, u32Ret, jf_err_getDescription(u32Ret));
-#endif
+    pstrBuf[sBuf - 1] = '\0';
 }
 
 /* --- public routine section ------------------------------------------------------------------- */
@@ -329,8 +341,9 @@ olchar_t * jf_err_getDescription(u32 u32ErrCode)
 {
     olchar_t * pstrDesc = ls_iecdErrorCodeDesc[1].iecd_pstrDesc;
     u32 u32Begin = 0, u32End = 0, u32Index = 0;
-    u32 u32Code;
+    u32 u32Code = 0;
 
+    /*For vendor specific error code.*/
     if ((u32ErrCode >> JF_ERR_CODE_MODULE_SHIFT) == JF_ERR_VENDOR_SPEC_ERROR)
     {
         u32Code = u32ErrCode & JF_ERR_CODE_CODE_MASK;
@@ -340,10 +353,10 @@ olchar_t * jf_err_getDescription(u32 u32ErrCode)
             return pstrDesc;
     }
     
+    /*Binary search for the error codes.*/
     u32Begin = 0;
     u32End = ls_u32NumberOfErrorCodes - 1;
-    
-    /*Binary search.*/
+
     while (u32Begin <= u32End)
     {
         u32Index = (u32Begin + u32End) / 2;
@@ -374,6 +387,7 @@ void jf_err_readDescription(u32 u32ErrCode, olchar_t * pstrBuf, olsize_t sBuf)
 
     ol_bzero(pstrBuf, sBuf);
 
+    /*Normal error code or related to system call.*/
     if (isSysErrorCode(u32ErrCode))
         _getSysErrMsg(u32ErrCode, pstrBuf, sBuf);
     else
@@ -398,7 +412,7 @@ u32 jf_err_addCode(u32 u32ErrCode, olchar_t * pstrDesc)
 #if defined(DEBUG_LOGGER)
 void jf_err_checkErrCode(void)
 {
-    u32 u32Index;
+    u32 u32Index = 0;
     u32 u32Min = 0;
 
     ol_printf(
@@ -411,6 +425,7 @@ void jf_err_checkErrCode(void)
             "0x%X %s\n", ls_iecdErrorCodeDesc[u32Index].iecd_u32ErrorCode,
             ls_iecdErrorCodeDesc[u32Index].iecd_pstrDesc);
 
+        /*Error codes should be sorted in the ascending order.*/
         if (ls_iecdErrorCodeDesc[u32Index].iecd_u32ErrorCode < u32Min)
         {
             ol_printf("Error detected\n");
@@ -418,6 +433,7 @@ void jf_err_checkErrCode(void)
         }
         else
         {
+            /*Save the minimum error code.*/
             u32Min = ls_iecdErrorCodeDesc[u32Index].iecd_u32ErrorCode;
         }
     }

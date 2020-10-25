@@ -12,6 +12,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 #if defined(LINUX)
+    #include <fcntl.h>
     #include <sys/errno.h>
 #endif
 
@@ -58,9 +59,24 @@ static u32 _createSocketForLogServer(olint_t * pnSocket)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
+    /*Create socket.*/
     *pnSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (*pnSocket < 0)
         u32Ret = JF_ERR_FAIL_CREATE_SOCKET;
+
+    /*Set the socket to nonblock mode.*/
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        olint_t flags = 0;
+
+#if defined(LINUX)
+        flags = fcntl(*pnSocket, F_GETFL, 0);
+        fcntl(*pnSocket, F_SETFL, O_NONBLOCK | flags);
+#elif defined(WINDOWS)
+        flags = 1;
+        ioctlsocket(*pnSocket, FIONBIO, &flags);
+#endif
+    }
 
     return u32Ret;
 }
@@ -76,8 +92,10 @@ static u32 _connectToLogServer(olchar_t * pstrAddress, u16 u16Port, olint_t * pn
     if (*pnSocket >= 0)
         return u32Ret;
 
+    /*Create socket.*/
     u32Ret = _createSocketForLogServer(pnSocket);
 
+    /*Convert the address from numbers-and-dots notation into binary form.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(&addr, sizeof(addr));
@@ -93,6 +111,7 @@ static u32 _connectToLogServer(olchar_t * pstrAddress, u16 u16Port, olint_t * pn
 #endif
     }
 
+    /*Make the connection.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         addr.sin_port = htons(u16Port);
@@ -117,6 +136,11 @@ static u32 _sendLogToServer(olint_t nSocket, void * buf, size_t len)
     return u32Ret;
 }
 
+/** Get sequence number.
+ *
+ *  @note
+ *  -# ToDo: Lock may be required here in the multi-thread environment.
+ */
 static u32 _getLog2ServerSeqNum(logger_server_log_location_t * plsll)
 {
     u32 u32Seq = 0;
@@ -211,6 +235,7 @@ u32 destroyServerLogLocation(jf_logger_log_location_t ** ppLocation)
     u32 u32Ret = JF_ERR_NO_ERROR;
     logger_server_log_location_t * plsll = *ppLocation;
 
+    /*Destroy the socket.*/
     if (plsll->lsll_nSocket >= 0)
     {
         close(plsll->lsll_nSocket);
@@ -234,6 +259,7 @@ u32 createServerLogLocation(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Save the caller name, server address and port.*/
         ol_bzero(plsll, sizeof(*plsll));
         if (pParam->csllp_pstrCallerName != NULL)
             ol_strcpy(plsll->lsll_strCallerName, pParam->csllp_pstrCallerName);
@@ -262,17 +288,14 @@ u32 logToServer(jf_logger_log_location_t * pLocation, olchar_t * pstrLog, olsize
 #if defined(DEBUG_LOGGER)
     if (u32Ret != JF_ERR_NO_ERROR)
     {
-#if defined(WINDOWS)
+        /*Failed to log to server.*/
+        olchar_t strDesc[JF_ERR_MAX_DESCRIPTION_SIZE];
+
+        jf_err_readDescription(u32Ret, strDesc, sizeof(strDesc));
+
         ol_fprintf(
-            stderr, "Log to server \"%s:%d\" failed - %s - (%d)\n",
-            plsll->lsll_strServerAddress, plsll->lsll_u16ServerPort, jf_err_getDescription(u32Ret),
-            GetLastError());
-#elif defined(LINUX)
-        ol_fprintf(
-            stderr, "Log to server \"%s:%d\" failed - %s - (%d) - %s\n",
-            plsll->lsll_strServerAddress, plsll->lsll_u16ServerPort, jf_err_getDescription(u32Ret),
-            errno, strerror(errno));
-#endif
+            stderr, "Log to server \"%s:%d\" failed - %s\n",
+            plsll->lsll_strServerAddress, plsll->lsll_u16ServerPort, strDesc);
     }
 #endif
 

@@ -103,17 +103,18 @@ u32 createTtyLogLocation(
         pltll->ltll_nTtyFd = open(pltll->ltll_strTtyFileName, O_WRONLY);
         if (pltll->ltll_nTtyFd < 0)
         {
-#if defined(WINDOWS)
-            ol_fprintf(
-                stderr, "Init logger failed, cannot open tty \"%s\" - (%d)\n",
-                pltll->ltll_strTtyFileName, GetLastError());
-#elif defined(LINUX)
-            ol_fprintf(
-                stderr, "Init logger failed, cannot open tty \"%s\" - (%d) - %s\n",
-                pltll->ltll_strTtyFileName, errno, strerror(errno));
-#endif
-            ol_fflush(stderr);
+            /*Failed to open device file.*/
+            olchar_t strDesc[JF_ERR_MAX_DESCRIPTION_SIZE];
+
             u32Ret = JF_ERR_FAIL_OPEN_FILE;
+
+            jf_err_readDescription(u32Ret, strDesc, sizeof(strDesc));
+
+            ol_fprintf(
+                stderr, "Failed to Initialize logger, cannot open tty \"%s\" - %s\n",
+                pltll->ltll_strTtyFileName, strDesc);
+
+            ol_fflush(stderr);
         }
     }
 
