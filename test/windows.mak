@@ -110,7 +110,7 @@ $(BIN_DIR)\time-test.exe: time-test.obj $(JIUTAI_DIR)\jf_option.obj $(JIUTAI_DIR
        $(JIUTAI_DIR)\jf_date.obj
 	@$(LINK) $(LDFLAGS) $(EXTRA_LDFLAGS) /LIBPATH:$(LIB_DIR) /OUT:$@ $** $(SYSLIBS) jf_logger.lib
 
-$(BIN_DIR)\string-test.exe: string-test.obj $(JIUTAI_DIR)\jf_option.obj
+$(BIN_DIR)\string-test.exe: string-test.obj $(JIUTAI_DIR)\jf_option.obj $(JIUTAI_DIR)\jf_hex.obj
 	@$(LINK) $(LDFLAGS) $(EXTRA_LDFLAGS) /LIBPATH:$(LIB_DIR) /OUT:$@ $** $(SYSLIBS) jf_logger.lib \
        jf_jiukun.lib jf_string.lib
 

@@ -1,7 +1,7 @@
 #
 #  @file string/linux.mak
 #
-#  @brief The makefile for stringparse library.
+#  @brief The makefile for string library.
 #
 #  @author Min Zhang
 #

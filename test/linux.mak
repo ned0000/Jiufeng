@@ -101,7 +101,7 @@ $(BIN_DIR)/hashtable-test: hashtable-test.o $(JIUTAI_DIR)/jf_hashtable.o $(JIUTA
        $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun
 
-$(BIN_DIR)/string-test: string-test.o
+$(BIN_DIR)/string-test: string-test.o $(JIUTAI_DIR)/jf_option.o $(JIUTAI_DIR)/jf_hex.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_string -ljf_logger \
        -ljf_jiukun
 

@@ -1,7 +1,7 @@
 /**
  *  @file parsestring.c
  *
- *  @brief The string parse implementation file
+ *  @brief The string parse implementation file.
  *
  *  @author Min Zhang
  *
@@ -10,46 +10,46 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <errno.h>
+
 #include <ctype.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_string.h"
 #include "jf_jiukun.h"
+
+#include "stringcommon.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
 /* --- private routine section ------------------------------------------------------------------ */
 
-/** Determines if a buffer offset is a delimiter
+/** Determines if a buffer offset is a delimiter.
  *
- *  @param pstrBuf [in] The buffer to check 
- *  @param sOffset [in] The offset of the buffer to check 
- *  @param sBuf [in] The size of the buffer to check 
- *  @param pstrDelimiter [in] The delimiter we are looking for 
- *  @param sDelimiter [in] The length of the delimiter
+ *  @param pstrBuf [in] The buffer to check.
+ *  @param sOffset [in] The offset of the buffer to check.
+ *  @param sBuf [in] The size of the buffer to check.
+ *  @param pstrDelimiter [in] The delimiter we are looking for.
+ *  @param sDelimiter [in] The length of the delimiter.
   
- *  @return if the delimiter is found
- *  @retval TRUE the delimiter is found
- *  @retval FALSE the delimiter is not found
+ *  @return The status if the delimiter is found.
+ *  @retval TRUE The delimiter is found.
+ *  @retval FALSE The delimiter is not found.
  */
-static boolean_t _isDelimiter(olchar_t * pstrBuf, olsize_t sOffset,
-    olsize_t sBuf, olchar_t * pstrDelimiter, olsize_t sDelimiter)
+static boolean_t _isDelimiter(
+    olchar_t * pstrBuf, olsize_t sOffset, olsize_t sBuf, olchar_t * pstrDelimiter,
+    olsize_t sDelimiter)
 {
-    /* for simplicity sake, we'll assume a match unless proven otherwise */
+    /*For simplicity sake, assume a match unless proven otherwise.*/
     boolean_t bRet = TRUE;
     olint_t i = 0;
 
     if (sOffset + sDelimiter > sBuf)
     {
-        /* If the offset plus delimiter length is greater than the sBuf
-           There can't possible be a match, so don't bother looking */
+        /*If the offset plus delimiter length is greater than the buffer size, there can't possible
+          be a match.*/
         return FALSE;
     }
 
@@ -57,7 +57,7 @@ static boolean_t _isDelimiter(olchar_t * pstrBuf, olsize_t sOffset,
     {
         if (pstrBuf[sOffset + i] != pstrDelimiter[i])
         {
-            /* Can't possibly be a match now */
+            /*Can't possibly be a match now.*/
             bRet = FALSE;
             break;
         }
@@ -70,7 +70,7 @@ static boolean_t _isblank(olchar_t c)
 {
     boolean_t bRet = FALSE;
 
-    if  (c == ' ' || c == '\t')
+    if  ((c == JF_STRING_SPACE_CHAR) || (c == JF_STRING_HORIZONTAL_TAB_CHAR))
         bRet = TRUE;
 
     return bRet;
@@ -93,56 +93,57 @@ u32 jf_string_parseAdv(
     olint_t ignore = 0;
     olchar_t cDelimiter = 0;
 
+    /*Allocate memory for the parse result.*/
     u32Ret = jf_jiukun_allocMemory((void **)&pjspr, sizeof(jf_string_parse_result_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(pjspr, 0, sizeof(jf_string_parse_result_t));
+        ol_bzero(pjspr, sizeof(*pjspr));
 
-        /* By default we will always return at least one token, which will be the
-           entire string if the delimiter is not found.
-           Iterate through the string to find delimiters  */
+        /*By default we will always return at least one token, which will be the entire string if
+          the delimiter is not found. Iterate through the string to find delimiters.*/
         token = pstrBuf + sOffset;
         for (i = sOffset; (i < (sBuf + sOffset)) && (u32Ret == JF_ERR_NO_ERROR); ++i)
         {
             if (cDelimiter == 0)
             {
-                if (pstrBuf[i] == '"')
+                if (pstrBuf[i] == JF_STRING_DOUBLE_QUOTES_CHAR)
                 {
-                    /* ignore everything inside double quotes */
-                    cDelimiter = '"';
+                    /*Ignore everything inside double quotes.*/
+                    cDelimiter = JF_STRING_DOUBLE_QUOTES_CHAR;
                     ignore = 1;
                 }
                 else
                 {
-                    if (pstrBuf[i] == '\'')
+                    if (pstrBuf[i] == JF_STRING_SINGLE_QUOTE_CHAR)
                     {
-                        /* ignore everything inside single quotes */
-                        cDelimiter = '\'';
+                        /*Ignore everything inside single quotes.*/
+                        cDelimiter = JF_STRING_SINGLE_QUOTE_CHAR;
                         ignore = 1;
                     }
                 }
             }
             else
             {
-                /* once we isolated everything inside double or single quotes, 
-                   we can get on with the real parsing */
+                /*Once we isolated everything inside double or single quotes, we can go on with the
+                  real parsing.*/
                 if (pstrBuf[i] == cDelimiter)
                 {
                     ignore = ((ignore == 0) ? 1 : 0);
                 }
             }
 
-            if (ignore == 0 &&
-                _isDelimiter(pstrBuf, i, sBuf, pstrDelimiter, sDelimiter))
+            if ((ignore == 0) && _isDelimiter(pstrBuf, i, sBuf, pstrDelimiter, sDelimiter))
             {
-                /* we found a delimiter in the string */
+                /*Found a delimiter in the string.*/
                 u32Ret = jf_jiukun_allocMemory((void **)&pjsprf, sizeof(*pjsprf));
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
-                    ol_memset(pjsprf, 0, sizeof(jf_string_parse_result_field_t));
+                    ol_bzero(pjsprf, sizeof(*pjsprf));
                     pjsprf->jsprf_pstrData = token;
                     pjsprf->jsprf_sData = tokenlength;
                     pjsprf->jsprf_pjsprfNext = NULL;
+
+                    /*Add parse field to list.*/
                     if (pjspr->jspr_pjsprfFirst != NULL)
                     {
                         pjspr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
@@ -154,8 +155,7 @@ u32 jf_string_parseAdv(
                         pjspr->jspr_pjsprfLast = pjsprf;
                     }
 
-                    /* after we populate the values, we advance the token to after 
-                       the delimiter to prep for the next token */
+                    /*Advance the token to after the delimiter to prepare for the next token.*/
                     ++pjspr->jspr_u32NumOfResult;
                     i = i + sDelimiter - 1;
                     token = token + tokenlength + sDelimiter;
@@ -164,7 +164,7 @@ u32 jf_string_parseAdv(
             }
             else
             {
-                /* no match yet, so just increment this counter */
+                /*No match yet, so just increment this counter.*/
                 ++tokenlength;
             }
         }
@@ -172,18 +172,20 @@ u32 jf_string_parseAdv(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /* create a result for the last token, since it won't be caught in 
-           the above loop. because if there are no more delimiters */
+        /*Create a result for the last token, since it won't be caught in the above loop. because if
+          there are no more delimiters.*/
         u32Ret = jf_jiukun_allocMemory((void **)&pjsprf, sizeof(*pjsprf));
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(pjsprf, 0, sizeof(jf_string_parse_result_field_t));
+        ol_bzero(pjsprf, sizeof(*pjsprf));
 
         pjsprf->jsprf_pstrData = token;
         pjsprf->jsprf_sData = tokenlength;
         pjsprf->jsprf_pjsprfNext = NULL;
+
+        /*Add parse field to list.*/
         if (pjspr->jspr_pjsprfFirst != NULL)
         {
             pjspr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
@@ -214,33 +216,36 @@ u32 jf_string_parse(
     olchar_t * pstrDelimiter, olsize_t sDelimiter)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_string_parse_result_t * pjspr;
+    jf_string_parse_result_t * pjspr = NULL;
     olint_t i = 0;
     olchar_t * token = NULL;
     olsize_t tokenlength = 0;
-    jf_string_parse_result_field_t *pjsprf;
+    jf_string_parse_result_field_t * pjsprf = NULL;
 
+    /*Allocate memory for the parse result.*/
     u32Ret = jf_jiukun_allocMemory((void **)&pjspr, sizeof(jf_string_parse_result_t));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        ol_memset(pjspr, 0, sizeof(jf_string_parse_result_t));
+        ol_bzero(pjspr, sizeof(*pjspr));
 
         /*By default we will always return at least one token, which will be the entire string if
-          the delimiter is not found. Iterate through the string to find delimiters*/
+          the delimiter is not found. Iterate through the string to find delimiters.*/
         token = pstrBuf + sOffset;
         for (i = sOffset; (i < sBuf) && (u32Ret == JF_ERR_NO_ERROR); ++i)
         {
             if (_isDelimiter(pstrBuf, i, sBuf, pstrDelimiter, sDelimiter))
             {
-                /*We found a delimiter in the string*/
+                /*Found a delimiter in the string.*/
                 u32Ret = jf_jiukun_allocMemory((void **)&pjsprf, sizeof(*pjsprf));
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
-                    ol_memset(pjsprf, 0, sizeof(jf_string_parse_result_field_t));
+                    /*Set parse result field.*/
+                    ol_bzero(pjsprf, sizeof(*pjsprf));
 
                     pjsprf->jsprf_pstrData = token;
                     pjsprf->jsprf_sData = tokenlength;
                     pjsprf->jsprf_pjsprfNext = NULL;
+                    /*Add the field to list.*/
                     if (pjspr->jspr_pjsprfFirst != NULL)
                     {
                         pjspr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
@@ -252,8 +257,7 @@ u32 jf_string_parse(
                         pjspr->jspr_pjsprfLast = pjsprf;
                     }
 
-                    /* After we populate the values, we advance the token to 
-                       after the delimiter to prep for the next token */
+                    /*Advance the token to after the delimiter to prepare for the next token.*/
                     ++pjspr->jspr_u32NumOfResult;
                     i = i + sDelimiter - 1;
                     token = token + tokenlength + sDelimiter;
@@ -262,7 +266,7 @@ u32 jf_string_parse(
             }
             else
             {
-                /* No match yet, so just increment this counter */
+                /*No match yet, so just increment this counter.*/
                 ++tokenlength;
             }
         }
@@ -271,15 +275,17 @@ u32 jf_string_parse(
     if ((u32Ret == JF_ERR_NO_ERROR) && (tokenlength >= 0))
     {
         /*Create a result for the last token, since it won't be caught in the above loop because
-          if there are no more delimiters. The last token is counted in even the length is 0 */
+          if there are no more delimiters. The last token is counted in even the length is 0.*/
         u32Ret = jf_jiukun_allocMemory((void **)&pjsprf, sizeof(*pjsprf));
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            ol_memset(pjsprf, 0, sizeof(jf_string_parse_result_field_t));
+            ol_bzero(pjsprf, sizeof(*pjsprf));
 
             pjsprf->jsprf_pstrData = token;
             pjsprf->jsprf_sData = tokenlength;
             pjsprf->jsprf_pjsprfNext = NULL;
+
+            /*Add the field to list.*/
             if (pjspr->jspr_pjsprfFirst != NULL)
             {
                 pjspr->jspr_pjsprfLast->jsprf_pjsprfNext = pjsprf;
@@ -309,11 +315,11 @@ u32 jf_string_parse(
 u32 jf_string_destroyParseResult(jf_string_parse_result_t ** ppResult)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    /* all of these nodes only contain pointers, so we just need to iterate through all the nodes
-       and free them */
     jf_string_parse_result_field_t * node = (*ppResult)->jspr_pjsprfFirst;
     jf_string_parse_result_field_t * temp = NULL;
 
+    /*All of these nodes only contain pointers, so we just need to iterate through all the nodes
+      and free them.*/
     while (node != NULL)
     {
         temp = node->jsprf_pjsprfNext;
@@ -328,36 +334,43 @@ u32 jf_string_destroyParseResult(jf_string_parse_result_t ** ppResult)
 
 void jf_string_skipBlank(olchar_t * pstrDest, const olchar_t * pstrSource)
 {
-    olsize_t right, left = 0;
+    olsize_t right = 0, left = 0;
 
-    while ((pstrSource[left] != '\0') && (pstrSource[left] == ' '))
+    /*Move the index to the first character which is not blank.*/
+    while ((pstrSource[left] != JF_STRING_NULL_CHAR) &&
+           (pstrSource[left] == JF_STRING_SPACE_CHAR))
     {
         left++;
     }
 
     right = ol_strlen(pstrSource);
 
-    if (pstrSource[left] != '\0')
+    if (pstrSource[left] != JF_STRING_NULL_CHAR)
     {
-        while (pstrSource[right - 1] == ' ')
+        /*Move the index to the last character which is not blank.*/
+        while (pstrSource[right - 1] == JF_STRING_SPACE_CHAR)
         {
             right--;
         }
 
+        /*Copy the string from source to destination.*/
         ol_strcpy(pstrDest, &pstrSource[left]);
     }
 
-    pstrDest[right - left] = '\0';
+    /*Add a null-terminator.*/
+    pstrDest[right - left] = JF_STRING_NULL_CHAR;
 }
 
 boolean_t jf_string_isBlankLine(const olchar_t * pstrLine)
 {
+    /*By default, it's a blank line.*/
     boolean_t bRet = TRUE;
 
     while (*pstrLine)
     {
-        if ((*pstrLine != '\n') && (! _isblank(*pstrLine)))
+        if ((*pstrLine != JF_STRING_LINE_FEED_CHAR) && (! _isblank(*pstrLine)))
         {
+            /*Found a character which is not blank.*/
             bRet = FALSE;
             break;
         }
@@ -383,16 +396,17 @@ u32 jf_string_duplicateWithLen(
     olchar_t ** ppstrDest, const olchar_t * pstrSource, const olsize_t sSource)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t * pstr;
+    olchar_t * pstr = NULL;
 
     *ppstrDest = NULL;
     if (sSource > 0)
     {
+        /*Allocate 1 more characters for the null-terminator.*/
         u32Ret = jf_jiukun_allocMemory((void **)&pstr, sSource + 1);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             ol_memcpy(pstr, pstrSource, sSource);
-            pstr[sSource] = '\0';
+            pstr[sSource] = JF_STRING_NULL_CHAR;
             *ppstrDest = pstr;
         }
     }
@@ -409,13 +423,14 @@ u32 jf_string_duplicate(olchar_t ** ppstrDest, const olchar_t * pstrSource)
     *ppstrDest = NULL;
     nLen = ol_strlen(pstrSource);
 
+    /*Allocate 1 more characters for the null-terminator.*/
     u32Ret = jf_jiukun_allocMemory((void **)&pStr, nLen + 1);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (nLen > 0)
             ol_strcpy(pStr, pstrSource);
         else
-            pStr[0] = '\0';
+            pStr[0] = JF_STRING_NULL_CHAR;
 
         *ppstrDest = pStr;
     }
@@ -430,70 +445,71 @@ void jf_string_filterComment(olchar_t * pstrDest, const olchar_t * pstrComment)
 
     assert((pstrDest != NULL) && (pstrComment != NULL));
 
+    /*Find the comment.*/
     u32Ret = jf_string_locateSubString(pstrDest, pstrComment, &p);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        *p = '\0';
+        *p = JF_STRING_NULL_CHAR;
     }
 }
 
 void jf_string_lower(olchar_t * pstr)
 {
-    u32 u32Index, sBuf;
+    olsize_t index = 0, sBuf = 0;
 
     assert(pstr != NULL);
 
-    u32Index = 0;
     sBuf = ol_strlen(pstr);
-    while (u32Index < sBuf)
+    while (index < sBuf)
     {
-        pstr[u32Index] = tolower(pstr[u32Index]);
+        pstr[index] = tolower(pstr[index]);
 
-        u32Index ++;
+        index ++;
     }
 }
 
 void jf_string_upper(olchar_t * pstr)
 {
-    u32 u32Index, sBuf;
+    olsize_t index = 0, sBuf = 0;
 
     assert(pstr != NULL);
 
-    u32Index = 0;
     sBuf = ol_strlen(pstr);
-    while (u32Index < sBuf)
+    while (index < sBuf)
     {
-        pstr[u32Index] = toupper(pstr[u32Index]);
+        pstr[index] = toupper(pstr[index]);
 
-        u32Index ++;
+        index ++;
     }
 }
 
 void jf_string_removeLeadingSpace(olchar_t * pstr)
 {
-    u32 u32Index = 0, sBuf;
+    olsize_t index = 0, sBuf = 0;
 
     assert(pstr != NULL);
 
     sBuf = ol_strlen(pstr);
 
-    while (u32Index < sBuf)
+    while (index < sBuf)
     {
-        if (pstr[u32Index] != ' ')
+        /*Find the first character which is not blank.*/
+        if (pstr[index] != JF_STRING_SPACE_CHAR)
             break;
 
-        u32Index ++;
+        index ++;
     }
 
-    if (u32Index != 0)
+    if (index > 0)
     {
-        ol_memmove(pstr, pstr + u32Index, sBuf - u32Index + 1);
+        /*Include the trailing null-terminator.*/
+        ol_memmove(pstr, pstr + index, sBuf - index + 1);
     }
 }
 
 void jf_string_removeTailingSpace(olchar_t * pstr)
 {
-    u32 sBuf;
+    olsize_t sBuf = 0;
 
     assert(pstr != NULL);
 
@@ -501,18 +517,18 @@ void jf_string_removeTailingSpace(olchar_t * pstr)
 
     while (sBuf > 0)
     {
-        if (pstr[sBuf - 1] != ' ')
+        if (pstr[sBuf - 1] != JF_STRING_SPACE_CHAR)
             break;
 
         sBuf --;
     }
 
-    pstr[sBuf] = '\0';
+    pstr[sBuf] = JF_STRING_NULL_CHAR;
 }
 
 void jf_string_trimBlank(olchar_t * pstr)
 {
-    u32 u32Index = 0, sBuf, u32SpaceLen = 0;
+    olsize_t index = 0, sBuf = 0, sSpace = 0;
 
     assert(pstr != NULL);
 
@@ -521,36 +537,31 @@ void jf_string_trimBlank(olchar_t * pstr)
 
     sBuf = ol_strlen(pstr);
 
-    while (u32Index < sBuf)
+    while (index < sBuf)
     {
-        u32SpaceLen = 0;
+        sSpace = 0;
 
-        if (pstr[u32Index] == ' ')
+        /*Count number of space.*/
+        if (pstr[index] == JF_STRING_SPACE_CHAR)
         {
-            u32SpaceLen ++;
+            sSpace ++;
 
-            while (pstr[u32Index + u32SpaceLen] != ' ')
-                u32SpaceLen ++;
+            while (pstr[index + sSpace] == JF_STRING_SPACE_CHAR)
+                sSpace ++;
         }
 
-        if (u32SpaceLen > 1)
-        {
-            ol_memmove(pstr + u32Index, pstr + u32Index + u32SpaceLen,
-                sBuf - u32Index - u32SpaceLen + 1);
+        if (sSpace > 1)
+            /*Include the traling null-terminator.*/
+            ol_memmove(pstr + index + 1, pstr + index + sSpace, sBuf - index - sSpace + 1);
 
-            u32Index += u32SpaceLen;
-        }
-        else
-        {
-            u32Index ++;
-        }
+        index ++;
     }
 }
 
 u32 jf_string_breakToLine(olchar_t * pstr, olsize_t sWidth)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-	olsize_t sIndex = 0, sBuf;
+	olsize_t sIndex = 0, sBuf = 0;
 	olsize_t sLastSpace = 0;
 	olsize_t sCol = 0;
 
@@ -560,18 +571,21 @@ u32 jf_string_breakToLine(olchar_t * pstr, olsize_t sWidth)
 
 	while (sIndex < sBuf)
 	{
-		if (pstr[sIndex] == ' ')
+        /*Save the position of the last space.*/
+		if (pstr[sIndex] == JF_STRING_SPACE_CHAR)
 		{
 			sLastSpace = sIndex;
 		}
 
 		if (++ sCol == sWidth)
 		{
-			pstr[sLastSpace] = '\n';
+            /*Reach the width, break to line.*/
+			pstr[sLastSpace] = JF_STRING_LINE_FEED_CHAR;
 			sCol = 0;
 		}
 
-		if (pstr[sIndex] == '\n')
+        /*Clear the counter for the new line.*/
+		if (pstr[sIndex] == JF_STRING_LINE_FEED_CHAR)
 		{
 			sCol = 0;
 		}
@@ -586,7 +600,7 @@ u32 jf_string_locateSubString(
     const olchar_t * pstr, const olchar_t * pstrSubStr, olchar_t ** ppstrLoc)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t * pstrLoc;
+    olchar_t * pstrLoc = NULL;
 
     pstrLoc = strstr(pstr, pstrSubStr);
     if (pstrLoc == NULL)
@@ -617,7 +631,7 @@ olchar_t * jf_string_replace(
      *             ^- pos
      */
     olchar_t * pos = NULL;
-    u32 u32NeedleLen, u32SubstLen;
+    u32 u32NeedleLen = 0, u32SubstLen = 0;
 
     assert((pstrSrc != NULL) && (sBuf > 0));
     assert((pstrNeedle != NULL) && (pstrSubst != NULL));
@@ -641,16 +655,15 @@ olchar_t * jf_string_replace(
          * "The string NEEDL will be substituted"
          *              end-^
          */
-        memmove(end, beg, ol_strlen(beg) + 1);
+        ol_memmove(end, beg, ol_strlen(beg) + 1);
         /* now put the substitution string on place.
          * "The string SUBST will be substituted"
          *         pos-^    ^-end
          */
-        memmove(pos, pstrSubst, ol_strlen(pstrSubst));
+        ol_memmove(pos, pstrSubst, ol_strlen(pstrSubst));
     }
 
     return pos;
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

@@ -11,29 +11,20 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 #include <ctype.h>
-
-#if defined(LINUX)
-    #include <errno.h>
-#endif
 
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_string.h"
-#include "jf_date.h"
 #include "jf_option.h"
 
 #include "stringcommon.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/** Maximum ID length, ol_strlen(olid_t string)
+/** Maximum ID length for id list string.
  */
 #define MAX_ID_LENGTH                         (32)
 
@@ -73,13 +64,13 @@ u32 jf_string_getS32FromHexString(
         u32Ret = jf_string_duplicateWithLen(&temp_buf, pstrHex, size);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            if ((sscanf(temp_buf, "%x", &s32Value) == 1))
+            if ((ol_sscanf(temp_buf, "%x", &s32Value) == 1))
             {
                 *ps32Value = s32Value;
             }
             else
             {
-                u32Ret = JF_ERR_INVALID_INTEGER;
+                u32Ret = JF_ERR_INVALID_STRING;
             }
 
             jf_string_free(&temp_buf);
@@ -217,7 +208,7 @@ u32 jf_string_getBooleanFromString(
     *pbValue = FALSE;
 
     if (size == 0)
-        u32Ret = JF_ERR_INVALID_PARAM;
+        u32Ret = JF_ERR_INVALID_STRING;
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_string_duplicateWithLen(&temp_buf, pstr, size);
@@ -233,7 +224,7 @@ u32 jf_string_getBooleanFromString(
                  (ol_strcasecmp(temp_buf, JF_STRING_FALSE) == 0))
             *pbValue = FALSE;
         else
-            u32Ret = JF_ERR_INVALID_PARAM;
+            u32Ret = JF_ERR_INVALID_STRING;
     }
 
     if (temp_buf != NULL)
@@ -246,7 +237,7 @@ u32 jf_string_getBinaryFromString(
     const olchar_t * pstr, const olsize_t size, u8 * pu8Binary, olsize_t * psBinary)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Value, i;
+    u32 u32Value = 0, i = 0;
     olsize_t sLen = 0;
     olchar_t buffer[10], * pend;
 
@@ -257,9 +248,11 @@ u32 jf_string_getBinaryFromString(
     {
         while (sLen < size)
         {
+            /*Copy 8 bytes.*/
             ol_strncpy(buffer, &pstr[sLen], 8);
-            buffer[8] = '\0';
+            buffer[8] = JF_STRING_NULL_CHAR;
 
+            /*The base is 16.*/
             u32Value = strtoul(buffer, (olchar_t **)&pend, 16);
             for (i = 0; i < 4; i++)
             {
@@ -285,6 +278,7 @@ u32 jf_string_getSizeFromByteString(const olchar_t * pstr, const olsize_t size, 
 
     assert((pstr != NULL) && (pu64Size != NULL));
 
+    /*Duplicate the string.*/
     u32Ret = jf_string_duplicateWithLen(&temp_buf, pstr, sBuf);
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -293,6 +287,7 @@ u32 jf_string_getSizeFromByteString(const olchar_t * pstr, const olsize_t size, 
             u32Ret = JF_ERR_INVALID_STRING;
     }
 
+    /*Check the unit.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         switch (toupper(temp_buf[sBuf - 2]))
@@ -326,29 +321,32 @@ u32 jf_string_getSizeFromByteString(const olchar_t * pstr, const olsize_t size, 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Allow one or more spaces between value and unit.*/
-        temp_buf[sBuf] = '\0';
+        temp_buf[sBuf] = JF_STRING_NULL_CHAR;
         jf_option_removeSpaceAfterString(temp_buf);
         sBuf = ol_strlen(temp_buf);
         
         u32Ret = jf_option_validateFloatString(temp_buf, sBuf);
     }
 
+    /*Parse the integer before decimal point.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pstrInteger = temp_buf;
-        pstrFraction = ol_strchr(temp_buf, '.');
+        pstrFraction = ol_strchr(temp_buf, JF_STRING_DOT_CHAR);
         if (pstrFraction != NULL)
         {
-            *pstrFraction = '\0';
+            *pstrFraction = JF_STRING_NULL_CHAR;
             pstrFraction ++;
         }
 
         u32Ret = jf_option_getU64FromString(pstrInteger, &u64Integer);
     }
 
+    /*Parse the integer after decimal point if it has.*/
     if ((u32Ret == JF_ERR_NO_ERROR) && (pstrFraction != NULL))
         u32Ret = jf_option_getU64FromString(pstrFraction, &u64Fraction);
 
+    /*Calculate the size.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         *pu64Size = u64Base * u64Integer;
@@ -377,62 +375,71 @@ u32 jf_string_getMacAddressFromString(const olchar_t * pMacString, u8 * pu8Value
     olsize_t size = 0;
     olchar_t strTemp[32];
     olchar_t * firstChar = NULL, * psubStr = NULL;
-    olchar_t cCo1 = ':';
+    olchar_t cCo1 = JF_STRING_COLON_CHAR;
     olint_t i = 0, j = 0, count = 0;
     u32 u32Value[6];
 
     j = 6;
-    if (strlen(pMacString) < 17)
-        return JF_ERR_INVALID_SETTING;
+    if (ol_strlen(pMacString) < 17)
+        return JF_ERR_INVALID_STRING;
 
     ol_bzero(strTemp, sizeof(strTemp));
     ol_strncpy(strTemp, pMacString, sizeof(strTemp) - 1);
     firstChar = strTemp;
     for (i = 0; i < j; i ++)
     {
+        /*Find the delimiter ':'.*/
         psubStr = strchr(firstChar, cCo1);
         if(psubStr != NULL)
         {
+            /*Parse the string before the delimiter.*/
            size = (u32)(psubStr - firstChar);
            firstChar[size] = 0;
-           if (sscanf(firstChar, "%x", &u32Value[i]) != 1)
+           if (ol_sscanf(firstChar, "%x", &u32Value[i]) != 1)
            {
-               return JF_ERR_INVALID_SETTING;
+               /*There should be only 1 hexadecimal, otherwise error.*/
+               return JF_ERR_INVALID_STRING;
            }
            else
            {
                if (u32Value[i] <= 255)
                {
+                   /*Save the MAC address.*/
                    firstChar = psubStr + 1;
                    pu8Value[i] = u32Value[i];
                    count ++;
                }
                else
                {
-                   return JF_ERR_INVALID_SETTING;
+                   /*The MAC address is 1 byte. It's out of range if it's more than 255*/
+                   return JF_ERR_INVALID_STRING;
                }
             }
         }
         else
         {
+            /*Not found, check if it's the last piece.*/
             if (count == 5)
             {
-                if (sscanf(firstChar, "%x", &u32Value[i]) != 1)
+                if (ol_sscanf(firstChar, "%x", &u32Value[i]) != 1)
                 {
-                    return JF_ERR_INVALID_SETTING;
+                    return JF_ERR_INVALID_STRING;
                 }
+
                 if (u32Value[i] <= 255)
                 {
                     pu8Value[i] = u32Value[i];
                 }
                 else
                 {
-                    return JF_ERR_INVALID_SETTING;
+                   /*The MAC address is 1 byte. It's out of range if it's more than 255*/
+                    return JF_ERR_INVALID_STRING;
                 }
             }
             else
             {
-                return JF_ERR_INVALID_SETTING;
+                /*':' is not found and this is not the last piece, the string is not complete.*/
+                return JF_ERR_INVALID_STRING;
             }
         }
     }
@@ -484,7 +491,6 @@ u32 jf_string_getIdListFromString(const olchar_t * pstrIdList, olid_t * pids, ol
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strId[MAX_ID_LENGTH];
-    const olchar_t cDelimit = ',', cRange = '~';
     olchar_t * pstrList = NULL, * pstrRange = NULL, * pstrDelimit;
     olsize_t sLength = 0, sCount = 0;
     olsize_t sValue1 = 0, sValue2 = 0;
@@ -497,41 +503,38 @@ u32 jf_string_getIdListFromString(const olchar_t * pstrIdList, olid_t * pids, ol
         *psId = 0;
         return u32Ret;
     }
-    else
-    {
-        /* check for illegal input */
-        sLength = ol_strlen(pstrIdList);
 
-        for(i = 0; i < (olint_t)sLength; i++)
-        {
-            if (isdigit(pstrIdList[i]))
-                continue;
-            else if (pstrIdList[i] == '~')
-                continue;
-            else if (pstrIdList[i] == ',')
-                continue;
-            else if (pstrIdList[i] == ' ')
-                continue;
-            else
-            {
-                u32Ret = JF_ERR_INVALID_SETTING;
-                i = sLength;
-            }
-        }
+    /*Check for illegal input.*/
+    sLength = ol_strlen(pstrIdList);
+    for(i = 0; i < sLength; i++)
+    {
+        if (isdigit(pstrIdList[i]))
+            continue;
+        else if (pstrIdList[i] == JF_STRING_TILDE_CHAR)
+            continue;
+        else if (pstrIdList[i] == JF_STRING_COMMA_CHAR)
+            continue;
+        else if (pstrIdList[i] == JF_STRING_SPACE_CHAR)
+            continue;
+        else
+            return JF_ERR_INVALID_STRING;
     }
 
-    sCount = 0;
+    /*Parse the id list string.*/
     pstrList = (olchar_t *)pstrIdList;
     while ((pstrList != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
         sLength = ol_strlen(pstrList);
 
-        pstrDelimit = strchr(pstrList, cDelimit);
+        /*Find the character ','.*/
+        pstrDelimit = strchr(pstrList, JF_STRING_COMMA_CHAR);
         if (pstrDelimit != NULL)
         {
+            /*Copy string before delimiter to the buffer.*/
             sLength = pstrDelimit - pstrList;
             ol_strncpy(strId, pstrList, sLength);
             strId[sLength] = 0;
+            /*Move the pointer to after delimiter.*/
             pstrList = pstrDelimit + 1;
             if (ol_strlen(pstrList) == 0)
             {
@@ -544,27 +547,23 @@ u32 jf_string_getIdListFromString(const olchar_t * pstrIdList, olid_t * pids, ol
             pstrList = NULL;
         }
 
-        for (i = 0; i < (olint_t)strlen(strId); i++)
-        {
-            if ((isdigit(strId[i]) == 0) &&
-                (strId[i] != cRange) &&
-                (strId[i] != cDelimit))
-                return JF_ERR_INVALID_SETTING;
-        }
-
-        pstrRange = strchr(strId, cRange);
+        /*Parse the string buffer, find '~'.*/
+        pstrRange = ol_strchr(strId, JF_STRING_TILDE_CHAR);
         if (pstrRange != NULL)
         {
-            if (sscanf(strId, "%d~%d", &sValue1, &sValue2) != 2)
+            /*'~' is found.*/
+            if (ol_sscanf(strId, "%d~%d", &sValue1, &sValue2) != 2)
             {
-                u32Ret = JF_ERR_INVALID_SETTING;
+                /*The string format is wrong.*/
+                u32Ret = JF_ERR_INVALID_STRING;
             }
         }
         else
         {
-            if (sscanf(strId, "%d", &sValue1) != 1)
+            /*Single digit.*/
+            if (ol_sscanf(strId, "%d", &sValue1) != 1)
             {
-                u32Ret = JF_ERR_INVALID_SETTING;
+                u32Ret = JF_ERR_INVALID_STRING;
             }
             else
             {
@@ -574,15 +573,16 @@ u32 jf_string_getIdListFromString(const olchar_t * pstrIdList, olid_t * pids, ol
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
+            /*The range is invalid like '6~3'.*/
             if (sValue2 < sValue1)
             {
-                u32Ret = JF_ERR_INVALID_SETTING;
+                u32Ret = JF_ERR_INVALID_STRING;
             }
         }
 
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            /* fill the id array */
+            /*Fill the id array.*/
             while ((sCount < *psId) && (sValue1 <= sValue2))
             {
                 pids[sCount] = (olid_t)sValue1;

@@ -42,7 +42,56 @@
 
 /** Define the string for "not applicable".
  */
-#define JF_STRING_NOT_APPLICABLE              "N/A"
+#define JF_STRING_NOT_APPLICABLE                    "N/A"
+
+/** Define the null character.
+ */
+#define JF_STRING_NULL_CHAR                         '\0'
+
+/** Define the equal sign character.
+ */
+#define JF_STRING_EQUAL_SIGN_CHAR                   '='
+
+/** Define the space character.
+ */
+#define JF_STRING_SPACE_CHAR                        ' '
+
+/** Define the space character.
+ */
+#define JF_STRING_COMMA_CHAR                        ','
+
+/** Define the underscore character.
+ */
+#define JF_STRING_UNDERSCORE_CHAR                   '_'
+
+/** Define the double quotes character.
+ */
+#define JF_STRING_DOUBLE_QUOTES_CHAR                '"'
+
+/** Define the single quotes character.
+ */
+#define JF_STRING_SINGLE_QUOTE_CHAR                 '\''
+
+/** Define the horizontal tab character.
+ */
+#define JF_STRING_HORIZONTAL_TAB_CHAR               '\t'
+
+/** Define the dot character.
+ */
+#define JF_STRING_DOT_CHAR                          '.'
+
+/** Define the colon character.
+ */
+#define JF_STRING_COLON_CHAR                        ':'
+
+/** Define the tilde character.
+ */
+#define JF_STRING_TILDE_CHAR                        '~'
+
+/** Define the line feed (new line) character.
+ */
+#define JF_STRING_LINE_FEED_CHAR                    '\n'
+
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -180,6 +229,7 @@ STRINGAPI boolean_t STRINGCALL jf_string_isBlankLine(const olchar_t * pstrLine);
  *
  *  @note
  *  -# The terminating null byte '\0' is duplicated also.
+ *  -# Source string is duplicated even its length is 0.
  *
  *  @param ppstrDest [out] The destination string.
  *  @param pstrSource [in] The source string.
@@ -194,6 +244,7 @@ STRINGAPI u32 STRINGCALL jf_string_duplicate(olchar_t ** ppstrDest, const olchar
  *
  *  @note
  *  -# The terminating null byte '\0' is always appended to the destination string.
+ *  -# Source string is not duplicated if its length is 0.
  *
  *  @param ppstrDest [out] The destination string.
  *  @param pstrSource [in] The source string.
@@ -464,8 +515,9 @@ STRINGAPI u32 STRINGCALL jf_string_getStringMacAddress(
 /** Get the size string in TB, GB, MB, KB and B.
  *
  *  @note
- *  -# The size is calculated with 1024 byte.
- *  -# The size string will be the format of "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>".
+ *  -# The size is calculated with 1024 byte and rounding.
+ *  -# The size string will be the format of "<xxxx|xxxx.xx><TB|GB|MB|KB|B>". Maximum 2 digits
+ *   after decimal point.
  *
  *  @param pstrSize [out] The size string to be returned.
  *  @param sStrSize [in] Size of the string.
@@ -480,8 +532,9 @@ STRINGAPI u32 STRINGCALL jf_string_getByteStringSize(
 /** Get the size string in TB, GB, MB, KB and B.
  *
  *  @note
- *  -# The size is calculated with 1024 byte.
- *  -# The size string will be the format of "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>".
+ *  -# The size is calculated with 1024 byte and no rounding.
+ *  -# The size string will be the format of "<xxxx|xxxx.xx><TB|GB|MB|KB|B>". Maximum 2 digits
+ *   after decimal point.
  *
  *  @param pstrSize [out] The size string to be returned.
  *  @param sStrSize [in] Size of the string.
@@ -496,8 +549,9 @@ STRINGAPI u32 STRINGCALL jf_string_getByteStringSizeMax(
 /** Get the size string based 1000 in TB, GB, MB, KB and B.
  *
  *  @note
- *  -# The size is calculated with 1000 byte.
- *  -# The size string will be the format of "<xxxx|xxxx.x|xxxx.xx><TB|GB|MB|KB|B>".
+ *  -# The size is calculated with 1000 byte and rounding.
+ *  -# The size string will be the format of "<xxxx|xxxx.xx><TB|GB|MB|KB|B>". Maximum 2 digits
+ *   after decimal point.
  *
  *  @param pstrSize [out] The size string to be returned.
  *  @param sStrSize [in] Size of the string.
@@ -700,6 +754,9 @@ STRINGAPI u32 STRINGCALL jf_string_getS64FromString(
 
 /** Read binary from string.
  *
+ *  @note
+ *  -# The string is hex string.
+ *
  *  @param pstr [in] The string to read from.
  *  @param size [in] The length of the string.
  *  @param pu8Binary [out] The buffer for the binary.
@@ -779,6 +836,7 @@ STRINGAPI u32 STRINGCALL jf_string_getDoubleFromString(
  * 
  *  @note
  *  -# The id array will only save specified number of id, other id are discarded.
+ *  -# The available character in the string would be digits, '~', ',', ' '.
  *
  *  @par Example
  *  @code
@@ -807,6 +865,8 @@ STRINGAPI u32 STRINGCALL jf_string_getIdListFromString(
  *  -# The setting is seperated by ','.
  *  -# Each setting has format with "tag=value"
  *  -# If numbers of tags are more than array size, only those tags with array size are returned.
+ *  -# After process, the setting string is modified, the array entries point to the string without
+ *   memory allocation.
  *
  *  @par Example
  *  @code
@@ -831,13 +891,15 @@ STRINGAPI u32 STRINGCALL jf_string_processSettings(
 /** Break down the strings to an array pointing to each keyword setting.
  *
  *  @note
- *  -# The keyword setting is seperated by '\0'.
+ *  -# The keyword setting is seperated by '\0'. A trailing '\0' is necessary.
  *  -# Each keyword setting has format with "tag=value"
  *  -# If numbers of tags are more than array size, only those tags with array size are returned.
+ *  -# After process, the setting string is modified, the array entries point to the string without
+ *   memory allocation.
  *
  *  @par Example
  *  @code
- *  pstrSettings = "tag1=value1\0tag2 = value2\0tag3=value3"
+ *  pstrSettings = "tag1=value1\0tag2 = value2\0tag3=value3\0"
  *  After processing:
  *      pstrArray[0] = "tag1=value1"
  *      pstrArray[1] = "tag2 = value2"
@@ -872,18 +934,22 @@ STRINGAPI u32 STRINGCALL jf_string_processKeywordSettings(
 STRINGAPI u32 STRINGCALL jf_string_processSettingString(
     olchar_t * pstrSetting, olchar_t ** ppstrName, olchar_t ** ppstrValue);
 
-/** Retrive settings from the string array.
+/** Retrieve settings from the string array.
  * 
- *  @note jf_string_processSettings() should be called before.
+ *  @note
+ *  -# jf_string_processSettings() should be called before.
  *
  *  @param pstrArray [in] The string array returned by jf_string_processSettings().
  *  @param sArray [in] Number of element in the string array.
  *  @param pstrName [in] Setting name.
- *  @param pstrValue [out] Setting value.
- *  @param sValue [in] Length of value string.
+ *  @param pstrValue [out] Setting value buffer.
+ *  @param sValue [in] Length of value buffer.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_NOT_FOUND Setting is not found.
+ *  @retval JF_ERR_SETTING_TOO_LONG Setting value is too long, buffer cannot hold it.
+ *  @retval JF_ERR_SETTING_EMPTY Setting value is empty.
  */
 STRINGAPI u32 STRINGCALL jf_string_retrieveSettings(
     olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrName, olchar_t * pstrValue,
@@ -894,6 +960,8 @@ STRINGAPI u32 STRINGCALL jf_string_retrieveSettings(
  *  @note
  *  -# The setting string array is a result of function jf_string_processSettings() or
  *   jf_string_processKeywordSettings().
+ *  -# The name array contains setting names expected. The entries in setting string array is parsed
+ *   one by one, error is returned if the setting name is not found in name array.
  *
  *  @param pstrNameArray [in] The tag name array.
  *  @param sNameArray [in] Number of element in the tag name array.
@@ -914,7 +982,9 @@ STRINGAPI u32 STRINGCALL jf_string_validateSettings(
  *  @note
  *  -# The setting string array is a result of function jf_string_processSettings() or
  *   jf_string_processKeywordSettings().
- *  -# Default value is returned incase there are any errors.
+ *  -# If setting name is not found in the string array, the default value is used and no error is
+ *   returned. if setting name is found and the value is incorrect, the default value is used and
+ *   error is returned.
  *
  *  @param pstrArray [in] The setting string array.
  *  @param sArray [in] Number of element in the setting string array.
@@ -934,7 +1004,9 @@ STRINGAPI u32 STRINGCALL jf_string_getSettingsU32(
  *  @note
  *  -# The setting string array is a result of function jf_string_processSettings() or
  *   jf_string_processKeywordSettings().
- *  -# Default value is returned incase there are any errors.
+ *  -# If setting name is not found in the string array, the default value is used and no error is
+ *   returned. if setting name is found and the value is incorrect, the default value is used and
+ *   error is returned.
  *
  *  @param pstrArray [in] The setting string array.
  *  @param sArray [in] Number of element in the setting string array.
@@ -954,7 +1026,9 @@ STRINGAPI u32 STRINGCALL jf_string_getSettingsU64(
  *  @note
  *  -# The setting string array is a result of function jf_string_processSettings() or
  *   jf_string_processKeywordSettings().
- *  -# Default value is returned incase there are any errors.
+ *  -# If setting name is not found in the string array, the default value is used and no error is
+ *   returned. if setting name is found and the value is incorrect, the default value is used and
+ *   error is returned.
  *
  *  @param pstrArray [in] The setting string array.
  *  @param sArray [in] Number of element in the setting string array.
@@ -964,6 +1038,7 @@ STRINGAPI u32 STRINGCALL jf_string_getSettingsU64(
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_INVALID_STRING Invalid setting string.
  */
 STRINGAPI u32 STRINGCALL jf_string_getSettingsBoolean(
     olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
@@ -974,7 +1049,8 @@ STRINGAPI u32 STRINGCALL jf_string_getSettingsBoolean(
  *  @note
  *  -# The setting string array is a result of function jf_string_processSettings() or
  *   jf_string_processKeywordSettings().
- *  -# Default value is returned incase there are any errors.
+ *  -# If setting name is not found in the string array, the default value is used and no error is
+ *   returned.
  *
  *  @param pstrArray [in] The setting string array.
  *  @param sArray [in] Number of element in the setting string array.
@@ -995,7 +1071,9 @@ STRINGAPI u32 STRINGCALL jf_string_getSettingsString(
  *  @note
  *  -# The setting string array is a result of function jf_string_processSettings() or
  *   jf_string_processKeywordSettings().
- *  -# Default value is returned incase there are any errors.
+ *  -# If setting name is not found in the string array, the default value is used and no error is
+ *   returned. if setting name is found and the value is incorrect, the default value is used and
+ *   error is returned.
  *
  *  @param pstrArray [in] The setting string array.
  *  @param sArray [in] Number of element in the setting string array.
