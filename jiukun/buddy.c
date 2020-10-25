@@ -633,8 +633,8 @@ void * jiukunPageToAddr(jiukun_page_t * pap)
 jiukun_page_t * addrToJiukunPage(void * pAddr)
 {
     internal_jiukun_buddy_t * piab = &ls_ijbBuddy;
-    buddy_zone_t * pbz;
-    u32 u32Index;
+    buddy_zone_t * pbz = NULL;
+    u32 u32Index = 0;
 
     assert(piab->ijb_bInitialized);
 

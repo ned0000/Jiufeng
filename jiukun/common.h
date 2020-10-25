@@ -15,6 +15,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_jiukun.h"
 
@@ -23,14 +24,19 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
+
 /* --- functional routines ---------------------------------------------------------------------- */
 
-
+/** Reap jiukun to free the memory.
+ *
+ *  @param bNoWait [in] Donot wait if it's TRUE.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_REAP_JIUKUN Failed to reap jiukun.
+ */
 JIUKUNAPI u32 JIUKUNCALL reapJiukun(boolean_t bNoWait);
-
 
 #endif /*JIUKUN_COMMON_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

@@ -6,7 +6,8 @@
  *  @author Min Zhang
  *
  *  @note
- *  
+ *  -# The buddy is a memory allocator based on page.
+ *  -# When allocating page, order must be specified and (2^order) pages are allocated.
  */
 
 #ifndef JIUKUN_BUDDY_H
