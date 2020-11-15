@@ -1,7 +1,7 @@
 /**
  *  @file clicmd.h
  *
- *  @brief CLI command processor
+ *  @brief CLI command processor.
  *
  *  @author Min Zhang
  *  
@@ -15,18 +15,29 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_clieng.h"
+
 #include "main.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
+
 #define CLI_ACTION_UNKNOWN    0
 #define CLI_ACTION_SHOW_HELP  1
 
 /* --- data structures -------------------------------------------------------------------------- */
+
 typedef struct
 {
-#define CLI_ACTION_ADD_USER  0x80
+#define CLI_ACTION_CLEAR      0x80
+    u8 ccp_u8Action;
+    u8 ccp_u8Reserved[15];
+} cli_clear_param_t;
+
+typedef struct
+{
+#define CLI_ACTION_ADD_USER   0x80
 #define CLI_ACTION_LIST_USER  0x81
     u8 cup_u8Action;
     boolean_t cup_bVerbose;
@@ -48,6 +59,7 @@ typedef struct
 
 typedef union
 {
+    cli_clear_param_t cp_ccpClear;
     cli_exit_param_t cp_cepExit;
     cli_help_param_t cp_chpHelp;
     cli_user_param_t cp_cupUser;
@@ -60,5 +72,3 @@ u32 addCmd(jiufeng_cli_master_t * pocm, cli_param_t * pcp);
 #endif /*CLI_CLICMD_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

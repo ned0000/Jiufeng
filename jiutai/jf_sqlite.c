@@ -55,14 +55,17 @@ static u32 _jtSqliteEvalSqlStmt(
         {
         case SQLITE_ROW:
             /*Success and data is returned, after retrieving all data, SQLITE_DONE is returned.*/
+#if defined(DEBUG_SQLITE)
             JF_LOGGER_DEBUG("sqlite3_step return SQLITE_ROW");
+#endif
             if (fnHandleRowData != NULL)
                 u32Ret = fnHandleRowData(pStmt, pArg);
             break;
         case SQLITE_BUSY:
         case SQLITE_LOCKED:
+#if defined(DEBUG_SQLITE)
             JF_LOGGER_DEBUG("sqlite3_step return %d", nRet);
-
+#endif
             if (bTransaction || pjs->js_bTransactionStarted)
             {
                 /*Do not retry for trasaction.*/
@@ -78,7 +81,9 @@ static u32 _jtSqliteEvalSqlStmt(
             break;
         case SQLITE_DONE:
             /*Success and no data is returned.*/
+#if defined(DEBUG_SQLITE)
             JF_LOGGER_DEBUG("sqlite3_step return SQLITE_DONE");
+#endif
             bKeepOnTrying = FALSE;
             break;
         default:
@@ -101,7 +106,9 @@ static u32 _jtSqliteExecSql(
     sqlite3_stmt * pStmt = NULL;
     olint_t nRet = SQLITE_OK;
 
+#if defined(DEBUG_SQLITE)
     JF_LOGGER_DEBUG("sql: %s", pstrSql);
+#endif
 
     /*Compile the SQL statement into a byte-code program.*/
     nRet = sqlite3_prepare_v2(pjs->js_psSqlite, pstrSql, -1, &pStmt, NULL);

@@ -417,6 +417,15 @@ CLIENGAPI u32 CLIENGCALL jf_clieng_printTwoHalfLine(
 CLIENGAPI void CLIENGCALL jf_clieng_appendBriefColumn(
     const jf_clieng_caption_t * pjcc, olchar_t * pstrLine, const olchar_t * pstrColumn);
 
+/** Clear the terminal screen.
+ *
+ *  @note
+ *  -# The screen is cleared and the cursor is move to the left-upper of the screen.
+ *
+ *  @return Void.
+ */
+CLIENGAPI void CLIENGCALL jf_clieng_clear(void);
+
 #endif /*JIUFENG_CLIEN_H*/
 
 /*------------------------------------------------------------------------------------------------*/

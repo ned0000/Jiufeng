@@ -10,10 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -24,14 +24,79 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+
 /* --- private routine section ------------------------------------------------------------------ */
+
+static u32 _setDefaultParamClear(void * pMaster, void * pParam)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    cli_clear_param_t * pccp = (cli_clear_param_t *)pParam;
+
+    ol_bzero(pccp, sizeof(*pccp));
+
+    pccp->ccp_u8Action = CLI_ACTION_CLEAR;
+
+    return u32Ret;
+}
+
+static u32 _clearHelp(jiufeng_cli_master_t * pocm)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    jf_clieng_outputLine("Clear terminal screen.");
+    jf_clieng_outputLine("clear [-h]");
+    jf_clieng_outputLine("  -h: print this usage.");
+
+    return u32Ret;
+}
+
+static u32 _parseClear(void * pMaster, olint_t argc, olchar_t ** argv, void * pParam)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    cli_clear_param_t * pccp = (cli_clear_param_t *)pParam;
+    olint_t nOpt = 0;
+
+    jf_option_reset();
+
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "h?")) != -1))
+    {
+        switch (nOpt)
+        {
+        case ':':
+            u32Ret = JF_ERR_MISSING_OPTION_ARG;
+            break;
+        case '?':
+        case 'h':
+            pccp->ccp_u8Action = CLI_ACTION_SHOW_HELP;
+            break;
+        default:
+            u32Ret = jf_clieng_reportNotApplicableOpt(nOpt);
+        }
+    }
+
+    return u32Ret;
+}
+
+static u32 _processClear(void * pMaster, void * pParam)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    cli_clear_param_t * pccp = (cli_clear_param_t *)pParam;
+    jiufeng_cli_master_t * pocm = (jiufeng_cli_master_t *)pMaster;
+
+    if (pccp->ccp_u8Action == CLI_ACTION_SHOW_HELP)
+        u32Ret = _clearHelp(pocm);
+    else if (pccp->ccp_u8Action == CLI_ACTION_CLEAR)
+        jf_clieng_clear();
+
+    return u32Ret;
+}
 
 static u32 _setDefaultParamUser(void * pMaster, void * pParam)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_user_param_t * pcup = (cli_user_param_t *)pParam;
 
-    memset(pcup, 0, sizeof(cli_user_param_t));
+    ol_bzero(pcup, sizeof(cli_user_param_t));
 
     return u32Ret;
 }
@@ -222,7 +287,7 @@ static u32 _setDefaultParamExit(void * pMaster, void * pParam)
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_exit_param_t * pcep = (cli_exit_param_t *)pParam;
 
-    memset(pcep, 0, sizeof(cli_exit_param_t));
+    ol_bzero(pcep, sizeof(*pcep));
 
     return u32Ret;
 }
@@ -271,7 +336,9 @@ static u32 _processExit(void * pMaster, void * pParam)
     cli_exit_param_t * pcep = (cli_exit_param_t *)pParam;
 
     if (pcep->cep_u8Action == CLI_ACTION_SHOW_HELP)
+    {
         u32Ret = _exitHelp(pocm);
+    }
     else
     {
         jf_clieng_outputLine("Exit CLI");
@@ -286,7 +353,7 @@ static u32 _setDefaultParamHelp(void * pMaster, void * pParam)
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_help_param_t * pchp = (cli_help_param_t *)pParam;
 
-    memset(pchp, 0, sizeof(cli_help_param_t));
+    ol_bzero(pchp, sizeof(*pchp));
 
     return u32Ret;
 }
@@ -331,9 +398,11 @@ static u32 _processHelp(void * pMaster, void * pParam)
     }
     else
     {
+        jf_clieng_outputLine("clear: clear screen.");
         jf_clieng_outputLine("exit: exit CLI.");
         jf_clieng_outputLine("help: list command.");
         jf_clieng_outputLine("user: list user.");
+        jf_clieng_outputLine("");
     }
 
     return u32Ret;
@@ -347,7 +416,7 @@ u32 addCmd(jiufeng_cli_master_t * pocm, cli_param_t * pcp)
     jf_clieng_cmd_t * cmd;
 
     jf_clieng_newCmd(
-        "user", _setDefaultParamUser, _parseUser, _processUser, pcp, &cmd);
+        "clear", _setDefaultParamClear, _parseClear, _processClear, pcp, &cmd);
 
     jf_clieng_newCmd(
         "exit", _setDefaultParamExit, _parseExit, _processExit, pcp, &cmd);
@@ -355,9 +424,10 @@ u32 addCmd(jiufeng_cli_master_t * pocm, cli_param_t * pcp)
     jf_clieng_newCmd(
         "help", _setDefaultParamHelp, _parseHelp, _processHelp, pcp, &cmd);
 
+    jf_clieng_newCmd(
+        "user", _setDefaultParamUser, _parseUser, _processUser, pcp, &cmd);
+
     return u32Ret;
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-

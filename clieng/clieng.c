@@ -10,13 +10,13 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdlib.h>
-#include <string.h>
+
 #include <time.h>
 #include <signal.h>
 #include <stdarg.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_clieng.h"
@@ -370,6 +370,16 @@ u32 jf_clieng_setPrompt(const olchar_t * pstrPrompt)
     return u32Ret;
 }
 
+void jf_clieng_clear(void)
+{
+#if defined(WINDOWS)
+
+#elif defined(LINUX)
+    ol_printf("\033[2J");
+    ol_printf("\033[0;0H");
+#endif
+
+    return;
+}
 
 /*------------------------------------------------------------------------------------------------*/
-
