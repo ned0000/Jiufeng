@@ -277,8 +277,11 @@ u32 jf_httpparser_processDataobject(
     internal_httpparser_dataobject_t * pihd = (internal_httpparser_dataobject_t *) pDataobject;
     olsize_t sHeader = 0;
 
+#ifdef DEBUG_HTTPPARSER
     jf_logger_logDebugMsg(
         "httpparser process dataobject, %d:%d", *psBeginPointer, sEndPointer);
+#endif
+
 /*
     jf_logger_logDataMsgWithAscii(
         pu8Buffer + *psBeginPointer, sEndPointer - *psBeginPointer,

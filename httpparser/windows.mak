@@ -21,6 +21,10 @@ EXTRA_LIBS = jf_string.lib jf_jiukun.lib jf_logger.lib
 
 EXTRA_DEFS = /DJIUFENG_HTTPPARSER_DLL
 
+!if "$(DEBUG_JIUFENG)" == "yes"
+#EXTRA_CFLAGS = $(EXTRA_CFLAGS) /DDEBUG_HTTPPARSER
+!endif
+
 !include "$(TOPDIR)\mak\winlib.mak"
 
 #---------------------------------------------------------------------------------------------------

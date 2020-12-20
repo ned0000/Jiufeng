@@ -18,6 +18,10 @@ EXTRA_LIBS = -ljf_string -ljf_jiukun -ljf_logger
 
 JIUTAI_SRCS =
 
+ifeq ("$(DEBUG_JIUFENG)", "yes")
+#  EXTRA_CFLAGS += -DDEBUG_HTTPPARSER
+endif
+
 include $(TOPDIR)/mak/lnxlib.mak
 
 #---------------------------------------------------------------------------------------------------

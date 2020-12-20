@@ -142,7 +142,9 @@ u32 jf_httpparser_processChunk(
 
     pihcp = (internal_httpparser_chunk_processor_t *)pProcessor;
 
+#ifdef DEBUG_HTTPPARSER
     JF_LOGGER_DEBUG("chunk: %d:%d", *psBeginPointer, endPointer);
+#endif
 
     while ((u32Ret == JF_ERR_NO_ERROR) && (*psBeginPointer < endPointer))
     {
@@ -150,7 +152,9 @@ u32 jf_httpparser_processChunk(
         switch (pihcp->ihcp_u8Flags)
         {
         case HTTPPARSER_CHUNK_FLAG_START:
+#ifdef DEBUG_HTTPPARSER
             JF_LOGGER_DEBUG("STARTCHUNK");
+#endif
             /*Reading chunk header, it's at least 3 bytes.*/
             if (endPointer < 3)
             {
@@ -166,7 +170,9 @@ u32 jf_httpparser_processChunk(
                         (olchar_t *)buffer, index - 2, &pihcp->ihcp_nBytesLeft);
                     if (u32Ret == JF_ERR_NO_ERROR)
                     {
+#ifdef DEBUG_HTTPPARSER
                         JF_LOGGER_DEBUG("chunk size: %d", pihcp->ihcp_nBytesLeft);
+#endif
                         *psBeginPointer = index;
                         pihcp->ihcp_u8Flags = (pihcp->ihcp_nBytesLeft == 0) ?
                             HTTPPARSER_CHUNK_FLAG_FOOTER : HTTPPARSER_CHUNK_FLAG_DATA;
@@ -176,7 +182,9 @@ u32 jf_httpparser_processChunk(
             }
             break;
         case HTTPPARSER_CHUNK_FLAG_END:
+#ifdef DEBUG_HTTPPARSER
             JF_LOGGER_DEBUG("ENDCHUNK");
+#endif
             if (endPointer >= 2)
             {
                 /*There is more chunks to come.*/
@@ -185,7 +193,9 @@ u32 jf_httpparser_processChunk(
             }
             break;
         case HTTPPARSER_CHUNK_FLAG_DATA:
+#ifdef DEBUG_HTTPPARSER
             JF_LOGGER_DEBUG("DATACHUNK");
+#endif
             if (endPointer >= pihcp->ihcp_nBytesLeft)
             {
                 /*Only consume what we need.*/
@@ -218,7 +228,9 @@ u32 jf_httpparser_processChunk(
             *psBeginPointer = index;
             break;
         case HTTPPARSER_CHUNK_FLAG_FOOTER:
+#ifdef DEBUG_HTTPPARSER
             JF_LOGGER_DEBUG("FOOTERCHUNK");
+#endif
             if (endPointer >= 2)
             {
                 for (index = 2; index <= endPointer; ++ index)
