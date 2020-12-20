@@ -13,6 +13,7 @@
 
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_httpparser.h"
 #include "jf_err.h"
@@ -359,7 +360,7 @@ olint_t jf_httpparser_getHttpEscapeDataLen(const u8 * data)
 olint_t jf_httpparser_unescapeHttpData(olchar_t * data)
 {
     olchar_t hex[3];
-    u8 *stp;
+    u8 * stp = NULL;
     olint_t src_x = 0;
     olint_t dst_x = 0;
 
@@ -442,7 +443,7 @@ u32 jf_httpparser_getRawPacket(
     jf_httpparser_packet_header_t * pjhph, olchar_t ** ppstrBuf, olsize_t * psBuf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t total;
+    olsize_t total = 0;
     olsize_t sBuffer = 0;
     olchar_t * pBuffer = NULL;
     jf_httpparser_packet_header_field_t * node = NULL;
@@ -488,10 +489,12 @@ u32 jf_httpparser_getRawPacket(
     {
         /*Write the response.*/
         ol_memcpy(pBuffer, "HTTP/", 5);
+
         ol_memcpy(pBuffer + 5, pjhph->jhph_pstrVersion, pjhph->jhph_sVersion);
         total = 5 + pjhph->jhph_sVersion;
 
         total += ol_sprintf(pBuffer + total, " %d ", pjhph->jhph_nStatusCode);
+
         ol_memcpy(pBuffer + total, pjhph->jhph_pstrStatusData, pjhph->jhph_sStatusData);
         total += pjhph->jhph_sStatusData;
 
@@ -504,14 +507,19 @@ u32 jf_httpparser_getRawPacket(
         /*Write the Request, GET / HTTP/1.1\r\n.*/
         ol_memcpy(pBuffer, pjhph->jhph_pstrDirective, pjhph->jhph_sDirective);
         total = pjhph->jhph_sDirective;
+
         ol_memcpy(pBuffer + total, " ", 1);
         total += 1;
+
         ol_memcpy(pBuffer + total, pjhph->jhph_pstrDirectiveObj, pjhph->jhph_sDirectiveObj);
         total += pjhph->jhph_sDirectiveObj;
+
         ol_memcpy(pBuffer + total, " HTTP/", 6);
         total += 6;
+
         ol_memcpy(pBuffer + total, pjhph->jhph_pstrVersion, pjhph->jhph_sVersion);
         total += pjhph->jhph_sVersion;
+
         ol_memcpy(pBuffer + total, "\r\n", 2);
         total += 2;
     }
@@ -522,13 +530,18 @@ u32 jf_httpparser_getRawPacket(
         /*Write each header.*/
         ol_memcpy(pBuffer + total, node->jhphf_pstrName, node->jhphf_sName);
         total += node->jhphf_sName;
+
         ol_memcpy(pBuffer + total, ": ", 2);
         total += 2;
+
         ol_memcpy(pBuffer + total, node->jhphf_pstrData, node->jhphf_sData);
         total += node->jhphf_sData;
+
         ol_memcpy(pBuffer + total, "\r\n", 2);
         total += 2;
+
         sBuffer += node->jhphf_sName + node->jhphf_sData + 4;
+
         node = node->jhphf_pjhphfNext;
     }
 
@@ -551,14 +564,14 @@ u32 jf_httpparser_parseUri(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t *result = NULL, *result2 = NULL, *result3 = NULL;
-    olchar_t * str1;
-    olsize_t len1, len2;
+    olchar_t * str1 = 0;
+    olsize_t len1 = 0, len2 = 0;
 
     *ppstrIp = NULL;
     *ppstrPath = NULL;
 
     /*A scheme has the format xxx://yyy , so if we parse on ://, we can extract the path info.*/
-    u32Ret = jf_string_parse(&result, pstrUri, 0, (olint_t) ol_strlen(pstrUri), "://", 3);
+    u32Ret = jf_string_parse(&result, pstrUri, 0, ol_strlen(pstrUri), "://", 3);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (result->jspr_u32NumOfResult < 2)
