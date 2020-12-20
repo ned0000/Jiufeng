@@ -41,7 +41,7 @@
  */
 typedef void  jf_webclient_t;
 
-/** The possible value for nEvent in function jf_webclient_fnOnEvent_t
+/** The possible value for nEvent in function jf_webclient_fnOnEvent_t.
  */
 typedef enum jf_webclient_event
 {
@@ -66,6 +66,14 @@ typedef struct
 } jf_webclient_create_param_t;
 
 /** Callback function for webclient event.
+ *
+ *  @param pAsocket [in] The async socket represents the connection.
+ *  @param event [in] The event.
+ *  @param header [in] The HTTP header.
+ *  @param pUser [in] The user object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_webclient_fnOnEvent_t)(
     jf_network_asocket_t * pAsocket, jf_webclient_event_t event,
