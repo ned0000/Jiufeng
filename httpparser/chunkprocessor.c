@@ -112,7 +112,7 @@ u32 jf_httpparser_createChunkProcessor(
     internal_httpparser_chunk_processor_t * pihcp = NULL;
 
     /*Allocate memory for chunk processor.*/
-    u32Ret = jf_jiukun_allocMemory((void **)pihcp, sizeof(*pihcp));
+    u32Ret = jf_jiukun_allocMemory((void **)&pihcp, sizeof(*pihcp));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pihcp, sizeof(*pihcp));
