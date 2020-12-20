@@ -376,6 +376,10 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_createChunkProcessor(
 
 /** Process the chunked data.
  *
+ *  @note
+ *  -# Check the body pointer in the packet header, all chunk data are processed if it's not NULL,
+ *   otherwise there are pending data.
+ *
  *  @param pProcessor [in] The chunk processor.
  *  @param pjhph [in] The http packet header.
  *  @param buffer [in] The receive buffer.
@@ -390,6 +394,12 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_processChunk(
     u8 * buffer, olsize_t * psBeginPointer, olsize_t endPointer);
 
 /** Create the http data object.
+ *
+ *  @note
+ *  -# Data object is used to process incoming data, not receiving data.
+ *  -# Caller should provide the buffer size which is also used by caller to receive data.
+ *  -# It's ok if the buffer size is smaller than the actual received data size. A buffer is
+ *   allocated by data object if actual received size is larger than buffer size.
  *
  *  @param ppDataobject [out] The data object to be created.
  *  @param sBuffer [in] The buffer size of the data object.
@@ -411,6 +421,14 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyDataobject(
     jf_httpparser_dataobject_t ** ppDataobject);
 
 /** Process data for data object.
+ *
+ *  @note
+ *  -# The routine should be called to process incoming data, it's not reponsilbe for
+ *   receiving data.
+ *  -# The routine may be called for several times if the data is received more than once.
+ *  -# Chunked data is processed in this routine.
+ *  -# Caller should check the begin pointer and end pointer after return. If they are equal,
+ *   total buffer are consumed.
  *
  *  @param pDataobject [in] The data object.
  *  @param pu8Buffer [in] The receive buffer.

@@ -72,11 +72,14 @@ static u32 _reallocHttpParserChunkMemory(
 
     assert(pihcp->ihcp_u32MallocSize < u32MallocSize);
 
+    /*Allocate new buffer.*/
     u32Ret = jf_jiukun_allocMemory((void **)&pu8Buffer, u32MallocSize);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Copy the data to new buffer.*/
         ol_memcpy(pu8Buffer, pihcp->ihcp_pu8Buffer, pihcp->ihcp_u32Offset);
 
+        /*Free the old buffer and save the new buffer.*/
         jf_jiukun_freeMemory((void **)&pihcp->ihcp_pu8Buffer);
         pihcp->ihcp_pu8Buffer = pu8Buffer;
         pihcp->ihcp_u32MallocSize = u32MallocSize;
@@ -108,6 +111,7 @@ u32 jf_httpparser_createChunkProcessor(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_httpparser_chunk_processor_t * pihcp = NULL;
 
+    /*Allocate memory for chunk processor.*/
     u32Ret = jf_jiukun_allocMemory((void **)pihcp, sizeof(*pihcp));
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -115,6 +119,7 @@ u32 jf_httpparser_createChunkProcessor(
         pihcp->ihcp_u32MallocSize = u32MallocSize;
         pihcp->ihcp_u8Flags = HTTPPARSER_CHUNK_FLAG_START;
 
+        /*Allocate buffer.*/
         u32Ret = jf_jiukun_allocMemory((void **)&pihcp->ihcp_pu8Buffer, u32MallocSize);
     }
 
@@ -141,7 +146,7 @@ u32 jf_httpparser_processChunk(
 
     while ((u32Ret == JF_ERR_NO_ERROR) && (*psBeginPointer < endPointer))
     {
-        /*Based on the Chunk Flag, we can figure out how to parse this thing*/
+        /*Based on the chunk flag, figure out how to parse this thing.*/
         switch (pihcp->ihcp_u8Flags)
         {
         case HTTPPARSER_CHUNK_FLAG_START:
@@ -196,7 +201,7 @@ u32 jf_httpparser_processChunk(
             if (pihcp->ihcp_u32Offset + endPointer > pihcp->ihcp_u32MallocSize)
             {
                 JF_LOGGER_DEBUG("realloc memory");
-                /*The buffer is too small, we need to make it bigger.
+                /*The buffer is too small, need to make it bigger.
                   ToDo: Add code to enforce a max buffer size if specified */
                 u32Ret = _reallocHttpParserChunkMemory(
                     pihcp, pihcp->ihcp_u32MallocSize + endPointer);
@@ -206,7 +211,7 @@ u32 jf_httpparser_processChunk(
             ol_memcpy(pihcp->ihcp_pu8Buffer + pihcp->ihcp_u32Offset, buffer, index);
             assert(pihcp->ihcp_u32Offset + index <= pihcp->ihcp_u32MallocSize);
 
-            /*Adjust our counters.*/
+            /*Adjust the counters.*/
             pihcp->ihcp_nBytesLeft -= index;
             pihcp->ihcp_u32Offset += index;
 
@@ -223,7 +228,7 @@ u32 jf_httpparser_processChunk(
                         /*An empty line means the chunk is finished.*/
                         if (index == 2)
                         {
-                            /*Finished.*/
+                            /*Finished, set the body and body size.*/
                             jf_httpparser_setBody(
                                 pjhph, pihcp->ihcp_pu8Buffer, pihcp->ihcp_u32Offset, FALSE);
 
@@ -240,6 +245,7 @@ u32 jf_httpparser_processChunk(
             break;
         }
 
+        /*Adjust the counters and pointers.*/
         endPointer -= *psBeginPointer;
         buffer += *psBeginPointer;
         sBeginPointer += *psBeginPointer;

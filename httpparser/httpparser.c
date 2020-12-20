@@ -1,7 +1,7 @@
 /**
  *  @file httpparser.c
  *
- *  @brief The http parser provides routines to parse http header
+ *  @brief Implementation file which provides routines to parse and generate http packet.
  *
  *  @author Min Zhang
  *
@@ -106,7 +106,7 @@ static u32 _parseHttpStartLine(
             retval->jhph_sDirectiveObj = pjsprf->jsprf_sData;
             retval->jhph_nStatusCode = -1;
 
-            /*We parse the last token on '/' to find the version.*/
+            /*Parse the last token on '/' to find the version.*/
             u32Ret = jf_string_parse(
                 &result, startline->jspr_pjsprfLast->jsprf_pstrData, 0,
                 startline->jspr_pjsprfLast->jsprf_sData, "/", 1);
@@ -297,13 +297,13 @@ olint_t jf_httpparser_escapeHttpData(u8 * outdata, const u8 * data)
             data[x] == 64 || data[x] == 61 || data[x] == 43 || data[x] == 36 ||
             data[x] == 45 || data[x] == 95 || data[x] == 46 || data[x] == 42)
         {
-            /*These are all the allowed values for HTTP. If it's one of these characters, we're ok.*/
+            /*These are all the allowed values for HTTP. If it's one of these characters, it's ok.*/
             outdata[i] = data[x];
             ++i;
         }
         else
         {
-            /* If it wasn't one of these characters, then we need to escape it*/
+            /*If it wasn't one of these characters, need to escape it.*/
             ol_sprintf(hex, "%02X", (u8) data[x]);
             outdata[i] = '%';
             outdata[i + 1] = hex[0];
@@ -819,11 +819,13 @@ u32 jf_httpparser_addHeaderLine(
         }
         else
         {
+            /*Duplicate the header name.*/
             u32Ret = jf_string_duplicateWithLen(&(node->jhphf_pstrName), pstrName, sName);
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 node->jhphf_sName = sName;
 
+                /*Duplicate the header data.*/
                 u32Ret = jf_string_duplicateWithLen(&(node->jhphf_pstrData), pstrData, sData);
             }
 
@@ -833,6 +835,7 @@ u32 jf_httpparser_addHeaderLine(
             }
             else
             {
+                /*Free memory in case error.*/
                 if (node->jhphf_pstrName != NULL)
                     jf_string_free(&(node->jhphf_pstrName));
 
@@ -846,7 +849,7 @@ u32 jf_httpparser_addHeaderLine(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /* attach it to the linked list */
+        /*Attach it to the linked list.*/
         if(pjhph->jhph_pjhphfLast != NULL)
         {
             pjhph->jhph_pjhphfLast->jhphf_pjhphfNext = node;
@@ -870,7 +873,7 @@ u32 jf_httpparser_getHeaderLine(
 
     *ppField = NULL;
     
-    /*Iterate through the headers, until we find the one we're interested in*/
+    /*Iterate through the headers, until we find the one we're interested in.*/
     while (node != NULL)
     {
         if (ol_strncasecmp(pstrName, node->jhphf_pstrName, sName) == 0)
@@ -893,8 +896,11 @@ u32 jf_httpparser_parseHeaderTransferEncoding(
 
     *pu8Encoding = JF_HTTPPARSER_TRANSFER_ENCODING_UNKNOWN;
 
+    /*Get header line of transfer encoding.*/
     u32Ret = jf_httpparser_getHeaderLine(
         pjhph, HTTP_HEADER_TRANSFER_ENCODING, ol_strlen(HTTP_HEADER_TRANSFER_ENCODING), &pjhphf);
+
+    /*Parse the content.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if ((pjhphf->jhphf_sData == 7) &&
@@ -915,12 +921,13 @@ u32 jf_httpparser_parseHeaderContentLength(
 
     *pnLength = -1;
 
+    /*Get header line of content length.*/
     u32Ret = jf_httpparser_getHeaderLine(
         pjhph, HTTP_HEADER_CONTENT_LENGTH, ol_strlen(HTTP_HEADER_CONTENT_LENGTH), &pjhphf);
+
+    /*Parse the content.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-    {
         u32Ret = jf_string_getS32FromString(pjhphf->jhphf_pstrData, pjhphf->jhphf_sData, pnLength);
-    }
 
     return u32Ret;
 }
@@ -934,6 +941,7 @@ u32 jf_httpparser_findHeader(u8 * pu8Buffer, olsize_t sOffset, olsize_t sEnd, ol
     {
         while (sHeader <= (sEnd - sOffset - 4))
         {
+            /*The seperator of http header and body is "\r\n\r\n".*/
             if (pu8Buffer[sOffset + sHeader] == '\r' &&
                 pu8Buffer[sOffset + sHeader + 1] == '\n' &&
                 pu8Buffer[sOffset + sHeader + 2] == '\r' &&

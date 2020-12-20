@@ -39,17 +39,21 @@ typedef struct internal_httpparser_dataobject
     boolean_t ihd_bFullPacket;
     u8 ihd_u8Reserved[5];
 
-    /**If the asocket buffer is not big enough to hold HTTP body, use this buffer for the data.*/
+    /**If the buffer is not big enough to hold HTTP body, use this buffer for the data.*/
     u8 * ihd_pu8BodyBuf;
+    /**Offset in body buffer for receiving data.*/
     u32 ihd_u32BodyOffset;
 
+    /**Number of bytes left to be received, also the HTTP body length.*/
     olint_t ihd_nBytesLeft;
     olint_t ihd_nReserved;
 
     olsize_t ihd_sBuffer;
 
+    /**Chunk processor.*/
     jf_httpparser_chunk_processor_t * ihd_pjhcpProcessor;
 
+    /**HTTP header for response.*/
     jf_httpparser_packet_header_t * ihd_pjhphHeader;
 
 } internal_httpparser_dataobject_t;
@@ -63,7 +67,7 @@ static u32 _httpparserDataobjectParseHeaderContent(internal_httpparser_dataobjec
 
     jf_logger_logDebugMsg("httpparser dataobject parse header content");
 
-    /*Parse header line, the transfer encoding.*/
+    /*Parse header line, get the transfer encoding.*/
     u32Ret = jf_httpparser_parseHeaderTransferEncoding(pihd->ihd_pjhphHeader, &u8Encoding);
     if ((u32Ret == JF_ERR_NO_ERROR) && (u8Encoding == JF_HTTPPARSER_TRANSFER_ENCODING_CHUNKED))
     {
@@ -102,10 +106,10 @@ static u32 _httpparserDataobjectParseBody(
     jf_httpparser_packet_header_t * pjhph = NULL;
     olsize_t zero = 0;
 
-    /*There is still data we need to read. Lets see if any of the body arrived yet.*/
+    /*There is still data to read. Lets see if any of the body arrived yet.*/
     if (! pihd->ihd_bChunked)
     {
-        /*This isn't chunked, so we can process normally.*/
+        /*This isn't chunked, process normally.*/
         if (pihd->ihd_nBytesLeft != -1 &&
             (sEndPointer - (*psBeginPointer)) - (sHeader + 4) >= pihd->ihd_nBytesLeft)
         {
@@ -113,14 +117,14 @@ static u32 _httpparserDataobjectParseBody(
             jf_logger_logInfoMsg("httpparser dataobject parse body, got entire packet");
             jf_httpparser_setBody(
                 pihd->ihd_pjhphHeader, pu8Buffer + sHeader + 4, pihd->ihd_nBytesLeft, FALSE);
-            /*We have the entire body, so we have the entire packet.*/
+            /*Have the entire body, so we have the entire packet.*/
             pihd->ihd_bFullPacket = TRUE;
 
             *psBeginPointer = *psBeginPointer + sHeader + 4 + pihd->ihd_nBytesLeft;
         }
         else
         {
-            /*We read some of the body, but not all of it yet.*/
+            /*Read some of the body, but not all of it yet.*/
             jf_logger_logInfoMsg("httpparser dataobject parse body, got partial packet");
             *psBeginPointer = sHeader + 4;
             u32Ret = jf_httpparser_clonePacketHeader(&pjhph, pihd->ihd_pjhphHeader);
@@ -132,7 +136,7 @@ static u32 _httpparserDataobjectParseBody(
 
             if ((u32Ret == JF_ERR_NO_ERROR) && (pihd->ihd_nBytesLeft > pihd->ihd_sBuffer))
             {
-                /*asocket buffer is not enough to hold the HTTP body*/
+                /*Buffer is not enough to hold the HTTP body*/
                 jf_logger_logInfoMsg("httpparser dataobject parse body, alloc memory for body");
                 u32Ret = jf_jiukun_allocMemory(
                     (void **)&pihd->ihd_pu8BodyBuf, pihd->ihd_nBytesLeft);
@@ -141,7 +145,7 @@ static u32 _httpparserDataobjectParseBody(
     }
     else
     {
-        /*This packet is chunk encoded, so we need to run it through our chunk processor.*/
+        /*This packet is chunk encoded, need to run it through our chunk processor.*/
         u32Ret = jf_httpparser_processChunk(
             pihd->ihd_pjhcpProcessor, pihd->ihd_pjhphHeader, pu8Buffer + sHeader + 4,
             &zero, (sEndPointer - (*psBeginPointer) - (sHeader + 4)));
