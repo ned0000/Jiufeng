@@ -59,15 +59,13 @@ static u32 _httpparserDataobjectParseHeaderContent(internal_httpparser_dataobjec
     u32 u32Ret = JF_ERR_NO_ERROR;
     u8 u8Encoding = JF_HTTPPARSER_TRANSFER_ENCODING_UNKNOWN;
 
-    jf_logger_logDebugMsg("httpparser dataobject parse header content");
-
     /*Parse header line, get the transfer encoding.*/
     u32Ret = jf_httpparser_parseHeaderTransferEncoding(pihd->ihd_pjhphHeader, &u8Encoding);
     if ((u32Ret == JF_ERR_NO_ERROR) && (u8Encoding == JF_HTTPPARSER_TRANSFER_ENCODING_CHUNKED))
     {
         /*This packet was chunk encoded.*/
         pihd->ihd_bChunked = TRUE;
-        jf_logger_logDebugMsg("httpparser dataobject parse header content, chunk");
+        JF_LOGGER_DEBUG("encoding: chunked");
 
         u32Ret = jf_httpparser_createChunkProcessor(&pihd->ihd_pjhcpProcessor, pihd->ihd_sBuffer);
     }
@@ -79,8 +77,7 @@ static u32 _httpparserDataobjectParseHeaderContent(internal_httpparser_dataobjec
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_logger_logDebugMsg(
-            "httpparser dataobject parse header content, content-length %d", pihd->ihd_nBytesLeft);
+        JF_LOGGER_DEBUG("content-length: %d", pihd->ihd_nBytesLeft);
 
         if ((pihd->ihd_nBytesLeft == -1) && (! pihd->ihd_bChunked))
         {
@@ -108,7 +105,7 @@ static u32 _httpparserDataobjectParseBody(
             (sEndPointer - (*psBeginPointer)) - (sHeader + 4) >= pihd->ihd_nBytesLeft)
         {
             /*Get the whole packet.*/
-            jf_logger_logInfoMsg("httpparser dataobject parse body, got entire packet");
+            JF_LOGGER_DEBUG("got entire packet");
             jf_httpparser_setBody(
                 pihd->ihd_pjhphHeader, pu8Buffer + sHeader + 4, pihd->ihd_nBytesLeft, FALSE);
             /*Have the entire body, so we have the entire packet.*/
@@ -119,7 +116,7 @@ static u32 _httpparserDataobjectParseBody(
         else
         {
             /*Read some of the body, but not all of it yet.*/
-            jf_logger_logInfoMsg("httpparser dataobject parse body, got partial packet");
+            JF_LOGGER_DEBUG("got partial packet");
             *psBeginPointer = sHeader + 4;
             u32Ret = jf_httpparser_clonePacketHeader(&pjhph, pihd->ihd_pjhphHeader);
             if (u32Ret == JF_ERR_NO_ERROR)
@@ -130,8 +127,8 @@ static u32 _httpparserDataobjectParseBody(
 
             if ((u32Ret == JF_ERR_NO_ERROR) && (pihd->ihd_nBytesLeft > pihd->ihd_sBuffer))
             {
-                /*Buffer is not enough to hold the HTTP body*/
-                jf_logger_logInfoMsg("httpparser dataobject parse body, alloc memory for body");
+                /*Buffer is not enough to hold the HTTP body.*/
+                JF_LOGGER_DEBUG("Alloc memory for body");
                 u32Ret = jf_jiukun_allocMemory(
                     (void **)&pihd->ihd_pu8BodyBuf, pihd->ihd_nBytesLeft);
             }
@@ -173,7 +170,7 @@ static u32 _httpparserDataobjectParseHeader(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logDebugMsg("httpparser dataobject parse header");
+    JF_LOGGER_DEBUG("sHeader: %d", sHeader);
     /*Headers are delineated with a CRLF, and terminated with an empty line.*/
     pihd->ihd_nBytesLeft = -1;
     pihd->ihd_bFinHeader = TRUE;
@@ -219,7 +216,7 @@ static u32 _httpparserDataobjectProcessNonChunkedBody(
     {
         /*The buffer can hold the whole body.*/
         Fini = sEndPointer - *psBeginPointer - pihd->ihd_nBytesLeft;
-        jf_logger_logInfoMsg("httparser dataobject process non chunk body, Fini %d", Fini);
+        JF_LOGGER_DEBUG("Fini: %d", Fini);
         if (Fini >= 0)
         {
             jf_httpparser_setBody(
@@ -233,9 +230,7 @@ static u32 _httpparserDataobjectProcessNonChunkedBody(
     {
         /*The buffer cannot hold the whole body, copy the buffer to another buffer.*/
         Fini = pihd->ihd_u32BodyOffset + sEndPointer - *psBeginPointer - pihd->ihd_nBytesLeft;
-        jf_logger_logInfoMsg(
-            "httparser dataobject process non chunk body, Fini %d, offset %u",
-            Fini, pihd->ihd_u32BodyOffset);
+        JF_LOGGER_DEBUG("Fini: %d, offset: %u", Fini, pihd->ihd_u32BodyOffset);
         if (Fini >= 0)
         {
             /*Get all data.*/
@@ -272,12 +267,11 @@ u32 jf_httpparser_processDataobject(
     olsize_t sHeader = 0;
 
 #ifdef DEBUG_HTTPPARSER
-    jf_logger_logDebugMsg(
-        "httpparser process dataobject, %d:%d", *psBeginPointer, sEndPointer);
+    JF_LOGGER_DEBUG("pointer: %d:%d", *psBeginPointer, sEndPointer);
 #endif
 
 /*
-    jf_logger_logDataMsgWithAscii(
+    JF_LOGGER_DATAA(
         pu8Buffer + *psBeginPointer, sEndPointer - *psBeginPointer,
         "httpparser process dataobject");
 */
@@ -325,7 +319,7 @@ u32 jf_httpparser_destroyDataobject(jf_httpparser_dataobject_t ** ppDataobject)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_httpparser_dataobject_t * pihd = (internal_httpparser_dataobject_t *) *ppDataobject;
 
-    jf_logger_logDebugMsg("destroy httpparser dataobject");
+    JF_LOGGER_DEBUG("destroy");
 
     jf_httpparser_reinitDataobject(pihd);
 
@@ -339,7 +333,7 @@ u32 jf_httpparser_createtDataobject(jf_httpparser_dataobject_t ** ppDataobject, 
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_httpparser_dataobject_t * pihd = NULL;
 
-    jf_logger_logDebugMsg("create httpparser dataobject");
+    JF_LOGGER_DEBUG("sBuffer: %d", sBuffer);
 
     u32Ret = jf_jiukun_allocMemory((void **)&pihd, sizeof(*pihd));
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -367,7 +361,7 @@ u32 jf_httpparser_reinitDataobject(jf_httpparser_dataobject_t * pDataobject)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_httpparser_dataobject_t * pihd = (internal_httpparser_dataobject_t *) pDataobject;
 
-    jf_logger_logDebugMsg("httpparser finishd dataobject");
+    JF_LOGGER_DEBUG("reinit");
 
     /*Reset the flags.*/
     pihd->ihd_bFinHeader = FALSE;
