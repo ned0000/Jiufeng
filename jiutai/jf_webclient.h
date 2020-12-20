@@ -79,6 +79,31 @@ typedef u32 (* jf_webclient_fnOnEvent_t)(
     jf_network_asocket_t * pAsocket, jf_webclient_event_t event,
     jf_httpparser_packet_header_t * header, void * pUser);
 
+/** Define the parameter for transfering data with HTTP server.
+ */
+typedef struct
+{
+/*in*/
+    /**Server address.*/
+    jf_ipaddr_t * jwtdp_pjiServer;
+    /**Server port.*/
+    u16 jwtdp_u16Port;
+    u16 jwtdp_u16Reserved;
+    /**Timeout for connecting to server, sending and receiving data.*/
+    u32 jwtdp_u32Timeout;
+    /**Buffer for sending data.*/
+    void * jwtdp_pSendBuf;
+    /**Size of sending data buffer.*/
+    olsize_t jwtdp_sSendBuf;
+    /**Size of expected received data, used for memory allocation during transfer.*/
+    olsize_t jwtdp_sRecvData;
+    u8 jwtdp_u8Reserved[8];
+/*out*/
+    /**HTTP packet of received response, it should be freed by caller with
+       jf_httpparser_destroyPacketHeader().*/
+    jf_httpparser_packet_header_t * jwtdp_pjhphHeader;
+} jf_webclient_transfer_data_param_t;
+
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Create a webclient object.
@@ -153,6 +178,27 @@ WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_deleteRequest(
  *  @retval JF_ERR_NO_ERROR Success.
  */
 WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_destroy(jf_webclient_t ** ppWebclient);
+
+/** Transfer data to HTTP server.
+ *
+ *  @note
+ *  -# Web client data object is not required for running this routine.
+ *  -# Socket is created and connected to the server address, then data is sent and received.
+ *   The socket is closed after the session. There is no keep-alive.
+ *  -# Reply from HTTP server is necessary.
+ *  -# The routine is synchronous, it will not return until full HTTP response is received or error.
+ *  -# For the HTTP response, it's parsed to HTTP packet header and put in the parameter.
+ *  -# The header in parameter should be freed with jf_httpparser_destroyPacketHeader() by caller.
+ *
+ *  @param transfer [in] The data structure containing the detailed information of the transfer.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_FAIL_SEND_DATA Failed to send data.
+ *  @retval JF_ERR_FAIL_RECV_DATA Failed to receive data.
+ */
+WEBCLIENTAPI u32 WEBCLIENTCALL jf_webclient_transferData(
+    jf_webclient_transfer_data_param_t * transfer);
 
 #endif /*JIUFENG_WEBCLIENT_H*/
 

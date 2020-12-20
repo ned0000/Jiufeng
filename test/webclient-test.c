@@ -34,23 +34,29 @@ static jf_network_chain_t * ls_pjncChain = NULL;
 static jf_webclient_t * ls_pwWebclient = NULL;
 static jf_network_utimer_t * ls_pjnuUtimer = NULL;
 
-static olchar_t * ls_pstrQuotationServer = "hq.sinajs.cn";
+static olchar_t * ls_pstrWctSummaryServer = "quotes.money.163.com";
+
+static olchar_t * ls_pstrWctQuotationServer = "hq.sinajs.cn";
 static jf_ipaddr_t ls_jiServerAddr;
 static olchar_t * ls_pstrStocks = "sh000001,sh600000";
+
+static boolean_t ls_bTestWebclientTransfter = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
 static void _printWebclientTestUsage(void)
 {
     ol_printf("\
-Usage: %s [-V] [logger options] [-h]\n\
+Usage: %s [-t] [-V] [logger options] [-h]\n\
   -h: show this usage.\n\
   -V: show version information.\n\
+  -t: test transfer function.\n\
 logger options: [-T <0|1|2|3|4|5>] [-O] [-F log file] [-S log file size] \n\
   -T: the log level. 0: no log, 1: error, 2: warn, 3: info, 4: debug, 5: data.\n\
   -O: output the log to stdout.\n\
   -F: output the log to file.\n\
-  -S: the size of log file. No limit if not specified.\n",
+  -S: the size of log file. No limit if not specified.\n\
+  By default, test chain function.\n",
               ls_pstrProgramName);
 
     ol_printf("\n");
@@ -62,8 +68,7 @@ static u32 _parseWebclientTestCmdLineParam(
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt = 0;
 
-    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "VT:F:S:Oh")) != -1))
-           
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "tVT:F:S:Oh")) != -1))
     {
         switch (nOpt)
         {
@@ -71,6 +76,9 @@ static u32 _parseWebclientTestCmdLineParam(
         case 'h':
             _printWebclientTestUsage();
             exit(0);
+            break;
+        case 't':
+            ls_bTestWebclientTransfter = TRUE;
             break;
         case 'V':
             ol_printf("%s %s\n", ls_pstrProgramName, ls_pstrVersion);
@@ -152,7 +160,7 @@ static u32 _getSinaQuotation(void * object)
         "Accept-Language: en-us,en;q=0.5\r\n"
         "Accept-Encoding: identity\r\n" //gzip,deflate\r\n"
         "Connection: keep-alive\r\n"
-        "\r\n", ls_pstrStocks, ls_pstrQuotationServer);
+        "\r\n", ls_pstrStocks, ls_pstrWctQuotationServer);
 #else
     len = ol_snprintf(
         buffer, 2048,
@@ -164,7 +172,7 @@ static u32 _getSinaQuotation(void * object)
         "Accept-Language: en-us,en;q=0.5\r\n"
         "Accept-Encoding: gzip, deflate\r\n"
         "Connection: close\r\n"
-        "\r\n", ls_pstrQuotationServer);
+        "\r\n", ls_pstrWctQuotationServer);
 
 #endif
     u32Ret = jf_webclient_sendHttpHeaderAndBody(
@@ -175,13 +183,13 @@ static u32 _getSinaQuotation(void * object)
     return u32Ret;
 }
 
-static u32 _testWebclient(olint_t argc, olchar_t ** argv)
+static u32 _testWebclient(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_webclient_create_param_t jwcp;
-    struct hostent * servp;
+    struct hostent * servp = NULL;
 
-    u32Ret = jf_network_getHostByName(ls_pstrQuotationServer, &servp);
+    u32Ret = jf_network_getHostByName(ls_pstrWctQuotationServer, &servp);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -221,7 +229,62 @@ static u32 _testWebclient(olint_t argc, olchar_t ** argv)
     return u32Ret;
 }
 
+static u32 _testWebclientTransfer(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_webclient_transfer_data_param_t jwtdp;
+    struct hostent * servp = NULL;
+    jf_ipaddr_t jiServerAddr;
+    olchar_t buffer[1024];
+    olsize_t len = 0;
+
+    u32Ret = jf_network_getHostByName(ls_pstrWctSummaryServer, &servp);
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        jf_ipaddr_setIpV4Addr(&jiServerAddr, *(long *)(servp->h_addr));
+
+        /*Generate the HTTP request.*/
+        len = ol_snprintf(
+            buffer, sizeof(buffer),
+            "GET /service/chddata.html?code=0600000&start=20100101&end=20200101&"
+            "fields=TCLOSE;HIGH;LOW;TOPEN;LCLOSE;CHG;PCHG;TURNOVER;VOTURNOVER;VATURNOVER;TCAP;MCAP HTTP/1.1\r\n"
+            "Host: %s\r\n"
+            "User-Agent: Mozilla/5.0 (Windows NT 6.1; rv:12.0) Gecko/20100101 Firefox/12.0\r\n"
+            "Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8\r\n"
+            "Accept-Language: en-us,en;q=0.5\r\n"
+            "Accept-Encoding: gzip, deflate\r\n"
+            "Connection: close\r\n"
+            "\r\n", ls_pstrWctSummaryServer);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_bzero(&jwtdp, sizeof(jwtdp));
+        jwtdp.jwtdp_pjiServer = &jiServerAddr;
+        jwtdp.jwtdp_u16Port = 80;
+        jwtdp.jwtdp_u32Timeout = 5;
+        jwtdp.jwtdp_pSendBuf = buffer;
+        jwtdp.jwtdp_sSendBuf = len;
+        jwtdp.jwtdp_sRecvData = 1024 * 1024;
+
+        u32Ret = jf_webclient_transferData(&jwtdp);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        ol_printf("Body length: %d\n", jwtdp.jwtdp_pjhphHeader->jhph_sBody);
+        ol_printf("Body content:\n%s\n", jwtdp.jwtdp_pjhphHeader->jhph_pu8Body);
+    }
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        jf_httpparser_destroyPacketHeader(&jwtdp.jwtdp_pjhphHeader);
+
+    return u32Ret;
+}
+
 /* --- public routine section ------------------------------------------------------------------- */
+
 olint_t main(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -249,7 +312,10 @@ olint_t main(olint_t argc, olchar_t ** argv)
             u32Ret = jf_process_initSocket();
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                u32Ret = _testWebclient(argc, argv);
+                if (ls_bTestWebclientTransfter)
+                    u32Ret = _testWebclientTransfer();
+                else
+                    u32Ret = _testWebclient();
 
                 jf_process_finiSocket();
             }
