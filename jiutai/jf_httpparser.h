@@ -456,18 +456,18 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_reinitDataobject(
  *
  *  @note
  *  -# The packet may be partial as data is still being received. Application should check the
- *   returned parameter to know the complete status of the packet.
+ *   return value to know the complete status of the packet.
+ *  -# The HTTP packet header is available only when full packet is received.
  *
  *  @param pDataobject [in] The data object.
- *  @param bFullPacket [out] Full packet is received if it's TRUE.
- *  @param ppPacket [in/out] The http packet parsed from received data.
+ *  @param ppPacket [out] The http packet parsed from received data.
  *
- *  @return The error code.
- *  @retval JF_ERR_NO_ERROR Success.
+ *  @return The status if full packet is received.
+ *  @retval TRUE Full packet is received.
+ *  @retval FALSE Partial packet is received.
  */
-HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getDataobjectFullPacket(
-    jf_httpparser_dataobject_t * pDataobject, boolean_t * bFullPacket,
-    jf_httpparser_packet_header_t ** ppPacket);
+HTTPPARSERAPI boolean_t HTTPPARSERCALL jf_httpparser_getDataobjectFullPacket(
+    jf_httpparser_dataobject_t * pDataobject, jf_httpparser_packet_header_t ** ppPacket);
 
 #endif /*JIUFENG_HTTPPARSER_H*/
 

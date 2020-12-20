@@ -698,8 +698,7 @@ static u32 _webclientDataobjectOnData(
         piwd->iwd_pjhdDataobject, pu8Buffer, psBeginPointer, sEndPointer);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_httpparser_getDataobjectFullPacket(
-            piwd->iwd_pjhdDataobject, &bFullPacket, &pjhphHeader);
+        bFullPacket = jf_httpparser_getDataobjectFullPacket(piwd->iwd_pjhdDataobject, &pjhphHeader);
     }
 
     if ((u32Ret == JF_ERR_NO_ERROR) && bFullPacket)

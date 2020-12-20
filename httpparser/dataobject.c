@@ -390,17 +390,14 @@ u32 jf_httpparser_reinitDataobject(jf_httpparser_dataobject_t * pDataobject)
     return u32Ret;
 }
 
-u32 jf_httpparser_getDataobjectFullPacket(
-    jf_httpparser_dataobject_t * pDataobject, boolean_t * bFullPacket,
-    jf_httpparser_packet_header_t ** ppPacket)
+boolean_t jf_httpparser_getDataobjectFullPacket(
+    jf_httpparser_dataobject_t * pDataobject, jf_httpparser_packet_header_t ** ppPacket)
 {
-    u32 u32Ret = JF_ERR_NO_ERROR;
     internal_httpparser_dataobject_t * pihd = (internal_httpparser_dataobject_t *) pDataobject;
 
-    *bFullPacket = pihd->ihd_bFullPacket;
     *ppPacket = pihd->ihd_pjhphHeader;
 
-    return u32Ret;
+    return pihd->ihd_bFullPacket;
 }
 
 /*------------------------------------------------------------------------------------------------*/
