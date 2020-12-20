@@ -10,20 +10,14 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "jf_mutex.h"
 #include "jf_httpparser.h"
 #include "jf_jiukun.h"
-#include "jf_string.h"
-#include "jf_hex.h"
-#include "jf_datavec.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -404,4 +398,3 @@ boolean_t jf_httpparser_getDataobjectFullPacket(
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
