@@ -104,8 +104,6 @@ typedef struct internal_webclient_dataobject
 
     u32 iwd_u32ExponentialBackoff;
 
-    jf_httpparser_chunk_processor_t * iwd_pjhcpProcessor;
-
     jf_httpparser_dataobject_t * iwd_pjhdDataobject;
 
     jf_queue_t iwd_jqRequest;

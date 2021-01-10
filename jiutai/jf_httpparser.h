@@ -60,10 +60,6 @@ typedef enum jf_httpparser_transfer_encoding
     JF_HTTPPARSER_TRANSFER_ENCODING_CHUNKED,
 } jf_httpparser_transfer_encoding_t;
 
-/** Define the http chunk processor data type.
- */
-typedef void  jf_httpparser_chunk_processor_t;
-
 /** Define the http data object data type.
  */
 typedef void  jf_httpparser_dataobject_t;
@@ -352,46 +348,6 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parseHeaderContentLength(
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_findHeader(
     u8 * pu8Buffer, olsize_t sOffset, olsize_t sEnd, olsize_t * psHeader);
-
-/** Destroy the chunk processor.
- *
- *  @param ppProcessor [in/out] The chunk processor to be destroyed.
- *
- *  @return The error code.
- *  @retval JF_ERR_NO_ERROR Success.
- */
-HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyChunkProcessor(
-    jf_httpparser_chunk_processor_t ** ppProcessor);
-
-/** Create the chunk processor for chunked data in http body.
- *
- *  @param ppProcessor [out] The chunk processor to be created.
- *  @param u32MallocSize [in] The memory size to be allocated for the chunked data.
- *
- *  @return The error code.
- *  @retval JF_ERR_NO_ERROR Success.
- */
-HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_createChunkProcessor(
-    jf_httpparser_chunk_processor_t ** ppProcessor, u32 u32MallocSize);
-
-/** Process the chunked data.
- *
- *  @note
- *  -# Check the body pointer in the packet header, all chunk data are processed if it's not NULL,
- *   otherwise there are pending data.
- *
- *  @param pProcessor [in] The chunk processor.
- *  @param pjhph [in] The http packet header.
- *  @param buffer [in] The receive buffer.
- *  @param psBeginPointer [out] The buffer start pointer.
- *  @param endPointer [in] The length of the buffer.
- *
- *  @return The error code.
- *  @retval JF_ERR_NO_ERROR Success.
- */
-HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_processChunk(
-    jf_httpparser_chunk_processor_t * pProcessor, jf_httpparser_packet_header_t * pjhph,
-    u8 * buffer, olsize_t * psBeginPointer, olsize_t endPointer);
 
 /** Create the http data object.
  *

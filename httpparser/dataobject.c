@@ -19,6 +19,8 @@
 #include "jf_httpparser.h"
 #include "jf_jiukun.h"
 
+#include "chunkprocessor.h"
+
 /* --- private data/data structure section ------------------------------------------------------ */
 
 /** Define the internal http data object data type.
@@ -272,8 +274,7 @@ u32 jf_httpparser_processDataobject(
 
 /*
     JF_LOGGER_DATAA(
-        pu8Buffer + *psBeginPointer, sEndPointer - *psBeginPointer,
-        "httpparser process dataobject");
+        pu8Buffer + *psBeginPointer, sEndPointer - *psBeginPointer, "HTTP data");
 */
 
     if (! pihd->ihd_bFinHeader)
