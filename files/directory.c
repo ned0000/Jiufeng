@@ -1,7 +1,7 @@
 /**
  *  @file directory.c
  *
- *  @brief Files implementation files, provide common routines to manipulate directory.
+ *  @brief Implementation file which provides common routines to manipulate directory.
  *
  *  @author Min Zhang
  *  
@@ -11,9 +11,8 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
-#include <string.h>
-#include <fcntl.h>
 #include <errno.h>
+
 #if defined(WINDOWS)
 
 #elif defined(LINUX)
@@ -28,6 +27,7 @@
 #include "jf_dir.h"
 #include "jf_err.h"
 #include "jf_jiukun.h"
+#include "jf_string.h"
 
 #include "common.h"
 
@@ -35,13 +35,13 @@
 
 #if defined(LINUX)
 
-/** Define the internal dir data type.
+/** Define the internal dir data type for Linux.
  */
 typedef jf_dir_t                internal_dir_t;
 
 #elif defined(WINDOWS)
 
-/** Define the internal dir data type.
+/** Define the internal dir data type for Windows.
  */
 typedef struct
 {
@@ -61,7 +61,7 @@ static u32 _getFirstDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    struct dirent * pdirent;
+    struct dirent * pdirent = NULL;
 
     pdirent = readdir(pDir);
     if (pdirent == NULL)
@@ -74,10 +74,10 @@ static u32 _getFirstDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
         pEntry->jde_sName = (olsize_t)pdirent->d_reclen;
         ol_strncpy(pEntry->jde_strName, pdirent->d_name, JF_LIMIT_MAX_PATH_LEN - 1);
     }
+
 #elif defined(WINDOWS)
     internal_dir_t * pid = (internal_dir_t *)pDir;
     WIN32_FIND_DATA FindFileData;
-    boolean_t bRet;
     olchar_t strDirName[JF_LIMIT_MAX_PATH_LEN];
 
     ol_bzero(strDirName, JF_LIMIT_MAX_PATH_LEN);
@@ -103,7 +103,7 @@ static u32 _getNextDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    struct dirent * pdirent;
+    struct dirent * pdirent = NULL;
 
     pdirent = readdir(pDir);
     if (pdirent == NULL)
@@ -116,10 +116,11 @@ static u32 _getNextDirEntry(jf_dir_t * pDir, jf_dir_entry_t * pEntry)
         pEntry->jde_sName = (olsize_t)pdirent->d_reclen;
         ol_strncpy(pEntry->jde_strName, pdirent->d_name, JF_LIMIT_MAX_PATH_LEN - 1);
     }
+
 #elif defined(WINDOWS)
     internal_dir_t * pid = (internal_dir_t *)pDir;
     WIN32_FIND_DATA FindFileData;
-    boolean_t bRet;
+    boolean_t bRet = FALSE;
 
     bRet = FindNextFile(pid->id_hFind, &FindFileData);
     if (bRet)
@@ -267,6 +268,7 @@ u32 jf_dir_close(jf_dir_t ** ppDir)
     pDir = *ppDir;
     closedir(pDir);
     *ppDir = NULL;
+
 #elif defined(WINDOWS)
     pDir = (internal_dir_t *)*ppDir;
 
@@ -295,7 +297,7 @@ u32 jf_dir_create(const olchar_t * pstrDirName, jf_file_mode_t mode)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    olint_t ret;
+    olint_t ret = 0;
 
     ret = mkdir(pstrDirName, mode);
     if (ret != 0)
@@ -305,8 +307,9 @@ u32 jf_dir_create(const olchar_t * pstrDirName, jf_file_mode_t mode)
         else
             u32Ret = JF_ERR_FAIL_CREATE_DIR;
     }
+
 #elif defined(WINDOWS)
-    boolean_t bRet;
+    boolean_t bRet = FALSE;
 
     bRet = CreateDirectory(pstrDirName, NULL);
     if (! bRet)
@@ -320,13 +323,14 @@ u32 jf_dir_remove(const olchar_t * pstrDirName)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    olint_t ret;
+    olint_t ret = 0;
 
     ret = rmdir(pstrDirName);
     if (ret != 0)
         u32Ret = JF_ERR_FAIL_REMOVE_DIR;
+
 #elif defined(WINDOWS)
-    boolean_t bRet;
+    boolean_t bRet = FALSE;
 
     bRet = RemoveDirectory(pstrDirName);
     if (! bRet)
@@ -343,7 +347,7 @@ u32 jf_dir_traverse(
     olchar_t strName[JF_LIMIT_MAX_PATH_LEN];
 
     ol_strncpy(strName, pstrDirName, JF_LIMIT_MAX_PATH_LEN - 1);
-    strName[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
+    strName[JF_LIMIT_MAX_PATH_LEN - 1] = JF_STRING_NULL_CHAR;
 
     u32Ret = _traversalDirectory(strName, fnHandleFile, pArg);
 
@@ -361,7 +365,7 @@ u32 jf_dir_parse(
     olchar_t strFullname[JF_LIMIT_MAX_PATH_LEN * 2];
 
     ol_strncpy(strName, pstrDirName, JF_LIMIT_MAX_PATH_LEN - 1);
-    strName[JF_LIMIT_MAX_PATH_LEN - 1] = '\0';
+    strName[JF_LIMIT_MAX_PATH_LEN - 1] = JF_STRING_NULL_CHAR;
 
     /*Open the directory.*/
     u32Ret = jf_dir_open(strName, &pDir);
@@ -371,6 +375,7 @@ u32 jf_dir_parse(
         u32Ret = _getFirstDirEntry(pDir, &direntry);
         while (u32Ret == JF_ERR_NO_ERROR)
         {
+            /*Test if the entry should be ignored.*/
             if (! _isIgnoreEntry(direntry.jde_strName))
             {
                 ol_bzero(strFullname, sizeof(strFullname));
@@ -441,15 +446,15 @@ u32 jf_dir_scan(
 
     /*Sort the entry array if necessary.*/
 	if ((u32Ret == JF_ERR_NO_ERROR) && (num != 0) && (fnCompare != NULL))
-	{
+    {
 		qsort(entry, num, sizeof(jf_dir_entry_t), fnCompare);
-	}
+    }
 
     if (pDir != NULL)
     {
         jf_dir_close(&pDir);
     }
-    
+
 	*numofentry = num;
 
 	return u32Ret;
@@ -462,6 +467,5 @@ olint_t jf_dir_compareDirEntry(const void * a, const void * b)
 
 	return ol_strcmp(e1->jde_strName, e2->jde_strName);
 }
+
 /*------------------------------------------------------------------------------------------------*/
-
-

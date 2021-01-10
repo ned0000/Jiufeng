@@ -1,7 +1,7 @@
 /**
  *  @file jf_filestream.h
  *
- *  @brief Provide common routines to manipulate file with stream operation.
+ *  @brief Header file which provides common routines to manipulate file with stream operation.
  *
  *  @author Min Zhang
  *
@@ -13,19 +13,11 @@
 #define JIUFENG_FILESTREAM_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
 
-#if defined(LINUX)
-    #include <dirent.h>
-    #include <sys/file.h>
-#elif defined(WINDOWS)
-    #include <io.h>
-#endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_datavec.h"
 #include "jf_file.h"
 
@@ -65,6 +57,7 @@ typedef FILE  jf_filestream_t;
  *  @param ppjf [out] The file stream created. 
  *
  *  @return The error code.
+ *  @retval JF_ERR_FAIL_OPEN_FILE Failed to open file stream.
  */
 FILESAPI u32 FILESCALL jf_filestream_open(
     const olchar_t * pstrFilename, const olchar_t * mode, jf_filestream_t ** ppjf);
@@ -97,12 +90,18 @@ FILESAPI u32 FILESCALL jf_filestream_seek(jf_filestream_t * pjf, long offset, ol
 
 /** Read a file stream.
  *
+ *  @note
+ *  -# The function read specified size unless end of file.
+ *  -# JF_ERR_END_OF_FILE is returned when nothing is read from file.
+ *
  *  @param pjf [in] The file stream.
  *  @param pBuffer [out] The data buffer.
  *  @param psRead [in/out] The data buffer size as in parameter and size actually read as out
  *   parameter.
  *
  *  @return The error code.
+ *  @retval JF_ERR_FAIL_READ_FILE Failed to read file stream.
+ *  @retval JF_ERR_END_OF_FILE End of file.
  */
 FILESAPI u32 FILESCALL jf_filestream_readn(
     jf_filestream_t * pjf, void * pBuffer, olsize_t * psRead);
@@ -114,6 +113,7 @@ FILESAPI u32 FILESCALL jf_filestream_readn(
  *  @param sWrite [in] The data buffer size.
  *
  *  @return The error code.
+ *  @retval JF_ERR_FAIL_WRITE_FILE Failed to write file stream.
  */
 FILESAPI u32 FILESCALL jf_filestream_writen(
     jf_filestream_t * pjf, const void * pBuffer, olsize_t sWrite);
@@ -201,6 +201,7 @@ FILESAPI u32 FILESCALL jf_filestream_copyFile(
  *  @param pjf [in] The file stream.
  *
  *  @return The error code.
+ *  @retval JF_ERR_FAIL_FLUSH_FILE Failed to flush file stream.
  */
 FILESAPI u32 FILESCALL jf_filestream_flush(jf_filestream_t * pjf);
 
@@ -236,4 +237,3 @@ FILESAPI olint_t FILESCALL jf_filestream_getChar(jf_filestream_t * pjf);
 #endif /*JIUFENG_FILESTREAM_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-

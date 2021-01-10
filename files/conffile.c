@@ -1,7 +1,7 @@
 /**
  *  @file conffile.c
  *
- *  @brief Configuration file implementation file.
+ *  @brief Implementation file of configuration file API.
  *
  *  @author Min Zhang
  *
@@ -10,9 +10,7 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
 
@@ -21,9 +19,9 @@
 #include "jf_err.h"
 #include "jf_conffile.h"
 #include "jf_filestream.h"
-#include "jf_array.h"
 #include "jf_option.h"
 #include "jf_jiukun.h"
+#include "jf_string.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
@@ -42,7 +40,7 @@ typedef struct
     u8 ijc_u8Reserved[8];
 } internal_jf_conffile_t;
 
-/** Define the data type for setting value to configuration file..
+/** Define the data type for setting value to configuration file.
  */
 typedef struct
 {
@@ -98,50 +96,18 @@ static olint_t _readLineFromFile(
             }
         }
 
-        if ((nChar != EOF) && (nChar != '\n') && (nComment == 0))
+        if ((nChar != EOF) && (nChar != JF_STRING_LINE_FEED_CHAR) && (nComment == 0))
         {
             /*Save the character to the buffer.*/
             strLine[nLength] = (olchar_t)nChar;
             nLength++;
         }
-    } while ((nChar != EOF) && (nChar != '\n') && (nLength < JF_CONFFILE_MAX_LINE_LEN - 1));
+    } while ((nChar != EOF) && (nChar != JF_STRING_LINE_FEED_CHAR) &&
+             (nLength < JF_CONFFILE_MAX_LINE_LEN - 1));
 
-    strLine[nLength] = '\0';
+    strLine[nLength] = JF_STRING_NULL_CHAR;
 
     return nChar;
-}
-
-/** Remove the blank spaces from the left and the right of the string.
- *
- *  @param pstrBufOut [out] The output string after removing the blank spaces.
- *  @param pstrBufIn [in] The input string to be removed the blank spaces.
- *
- *  @return Void.
- */
-static void _skipBlank(olchar_t * pstrBufOut, const olchar_t * pstrBufIn)
-{
-    olint_t nright, nleft = 0;
-
-    /*Find the first character which is not space.*/
-    while ((pstrBufIn[nleft] != 0) && (pstrBufIn[nleft] == ' '))
-    {
-        nleft++;
-    }
-
-    nright = ol_strlen(pstrBufIn);
-
-    if (pstrBufIn[nleft] != 0)
-    {
-        /*Find the last character which is not space.*/
-        while (pstrBufIn[nright-1] == ' ')
-        {
-            nright--;
-        }
-
-        ol_strcpy(pstrBufOut, &pstrBufIn[nleft]);
-    }
-
-    pstrBufOut[nright - nleft] = '\0';
 }
 
 /** Get the value string of a option of the specified tag name.
@@ -166,7 +132,8 @@ static u32 _getValueStringByTag(
 
     do
     {
-        ol_memset(strLine, 0, JF_CONFFILE_MAX_LINE_LEN);
+        /*Read line from file.*/
+        ol_bzero(strLine, JF_CONFFILE_MAX_LINE_LEN);
         pstrLine = strLine;
         nChar = _readLineFromFile(pijc->ijc_pjfConfFile, strLine);
 
@@ -186,10 +153,13 @@ static u32 _getValueStringByTag(
                 while (*pcEqual == ' ')
                     pcEqual --;
 
+                /*Calculate the length of tag name.*/
                 nLength = pcEqual - pstrLine + 1;
+                /*Compare the tag name.*/
                 if ((nLength == nLengthTag) && (ol_strncmp(pstrLine, pstrTag, nLengthTag) == 0))
                 {
-                    _skipBlank(strBuf, pstrValue);
+                    /*Tag name is matching, copy the value.*/
+                    jf_string_skipBlank(strBuf, pstrValue);
                     nChar = EOF;
                     u32Ret = JF_ERR_NO_ERROR;
                 }
@@ -230,7 +200,7 @@ static u32 _traverseConfFile(
             if (pstrEqual != NULL)
             {
                 pstrValue = pstrEqual + 1;
-                *pstrEqual = '\0';
+                *pstrEqual = JF_STRING_NULL_CHAR;
                 /*Remove the space after tag name string.*/
                 jf_option_removeSpaceAfterString(pstrLine);
 
@@ -258,7 +228,7 @@ static u32 _writeConfigToConfFile(
     olsize_t sLine = 0;
 
     ol_snprintf(strLine, sizeof(strLine), "%s=%s\n", pstrTag, pstrValue);
-    strLine[JF_CONFFILE_MAX_LINE_LEN - 1] = '\0';
+    strLine[JF_CONFFILE_MAX_LINE_LEN - 1] = JF_STRING_NULL_CHAR;
     sLine = ol_strlen(strLine);
 
     u32Ret = jf_filestream_writen(pjf, strLine, sLine);
@@ -430,7 +400,7 @@ u32 jf_conffile_get(
     {
         /*Set the option value to default.*/
         ol_snprintf(pstrValueBuf, sBuf, "%s", pstrDefault);
-        pstrValueBuf[sBuf - 1] = '\0';
+        pstrValueBuf[sBuf - 1] = JF_STRING_NULL_CHAR;
         u32Ret = JF_ERR_NO_ERROR;
     }
     

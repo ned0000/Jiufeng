@@ -1,8 +1,7 @@
 /**
- *  @file files.c
+ *  @file file.c
  *
- *  @brief Files implementation files, provide common routines to manipulate
- *   files
+ *  @brief Implementation file of file API.
  *
  *  @author Min Zhang
  *
@@ -11,104 +10,29 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <fcntl.h>
-#include <errno.h>
-#include <stdarg.h>
-#if defined(WINDOWS)
 
-#elif defined(LINUX)
-    #include <sys/types.h>
-    #include <dirent.h>
-    #include <sys/file.h>
-#endif
+#include <errno.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_file.h"
-#include "jf_filestream.h"
 #include "jf_err.h"
+#include "jf_string.h"
 
 #include "common.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+
 /* --- private routine section ------------------------------------------------------------------ */
-static u32 _writeVec(
-    jf_filestream_t * pjf, olsize_t vecoffset, jf_datavec_t * pjdData, olsize_t * psData)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t total = *psData, ndata = 0, size;
-    jf_datavec_entry_t * entry;
-    olint_t index = 0;
 
-    while ((total > 0) && (u32Ret == JF_ERR_NO_ERROR) && (index <= pjdData->jd_u16NumOfEntry))
-    {
-        entry = &pjdData->jd_jdeEntry[index ++];
-
-        if (entry->jde_sOffset == 0)
-            break;
-
-        if (vecoffset >= entry->jde_sOffset)
-        {
-            vecoffset -= entry->jde_sOffset;
-            continue;
-        }
-
-        size = entry->jde_sOffset - vecoffset;
-        if (size > total)
-            size = total;
-
-        u32Ret = jf_filestream_writen(pjf, entry->jde_pu8Data + vecoffset, size);
-
-        ndata += size;
-        total -= size;
-        vecoffset = 0;
-    }
-
-    *psData = ndata;
-
-    return u32Ret;
-}
-
-static u32 _readVec(jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t * psData)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t total = *psData, ndata = 0, size;
-    jf_datavec_entry_t * entry;
-
-    while ((total > 0) && (! jf_filestream_isEndOfFile(pjf)) && (u32Ret == JF_ERR_NO_ERROR))
-    {
-        entry = &pjdData->jd_jdeEntry[pjdData->jd_u16NumOfEntry];
-
-        size = entry->jde_sData - entry->jde_sOffset;
-        if (size > total)
-            size = total;
-
-        u32Ret = jf_filestream_readn(pjf, entry->jde_pu8Data + entry->jde_sOffset, &size);
-
-        ndata += size;
-        total -= size;
-
-        entry->jde_sOffset += size;
-        if (entry->jde_sOffset == entry->jde_sData)
-        {
-            pjdData->jd_u16NumOfEntry ++;
-            if (pjdData->jd_u16NumOfEntry == pjdData->jd_u16MaxEntry)
-                break;
-        }
-    }
-
-    *psData = ndata;
-
-    return u32Ret;
-}
 
 /* --- public routine section ------------------------------------------------------------------- */
+
 #if defined(LINUX)
+
 u32 _setFileStat(jf_file_stat_t * pStat, struct stat * pFileInfo)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -145,7 +69,9 @@ u32 _setFileStat(jf_file_stat_t * pStat, struct stat * pFileInfo)
 
     return u32Ret;
 }
+
 #elif defined(WINDOWS)
+
 u32 _setFileStat(jf_file_stat_t * pStat, WIN32_FILE_ATTRIBUTE_DATA * pFileInfo)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -172,7 +98,7 @@ u32 jf_file_getStat(const olchar_t * pstrFilename, jf_file_stat_t * pStat)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    olint_t nRet;
+    olint_t nRet = 0;
     struct stat filestat;
 
     nRet = lstat(pstrFilename, &filestat);
@@ -183,11 +109,11 @@ u32 jf_file_getStat(const olchar_t * pstrFilename, jf_file_stat_t * pStat)
         u32Ret = _setFileStat(pStat, &filestat);
 
 #elif defined(WINDOWS)
-    boolean_t bRet;
+    boolean_t bRet = FALSE;
     WIN32_FILE_ATTRIBUTE_DATA FileInfo;
 
-    bRet = GetFileAttributesEx(pstrFilename, GetFileExInfoStandard,
-        (void *)&FileInfo);
+    bRet = GetFileAttributesEx(pstrFilename, GetFileExInfoStandard, (void *)&FileInfo);
+
     if (! bRet)
         u32Ret = JF_ERR_FAIL_STAT_FILE;
 
@@ -206,14 +132,16 @@ void jf_file_getDirectoryName(
     assert((pstrDirName != NULL) && (pstrFullpath != NULL));
 
     ol_strncpy(pstrDirName, pstrFullpath, sDir - 1);
-    pstrDirName[sDir - 1] = '\0';
+    pstrDirName[sDir - 1] = JF_STRING_NULL_CHAR;
 
+    /*Locate the last occurrence of the character.*/
     pu8Name = strrchr(pstrDirName, PATH_SEPARATOR);
     if (pu8Name != NULL)
-        *pu8Name = '\0';
+        *pu8Name = JF_STRING_NULL_CHAR;
     else /*path separator is not found, clear the buffer*/
-        pstrDirName[0] = '\0';
+        pstrDirName[0] = JF_STRING_NULL_CHAR;
 
+    /*Remove the trailing path separator.*/
     jf_file_removeTrailingPathSeparator(pstrDirName);
 }
 
@@ -224,23 +152,28 @@ void jf_file_getFileName(
 
     assert((pstrFileName != NULL) && (pstrFullpath != NULL));
 
+    /*Locate the last occurrence of the character.*/
     pstrName = strrchr(pstrFullpath, PATH_SEPARATOR);
     if (pstrName == NULL)
     {
+        /*Path separator is not found, copy the full path to file name buffer.*/
         ol_strncpy(pstrFileName, pstrFullpath, sFileName - 1);
-        pstrFileName[sFileName - 1] = '\0';
+        pstrFileName[sFileName - 1] = JF_STRING_NULL_CHAR;
     }
     else
     {
+        /*Path separator is found.*/
         pstrName++;
-        if (*pstrName == '\0')
+        if (*pstrName == JF_STRING_NULL_CHAR)
         {
-            *pstrFileName = '\0';
+            /*No file name.*/
+            *pstrFileName = JF_STRING_NULL_CHAR;
         }
         else
         {
+            /*Found the file name.*/
             ol_strncpy(pstrFileName, pstrName, sFileName - 1);
-            pstrFileName[sFileName - 1] = '\0';
+            pstrFileName[sFileName - 1] = JF_STRING_NULL_CHAR;
         }
     }
 }
@@ -248,7 +181,7 @@ void jf_file_getFileName(
 u32 jf_file_removeTrailingPathSeparator(olchar_t * pstrFullpath)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t sPath;
+    olsize_t sPath = 0;
 
     assert(pstrFullpath != NULL);
 
@@ -256,8 +189,9 @@ u32 jf_file_removeTrailingPathSeparator(olchar_t * pstrFullpath)
     if (sPath > 0)
     {
         sPath --;
+        /*Remove all path separators.*/
         while ((sPath >= 0) && (pstrFullpath[sPath] == PATH_SEPARATOR))
-            pstrFullpath[sPath --] = '\0';
+            pstrFullpath[sPath --] = JF_STRING_NULL_CHAR;
     }
 
     return u32Ret;
@@ -266,11 +200,11 @@ u32 jf_file_removeTrailingPathSeparator(olchar_t * pstrFullpath)
 u32 jf_file_create(const olchar_t * pstrFilename, jf_file_mode_t mode)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_file_t fd;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
 #if defined(LINUX)
 
     fd = creat(pstrFilename, mode);
-    if (fd == -1)
+    if (fd == JF_FILE_INVALID_FILE_VALUE)
         u32Ret = JF_ERR_FAIL_CREATE_FILE;
     else
         jf_file_close(&fd);
@@ -297,25 +231,34 @@ u32 jf_file_open(const olchar_t * pstrFilename, olint_t flags, jf_file_t * pFile
     assert((pstrFilename != NULL) && (pFile != NULL));
 
     *pFile = open(pstrFilename, flags);
-    if (*pFile == -1)
+    if (*pFile == JF_FILE_INVALID_FILE_VALUE)
         u32Ret = JF_ERR_FAIL_OPEN_FILE;
+
 #elif defined(WINDOWS)
     u32 u32Flags = 0, u32CreateFlags = 0, u32ShareMode = 0;
 
     assert((pstrFilename != NULL) && (pFile != NULL));
 
+    /*Convert the flags.*/
     if (flags & O_WRONLY)
+    {
         u32Flags |= GENERIC_WRITE;
+    }
     else if (flags & O_RDONLY)
+    {
         u32Flags |= GENERIC_READ;
+    }
     else if (flags & O_RDWR)
+    {
         u32Flags |= GENERIC_WRITE | GENERIC_READ;
+    }
     else
     {
         u32Flags |= GENERIC_READ;
         u32ShareMode |= FILE_SHARE_READ;
     }
 
+    /*Some flags convert to create flags.*/
     if ((flags & O_CREAT) && (flags & O_TRUNC))
         u32CreateFlags = CREATE_ALWAYS;
     else if (flags & O_CREAT)
@@ -360,11 +303,11 @@ u32 jf_file_close(jf_file_t * pFile)
 
 #if defined(LINUX)
     close(*pFile);
-    *pFile = -1;
 #elif defined(WINDOWS)
     CloseHandle(*pFile);
-    *pFile = INVALID_HANDLE_VALUE;
 #endif
+
+    *pFile = JF_FILE_INVALID_FILE_VALUE;
 
     return u32Ret;
 }
@@ -373,7 +316,7 @@ u32 jf_file_remove(const olchar_t * pstrFilename)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    olint_t nRet;
+    olint_t nRet = 0;
 
     assert(pstrFilename != NULL);
 
@@ -395,7 +338,7 @@ u32 jf_file_rename(const olchar_t *oldpath, const olchar_t *newpath)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    olint_t nRet;
+    olint_t nRet = 0;
 
     assert((oldpath != NULL) && (newpath != NULL));
 
@@ -417,14 +360,14 @@ u32 jf_file_lock(jf_file_t fd)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    olint_t nRet;
+    olint_t nRet = 0;
 
     nRet = flock(fd, LOCK_EX);
     if (nRet == -1)
         u32Ret = JF_ERR_FAIL_LOCK_FILE;
 
 #elif defined(WINDOWS)
-    boolean_t bRet;
+    boolean_t bRet = FALSE;
     OVERLAPPED overlap;
 
     bRet = LockFileEx(fd, LOCKFILE_EXCLUSIVE_LOCK, 0, 0xFFFFFFFF, 0xFFFFFFFF, &overlap);
@@ -440,14 +383,14 @@ u32 jf_file_unlock(jf_file_t fd)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    olint_t nRet;
+    olint_t nRet = 0;
 
     nRet = flock(fd, LOCK_UN);
     if (nRet == -1)
         u32Ret = JF_ERR_FAIL_UNLOCK_FILE;
 
 #elif defined(WINDOWS)
-    boolean_t bRet;
+    boolean_t bRet = FALSE;
 
     bRet = UnlockFileEx(fd, 0, 0xFFFFFFFF, 0xFFFFFFFF, NULL);
     if (! bRet)
@@ -458,13 +401,12 @@ u32 jf_file_unlock(jf_file_t fd)
     return u32Ret;
 }
 
-/* Read "n" bytes from a descriptor */
 u32 jf_file_readn(jf_file_t fd, void * pBuffer, olsize_t * psRead)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    ssize_t nleft, nread;
-    u8 * pData;
+    ssize_t nleft = 0, nread = 0;
+    u8 * pData = NULL;
 
     assert((pBuffer != NULL) && (*psRead > 0));
 
@@ -477,7 +419,7 @@ u32 jf_file_readn(jf_file_t fd, void * pBuffer, olsize_t * psRead)
         {
             if (errno == EINTR)
             {
-                /* and call read() again */
+                /*Interrupted by a signal, call read() again.*/
                 nread = 0;
             }
             else
@@ -488,7 +430,8 @@ u32 jf_file_readn(jf_file_t fd, void * pBuffer, olsize_t * psRead)
         } 
         else if (nread == 0)
         {
-            /* EOF */
+            /*EOF.*/
+            /*Return error if nothing is read.*/
             if (nleft == *psRead)
                 u32Ret = JF_ERR_END_OF_FILE;
             break;
@@ -501,8 +444,8 @@ u32 jf_file_readn(jf_file_t fd, void * pBuffer, olsize_t * psRead)
     *psRead = (*psRead) - nleft;
 
 #elif defined(WINDOWS)
-    boolean_t bRet;
-    olsize_t sread;
+    boolean_t bRet = FALSE;
+    olsize_t sread = 0;
 
     bRet = ReadFile(fd, pBuffer, *psRead, &sread, NULL);
     if (bRet)
@@ -511,10 +454,11 @@ u32 jf_file_readn(jf_file_t fd, void * pBuffer, olsize_t * psRead)
             u32Ret = JF_ERR_END_OF_FILE;
         else
             *psRead = sread;
-
     }
     else
+    {
         u32Ret = JF_ERR_FAIL_READ_FILE;
+    }
 #endif
     return u32Ret;
 }
@@ -525,9 +469,9 @@ u32 jf_file_readWithTimeout(
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     fd_set fset;
-    olint_t ret;
-    ssize_t nleft, nread;
-    u8 * pData;
+    olint_t ret = 0;
+    ssize_t nleft = 0, nread = 0;
+    u8 * pData = NULL;
 
     nleft = *psRead;
     pData = pBuffer;
@@ -536,9 +480,11 @@ u32 jf_file_readWithTimeout(
         FD_ZERO(&fset);
         FD_SET(fd, &fset);
 
+        /*Use select to control the timeout.*/
         ret = select(fd + 1, &fset, NULL, NULL, timeout);
         if (ret > 0)
         {
+            /*File is readable.*/
             if (FD_ISSET(fd, &fset))
             {
                 nread = read(fd, pData, nleft);
@@ -551,15 +497,16 @@ u32 jf_file_readWithTimeout(
         }
         else if (ret == 0)
         {
-            /* timeout */
+            /*Timeout.*/
             break;
         }
         else
         {
-            /* error */
+            /*Error*/
+            /*Continue if interrupted.*/
             if (errno == EINTR)
                 continue;
-            else
+            else /*Return error.*/
                 u32Ret = JF_ERR_FAIL_READ_FILE;
         }
     } while ((u32Ret == JF_ERR_NO_ERROR) && (nleft > 0));
@@ -568,18 +515,19 @@ u32 jf_file_readWithTimeout(
 
 #elif defined(WINDOWS)
 
+    u32Ret = JF_ERR_NOT_IMPLEMENTED;
+
 #endif
     return u32Ret;
 }
 
-/* Write "n" bytes to a descriptor. */
 u32 jf_file_writen(jf_file_t fd, const void * pBuffer, olsize_t sWrite)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    olsize_t nleft;
-    ssize_t nwritten;
-    const olchar_t * p;
+    olsize_t nleft = 0;
+    ssize_t nwritten = 0;
+    const olchar_t * p = NULL;
 
     assert((pBuffer != NULL) && (sWrite > 0));
 
@@ -592,7 +540,7 @@ u32 jf_file_writen(jf_file_t fd, const void * pBuffer, olsize_t sWrite)
         {
             if (errno == EINTR)
             {
-                /* and call write() again */
+                /*Interrupted by a signal, call write() again.*/
                 nwritten = 0;
             }
             else
@@ -606,8 +554,8 @@ u32 jf_file_writen(jf_file_t fd, const void * pBuffer, olsize_t sWrite)
         p += nwritten;
     }
 #elif defined(WINDOWS)
-    boolean_t bRet;
-    olsize_t nwrite;
+    boolean_t bRet = FALSE;
+    olsize_t nwrite = 0;
 
     bRet = WriteFile(fd, pBuffer, sWrite, &nwrite, NULL);
     if (bRet)
@@ -626,273 +574,42 @@ u32 jf_file_writen(jf_file_t fd, const void * pBuffer, olsize_t sWrite)
 u32 jf_file_readLine(jf_file_t fd, void * pBuffer, olsize_t * psRead)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 n, maxlen;
-    olsize_t nread;
-    olchar_t c, * p;
+    u32 n = 0, maxlen = 0;
+    olsize_t nread = 0;
+    olchar_t c = 0, * p = NULL;
 
     assert((pBuffer != NULL) && (*psRead > 0));
 
     maxlen = *psRead;
     p = pBuffer;
-    for (n = 1; (n < maxlen) && (u32Ret == JF_ERR_NO_ERROR); n++)
+    for (n = 0; n < maxlen - 1; n ++)
     {
+        /*Read 1 character.*/
         nread = 1;
         u32Ret = jf_file_readn(fd, (void *)&c, &nread);
+
+        /*Save the character.*/
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             if (nread == 1) 
             {
                 *p++ = c;
-                if (c == '\n')
-                    break; /* newline is stored, like fgets() */
+                if (c == JF_STRING_LINE_FEED_CHAR)
+                    break; /*Newline is stored.*/
             } 
-            else if (nread == 0) 
-            {
-                /* EOF, some data was read */
-                break;
-            }
+            /*No need to check the case (nread == 0), as JF_ERR_END_OF_FILE is returned.*/
         }
+
+        if (u32Ret != JF_ERR_NO_ERROR)
+            break;
     }
 
-    *p = 0;/* null terminate like fgets() */
+    /*Null terminated is always appended.*/
+    *p = JF_STRING_NULL_CHAR;
 
     *psRead = n;
 
     return u32Ret;
-}
-
-u32 jf_filestream_open(
-    const olchar_t * pstrFilename, const olchar_t * mode, jf_filestream_t ** ppjf)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-
-    assert((pstrFilename != NULL) && (mode != NULL) && (ppjf != NULL));
-
-    *ppjf = fopen(pstrFilename, mode);
-    if (*ppjf == NULL)
-        u32Ret = JF_ERR_FAIL_OPEN_FILE;
-
-    return u32Ret;
-}
-
-u32 jf_filestream_flush(jf_filestream_t * pjf)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    olint_t nRet;
-
-    nRet = fflush(pjf);
-    if (nRet != 0)
-        u32Ret = JF_ERR_FAIL_FLUSH_FILE;
-
-    return u32Ret;
-}
-
-olsize_t jf_filestream_printf(jf_filestream_t * pjf, const olchar_t * format, ...)
-{
-    olsize_t sRet = 0;
-    va_list vlParam;
-
-    va_start(vlParam, format);
-    sRet = vfprintf(pjf, format, vlParam);
-    va_end(vlParam);
-
-    return sRet;
-}
-
-u32 jf_filestream_seek(jf_filestream_t * pjf, long offset, olint_t whence)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    olint_t ret;
-
-    assert(pjf != NULL);
-
-    ret = fseek(pjf, offset, whence);
-    if (ret != 0)
-        u32Ret = JF_ERR_FAIL_SEEK_FILE;
-
-    return u32Ret;
-}
-
-u32 jf_filestream_close(jf_filestream_t ** pjf)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-
-    assert((pjf != NULL) && (*pjf != NULL));
-
-    fclose(*pjf);
-    *pjf = NULL;
-
-    return u32Ret;
-}
-
-boolean_t jf_filestream_isEndOfFile(jf_filestream_t * pjf)
-{
-    boolean_t bRet = FALSE;
-    olint_t ret;
-
-    ret = feof(pjf);
-    if (ret != 0)
-        bRet = TRUE;
-
-    return bRet;
-}
-
-/* Read "n" bytes from a file */
-u32 jf_filestream_readn(jf_filestream_t * pjf, void * pBuffer, olsize_t * psRead)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t nread;
-
-    assert((pjf != NULL) && (pBuffer != NULL) && (*psRead > 0));
-
-    nread = fread(pBuffer, 1, *psRead, pjf);
-    if ((u32)nread != *psRead)
-    {
-        if (! feof(pjf))
-            u32Ret = JF_ERR_FAIL_READ_FILE;
-        else
-        {
-            if (nread == 0)
-                u32Ret = JF_ERR_END_OF_FILE;
-        }
-    }
-
-    *psRead = nread;
-
-    return u32Ret;
-}
-
-u32 jf_filestream_readVec(jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t * psRead)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-
-    jf_datavec_reinit(pjdData);
-
-    u32Ret = _readVec(pjf, pjdData, psRead);
-
-    return u32Ret;
-}
-
-u32 jf_filestream_writeVec(jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t sWrite)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t size = sWrite;
-
-    u32Ret = _writeVec(pjf, 0, pjdData, &size);
-
-    return u32Ret;
-}
-
-u32 jf_filestream_readVecOffset(
-    jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t sVecOffset, olsize_t * psRead)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-
-    jf_datavec_set(pjdData, sVecOffset);
-
-    u32Ret = _readVec(pjf, pjdData, psRead);
-
-    return u32Ret;
-}
-
-u32 jf_filestream_writeVecOffset(
-    jf_filestream_t * pjf, jf_datavec_t * pjdData, olsize_t sVecOffset, olsize_t sWrite)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t size = sWrite;
-
-    u32Ret = _writeVec(pjf, sVecOffset, pjdData, &size);
-
-    return u32Ret;
-}
-
-/* Write "n" bytes to a file */
-u32 jf_filestream_writen(jf_filestream_t * pjf, const void * pBuffer, olsize_t sWrite)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t nwritten;
-
-    assert((pjf != NULL) && (pBuffer != NULL) && (sWrite > 0));
-
-    nwritten = fwrite(pBuffer, 1, sWrite, pjf);
-    if ((u32)nwritten != sWrite)
-        u32Ret = JF_ERR_FAIL_WRITE_FILE;
-
-    return u32Ret;
-}
-
-u32 jf_filestream_readLine(jf_filestream_t * pjf, void * pBuffer, olsize_t * psRead)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 n, maxlen;
-    olsize_t nread;
-    olchar_t c, * p;
-
-    assert((pjf != NULL) && (pBuffer != NULL) && (*psRead > 0));
-
-    maxlen = *psRead;
-    p = pBuffer;
-    for (n = 1; n < maxlen; n++)
-    {
-        nread = 1;
-        u32Ret = jf_filestream_readn(pjf, (void *)&c, &nread);
-        if (u32Ret == JF_ERR_NO_ERROR)
-        {
-            if (nread == 1) 
-            {
-                *p++ = c;
-                if (c == '\n')
-                    break; /* newline is stored, like fgets() */
-            } 
-            else if (nread == 0) 
-            {
-                /* EOF, some data was read */
-                break;
-            }
-        }
-    }
-
-    *p = 0;/* null terminate like fgets() */
-
-    *psRead = n;
-
-    return u32Ret;
-}
-
-/*copy file content from pstrSourceFile to fpDest, pu8Buffer is a buffer
- provided by caller for the function*/
-u32 jf_filestream_copyFile(
-    jf_filestream_t * pjfDest, const olchar_t * pstrSourceFile, u8 * pu8Buffer, olsize_t sBuf)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_filestream_t * sourcejf = NULL;
-    olsize_t size;
-
-    u32Ret = jf_filestream_open(pstrSourceFile, "rb", &sourcejf);
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        while ((u32Ret == JF_ERR_NO_ERROR) && (! feof(sourcejf)))
-        {
-            size = sBuf;
-            u32Ret = jf_filestream_readn(sourcejf, pu8Buffer, &size);
-            if (u32Ret == JF_ERR_NO_ERROR)
-            {
-                u32Ret = jf_filestream_writen(pjfDest, pu8Buffer, size);
-            }
-        }
-
-        if (u32Ret == JF_ERR_END_OF_FILE)
-            u32Ret = JF_ERR_NO_ERROR;
-
-        jf_filestream_close(&sourcejf);
-    }
-
-    return u32Ret;
-}
-
-olint_t jf_filestream_getChar(jf_filestream_t * pjf)
-{
-    return fgetc(pjf);
 }
 
 boolean_t jf_file_isDirFile(u32 u32Mode)
@@ -966,24 +683,27 @@ boolean_t jf_file_isLinkFile(u32 u32Mode)
 }
 
 boolean_t jf_file_isTypedFile(
-    const olchar_t * pstrName, const olchar_t * pstrPrefex, const olchar_t * pstrFileExt)
+    const olchar_t * pstrName, const olchar_t * pstrPrefix, const olchar_t * pstrFileExt)
 {
     boolean_t bRet = FALSE;
-    olsize_t namesize, extsize;
+    olsize_t namesize = 0, extsize = 0;
 
-    if (pstrPrefex != NULL)
+    if (pstrPrefix != NULL)
     {
-        if (ol_strncmp(pstrName, pstrPrefex, strlen(pstrPrefex)) != 0)
+        /*Compare the prefix*/
+        if (ol_strncmp(pstrName, pstrPrefix, ol_strlen(pstrPrefix)) != 0)
             return bRet;
     }
 
     if (pstrFileExt != NULL)
     {
+        /*Compare the size.*/
         namesize = ol_strlen(pstrName);
         extsize = ol_strlen(pstrFileExt);
         if (namesize <= extsize)
             return bRet;
 
+        /*Compare the extension.*/
         if (ol_strcmp(pstrName + namesize - extsize, pstrFileExt) != 0)
             return bRet;
     }
@@ -992,5 +712,3 @@ boolean_t jf_file_isTypedFile(
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-

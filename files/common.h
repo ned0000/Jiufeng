@@ -1,8 +1,7 @@
 /**
  *  @file files/common.h
  *
- *  @brief Files header file, common data structure and routines for files
- *   library
+ *  @brief Header file provides common data structure and routines for files library.
  *
  *  @author Min Zhang
  *
@@ -15,17 +14,21 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
+
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
+
 #if defined(WINDOWS)
-    #define ssize_t olint_t
+    #define ssize_t        olint_t
 #elif defined(LINUX)
 
 #endif
 
 /* --- data structures -------------------------------------------------------------------------- */
+
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
@@ -33,5 +36,3 @@
 #endif /*FILES_COMMON_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

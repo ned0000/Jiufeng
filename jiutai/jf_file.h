@@ -13,8 +13,6 @@
 #define JIUFENG_FILE_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
 
 #if defined(LINUX)
     #include <dirent.h>
@@ -24,6 +22,7 @@
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 
@@ -45,76 +44,163 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
-/** Define the file handle data type.
- */
 #if defined(LINUX)
+/** Define the file data type for Linux.
+ */
     typedef olint_t  jf_file_t;
+
+/** Define the invalid file value for Linux.
+ */
     #define JF_FILE_INVALID_FILE_VALUE  (-1)
+
 #elif defined(WINDOWS)
+/** Define the file data type for Windows.
+ */
     typedef HANDLE   jf_file_t;
+
+/** Define the invalid file value for Windows.
+ */
     #define JF_FILE_INVALID_FILE_VALUE  (INVALID_HANDLE_VALUE)
 
+/** The file is opened for read only.
+ */
     #ifndef O_RDONLY
         #define O_RDONLY         (0x0000)
     #endif
 
+/** The file is opened for write only.
+ */
     #ifndef O_WRONLY
         #define O_WRONLY         (0x0001)
     #endif
 
+/** The file is opened for read/write.
+ */
     #ifndef O_RDWR
         #define O_RDWR           (0x0002)
     #endif
 
+/** The file is opened in append mode.
+ */
     #ifndef O_APPEND
         #define O_APPEND         (0x0008)
     #endif
 
+/** The file is created if it's not existing.
+ */
     #ifndef O_CREAT
         #define O_CREAT          (0x0100)
     #endif
 
+/** The file is truncated to length 0 if the file already exists and is a regular file and the
+ *  access mode allows writing.
+ */
     #ifndef O_TRUNC
         #define O_TRUNC          (0x0200)
     #endif
 
+/** The file is opened exclusively.
+ */
     #ifndef O_EXCL
         #define O_EXCL           (0x0400)
     #endif
 
 #endif
 
-/** Possible value for file mode.
+/** Mask for file mode and type.
  */
 #define JF_FILE_MODE_TYPE_MASK   (0x001F0000)
 
-#define JF_FILE_MODE_TSOCK       (0x00070000)   /* socket */
-#define JF_FILE_MODE_TLNK        (0x00060000)   /* symbolic link */
-#define JF_FILE_MODE_TREG        (0x00050000)   /* regular file */
-#define JF_FILE_MODE_TBLK        (0x00040000)   /* block device */
-#define JF_FILE_MODE_TDIR        (0x00030000)   /* directory */
-#define JF_FILE_MODE_TCHR        (0x00020000)   /* character device */
-#define JF_FILE_MODE_TFIFO       (0x00010000)   /* fifo */
+/** The file is socket type.
+ */
+#define JF_FILE_MODE_TSOCK       (0x00070000)
 
+/** The file is symbolic link.
+ */
+#define JF_FILE_MODE_TLNK        (0x00060000)
+
+/** The file is regular file.
+ */
+#define JF_FILE_MODE_TREG        (0x00050000)
+
+/** The file is block device.
+ */
+#define JF_FILE_MODE_TBLK        (0x00040000)
+
+/** The file is a directory.
+ */
+#define JF_FILE_MODE_TDIR        (0x00030000)
+
+/** The file is character device.
+ */
+#define JF_FILE_MODE_TCHR        (0x00020000)
+
+/** The file is fifo.
+ */
+#define JF_FILE_MODE_TFIFO       (0x00010000)
+
+/** Mask for file mode permission.
+ */
 #define JF_FILE_MODE_PERM_MASK   (0x00000FFF)
 
+/** The file is set-user-ID.
+ */
 #define JF_FILE_MODE_SUID        (04000)
+
+/** The file is set-group-ID.
+ */
 #define JF_FILE_MODE_SGID        (02000)
+
+/** The file is sticky.
+ */
 #define JF_FILE_MODE_SVTX        (01000)
 
+/** Owner has read, write, and execute permission.
+ */
 #define JF_FILE_MODE_RWXU        (00700)
+
+/** Owner has read permission.
+ */
 #define JF_FILE_MODE_RUSR        (00400)
+
+/** Owner has write permission.
+ */
 #define JF_FILE_MODE_WUSR        (00200)
+
+/** Owner has execute permission.
+ */
 #define JF_FILE_MODE_XUSR        (00100)
 
+/** Group has read, write, and execute permission.
+ */
 #define JF_FILE_MODE_RWXG        (00070)
+
+/** Group has read permission.
+ */
 #define JF_FILE_MODE_RGRP        (00040)
+
+/** Group has write permission.
+ */
 #define JF_FILE_MODE_WGRP        (00020)
+
+/** Group has execute permission.
+ */
 #define JF_FILE_MODE_XGRP        (00010)
 
+/** Others (not in group) have read, write, and execute permission.
+ */
 #define JF_FILE_MODE_RWXO        (00007)
+
+/** Others has read permission.
+ */
 #define JF_FILE_MODE_ROTH        (00004)
+
+/** Others has write permission.
+ */
 #define JF_FILE_MODE_WOTH        (00002)
+
+/** Others has execute permission.
+ */
 #define JF_FILE_MODE_XOTH        (00001)
 
 /** Define the file status data type.
@@ -147,11 +233,13 @@ typedef struct
     u32 jfs_u32Reserved3[8];
 } jf_file_stat_t;
 
-/** Define the file mode data type.
- */
 #if defined(LINUX)
+/** Define the file mode data type for Linux.
+ */
     typedef mode_t    jf_file_mode_t;
 #elif defined(WINDOWS)
+/** Define the file mode data type for Windows.
+ */
     typedef u32       jf_file_mode_t;
 #endif
 
@@ -375,6 +463,7 @@ FILESAPI u32 FILESCALL jf_file_unlock(jf_file_t file);
  *
  *  @note
  *  -# The function read specified size unless end of file.
+ *  -# JF_ERR_END_OF_FILE is returned when nothing is read from file.
  *
  *  @param file [in] The file handle.
  *  @param pBuffer [in] The buffer for data.
@@ -423,6 +512,12 @@ FILESAPI u32 FILESCALL jf_file_writen(jf_file_t file, const void * pBuffer, olsi
  *
  *  @note
  *  -# The line is ended with '\n'.
+ *  -# JF_ERR_END_OF_FILE is returned when nothing is read from file.
+ *  -# No error is returned if the buffer is too small to hold a full line.
+ *  -# The line feed character must be present. JF_ERR_END_OF_FILE is returned if line feed
+ *   character is not found and end of file is met, in this case, buffer still has data and size is
+ *   returned.
+ *  -# A null character is always appended to the end of line.
  *
  *  @param file [in] The file handle.
  *  @param pBuffer [in] The buffer for data.
@@ -456,4 +551,3 @@ FILESAPI boolean_t FILESCALL jf_file_isTypedFile(
 #endif /*JIUFENG_FILE_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-

@@ -13,9 +13,9 @@
 
 SONAME = jf_files
 
-SOURCES = files.c directory.c conffile.c
+SOURCES = file.c filestream.c directory.c conffile.c
 
-EXTRA_LIBS = -ljf_jiukun
+EXTRA_LIBS = -ljf_jiukun -ljf_string
 
 JIUTAI_SRCS = jf_option.c
 

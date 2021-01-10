@@ -15,7 +15,6 @@
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_file.h"
 #include "jf_filestream.h"
@@ -25,21 +24,27 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-static olchar_t * ls_pstrDirName = NULL;
-static olchar_t * ls_pstrFileName = NULL;
-static boolean_t ls_bLockFile = FALSE;
-static boolean_t ls_bAppendFile = FALSE;
+static olchar_t * ls_pstrDirNameOfFt = NULL;
+
+static boolean_t ls_bTestLockFileInFt = FALSE;
+
+static boolean_t ls_bTestAppendFileInFt = FALSE;
+
+static boolean_t ls_bTestFileFuncInFt = FALSE;
+
+static boolean_t ls_bTestFileStreamFuncInFt = FALSE;
 
 /* --- private routine section ------------------------------------------------------------------ */
 
 static void _printFilesTestUsage(void)
 {
     ol_printf("\
-Usage: files-test [-d directory] [-l] [-s filename] [-a]\n\
-    -d list directory.\n\
-    -a append file.\n\
-    -l lock file test.\n\
-    -s test stream file write.\n");
+Usage: files-test [-d directory] [-f] [-l] [-s] [-a]\n\
+  -d: test directory list.\n\
+  -a: test file append.\n\
+  -f: test file functions.\n\
+  -l: test file lock in multi-thread environment.\n\
+  -s: test file stream functions.\n");
 
     ol_printf("\n");
 
@@ -50,7 +55,7 @@ static u32 _parseFilesTestCmdLineParam(olint_t argc, olchar_t ** argv)
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t nOpt;
 
-    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "lad:s:h?")) != -1))
+    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "lfad:sh?")) != -1))
     {
         switch (nOpt)
         {
@@ -60,16 +65,19 @@ static u32 _parseFilesTestCmdLineParam(olint_t argc, olchar_t ** argv)
             exit(0);
             break;
         case 'a':
-            ls_bAppendFile = TRUE;
+            ls_bTestAppendFileInFt = TRUE;
+            break;
+        case 'f':
+            ls_bTestFileFuncInFt = TRUE;
             break;
         case 'l':
-            ls_bLockFile = TRUE;
+            ls_bTestLockFileInFt = TRUE;
             break;
         case 's':
-            ls_pstrFileName = jf_option_getArg();
+            ls_bTestFileStreamFuncInFt = TRUE;
             break;
         case 'd':
-            ls_pstrDirName = jf_option_getArg();
+            ls_pstrDirNameOfFt = jf_option_getArg();
             break;
         case ':':
             u32Ret = JF_ERR_MISSING_OPTION_ARG;
@@ -102,7 +110,7 @@ static u32 _listDir(const olchar_t * pstrDir)
     {
         if (jf_file_isDirFile(filestat.jfs_u32Mode))
         {
-            u32Ret = jf_dir_traverse(ls_pstrDirName, _handleFile, NULL);
+            u32Ret = jf_dir_traverse(ls_pstrDirNameOfFt, _handleFile, NULL);
         }
         else
         {
@@ -113,12 +121,16 @@ static u32 _listDir(const olchar_t * pstrDir)
     return u32Ret;
 }
 
-static u32 _testFpWrite(olchar_t * file)
+static u32 _testFileStreamWriteInFt(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t * pstrFile = "file-stream-write-file";
     jf_filestream_t * pjf = NULL;
 
-    u32Ret = jf_filestream_open(file, "r+", &pjf);
+    ol_printf("----------------------------------------------\n");
+    ol_printf("Test file stream write\n");
+
+    u32Ret = jf_filestream_open(pstrFile, "w", &pjf);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_filestream_seek(pjf, SEEK_SET, 0);
@@ -130,9 +142,50 @@ static u32 _testFpWrite(olchar_t * file)
     return u32Ret;
 }
 
+static u32 _testFileStreamReadLineInFt(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_filestream_t * pjf = NULL;
+    olchar_t * pstrFile = "file-stream-read-line-file";
+    olchar_t buf[8];
+    olsize_t sBuf = sizeof(buf);
+
+    ol_printf("----------------------------------------------\n");
+    ol_printf("Test file stream read line\n");
+
+    u32Ret = jf_filestream_open(pstrFile, "r", &pjf);
+
+    if (u32Ret != JF_ERR_NO_ERROR)
+        ol_printf("Failed to open file: %s\n", pstrFile);
+
+    while (u32Ret == JF_ERR_NO_ERROR)
+    {
+        sBuf = sizeof(buf);
+        u32Ret = jf_filestream_readLine(pjf, buf, &sBuf);
+
+        ol_printf("Data (%d): %s, return: 0x%X\n", sBuf, buf, u32Ret);
+    }
+
+    if (pjf != NULL)
+        jf_filestream_close(&pjf);
+
+    return u32Ret;
+}
+
+static u32 _testFileStreamFuncInFt(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    _testFileStreamWriteInFt();
+
+    _testFileStreamReadLineInFt();
+
+    return u32Ret;
+}
+
 static olchar_t * ls_pstrLockFile = "lockfile";
 
-JF_THREAD_RETURN_VALUE _testLockFileThread(void * pArg)
+JF_THREAD_RETURN_VALUE _testLockFileInFtThread(void * pArg)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olint_t id = *(olint_t *)pArg;
@@ -162,7 +215,32 @@ JF_THREAD_RETURN_VALUE _testLockFileThread(void * pArg)
     JF_THREAD_RETURN(u32Ret);
 }
 
-static u32 _testLockFile(void)
+static u32 _testFileFuncInFt(void)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
+    olchar_t * pstrFile = "file-test-read-line-file";
+    olchar_t buf[8];
+    olsize_t sBuf = sizeof(buf);
+
+    u32Ret = jf_file_openWithMode(
+        pstrFile, O_RDWR | O_CREAT, JF_FILE_MODE_RUSR | JF_FILE_MODE_WUSR, &fd);
+
+    while (u32Ret == JF_ERR_NO_ERROR)
+    {
+        sBuf = sizeof(buf);
+        u32Ret = jf_file_readLine(fd, buf, &sBuf);
+
+        ol_printf("Data (%d): %s, return: 0x%X\n", sBuf, buf, u32Ret);
+    }
+
+    if (fd != JF_FILE_INVALID_FILE_VALUE)
+        jf_file_close(&fd);
+
+    return u32Ret;
+}
+
+static u32 _testLockFileInFt(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
@@ -175,11 +253,11 @@ static u32 _testLockFile(void)
         jf_file_writen(fd, "12345678", 8);
         jf_file_close(&fd);
 
-        u32Ret = jf_thread_create(NULL, NULL, _testLockFileThread, (void *)&index1);
+        u32Ret = jf_thread_create(NULL, NULL, _testLockFileInFtThread, (void *)&index1);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_thread_create(NULL, NULL, _testLockFileThread, (void *)&index2);
+        u32Ret = jf_thread_create(NULL, NULL, _testLockFileInFtThread, (void *)&index2);
 
     ol_sleep(30);
     jf_file_remove(ls_pstrLockFile);
@@ -187,7 +265,7 @@ static u32 _testLockFile(void)
     return u32Ret;
 }
 
-static u32 _testAppendFile(void)
+static u32 _testAppendFileInFt(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_file_t fd = JF_FILE_INVALID_FILE_VALUE;
@@ -214,14 +292,16 @@ olint_t main(olint_t argc, olchar_t ** argv)
     u32Ret = _parseFilesTestCmdLineParam(argc, argv);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (ls_pstrDirName != NULL)
-            u32Ret = _listDir(ls_pstrDirName);
-        else if (ls_pstrFileName != NULL)
-            u32Ret = _testFpWrite(ls_pstrFileName);
-        else if (ls_bLockFile)
-            u32Ret = _testLockFile();
-        else if (ls_bAppendFile)
-            u32Ret = _testAppendFile();
+        if (ls_pstrDirNameOfFt != NULL)
+            u32Ret = _listDir(ls_pstrDirNameOfFt);
+        else if (ls_bTestFileStreamFuncInFt)
+            u32Ret = _testFileStreamFuncInFt();
+        else if (ls_bTestLockFileInFt)
+            u32Ret = _testLockFileInFt();
+        else if (ls_bTestAppendFileInFt)
+            u32Ret = _testAppendFileInFt();
+        else if (ls_bTestFileFuncInFt)
+            u32Ret = _testFileFuncInFt();
         else
             _printFilesTestUsage();
     }
