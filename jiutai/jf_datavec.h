@@ -1,12 +1,13 @@
 /**
  *  @file jf_datavec.h
  *
- *  @brief Header file defines the data vector.
+ *  @brief Header file defines data structures and routines of data vector.
  *
  *  @author Min Zhang
  *
  *  @note
- *  
+ *  -# All APIs defined in this file are inline functions.
+ *  -# Link with jf_jiukun library for memory allocation.
  */
 
 #ifndef JIUTAI_DATAVEC_H
@@ -14,7 +15,9 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
+
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_jiukun.h"
@@ -23,7 +26,7 @@
 
 /** Maximum entry in data vector.
  */
-#define JF_DATAVEC_MAX_ENTRY    (8)
+#define JF_DATAVEC_MAX_ENTRY               (8)
 
 /* --- data structures -------------------------------------------------------------------------- */
 
@@ -54,6 +57,12 @@ typedef struct
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+/** Initialize the data vector.
+ *
+ *  @param pVec [in/out] The vector to be initialized.
+ *
+ *  @return Void.
+ */
 static inline void jf_datavec_init(jf_datavec_t * pVec)
 {
     ol_bzero(pVec, sizeof(*pVec));
@@ -197,7 +206,10 @@ static inline u32 jf_datavec_freeData(jf_datavec_t * pVec)
     return u32Ret;
 }
 
-/** Reinit the data vector, the current entry is set to 0 and offset in each entry is set to 0 also.
+/** Reinitialize the data vector.
+ *
+ *  @note
+ *  -# The current entry is set to 0 and offset in each entry is set to 0 also.
  *
  *  @param pVec [in] The vector to reinit.
  *
@@ -205,8 +217,8 @@ static inline u32 jf_datavec_freeData(jf_datavec_t * pVec)
  */
 static inline void jf_datavec_reinit(jf_datavec_t * pVec)
 {
-    olint_t i;
-    jf_datavec_entry_t * entry;
+    olint_t i = 0;
+    jf_datavec_entry_t * entry = NULL;
 
     pVec->jd_u16NumOfEntry = 0;
 
@@ -226,8 +238,8 @@ static inline void jf_datavec_reinit(jf_datavec_t * pVec)
  */
 static inline void jf_datavec_set(jf_datavec_t * pVec, olsize_t offset)
 {
-    olint_t i;
-    jf_datavec_entry_t * entry;
+    olint_t i = 0;
+    jf_datavec_entry_t * entry = NULL;
 
     pVec->jd_u16NumOfEntry = 0;
 
@@ -260,7 +272,7 @@ static inline void jf_datavec_set(jf_datavec_t * pVec, olsize_t offset)
 static inline jf_datavec_entry_t * jf_datavec_locate(
     jf_datavec_t * pVec, olsize_t offset, olsize_t * entryoffset)
 {
-    olint_t i;
+    olint_t i = 0;
     jf_datavec_entry_t * entry = NULL;
 
     for (i = 0; i < pVec->jd_u16NumOfEntry; i ++)
@@ -294,8 +306,8 @@ static inline jf_datavec_entry_t * jf_datavec_locate(
  */
 static inline olsize_t jf_datavec_copyData(jf_datavec_t * pVec, u8 * data, olsize_t size)
 {
-    jf_datavec_entry_t * entry;
-    olsize_t copy, offset = 0;
+    jf_datavec_entry_t * entry = NULL;
+    olsize_t copy = 0, offset = 0;
 
     if (pVec->jd_u16NumOfEntry == pVec->jd_u16MaxEntry)
         return 0;
@@ -341,11 +353,16 @@ static inline boolean_t jf_datavec_isLastEntry(jf_datavec_t * pVec, jf_datavec_e
 }
 
 /** Base on the new buffer size, return the number of entry.
+ *
+ *  @param pVec [in] The vector to check.
+ *  @param sBuf [in] Size of buffer.
+ *
+ *  @return Number of entry required for the buffer.
  */
 static inline u16 jf_datavec_getMaxEntry(jf_datavec_t * pVec, olsize_t sBuf)
 {
-    u16 index;
-    jf_datavec_entry_t * entry;
+    u16 index = 0;
+    jf_datavec_entry_t * entry = NULL;
     u16 u16Entry = 0;
 
     for (index = 0; index < pVec->jd_u16NumOfEntry; index ++)
@@ -358,12 +375,20 @@ static inline u16 jf_datavec_getMaxEntry(jf_datavec_t * pVec, olsize_t sBuf)
     return u16Entry;
 }
 
+/** Convert the data vector to another new data vector.
+ *
+ *  @param pVec [in] The source data vector.
+ *  @param sBuf [in] Size of buffer for the new data vector.
+ *  @param pNewVec [in] The new data vector.
+ *
+ *  @return Void.
+ */
 static inline void jf_datavec_convert(
     jf_datavec_t * pVec, olsize_t sBuf, jf_datavec_t * pNewVec)
 {
-    u16 index, index2;
-    jf_datavec_entry_t * entry, *entry2;
-    olsize_t start, size;
+    u16 index = 0, index2 = 0;
+    jf_datavec_entry_t * entry = NULL, * entry2 = NULL;
+    olsize_t start = 0, size = 0;
 
     for (index = 0, index2 = 0; index < pVec->jd_u16NumOfEntry; index ++)
     {
@@ -391,5 +416,3 @@ static inline void jf_datavec_convert(
 #endif /*JIUTAI_DATAVEC_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-
