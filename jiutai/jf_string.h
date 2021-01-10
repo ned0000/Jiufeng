@@ -92,6 +92,9 @@
  */
 #define JF_STRING_LINE_FEED_CHAR                    '\n'
 
+/** Define the carriage return character.
+ */
+#define JF_STRING_CARRIAGE_RETURN_CHAR              '\r'
 
 /* --- data structures -------------------------------------------------------------------------- */
 
