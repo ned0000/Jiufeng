@@ -197,7 +197,7 @@ u32 jf_hsm_processEvent(jf_hsm_t * pHsm, jf_hsm_event_t * pEvent);
  *  @param pEvent [out] The event to be processed.
  *  @param eventId [in] The event id.
  *  @param pData [in] The data for the event.
- *  @param pDataEx [in] The second data for the event.
+ *  @param s64Param [in] The second parameter for the event.
  *
  *  @return Void.
  */
