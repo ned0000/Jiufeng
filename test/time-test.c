@@ -40,11 +40,11 @@ static void _printTimeTestUsage(void)
 {
     ol_printf("\
 Usage: time-test [-c] [-p] [-r] [-t] [-s]\n\
-    -c test clock time.\n\
-    -p test time period.\n\
-    -r test time recur.\n\
-    -t test system time.\n\
-    -s test time string.\n");
+  -c: test clock time.\n\
+  -p: test time period.\n\
+  -r: test time recur.\n\
+  -t: test system time.\n\
+  -s: test time string.\n");
 
     ol_printf("\n");
 
@@ -153,6 +153,16 @@ static u32 _testTimeString(void)
 
     ol_printf("\n");
 
+    for (i = 0; i < 10; i ++)
+    {
+        olchar_t strTime[64];
+
+        jf_time_getStringCurrentTime(strTime, sizeof(strTime));
+        ol_printf("Current time: %s\n", strTime);
+        jf_time_sleep(1);
+    }
+
+
     return u32Ret;
 }
 
@@ -181,14 +191,14 @@ static u32 _printTimeRecur(u64 u64Sec)
     {
         ol_printf("UTC Second : %llu\n", u64Sec);
 
-        u32Ret = jf_time_getStringLocalTime(str, sizeof(str), u64Sec);
+        u32Ret = jf_time_getStringLocalDateTime(str, sizeof(str), u64Sec);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_printf("Local Time : %s\n", str);
 
-        u32Ret = jf_time_getStringUtcTime(str, sizeof(str), u64Sec);
+        u32Ret = jf_time_getStringUtcDateTime(str, sizeof(str), u64Sec);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)

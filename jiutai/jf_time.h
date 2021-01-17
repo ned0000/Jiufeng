@@ -235,6 +235,19 @@ u32 jf_time_getTimeFromString(
 u32 jf_time_getStringTime(
     olchar_t * pstrTime, olsize_t sTime, const olint_t hour, const olint_t min, const olint_t sec);
 
+/** Get the string of current time in the format "hour:minute:second" like 15:03:08.
+ *
+ *  @note
+ *  -# The current time is local time.
+ *
+ *  @param pstrTime [out] The string buffer where the time string will return.
+ *  @param sTime [in] Size of the string buffer. 
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+u32 jf_time_getStringCurrentTime(olchar_t * pstrTime, olsize_t sTime);
+
 /** Get monotonic raw time in second.
  *
  *  @note
@@ -332,10 +345,11 @@ u32 jf_time_getUtcTimeInSecondOfNextDay(const u64 u64Sec, u64 * pu64Next);
  */
 u32 jf_time_getUtcTimeInSecondOfNextWeek(const u64 u64Sec, u64 * pu64Next);
 
-/** Get current local time string.
+/** Get local date and time string based on the time in second.
  *
  *  @note
  *  -# The size of the string buffer should not less than 32 bytes.
+ *  -# The string format is "'day of the week' month day hour:minute:second year".
  *
  *  @par Example
  *  @code
@@ -351,9 +365,9 @@ u32 jf_time_getUtcTimeInSecondOfNextWeek(const u64 u64Sec, u64 * pu64Next);
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-u32 jf_time_getStringLocalTime(olchar_t * pstrTime, olsize_t sStrTime, const u64 u64Sec);
+u32 jf_time_getStringLocalDateTime(olchar_t * pstrTime, olsize_t sStrTime, const u64 u64Sec);
 
-/** Get current UTC time string.
+/** Get UTC date and time string based on the time in second.
  *
  *  @note
  *  -# The size of the string buffer should not less than 32 bytes.
@@ -372,7 +386,7 @@ u32 jf_time_getStringLocalTime(olchar_t * pstrTime, olsize_t sStrTime, const u64
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
-u32 jf_time_getStringUtcTime(olchar_t * pstrTime, olsize_t sStrTime, const u64 u64Sec);
+u32 jf_time_getStringUtcDateTime(olchar_t * pstrTime, olsize_t sStrTime, const u64 u64Sec);
 
 #endif /*JIUTAI_TIME_H*/
 

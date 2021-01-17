@@ -26,6 +26,7 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+
 /* --- private routine section ------------------------------------------------------------------ */
 
 static u32 _getLocalTime(time_t * ptSec, struct tm * pResult)
@@ -360,6 +361,20 @@ u32 jf_time_getStringTime(
     return u32Ret;
 }
 
+u32 jf_time_getStringCurrentTime(olchar_t * pstrTime, olsize_t sTime)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    oltime_t tSec = 0;
+    struct tm result;
+
+    tSec = time(NULL);
+    _getLocalTime(&tSec, &result);
+
+    u32Ret = jf_time_getStringTime(pstrTime, sTime, result.tm_hour, result.tm_min, result.tm_sec);
+
+    return u32Ret;
+}
+
 u32 jf_time_getMonotonicRawTimeInSecond(u64 * pu64Sec)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -466,7 +481,7 @@ u32 jf_time_getUtcTimeInSecondOfNextWeek(const u64 u64Sec, u64 * pu64Next)
     return u32Ret;
 }
 
-u32 jf_time_getStringLocalTime(olchar_t * pstrTime, olsize_t sStrTime, const u64 u64Sec)
+u32 jf_time_getStringLocalDateTime(olchar_t * pstrTime, olsize_t sStrTime, const u64 u64Sec)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     const oltime_t tSec = (time_t)u64Sec;
@@ -490,7 +505,7 @@ u32 jf_time_getStringLocalTime(olchar_t * pstrTime, olsize_t sStrTime, const u64
     return u32Ret;
 }
 
-u32 jf_time_getStringUtcTime(olchar_t * pstrTime, olsize_t sStrTime, const u64 u64Sec)
+u32 jf_time_getStringUtcDateTime(olchar_t * pstrTime, olsize_t sStrTime, const u64 u64Sec)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     const oltime_t tSec = (time_t)u64Sec;
