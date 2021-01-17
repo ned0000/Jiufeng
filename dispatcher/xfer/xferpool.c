@@ -708,7 +708,7 @@ static u32 _preSelectDispatcherXferObjectPool(
     internal_dispatcher_xfer_object_pool_t * pidxop = pXferObjectPool;
     jf_hsm_event_t event;
 
-    jf_hsm_initEvent(&event, DXOPE_SEND_MSG, pidxop, NULL); 
+    jf_hsm_initEvent(&event, DXOPE_SEND_MSG, pidxop, 0);
     u32Ret = jf_hsm_processEvent(pidxop->idxop_pjhPool, &event);
 
     return u32Ret;
@@ -736,7 +736,7 @@ static u32 _createDispatcherXferObjectPoolHsm(internal_dispatcher_xfer_object_po
     {
         jf_hsm_event_t event;
 
-        jf_hsm_initEvent(&event, DXOPE_START, pidxop, NULL);
+        jf_hsm_initEvent(&event, DXOPE_START, pidxop, 0);
         u32Ret = jf_hsm_processEvent(pidxop->idxop_pjhPool, &event);
     }
 
@@ -760,7 +760,7 @@ static u32 _fnUtimerPauseDispatcherXferPool(void * object)
     internal_dispatcher_xfer_object_pool_t * pidxop = object;
     jf_hsm_event_t event;
 
-    jf_hsm_initEvent(&event, DXOPE_PAUSE, pidxop, NULL); 
+    jf_hsm_initEvent(&event, DXOPE_PAUSE, pidxop, 0);
 
     u32Ret = jf_hsm_processEvent(pidxop->idxop_pjhPool, &event);
 
@@ -777,7 +777,7 @@ static u32 _fnUtimerResumeDispatcherXferPool(void * object)
     internal_dispatcher_xfer_object_pool_t * pidxop = object;
     jf_hsm_event_t event;
 
-    jf_hsm_initEvent(&event, DXOPE_RESUME, pidxop, NULL); 
+    jf_hsm_initEvent(&event, DXOPE_RESUME, pidxop, 0);
 
     u32Ret = jf_hsm_processEvent(pidxop->idxop_pjhPool, &event);
 

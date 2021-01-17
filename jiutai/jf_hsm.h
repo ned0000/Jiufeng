@@ -79,8 +79,8 @@ typedef struct jf_hsm_event
     jf_hsm_event_id_t jhe_jheiEventId;
     /**The data associated with the event id.*/
     void * jhe_pData;
-    /**The second data associated with the event id.*/
-    void * jhe_pDataEx;
+    /**The second parameter associated with the event id.*/
+    s64 jhe_s64Param;
 } jf_hsm_event_t;
 
 /** The callback function to guard the state.
@@ -202,13 +202,12 @@ u32 jf_hsm_processEvent(jf_hsm_t * pHsm, jf_hsm_event_t * pEvent);
  *  @return Void.
  */
 static inline void jf_hsm_initEvent(
-    jf_hsm_event_t * pEvent, jf_hsm_event_id_t eventId, void * pData, void * pDataEx)
+    jf_hsm_event_t * pEvent, jf_hsm_event_id_t eventId, void * pData, s64 s64Param)
 {
     pEvent->jhe_jheiEventId = eventId;
     pEvent->jhe_pData = pData;
-    pEvent->jhe_pDataEx = pDataEx;
+    pEvent->jhe_s64Param = s64Param;
 }
-
 
 #endif /*JIUTAI_HSM_H*/
 

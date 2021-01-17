@@ -244,7 +244,7 @@ static u32 _webclientDataobjectRetryConnect(void * object)
         jf_hsm_event_t event;
         jf_logger_logInfoMsg("webclient retry connect, try to connect");
 
-        jf_hsm_initEvent(&event, WDE_SEND_DATA, piwd, NULL);
+        jf_hsm_initEvent(&event, WDE_SEND_DATA, piwd, 0);
 
         u32Ret = jf_hsm_processEvent(piwd->iwd_pjhDataobject, &event);
     }
@@ -589,7 +589,7 @@ static u32 _processWebclientRequestSendData(
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         jf_hsm_event_t event;
-        jf_hsm_initEvent(&event, WDE_SEND_DATA, piwd, piwr); 
+        jf_hsm_initEvent(&event, WDE_SEND_DATA, piwd, 0);
 
         u32Ret = jf_hsm_processEvent(piwd->iwd_pjhDataobject, &event);
     }
@@ -646,7 +646,7 @@ static u32 _finishWebclientDataobjectResponse(internal_webclient_dataobject_t * 
     piwr = jf_queue_dequeue(&piwd->iwd_jqRequest);
     destroyWebclientRequest(&piwr);
 
-    jf_hsm_initEvent(&event, WDE_DATA_SENT, piwd, NULL);
+    jf_hsm_initEvent(&event, WDE_DATA_SENT, piwd, 0);
     u32Ret = jf_hsm_processEvent(piwd->iwd_pjhDataobject, &event);
 
     return u32Ret;
@@ -732,7 +732,7 @@ static u32 _webclientDataobjectOnConnect(
         piwd->iwd_pjnaConn = pAsocket;
         jf_network_getLocalInterfaceOfAcsocket(pAcsocket, pAsocket, &piwd->iwd_jiLocal);
 
-        jf_hsm_initEvent(&event, WDE_CONNECTED, piwd, NULL);
+        jf_hsm_initEvent(&event, WDE_CONNECTED, piwd, 0);
         jf_hsm_processEvent(piwd->iwd_pjhDataobject, &event);
 
         stateId = jf_hsm_getCurrentStateId(piwd->iwd_pjhDataobject);
@@ -772,7 +772,7 @@ static u32 _webclientDataobjectOnDisconnect(
     jf_logger_logInfoMsg(
         "webclient disconnect, PipelineFlags %d", piwd->iwd_u8PipelineFlags);
 
-    jf_hsm_initEvent(&event, WDE_DISCONNECTED, piwd, NULL);
+    jf_hsm_initEvent(&event, WDE_DISCONNECTED, piwd, 0);
     u32Ret = jf_hsm_processEvent(piwd->iwd_pjhDataobject, &event);
 
     return u32Ret;
