@@ -15,6 +15,7 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
+
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
@@ -28,12 +29,19 @@
  */
 enum
 {
+    /**It's Sunday.*/
     JF_DATE_SUNDAY = 0,
+    /**It's Sunday.*/
     JF_DATE_MONDAY,
+    /**It's Tuesday.*/
     JF_DATE_TUESDAY,
+    /**It's Wednesday.*/
     JF_DATE_WEDNESDAY,
+    /**It's Thursday.*/
     JF_DATE_THURSDAY,
+    /**It's Friday.*/
     JF_DATE_FRIDAY,
+    /**It's Saturday.*/
     JF_DATE_SATURDAY,
 };
 
@@ -217,6 +225,7 @@ u32 jf_date_getStringDate2ForDaysFrom1970(olchar_t * pstrDate, olsize_t sDate, c
  *
  *  @note
  *  -# The time is local time in second.
+ *  -# The size of the string buffer should not less than 32 bytes.
  *
  *  @param pstrTime [out] The string buffer where the date string will return.
  *  @param sTime [in] Size of the string.
@@ -226,12 +235,13 @@ u32 jf_date_getStringDate2ForDaysFrom1970(olchar_t * pstrDate, olsize_t sDate, c
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_INVALID_TIME Invalid time.
  */
-u32 jf_date_getStringLocalTime(olchar_t * pstrTime, olsize_t sTime, const u64 u64Time);
+u32 jf_date_getStringLocalDateTime(olchar_t * pstrTime, olsize_t sTime, const u64 u64Time);
 
 /** Get the string of time in the format of "hh:mm:ss <month> <day>, <year>".
  *
  *  @note
  *  -# The time is UTC time in second.
+ *  -# The size of the string buffer should not less than 32 bytes.
  *
  *  @param pstrTime [out] The string buffer where the date string will return.
  *  @param sTime [in] Size of the string.
@@ -241,7 +251,7 @@ u32 jf_date_getStringLocalTime(olchar_t * pstrTime, olsize_t sTime, const u64 u6
  *  @retval JF_ERR_NO_ERROR Success.
  *  @retval JF_ERR_INVALID_TIME Invalid time.
  */
-u32 jf_date_getStringUTCTime(olchar_t * pstrTime, olsize_t sTime, const u64 u64Time);
+u32 jf_date_getStringUtcDateTime(olchar_t * pstrTime, olsize_t sTime, const u64 u64Time);
 
 /** Get date from the string with the format year/month/date like 2005/10/20.
  *  

@@ -336,7 +336,7 @@ u32 jf_date_getStringDate2ForDaysFrom1970(olchar_t * pstrDate, olsize_t sDate, c
     return u32Ret;
 }
 
-u32 jf_date_getStringUTCTime(olchar_t * pstrTime, olsize_t sTime, const u64 u64Time)
+u32 jf_date_getStringUtcDateTime(olchar_t * pstrTime, olsize_t sTime, const u64 u64Time)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     struct tm * ptmLocal = NULL;
@@ -365,7 +365,7 @@ u32 jf_date_getStringUTCTime(olchar_t * pstrTime, olsize_t sTime, const u64 u64T
     return u32Ret;
 }
 
-u32 jf_date_getStringLocalTime(olchar_t * pstrTime, olsize_t sTime, const u64 u64Time)
+u32 jf_date_getStringLocalDateTime(olchar_t * pstrTime, olsize_t sTime, const u64 u64Time)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     struct tm * ptmLocal = NULL;
