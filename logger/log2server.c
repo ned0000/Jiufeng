@@ -55,6 +55,29 @@ typedef struct
 
 /* --- private routine section ------------------------------------------------------------------ */
 
+/** Set the socket to non-block mode.
+ *
+ *  @note
+ *  -# Connection is failed and the error message is "Operation now in progress" if setting
+ *   non-block mode after creating the socket. The non-block mode should be set after setting up
+ *   the connection
+ */
+static u32 _setSocketNonBlockForLogServer(olint_t nSocket)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olint_t flags = 0;
+
+#if defined(LINUX)
+    flags = fcntl(nSocket, F_GETFL, 0);
+    fcntl(nSocket, F_SETFL, O_NONBLOCK | flags);
+#elif defined(WINDOWS)
+    flags = 1;
+    ioctlsocket(nSocket, FIONBIO, &flags);
+#endif
+
+    return u32Ret;
+}
+
 static u32 _createSocketForLogServer(olint_t * pnSocket)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -63,20 +86,6 @@ static u32 _createSocketForLogServer(olint_t * pnSocket)
     *pnSocket = socket(AF_INET, SOCK_STREAM, 0);
     if (*pnSocket < 0)
         u32Ret = JF_ERR_FAIL_CREATE_SOCKET;
-
-    /*Set the socket to nonblock mode.*/
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        olint_t flags = 0;
-
-#if defined(LINUX)
-        flags = fcntl(*pnSocket, F_GETFL, 0);
-        fcntl(*pnSocket, F_SETFL, O_NONBLOCK | flags);
-#elif defined(WINDOWS)
-        flags = 1;
-        ioctlsocket(*pnSocket, FIONBIO, &flags);
-#endif
-    }
 
     return u32Ret;
 }
@@ -120,6 +129,10 @@ static u32 _connectToLogServer(olchar_t * pstrAddress, u16 u16Port, olint_t * pn
         if (nRet < 0)
             u32Ret = JF_ERR_FAIL_INITIATE_CONNECTION;
     }
+
+    /*Set the socket to nonblock mode.*/
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = _setSocketNonBlockForLogServer(*pnSocket);
 
     return u32Ret;
 }
