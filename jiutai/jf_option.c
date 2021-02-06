@@ -143,6 +143,7 @@ u32 jf_option_validateFloatString(const olchar_t * pstrFloat, const olsize_t siz
 
         if (isdigit(str[i]) == 0)
         {
+            /*Not digit.*/
             if (str[i] == '.')
                 nCount++;
             else
@@ -162,9 +163,12 @@ u32 jf_option_validateFloatString(const olchar_t * pstrFloat, const olsize_t siz
 u32 jf_option_getS32FromString(const olchar_t * pstrInteger, s32 * ps32Value)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    s32 s32Value;
+    s32 s32Value = 0;
 
+    /*Validate the string.*/
     u32Ret = jf_option_validateIntegerString(pstrInteger, ol_strlen(pstrInteger));
+
+    /*Parse the string.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if ((ol_sscanf(pstrInteger, "%d", &s32Value) == 1))
@@ -183,9 +187,12 @@ u32 jf_option_getS32FromString(const olchar_t * pstrInteger, s32 * ps32Value)
 u32 jf_option_getU32FromString(const olchar_t * pstrInteger, u32 * pu32Value)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Value;
+    u32 u32Value = 0;
 
+    /*Validate the string.*/
     u32Ret = jf_option_validateIntegerString(pstrInteger, ol_strlen(pstrInteger));
+
+    /*Parse the string.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if ((ol_sscanf(pstrInteger, "%u", &u32Value) == 1))
@@ -204,9 +211,12 @@ u32 jf_option_getU32FromString(const olchar_t * pstrInteger, u32 * pu32Value)
 u32 jf_option_getU16FromString(const olchar_t * pstrInteger, u16 * pu16Value)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Value;
+    u32 u32Value = 0;
 
+    /*Validate the string.*/
     u32Ret = jf_option_validateIntegerString(pstrInteger, ol_strlen(pstrInteger));
+
+    /*Parse the string.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if ((ol_sscanf(pstrInteger, "%u", &u32Value) == 1))
@@ -228,9 +238,12 @@ u32 jf_option_getU16FromString(const olchar_t * pstrInteger, u16 * pu16Value)
 u32 jf_option_getU8FromString(const olchar_t * pstrInteger, u8 * pu8Value)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Value;
+    u32 u32Value = 0;
 
+    /*Validate the string.*/
     u32Ret = jf_option_validateIntegerString(pstrInteger, ol_strlen(pstrInteger));
+
+    /*Parse the string.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if ((ol_sscanf(pstrInteger, "%u", &u32Value) == 1))
@@ -255,15 +268,20 @@ u32 jf_option_getLongFromString(const olchar_t * pstrInteger, slong * numeric)
     olchar_t * stop_str;
 
     *numeric = ol_strtol(pstrInteger, (olchar_t **)&stop_str, 10);
+
+    /*Check stop_str which points to the first invalid character.*/
     if (*stop_str != '\0')
     {
+        /*Find invalid character.*/
         u32Ret = JF_ERR_INVALID_INTEGER;
     }
     else
     {
+        /*Invalid character is not found.*/
 #if defined(LINUX)
         if (errno == ERANGE)
         {
+            /*Error number is set to out of range.*/
             u32Ret = JF_ERR_INVALID_INTEGER;
         }
 #endif
@@ -275,25 +293,31 @@ u32 jf_option_getLongFromString(const olchar_t * pstrInteger, slong * numeric)
 u32 jf_option_getUlongFromString(const olchar_t * pstrInteger, ulong * numeric)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t * stop_str;
+    olchar_t * stop_str = NULL;
 
     *numeric = ol_strtoul(pstrInteger, &stop_str, 10);
+
+    /*Check stop_str which points to the first invalid character.*/
     if (*stop_str != '\0')
     {
+        /*Find invalid character.*/
         u32Ret = JF_ERR_INVALID_INTEGER;
     }
     else
     {
+        /*Invalid character is not found.*/
 #if defined(LINUX)
         if (errno != ERANGE)
         {
             if (ol_memcmp(pstrInteger, "-", 1) == 0)
             {
+                /*Unsigned long, '-' is invalid.*/
                 u32Ret = JF_ERR_INVALID_INTEGER;
             }
         }
         else
         {
+            /*Error number is set to out of range.*/
             u32Ret = JF_ERR_INVALID_INTEGER;
         }
 #endif
@@ -308,15 +332,20 @@ u32 jf_option_getU64FromString(const olchar_t * pstrInteger, u64 * pu64Value)
     olchar_t * stop_str = NULL;
 
     *pu64Value = ol_strtoull(pstrInteger, &stop_str, 10);
+
+    /*Check stop_str which points to the first invalid character.*/
     if (*stop_str != '\0')
     {
+        /*Find invalid character.*/
         u32Ret = JF_ERR_INVALID_INTEGER;
     }
     else
     {
+        /*Invalid character is not found.*/
 #if defined(LINUX)
         if (errno == ERANGE)
         {
+            /*Error number is set to out of range.*/
             u32Ret = JF_ERR_INVALID_INTEGER;
         }
 #endif
@@ -328,18 +357,23 @@ u32 jf_option_getU64FromString(const olchar_t * pstrInteger, u64 * pu64Value)
 u32 jf_option_getS64FromString(const olchar_t * pstrInteger, s64 * ps64Value)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t * stop_str;
+    olchar_t * stop_str = NULL;
 
     *ps64Value = ol_strtoll(pstrInteger, &stop_str, 10);
+
+    /*Check stop_str which points to the first invalid character.*/
     if (*stop_str != '\0')
     {
+        /*Find invalid character.*/
         u32Ret = JF_ERR_INVALID_INTEGER;
     }
     else
     {
+        /*Invalid character is not found.*/
 #if defined(LINUX)
         if (errno == ERANGE)
         {
+            /*Error number is set to out of range.*/
             u32Ret = JF_ERR_INVALID_INTEGER;
         }
 #endif
@@ -351,9 +385,12 @@ u32 jf_option_getS64FromString(const olchar_t * pstrInteger, s64 * ps64Value)
 u32 jf_option_getFloatFromString(const olchar_t * pstrFloat, olfloat_t * pflValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olfloat_t flValue;
+    olfloat_t flValue = 0.0;
 
+    /*Validate the string.*/
     u32Ret = jf_option_validateFloatString(pstrFloat, ol_strlen(pstrFloat));
+
+    /*Scan the string.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if ((ol_sscanf(pstrFloat, "%f", &flValue) == 1))
@@ -372,9 +409,12 @@ u32 jf_option_getFloatFromString(const olchar_t * pstrFloat, olfloat_t * pflValu
 u32 jf_option_getDoubleFromString(const olchar_t * pstrDouble, oldouble_t * pdbValue)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    oldouble_t dbValue;
+    oldouble_t dbValue = 0.0;
 
+    /*Validate the string.*/
     u32Ret = jf_option_validateFloatString(pstrDouble, ol_strlen(pstrDouble));
+
+    /*Scan the string.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if ((ol_sscanf(pstrDouble, "%lf", &dbValue) == 1))
