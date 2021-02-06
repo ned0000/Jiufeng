@@ -14,7 +14,6 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
-#include <stddef.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
 
@@ -23,9 +22,10 @@
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
+
 /* --- data structures -------------------------------------------------------------------------- */
 
-/** Linked list using arrays of node
+/** Define the linked list using arrays of node.
  */
 typedef struct jf_listarray
 {
@@ -35,11 +35,11 @@ typedef struct jf_listarray
     u32 jl_u32Head;
 } jf_listarray_t;
 
-/** Get list array node.
+/** Get the start of node array in the list array.
  */
 #define JF_LISTARRAY_NODE(pla)             ((u32 *)(((jf_listarray_t *)pla) + 1))
 
-/** The end of list array.
+/** Define the constant which represents the end of node array.
  */
 #define JF_LISTARRAY_END                   U32_MAX
 
@@ -67,13 +67,16 @@ static inline olsize_t jf_listarray_getSize(u32 u32NumOfNode)
  */
 static inline void jf_listarray_init(jf_listarray_t * pla, u32 u32NumOfNode)
 {
-    u32 u32Index;
+    u32 u32Index = 0;
 
+    /*Clear the whole list array.*/
     ol_memset(pla, 0, jf_listarray_getSize(u32NumOfNode));
 
+    /*Initialize the list array.*/
     pla->jl_u32NumOfNode = u32NumOfNode;
     pla->jl_u32Head = 0;
 
+    /*Initialize the node array.*/
     for (u32Index = 0; u32Index < u32NumOfNode; u32Index ++)
     {
         JF_LISTARRAY_NODE(pla)[u32Index] = u32Index + 1;
@@ -94,6 +97,7 @@ static inline u32 jf_listarray_getNode(jf_listarray_t * pla)
     if (u32Node == JF_LISTARRAY_END)
         return u32Node;
 
+    /*Set head to the next node.*/
     pla->jl_u32Head = JF_LISTARRAY_NODE(pla)[pla->jl_u32Head];
 
     return u32Node;
@@ -110,8 +114,10 @@ static inline void jf_listarray_putNode(jf_listarray_t * pla, u32 u32Node)
 {
     assert(u32Node != JF_LISTARRAY_END);
 
+    /*Set the content of the node to head.*/
     JF_LISTARRAY_NODE(pla)[u32Node] = pla->jl_u32Head;
 
+    /*Set the head to the put node.*/
     pla->jl_u32Head = u32Node;
 }
 
@@ -131,4 +137,3 @@ static inline boolean_t jf_listarray_isEnd(jf_listarray_t * pla)
 #endif /*JIUTAI_LISTARRAY_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
