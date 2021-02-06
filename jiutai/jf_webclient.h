@@ -18,6 +18,8 @@
 
 #include "jf_basic.h"
 #include "jf_httpparser.h"
+#include "jf_network.h"
+#include "jf_ipaddr.h"
 
 #undef WEBCLIENTAPI
 #undef WEBCLIENTCALL

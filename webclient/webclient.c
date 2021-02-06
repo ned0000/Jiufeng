@@ -10,24 +10,17 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdlib.h>
-#include <string.h>
-#include <stdio.h>
-#include <math.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_mutex.h"
 #include "jf_network.h"
-#include "jf_httpparser.h"
 #include "jf_webclient.h"
 #include "jf_jiukun.h"
-#include "jf_string.h"
-#include "jf_hex.h"
-#include "jf_hashtree.h"
 #include "jf_queue.h"
-#include "jf_datavec.h"
 
 #include "dataobjectpool.h"
 #include "webclientrequest.h"
@@ -35,7 +28,7 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/** This initial size of the receive buffer.
+/** Initial size of the receive buffer.
  */
 #define WEBCLIENT_INITIAL_BUFFER_SIZE         (2048)
 
@@ -43,17 +36,24 @@
  */
 #define MAX_WEBCLIENT_DATA_OBJECT             (100)
 
+/** Define the internal webclient data type.
+ */
 typedef struct internal_webclient
 {
+    /**Network chain object header.*/
     jf_network_chain_object_header_t iw_jncohHeader;
 
     u32 iw_u32Reserved[4];
 
+    /**Network chain.*/
     jf_network_chain_t *iw_pjncChain;
 
+    /**Mutext lock for request queue.*/
     jf_mutex_t iw_jmReqeustQueueLock;
+    /**Request queue.*/
     jf_queue_t iw_jqReqeustQueue;
 
+    /**Webclient data object pool.*/
     webclient_dataobject_pool_t * iw_pwdpPool;
     
 } internal_webclient_t;
@@ -111,12 +111,14 @@ static u32 _preWebclientProcess(
     internal_webclient_t * piw = (internal_webclient_t *) pWebclient;
     internal_webclient_request_t * piwr = NULL;
 
-    jf_logger_logDebugMsg("pre webclient");
-
+    /*Dequeue webclient request.*/
     piwr = _dequeueWebclientRequestFromQueue(piw);
     while ((piwr != NULL) && (u32Ret == JF_ERR_NO_ERROR))
     {
+        /*Process webclient request.*/
         u32Ret = processWebclientRequest(piw->iw_pwdpPool, piwr);
+
+        /*Dequeue webclient request.*/
         if (u32Ret == JF_ERR_NO_ERROR)
             piwr = _dequeueWebclientRequestFromQueue(piw);
     }
@@ -151,12 +153,17 @@ u32 jf_webclient_destroy(jf_webclient_t ** ppWebclient)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_t * piw = (internal_webclient_t *) *ppWebclient;
 
+    /*Destroy webclient data object pool.*/
     if (piw->iw_pwdpPool != NULL)
         destroyWebclientDataobjectPool(&piw->iw_pwdpPool);
 
+    /*Finalize the request queue and data.*/
     jf_queue_finiQueueAndData(&piw->iw_jqReqeustQueue, _fnCallbackDestroyWebclientRequest);
+
+    /*Finalize the mutex.*/
     jf_mutex_fini(&piw->iw_jmReqeustQueueLock);
 
+    /*Free memory for internal webclient object.*/
     jf_jiukun_freeMemory((void **)ppWebclient);
 
     return u32Ret;
@@ -175,7 +182,10 @@ u32 jf_webclient_create(
 
     ol_bzero(&wdpcp, sizeof(wdpcp));
 
+    /*Allocate memory for internal webclient object.*/
     u32Ret = jf_jiukun_allocMemory((void **)&piw, sizeof(internal_webclient_t));
+
+    /*Initialize the internal webclient object.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(piw, sizeof(internal_webclient_t));
@@ -185,9 +195,11 @@ u32 jf_webclient_create(
         jf_mutex_init(&piw->iw_jmReqeustQueueLock);
         jf_queue_init(&piw->iw_jqReqeustQueue);
 
+        /*Add to network chain.*/
         u32Ret = jf_network_appendToChain(pjnc, piw);
     }
 
+    /*Create webclient data object pool.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         wdpcp.wdpcp_u32PoolSize = pjwcp->jwcp_u32PoolSize;
@@ -215,16 +227,22 @@ u32 jf_webclient_sendHttpPacket(
     u8 * pu8Data[1] = {NULL};
     olsize_t sData[1];
     boolean_t bWakeup = FALSE;
+    olchar_t strServer[64];
 
-    jf_logger_logDebugMsg("pipeline webclient req");
+    getStringHashKey(strServer, pjiRemote, u16Port);
+    JF_LOGGER_DEBUG("%s", strServer);
 
+    /*Conver the HTTP packet to raw buffer.*/
     u32Ret = jf_httpparser_getRawPacket(packet, (olchar_t **)&pu8Data[0], &sData[0]);
+
+    /*Create webclient request.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = createWebclientRequestSendData(
             &piwr, pu8Data, sData, 1, pjiRemote, u16Port, fnOnEvent, user);
     }
 
+    /*Enqueue the webclient request.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         bWakeup = _isWakeupChainRequired(piw);
@@ -232,11 +250,13 @@ u32 jf_webclient_sendHttpPacket(
         u32Ret = _enqueueWebclientRequestToQueue(piw, piwr);
     }
 
+    /*Wakeup chain if necessary.*/
     if ((u32Ret == JF_ERR_NO_ERROR) && bWakeup)
     {
         u32Ret = jf_network_wakeupChain(piw->iw_pjncChain);
     }
 
+    /*Free the raw buffer.*/
     if (pu8Data[0] != NULL)
         jf_jiukun_freeMemory((void **)&pu8Data[0]);
 
@@ -256,10 +276,9 @@ u32 jf_webclient_sendHttpHeaderAndBody(
     olsize_t sData[2];
     boolean_t bWakeup = FALSE;
 
-    jf_logger_logInfoMsg("pipeline web req ex");
-    jf_logger_logDataMsgWithAscii((u8 *)pstrHeader, sHeader, "HTTP request header:");
+    JF_LOGGER_DATAA((u8 *)pstrHeader, sHeader, "HTTP request header:");
     if (pstrBody != NULL)
-        jf_logger_logDataMsgWithAscii((u8 *)pstrBody, sBody, "HTTP request body:");
+        JF_LOGGER_DATAA((u8 *)pstrBody, sBody, "HTTP request body:");
 
     u16NumOfData = (pstrBody != NULL) ? 2 : 1;
 
@@ -272,9 +291,11 @@ u32 jf_webclient_sendHttpHeaderAndBody(
         sData[1] = sBody;
     }
 
+    /*Create webclient request.*/
     u32Ret = createWebclientRequestSendData(
         &piwr, pu8Data, sData, u16NumOfData, pjiRemote, u16Port, fnOnEvent, user);
 
+    /*Enqueue the webclient request.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         bWakeup = _isWakeupChainRequired(piw);
@@ -282,6 +303,7 @@ u32 jf_webclient_sendHttpHeaderAndBody(
         u32Ret = _enqueueWebclientRequestToQueue(piw, piwr);
     }
 
+    /*Wakeup chain if necessary.*/
     if ((u32Ret == JF_ERR_NO_ERROR) && bWakeup)
     {
         u32Ret = jf_network_wakeupChain(piw->iw_pjncChain);
@@ -297,8 +319,15 @@ u32 jf_webclient_deleteRequest(
     internal_webclient_t * piw = (internal_webclient_t *) pWebclient;
     internal_webclient_request_t * piwr = NULL;
     boolean_t bWakeup = FALSE;
+    olchar_t strServer[64];
 
+    getStringHashKey(strServer, pjiRemote, u16Port);
+    JF_LOGGER_DEBUG("%s", strServer);
+
+    /*Create webclient request.*/
     u32Ret = createWebclientRequestDeleteRequest(&piwr, pjiRemote, u16Port);
+
+    /*Enqueue the webclient request.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         bWakeup = _isWakeupChainRequired(piw);
@@ -306,6 +335,7 @@ u32 jf_webclient_deleteRequest(
         u32Ret = _enqueueWebclientRequestToQueue(piw, piwr);
     }
 
+    /*Wakeup chain if necessary.*/
     if ((u32Ret == JF_ERR_NO_ERROR) && bWakeup)
     {
         u32Ret = jf_network_wakeupChain(piw->iw_pjncChain);
@@ -315,4 +345,3 @@ u32 jf_webclient_deleteRequest(
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

@@ -10,21 +10,15 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 #include <math.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "jf_mutex.h"
-#include "jf_network.h"
-#include "jf_httpparser.h"
 #include "jf_webclient.h"
 #include "jf_jiukun.h"
-#include "jf_string.h"
-#include "jf_hex.h"
 #include "jf_hashtree.h"
 #include "jf_queue.h"
 #include "jf_datavec.h"
@@ -53,10 +47,12 @@
  */
 #define WEBCLIENT_CONNECT_RETRY_COUNT         (3)
 
-/** The name for acsocket and utimer
+/** The name for async client socket and utimer.
  */
 #define WEBCLIENT_DATAOBJECT_NETWORK_OBJECT_NAME    "webclient-dataobject"
 
+/** Define the pipeline type.
+ */
 enum pipeline_type
 {
     /**Doesn't know yet if the server supports persistent connections.*/
@@ -67,6 +63,8 @@ enum pipeline_type
     PIPELINE_NO,
 };
 
+/** Define the state ID for data object state machine.
+ */
 enum webclient_dataobject_state_id
 {
     WDS_INITIAL = 0,
@@ -75,6 +73,8 @@ enum webclient_dataobject_state_id
     WDS_IDLE,
 };
 
+/** Define the event ID for data object state machine.
+ */
 enum webclient_dataobject_event_id
 {
     /**Connection to web server is established.*/
@@ -87,36 +87,54 @@ enum webclient_dataobject_event_id
     WDE_DISCONNECTED,
 };
 
+/** Pre-declare the internal webclient data object pool.
+ */
 struct internal_webclient_dataobject_pool;
 
+/** Define the internal webclient data object.
+ */
 typedef struct internal_webclient_dataobject
 {
+    /*Ip address of remote server.*/
     jf_ipaddr_t iwd_jiRemote;
+    /*Port of remote server.*/
     u16 iwd_u16RemotePort;
     u16 iwd_u16Reserved[3];
 
+    /*Webclient data object pool.*/
     struct internal_webclient_dataobject_pool * iwd_piwdpPool;
 
+    /*State machine of data object.*/
     jf_hsm_t * iwd_pjhDataobject;
 
+    /*Pipeline flags.*/
     u8 iwd_u8PipelineFlags;
     u8 iwd_u8Reserved[7];
 
+    /*Exponential backoff for retry of making connection.*/
     u32 iwd_u32ExponentialBackoff;
 
+    /*Http parser data object.*/
     jf_httpparser_dataobject_t * iwd_pjhdDataobject;
 
+    /*Webclient request queue.*/
     jf_queue_t iwd_jqRequest;
 
+    /*Established connection.*/
     jf_network_asocket_t * iwd_pjnaConn;
 
+    /*Local ip address of the connection.*/
     jf_ipaddr_t iwd_jiLocal;
 
 } internal_webclient_dataobject_t;
 
+/** Define the internal webclient data object pool.
+ */
 typedef struct internal_webclient_dataobject_pool
 {
+    /*The async client socket.*/
     jf_network_acsocket_t * iwdp_pjnaAcsocket;
+    /*Number of connection in async client socket pool.*/
     u32 iwdp_u32PoolSize;
     u32 iwdp_u32Reserved;
 
@@ -124,11 +142,14 @@ typedef struct internal_webclient_dataobject_pool
        are web request.*/
     jf_hashtree_t iwdp_jhDataobject;
 
+    /*Network utimer.*/
     jf_network_utimer_t * iwdp_pjnuUtimer;
 
+    /*Size of the buffer.*/
     olsize_t iwdp_sBuffer;
     olsize_t iwdp_sReserved;
 
+    /*Network chain.*/
     jf_network_chain_t * iwdp_pjncChain;
 
 } internal_webclient_dataobject_pool_t;
@@ -166,6 +187,9 @@ static olchar_t * _getStringWebclientDataobjectState(jf_hsm_state_id_t stateId)
  *   the connection.
  *
  *  @param ppDataobject [in/out] The webclient data object to free.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _destroyWebclientDataobject(webclient_dataobject_t ** ppDataobject)
 {
@@ -175,7 +199,7 @@ static u32 _destroyWebclientDataobject(webclient_dataobject_t ** ppDataobject)
     olchar_t key[64];
 
     getStringHashKey(key, &piwd->iwd_jiRemote, piwd->iwd_u16RemotePort);
-    jf_logger_logInfoMsg("destroy webclient data obj %s", key);
+    JF_LOGGER_DEBUG("key: %s", key);
 
     assert(piwd->iwd_pjnaConn == NULL);
 
@@ -214,38 +238,42 @@ static u32 _destroyWebclientDataobject(webclient_dataobject_t ** ppDataobject)
  *   determined by the value of WEBCLIENT_CONNECT_RETRY_COUNT.
  *
  *  @param object [in] The associated web data object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _webclientDataobjectRetryConnect(void * object)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t key[64];
-    olint_t keyLength;
+    olint_t keyLength = 0;
     internal_webclient_dataobject_t * piwd = (internal_webclient_dataobject_t *)object;
 
     piwd->iwd_u32ExponentialBackoff = (piwd->iwd_u32ExponentialBackoff == 0) ?
         1 : piwd->iwd_u32ExponentialBackoff * 2;
 
     keyLength = getStringHashKey(key, &piwd->iwd_jiRemote, piwd->iwd_u16RemotePort);
-    jf_logger_logInfoMsg(
-        "webclient retry connect, %s, eb %u", key, piwd->iwd_u32ExponentialBackoff);
+    JF_LOGGER_DEBUG("key: %s, eb %u", key, piwd->iwd_u32ExponentialBackoff);
 
     if (piwd->iwd_u32ExponentialBackoff >=
         (olint_t) pow((oldouble_t) 2, (oldouble_t) WEBCLIENT_CONNECT_RETRY_COUNT))
     {
         /*Retried enough times, give up*/
-        jf_logger_logInfoMsg("webclient retry connect, give up");
+        JF_LOGGER_DEBUG("give up");
 
+        /*Delete data object from hash tree.*/
         jf_hashtree_deleteEntry(&piwd->iwd_piwdpPool->iwdp_jhDataobject, key, keyLength);
+        /*Destroy the data object.*/
         _destroyWebclientDataobject((webclient_dataobject_t **)&piwd);
     }
     else
     {
         /*Lets retry again*/
         jf_hsm_event_t event;
-        jf_logger_logInfoMsg("webclient retry connect, try to connect");
+        JF_LOGGER_DEBUG("try to connect");
 
+        /*Trigger a send data event.*/
         jf_hsm_initEvent(&event, WDE_SEND_DATA, piwd, 0);
-
         u32Ret = jf_hsm_processEvent(piwd->iwd_pjhDataobject, &event);
     }
 
@@ -257,18 +285,21 @@ static u32 _webclientDataOjectFreeTimerHandler(void * object)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_dataobject_t * piwd = (internal_webclient_dataobject_t *)object;
     olchar_t key[64];
-    olint_t keyLength;
+    olint_t keyLength = 0;
 
     keyLength = getStringHashKey(key, &piwd->iwd_jiRemote, piwd->iwd_u16RemotePort);
 
-    jf_logger_logInfoMsg("webclient free timer handler");
+    JF_LOGGER_DEBUG("key: %s", key);
 
     if (jf_queue_isEmpty(&piwd->iwd_jqRequest))
     {
         /*This connection is idle, because there are no pending requests */
-        jf_logger_logInfoMsg("webclient free timer handler, queue is empty");
+        JF_LOGGER_DEBUG("queue is empty");
 
+        /*Delete data object from hash tree.*/
         jf_hashtree_deleteEntry(&piwd->iwd_piwdpPool->iwdp_jhDataobject, key, keyLength);
+
+        /*Destroy data object.*/
         _destroyWebclientDataobject((webclient_dataobject_t **)&piwd);
     }
 
@@ -337,7 +368,10 @@ static u32 _fnEventActionSendData(jf_hsm_event_t * pEvent)
     internal_webclient_dataobject_t * piwd = (internal_webclient_dataobject_t *)pEvent->jhe_pData;
     internal_webclient_request_t * piwr = NULL;
 
+    /*Peek a webclient request.*/
     piwr = (internal_webclient_request_t *)jf_queue_peek(&piwd->iwd_jqRequest);
+
+    /*Send the data in request.*/
     if (piwr != NULL)
     {
         u32Ret = _sendWebclientRequestData(
@@ -354,20 +388,19 @@ static u32 _fnEventActionSendData(jf_hsm_event_t * pEvent)
  *   within the time specified by WEBCLIENT_DATAOBJECT_IDLE_TIMEOUT.
  *
  *  @param object [in] The web data object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _webclientDataobjectIdleTimerHandler(void * object)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_dataobject_t * piwd = (internal_webclient_dataobject_t *)object;
 
-    jf_logger_logInfoMsg("webclient idle timer handler");
-
     if (jf_queue_isEmpty(&piwd->iwd_jqRequest))
     {
-        jf_logger_logInfoMsg("webclient idle timer handler, queue is empty");
-        /*This connection is idle, because there are no pending requests. We need to close this
-          socket.*/
-        jf_logger_logInfoMsg("webclient idle timer handler, close the connection");
+        JF_LOGGER_DEBUG("queue is empty, close the connection");
+        /*This connection is idle, because there are no pending requests. Disconnect this socket.*/
         jf_network_disconnectAcsocket(
             piwd->iwd_piwdpPool->iwdp_pjnaAcsocket, piwd->iwd_pjnaConn);
     }
@@ -391,8 +424,7 @@ static u32 _fnEventActionDataSent(jf_hsm_event_t * pEvent)
 
         /*It should also be noted, that when this closes, the module will realize there are
           pending requests, in which case it will open a new connection for the requests.*/
-        jf_logger_logInfoMsg(
-            "webclient finish response, pipeline is no, disconnect the data object");
+        JF_LOGGER_DEBUG("pipeline is no, disconnect the data object");
         jf_network_disconnectAcsocket(
             piwd->iwd_piwdpPool->iwdp_pjnaAcsocket, piwd->iwd_pjnaConn);
     }
@@ -400,7 +432,7 @@ static u32 _fnEventActionDataSent(jf_hsm_event_t * pEvent)
     {
         /*If the connection is still open, and we didn't flag this as not supporting persistent
           connections, than obviously it is supported.*/
-        jf_logger_logInfoMsg("webclient finish response, pipeline is yes");
+        JF_LOGGER_DEBUG("pipeline is yes");
         piwd->iwd_u8PipelineFlags = PIPELINE_YES;
 
         u32Ret = _sendWebclientRequestData(
@@ -416,21 +448,19 @@ static u32 _fnEventActionDisconnected(jf_hsm_event_t * pEvent)
     internal_webclient_dataobject_t * piwd = (internal_webclient_dataobject_t *)pEvent->jhe_pData;
     internal_webclient_request_t * piwr = NULL;
 
-    jf_logger_logInfoMsg(
-        "disconnected event action, PipelineFlags %d", piwd->iwd_u8PipelineFlags);
-
     piwd->iwd_pjnaConn = NULL;
 
+    /*Peek a webclient request.*/
     piwr = jf_queue_peek(&piwd->iwd_jqRequest);
+
     if (piwr != NULL)
     {
         /*If there are still pending requests, then obviously this server doesn't do persistent
           connections.*/
-        jf_logger_logInfoMsg("web client disconnect, pipeline is no");
+        JF_LOGGER_DEBUG("pipeline is no, retry later");
         piwd->iwd_u8PipelineFlags = PIPELINE_NO;
 
         /*There are still requests to be made, make another connection and continue.*/
-        jf_logger_logInfoMsg("web client disconnect, retry later");
         jf_network_addUtimerItem(
             piwd->iwd_piwdpPool->iwdp_pjnuUtimer, piwd, piwd->iwd_u32ExponentialBackoff,
             _webclientDataobjectRetryConnect, NULL);
@@ -447,7 +477,7 @@ static u32 _onEntryWdsIdleState(jf_hsm_state_id_t stateId, jf_hsm_event_t * pEve
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_dataobject_t * piwd = (internal_webclient_dataobject_t *)pEvent->jhe_pData;
 
-    jf_logger_logDebugMsg("onentry wds_idle state");
+    JF_LOGGER_DEBUG("idle state");
 
     u32Ret = jf_network_addUtimerItem(
         piwd->iwd_piwdpPool->iwdp_pjnuUtimer, piwd, WEBCLIENT_DATAOBJECT_IDLE_TIMEOUT,
@@ -461,7 +491,7 @@ static u32 _onExitWdsIdleState(jf_hsm_state_id_t stateId, jf_hsm_event_t * pEven
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_dataobject_t * piwd = (internal_webclient_dataobject_t *)pEvent->jhe_pData;
 
-    jf_logger_logDebugMsg("onexit wds_idle state");
+    JF_LOGGER_DEBUG("exit state");
 
     u32Ret = jf_network_removeUtimerItem(piwd->iwd_piwdpPool->iwdp_pjnuUtimer, piwd);
 
@@ -473,7 +503,7 @@ static u32 _onEntryWdsInitialState(jf_hsm_state_id_t stateId, jf_hsm_event_t * p
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_dataobject_t * piwd = (internal_webclient_dataobject_t *)pEvent->jhe_pData;
 
-    jf_logger_logDebugMsg("onentry wds_initial state");
+    JF_LOGGER_DEBUG("initial state");
 
     /*Set a timer to destroy webclient data object if object is in initial for certain time.*/
     jf_network_addUtimerItem(
@@ -488,7 +518,7 @@ static u32 _onExitWdsInitialState(jf_hsm_state_id_t stateId, jf_hsm_event_t * pE
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_dataobject_t * piwd = (internal_webclient_dataobject_t *)pEvent->jhe_pData;
 
-    jf_logger_logDebugMsg("onexit wds_initial state");
+    JF_LOGGER_DEBUG("initial state");
 
     u32Ret = jf_network_removeUtimerItem(piwd->iwd_piwdpPool->iwdp_pjnuUtimer, piwd);
 
@@ -512,9 +542,10 @@ static u32 _createWebclientDataobject(
         {JF_HSM_LAST_STATE_ID, JF_HSM_LAST_EVENT_ID, NULL, NULL, JF_HSM_LAST_STATE_ID},
     };
 
-    jf_logger_logInfoMsg("create webclient data obj");
-
+    /*Allocate memory for internal webclient data object.*/
     u32Ret = jf_jiukun_allocMemory((void **)&piwd, sizeof(*piwd));
+
+    /*Initialize the internal webclient data object.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(piwd, sizeof(*piwd));
@@ -524,21 +555,24 @@ static u32 _createWebclientDataobject(
         piwd->iwd_u16RemotePort = u16Port;
         piwd->iwd_piwdpPool = pPool;
 
+        /*Create http parser data object.*/
         u32Ret = jf_httpparser_createtDataobject(&piwd->iwd_pjhdDataobject, pPool->iwdp_sBuffer);
     }
 
+    /*Create the state machine of data object.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        u32Ret = jf_hsm_create(
-            &piwd->iwd_pjhDataobject, transionTable, WDS_INITIAL);
+        u32Ret = jf_hsm_create(&piwd->iwd_pjhDataobject, transionTable, WDS_INITIAL);
     }
 
+    /*Add state callback for idle state.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_hsm_addStateCallback(
             piwd->iwd_pjhDataobject, WDS_IDLE, _onEntryWdsIdleState, _onExitWdsIdleState);
     }
 
+    /*Add state callback for initial state.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_hsm_addStateCallback(
@@ -558,22 +592,26 @@ static u32 _processWebclientRequestSendData(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t key[64];
-    olint_t keyLength;
+    olint_t keyLength = 0;
     internal_webclient_dataobject_t * piwd = NULL;
 
     keyLength = getStringHashKey(key, &piwr->iwr_jiRemote, piwr->iwr_u16RemotePort);
 
-    jf_logger_logInfoMsg("process webclient req send data, %s", key);
+    JF_LOGGER_DEBUG("key: %s", key);
 
+    /*Get data object.*/
     u32Ret = jf_hashtree_getEntry(&pPool->iwdp_jhDataobject, key, keyLength, (void **)&piwd);
+
     if (u32Ret == JF_ERR_HASHTREE_ENTRY_NOT_FOUND)
     {
         /*There is no previous connection, so we need to set it up.*/
-        jf_logger_logInfoMsg("process webclient req send data, create data object");
+        JF_LOGGER_DEBUG("create data object");
 
+        /*Create data object.*/
         u32Ret = _createWebclientDataobject(
             &piwd, pPool, &piwr->iwr_jiRemote, piwr->iwr_u16RemotePort);
 
+        /*Add the data object to hash tree.*/
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             u32Ret = jf_hashtree_addEntry(&pPool->iwdp_jhDataobject, key, keyLength, piwd);
@@ -605,18 +643,21 @@ static u32 _processWebclientRequestDeleteRequest(
     internal_webclient_dataobject_t * piwd = NULL;
     internal_webclient_request_t * piwr = NULL;
     olchar_t key[64];
-    olint_t keyLength;
+    olint_t keyLength = 0;
 
     keyLength = getStringHashKey(key, &pReq->iwr_jiRemote, pReq->iwr_u16RemotePort);
 
     /*Are there any pending requests to this IP/Port combo.*/
     if (jf_hashtree_hasEntry(&pPool->iwdp_jhDataobject, key, keyLength))
     {
-        /*Yes, iterate through them.*/
+        /*Get data object.*/
         jf_hashtree_getEntry(&pPool->iwdp_jhDataobject, key, keyLength, (void **)&piwd);
+
+        /*Iterate through the request queue.*/
         piwr = jf_queue_dequeue(&piwd->iwd_jqRequest);
         while (piwr != NULL)
         {
+            /*Notify the upper layer that request is deleted.*/
             piwr->iwr_fnOnEvent(
                 NULL, JF_WEBCLIENT_EVENT_HTTP_REQ_DELETED, NULL, piwr->iwr_pUser);
             destroyWebclientRequest(&piwr);
@@ -631,6 +672,9 @@ static u32 _processWebclientRequestDeleteRequest(
 /** Internal method called when web client has finished processing a request or response.
  *
  *  @param piwd [in] The associated internal web data object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _finishWebclientDataobjectResponse(internal_webclient_dataobject_t * piwd)
 {
@@ -638,14 +682,14 @@ static u32 _finishWebclientDataobjectResponse(internal_webclient_dataobject_t * 
     internal_webclient_request_t * piwr = NULL;
     jf_hsm_event_t event;
 
-    jf_logger_logInfoMsg(
-        "webclient finishd response, pipeline flag %d", piwd->iwd_u8PipelineFlags);
-
+    /*Re-initialize the data object.*/
     jf_httpparser_reinitDataobject(piwd->iwd_pjhdDataobject);
 
+    /*Dequeue the request and destroy it.*/
     piwr = jf_queue_dequeue(&piwd->iwd_jqRequest);
     destroyWebclientRequest(&piwr);
 
+    /*Trigger a data sent event.*/
     jf_hsm_initEvent(&event, WDE_DATA_SENT, piwd, 0);
     u32Ret = jf_hsm_processEvent(piwd->iwd_pjhDataobject, &event);
 
@@ -662,6 +706,7 @@ static u32 _finishWebclientDataobjectResponse(internal_webclient_dataobject_t * 
  *  @param pUser [in] The associated webclient data object.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _webclientDataobjectOnData(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket,
@@ -673,17 +718,15 @@ static u32 _webclientDataobjectOnData(
     jf_httpparser_packet_header_t * pjhphHeader;
     boolean_t bFullPacket = FALSE;
 
-    jf_logger_logInfoMsg(
-        "webclient dataobject data, %d:%d", *psBeginPointer, sEndPointer);
+    JF_LOGGER_DEBUG("data: %d:%d", *psBeginPointer, sEndPointer);
 /*
-    jf_logger_logDataMsgWithAscii(
-        pu8Buffer + *psBeginPointer, sEndPointer - *psBeginPointer,
-        "web client data");
+    JF_LOGGER_DATAA(
+        pu8Buffer + *psBeginPointer, sEndPointer - *psBeginPointer, "data");
 */
     piwr = (internal_webclient_request_t *)jf_queue_peek(&piwd->iwd_jqRequest);
     if (piwr == NULL)
     {
-        jf_logger_logInfoMsg("web client data, no request, ignore");
+        JF_LOGGER_DEBUG("no request, ignore");
         /*There are no pending requests, so we have no idea what we are supposed to do with this
           data, other than just recycling the receive buffer.
           If this code executes, this usually signifies a processing error of some sort. Most of
@@ -692,8 +735,11 @@ static u32 _webclientDataobjectOnData(
         return u32Ret;
     }
 
+    /*Process the receiving data.*/
     u32Ret = jf_httpparser_processDataobject(
         piwd->iwd_pjhdDataobject, pu8Buffer, psBeginPointer, sEndPointer);
+
+    /*Test if full packet is received.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         bFullPacket = jf_httpparser_getDataobjectFullPacket(piwd->iwd_pjhdDataobject, &pjhphHeader);
@@ -701,9 +747,11 @@ static u32 _webclientDataobjectOnData(
 
     if ((u32Ret == JF_ERR_NO_ERROR) && bFullPacket)
     {
+        /*Notify upper layer the incoming data.*/
         u32Ret = piwr->iwr_fnOnEvent(
             piwd->iwd_pjnaConn, JF_WEBCLIENT_EVENT_INCOMING_DATA, pjhphHeader, piwr->iwr_pUser);
 
+        /*Do clean stuff.*/
         _finishWebclientDataobjectResponse(piwd);
     }
 
@@ -716,6 +764,9 @@ static u32 _webclientDataobjectOnData(
  *  @param pAsocket [in] The async socket.
  *  @param u32Status [in] The connection status.
  *  @param pUser [in] The associated web data object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _webclientDataobjectOnConnect(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u32 u32Status, void * pUser)
@@ -727,23 +778,27 @@ static u32 _webclientDataobjectOnConnect(
 
     if (u32Status == JF_ERR_NO_ERROR)
     {
-        jf_logger_logDebugMsg("webclient dataobject onconnect, connected");
+        /*Connected.*/
+        JF_LOGGER_DEBUG("connected");
+        /*Do not clear backoff here. Test shows it will loop without any wait in some cases.
+          No error status doesn't mean the connection is right, it will fail when sending data.*/
 //        piwd->iwd_u32ExponentialBackoff = 0;
         piwd->iwd_pjnaConn = pAsocket;
         jf_network_getLocalInterfaceOfAcsocket(pAcsocket, pAsocket, &piwd->iwd_jiLocal);
 
+        /*Trigger a connected event.*/
         jf_hsm_initEvent(&event, WDE_CONNECTED, piwd, 0);
         jf_hsm_processEvent(piwd->iwd_pjhDataobject, &event);
 
         stateId = jf_hsm_getCurrentStateId(piwd->iwd_pjhDataobject);
-        jf_logger_logDebugMsg(
-            "webclient dataobject onconnect, state: %s",
-            _getStringWebclientDataobjectState(stateId));
+        JF_LOGGER_DEBUG("state: %s", _getStringWebclientDataobjectState(stateId));
     }
     else
     {
-        jf_logger_logInfoMsg("webclient dataobject onconnect, failed, retry later");
-        /*The connection failed, so lets set a timed callback, and try again*/
+        /*Connection failed.*/
+        JF_LOGGER_DEBUG("failed, retry later");
+
+        /*Set a timed callback, and try again.*/
         piwd->iwd_u8PipelineFlags = PIPELINE_UNKNOWN;
         jf_network_addUtimerItem(
             piwd->iwd_piwdpPool->iwdp_pjnuUtimer, piwd, piwd->iwd_u32ExponentialBackoff,
@@ -761,6 +816,7 @@ static u32 _webclientDataobjectOnConnect(
  *  @param pUser [in] The associated web data object.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _webclientDataobjectOnDisconnect(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u32 u32Status, void * pUser)
@@ -769,9 +825,9 @@ static u32 _webclientDataobjectOnDisconnect(
     internal_webclient_dataobject_t * piwd = (internal_webclient_dataobject_t *)pUser;
     jf_hsm_event_t event;
 
-    jf_logger_logInfoMsg(
-        "webclient disconnect, PipelineFlags %d", piwd->iwd_u8PipelineFlags);
+    JF_LOGGER_DEBUG("PipelineFlags: %u", piwd->iwd_u8PipelineFlags);
 
+    /*Trigger a disconnect event.*/
     jf_hsm_initEvent(&event, WDE_DISCONNECTED, piwd, 0);
     u32Ret = jf_hsm_processEvent(piwd->iwd_pjhDataobject, &event);
 
@@ -788,6 +844,7 @@ static u32 _webclientDataobjectOnDisconnect(
  *  @param pUser [in] The associated webclient data object.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _webclientDataobjectOnSendData(
     jf_network_acsocket_t * pAcsocket, jf_network_asocket_t * pAsocket, u32 u32Status,
@@ -795,7 +852,7 @@ static u32 _webclientDataobjectOnSendData(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    jf_logger_logInfoMsg("webclient dataobject send data, status: 0x%X", u32Status);
+    JF_LOGGER_DEBUG("status: 0x%X", u32Status);
 
     return u32Ret;
 }
@@ -811,14 +868,16 @@ u32 processWebclientRequest(
 
     getStringHashKey(key, &piwr->iwr_jiRemote, piwr->iwr_u16RemotePort);
 
-    jf_logger_logInfoMsg("process webclient req, %s", key);
+    JF_LOGGER_DEBUG("key: %s", key);
 
     if (piwr->iwr_u8OpCode == WEBCLIENT_REQUEST_OPCODE_SEND_DATA)
     {
+        /*Send data request.*/
         u32Ret = _processWebclientRequestSendData(piwdp, piwr);
     }
     else if (piwr->iwr_u8OpCode == WEBCLIENT_REQUEST_OPCODE_DELETE_REQUEST)
     {
+        /*Delete request.*/
         u32Ret = _processWebclientRequestDeleteRequest(piwdp, piwr);
 
         destroyWebclientRequest(&piwr);
@@ -835,20 +894,22 @@ u32 processWebclientRequest(
 u32 destroyWebclientDataobjectPool(webclient_dataobject_pool_t ** ppPool)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_webclient_dataobject_pool_t * piwdp = NULL;
+    internal_webclient_dataobject_pool_t * piwdp = *ppPool;
 
-    jf_logger_logDebugMsg("destroy webclient dataobject pool");
-    piwdp = (internal_webclient_dataobject_pool_t *) *ppPool;
+    JF_LOGGER_INFO("destroy");
 
+    /*Destroy async client socket.*/
     if (piwdp->iwdp_pjnaAcsocket != NULL)
         jf_network_destroyAcsocket(&piwdp->iwdp_pjnaAcsocket);
 
-    /*Iterate through all the web data objects.*/
+    /*Finalize all data objects and the hash tree.*/
     jf_hashtree_finiHashtreeAndData(&piwdp->iwdp_jhDataobject, _destroyWebclientDataobject);
 
+    /*Destroy the utimer.*/
     if (piwdp->iwdp_pjnuUtimer != NULL)
         jf_network_destroyUtimer(&piwdp->iwdp_pjnuUtimer);
 
+    /*Free memory for the data object pool.*/
     jf_jiukun_freeMemory(ppPool);
 
     return u32Ret;
@@ -862,9 +923,12 @@ u32 createWebclientDataobjectPool(
     jf_network_acsocket_create_param_t jnacp;
     internal_webclient_dataobject_pool_t * piwdp = NULL;
 
-    jf_logger_logDebugMsg("create webclient dataobject pool");
+    JF_LOGGER_INFO("pool size: %u, sBuffer: %d", pwdpcp->wdpcp_u32PoolSize, pwdpcp->wdpcp_sBuffer);
 
+    /*Allocate memory for data object pool.*/
     u32Ret = jf_jiukun_allocMemory((void **)&piwdp, sizeof(*piwdp));
+
+    /*Initialize the data object pool.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(piwdp, sizeof(*piwdp));
@@ -874,10 +938,12 @@ u32 createWebclientDataobjectPool(
         piwdp->iwdp_u32PoolSize = pwdpcp->wdpcp_u32PoolSize;
         jf_hashtree_init(&piwdp->iwdp_jhDataobject);
 
+        /*Create utimer.*/
         u32Ret = jf_network_createUtimer(
             pjnc, &piwdp->iwdp_pjnuUtimer, WEBCLIENT_DATAOBJECT_NETWORK_OBJECT_NAME);
     }
 
+    /*Create async client socket.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(&jnacp, sizeof(jnacp));
@@ -901,4 +967,3 @@ u32 createWebclientDataobjectPool(
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

@@ -10,24 +10,14 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "jf_mutex.h"
-#include "jf_network.h"
-#include "jf_httpparser.h"
 #include "jf_webclient.h"
 #include "jf_jiukun.h"
-#include "jf_string.h"
-#include "jf_hex.h"
-#include "jf_hashtree.h"
-#include "jf_queue.h"
-#include "jf_datavec.h"
 
 #include "common.h"
 #include "webclientrequest.h"
@@ -52,7 +42,10 @@ static u32 _createWebclientRequest(internal_webclient_request_t ** ppRequest, u8
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_request_t * piwr = NULL;
 
+    /*Allocate memory for the internal webclient request.*/
     u32Ret = jf_jiukun_allocMemory((void **)&piwr, sizeof(*piwr));
+
+    /*Initialize the internal webclient request.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(piwr, sizeof(*piwr));
@@ -74,13 +67,15 @@ u32 destroyWebclientRequest(internal_webclient_request_t ** ppRequest)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_request_t * piwr = NULL;
 
-    jf_logger_logInfoMsg("destroy webclient req");
-
     piwr = (internal_webclient_request_t *) *ppRequest;
 
+    JF_LOGGER_DEBUG("opcode: %u", piwr->iwr_u8OpCode);
+
+    /*Free send data.*/
     if (piwr->iwr_u8OpCode == WEBCLIENT_REQUEST_OPCODE_SEND_DATA)
         jf_datavec_freeData(&piwr->iwr_jdDataVec);
     
+    /*Free memory for the internal webclient request.*/
     jf_jiukun_freeMemory((void **)ppRequest);
 
     return u32Ret;
@@ -93,20 +88,22 @@ u32 createWebclientRequestSendData(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_request_t * piwr = NULL;
 
-    jf_logger_logInfoMsg("new webclient req");
-
+    /*Create webclient request.*/
     u32Ret = _createWebclientRequest(&piwr, WEBCLIENT_REQUEST_OPCODE_SEND_DATA);
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        u32Ret = jf_datavec_cloneData(&piwr->iwr_jdDataVec, ppu8Data, psData, u16Num);
-    }
 
+    /*Initialize the webclient request object.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         piwr->iwr_fnOnEvent = (fnOnEvent == NULL) ? _internalDataobjectOnEvent : fnOnEvent;
         piwr->iwr_pUser = user;
         ol_memcpy(&piwr->iwr_jiRemote, pjiRemote, sizeof(*pjiRemote));
         piwr->iwr_u16RemotePort = u16Port;
+    }
+
+    /*Clone data to data vector.*/
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        u32Ret = jf_datavec_cloneData(&piwr->iwr_jdDataVec, ppu8Data, psData, u16Num);
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -123,9 +120,10 @@ u32 createWebclientRequestDeleteRequest(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_webclient_request_t * piwr = NULL;
 
-    jf_logger_logInfoMsg("new webclient req");
-
+    /*Create webclient request.*/
     u32Ret = _createWebclientRequest(&piwr, WEBCLIENT_REQUEST_OPCODE_DELETE_REQUEST);
+
+    /*Initialize the webclient request object.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memcpy(&piwr->iwr_jiRemote, pjiRemote, sizeof(*pjiRemote));
@@ -141,4 +139,3 @@ u32 createWebclientRequestDeleteRequest(
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

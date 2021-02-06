@@ -15,9 +15,7 @@
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_err.h"
-#include "jf_network.h"
 #include "jf_webclient.h"
 #include "jf_jiukun.h"
 
