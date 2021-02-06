@@ -351,7 +351,7 @@ u32 isListen(internal_socket_t * pis, olint_t backlog);
 
 /** Accept the connection for the listening socket.
  *
- *  @param pListen [in] The internal socket to listen on.
+ *  @param pisListen [in] The internal socket to listen on.
  *  @param pji [out] The address of peer socket.
  *  @param pu16Port [out] The port of peer socket.
  *  @param ppIsocket [out] The accepted internal socket.
