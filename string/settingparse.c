@@ -334,6 +334,36 @@ u32 jf_string_getSettingsString(
     return u32Ret;
 }
 
+u32 jf_string_getSettingsU16(
+    olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
+    const u16 u16DefaultValue, u16 * pu16Value)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+    olchar_t strValue[200];
+
+    /*Try to find the setting in the array.*/
+    u32Ret = jf_string_retrieveSettings(
+        pstrArray, sArray, pstrSettingName, strValue, sizeof(strValue));
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        /*Found, parse the setting string.*/
+        u32Ret = jf_option_getU16FromString(strValue, pu16Value);
+        if (u32Ret != JF_ERR_NO_ERROR)
+        {
+            /*The value is invalid, use default.*/
+            *pu16Value = u16DefaultValue;
+        }
+    }
+    else if (u32Ret == JF_ERR_NOT_FOUND)
+    {
+        /*Not found, use default.*/
+        *pu16Value = u16DefaultValue;
+        u32Ret = JF_ERR_NO_ERROR;
+    }
+
+    return u32Ret;
+}
+
 u32 jf_string_getSettingsU32(
     olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
     const u32 u32DefaultValue, u32 * pu32Value)

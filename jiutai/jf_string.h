@@ -992,11 +992,35 @@ STRINGAPI u32 STRINGCALL jf_string_validateSettings(
  *  @param pstrArray [in] The setting string array.
  *  @param sArray [in] Number of element in the setting string array.
  *  @param pstrSettingName [in] Name of the setting.
+ *  @param u16DefaultValue [in] Default value incase there is error.
+ *  @param pu16Value [out] The setting value.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_INVALID_INTEGER Invalid integer.
+ */
+STRINGAPI u32 STRINGCALL jf_string_getSettingsU16(
+    olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
+    const u16 u16DefaultValue, u16 * pu16Value);
+
+/** Get value of the setting from the setting array.
+ *
+ *  @note
+ *  -# The setting string array is a result of function jf_string_processSettings() or
+ *   jf_string_processKeywordSettings().
+ *  -# If setting name is not found in the string array, the default value is used and no error is
+ *   returned. if setting name is found and the value is incorrect, the default value is used and
+ *   error is returned.
+ *
+ *  @param pstrArray [in] The setting string array.
+ *  @param sArray [in] Number of element in the setting string array.
+ *  @param pstrSettingName [in] Name of the setting.
  *  @param u32DefaultValue [in] Default value incase there is error.
  *  @param pu32Value [out] The setting value.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_INVALID_INTEGER Invalid integer.
  */
 STRINGAPI u32 STRINGCALL jf_string_getSettingsU32(
     olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
@@ -1019,6 +1043,7 @@ STRINGAPI u32 STRINGCALL jf_string_getSettingsU32(
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_INVALID_INTEGER Invalid integer.
  */
 STRINGAPI u32 STRINGCALL jf_string_getSettingsU64(
     olchar_t * pstrArray[], olsize_t sArray, const olchar_t * pstrSettingName,
