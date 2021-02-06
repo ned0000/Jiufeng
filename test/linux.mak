@@ -16,7 +16,7 @@ PROGRAMS = mem-test option-test hashtree-test listhead-test hlisthead-test      
     listarray-test logger-test process-test thread-test hashtable-test mutex-test     \
     rwlock-test sem-test date-test time-test string-test attask-test                  \
     bitarray-test conffile-test menu-test crc-test dynlib-test array-test             \
-    ifmgmt-test sharedmemory-test-consumer sharedmemory-test-worker                   \
+    ifmgmt-test ipaddr-test sharedmemory-test-consumer sharedmemory-test-worker       \
     files-test hsm-test host-test respool-test bitop-test ptree-test                  \
     jiukun-test cghash-test cgmac-test encrypt-test dlinklist-test                    \
     prng-test encode-test xmlparser-test rand-test persistency-test                   \
@@ -29,7 +29,7 @@ SOURCES = mem-test.c option-test.c hashtree-test.c listhead-test.c hlisthead-tes
     listarray-test.c logger-test.c process-test.c thread-test.c hashtable-test.c mutex-test.c   \
     rwlock-test.c sem-test.c date-test.c time-test.c string-test.c attask-test.c                \
     bitarray-test.c conffile-test.c menu-test.c crc-test.c dynlib-test.c array-test.c           \
-    ifmgmt-test.c sharedmemory-test-consumer.c sharedmemory-test-worker.c                       \
+    ifmgmt-test.c ipaddr-test.c sharedmemory-test-consumer.c sharedmemory-test-worker.c         \
     files-test.c hsm-test.c host-test.c respool-test.c bitop-test.c ptree-test.c                \
     jiukun-test.c cghash-test.c cgmac-test.c encrypt-test.c dlinklist-test.c                    \
     prng-test.c encode-test.c xmlparser-test.c rand-test.c persistency-test.c                   \
@@ -141,6 +141,10 @@ $(BIN_DIR)/sharedmemory-test-consumer: sharedmemory-test-consumer.o $(JIUTAI_DIR
        -ljf_uuid
 
 $(BIN_DIR)/ifmgmt-test: ifmgmt-test.o $(JIUTAI_DIR)/jf_process.o
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_ifmgmt -ljf_string \
+       -ljf_logger
+
+$(BIN_DIR)/ipaddr-test: ipaddr-test.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_ifmgmt -ljf_string \
        -ljf_logger
 
