@@ -97,7 +97,7 @@ typedef struct jf_httpparser_packet_header
     olchar_t * jhph_pstrDirectiveObj;
     /**The size of the http directive object string.*/
     olsize_t jhph_sDirectiveObj;
-    /**The status code for http response. It's -1 for http response.*/
+    /**The status code for http response. It's -1 for http request.*/
     olint_t jhph_nStatusCode;
     /**The status data for http response, Eg. OK.*/
     olchar_t * jhph_pstrStatusData;
@@ -179,6 +179,9 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_clonePacketHeader(
 
 /** Sets the version of a packet header structure. The Default version is 1.0.
  *
+ *  @note
+ *  -# The version string is duplicated.
+ *
  *  @param pHeader [in/out] The packet to modify.
  *  @param pstrVersion [in] The version string to write. eg: 1.1.
  *  @param sVersion [in] The length of the version string.
@@ -191,19 +194,25 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setVersion(
 
 /** Sets the status code of a packetheader structure. There is no default.
  *
+ *  @note
+ *  -# The status data string is duplicated.
+ *
  *  @param pHeader [in] The packet to modify.
  *  @param nStatusCode [in] The status code, eg: 200.
- *  @param pstrStatus [in] The status string, eg: OK.
- *  @param sStatus [in] The length of the status string.
+ *  @param pstrStatusData [in] The status data string, eg: OK.
+ *  @param sStatusData [in] The length of the status data string.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_setStatusCode(
-    jf_httpparser_packet_header_t * pHeader, olint_t nStatusCode, olchar_t * pstrStatus,
-    olsize_t sStatus);
+    jf_httpparser_packet_header_t * pHeader, olint_t nStatusCode, olchar_t * pstrStatusData,
+    olsize_t sStatusData);
 
 /** Sets the directive of a packet header structure. There is no default.
+ *
+ *  @note
+ *  -# The directive and directive object are duplicated.
  *
  *  @param pHeader [in/out] The packet to modify.
  *  @param pstrDirective [in] The directive to write, eg: GET.
@@ -294,7 +303,8 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getHeaderLine(
  *
  *  @note
  *  -# The port is set to 80 if no port is specified.
- *  -# Memory is allocated for the IP and path string, it must be freed by caller.
+ *  -# Memory is allocated for the IP and path string, it must be freed by caller with
+ *   jf_string_free().
  *
  *  @param pstrUri [in] The URI to parse.
  *  @param ppstrIp [out] The IP address component in dotted quad format.
@@ -303,6 +313,8 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_getHeaderLine(
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_INVALID_INTEGER Invalid port number.
+ *  @retval JF_ERR_INVALID_HTTP_URI Invalid HTTP URI.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parseUri(
     olchar_t * pstrUri, olchar_t ** ppstrIp, u16 * pu16Port, olchar_t ** ppstrPath);
@@ -340,7 +352,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_parseHeaderContentLength(
  *  @param pu8Buffer [in] The buffer.
  *  @param sOffset [in] The offset of the buffer to start finding.
  *  @param sEnd [in] The end of the buffer.
- *  @param psHeader [out] The returned pointer to the header.
+ *  @param psHeader [out] Size of the header, start from offset.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
@@ -393,6 +405,7 @@ HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_destroyDataobject(
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_HTTP_HEADER_NOT_FOUND HTTP header is not found.
  */
 HTTPPARSERAPI u32 HTTPPARSERCALL jf_httpparser_processDataobject(
     jf_httpparser_dataobject_t * pDataobject, u8 * pu8Buffer, olsize_t * psBeginPointer,

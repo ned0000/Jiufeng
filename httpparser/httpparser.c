@@ -22,8 +22,12 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+/** Define the transfer encoding string in http header line.
+ */
 #define HTTP_HEADER_TRANSFER_ENCODING    "transfer-encoding"
 
+/** Define the content length string in http header line.
+ */
 #define HTTP_HEADER_CONTENT_LENGTH       "content-length"
 
 /* --- private routine section ------------------------------------------------------------------ */
@@ -33,9 +37,9 @@ static u32 _parseHttpStartLine(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     jf_string_parse_result_t * startline = NULL;
-    olint_t nret;
-    jf_string_parse_result_t * result;
-    jf_string_parse_result_field_t * pjsprf;
+    olint_t nret = 0;
+    jf_string_parse_result_t * result = NULL;
+    jf_string_parse_result_field_t * pjsprf = NULL;
 
     /*The first token is where we can figure out the method, path, version, etc.*/
     u32Ret = jf_string_parse(
@@ -43,12 +47,14 @@ static u32 _parseHttpStartLine(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*At least 3 fields, otherwise error.*/
         if (startline->jspr_u32NumOfResult < 3)
             u32Ret = JF_ERR_INVALID_HTTP_HEADER_START_LINE;
     }
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Parse the first token.*/
         nret = ol_memcmp(startline->jspr_pjsprfFirst->jsprf_pstrData, "HTTP/", 5);
         if (nret == 0)
         {
@@ -58,6 +64,8 @@ static u32 _parseHttpStartLine(
             u32Ret = jf_string_parse(
                 &result, startline->jspr_pjsprfFirst->jsprf_pstrData, 0,
                 startline->jspr_pjsprfFirst->jsprf_sData, "/", 1);
+
+            /*Get the version string in HTTP response.*/
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 retval->jhph_pstrVersion = result->jspr_pjsprfLast->jsprf_pstrData;
@@ -66,15 +74,16 @@ static u32 _parseHttpStartLine(
                 jf_string_destroyParseResult(&result);
             }
 
+            /*Get the status code.*/
             if (u32Ret == JF_ERR_NO_ERROR)
             {
-                /*The other tokens contain the status code and data.*/
                 pjsprf = startline->jspr_pjsprfFirst->jsprf_pjsprfNext;
                 u32Ret = jf_string_getS32FromString(
                     pjsprf->jsprf_pstrData, pjsprf->jsprf_sData,
                     &retval->jhph_nStatusCode);
             }
 
+            /*Get the status data string for other fields.*/
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 pjsprf = pjsprf->jsprf_pjsprfNext;
@@ -93,7 +102,7 @@ static u32 _parseHttpStartLine(
         {
             /*If the packet didn't start with HTTP/ then we know it's a request packet
               eg: GET /index.html HTTP/1.1
-              The method (or directive), is the first token, and the Path (or jhph_pstrDirectiveObj)
+              The method (or directive) is the first token, and the path (or jhph_pstrDirectiveObj)
               is the second, and version in the 3rd.*/
             pjsprf = startline->jspr_pjsprfFirst;
             retval->jhph_pstrDirective = pjsprf->jsprf_pstrData;
@@ -169,7 +178,7 @@ static u32 _parseHttpHeaderLine(
                 break;
             }
 
-            /*We need to do white space processing, because we need to ignore them in the headers.*/
+            /*Do white space processing, because we need to ignore them in the headers.*/
             flnws = 0;
             ftnws = node->jhphf_sData - 1;
             for (i = 0; i < node->jhphf_sData; ++i)
@@ -243,10 +252,11 @@ u32 jf_httpparser_destroyPacketHeader(jf_httpparser_packet_header_t ** ppHeader)
         node = nextnode;
     }
 
-    /*If this flag was set, we need to free the strings.*/
+    /*Free status data string if the flag is set.*/
     if (packet->jhph_bAllocStatus && packet->jhph_pstrStatusData != NULL)
         jf_jiukun_freeMemory((void **)&packet->jhph_pstrStatusData);
 
+    /*Free directive string and directive object string.*/
     if (packet->jhph_bAllocDirective)
     {
         if (packet->jhph_pstrDirective != NULL)
@@ -256,9 +266,11 @@ u32 jf_httpparser_destroyPacketHeader(jf_httpparser_packet_header_t ** ppHeader)
             jf_jiukun_freeMemory((void **)&packet->jhph_pstrDirectiveObj);
     }
 
+    /*Free version string.*/
     if (packet->jhph_bAllocVersion && packet->jhph_pstrVersion != NULL)
         jf_jiukun_freeMemory((void **)&packet->jhph_pstrVersion);
 
+    /*Free body buffer.*/
     if (packet->jhph_bAllocBody && packet->jhph_pu8Body != NULL)
         jf_jiukun_freeMemory((void **)&packet->jhph_pu8Body);
 
@@ -670,8 +682,8 @@ u32 jf_httpparser_clonePacketHeader(
     jf_httpparser_packet_header_t ** dest, jf_httpparser_packet_header_t * pjhph)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    jf_httpparser_packet_header_t *retval;
-    jf_httpparser_packet_header_field_t *n;
+    jf_httpparser_packet_header_t * retval = NULL;
+    jf_httpparser_packet_header_field_t * n = NULL;
 
     /*Create an empty packet header.*/
     u32Ret = jf_httpparser_createEmptyPacketHeader(&retval);
@@ -714,7 +726,7 @@ u32 jf_httpparser_setVersion(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    /*Duplicate the string.*/
+    /*Duplicate the version string.*/
     if (pstrVersion != NULL)
         u32Ret = jf_string_duplicateWithLen(&(pjhph->jhph_pstrVersion), pstrVersion, sVersion);
 
@@ -735,6 +747,7 @@ u32 jf_httpparser_setStatusCode(
 
     pjhph->jhph_nStatusCode = nStatusCode;
 
+    /*Copy status data.*/
     if (pstrStatusData != NULL)
     {
         u32Ret = jf_string_duplicateWithLen(
@@ -756,6 +769,7 @@ u32 jf_httpparser_setDirective(
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
+    /*Copy directive.*/
     if (pstrDirective != NULL)
         u32Ret = jf_string_duplicateWithLen(&pjhph->jhph_pstrDirective, pstrDirective, sDirective);
 
@@ -763,6 +777,7 @@ u32 jf_httpparser_setDirective(
     {
         pjhph->jhph_sDirective = sDirective;
 
+        /*Copy directive object.*/
         if (pstrDirectiveObj != NULL)
         {
             u32Ret = jf_string_duplicateWithLen(
@@ -790,6 +805,7 @@ u32 jf_httpparser_setBody(
 
     if (bAlloc)
     {
+        /*Allocate memory.*/
         u32Ret = jf_jiukun_cloneMemory((void **)&pjhph->jhph_pu8Body, pu8Body, sBody);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
@@ -799,6 +815,7 @@ u32 jf_httpparser_setBody(
     }
     else
     {
+        /*No memory allocation.*/
         pjhph->jhph_bAllocBody = bAlloc;
         pjhph->jhph_pu8Body = pu8Body;
         pjhph->jhph_sBody = sBody;
@@ -822,6 +839,7 @@ u32 jf_httpparser_addHeaderLine(
         node->jhphf_bAlloc = bAlloc;
         if (! bAlloc)
         {
+            /*No memory allocation, set the value.*/
             node->jhphf_pstrName = pstrName;
             node->jhphf_sName = sName;
             node->jhphf_pstrData = pstrData;
@@ -886,6 +904,7 @@ u32 jf_httpparser_getHeaderLine(
     /*Iterate through the headers, until we find the one we're interested in.*/
     while (node != NULL)
     {
+        /*Compare the name string.*/
         if (ol_strncasecmp(pstrName, node->jhphf_pstrName, sName) == 0)
         {
             *ppField = node;
@@ -947,6 +966,7 @@ u32 jf_httpparser_findHeader(u8 * pu8Buffer, olsize_t sOffset, olsize_t sEnd, ol
     u32 u32Ret = JF_ERR_HTTP_HEADER_NOT_FOUND;
     olsize_t sHeader = 0;
 
+    /*Headers are delineated with a CRLF, and terminated with an empty line.*/
     if ((sEnd - sOffset) >= 4)
     {
         while (sHeader <= (sEnd - sOffset - 4))
