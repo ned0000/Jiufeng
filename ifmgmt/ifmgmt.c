@@ -25,8 +25,13 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+#if defined(LINUX)
+
+/** The proc file to get net device on Linux.
+ */
 #define SYSTEM_NET_DEV_FILE                  "/proc/net/dev"
 
+#endif
 
 /* --- private routine section ------------------------------------------------------------------ */
 
@@ -36,10 +41,11 @@ static u32 _getIfmgmtIfAddr(const olchar_t * name, olint_t sock, olint_t req, jf
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     struct ifreq ifr;
-    olint_t ret;
+    olint_t ret = 0;
 
     ol_strcpy(ifr.ifr_name, name);
 
+    /*Use io control to get address.*/
     ret = ioctl(sock, req, &ifr);
     if (ret != 0)
         u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
@@ -54,14 +60,16 @@ static u32 _getIfmgmtIfFlag(olint_t sock, jf_ifmgmt_if_t * pIf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     struct ifreq ifr;
-    olint_t ret;
+    olint_t ret = 0;
 
     ol_strcpy(ifr.ifr_name, pIf->jii_strName);
 
+    /*Use io control to get flags.*/
     ret = ioctl(sock, SIOCGIFFLAGS, &ifr);
     if (ret != 0)
         u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
 
+    /*Convert the flag to our's interface description.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ifr.ifr_flags & IFF_UP)
@@ -95,10 +103,11 @@ static u32 _getIfmgmtIfHwAddr(olint_t sock, jf_ifmgmt_if_t * pIf)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     struct ifreq ifr;
-    olint_t ret;
+    olint_t ret = 0;
 
     ol_strcpy(ifr.ifr_name, pIf->jii_strName);
 
+    /*Use io control to get MAC address.*/
     ret = ioctl(sock, SIOCGIFHWADDR, &ifr);
     if (ret != 0)
         u32Ret = JF_ERR_FAIL_IOCTL_SOCKET;
@@ -117,10 +126,12 @@ static u32 _getIfmgmtIf(const olchar_t * pstrIfName, jf_ifmgmt_if_t * pif)
 #if defined(LINUX)
     olint_t sock = -1;
 
+    /*Create socket.*/
     sock = socket(AF_INET, SOCK_DGRAM, 0);
     if (sock < 0)
         u32Ret = JF_ERR_FAIL_CREATE_SOCKET;
 
+    /*Get flag of interface through socket.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pif, sizeof(*pif));
@@ -129,6 +140,7 @@ static u32 _getIfmgmtIf(const olchar_t * pstrIfName, jf_ifmgmt_if_t * pif)
         u32Ret = _getIfmgmtIfFlag(sock, pif);
     }
 
+    /*Get ip address, network mask, broadcast address of the interface.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (pif->jii_bUp && pif->jii_bRunning)
@@ -144,6 +156,7 @@ static u32 _getIfmgmtIf(const olchar_t * pstrIfName, jf_ifmgmt_if_t * pif)
         }
     }
 
+    /*Get MAC address of the interface.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _getIfmgmtIfHwAddr(sock, pif);
 
@@ -160,8 +173,9 @@ static u32 _getIfmgmtIf(const olchar_t * pstrIfName, jf_ifmgmt_if_t * pif)
 static boolean_t _isValidMacAddress(u8 u8Mac[JF_LIMIT_MAC_LEN])
 {
     boolean_t bRet = FALSE;
-    u8 u8Index;
+    u8 u8Index = 0;
 
+    /*Make sure not all 0 address.*/
     for (u8Index = 0; u8Index < JF_LIMIT_MAC_LEN; u8Index ++)
     {
         if (u8Mac[u8Index] != 0)
@@ -181,7 +195,7 @@ u32 jf_ifmgmt_getAllIf(jf_ifmgmt_if_t * pif, u32 * pu32NumOfIf)
 #if defined(LINUX)
     u32 u32If = 0;
     jf_filestream_t * pjf = NULL;
-    olchar_t buf[1024], * pName;
+    olchar_t buf[1024], * pName = NULL;
     olsize_t sbyte = 0;
     olchar_t strName[32];
 
@@ -199,14 +213,18 @@ u32 jf_ifmgmt_getAllIf(jf_ifmgmt_if_t * pif, u32 * pu32NumOfIf)
 
         while (u32Ret == JF_ERR_NO_ERROR)
         {
+            /*Read one line with format "Interface: Receive bytes ...".*/
             sbyte = sizeof(buf);
             u32Ret = jf_filestream_readLine(pjf, buf, &sbyte);
+
             if (u32Ret == JF_ERR_NO_ERROR)
             {
+                /*Get interface name.*/
                 pName = buf;
                 while ((*pName != ':') && (pName < buf + sbyte))
                     pName ++;
 
+                /*Continue if name is not found.*/
                 if (*pName != ':')
                     continue;
 
@@ -214,7 +232,9 @@ u32 jf_ifmgmt_getAllIf(jf_ifmgmt_if_t * pif, u32 * pu32NumOfIf)
                 strncpy(strName, buf, sizeof(strName));
                 jf_string_removeLeadingSpace(strName);
 
+                /*Get interface information with the name.*/
                 u32Ret = _getIfmgmtIf(strName, &pif[u32If]);
+
                 if (u32Ret == JF_ERR_NO_ERROR)
                 {
                     u32If ++;
@@ -223,7 +243,7 @@ u32 jf_ifmgmt_getAllIf(jf_ifmgmt_if_t * pif, u32 * pu32NumOfIf)
                 }
                 else
                 {
-                    /*ignore the error and goto the next line*/
+                    /*Ignore the error and goto the next line.*/
                     u32Ret = JF_ERR_NO_ERROR;
                 }
             }
@@ -256,13 +276,12 @@ u32 jf_ifmgmt_getIf(const olchar_t * pstrIfName, jf_ifmgmt_if_t * pif)
     return u32Ret;
 }
 
-/*port operation*/
 u32 jf_ifmgmt_upIf(const olchar_t * pstrIfName)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     struct ifreq ifr;
-    olint_t ret;
+    olint_t ret = 0;
     olint_t sock = 0;
 
     sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -315,7 +334,7 @@ u32 jf_ifmgmt_downIf(const olchar_t * pstrIfName)
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
     struct ifreq ifr;
-    olint_t ret;
+    olint_t ret = 0;
     olint_t sock = 0;
 
     sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -404,13 +423,17 @@ u32 jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[JF_LIMIT_MAC_LEN])
 #if defined(LINUX)
     jf_ifmgmt_if_t ifmgmts[JF_IFMGMT_MAX_IF];
     u32 u32Ifmgmt = JF_IFMGMT_MAX_IF;
-    u32 u32Index;
+    u32 u32Index = 0;
 
+    /*Get all interface.*/
     u32Ret = jf_ifmgmt_getAllIf(ifmgmts, &u32Ifmgmt);
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Iterate through the array.*/
         for (u32Index = 0; u32Index < u32Ifmgmt; u32Index ++)
         {
+            /*Skip looback interface.*/
             if (ifmgmts[u32Index].jii_bLoopback)
                 continue;
 
@@ -428,15 +451,17 @@ u32 jf_ifmgmt_getMacOfFirstIf(u8 u8Mac[JF_LIMIT_MAC_LEN])
 #elif defined(WINDOWS)
     u8 u8Buffer[6000];
     PIP_ADAPTER_INFO pAdapter;
-    u32 u32Len = 6000;
+    u32 u32Len = sizeof(u8Buffer);
     DWORD dwRet = 0;
 
+    /*Get adapter information.*/
     dwRet = GetAdaptersInfo((PIP_ADAPTER_INFO)u8Buffer, &u32Len);
     if (dwRet != ERROR_SUCCESS)
         u32Ret = JF_ERR_FAIL_GET_ADAPTER_INFO;
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Iterate through the array.*/
         pAdapter = (PIP_ADAPTER_INFO)u8Buffer;
         while (pAdapter != NULL)
         {

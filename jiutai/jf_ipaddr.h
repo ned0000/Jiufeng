@@ -7,6 +7,7 @@
  *
  *  @note
  *  -# Routines declared in this file are included in jf_ifmgmt library.
+ *  -# Link with jf_string library for string parse.
  */
 
 /*------------------------------------------------------------------------------------------------*/
@@ -17,6 +18,10 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 #if defined(WINDOWS)
+    #if _MSC_VER >= 1500
+        #include <ws2tcpip.h>
+    #endif
+    #include <Winsock2.h>
     #include <Iphlpapi.h>
 #elif defined(LINUX)
     #include <sys/socket.h>
@@ -26,6 +31,7 @@
     #include <netdb.h>
     #include <net/if.h>
     #include <sys/ioctl.h>
+    #include <sys/un.h>
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
@@ -229,6 +235,7 @@ IFMGMTAPI u32 IFMGMTCALL jf_ipaddr_getIpAddrFromString(
 /** Get IP address and port from the string.
  *
  *  @note
+ *  -# IP address and port are separated by ':'.
  *  -# For IPV4, the string is something like xxx.xxx.xxx.xxx:xxx.
  *
  *  @param pstrIp [in] The string buffer.
