@@ -95,9 +95,9 @@ typedef void  jf_network_chain_object_t;
 /** Callback function before select().
  *
  *  @param pObject [in] Chain object.
- *  @param readset [in/out] Read fd set.
- *  @param writeset [in/out] Write fd set.
- *  @param errorset [in/out] Error fd set.
+ *  @param readset [in/out] Read file descriptor set.
+ *  @param writeset [in/out] Write file descriptor set.
+ *  @param errorset [in/out] Error file descriptor set.
  *  @param pu32BlockTime [in/out] Timeout in millisecond for select.
  *
  *  @return The error code.
@@ -110,10 +110,10 @@ typedef u32 (* jf_network_fnPreSelectChainObject_t)(
 /** Callback function after select().
  *
  *  @param pObject [in] Chain object.
- *  @param nReady [in] Number of ready fd.
- *  @param readset [in] Read fd set.
- *  @param writeset [in] Write fd set.
- *  @param errorset [in] Error fd set.
+ *  @param nReady [in] Number of ready file descriptor.
+ *  @param readset [in] Read file descriptor set.
+ *  @param writeset [in] Write file descriptor set.
+ *  @param errorset [in] Error file descriptor set.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
@@ -706,27 +706,6 @@ NETWORKAPI u32 NETWORKCALL jf_network_recvn(
 NETWORKAPI u32 NETWORKCALL jf_network_recvnWithTimeout(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv, u32 u32Timeout);
 
-/** Try to receive all data but only receive once, unless timeout.
- *
- *  @note
- *  -# This function is for SOCK_DGRAM type socket only.
- *  -# The actual received size is in psRecv.
- *
- *  @param pSocket [in] The socket to receive data.
- *  @param pBuffer [in] The data buffer.
- *  @param psRecv [in/out] The buffer size as in parameter and actual received size as out
- *   parameter.
- *  @param u32Timeout [in] The timeout value in second.
- *  @param pjiFrom [out] The data received from.
- *  @param pu16Port [out] The data received from.
- *
- *  @return The error code.
- *  @retval JF_ERR_NO_ERROR Success.
- */
-NETWORKAPI u32 NETWORKCALL jf_network_recvfromWithTimeout(
-    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv, u32 u32Timeout,
-    jf_ipaddr_t * pjiFrom, u16 * pu16Port);
-
 /** Connect the socket to remote server.
  *
  *  @param pSocket [in] The socket to connect.
@@ -803,7 +782,6 @@ NETWORKAPI u32 NETWORKCALL jf_network_sendto(
  *
  *  @note
  *  -# This function is for SOCK_DGRAM type socket only.
- *  -# The actual received size is in psRecv.
  *
  *  @param pSocket [in] The socket to receive data.
  *  @param pBuffer [in] The data buffer.
@@ -818,6 +796,26 @@ NETWORKAPI u32 NETWORKCALL jf_network_sendto(
 NETWORKAPI u32 NETWORKCALL jf_network_recvfrom(
     jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv, jf_ipaddr_t * pjiFrom,
     u16 * pu16Port);
+
+/** Try to receive all data but only receive once, unless timeout.
+ *
+ *  @note
+ *  -# This function is for SOCK_DGRAM type socket only.
+ *
+ *  @param pSocket [in] The socket to receive data.
+ *  @param pBuffer [in] The data buffer.
+ *  @param psRecv [in/out] The buffer size as in parameter and actual received size as out
+ *   parameter.
+ *  @param u32Timeout [in] The timeout value in second.
+ *  @param pjiFrom [out] The data received from.
+ *  @param pu16Port [out] The data received from.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
+NETWORKAPI u32 NETWORKCALL jf_network_recvfromWithTimeout(
+    jf_network_socket_t * pSocket, void * pBuffer, olsize_t * psRecv, u32 u32Timeout,
+    jf_ipaddr_t * pjiFrom, u16 * pu16Port);
 
 /** Create the socket pair.
  *
@@ -840,11 +838,11 @@ NETWORKAPI u32 NETWORKCALL jf_network_createSocketPair(
  */
 NETWORKAPI u32 NETWORKCALL jf_network_destroySocketPair(jf_network_socket_t * psPair[2]);
 
-/** Monitor the fd set.
+/** Monitor the file descriptor set.
  *
- *  @param readfds [in/out] The read fd set.
- *  @param writefds [in/out] The write fd set.
- *  @param exceptfds [in/out] The exception fd set.
+ *  @param readfds [in/out] The read file descriptor set.
+ *  @param writefds [in/out] The write file descriptor set.
+ *  @param exceptfds [in/out] The exception file descriptor set.
  *  @param timeout [in/out] The timeout value.
  *  @param pu32Ready [out] Number of socket ready.
  *
@@ -867,41 +865,41 @@ NETWORKAPI u32 NETWORKCALL jf_network_select(
 NETWORKAPI u32 NETWORKCALL jf_network_getSocketName(
     jf_network_socket_t * pSocket, struct sockaddr * pName, olint_t * pnNameLen);
 
-/** Clear socket in fd set.
+/** Clear socket in file descriptor set.
  *
  *  @param pSocket [in] The socket to clear.
- *  @param set [in] The fd set.
+ *  @param set [in] The file descriptor set.
  *
  *  @return Void.
  */
 NETWORKAPI void NETWORKCALL jf_network_clearSocketFromFdSet(
     jf_network_socket_t * pSocket, fd_set * set);
 
-/** Check if the socket is set in fd set.
+/** Check if the socket is set in file descriptor set.
  *
  *  @param pSocket [in] The socket to check.
- *  @param set [in] The fd set.
+ *  @param set [in] The file descriptor set.
  *
  *  @return The status.
- *  @retval TRUE The socket is set in the fd set.
- *  @retval FALSE The socket is not set in the fd set.
+ *  @retval TRUE The socket is set in the file descriptor set.
+ *  @retval FALSE The socket is not set in the file descriptor set.
  */
 NETWORKAPI boolean_t NETWORKCALL jf_network_isSocketSetInFdSet(
     jf_network_socket_t * pSocket, fd_set * set);
 
-/** Set socket to fd set.
+/** Set socket to file descriptor set.
  *
  *  @param pSocket [in] The socket to set.
- *  @param set [in] The fd set.
+ *  @param set [in] The file descriptor set.
  *
  *  @return Void.
  */
 NETWORKAPI void NETWORKCALL jf_network_setSocketToFdSet(
     jf_network_socket_t * pSocket, fd_set * set);
 
-/** Clear fd set.
+/** Clear file descriptor set.
  *
- *  @param set [in] The fd set to clear.
+ *  @param set [in] The file descriptor set to clear.
  *
  *  @return Void.
  */
@@ -925,7 +923,7 @@ NETWORKAPI u32 NETWORKCALL jf_network_getSocketOption(
 
 /** Set options on socket.
  *
- *  @param pSocket [in] The async socket to set option.
+ *  @param pSocket [in] The socket to set option.
  *  @param level [in] The level of the option.
  *  @param optname [in] The option name.
  *  @param pOptval [in] The option value.

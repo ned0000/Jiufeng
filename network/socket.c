@@ -1,7 +1,7 @@
 /**
  *  @file socket.c
  *
- *  @brief routines for socket 
+ *  @brief Implementation of routines for socket.
  *
  *  @author Min Zhang
  *
@@ -10,9 +10,7 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 #if defined(LINUX)
     #include <sys/param.h>
     #include <sys/socket.h>
@@ -31,9 +29,11 @@
 #endif
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_network.h"
+
 #include "internalsocket.h"
 
 /* --- private data/data structure section ------------------------------------------------------ */
@@ -464,4 +464,3 @@ u32 jf_network_setSocketOption(
 }
 
 /*------------------------------------------------------------------------------------------------*/
-

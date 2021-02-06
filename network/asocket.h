@@ -1,7 +1,7 @@
 /**
  *  @file asocket.h
  *
- *  @brief header file for asocket
+ *  @brief Header file define the data structures and routines for async socket.
  *
  *  @author Min Zhang
  *
@@ -15,6 +15,7 @@
 /* --- standard C lib header files -------------------------------------------------------------- */
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_network.h"
 
@@ -238,9 +239,6 @@ u32 useSocketForAsocket(
     jf_network_asocket_t * pAsocket, jf_network_socket_t * pSocket,
     jf_ipaddr_t * pjiAddr, u16 u16Port, void * pUser);
 
-
 #endif /*NETWORK_ASOCKET_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

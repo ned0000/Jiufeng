@@ -1,7 +1,7 @@
 /**
  *  @file acsocket.c
  *
- *  @brief The client asocket
+ *  @brief Implementation file for async client asocket.
  *
  *  @author Min Zhang
  *
@@ -10,13 +10,11 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <errno.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
-#include "jf_limit.h"
 #include "jf_err.h"
 #include "jf_network.h"
 #include "jf_mutex.h"
@@ -27,38 +25,61 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+/** Pre-declare the internal async client socket data type.
+ */
 struct internal_acsocket;
 
+/** Define the private data for async socket.
+ */
 typedef struct acsocket_data
 {
+    /**The internal async client socket the async socket belongs to.*/
     struct internal_acsocket * ad_iaAcsocket;
+    /**User object.*/
     void * ad_pUser;
     u32 ad_u32Reserved[2];
 } acsocket_data_t;
 
+/** Define the internal async client socket data type.
+ */
 typedef struct internal_acsocket
 {
+    /**The network chain object header. MUST BE the first field.*/
     jf_network_chain_object_header_t ia_jncohHeader;
+    /**The network chain.*/
     jf_network_chain_t * ia_pjncChain;
 
+    /**Name of this object.*/
     olchar_t ia_strName[JF_NETWORK_MAX_NAME_LEN];
 
+    /**Maximum connection.*/
     u16 ia_u32MaxConn;
     u16 ia_u16Reserved[3];
 
     u8 ia_u8Reserved[8];
 
+    /**Callback function for incoming data.*/
     jf_network_fnAcsocketOnData_t ia_fnOnData;
+    /**Callback function for connection.*/
     jf_network_fnAcsocketOnConnect_t ia_fnOnConnect;
+    /**Callback function for disconnection.*/
     jf_network_fnAcsocketOnDisconnect_t ia_fnOnDisconnect;
+    /**Callback function for sent data.*/
     jf_network_fnAcsocketOnSendData_t ia_fnOnSendData;
 
+    /*Start of lock protected section.*/
+    /**Mutex lock.*/
     jf_mutex_t ia_jmAsocket;
+    /**List array for free async sockets.*/
     jf_listarray_t * ia_pjlAsocket;
+    /*End of lock protected section.*/
 
+    /**Async socket array.*/
     jf_network_asocket_t ** ia_pjnaAsockets;
+    /**Private data array for async sockets.*/
     acsocket_data_t * ia_padData;
 
+    /**Accessed by outside, async client socket should not touch it.*/
     void * ia_pTag;
 } internal_acsocket_t;
 
@@ -70,13 +91,14 @@ typedef struct internal_acsocket
 
 /** Pre select handler for the chain
  *
- *  @param pAcsocket [in] the async client socket 
- *  @param readset [out] the read fd set
- *  @param writeset [out] the write fd set
- *  @param errorset [out] the error fd set
- *  @param pu32BlockTime [out] the block time in millisecond
+ *  @param pAcsocket [in] The async client socket.
+ *  @param readset [out] The read set of socket.
+ *  @param writeset [out] The write set of socket.
+ *  @param errorset [out] The error set of socket.
+ *  @param pu32BlockTime [out] The block time in millisecond.
  *
- *  @return the error code
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _preSelectAcsocket(
     void * pAcsocket, fd_set * readset, fd_set * writeset, fd_set * errorset, u32 * pu32BlockTime)
@@ -88,15 +110,16 @@ static u32 _preSelectAcsocket(
     return u32Ret;
 }
 
-/** Post select handler for the chain
+/** Post select handler for the chain.
  *
- *  @param pAcsocket [in] the async client socket
- *  @param slct [in] number of ready socket 
- *  @param readset [in] the read fd set
- *  @param writeset [in] the write fd set
- *  @param errorset [in] the error fd set
+ *  @param pAcsocket [in] The async client socket.
+ *  @param slct [in] Number of ready socket.
+ *  @param readset [in] The read set of socket.
+ *  @param writeset [in] The write set of socket.
+ *  @param errorset [in] The error set of socket.
  *
- *  @return the error code
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _postSelectAcsocket(
     void * pAcsocket, olint_t slct, fd_set * readset, fd_set * writeset, fd_set * errorset)
@@ -109,15 +132,16 @@ static u32 _postSelectAcsocket(
     return u32Ret;
 }
 
-/** Internal method dispatched by the data event of the underlying asocket
+/** Internal method dispatched by the data event of the underlying async socket.
  *
- *  @param pAsocket [in] the async socket
- *  @param pu8Buffer [in] the buffer
- *  @param psBeginPointer [in/out] the beging pointer of the data 
- *  @param sEndPointer [in] the end pointer of the data 
- *  @param pUser [in] the user
+ *  @param pAsocket [in] The async socket.
+ *  @param pu8Buffer [in] The buffer.
+ *  @param psBeginPointer [in/out] The beging pointer of the data.
+ *  @param sEndPointer [in] The end pointer of the data.
+ *  @param pUser [in] The user object.
  *
- *  @return the error code
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _acsOnData(
     void * pAsocket, u8 * pu8Buffer, olsize_t * psBeginPointer, olsize_t sEndPointer, void * pUser)
@@ -128,7 +152,7 @@ static u32 _acsOnData(
 
     JF_LOGGER_DEBUG("name: %s", pia->ia_strName);
 
-    /*Pass the received data up*/
+    /*Pass the OnData event up.*/
     if (pia->ia_fnOnData != NULL)
     {
         pia->ia_fnOnData(
@@ -138,13 +162,14 @@ static u32 _acsOnData(
     return u32Ret;
 }
 
-/** Internal method dispatched by the connect event of the underlying asocket
+/** Internal method dispatched by the OnConnect event of the underlying async socket.
  *
- *  @param pAsocket [in] the async socket 
- *  @param u32Status [in] the connection status
- *  @param pUser [in] the user
+ *  @param pAsocket [in] The async socket.
+ *  @param u32Status [in] The connection status.
+ *  @param pUser [in] The user object.
  *
- *  @return the error code
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _acsOnConnect(jf_network_asocket_t * pAsocket, u32 u32Status, void * pUser)
 {
@@ -154,7 +179,7 @@ static u32 _acsOnConnect(jf_network_asocket_t * pAsocket, u32 u32Status, void * 
 
     JF_LOGGER_DEBUG("name: %s", pia->ia_strName);
 
-    /*Pass the received data up*/
+    /*Pass the OnConnect event up*/
     u32Ret = pia->ia_fnOnConnect(pia, pAsocket, u32Status, pad->ad_pUser);
 
     return u32Ret;
@@ -169,13 +194,14 @@ static u32 _acsGetIndexOfAsocket(jf_network_asocket_t * pAsocket)
     return u32Index;
 }
 
-/** Internal method dispatched by the disconnect event of the underlying asocket
+/** Internal method dispatched by the OnDisconnect event of the underlying async socket.
  *
- *  @param pAsocket [in] the async socket 
- *  @param u32Status [in] the status code for the disconnection
- *  @param pUser [in] the user
+ *  @param pAsocket [in] The async sync socket.
+ *  @param u32Status [in] The status code for the disconnection.
+ *  @param pUser [in] The user object.
  *
- *  @return the error code
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _acsOnDisconnect(jf_network_asocket_t * pAsocket, u32 u32Status, void * pUser)
 {
@@ -186,11 +212,12 @@ static u32 _acsOnDisconnect(jf_network_asocket_t * pAsocket, u32 u32Status, void
 
     JF_LOGGER_DEBUG("name: %s, put %u", pia->ia_strName, u32Index);
 
+    /*Put the async socket to free list.*/
     jf_mutex_acquire(&pia->ia_jmAsocket);
     jf_listarray_putNode(pia->ia_pjlAsocket, u32Index);
     jf_mutex_release(&pia->ia_jmAsocket);
 
-    /*Pass this Disconnect event up*/
+    /*Pass this OnDisconnect event up.*/
     if (pia->ia_fnOnDisconnect != NULL)
     {
         pia->ia_fnOnDisconnect(
@@ -200,15 +227,16 @@ static u32 _acsOnDisconnect(jf_network_asocket_t * pAsocket, u32 u32Status, void
     return u32Ret;
 }
 
-/** Internal method dispatched by the send ok event of the underlying asocket
+/** Internal method dispatched by the OnSendData event of the underlying async socket.
  *
- *  @param pAsocket [in] the async socket
- *  @param u32Status [in] the status of data transmission
- *  @param pu8Buffer [in] the receive buffer
- *  @param sBuf [in] the size of the buffer
- *  @param pUser [in] the associated webclient data object
+ *  @param pAsocket [in] The async socket.
+ *  @param u32Status [in] The status of data transmission.
+ *  @param pu8Buffer [in] The receive buffer.
+ *  @param sBuf [in] The size of the buffer.
+ *  @param pUser [in] The associated user object.
  *
- *  @return the error code
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _acsOnSendData(
     jf_network_asocket_t * pAsocket, u32 u32Status, u8 * pu8Buffer, olsize_t sBuf, void * pUser)
@@ -219,7 +247,7 @@ static u32 _acsOnSendData(
 
     JF_LOGGER_DEBUG("name: %s", pia->ia_strName);
 
-    /*Pass the OnSendOK event up*/
+    /*Pass the OnSendData event up.*/
     pia->ia_fnOnSendData(pad->ad_iaAcsocket, pAsocket, u32Status, pu8Buffer, sBuf, pad->ad_pUser);
 
     return u32Ret;
@@ -244,25 +272,32 @@ u32 jf_network_destroyAcsocket(jf_network_acsocket_t ** ppAcsocket)
 
     if (pia->ia_pjnaAsockets != NULL)
     {
+        /*Iterate the async socket array.*/
         for (u32Index = 0;
              ((u32Index < pia->ia_u32MaxConn) && (u32Ret == JF_ERR_NO_ERROR));
              u32Index ++)
         {
+            /*Destroy the async socket.*/
             if (pia->ia_pjnaAsockets[u32Index] != NULL)
                 destroyAsocket(&pia->ia_pjnaAsockets[u32Index]);
         }
 
+        /*Free memory of the async socket array.*/
         jf_jiukun_freeMemory((void **)&pia->ia_pjnaAsockets);
     }
 
+    /*Free memory of the free async socket list array.*/
     if (pia->ia_pjlAsocket != NULL)
         jf_jiukun_freeMemory((void **)&pia->ia_pjlAsocket);
 
+    /*Free memory of the private data.*/
     if (pia->ia_padData != NULL)
         jf_jiukun_freeMemory((void **)&pia->ia_padData);
 
+    /*Finalize the mutex.*/
     jf_mutex_fini(&pia->ia_jmAsocket);
 
+    /*Free memory of the async client socket.*/
     jf_jiukun_freeMemory(ppAcsocket);
 
     return u32Ret;
@@ -275,7 +310,7 @@ u32 jf_network_createAcsocket(
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_acsocket_t * pia = (internal_acsocket_t *) *ppAcsocket;
     asocket_create_param_t acp;
-    u32 u32Index;
+    u32 u32Index = 0;
     olchar_t strName[JF_NETWORK_MAX_NAME_LEN];
 
     assert((pChain != NULL) && (ppAcsocket != NULL) && (pjnacp != NULL));
@@ -286,8 +321,10 @@ u32 jf_network_createAcsocket(
 
     JF_LOGGER_DEBUG("name: %s", pjnacp->jnacp_pstrName);
 
-    /*create a new acsocket*/
+    /*Allocate memory for internal async client socket.*/
     u32Ret = jf_jiukun_allocMemory((void **)&pia, sizeof(internal_acsocket_t));
+
+    /*Initialize the internal async client socket.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pia, sizeof(internal_acsocket_t));
@@ -305,11 +342,13 @@ u32 jf_network_createAcsocket(
         pia->ia_u32MaxConn = pjnacp->jnacp_u32MaxConn;
         ol_strncpy(pia->ia_strName, pjnacp->jnacp_pstrName, JF_NETWORK_MAX_NAME_LEN - 1);
 
+        /*Allocate memory for the connections.*/
         u32Ret = jf_jiukun_allocMemory(
             (void **)&(pia->ia_pjnaAsockets),
             pjnacp->jnacp_u32MaxConn * sizeof(jf_network_asocket_t *));
     }
 
+    /*Allocate memory for the free async socket list array.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pia->ia_pjnaAsockets, pjnacp->jnacp_u32MaxConn * sizeof(jf_network_asocket_t *));
@@ -318,6 +357,7 @@ u32 jf_network_createAcsocket(
             (void **)&pia->ia_pjlAsocket, jf_listarray_getSize(pjnacp->jnacp_u32MaxConn));
     }
 
+    /*Allocate memory of private data for each connection.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pia->ia_pjlAsocket, jf_listarray_getSize(pjnacp->jnacp_u32MaxConn));
@@ -327,6 +367,7 @@ u32 jf_network_createAcsocket(
             (void **)&(pia->ia_padData), pjnacp->jnacp_u32MaxConn * sizeof(acsocket_data_t));
     }
 
+    /*Initialize the mutex.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pia->ia_padData, pjnacp->jnacp_u32MaxConn * sizeof(acsocket_data_t));
@@ -334,6 +375,7 @@ u32 jf_network_createAcsocket(
         u32Ret = jf_mutex_init(&pia->ia_jmAsocket);
     }
 
+    /*Create async socket pool.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_memset(&acp, 0, sizeof(acp));
@@ -346,16 +388,20 @@ u32 jf_network_createAcsocket(
         strName[JF_NETWORK_MAX_NAME_LEN - 1] = '\0';
         acp.acp_pstrName = strName;
 
-        /*Create our socket pool*/
+        /*Create one async socket for each connection.*/
         for (u32Index = 0; 
              ((u32Index < pjnacp->jnacp_u32MaxConn) && (u32Ret == JF_ERR_NO_ERROR));
              u32Index ++)
         {
+            /*Generate the name of async socket.*/
             ol_snprintf(
                 strName, JF_NETWORK_MAX_NAME_LEN - 1, "%s-%d", pjnacp->jnacp_pstrName,
                 u32Index + 1);
 
+            /*Create async socket.*/
             u32Ret = createAsocket(pChain, &pia->ia_pjnaAsockets[u32Index], &acp);
+
+            /*Set index of the async socket.*/
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 setIndexOfAsocket(pia->ia_pjnaAsockets[u32Index], u32Index);
@@ -363,6 +409,7 @@ u32 jf_network_createAcsocket(
         }
     }
 
+    /*Add the async client socket to chain.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_network_appendToChain(pChain, pia);
 
@@ -426,23 +473,25 @@ u32 jf_network_connectAcsocketTo(
     acsocket_data_t * pad;
     u32 u32Index;
 
-    /*Check to see if we have available resources to handle this connection request*/
+    /*Get free async socket from pool.*/
     jf_mutex_acquire(&pia->ia_jmAsocket);
     u32Index = jf_listarray_getNode(pia->ia_pjlAsocket);
     jf_mutex_release(&pia->ia_jmAsocket);
 
     JF_LOGGER_DEBUG("name: %s, index %u", pia->ia_strName, u32Index);
 
+    /*No async socket in the free list if the index is the end.*/
     if (u32Index == JF_LISTARRAY_END)
         u32Ret = JF_ERR_SOCKET_POOL_EMPTY;
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /*Instantiate a acsocket_data_t to contain all the data about this connection*/
+        /*Instantiate a private data to contain all the data about this connection.*/
         pad = &pia->ia_padData[u32Index];
         pad->ad_iaAcsocket = pAcsocket;
         pad->ad_pUser = pUser;
 
+        /*Make the connection.*/
         u32Ret = connectAsocketTo(
             pia->ia_pjnaAsockets[u32Index], pjiRemote, u16RemotePort, pad);
     }
@@ -457,5 +506,3 @@ void jf_network_getLocalInterfaceOfAcsocket(
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-
