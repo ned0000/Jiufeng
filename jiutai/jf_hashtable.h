@@ -9,6 +9,9 @@
  *  -# Routines declared in this file are included in jf_hashtable object
  *  -# This is an implementation of a general hash table. It assumes that keys for entry stored in
  *   the hash table can be extracted from the entry.
+ *  -# There is only one entry with the same key in hash table. In the case the new entry has the
+ *   same key, for insert operation, the old entry is kept; for overwrite operation, the old entry
+ *   is replaced.
  *  -# Link with jf_jiukun library for memory allocation.
  */
 
@@ -16,6 +19,7 @@
 #define JIUTAI_HASH_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 
 /* --- internal header files -------------------------------------------------------------------- */
 
@@ -29,18 +33,38 @@
 typedef void  jf_hashtable_t;
 
 /** Callback function for comparing keys.
+ *
+ *  @param pKey1 [in] The first key.
+ *  @param pKey2 [in] The second key.
+ *
+ *  @return The result of comparision.
+ *  @retval 0 If key1 == key2.
+ *  @retval other If key1 != key2.
  */
 typedef olint_t (* jf_hashtable_fnCmpKeys_t) (void * pKey1, void * pKey2);
 
 /** Callback function for hashing key to integer.
+ *
+ *  @param pKey [in] The key.
+ *
+ *  @return The integer from key.
  */
 typedef olint_t (* jf_hashtable_fnHashKey_t) (void * pKey);
 
 /** Callback function for getting key from entry.
+ *
+ *  @param pEntry [in] The entry.
+ *
+ *  @return The key.
  */
 typedef void * (* jf_hashtable_fnGetKeyFromEntry_t) (void * pEntry);
 
 /** Callback function for freeing entry.
+ *
+ *  @param ppEntry [in/out] The entry to free.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 typedef u32 (* jf_hashtable_fnFreeEntry_t) (void ** ppEntry);
 
@@ -59,7 +83,7 @@ typedef struct
     jf_hashtable_fnHashKey_t jhcp_fnHashKey;
     /**Callback function to get key from entry.*/
     jf_hashtable_fnGetKeyFromEntry_t jhcp_fnGetKeyFromEntry;
-    /**Callback function to free the entry.*/
+    /**Callback function of deallocator to free the entry.*/
     jf_hashtable_fnFreeEntry_t jhcp_fnFreeEntry;
     u32 jhcp_u32Reserved2[4];
 } jf_hashtable_create_param_t;
@@ -72,24 +96,27 @@ typedef struct
     u32 jhs_u32NumOfEntry;
     /**Size of hash table.*/
     u32 jhs_u32Size;
-    /**Number of collisions.*/
+    /**Number of collisions, collision means there are at least 2 entries in the bucket.*/
     u32 jhs_u32Collisions;
-    /**The bucket index with maximum entries.*/
-    u32 jhs_u32BucketIndexWithMaxEntries;
+    /**Maximum entries per one hash array entry.*/
+    u32 jhs_u32MaxEntries;
     /**Count of resize operation.*/
     u32 jhs_u32CountOfResizeOp;
 } jf_hashtable_stat_t;
 
-/** The definition of this structure is placed here because it should be possible to allocate an
- *  iterator as an automatic variable. This is also more convenient for the user.
+/** Define the hash table iterator.
+ *
+ *  @note
+ *  -#The definition of this structure is placed here because it should be possible to allocate an
+ *   iterator as an automatic variable. This is also more convenient for the user.
  */
 typedef struct
 {
     /**The hash table this iterator attached to.*/
     jf_hashtable_t * jhi_htTable;
-    /**The position of the hash table bucket array.*/
+    /**The index of the hash array.*/
     olint_t jhi_nPos;
-    /**The cursor to the hash table bucket.*/
+    /**The cursor to the bucket.*/
     void * jhi_pCursor;
 } jf_hashtable_iterator_t;
 
@@ -101,6 +128,7 @@ typedef struct
  *  @param pjhcp [in] The parameter for creating hash table.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_hashtable_create(
     jf_hashtable_t ** ppjh, jf_hashtable_create_param_t * pjhcp);
@@ -110,19 +138,22 @@ u32 jf_hashtable_create(
  *  @param ppjh [out] The hash table to be destroyed.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_hashtable_destroy(jf_hashtable_t ** ppjh);
 
 /** Insert a entry into the hash table but do not overwrite existing entry with the same key.
  *
  *  @note
- *  -# The return value is JF_ERR_NO_ERROR if some entry with the same key is already stored in the
- *     hash table. In this case the user generally has to deallocate entry on his own.
+ *  -# If the entry with the same key is not existing, the entry is inserted.
+ *  -# If the entry with the same key is existing, the old entry is kept and JF_ERR_NO_ERROR is
+ *   returned. In this case the user generally has to deallocate the new entry on his own.
  *
  *  @param pjh [in] The hash table.
  *  @param pEntry [in] The entry to be inserted.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_hashtable_insertEntry(jf_hashtable_t * pjh, void * pEntry);
 
@@ -133,16 +164,25 @@ u32 jf_hashtable_insertEntry(jf_hashtable_t * pjh, void * pEntry);
  *  @param pEntry [in] The entry to be removed.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_hashtable_removeEntry(jf_hashtable_t * pjh, void * pEntry);
 
-/** Overwrite an existing entry in the hash table with the same key as the key of entry or insert a
- *  new entry. In the first case also deallocate the overwritten entry.
+/** Overwrite an existing entry in the hash table with the same key.
+ *
+ *  @note
+ *  -# If the entry with the same key is not existing, the entry is inserted.
+ *  -# If the entry with the same key is existing and deallocator is available, the routine will
+ *   deallocate the old entry and new entry is inserted.
+ *  -# If the entry with the same key is existing and deallocator is not available, the old entry
+ *   is replaced by new entry. In this case the user generally has to deallocate the old entry on
+ *  his own.
  *
  *  @param pjh [in] The hash table.
  *  @param pEntry [in] The entry to be overwritten.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_hashtable_overwriteEntry(jf_hashtable_t * pjh, void * pEntry);
 
@@ -153,6 +193,8 @@ u32 jf_hashtable_overwriteEntry(jf_hashtable_t * pjh, void * pEntry);
  *  @param ppEntry [out] The entry found.
  *
  *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_HASH_ENTRY_NOT_FOUND Hash entry is not found.
  */
 u32 jf_hashtable_getEntry(jf_hashtable_t * pjh, void * pKey, void ** ppEntry);
 
