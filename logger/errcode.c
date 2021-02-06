@@ -192,13 +192,12 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
 /* string error */
     {JF_ERR_INVALID_STRING, "Invalid string."},
     {JF_ERR_INVALID_SIZE, "Invalid size."},
-    {JF_ERR_INVALID_IP, "Invalid IP address."},
-    {JF_ERR_INVALID_IP_ADDR_TYPE, "Invalid IP address type."},
-    {JF_ERR_NULL_IP_ADDRESS, "IP address or subnet mask cannot be all zero."},
+    {JF_ERR_INVALID_MAC_ADDR, "Invalid MAC address."},
     {JF_ERR_INVALID_DATE, "Invalid setting for date."},
     {JF_ERR_INVALID_TIME, "Invalid setting for time."},
     {JF_ERR_INVALID_ALIAS, "Invalid character in alias."},
     {JF_ERR_INVALID_INTEGER, "Invalid input for integer parameter(s)."},
+    {JF_ERR_INTEGER_OUT_OF_RANGE, "Integer is out of range."},
     {JF_ERR_SUBSTRING_NOT_FOUND, "Substring is not found."},
     {JF_ERR_INVALID_FLOAT, "Invalid input for float parameter(s)."},
 
@@ -263,7 +262,10 @@ static internal_error_code_desc_t ls_iecdErrorCodeDesc[] =
     {JF_ERR_JIUKUN_MEMORY_CORRUPTED, "Jiukun memory is corrupted."},
     {JF_ERR_JIUKUN_MEMORY_OUT_OF_BOUND, "Jiukun memory access is out of bound."},
 /* ifmgmt error */
-
+    {JF_ERR_INVALID_IP, "Invalid IP address."},
+    {JF_ERR_INVALID_IP_ADDR_TYPE, "Invalid IP address type."},
+    {JF_ERR_NULL_IP_ADDR, "IP address or subnet mask cannot be all zero."},
+    {JF_ERR_INVALID_PORT_NUMBER, "Invalid port number."},
 /* matrix error */
     {JF_ERR_MATRIX_SINGULAR, "Matrix is singular."},
 /* persistency error */

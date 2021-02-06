@@ -447,7 +447,7 @@ u32 jf_string_getMacAddressFromString(const olchar_t * pMacString, u8 * pu8Value
     if (pu8Value[0] == 0 && pu8Value[1] == 0 &&
         pu8Value[2] == 0 && pu8Value[3] == 0 && pu8Value[4] && pu8Value[5])
     {
-        return JF_ERR_NULL_IP_ADDRESS;
+        return JF_ERR_INVALID_MAC_ADDR;
     }
 
     return u32Ret;
