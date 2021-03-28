@@ -1,7 +1,7 @@
 /**
  *  @file dongyuan.c
  *
- *  @brief software management implementation file
+ *  @brief Implementation file of dongyuan serivce.
  *
  *  @author Min Zhang
  *
@@ -10,15 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -381,7 +376,7 @@ static u32 _createDongyuanAssocket(internal_dongyuan_t * pid, dongyuan_param_t *
     jnacp.jnacp_fnOnDisconnect = _onDongyuanDisconnect;
     jnacp.jnacp_fnOnSendData = _onDongyuanSendData;
     jnacp.jnacp_fnOnData = _onDongyuanData;
-    jnacp.jnacp_pstrName = "dongyuan";
+    jnacp.jnacp_pstrName = DONGYUAN_SERVER_NAME;
 
     /*Creat the async server socket.*/
     u32Ret = jf_network_createAssocket(
@@ -485,9 +480,11 @@ u32 startDongyuan(void)
     if (! pid->id_bInitialized)
         u32Ret = JF_ERR_NOT_INITIALIZED;
 
+    /*Start service management module.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = startServMgmt();
 
+    /*Start network chain for control utility.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_network_startChain(pid->id_pjncDongyuanChain);
 
@@ -504,8 +501,10 @@ u32 stopDongyuan(void)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Stop network chain.*/
         jf_network_stopChain(pid->id_pjncDongyuanChain);
 
+        /*Stop service management module.*/
         stopServMgmt();
     }
 

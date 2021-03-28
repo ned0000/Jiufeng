@@ -10,20 +10,16 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
+
 #include <signal.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_jiukun.h"
-#include "jf_sharedmemory.h"
-#include "jf_filestream.h"
 #include "jf_process.h"
 #include "jf_time.h"
-#include "jf_serv.h"
-#include "jf_thread.h"
 #include "jf_mutex.h"
 
 #include "servmgmtsetting.h"
@@ -32,21 +28,25 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/** Internal service management data structure.
+/** Define the internal service management data type.
  */
 typedef struct
 {
+    /**Module is initialized if it's TRUE.*/
     boolean_t ism_bInitialized;
     u8 ism_u8Reserved[7];
 
+    /**Network timer.*/
     jf_network_utimer_t * ism_pjnuUtimer;
 
+    /**Mutext lock for setting.*/
     jf_mutex_t ism_jmLock;
+    /**Service setting.*/
     internal_serv_mgmt_setting_t ism_ismsSetting;
 
 } internal_serv_mgmt_t;
 
-/** Define the internal service management variable.
+/** Define the internal service management object.
  */
 static internal_serv_mgmt_t ls_ismServMgmt;
 
@@ -54,7 +54,9 @@ static internal_serv_mgmt_t ls_ismServMgmt;
  */
 typedef struct
 {
+    /**Service mamanagement object.*/
     internal_serv_mgmt_t * smu_pismServMgmt;
+    /**Service information object.*/
     internal_service_info_t * smu_pisiServInfo;
     u32 smu_u32Reserved[4];
 } serv_mgmt_utimer_t;
@@ -65,7 +67,7 @@ static u32 _readServMgmtSetting(internal_serv_mgmt_setting_t * pisms)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    JF_LOGGER_INFO("setting file: %s", pisms->isms_strSettingFile);
+    JF_LOGGER_DEBUG("setting file: %s", pisms->isms_strSettingFile);
 
     u32Ret = readServMgmtSetting(pisms);
 
@@ -80,6 +82,7 @@ static u32 _startServMgmtServ(internal_serv_mgmt_t * pism, internal_service_info
     pisi->isi_u8Status = JF_SERV_STATUS_STARTING;
     ol_bzero(strCmdLine, sizeof(strCmdLine));
 
+    /*Generate the full command line.*/
     if (pisi->isi_pstrCmdParam == NULL)
     {
         ol_snprintf(strCmdLine, sizeof(strCmdLine) - 1, "%s", pisi->isi_pstrCmdPath);
@@ -93,7 +96,10 @@ static u32 _startServMgmtServ(internal_serv_mgmt_t * pism, internal_service_info
 
     JF_LOGGER_INFO("serv: %s", strCmdLine);
     
+    /*Create the process and run the service.*/
     u32Ret = jf_process_create(&pisi->isi_jphHandle, NULL, strCmdLine);
+
+    /*Check the result.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pisi->isi_u8Status = JF_SERV_STATUS_RUNNING;
@@ -161,11 +167,11 @@ static u32 _tryStartServMgmtServ(internal_serv_mgmt_t * pism, internal_service_i
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
-    u32 u32Delay;
+    u32 u32Delay = 0;
     serv_mgmt_utimer_t * psmu = NULL;
 
     JF_LOGGER_DEBUG(
-        "service: %s, restart count: %d", pisi->isi_pstrName, pisi->isi_u8RestartCount);
+        "service: %s, restart count: %u", pisi->isi_pstrName, pisi->isi_u8RestartCount);
 
     /*Donot restart the service if we have tried many times than expected.*/
     if (pisi->isi_u8RestartCount < pisms->isms_u8FailureRetryCount)
@@ -222,7 +228,7 @@ static u32 _startAllServices(internal_serv_mgmt_t * pism)
         {
             u32Ret = _startServMgmtServ(pism, pisi);
 
-            /*Pause severals second if requested.*/
+            /*Pause several seconds if requested.*/
             if ((u32Ret == JF_ERR_NO_ERROR) && (pisi->isi_u8PauseTime > 0))
             {
                 JF_LOGGER_DEBUG("serv: %s, pause: %u", pisi->isi_pstrName, pisi->isi_u8PauseTime);
@@ -261,7 +267,7 @@ static u32 _stopAllServices(internal_serv_mgmt_t * pism)
     internal_service_info_t * pisi = NULL;
     internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
 
-    JF_LOGGER_INFO("stop all serv");
+    JF_LOGGER_INFO("stop all services");
 
     /*Stop all service.*/
     for (u32Index = 0;

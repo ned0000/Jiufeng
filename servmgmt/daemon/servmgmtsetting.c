@@ -10,17 +10,15 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_serv.h"
 #include "jf_string.h"
 #include "jf_xmlparser.h"
-#include "jf_jiukun.h"
 
 #include "servmgmtsetting.h"
 #include "servmgmtcommon.h"
@@ -119,9 +117,11 @@ static u32 _parseGlobalSetting(internal_serv_mgmt_setting_t * pisms)
         pisms->isms_pjpService, SMSN_MAX_FAILURE_RETRY_COUNT, SMSN_MAX_FAILURE_RETRY_COUNT_LEN,
         &pNode);
 
+    /*Get value.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pNode, &pstrValue, &sValue);
 
+    /*Parse value.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_string_getU8FromString(pstrValue, sValue, &pisms->isms_u8FailureRetryCount);
 
@@ -326,5 +326,3 @@ u32 modifyServiceStartupType(internal_serv_mgmt_setting_t * pisms, internal_serv
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-

@@ -14,7 +14,9 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
+
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 #include "jf_process.h"
@@ -93,19 +95,33 @@ typedef struct
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Read service management setting file.
+ *
+ *  @param pisms [out] The service management setting object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 readServMgmtSetting(internal_serv_mgmt_setting_t * pisms);
 
 /** Free the resource in setting.
+ *
+ *  @param pisms [out] The service management setting object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 freeServMgmtSetting(internal_serv_mgmt_setting_t * pisms);
 
 /** Modify the startup type of the service and save the new setting.
+ *
+ *  @param pisms [in] The service management setting object.
+ *  @param pisi [in] The service information to modify startup type.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 modifyServiceStartupType(internal_serv_mgmt_setting_t * pisms, internal_service_info_t * pisi);
 
 #endif /*DONGYUAN_SERVMGMT_SETTING_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

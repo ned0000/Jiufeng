@@ -13,9 +13,6 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
 
@@ -75,7 +72,7 @@ static u32 _parseDongyuanCmdLineParam(
     olint_t argc, olchar_t ** argv, dongyuan_param_t * pdp, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olint_t nOpt;
+    olint_t nOpt = 0;
 
     while (((nOpt = getopt(argc, argv, "fs:VT:F:S:Oh")) != -1) &&
            (u32Ret == JF_ERR_NO_ERROR))
@@ -147,7 +144,7 @@ static u32 _serviceDongyuan(olint_t argc, char** argv)
 
     /*Initialize the parameter for logger library.*/
     ol_bzero(&jlipParam, sizeof(jlipParam));
-    jlipParam.jlip_pstrCallerName = "DONGYUAN";
+    jlipParam.jlip_pstrCallerName = DONGYUAN_SERVER_NAME;
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DEBUG;
 //    jlipParam.jlip_bLogToStdout = TRUE;
     jlipParam.jlip_bLogToFile = TRUE;
@@ -156,6 +153,7 @@ static u32 _serviceDongyuan(olint_t argc, char** argv)
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
 
+    /*Set default parameter of dongyuan service.*/
     setDefaultDongyuanParam(&dp);
     dp.dp_pstrCmdLine = argv[0];
 
@@ -181,25 +179,29 @@ static u32 _serviceDongyuan(olint_t argc, char** argv)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /*Init the logger.*/
+        /*Initialize the logger.*/
         jf_logger_init(&jlipParam);
 
-        /*Init jiukun library for memory allocation.*/
+        /*Initialize jiukun library for memory allocation.*/
         u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            /*Init socket library.*/
+            /*Initialize socket.*/
             u32Ret = jf_process_initSocket();
             if (u32Ret == JF_ERR_NO_ERROR)
             {
+                /*Initialize and start dongyuan.*/
                 u32Ret = _initAndStartDongyuan(&dp);
 
+                /*Finalize socket.*/
                 jf_process_finiSocket();
             }
 
+            /*Finalize jiukun library.*/
             jf_jiukun_fini();
         }
 
+        /*Finalize logger library.*/
         jf_logger_fini();
     }
 
