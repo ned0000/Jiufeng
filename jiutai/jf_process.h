@@ -188,6 +188,14 @@ u32 jf_process_kill(jf_process_handle_t * pHandle);
  */
 u32 jf_process_terminate(jf_process_handle_t * pHandle);
 
+/** Get string of process's termination reason.
+ *
+ *  @param u8Reason [in] The termination reason.
+ *
+ *  @return The string of process's termination reason.
+ */
+const olchar_t * jf_process_getStringTerminationReason(u8 u8Reason);
+
 /** Wait for children process's termination.
  *
  *  @note

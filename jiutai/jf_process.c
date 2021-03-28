@@ -481,6 +481,26 @@ u32 jf_process_terminate(jf_process_handle_t * pHandle)
     return u32Ret;
 }
 
+const olchar_t * jf_process_getStringTerminationReason(u8 u8Reason)
+{
+    olchar_t * pstr = NULL;
+
+    if (u8Reason == JF_PROCESS_TERMINATION_REASON_EXITED)
+        pstr = "exited";
+    else if (u8Reason == JF_PROCESS_TERMINATION_REASON_SIGNALED)
+        pstr = "signaled";
+    else if (u8Reason == JF_PROCESS_TERMINATION_REASON_ACCESS_VIOLATION)
+        pstr = "access violation";
+    else if (u8Reason == JF_PROCESS_TERMINATION_REASON_KILLED)
+        pstr = "killed";
+    else if (u8Reason == JF_PROCESS_TERMINATION_REASON_TERMINATED)
+        pstr = "terminated";
+    else
+        pstr = "unknown";
+
+    return pstr;
+}
+
 u32 jf_process_waitForChildProcessTermination(
     jf_process_handle_t jphChild[], u32 u32Count, u32 u32BlockTime, u32 * pu32Index,
     u8 * pu8Reason)
