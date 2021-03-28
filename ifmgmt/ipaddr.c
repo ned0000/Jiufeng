@@ -325,9 +325,9 @@ u32 jf_ipaddr_setIpAddrToInaddrAny(jf_ipaddr_t * pji)
         /*IPv6.*/
 #if defined(LINUX)
         in6addr = in6addr_any;
-        memcpy(pji->ji_uAddr.ju_u8Addr, in6addr.s6_addr, 16);
+        ol_memcpy(pji->ji_uAddr.ju_u8Addr, in6addr.s6_addr, sizeof(pji->ji_uAddr.ju_u8Addr));
 #elif defined(WINDOWS)
-
+        u32Ret = JF_ERR_NOT_IMPLEMENTED;
 #endif
     }
     else
