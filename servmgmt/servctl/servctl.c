@@ -61,16 +61,17 @@ static void _printServCtlUsage(void)
 {
     ol_printf("\
 Usage: %s [-l] [-s] [-t] [-u automatic|manual] [-n service name] [-V] [logger options]\n\
-    -l list service. List all services is \"-n\" is not specified.\n\
-    -t start service.\n\
-    -s stop service.\n\
-    -u <automatic|manual> change the startup type of the service.\n\
-    -n specify the service name.\n\
-    -V show version information.\n\
-logger options:\n\
-    -T <0|1|2|3|4> the log level. 0: no log, 1: error, 2: info, 3: debug, 4: data.\n\
-    -F <log file> the log file.\n\
-    -S <log file size> the size of log file. No limit if not specified.\n",
+  -l: list service. List all services is \"-n\" is not specified.\n\
+  -t: start service.\n\
+  -s: stop service.\n\
+  -u: change the startup type of the service.\n\
+  -n: specify the service name.\n\
+  -V: show version information.\n\
+logger options: [-T <0|1|2|3|4|5>] [-O] [-F log file] [-S log file size] \n\
+  -T: log level. 0: no log, 1: error, 2: warn, 3: info, 4: debug, 5: data.\n\
+  -O: output the log to stdout.\n\
+  -F: output the log to file.\n\
+  -S: the size of log file. No limit if not specified.\n",
               ls_strServCtlProgramName);
 
     ol_printf("\n");
@@ -255,6 +256,7 @@ static u32 _processServCtlCommand(void)
 
     /*Initialize the service library.*/
     u32Ret = jf_serv_init(&jsip);
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (ls_bStop)
@@ -299,15 +301,17 @@ olint_t main(olint_t argc, olchar_t ** argv)
     /*Get programe name of the service.*/
     jf_file_getFileName(ls_strServCtlProgramName, sizeof(ls_strServCtlProgramName), argv[0]);
 
+    /*Initialize the parameter of logger library.*/
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "JF_SERV";
-    jlipParam.jlip_bLogToStdout = TRUE;
-    jlipParam.jlip_u8TraceLevel = 3;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DEBUG;
 
+    /*Initialize the parameter of jiukun library.*/
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
 
     u32Ret = _parseServCtlCmdLineParam(argc, argv, &jlipParam);
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Initialize the logger library.*/
@@ -320,9 +324,11 @@ olint_t main(olint_t argc, olchar_t ** argv)
             /*Process the service control command.*/
             u32Ret = _processServCtlCommand();
 
+            /*Finalize the jiukun library.*/
             jf_jiukun_fini();
         }
 
+        /*Finalize the logger library.*/
         jf_logger_fini();
     }
 
