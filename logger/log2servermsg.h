@@ -14,6 +14,7 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
+
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
@@ -73,9 +74,9 @@ typedef struct
     log_2_server_msg_header_t l2ssls_l2smhHeader;
     /**Time in micro-second.*/
     u64 l2ssls_u64Time;
-    /**Message source with null-terminated.*/
+    /**Log source with null-terminated.*/
     olchar_t l2ssls_strSource[LOG_2_SERVER_MAX_MSG_SOURCE_SIZE];
-    /**Log with null-terminated.*/
+    /**Log string with null-terminated.*/
     olchar_t l2ssls_strLog[JF_LOGGER_MAX_MSG_SIZE];
 } log_2_server_save_log_svc_t;
 

@@ -69,7 +69,6 @@
  */
 #define JF_LOGGER_ERROR_MSG_PREFIX_SIZE      ol_strlen(JF_LOGGER_ERROR_MSG_PREFIX)
 
-
 /** Define the internal logger data type.
  */
 typedef struct
@@ -94,7 +93,6 @@ typedef struct
     jf_logger_log_location_t * il_pjlllTty;
     /**Server log location.*/
     jf_logger_log_location_t * il_pjlllServer;
-
 
 } internal_logger_t;
 
@@ -299,11 +297,13 @@ u32 jf_logger_init(jf_logger_init_param_t * pParam)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_logger_t * pil = &ls_ilLogger;
 
+    /*Return if it's already Initialized.*/
     if (pil->il_bInitialized)
         return u32Ret;
 
     assert(pParam != NULL);
 
+    /*Initialize the internal logger object.*/
     ol_bzero(pil, sizeof(internal_logger_t));
     pil->il_u8TraceLevel = pParam->jlip_u8TraceLevel;
 
@@ -502,7 +502,7 @@ u32 jf_logger_logDataMsg(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...
     olchar_t buf[JF_LOGGER_MAX_MSG_SIZE];
     olchar_t strLength[64];
     olsize_t sLength = 0;
-    u32 u32Index, u32Logged;
+    u32 u32Index = 0, u32Logged = 0;
 
     if (! pil->il_bInitialized)
         return u32Ret;
@@ -528,13 +528,13 @@ u32 jf_logger_logDataMsg(u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...
         /*Convert data to strings and save them to log location.*/
         u32Index = 0;
         u32Logged = 1;
-        while((u32Index < u32DataLen) && (u32Logged != 0))
+        while ((u32Index < u32DataLen) && (u32Logged != 0))
         {
             u32Logged = jf_hex_convertByteDataToString(
                 pu8Data, u32DataLen, u32Index, buf, JF_LOGGER_MAX_MSG_SIZE - 1);
             if (u32Logged != 0)
             {
-                /*Save the data string to log location.*/
+                /*Save the data string to log location without banner.*/
                 _logToLocation(pil, JF_LOGGER_TRACE_LEVEL_DATA, FALSE, buf);
                 u32Index += u32Logged;
             }
@@ -578,13 +578,13 @@ u32 jf_logger_logDataMsgWithAscii(u8 * pu8Data, u32 u32DataLen, const olchar_t *
         /*Convert data to strings and save them to log location.*/
         u32Index = 0;
         u32Logged = 1;
-        while((u32Index < u32DataLen) && (u32Logged != 0))
+        while ((u32Index < u32DataLen) && (u32Logged != 0))
         {
             u32Logged = jf_hex_convertByteDataToStringWithAscii(
                 pu8Data, u32DataLen, u32Index, buf, JF_LOGGER_MAX_MSG_SIZE - 1);
             if (u32Logged != 0)
             {
-                /*Save the data string to log location.*/
+                /*Save the data string to log location without banner.*/
                 _logToLocation(pil, JF_LOGGER_TRACE_LEVEL_DATA, FALSE, buf);
                 u32Index += u32Logged;
             }

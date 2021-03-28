@@ -36,6 +36,7 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
+
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
@@ -61,7 +62,7 @@
  */
 #define JF_LOGGER_MAX_CALLER_NAME_LEN                    (16)
 
-/* Maximum message size.
+/** Maximum message size.
  */
 #define JF_LOGGER_MAX_MSG_SIZE                           (512)
 
@@ -214,6 +215,10 @@ LOGGERAPI u32 LOGGERCALL jf_logger_logWarnMsg(const olchar_t * fmt, ...);
 
 /** Log an error type message.
  *
+ *  @note
+ *  -# For Linux, errno is used if it's a system error.
+ *  -# For Windows, GetLastError() is used if it's a system error.
+ *
  *  @param u32ErrCode [in] The error code.
  *  @param fmt [in] The message format.
  *  @param ... [in] The input to the message format.
@@ -223,7 +228,7 @@ LOGGERAPI u32 LOGGERCALL jf_logger_logWarnMsg(const olchar_t * fmt, ...);
  */
 LOGGERAPI u32 LOGGERCALL jf_logger_logErrMsg(u32 u32ErrCode, const olchar_t * fmt, ...);
 
-/** Log a data message. The system error code is in errno.
+/** Log a data message.
  *
  *  @param pu8Data [in] The data to be logged.
  *  @param u32DataLen [in] The length of the data in bytes.
@@ -236,7 +241,7 @@ LOGGERAPI u32 LOGGERCALL jf_logger_logErrMsg(u32 u32ErrCode, const olchar_t * fm
 LOGGERAPI u32 LOGGERCALL jf_logger_logDataMsg(
     u8 * pu8Data, u32 u32DataLen, const olchar_t * fmt, ...);
 
-/** Log a data message with ascii string. The system error code is in errno.
+/** Log a data message with ascii string.
  *
  *  @param pu8Data [in] The data to be logged.
  *  @param u32DataLen [in] The length of the data in bytes.

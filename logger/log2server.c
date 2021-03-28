@@ -61,6 +61,11 @@ typedef struct
  *  -# Connection is failed and the error message is "Operation now in progress" if setting
  *   non-block mode after creating the socket. The non-block mode should be set after setting up
  *   the connection
+ *
+ *  @param nSocket [in/out] The socket.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 static u32 _setSocketNonBlockForLogServer(olint_t nSocket)
 {
@@ -140,9 +145,12 @@ static u32 _connectToLogServer(olchar_t * pstrAddress, u16 u16Port, olint_t * pn
 static u32 _sendLogToServer(olint_t nSocket, void * buf, size_t len)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t size;
+    olsize_t size = 0;
 
+    /*Send data.*/
     size = send(nSocket, buf, len, 0);
+
+    /*Error if size of sent data is not as expected.*/
     if (size != len)
         u32Ret = JF_ERR_FAIL_SEND_DATA;
 
@@ -153,6 +161,10 @@ static u32 _sendLogToServer(olint_t nSocket, void * buf, size_t len)
  *
  *  @note
  *  -# ToDo: Lock may be required here in the multi-thread environment.
+ *
+ *  @param plsll [in/out] The log location object.
+ *
+ *  @return The sequence number.
  */
 static u32 _getLog2ServerSeqNum(logger_server_log_location_t * plsll)
 {

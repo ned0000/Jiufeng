@@ -25,6 +25,7 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+
 /* --- private routine section ------------------------------------------------------------------ */
 
 static olsize_t _getStringZeroTimeStamp(olchar_t * pstrStamp, olsize_t sStamp)
@@ -55,7 +56,7 @@ static olsize_t _getStringTimeStamp(
 /** Get time stamp string of the current time.
  *
  *  @note
- *  -# The time stamp is in the format of "mm/dd/yyyy hh:mm:ss".
+ *  -# The time stamp is in the format of "mm/dd/yyyy hh:mm:ss.mmmmmm". "mmmmmm" is micro-second.
  *
  *  @param pstrStamp [out] The string buffer where the time stamp will be returned.
  *  @param sStamp [in] Size of the string buffer.
@@ -70,9 +71,12 @@ static olsize_t _getLogTimeStamp(olchar_t * pstrStamp, olsize_t sStamp)
     struct tm tmLocal;
     oltime_t time = 0;
 
+    /*Get current time.*/
     u32Ret = jf_time_getTimeOfDay(&jtv);
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Get local time based on the second.*/
         time = jtv.jtv_u64Second;
 
 #if defined(WINDOWS)
@@ -83,10 +87,12 @@ static olsize_t _getLogTimeStamp(olchar_t * pstrStamp, olsize_t sStamp)
             u32Ret = JF_ERR_FAIL_GET_TIME;
 #endif
 
+        /*Get time stamp string.*/
         if (u32Ret == JF_ERR_NO_ERROR)
             sStr = _getStringTimeStamp(&tmLocal, (u32)jtv.jtv_u64MicroSecond, pstrStamp, sStamp);
     }
 
+    /*Get zero time stamp string in case error.*/
     if (u32Ret != JF_ERR_NO_ERROR)
         sStr = _getStringZeroTimeStamp(pstrStamp, sStamp);
 
@@ -119,8 +125,10 @@ u32 getCommonLogBanner(const olchar_t * pstrCallerName, olchar_t * pstrBanner, o
 
     assert(sBanner >= JF_LOGGER_MAX_COMMON_BANNER_LEN);
 
+    /*Get time stamp string.*/
     _getLogTimeStamp(strStamp, sizeof(strStamp));
 
+    /*Genenrate the common banner.*/
     ol_snprintf(
         pstrBanner, sBanner, "%s [%s:%lu] ", strStamp, pstrCallerName, jf_thread_getCurrentId());
     pstrBanner[sBanner - 1] = '\0';

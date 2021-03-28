@@ -56,18 +56,23 @@ static u32 _logToTty(
 
     while (retry < count)
     {
+        /*Output log with banner.*/
         if (bBanner)
             nRet = ol_dprintf(pltll->ltll_nTtyFd, "%s%s\n", pstrBanner, pstrLog);
-        else
+        else /*No banner.*/
             nRet = ol_dprintf(pltll->ltll_nTtyFd, "%s\n", pstrLog);
 
+        /*Break the loop on success.*/
         if (nRet > 0)
             break;
 
-        /*Reopen the tty and retry writing.*/
+        /*Reopen the TTY and retry writing.*/
         close(pltll->ltll_nTtyFd);
 
+        /*Open the TTY.*/
         pltll->ltll_nTtyFd = open(pltll->ltll_strTtyFileName, O_WRONLY);
+
+        /*Break if failed to open TTY.*/
         if (pltll->ltll_nTtyFd < 0)
             break;
 
@@ -87,10 +92,12 @@ u32 createTtyLogLocation(
 
     assert(pParam->ctllp_pstrTtyFile != NULL);
 
+    /*Allocate memory for TTY log location object.*/
     u32Ret = jf_mem_alloc((void **)&pltll, sizeof(*pltll));
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Initialize the TTY log location object.*/
         ol_bzero(pltll, sizeof(*pltll));
         if (pParam->ctllp_pstrCallerName != NULL)
             ol_strcpy(pltll->ltll_strCallerName, pParam->ctllp_pstrCallerName);
@@ -108,6 +115,7 @@ u32 createTtyLogLocation(
 
             u32Ret = JF_ERR_FAIL_OPEN_FILE;
 
+            /*Output error message to stderr.*/
             jf_err_readDescription(u32Ret, strDesc, sizeof(strDesc));
 
             ol_fprintf(

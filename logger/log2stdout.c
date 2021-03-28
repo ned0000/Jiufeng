@@ -45,12 +45,15 @@ u32 logToStdout(jf_logger_log_location_t * pLocation, boolean_t bBanner, olchar_
 
     if (bBanner)
     {
+        /*Banner is required.*/
         u32Ret = getCommonLogBanner(plsll->lsll_strCallerName, strBanner, sizeof(strBanner));
+
         if (u32Ret == JF_ERR_NO_ERROR)
             ol_fprintf(stdout, "%s%s\n", strBanner, pstrLog);
     }
     else
     {
+        /*No banner, output the message directly.*/
         ol_fprintf(stdout, "%s\n", pstrLog);
     }
 

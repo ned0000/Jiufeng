@@ -60,13 +60,17 @@ static u32 _logToFile(
         else
             nRet = fprintf(plfll->lfll_fpLogFile, "%s\n", pstrLog);
 
+        /*Break the loop if success.*/
         if (nRet > 0)
             break;
 
         /*Reopen the file and retry writing if there is error.*/
         fclose(plfll->lfll_fpLogFile);
 
+        /*Open the file.*/
         plfll->lfll_fpLogFile = fopen(plfll->lfll_strLogFileName, "a");
+
+        /*No retry if failed to open log file.*/
         if (plfll->lfll_fpLogFile == NULL)
             break;
 
@@ -130,10 +134,12 @@ u32 createFileLogLocation(
     u32 u32Ret = JF_ERR_NO_ERROR;
     logger_file_log_location_t * plfll = NULL;
 
+    /*Allocate memory for file log location object.*/
     u32Ret = jf_mem_alloc((void **)&plfll, sizeof(*plfll));
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Initialize the file log location object.*/
         ol_bzero(plfll, sizeof(*plfll));
 
         plfll->lfll_sLogFile = pParam->cfllp_sLogFile;
@@ -171,6 +177,8 @@ u32 createFileLogLocation(
             olchar_t strDesc[JF_ERR_MAX_DESCRIPTION_SIZE];
 
             u32Ret = JF_ERR_FAIL_OPEN_FILE;
+
+            /*Output error message to stderr.*/
             jf_err_readDescription(u32Ret, strDesc, sizeof(strDesc));
 
             ol_fprintf(
