@@ -128,8 +128,10 @@ typedef enum
     JF_SERV_STATUS_STOPPING,
     /**Service is error.*/
     JF_SERV_STATUS_ERROR,
-    /**Service is stopped.*/
+    /**Service is terminated.*/
     JF_SERV_STATUS_TERMINATED,
+    /**Maximum number of status.*/
+    JF_SERV_STATUS_MAX,
 } jf_serv_status_t;
 
 /** Define the service startup type data type.
@@ -142,6 +144,8 @@ typedef enum
     JF_SERV_STARTUP_TYPE_AUTOMATIC,
     /**Manual startup type, the service is not started automaticlly.*/
     JF_SERV_STARTUP_TYPE_MANUAL,
+    /**Maximum number of startup type.*/
+    JF_SERV_STARTUP_TYPE_MAX,
 } jf_serv_startup_type_t;
 
 /* --- data structures -------------------------------------------------------------------------- */
