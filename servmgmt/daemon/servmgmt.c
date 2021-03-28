@@ -287,7 +287,8 @@ static u32 _waitForChildProcess(
     internal_serv_mgmt_t * pism, jf_process_handle_t pid[], u32 u32Count, boolean_t * pbRetry)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32ServIndex, u32Index, u32Reason;
+    u32 u32ServIndex, u32Index;
+	u8 u8Reason;
     internal_service_info_t * pisi = NULL;
     internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
     s32 ret = 0;
@@ -295,10 +296,10 @@ static u32 _waitForChildProcess(
     JF_LOGGER_DEBUG("wait for child");
 
     /*Wait for terminated child process.*/
-    u32Ret = jf_process_waitForChildProcessTermination(pid, u32Count, 0, &u32Index, &u32Reason);
+    u32Ret = jf_process_waitForChildProcessTermination(pid, u32Count, 0, &u32Index, &u8Reason);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        JF_LOGGER_DEBUG("wait for child, terminated by %u", u32Reason);
+        JF_LOGGER_DEBUG("wait for child, terminated by %u", u8Reason);
 
         jf_mutex_acquire(&pism->ism_jmLock);
 

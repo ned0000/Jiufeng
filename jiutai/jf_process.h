@@ -19,7 +19,9 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
+
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
@@ -186,22 +188,27 @@ u32 jf_process_kill(jf_process_handle_t * pHandle);
  */
 u32 jf_process_terminate(jf_process_handle_t * pHandle);
 
-/** Wait for child process's termination.
+/** Wait for children process's termination.
  *
  *  @note
- *  -# The function returns if a child process terminates.
+ *  -# The function returns if a child process terminates or timeout.
+ *  -# Only one child process is returned even multiple processes are terminated.
+ *  -# If block time is 0, the routine will return immediately.
+ *  -# If block time is JF_TIME_INFINITE, the routine will wait until termination happens.
  *
  *  @param pidChild [in] The child process handle array to wait.
  *  @param u32Count [in] The count of child process array.
  *  @param u32BlockTime [in] The block time in millisecond.
  *  @param pu32Index [out] The index in array where the child is terminated.
- *  @param pu32Reason [out] The termination reason defined as jf_process_termination_reason_t.
+ *  @param pu8Reason [out] The termination reason defined as jf_process_termination_reason_t.
+ *   It can be NULL.
  *
  *  @return The error code.
  *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 jf_process_waitForChildProcessTermination(
-    jf_process_handle_t pidChild[], u32 u32Count, u32 u32BlockTime, u32 * pu32Index, u32 * pu32Reason);
+    jf_process_handle_t pidChild[], u32 u32Count, u32 u32BlockTime, u32 * pu32Index,
+    u8 * pu8Reason);
 
 /** Get current working directory of the process.
  *

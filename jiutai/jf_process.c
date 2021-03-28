@@ -34,6 +34,7 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+
 /* --- private routine section ------------------------------------------------------------------ */
 
 #if defined(LINUX)
@@ -56,29 +57,29 @@ static u32 _runCommandLine(olchar_t * pstrCommandLine)
     return u32Ret;
 }
 
-static void _setProcessTerminationReason(olint_t nStatus, u32 * pu32Reason)
+static void _setProcessTerminationReason(olint_t nStatus, u8 * pu8Reason)
 {
     olint_t nSignal = 0;
 
     if (WIFEXITED(nStatus))
     {
-        *pu32Reason = JF_PROCESS_TERMINATION_REASON_EXITED;
+        *pu8Reason = JF_PROCESS_TERMINATION_REASON_EXITED;
     }
     else if (WIFSIGNALED(nStatus))
     {
         nSignal = WTERMSIG(nStatus);
         if (nSignal == SIGKILL)
-            *pu32Reason = JF_PROCESS_TERMINATION_REASON_KILLED;
+            *pu8Reason = JF_PROCESS_TERMINATION_REASON_KILLED;
         else if (nSignal == SIGTERM)
-            *pu32Reason = JF_PROCESS_TERMINATION_REASON_TERMINATED;
+            *pu8Reason = JF_PROCESS_TERMINATION_REASON_TERMINATED;
         else if (nSignal == SIGSEGV)
-            *pu32Reason = JF_PROCESS_TERMINATION_REASON_ACCESS_VIOLATION;
+            *pu8Reason = JF_PROCESS_TERMINATION_REASON_ACCESS_VIOLATION;
         else
-            *pu32Reason = JF_PROCESS_TERMINATION_REASON_SIGNALED;
+            *pu8Reason = JF_PROCESS_TERMINATION_REASON_SIGNALED;
     }
     else
     {
-        *pu32Reason = JF_PROCESS_TERMINATION_REASON_UNKNOWN;
+        *pu8Reason = JF_PROCESS_TERMINATION_REASON_UNKNOWN;
     }
 }
 #endif
@@ -473,88 +474,93 @@ u32 jf_process_terminate(jf_process_handle_t * pHandle)
 }
 
 u32 jf_process_waitForChildProcessTermination(
-    jf_process_handle_t pidChild[], u32 u32Count, u32 u32BlockTime, u32 * pu32Index, u32 * pu32Reason)
+    jf_process_handle_t jphChild[], u32 u32Count, u32 u32BlockTime, u32 * pu32Index,
+    u8 * pu8Reason)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    u8 u8Reason = JF_PROCESS_TERMINATION_REASON_UNKNOWN;
 #if defined(LINUX)
-    olint_t nStatus;
+    olint_t nStatus = 0;
     pid_t pid = 0;
-    u32 u32Index, u32Reason, u32Timeout;
+    u32 u32Index = 0, u32Timeout = 0;
 
     assert((u32Count > 0) && (pu32Index != NULL));
 
-    *pu32Index = 0;
-    u32Reason = JF_PROCESS_TERMINATION_REASON_UNKNOWN;
+    *pu32Index = U32_MAX;
 
-    if (u32BlockTime == JF_TIME_INFINITE)
-    {
-        pid = wait(&nStatus);
-    }
-    else if (u32BlockTime == 0)
-    {
-        pid = waitpid(-1, &nStatus, WNOHANG);
-    }
+    /*Convert the milli-second to second.*/
+    if (u32BlockTime == 0)
+        u32Timeout = 0;
+    else if (u32BlockTime > 1000)
+        u32Timeout = u32BlockTime / 1000;
     else
+        u32Timeout = 1;
+
+    while (u32Ret == JF_ERR_NO_ERROR)
     {
-        if (u32BlockTime > 1000)
-            u32Timeout = u32BlockTime / 1000;
-        else
-            u32Timeout = 1;
-
-        while (u32Timeout > 0)
-        {
-            pid = waitpid(-1, &nStatus, WNOHANG);
-            if (pid > 0)
-                break;
-
-            sleep(1);
-
-            u32Timeout --;
-        }
-    }
-
-    if (pid > 0)
-    {
+        /*Iterate through the process handle array.*/
         for (u32Index = 0; u32Index < u32Count; u32Index ++)
         {
-            if (pidChild[u32Index].jpi_pId == pid)
+            /*Test if the process is terminated.*/
+            pid = waitpid(jphChild[u32Index].jpi_pId, &nStatus, WNOHANG);
+
+            if (pid == -1)
             {
+                /*Error.*/
+                u32Ret = JF_ERR_FAIL_WAIT_PROCESS_TERMINATION;
+                break;
+            }
+            else if (jphChild[u32Index].jpi_pId == pid)
+            {
+                /*Success.*/
                 *pu32Index = u32Index;
+                _setProcessTerminationReason(nStatus, &u8Reason);
                 break;
             }
         }
 
-        if (u32Index == u32Count)
-            u32Ret = JF_ERR_FAIL_WAIT_PROCESS_TERMINATION;
-        else
-            _setProcessTerminationReason(nStatus, &u32Reason);
-    }
-    else
-    {
-        u32Ret = JF_ERR_FAIL_WAIT_PROCESS_TERMINATION;
+        /*Break the loop if timeout.*/
+        if (u32Timeout == 0)
+            break;
+
+        /*Index is set, a child process is terminated.*/
+        if (*pu32Index != U32_MAX)
+            break;
+
+        /*Sleep 1 second.*/
+        sleep(1);
+
+        /*Decrease timeout if not infinite.*/
+        if (u32BlockTime != JF_TIME_INFINITE)
+            u32Timeout --;
     }
 
-    if (pu32Reason != NULL)
-        *pu32Reason = u32Reason;
+    /*Return error if no child process is terminated.*/
+    if (u32Ret == JF_ERR_NO_ERROR)
+    {
+        if (*pu32Index == U32_MAX)
+            u32Ret = JF_ERR_FAIL_WAIT_PROCESS_TERMINATION;
+    }
 
 #elif defined(WINDOWS)
-    u32 u32Index, u32Wait, u32Reason;
+    u32 u32Index = 0, u32Wait = 0;
     HANDLE hHandle[200];
     u32 u32HandleCount = 200;
 
     assert((u32Count > 0) && (pu32Index != NULL));
 
     *pu32Index = 0;
-    u32Reason = JF_PROCESS_TERMINATION_REASON_UNKNOWN;
+    u8Reason = JF_PROCESS_TERMINATION_REASON_UNKNOWN;
 
     if (u32HandleCount > u32Count)
         u32HandleCount = u32Count;
 
     for (u32Index = 0; u32Index < u32HandleCount; u32Index ++)
     {
-        hHandle[u32Index] = pidChild[u32Index].jpi_hProcess;
+        hHandle[u32Index] = jphChild[u32Index].jpi_hProcess;
     }
 
+    /*Wait for termination of process.*/
     u32Wait = WaitForMultipleObjects(u32HandleCount, hHandle, FALSE, u32BlockTime);
 
     if ((u32Wait == WAIT_FAILED) || (u32Wait == WAIT_ABANDONED))
@@ -563,6 +569,10 @@ u32 jf_process_waitForChildProcessTermination(
         *pu32Index = u32Wait - WAIT_OBJECT_0;
 
 #endif
+
+    if (pu8Reason != NULL)
+        *pu8Reason = u8Reason;
+
     return u32Ret;
 }
 
