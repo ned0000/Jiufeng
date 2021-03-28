@@ -14,6 +14,7 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
+
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
@@ -47,18 +48,51 @@ typedef struct
 
 /* --- functional routines ---------------------------------------------------------------------- */
 
+/** Initialize the log save module.
+ *
+ *  @param plsip [in] The pointer to the log save parameter.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ *  @retval JF_ERR_OUT_OF_MEMORY Out of memeory.
+ */
 u32 initLogSave(log_save_init_param_t * plsip);
 
+/** Finalize the log save module.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 u32 finiLogSave(void);
 
+/** Start the log save module.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 u32 startLogSave(void);
 
+/** Stop the log save module.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 u32 stopLogSave(void);
 
+/** Save log to queue.
+ *
+ *  @note
+ *  -# The time is from client, not the time when log server receives the message.
+ *
+ *  @param u64Time [in] The time stamp of the log from client.
+ *  @param pstrBanner [in] The banner string.
+ *  @param pstrLog [in] The log string.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
+ */
 u32 saveLogToQueue(u64 u64Time, const olchar_t * pstrBanner, const olchar_t * pstrLog);
 
 #endif /*JIUFENG_LOG_SERVER_LOG_SAVE_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

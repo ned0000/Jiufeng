@@ -8,8 +8,8 @@
  *  @note
  *  -# The service needs to be started with root privilege otherwise the PID file will fail to be
  *   created in directory "/var/run".
- *  -# The logs of this service can only be outputted to file. The logs from other module can be
- *   outputted to stdout, file (not the log file of this service) or tty.
+ *  -# The logs of the service itself can only be outputted to file. The logs from other module
+ *   can be outputted to stdout, file (not the log file of this service) or tty.
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
@@ -175,6 +175,7 @@ static u32 _serviceLogServer(olint_t argc, char** argv)
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
 
+    /*Set default parameter for log server.*/
     setDefaultLogServerParam(&lsip);
     lsip.lsip_pstrCmdLine = argv[0];
     lsip.lsip_bLogToFile = TRUE;
@@ -194,25 +195,31 @@ static u32 _serviceLogServer(olint_t argc, char** argv)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /*Init the logger.*/
+        /*Initialize the logger.*/
         jf_logger_init(&jlipParam);
 
-        /*Init jiukun library for memory allocation.*/
+        /*Initialize jiukun library for memory allocation.*/
         u32Ret = jf_jiukun_init(&jjip);
+
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            /*Init socket library.*/
+            /*Initialize socket.*/
             u32Ret = jf_process_initSocket();
+
+            /*Initialize and start log server.*/
             if (u32Ret == JF_ERR_NO_ERROR)
             {
                 u32Ret = _initAndStartLogServer(&lsip);
 
+                /*Finalize socket.*/
                 jf_process_finiSocket();
             }
 
+            /*Finalize jiukun library.*/
             jf_jiukun_fini();
         }
 
+        /*Finalize logger library.*/
         jf_logger_fini();
     }
 
@@ -222,7 +229,7 @@ static u32 _serviceLogServer(olint_t argc, char** argv)
     return u32Ret;
 }
 
-SERVICE_RETURN_VALUE _serviceMain(olint_t argc, char** argv)
+SERVICE_RETURN_VALUE _serviceMain(olint_t argc, olchar_t ** argv)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 

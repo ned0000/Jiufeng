@@ -46,12 +46,15 @@
  */
 typedef struct
 {
+    /**Log server is initialized if it's TRUE.*/
     boolean_t ils_bInitialized;
     u8 ils_u8Reserved[7];
 
     u32 ils_u32Reserved[8];
 
+    /**Network chain.*/
     jf_network_chain_t * ils_pjncLogServerChain;
+    /**Async server socket.*/
     jf_network_assocket_t * ils_pjnaLogServerAssocket;
 
 } internal_log_server_t;
@@ -113,7 +116,7 @@ static u32 _procesLogServerMsgSaveLog(
     u32 u32Ret = JF_ERR_NO_ERROR;
     log_2_server_save_log_svc_t * pReq = (log_2_server_save_log_svc_t *)pu8Buffer;
 
-    JF_LOGGER_DEBUG("save log, msg size: %d", sMsg);
+    JF_LOGGER_DEBUG("msg size: %d", sMsg);
 
     /*Add the message to log save queue.*/
     u32Ret = saveLogToQueue(pReq->l2ssls_u64Time, pReq->l2ssls_strSource, pReq->l2ssls_strLog);
@@ -166,7 +169,7 @@ static u32 _validateLogServerReqMsg(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /*Check the magic number.*/
+        /*Check the message signature.*/
         if (pHeader->l2smh_u16Signature != LOG_2_SERVER_MSG_SIGNATURE)
         {
             u32Ret = JF_ERR_INVALID_DATA;
@@ -250,6 +253,7 @@ static u32 _createLogServerAssocket(internal_log_server_t * pils, log_server_ini
 
     jnacp.jnacp_sInitialBuf = LOG_2_SERVER_MAX_MSG_SIZE;
     jnacp.jnacp_u32MaxConn = (u32)plsip->lsip_u16MaxLogClient + 3;
+    /*Use INADDR_ANY if server address is not specified.*/
     if (plsip->lsip_pstrServerAddress == NULL)
         jf_ipaddr_setIpV4AddrToInaddrAny(&jnacp.jnacp_jiServer);
     else
@@ -304,7 +308,7 @@ u32 initLogServer(log_server_init_param_t * plsip)
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_thread_registerSignalHandlers(_logServerSignalHandler);
 
-    /*Initialize the log save.*/
+    /*Initialize the log save module.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {    
         log_save_init_param_t lsip;

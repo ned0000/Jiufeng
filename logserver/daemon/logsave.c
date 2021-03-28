@@ -24,17 +24,18 @@
 #include "jf_listhead.h"
 #include "jf_time.h"
 
+#include "logsave.h"
+
 /*Defined in logger library.*/
 #include "common.h"
 #include "log2tty.h"
 #include "log2stdout.h"
 #include "log2file.h"
 
-#include "logsave.h"
-
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/** Cache time in second.
+/** Cache time in second. It's the delay time for writing message to log location in case message
+ *  latency.
  */
 #define LOG_SAVE_CACHE_TIME                   (2)
 
@@ -42,24 +43,33 @@
  */
 typedef struct
 {
+    /**List of the node.*/
     jf_listhead_t lsl_jlLog;
 
+    /**Time of the log from client.*/
     u64 lsl_u64Time;
+    /**The banner string.*/
     olchar_t * lsl_pstrBanner;
+    /**The log string.*/
     olchar_t * lsl_pstrLog;
 } log_save_log_t;
 
-/** Define the log save log save data type.
+/** Define the internal log save data type.
  */
 typedef struct
 {
+    /**The module is initialized if it's TRUE.*/
     boolean_t ils_bInitialized;
     u8 ils_u8Reserved[6];
+    /**The thread should terminate if it's TRUE.*/
     boolean_t ils_bToTerminateThread;
 
+    /**Log list to be saved.*/
     jf_listhead_t ils_jlLogList;
+    /**Number of log in list.*/
     u16 ils_u16NumOfLog;
     u8 ils_u8Reserved2[6];
+    /**Lock for the log list.*/
     jf_mutex_t ils_jmLock;
 
     /**Log to the stdout.*/
@@ -70,8 +80,11 @@ typedef struct
     boolean_t ils_bLogToTty;
     u8 ils_u8Reserved3[3];
 
+    /*TTY log location.*/
     jf_logger_log_location_t * ils_pjlllTty;
+    /*Stdout log location.*/
     jf_logger_log_location_t * ils_pjlllStdout;
+    /*File log location.*/
     jf_logger_log_location_t * ils_pjlllFile;
 } internal_log_save_t;
 
@@ -107,15 +120,18 @@ static u32 _createLogSaveLog(
 
     u32Ret = jf_jiukun_allocMemory((void **)&plsl, sizeof(*plsl));
 
+    /*Initialize the save log object.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(plsl, sizeof(*plsl));
         jf_listhead_init(&plsl->lsl_jlLog);
         plsl->lsl_u64Time = u64Time;
 
+        /*Duplicate the banner string.*/
         u32Ret = jf_string_duplicate(&plsl->lsl_pstrBanner, pstrBanner);
     }
 
+    /*Duplicate the log string.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_string_duplicate(&plsl->lsl_pstrLog, pstrLog);
 
@@ -167,15 +183,17 @@ static u32 _flushSavedLog(internal_log_save_t * pils, u64 u64Expire)
     getSaveLogTimeStamp(u64Expire, strStamp, sizeof(strStamp));
     JF_LOGGER_DEBUG("expire: %s", strStamp);
 
+    /*Iterate through the list.*/
     jf_listhead_forEachSafe(&pils->ils_jlLogList, pjl, temp)
     {
         plsl = jf_listhead_getEntry(pjl, log_save_log_t, lsl_jlLog);
 
+        /*Break if the time of log is later than expire time.*/
         if (plsl->lsl_u64Time > u64Expire)
             break;
 
         getSaveLogTimeStamp(plsl->lsl_u64Time, strStamp, sizeof(strStamp));
-        JF_LOGGER_DEBUG("flush, time: %s", strStamp);
+        JF_LOGGER_DEBUG("log time: %s", strStamp);
 
         /*Remove the log from list.*/
         jf_listhead_del(&plsl->lsl_jlLog);
@@ -223,6 +241,7 @@ static u32 _tryFlushSavedLog(internal_log_save_t * pils)
     if (u64Curr < pLog->lsl_u64Time)
         return u32Ret;
 
+    /*Flush log to log location.*/
     u32Ret = _flushSavedLog(pils, u64Curr);
 
     return u32Ret;
@@ -266,10 +285,12 @@ static u32 _insertLogToList(internal_log_save_t * pils, log_save_log_t * plsl)
     jf_listhead_t * pjl = NULL;
     log_save_log_t * pLog = NULL;
 
+    /*Iterate through the list.*/
     jf_listhead_forEach(&pils->ils_jlLogList, pjl)
     {
         pLog = jf_listhead_getEntry(pjl, log_save_log_t, lsl_jlLog);
 
+        /*Break if the log is later than the new one.*/
         if (pLog->lsl_u64Time > plsl->lsl_u64Time)
             break;
     }
@@ -277,7 +298,7 @@ static u32 _insertLogToList(internal_log_save_t * pils, log_save_log_t * plsl)
     /*Not found, append to the tail of the list*/
     if (pjl == &pils->ils_jlLogList)
         jf_listhead_addTail(&pils->ils_jlLogList, &plsl->lsl_jlLog);
-    else /*Found, intert to the list.*/
+    else /*Found, insert to the list, before the found one.*/
         jf_listhead_addTail(&pLog->lsl_jlLog, &plsl->lsl_jlLog);
 
     return u32Ret;
@@ -289,10 +310,12 @@ static u32 _addLogToList(internal_log_save_t * pils, log_save_log_t * plsl)
 
     if (jf_listhead_isEmpty(&pils->ils_jlLogList))
     {
+        /*List is empty.*/
         jf_listhead_add(&pils->ils_jlLogList, &plsl->lsl_jlLog);
     }
     else
     {
+        /*List is not empty.*/
         u32Ret = _insertLogToList(pils, plsl);
     }
 
@@ -306,6 +329,7 @@ static u32 _createSaveLogLocation(internal_log_save_t * pils, log_save_init_para
     u32 u32Ret = JF_ERR_NO_ERROR;
 
 #if defined(LINUX)
+    /*Create TTY log location.*/
     if (plsip->lsip_bLogToTty)
     {
         create_tty_log_location_param_t ctllp;
@@ -319,6 +343,7 @@ static u32 _createSaveLogLocation(internal_log_save_t * pils, log_save_init_para
     }
 #endif
 
+    /*Create stdout log location.*/
     if (plsip->lsip_bLogToStdout)
     {
         create_stdout_log_location_param_t csllp;
@@ -330,6 +355,7 @@ static u32 _createSaveLogLocation(internal_log_save_t * pils, log_save_init_para
         u32Ret = createStdoutLogLocation(&csllp, &pils->ils_pjlllStdout);
     }
 
+    /*Create file log location.*/
     if (plsip->lsip_bLogToFile)
     {
         create_file_log_location_param_t cfllp;
@@ -355,12 +381,15 @@ u32 initLogSave(log_save_init_param_t * plsip)
 
     assert(plsip != NULL);
     assert(! pils->ils_bInitialized);
-    
-    JF_LOGGER_DEBUG("init");
 
+    JF_LOGGER_DEBUG(
+        "LogToStdout: %u, LogToFile: %u", plsip->lsip_bLogToStdout, plsip->lsip_bLogToFile);
+
+    /*Initialize the internal log save object.*/
     ol_bzero(pils, sizeof(internal_log_save_t));
     jf_listhead_init(&pils->ils_jlLogList);
 
+    /*Initialize the mutex.*/
     u32Ret = jf_mutex_init(&pils->ils_jmLock);
 
     /*Create log location.*/
@@ -392,17 +421,21 @@ u32 finiLogSave(void)
     /*Destroy the log list.*/
     _destroyLogList(pils);
 
-    /*Destroy log locations.*/
+    /*Destroy stdout log locations.*/
     if (pils->ils_pjlllStdout != NULL)
         destroyStdoutLogLocation(&pils->ils_pjlllStdout);
+
+    /*Destroy file log locations.*/
     if (pils->ils_pjlllFile != NULL)
         destroyFileLogLocation(&pils->ils_pjlllFile);
 
 #if defined(LINUX)
+    /*Destroy TTY log locations.*/
     if (pils->ils_pjlllTty != NULL)
         destroyTtyLogLocation(&pils->ils_pjlllTty);
 #endif
 
+    /*Finalize the mutex.*/
     jf_mutex_fini(&pils->ils_jmLock);
 
     pils->ils_bInitialized = FALSE;
@@ -446,8 +479,6 @@ u32 stopLogSave(void)
     return u32Ret;
 }
 
-/** Save log to queue.
- */
 u32 saveLogToQueue(
     u64 u64Time, const olchar_t * pstrBanner, const olchar_t * pstrLog)
 {
@@ -458,7 +489,7 @@ u32 saveLogToQueue(
     if (! pils->ils_bInitialized)
         return JF_ERR_NOT_INITIALIZED;
 
-    /*Create log.*/
+    /*Create save log object.*/
     u32Ret = _createLogSaveLog(u64Time, pstrBanner, pstrLog, &plsl);
 
     /*Add log to list.*/
