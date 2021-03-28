@@ -77,6 +77,7 @@ static u32 _startServMgmtServ(internal_serv_mgmt_t * pism, internal_service_info
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t strCmdLine[2 * JF_LIMIT_MAX_PATH_LEN + 128];
 
+    pisi->isi_u8Status = JF_SERV_STATUS_STARTING;
     ol_bzero(strCmdLine, sizeof(strCmdLine));
 
     if (pisi->isi_pstrCmdParam == NULL)
@@ -149,8 +150,8 @@ static u32 _utimerStartService(void * pData)
     JF_LOGGER_DEBUG(
         "service: %s, status: %s", pisi->isi_pstrName, getStringServStatus(pisi->isi_u8Status));
 
-    /*Start the service in "running" status, the service is failed to be started before.*/
-    if (pisi->isi_u8Status == JF_SERV_STATUS_RUNNING)
+    /*Start the service in "stopped" status, the service is failed to be started before.*/
+    if (pisi->isi_u8Status == JF_SERV_STATUS_STOPPED)
         u32Ret = _startServMgmtServ(psmu->smu_pismServMgmt, pisi);
 
     return u32Ret;
@@ -240,10 +241,15 @@ static u32 _stopServMgmtServ(
 
     JF_LOGGER_INFO("service: %s", pisi->isi_pstrName);
 
+    pisi->isi_u8Status = JF_SERV_STATUS_STOPPING;
+
     /*Terminate the process.*/
     u32Ret = jf_process_terminate(&pisi->isi_jphHandle);
+
     if (u32Ret == JF_ERR_NO_ERROR)
         pisi->isi_u8Status = JF_SERV_STATUS_STOPPED;
+    else  /*Set the status to "running" if failed to terminate the process.*/
+        pisi->isi_u8Status = JF_SERV_STATUS_RUNNING;
 
     return u32Ret;
 }
@@ -283,82 +289,57 @@ static void _dumpServMgmtInfo(internal_service_info_t * pisi)
         getStringServStatus(pisi->isi_u8Status));
 }
 
-static u32 _waitForChildProcess(
-    internal_serv_mgmt_t * pism, jf_process_handle_t pid[], u32 u32Count, boolean_t * pbRetry)
-{
-    u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32ServIndex, u32Index;
-	u8 u8Reason;
-    internal_service_info_t * pisi = NULL;
-    internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
-    s32 ret = 0;
-
-    JF_LOGGER_DEBUG("wait for child");
-
-    /*Wait for terminated child process.*/
-    u32Ret = jf_process_waitForChildProcessTermination(pid, u32Count, 0, &u32Index, &u8Reason);
-    if (u32Ret == JF_ERR_NO_ERROR)
-    {
-        JF_LOGGER_DEBUG("wait for child, terminated by %u", u8Reason);
-
-        jf_mutex_acquire(&pism->ism_jmLock);
-
-        /*Iterate the service array.*/
-        for (u32ServIndex = 0; u32ServIndex < pisms->isms_u16NumOfService; u32ServIndex ++)
-        {
-            pisi = &(pisms->isms_isiService[u32ServIndex]);
-
-            ret = ol_memcmp(&(pid[u32Index]), &pisi->isi_jphHandle, sizeof(jf_process_handle_t));
-            if ((pisi->isi_u8Status == JF_SERV_STATUS_RUNNING) && (ret == 0))
-            {
-                /*The terminated process is found.*/
-                _dumpServMgmtInfo(pisi);
-                _tryStartServMgmtServ(pism, pisi);
-                *pbRetry = TRUE;
-                break;
-            }
-        }
-
-        jf_mutex_release(&pism->ism_jmLock);
-    }
-
-    return u32Ret;
-}
-
-static u32 _handleChildProcess(boolean_t * pbRetry)
+/** Handle SIGCHLD signal for child process.
+ *
+ *  @note
+ *  -# If child process is terminated, we should retry checking all child processes, the testing
+ *   shows only 1 SIGCHLD is received when there are more than 1 processes are terminated.
+ *
+ */
+static u32 _handleChildProcess(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_serv_mgmt_t * pism = &ls_ismServMgmt;
     internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
-    jf_process_handle_t pid[JF_SERV_MAX_NUM_OF_SERV];
-    u32 u32ServIndex, u32Count;
+    u16 u16ServIndex = 0;
+    u8 u8Reason = 0;
+    u32 u32Index = 0;
     internal_service_info_t * pisi = NULL;
 
-    JF_LOGGER_INFO("handle child process");
+    JF_LOGGER_DEBUG("handle child process");
 
     jf_mutex_acquire(&pism->ism_jmLock);
 
-    /*Build the process handle array.*/
-    for (u32Count = 0, u32ServIndex = 0;
-         u32ServIndex < pisms->isms_u16NumOfService; u32ServIndex ++)
+    /*Iterate through the service array.*/
+    for (u16ServIndex = 0; u16ServIndex < pisms->isms_u16NumOfService; u16ServIndex ++)
     {
-        pisi = &(pisms->isms_isiService[u32ServIndex]);
+        pisi = &(pisms->isms_isiService[u16ServIndex]);
 
+        /*Only services with running state are checked.*/
         if ((pisi->isi_u8Status == JF_SERV_STATUS_RUNNING) &&
             jf_process_isValidHandle(&pisi->isi_jphHandle))
         {
-            ol_memcpy(&pid[u32Count], &pisi->isi_jphHandle, sizeof(jf_process_handle_t));
-            u32Count ++;
+            /*Test if the child process is terminated.*/
+            u32Ret = jf_process_waitForChildProcessTermination(
+                &pisi->isi_jphHandle, 1, 0, &u32Index, &u8Reason);
+
+            if (u32Ret == JF_ERR_NO_ERROR)
+            {
+                /*The process is terminated.*/
+                JF_LOGGER_DEBUG(
+                    "reason: %u, %s", u8Reason, jf_process_getStringTerminationReason(u8Reason));
+
+                _dumpServMgmtInfo(pisi);
+
+                pisi->isi_u8Status = JF_SERV_STATUS_STOPPED;
+
+                /*Try to start the service.*/
+                _tryStartServMgmtServ(pism, pisi);
+            }
         }
     }
 
     jf_mutex_release(&pism->ism_jmLock);
-
-    /*Waiting for terminated child process.*/
-    if (u32Count > 0)
-    {
-        u32Ret = _waitForChildProcess(pism, pid, u32Count, pbRetry);
-    }
 
     return u32Ret;
 }
@@ -366,18 +347,9 @@ static u32 _handleChildProcess(boolean_t * pbRetry)
 static u32 _handleSigchldForChildProcess(void * pData)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    boolean_t bRetry = FALSE;
 
-    do
-    {
-        /*If child process is terminated, we should retry checking the other child process, the
-          testing shows only 1 SIGCHLD is received when there are more than 1 processes are
-          terminated.*/
-        bRetry = FALSE;
-
-        _handleChildProcess(&bRetry);
-
-    } while (bRetry);
+    /*Handle child processes.*/
+    u32Ret = _handleChildProcess();
 
     return u32Ret;
 }
@@ -404,10 +376,6 @@ static u32 _initServMgmt(internal_serv_mgmt_t * pism, serv_mgmt_init_param_t * p
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_network_createUtimer(psmip->smip_pjncChain, &pism->ism_pjnuUtimer, "dongyuan");
 
-    /*Start all services in setting file.*/
-    if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = _startAllServices(pism);
-
     return u32Ret;
 }
 
@@ -416,13 +384,13 @@ static u32 _findServMgmtServ(
     internal_service_info_t ** ppServ)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32ServIndex = 0;
+    u16 u16ServIndex = 0;
     internal_service_info_t * pisi = NULL;
 
     /*Iterate the service array to find the service by name.*/
-    for (u32ServIndex = 0; u32ServIndex < pisms->isms_u16NumOfService; u32ServIndex ++)
+    for (u16ServIndex = 0; u16ServIndex < pisms->isms_u16NumOfService; u16ServIndex ++)
     {
-        pisi = &pisms->isms_isiService[u32ServIndex];
+        pisi = &pisms->isms_isiService[u16ServIndex];
 
         if (ol_strcmp(pisi->isi_pstrName, pstrName) == 0)
         {
@@ -432,7 +400,7 @@ static u32 _findServMgmtServ(
     }
 
     /*Iterate to the end of the array, the service is not found.*/
-    if (u32ServIndex == pisms->isms_u16NumOfService)
+    if (u16ServIndex == pisms->isms_u16NumOfService)
         u32Ret = JF_ERR_SERV_NOT_FOUND;
 
     return u32Ret;
@@ -472,7 +440,7 @@ u32 finiServMgmt(void)
     /*Ignore SIGCHLD before stopping daemon.*/
     jf_process_ignoreSignal(SIGCHLD);
 
-    /*Stop all service.*/
+    /*Stop all services.*/
     _stopAllServices(pism);
 
     /*Free the resource in setting.*/
@@ -489,7 +457,10 @@ u32 finiServMgmt(void)
 u32 startServMgmt(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-//    internal_serv_mgmt_t * pism = &ls_ismServMgmt;
+    internal_serv_mgmt_t * pism = &ls_ismServMgmt;
+
+    /*Start all services in setting file.*/
+    u32Ret = _startAllServices(pism);
 
     return u32Ret;
 }
@@ -514,12 +485,12 @@ u32 getServMgmtServInfo(const olchar_t * pstrName, jf_serv_info_t * pjsi)
     jf_mutex_acquire(&pism->ism_jmLock);
 
     u32Ret = _findServMgmtServ(pstrName, pisms, &pisi);
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_strcpy(pjsi->jsi_strName, pisi->isi_pstrName);
         pjsi->jsi_u8Status = pisi->isi_u8Status;
         pjsi->jsi_u8StartupType = pisi->isi_u8StartupType;
-
     }
 
     jf_mutex_release(&pism->ism_jmLock);
@@ -530,7 +501,7 @@ u32 getServMgmtServInfo(const olchar_t * pstrName, jf_serv_info_t * pjsi)
 u32 getServMgmtServInfoList(jf_serv_info_list_t * pjsil)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32ServIndex = 0;
+    u16 u16ServIndex = 0;
     internal_serv_mgmt_t * pism = &ls_ismServMgmt;
     internal_serv_mgmt_setting_t * pisms = &pism->ism_ismsSetting;
     internal_service_info_t * pisi = NULL;
@@ -541,9 +512,9 @@ u32 getServMgmtServInfoList(jf_serv_info_list_t * pjsil)
     jf_mutex_acquire(&pism->ism_jmLock);
     
     /*Copy the service information from internal data structure to the list.*/
-    for (u32ServIndex = 0; u32ServIndex < pisms->isms_u16NumOfService; u32ServIndex ++)
+    for (u16ServIndex = 0; u16ServIndex < pisms->isms_u16NumOfService; u16ServIndex ++)
     {
-        pisi = &pisms->isms_isiService[u32ServIndex];
+        pisi = &pisms->isms_isiService[u16ServIndex];
 
         pjsi = &pjsil->jsil_jsiService[pjsil->jsil_u16NumOfService];
 
@@ -594,8 +565,6 @@ u32 startServMgmtServ(const olchar_t * pstrName)
     
     if ((u32Ret == JF_ERR_NO_ERROR) && (pisi->isi_u8Status != JF_SERV_STATUS_RUNNING))
     {
-        pisi->isi_u8Status = JF_SERV_STATUS_STARTING;
-
         u32Ret = _startServMgmtServ(&ls_ismServMgmt, pisi);
     }
 
@@ -641,8 +610,6 @@ u32 handleServMgmtSignal(olint_t sig)
 
     if (sig == SIGCHLD)
     {
-        JF_LOGGER_INFO("get signal SIGCHLD");
-
         if (pism->ism_pjnuUtimer != NULL)
             jf_network_addUtimerItem(
                 pism->ism_pjnuUtimer, pism, 0, _handleSigchldForChildProcess, NULL);
