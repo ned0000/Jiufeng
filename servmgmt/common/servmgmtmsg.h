@@ -1,7 +1,7 @@
 /**
  *  @file servmgmtmsg.h
  *
- *  @brief Message definition, the message is used between serv library and dongyuan
+ *  @brief Message definition, the message is used between service control utility and daemon.
  *
  *  @author Min Zhang
  *
@@ -12,10 +12,11 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
+
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
-#include "jf_sharedmemory.h"
 #include "jf_serv.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
@@ -26,7 +27,7 @@
 
 /* --- data structures -------------------------------------------------------------------------- */
 
-/** service management message header
+/** Define the service management message header.
  */
 typedef struct 
 {
@@ -44,6 +45,8 @@ typedef struct
     u32 smh_u32Reserved[3];
 } servmgmt_msg_header_t;
 
+/** Define the service management message ID.
+ */
 typedef enum
 {
     SERVMGMT_MSG_ID_UNKNOWN = 0,
@@ -60,12 +63,16 @@ typedef enum
     SERVMGMT_MSG_ID_MAX,
 } servmgmt_msg_id_t;
 
+/** Define the get service information list request.
+ */
 typedef struct
 {
     servmgmt_msg_header_t sgilr_smhHeader;
 
 } servmgmt_get_info_list_req_t;
 
+/** Define the get service information list response.
+ */
 typedef struct
 {
     servmgmt_msg_header_t sgilr_smhHeader;
@@ -73,6 +80,8 @@ typedef struct
     jf_serv_info_list_t sgilr_jsilList;
 } servmgmt_get_info_list_resp_t;
 
+/** Define the get service information request.
+ */
 typedef struct
 {
     servmgmt_msg_header_t sgir_smhHeader;
@@ -80,6 +89,8 @@ typedef struct
     olchar_t sgir_strName[JF_SERV_MAX_SERV_NAME_LEN];
 } servmgmt_get_info_req_t;
 
+/** Define the get service information response.
+ */
 typedef struct
 {
     servmgmt_msg_header_t sgir_smhHeader;
@@ -87,6 +98,8 @@ typedef struct
     jf_serv_info_t sgir_jsiInfo;
 } servmgmt_get_info_resp_t;
 
+/** Define the start service request.
+ */
 typedef struct
 {
     servmgmt_msg_header_t sssr_smhHeader;
@@ -94,11 +107,15 @@ typedef struct
     olchar_t sssr_strName[JF_SERV_MAX_SERV_NAME_LEN];
 } servmgmt_start_serv_req_t;
 
+/** Define the start service response.
+ */
 typedef struct
 {
     servmgmt_msg_header_t sssr_smhHeader;
 } servmgmt_start_serv_resp_t;
 
+/** Define the stop service request.
+ */
 typedef struct
 {
     servmgmt_msg_header_t sssr_smhHeader;
@@ -106,12 +123,16 @@ typedef struct
     olchar_t sssr_strName[JF_SERV_MAX_SERV_NAME_LEN];
 } servmgmt_stop_serv_req_t;
 
+/** Define the stop service response.
+ */
 typedef struct
 {
     servmgmt_msg_header_t sssr_smhHeader;
 
 } servmgmt_stop_serv_resp_t;
 
+/** Define the set service startup type request.
+ */
 typedef struct
 {
     servmgmt_msg_header_t ssstr_smhHeader;
@@ -121,6 +142,8 @@ typedef struct
     u8 ssstr_u8Reserved[7];
 } servmgmt_set_startup_type_req_t;
 
+/** Define the set service startup type response.
+ */
 typedef struct
 {
     servmgmt_msg_header_t ssstr_smhHeader;
@@ -134,5 +157,3 @@ typedef struct
 #endif /*SERVMGMT_SERVMGMTMSG_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

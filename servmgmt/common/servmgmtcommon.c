@@ -1,7 +1,7 @@
 /**
  *  @file servmgmtcommon.c
  *
- *  @brief The service management common routine
+ *  @brief Implementation file for common routines of service management.
  *
  *  @author Min Zhang
  *
@@ -10,17 +10,12 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
-#include "jf_sharedmemory.h"
-#include "jf_filestream.h"
-#include "jf_process.h"
-#include "jf_attask.h"
-#include "jf_time.h"
 #include "jf_serv.h"
 
 #include "servmgmtcommon.h"
@@ -84,5 +79,3 @@ u32 getServStartupTypeFromString(const olchar_t * pstrType, u8 * pu8StartupType)
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-
