@@ -428,15 +428,19 @@ u32 jf_process_kill(jf_process_handle_t * pHandle)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    olint_t nRet;
+    olint_t nRet = 0;
 
+    /*Send signal SIGKILL.*/
     nRet = kill(pHandle->jpi_pId, SIGKILL);
+
     if (nRet != 0)
         u32Ret = JF_ERR_FAIL_TERMINATE_PROCESS;
     else
         jf_process_initHandle(pHandle);
+
 #elif defined(WINDOWS)
     u32Ret = JF_ERR_NOT_IMPLEMENTED;
+
 #endif
 
     return u32Ret;
@@ -446,15 +450,18 @@ u32 jf_process_terminate(jf_process_handle_t * pHandle)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 #if defined(LINUX)
-    olint_t nRet;
+    olint_t nRet = 0;
 
+    /*Send signal SIGTERM.*/
     nRet = kill(pHandle->jpi_pId, SIGTERM);
+
     if (nRet != 0)
         u32Ret = JF_ERR_FAIL_TERMINATE_PROCESS;
     else
         jf_process_initHandle(pHandle);
+
 #elif defined(WINDOWS)
-    boolean_t bRet;
+    boolean_t bRet = 0;
     u32 u32ExitCode = 0;
 
     bRet = TerminateProcess(pHandle->jpi_hProcess, u32ExitCode);
@@ -468,6 +475,7 @@ u32 jf_process_terminate(jf_process_handle_t * pHandle)
 
         jf_process_initHandle(pHandle);
     }
+
 #endif
 
     return u32Ret;
@@ -594,14 +602,17 @@ u32 jf_process_registerSignalHandlers(jf_process_fnSignalHandler_t fnSignalHandl
     nIndex = 0;
 
 #if defined(WINDOWS)
+    /*Iterate through the signal array.*/
     while ((u32Ret == JF_ERR_NO_ERROR) && (nIndex < nSignalCount))
     {
         signal(nSignals[nIndex], fnSignalHandler);
         nIndex ++;
     }
 #elif defined(LINUX)
+    /*Iterate through the signal array.*/
     while ((u32Ret == JF_ERR_NO_ERROR) && (nIndex < nSignalCount))
     {
+        /*Initializes the signal set.*/
         nRet = sigemptyset(&ssSignalSet);
         if (nRet == -1)
         {
@@ -609,6 +620,7 @@ u32 jf_process_registerSignalHandlers(jf_process_fnSignalHandler_t fnSignalHandl
         }
         else
         {
+            /*add signal to set.*/
             nRet = sigaddset(&ssSignalSet, nSignals[nIndex]);
             if (nRet == -1)
             {
@@ -616,6 +628,7 @@ u32 jf_process_registerSignalHandlers(jf_process_fnSignalHandler_t fnSignalHandl
             }
         }
 
+        /*Set signal handler.*/
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             /*act.sa_sigaction = fnSignalHandler;*/
