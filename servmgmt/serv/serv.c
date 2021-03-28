@@ -10,13 +10,11 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
-#include "jf_limit.h"
-#include "jf_time.h"
 #include "jf_serv.h"
 #include "jf_mutex.h"
 #include "jf_ipaddr.h"
@@ -296,5 +294,3 @@ u32 jf_serv_getServStartupTypeFromString(const olchar_t * pstrType, u8 * pu8Star
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-
