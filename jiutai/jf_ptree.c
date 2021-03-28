@@ -1174,7 +1174,10 @@ u32 jf_ptree_getNodeName(jf_ptree_node_t * pNode, olchar_t ** ppstrName, olsize_
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ptree_node_t * temp = (internal_ptree_node_t *)pNode;
 
+    /*Set name.*/
     *ppstrName = temp->ipn_pstrName;
+
+    /*Set size if it's not NULL.*/
     if (psName != NULL)
         *psName = temp->ipn_sName;
 
@@ -1186,7 +1189,10 @@ u32 jf_ptree_getNodeValue(jf_ptree_node_t * pNode, olchar_t ** ppstrValue, olsiz
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_ptree_node_t * pipn = (internal_ptree_node_t *)pNode;
 
+    /*Set value.*/
     *ppstrValue = pipn->ipn_pstrValue;
+
+    /*Set size if it's not NULL.*/
     if (psValue != NULL)
         *psValue = pipn->ipn_sValue;
 
