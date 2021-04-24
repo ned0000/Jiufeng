@@ -37,8 +37,7 @@ typedef struct
 
     /**Maximum number of transaction.*/
     u16 icms_u16MaxNumOfTransaction;
-    u16 icms_u16MaxNumOfConnection;
-    u8 icms_u8Reserved[3];
+    u8 icms_u8Reserved[5];
     /**Config persistency type, refer to config_mgr_config_persistency_type_t.*/
     u8 icms_u8ConfigPersistencyType;
     /**Config persistency location, it's the file path.*/

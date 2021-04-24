@@ -2,7 +2,6 @@
 <configMgrSetting>
   <version>1.0</version>
   <globalSetting>
-    <maxNumOfConnection>10</maxNumOfConnection>
     <maxNumOfTransaction>10</maxNumOfTransaction>
   </globalSetting>
   <configSetting>

@@ -1,7 +1,7 @@
 /**
  *  @file configmgrsetting.c
  *
- *  @brief Parse config manager setting file.
+ *  @brief Implementation file for parsing config manager setting file.
  *
  *  @author Min Zhang
  *
@@ -45,11 +45,6 @@
  */
 #define CMSN_MAX_NUM_TRAN                       CMSN_GLOBAL_SETTING ".maxNumOfTransaction"
 #define CMSN_MAX_NUM_TRAN_LEN                   ol_strlen(CMSN_MAX_NUM_TRAN)
-
-/** The node path of max number of connection.
- */
-#define CMSN_MAX_NUM_CONN                       CMSN_GLOBAL_SETTING ".maxNumOfConnection"
-#define CMSN_MAX_NUM_CONN_LEN                   ol_strlen(CMSN_MAX_NUM_CONN)
 
 /** The node path of config setting.
  */
@@ -101,17 +96,6 @@ static u32 _parseConfigMgrGlobalSetting(internal_config_mgr_setting_t * picms)
 
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_string_getU16FromString(pstrValue, sValue, &picms->icms_u16MaxNumOfTransaction);
-
-    /*Find the child node with max num of connection.*/
-    if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_findNode(
-        picms->icms_pjpSetting, CMSN_MAX_NUM_CONN, CMSN_MAX_NUM_CONN_LEN, &pNode);
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_ptree_getNodeValue(pNode, &pstrValue, &sValue);
-
-    if (u32Ret == JF_ERR_NO_ERROR)
-        u32Ret = jf_string_getU16FromString(pstrValue, sValue, &picms->icms_u16MaxNumOfConnection);
 
     return u32Ret;
 }
@@ -170,11 +154,11 @@ u32 readConfigMgrSetting(internal_config_mgr_setting_t * picms)
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _parseConfigMgrConfigSetting(picms);
 
+    /*Print the settings.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         JF_LOGGER_INFO("version     : %s", picms->icms_pstrVersion);
         JF_LOGGER_INFO("max number of transaction: %u", picms->icms_u16MaxNumOfTransaction);
-        JF_LOGGER_INFO("max number of connection: %u", picms->icms_u16MaxNumOfConnection);
         JF_LOGGER_INFO(
             "config persistency type: %s(%u)",
             getStringConfigPersistencyType(picms->icms_u8ConfigPersistencyType),

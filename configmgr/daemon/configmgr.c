@@ -33,10 +33,6 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/** Maximum connection in async server socket.
- */
-#define CONFIG_MGR_DEFAULT_NUM_OF_CONN                (3)
-
 /** Default config manager setting file.
  */
 #define CONFIG_MGR_DEFAULT_SETTING_FILE               "../config/configmgr.setting"
@@ -422,7 +418,8 @@ static u32 _createConfigMgrAssocket(internal_config_mgr_t * picm, config_mgr_par
     ol_bzero(&jnacp, sizeof(jnacp));
 
     jnacp.jnacp_sInitialBuf = CONFIG_MGR_MAX_MSG_SIZE;
-    jnacp.jnacp_u32MaxConn = picm->icm_icmsSetting.icms_u16MaxNumOfTransaction;
+    /*Number of connection is double of number of transaction.*/
+    jnacp.jnacp_u32MaxConn = picm->icm_icmsSetting.icms_u16MaxNumOfTransaction * 2;
     jf_ipaddr_setUdsAddr(&jnacp.jnacp_jiServer, CONFIG_MGR_SERVER_ADDR);
     jnacp.jnacp_fnOnConnect = _onConfigMgrConnect;
     jnacp.jnacp_fnOnDisconnect = _onConfigMgrDisconnect;
@@ -484,8 +481,6 @@ u32 initConfigMgr(config_mgr_param_t * pcmp)
     {
         if (picms->icms_u16MaxNumOfTransaction == 0)
             picms->icms_u16MaxNumOfTransaction = CONFIG_MGR_DEFAULT_MAX_TRANSACTION;
-        if (picms->icms_u16MaxNumOfConnection == 0)
-            picms->icms_u16MaxNumOfTransaction = CONFIG_MGR_DEFAULT_NUM_OF_CONN;
     }
 
     /*Initialize the config tree module.*/
