@@ -30,13 +30,18 @@
  */
 typedef struct
 {
+    /**Setting file.*/
     olchar_t icms_strSettingFile[JF_LIMIT_MAX_PATH_LEN];
+    /**Setting version.*/
     olchar_t * icms_pstrVersion;
 
+    /**Maximum number of transaction.*/
     u16 icms_u16MaxNumOfTransaction;
     u16 icms_u16MaxNumOfConnection;
     u8 icms_u8Reserved[3];
+    /**Config persistency type, refer to config_mgr_config_persistency_type_t.*/
     u8 icms_u8ConfigPersistencyType;
+    /**Config persistency location, it's the file path.*/
     olchar_t * icms_pstrConfigPersistencyLocation;
 
     /**The property tree representing the setting file.*/
@@ -48,10 +53,20 @@ typedef struct
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Read service management setting file.
+ *
+ *  @param picms [in] The internal setting object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
-u32 readConfigMgrSetting(internal_config_mgr_setting_t * pisms);
+u32 readConfigMgrSetting(internal_config_mgr_setting_t * picms);
 
 /** Free the resource in setting.
+ *
+ *  @param picms [in] The internal setting object.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 freeConfigMgrSetting(internal_config_mgr_setting_t * picms);
 

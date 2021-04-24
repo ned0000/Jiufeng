@@ -12,11 +12,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -144,6 +143,7 @@ static u32 _serviceConfigMgr(olint_t argc, char** argv)
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
 
+    /*Initialize the parameter for config manager service.*/
     setDefaultConfigMgrParam(&cmp);
     cmp.cmp_pstrCmdLine = argv[0];
 
@@ -162,25 +162,29 @@ static u32 _serviceConfigMgr(olint_t argc, char** argv)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /*Init the logger.*/
+        /*Initialize the logger library.*/
         jf_logger_init(&jlipParam);
 
-        /*Init jiukun library for memory allocation.*/
+        /*Initialize jiukun library for memory allocation.*/
         u32Ret = jf_jiukun_init(&jjip);
         if (u32Ret == JF_ERR_NO_ERROR)
         {
-            /*Init socket library.*/
+            /*Initialize socket.*/
             u32Ret = jf_process_initSocket();
             if (u32Ret == JF_ERR_NO_ERROR)
             {
+                /*Initialize and start config manager service.*/
                 u32Ret = _initAndStartConfigMgr(&cmp);
 
+                /*Finalize socket.*/
                 jf_process_finiSocket();
             }
 
+            /*Finalize jiukun library.*/
             jf_jiukun_fini();
         }
 
+        /*Finalize the logger library.*/
         jf_logger_fini();
     }
 

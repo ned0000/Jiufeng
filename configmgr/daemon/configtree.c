@@ -68,6 +68,7 @@ static u32 _initConfigTree(internal_config_tree_t * pict, config_tree_init_param
     olsize_t sMem = 0;
     internal_config_mgr_setting_t * picms = pctip->ctip_picmsSetting;
 
+    /*Initialize the internal config tree instance.*/
     ol_bzero(pict, sizeof(*pict));
     pict->ict_picmsSetting = picms;
     pict->ict_nTransactionTimeOut = JF_CONFIG_DEFAULT_TRANSACTION_TIME_OUT;
@@ -75,6 +76,7 @@ static u32 _initConfigTree(internal_config_tree_t * pict, config_tree_init_param
     assert(picms->icms_u16MaxNumOfTransaction > 0);
     sMem = sizeof(internal_config_tree_transaction_t) * picms->icms_u16MaxNumOfTransaction;
 
+    /*Allocate memory for transactions.*/
     u32Ret = jf_jiukun_allocMemory((void **)&pict->ict_picttTransaction, sMem);
     if (u32Ret == JF_ERR_NO_ERROR)
     {
@@ -86,9 +88,11 @@ static u32 _initConfigTree(internal_config_tree_t * pict, config_tree_init_param
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_mutex_init(&pict->ict_jmLock);
 
+    /*Create property tree for config.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_create(&pict->ict_pjpConfig);
 
+    /*Load config from persistency.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = loadConfigFromPersistency(
             picms->icms_u8ConfigPersistencyType, picms->icms_pstrConfigPersistencyLocation,
@@ -105,8 +109,10 @@ static u32 _initConfigTreeTransaction(internal_config_tree_transaction_t * pictt
 
     JF_LOGGER_DEBUG("id: %u", pictt->ictt_u32TransactionId);
 
+    /*Create property tree.*/
     u32Ret = jf_ptree_create(&pictt->ictt_pjpConfig);
 
+    /*Set the start time of transaction.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_time_getMonotonicRawTimeInSecond(&pictt->ictt_u64StartTime);
 
@@ -123,9 +129,11 @@ static u32 _finiConfigTreeTransaction(internal_config_tree_transaction_t * pictt
 
     JF_LOGGER_DEBUG("id: %u", pictt->ictt_u32TransactionId);
 
+    /*Destroy property tree.*/
     if (pictt->ictt_pjpConfig != NULL)
         u32Ret = jf_ptree_destroy(&pictt->ictt_pjpConfig);
 
+    /*Initialize other fields.*/
     pictt->ictt_u32TransactionId = JF_CONFIG_INVALID_TRANSACTION_ID;
     pictt->ictt_u64StartTime = 0;
 
@@ -162,6 +170,7 @@ static u32 _findConfigTreeTransaction(
     {
         pictt = &pict->ict_picttTransaction[index];
 
+        /*Free time out transaction.*/
         if ((pictt->ictt_u32TransactionId != JF_CONFIG_INVALID_TRANSACTION_ID) &&
             _isExpiredConfigTreeTransaction(pict, pictt))
         {
@@ -169,8 +178,10 @@ static u32 _findConfigTreeTransaction(
             _finiConfigTreeTransaction(pictt);
         }
 
+        /*Test the transaction id.*/
         if (pictt->ictt_u32TransactionId == u32TransactionId)
         {
+            /*Transaction id is matching.*/
             *ppTransaction = pictt;
             u32Ret = JF_ERR_NO_ERROR;
             break;
@@ -188,16 +199,19 @@ static u32 _getConfigTreeTransaction(
 
     jf_mutex_acquire(&pict->ict_jmLock);
 
+    /*Find the transaction.*/
     u32Ret = _findConfigTreeTransaction(pict, JF_CONFIG_INVALID_TRANSACTION_ID, &pictt);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         assert(pictt->ictt_pjpConfig == NULL);
 
+        /*Initialize the transaction.*/
         u32Ret = _initConfigTreeTransaction(pictt);
     }
     else
     {
+        /*Maximum transaction is reached.*/
         u32Ret = JF_ERR_REACH_MAX_TRANSACTION;
     }
 
@@ -241,6 +255,7 @@ static u32 _setConfigInTransaction(
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _findConfigTreeTransaction(pict, u32TransactionId, &pictt);
 
+    /*Set config into the property tree for the transaction.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_replaceNode(
             pictt->ictt_pjpConfig, pstrName, sName, pstrValue, sValue, NULL);
@@ -440,6 +455,7 @@ u32 startConfigTreeTransaction(u32 * pu32TransactionId)
     internal_config_tree_t * pict = &ls_ictConfigTree;
     internal_config_tree_transaction_t * pictt = NULL;
 
+    /*Get a free transaction.*/
     u32Ret = _getConfigTreeTransaction(pict, &pictt);
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -462,15 +478,19 @@ u32 commitConfigTreeTransaction(u32 u32TransactionId)
 
     jf_mutex_acquire(&pict->ict_jmLock);
 
+    /*Find the transaction.*/
     u32Ret = _findConfigTreeTransaction(pict, u32TransactionId, &pictt);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Commit the transaction.*/
         u32Ret = _commitConfigTreeTransaction(pict, pictt);
 
+        /*Set the config change flag to TRUE.*/
         if (u32Ret == JF_ERR_NO_ERROR)
             pict->ict_bConfigChanged = TRUE;
 
+        /*Finalize the transaction.*/
         _finiConfigTreeTransaction(pictt);
     }
 
@@ -489,8 +509,10 @@ u32 rollbackConfigTreeTransaction(u32 u32TransactionId)
 
     jf_mutex_acquire(&pict->ict_jmLock);
 
+    /*Find the transaction.*/
     u32Ret = _findConfigTreeTransaction(pict, u32TransactionId, &pictt);
 
+    /*Finalize the transaction.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         _finiConfigTreeTransaction(pictt);
 

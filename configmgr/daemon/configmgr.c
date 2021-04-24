@@ -49,14 +49,18 @@
  */
 typedef struct
 {
+    /**This module is initialized if it's TRUE.*/
     boolean_t icm_bInitialized;
     u8 icm_u8Reserved[7];
 
     u32 icm_u32Reserved[8];
 
+    /**The network chain.*/
     jf_network_chain_t * icm_pjncConfigMgrChain;
+    /**The async server socket for message.*/
     jf_network_assocket_t * icm_pjnaConfigMgrAssocket;
 
+    /**The internal setting object.*/
     internal_config_mgr_setting_t icm_icmsSetting;
 
 } internal_config_mgr_t;
@@ -148,6 +152,7 @@ static u32 _procesConfigMgrMsgGetConfig(
             pResp->cmgcr_u16ValueLen = (u16)sValue;
         }
 
+        /*Initialize the header of response.*/
         _initConfigMgrRespMsgHeader(
             (config_mgr_msg_header_t *)pResp, (config_mgr_msg_header_t *)pReq,
             CMMI_GET_CONFIG_RESP, sizeof(*pResp) + pResp->cmgcr_u16ValueLen);
@@ -194,6 +199,7 @@ static u32 _procesConfigMgrMsgSetConfig(
                 pReq->cmscr_cmmhHeader.cmmh_u32TransactionId, pstrName, sName, pstrValue, sValue);
         }
 
+        /*Initialize the header of response.*/
         _initConfigMgrRespMsgHeader(
             (config_mgr_msg_header_t *)&resp, (config_mgr_msg_header_t *)pReq,
             CMMI_SET_CONFIG_RESP, sizeof(resp));
@@ -221,10 +227,12 @@ static u32 _procesConfigMgrMsgStartTransaction(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Initialize the response.*/
         ol_bzero(&resp, sizeof(resp));
         _initConfigMgrRespMsgHeader(
             (config_mgr_msg_header_t *)&resp, (config_mgr_msg_header_t *)pReq,
             CMMI_START_TRANSACTION_RESP, sizeof(resp));
+
         /*Start transaction.*/
         resp.cmstr_cmmhHeader.cmmh_u32Result = startConfigTreeTransaction(
             &resp.cmstr_cmmhHeader.cmmh_u32TransactionId);
@@ -252,10 +260,12 @@ static u32 _procesConfigMgrMsgCommitTransaction(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Initialize the response.*/
         ol_bzero(&resp, sizeof(resp));
         _initConfigMgrRespMsgHeader(
             (config_mgr_msg_header_t *)&resp, (config_mgr_msg_header_t *)pReq,
             CMMI_COMMIT_TRANSACTION_RESP, sizeof(resp));
+
         /*Commit transaction.*/
         resp.cmctr_cmmhHeader.cmmh_u32Result = commitConfigTreeTransaction(
             pReq->cmctr_cmmhHeader.cmmh_u32TransactionId);
@@ -283,10 +293,12 @@ static u32 _procesConfigMgrMsgRollbackTransaction(
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Initialize the response.*/
         ol_bzero(&resp, sizeof(resp));
         _initConfigMgrRespMsgHeader(
             (config_mgr_msg_header_t *)&resp, (config_mgr_msg_header_t *)pReq,
             CMMI_ROLLBACK_TRANSACTION_RESP, sizeof(resp));
+
         /*Rollback transaction.*/
         resp.cmrtr_cmmhHeader.cmmh_u32Result = rollbackConfigTreeTransaction(
             pReq->cmrtr_cmmhHeader.cmmh_u32TransactionId);
@@ -394,7 +406,8 @@ static u32 _onConfigMgrData(
 
     JF_LOGGER_DEBUG("begin: %d, end: %d", sBegin, sEndPointer);
 
-    /*Process the config  manager message.*/
+    /*Process the config manager message, no more message since the client is waiting for
+      response.*/
     u32Ret = _procesConfigMgrMsg(pAssocket, pAsocket, pu8Buffer, psBeginPointer, sEndPointer);
 
     return u32Ret;
@@ -417,7 +430,7 @@ static u32 _createConfigMgrAssocket(internal_config_mgr_t * picm, config_mgr_par
     jnacp.jnacp_fnOnData = _onConfigMgrData;
     jnacp.jnacp_pstrName = CONFIG_MGR_NAME;
 
-    /*Creat the async server socket.*/
+    /*Create the async server socket.*/
     u32Ret = jf_network_createAssocket(
         picm->icm_pjncConfigMgrChain, &picm->icm_pjnaConfigMgrAssocket, &jnacp);
 
@@ -454,7 +467,7 @@ u32 initConfigMgr(config_mgr_param_t * pcmp)
     /*Change the working directory to the one of executable file.*/
     jf_file_getDirectoryName(
         strExecutablePath, sizeof(strExecutablePath), pcmp->cmp_pstrCmdLine);
-    if (strlen(strExecutablePath) > 0)
+    if (ol_strlen(strExecutablePath) > 0)
         u32Ret = jf_process_setCurrentWorkingDirectory(strExecutablePath);
 
     /*Parse setting file.*/
@@ -510,7 +523,7 @@ u32 finiConfigMgr(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_config_mgr_t * picm = &ls_icmConfigMgr;
 
-    JF_LOGGER_DEBUG("fini");
+    JF_LOGGER_INFO("fini");
 
     /*Destroy the async server socket.*/
     if (picm->icm_pjnaConfigMgrAssocket != NULL)

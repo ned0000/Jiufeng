@@ -95,12 +95,15 @@ static u32 _fnAddConfigToPersistency(jf_ptree_t * pPtree, jf_ptree_node_t * pNod
     if (! jf_ptree_isLeafNode(pNode))
         return u32Ret;
 
+    /*Get config name.*/
     sName = sizeof(strName);
     u32Ret = jf_ptree_getNodeFullName(pPtree, pNode, strName, &sName);
 
+    /*Get config value.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_ptree_getNodeValue(pNode, &pstrValue, &sValue);
 
+    /*Save config to persistency.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         JF_LOGGER_DEBUG(
@@ -142,11 +145,14 @@ u32 loadConfigFromPersistency(u8 u8Type, const olchar_t * pstrLocation, jf_ptree
 
     JF_LOGGER_INFO("type: %s, location: %s", getStringConfigPersistencyType(u8Type), pstrLocation);
 
+    /*Convert the persistency type.*/
     u32Ret = _convertConfigPersistencyType(u8Type, pstrLocation, &ptype, &config);
 
+    /*Create persistency.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_persistency_create(ptype, &config, &pPersistency);
 
+    /*Load config from persistency.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _loadConfigFromPersistency(pPersistency, pjpConfig);;
 

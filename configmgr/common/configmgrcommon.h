@@ -1,7 +1,7 @@
 /**
  *  @file configmgrcommon.h
  *
- *  @brief Service common header file
+ *  @brief Header file for common routines of config manager.
  *
  *  @author Min Zhang
  *
@@ -12,7 +12,9 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
+
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_err.h"
 
@@ -44,19 +46,31 @@ typedef enum
 /* --- functional routines ---------------------------------------------------------------------- */
 
 /** Get persistency type from string.
+ *
+ *  @param pstrType [in] The string of persistency type.
+ *  @param pu8Type [out] The persistency type.
+ *
+ *  @return The error code.
+ *  @retval JF_ERR_NO_ERROR Success.
  */
 u32 getConfigPersistencyTypeFromString(const olchar_t * pstrType, u8 * pu8Type);
 
-/** Get persistency type string.
+/** Get string of persistency type.
+ *
+ *  @param u8Type [in] The persistency type.
+ *
+ *  @return The string of persistency type.
  */
 const olchar_t * getStringConfigPersistencyType(u8 u8Type);
 
-/** Get config manager message size.
+/** Get full config manager message size.
+ *
+ *  @param pHeader [in] The message header.
+ *
+ *  @return The full message size.
  */
 olsize_t getConfigMgrMsgSize(config_mgr_msg_header_t * pHeader);
 
 #endif /*CONFIG_MGR_COMMON_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

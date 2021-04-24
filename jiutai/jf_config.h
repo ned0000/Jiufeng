@@ -24,6 +24,9 @@
  *
  *  @par Config Manager Setting File
  *  -# The setting are defined in the file.
+ *  -# "maxNumTransaction" is the maximum number of client supported.
+ *  -# "configPersistency" can be "conf_file" or "sqlite_db". Property "location" is the location
+ *   of the file or db.
  *  @code
  *  <configMgrSetting>
  *    <version>1.0</version>
@@ -55,6 +58,7 @@
 #define JIUFENG_CONFIG_H
 
 /* --- standard C lib header files -------------------------------------------------------------- */
+
 
 /* --- internal header files -------------------------------------------------------------------- */
 
