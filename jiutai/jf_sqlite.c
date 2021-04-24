@@ -22,7 +22,7 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
-/** The wait time in milli-second when DB is locked.
+/** The wait time in millisecond when DB is locked.
  */
 #define JF_SQLITE_DB_LOCK_WAIT                           (100)
 
@@ -118,6 +118,7 @@ static u32 _jtSqliteExecSql(
         JF_LOGGER_ERR(u32Ret, "sqlite3_prepare_v2 return %d", nRet);
     }
 
+    /*Evaluate the SQL statement.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = _jtSqliteEvalSqlStmt(pjs, bTransaction, fnHandleRowData, pArg, pStmt);
@@ -169,6 +170,8 @@ u32 jf_sqlite_init(jf_sqlite_t * pjs, jf_sqlite_init_param_t * param)
 
     ol_bzero(pjs, sizeof(*pjs));
 
+    /*Set the threading mode to serialized, so application is free to use the same database
+      connection or the same prepared statement in different threads at the same time.*/
     ret = sqlite3_config(SQLITE_CONFIG_SERIALIZED);
     if (ret != SQLITE_OK)
     {
@@ -176,9 +179,9 @@ u32 jf_sqlite_init(jf_sqlite_t * pjs, jf_sqlite_init_param_t * param)
         JF_LOGGER_INFO("sqlite3_config failed");
     }
 
+    /*Open the database.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /*Open the database.*/
         ret = sqlite3_open_v2(
             param->jsip_pstrDbName, &pjs->js_psSqlite,
             SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_FULLMUTEX, NULL);
@@ -191,9 +194,14 @@ u32 jf_sqlite_init(jf_sqlite_t * pjs, jf_sqlite_init_param_t * param)
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /*Set journal mode to persist.*/
+        /*Set journal mode to persist, this mode prevents the rollback journal from being deleted
+          at the end of each transaction.*/
         u32Ret = _jtSqliteExecSql(pjs, "PRAGMA journal_mode=PERSIST;", FALSE, NULL, NULL);
 
+        /*Set a busy handler that sleeps for a specified amount of time when a table is locked.
+          The handler will sleep multiple times until at least milliseconds of sleeping have
+          accumulated. After at least milliseconds of sleeping, the handler returns 0 which causes
+          sqlite3_step() to return SQLITE_BUSY.*/
         if (u32Ret == JF_ERR_NO_ERROR)
         {
             ret = sqlite3_busy_timeout(pjs->js_psSqlite, 500);
@@ -240,10 +248,13 @@ u32 jf_sqlite_rollbackTransaction(jf_sqlite_t * pjs)
     if (! pjs->js_bInitialized)
         return JF_ERR_NOT_INITIALIZED;
 
+    /*Test if the transaction has started. */
     if (! pjs->js_bTransactionStarted)
         return u32Ret;
 
+    /*Execute SQL statement for transaction.*/
     u32Ret = _jtSqliteExecSqlTransaction(pjs, "ROLLBACK TRANSACTION");
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pjs->js_bTransactionStarted = FALSE;
@@ -261,7 +272,9 @@ u32 jf_sqlite_startTransaction(jf_sqlite_t * pjs)
     if (! pjs->js_bInitialized)
         return JF_ERR_NOT_INITIALIZED;
 
+    /*Execute SQL statement for transaction.*/
     u32Ret = _jtSqliteExecSqlTransaction(pjs, "BEGIN IMMEDIATE TRANSACTION");
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pjs->js_bTransactionStarted = TRUE;
@@ -279,10 +292,13 @@ u32 jf_sqlite_commitTransaction(jf_sqlite_t * pjs)
     if (! pjs->js_bInitialized)
         return JF_ERR_NOT_INITIALIZED;
 
+    /*Test if the transaction has started. */
     if (! pjs->js_bTransactionStarted)
         return u32Ret;
 
+    /*Execute SQL statement for transaction.*/
     u32Ret = _jtSqliteExecSqlTransaction(pjs, "COMMIT TRANSACTION");
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         pjs->js_bTransactionStarted = FALSE;
