@@ -40,14 +40,20 @@ static olchar_t * ls_pstrConfigPersistencyType[CMCPT_MAX] =
 u32 getConfigPersistencyTypeFromString(const olchar_t * pstrType, u8 * pu8Type)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
+    u8 u8Index = 0;
 
     *pu8Type = CMCPT_UNKNOWN;
 
-    if (ol_strcmp(pstrType, ls_pstrConfigPersistencyType[CMCPT_CONF_FILE]) == 0)
-        *pu8Type = CMCPT_CONF_FILE;
-    else if (ol_strcmp(pstrType, ls_pstrConfigPersistencyType[CMCPT_SQLITE_DB]) == 0)
-        *pu8Type = CMCPT_SQLITE_DB;
-    else
+    for (u8Index = 0; u8Index < CMCPT_MAX; u8Index ++)
+    {
+        if (ol_strcmp(pstrType, ls_pstrConfigPersistencyType[u8Index]) == 0)
+        {
+            *pu8Type = u8Index;
+            break;
+        }
+    }
+
+    if (u8Index == CMCPT_MAX)
         u32Ret = JF_ERR_INVALID_PARAM;
 
     return u32Ret;
