@@ -179,6 +179,7 @@ static u32 _traverseConfFile(
     olint_t nChar = 0;
     olint_t nLength = 0;
 
+    /*Set file position indicator to the start of the file.*/
     jf_filestream_seek(pijc->ijc_pjfConfFile, 0L, SEEK_SET);
 
     do
@@ -368,9 +369,11 @@ u32 jf_conffile_get(
     
     assert((pConffile != NULL) && (pstrTag != NULL) && (pstrValueBuf != NULL));
 
+    /*Set file position indicator to the start of the file.*/
     jf_filestream_seek(pijc->ijc_pjfConfFile, 0L, SEEK_SET);
 
     u32Ret = _getValueStringByTag(pijc, pstrTag, strValue);
+
     while (u32Ret == JF_ERR_NO_ERROR)
     {
         size = ol_strlen(strValue);
@@ -434,6 +437,7 @@ u32 jf_conffile_set(
     if ((u32Ret == JF_ERR_NO_ERROR) && (! jcsv.jcsv_bSet))
         u32Ret = _writeConfigToConfFile(jcsv.jcsv_pjfFile, pstrTag, pstrValue);
 
+    /*Close the temperory file.*/
     if (jcsv.jcsv_pjfFile != NULL)
         jf_filestream_close(&jcsv.jcsv_pjfFile);
 

@@ -99,7 +99,8 @@ FILESAPI u32 FILESCALL jf_conffile_close(jf_conffile_t ** ppConffile);
 /** Write configuration to file.
  *
  *  @note
- *  -# This function just write the tag-value pair to the configuration file.
+ *  -# This function just write the tag-value pair to the configuration file regardless of
+ *   existence of the tag.
  *
  *  @param pConffile [in] The configuration file object to write.
  *  @param pstrTag [in] The config tag name.
