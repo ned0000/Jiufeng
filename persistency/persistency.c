@@ -11,8 +11,6 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
-#include <stdlib.h>
-#include <string.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
 
@@ -43,7 +41,10 @@ u32 jf_persistency_create(
 
     JF_LOGGER_INFO("type: %s", getStringPersistencyType(type));
 
+    /*Allocate memory for persistency manager.*/
     u32Ret = jf_jiukun_allocMemory((void **)&ppm, sizeof(persistency_manager_t));
+
+    /*Initialize persistency manager.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ppm->pm_jptType = type;
@@ -64,6 +65,7 @@ u32 jf_persistency_create(
         }
     }
 
+    /*Initialize the mutex.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_mutex_init(&ppm->pm_jmLock);

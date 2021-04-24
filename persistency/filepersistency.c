@@ -10,10 +10,10 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <string.h>
+
 
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
@@ -49,23 +49,32 @@ typedef struct file_persistency
     /**The file name.*/
     olchar_t fp_strFile[JF_LIMIT_MAX_PATH_LEN];
 
+    /**Hash tree for key-value pairs for transaction.*/
     jf_hashtree_t fp_jhKeyValue;
 
 } file_persistency_t;
 
+/** Define the file persistency key value data type, used as hash tree entry.
+ */
 typedef struct
 {
+    /**The key string.*/
     olchar_t * fpkv_pstrKey;
+    /**The value string.*/
     olchar_t * fpkv_pstrValue;
 
-    /**The key is found and value is saved if TRUE.*/
+    /**The key is found in original file if TRUE.*/
     boolean_t fpkv_bSet;
     u8 fpkv_u8Reserved[7];
 } file_persistency_key_value_t;
 
+/** Define the file persistency set value data type, used for setting value into file.
+ */
 typedef struct
 {
+    /**The file to be written with key-value pairs.*/
     jf_conffile_t * fpsv_pjcFile;
+    /**Hash tree with key-value pairs to be set.*/
     jf_hashtree_t * fpsv_pjhKeyValue;
 } file_persistency_set_value_t;
 
@@ -93,8 +102,10 @@ static u32 _newFilePersistencyKeyValue(
     u32 u32Ret = JF_ERR_NO_ERROR;
     file_persistency_key_value_t * pfpkv = NULL;
 
+    /*Allocate memory for key value object.*/
     u32Ret = jf_jiukun_allocMemory((void **)&pfpkv, sizeof(*pfpkv));
 
+    /*Duplicate the key string.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_bzero(pfpkv, sizeof(*pfpkv));
@@ -102,6 +113,7 @@ static u32 _newFilePersistencyKeyValue(
         u32Ret = jf_string_duplicate(&pfpkv->fpkv_pstrKey, pKey);
     }
 
+    /*Duplicate the value string.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_string_duplicate(&pfpkv->fpkv_pstrValue, pValue);
 
@@ -118,6 +130,7 @@ static u32 _rollbackTransactionOfPersistencyFile(persistency_manager_t * ppm)
     u32 u32Ret = JF_ERR_NO_ERROR;
     file_persistency_t * pfp = ppm->pm_ppdData;
 
+    /*Free all key-value pairs in hash tree.*/
     jf_hashtree_finiHashtreeAndData(&pfp->fp_jhKeyValue, _freeFilePersistencyKeyValue);
 
     return u32Ret;
@@ -168,14 +181,17 @@ static u32 _getValueFromPersistencyFile(
     file_persistency_t * pfp = ppm->pm_ppdData;
     file_persistency_key_value_t * pfpkv = NULL;
 
+    /*Get value from hash tree if transactions is started.*/
     if (ppm->pm_bTransactionStarted)
         u32Ret = jf_hashtree_getEntry(
             &pfp->fp_jhKeyValue, (olchar_t *)pKey, ol_strlen(pKey), (void **)&pfpkv);
 
     if (pfpkv == NULL)
     {
+        /*Hash tree doesn't have the key, try to get value from file.*/
         u32Ret = jf_conffile_get(pfp->fp_pjcFile, pKey, NULL, pValue, sValue);
 
+        /*Return NO_ERROR if key is not existing.*/
         if (u32Ret == JF_ERR_NOT_FOUND)
             u32Ret = JF_ERR_NO_ERROR;
     }
@@ -194,9 +210,10 @@ static u32 _setValueToPersistencyFile(
     u32 u32Ret = JF_ERR_NO_ERROR;
     file_persistency_t * pfp = ppm->pm_ppdData;
 
+    /*Save key-value pair to hash tree if transactions is started.*/
     if (ppm->pm_bTransactionStarted)
         u32Ret = _addKeyValueToHashtree(pfp, pKey, pValue);
-    else
+    else /*Save key-value pair to file if transactions is not started.*/
         u32Ret = jf_conffile_set(pfp->fp_pjcFile, pKey, pValue);
 
     return u32Ret;
@@ -232,16 +249,18 @@ static u32 _fnSaveKeyValueToTempFile(olchar_t * pstrKey, olchar_t * pstrValue, v
     const olchar_t * value = pstrValue;
     file_persistency_key_value_t * pfpkv = NULL;
 
+    /*Get entry from hash tree with the key.*/
     u32Ret = jf_hashtree_getEntry(
         pfpsv->fpsv_pjhKeyValue, pstrKey, ol_strlen(pstrKey), (void **)&pfpkv);
 
-    /*Use the new value If the key is found.*/
+    /*Use the new value if the key is found.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         value = pfpkv->fpkv_pstrValue;
         pfpkv->fpkv_bSet = TRUE;
     }
 
+    /*Write the key-value pair to file.*/
     u32Ret = _writeOneKeyValueToConfFile(pfpsv->fpsv_pjcFile, pstrKey, value);
 
     return u32Ret;
@@ -259,6 +278,7 @@ static u32 _appendKeyValueToTempFile(jf_conffile_t * pjc, jf_hashtree_t * pjhKey
     {
         jf_hashtree_getEnumeratorNodeData(&jhe, NULL, NULL, (void **)&pfpkv);
 
+        /*Write key-value to file if it's not set before.*/
         if (! pfpkv->fpkv_bSet)
             u32Ret = _writeOneKeyValueToConfFile(pjc, pfpkv->fpkv_pstrKey, pfpkv->fpkv_pstrValue);
 
@@ -288,7 +308,7 @@ static u32 _writeKeyValueToFilePersistency(file_persistency_t * pfp)
     /*Open a temperory file to save all key-value pairs.*/
     u32Ret = jf_conffile_open(&jcop, &fpsv.fpsv_pjcFile);
 
-    /*Traverse the source config file.*/
+    /*Traverse the source config file and save the existing key with new value to temp file.*/
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = jf_conffile_traverse(pfp->fp_pjcFile, _fnSaveKeyValueToTempFile, &fpsv);
 
@@ -296,6 +316,7 @@ static u32 _writeKeyValueToFilePersistency(file_persistency_t * pfp)
     if (u32Ret == JF_ERR_NO_ERROR)
         u32Ret = _appendKeyValueToTempFile(fpsv.fpsv_pjcFile, &pfp->fp_jhKeyValue);
 
+    /*Close the temperory file.*/
     if (fpsv.fpsv_pjcFile != NULL)
         jf_conffile_close(&fpsv.fpsv_pjcFile);
 
@@ -326,9 +347,10 @@ static u32 _commitTransactionOfPersistencyFile(persistency_manager_t * ppm)
     u32 u32Ret = JF_ERR_NO_ERROR;
     file_persistency_t * pfp = ppm->pm_ppdData;
 
+    /*Save all key-value pairs in hash tree to file.*/
     u32Ret = _writeKeyValueToFilePersistency(pfp);
 
-    /*Free all key-value pairs.*/
+    /*Free all key-value pairs in hash tree.*/
     jf_hashtree_finiHashtreeAndData(&pfp->fp_jhKeyValue, _freeFilePersistencyKeyValue);
 
     return u32Ret;

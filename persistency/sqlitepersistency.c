@@ -61,19 +61,23 @@ typedef struct sqlite_persistency
 
 } sqlite_persistency_data_t;
 
-/** Sqlite persistency get value data type.
+/** Define the sqlite persistency get value data type, used for getting value from DB.
  */
 typedef struct
 {
+    /**Buffer for the value.*/
     olchar_t * spgv_pstrValue;
+    /**Size of the value.*/
     olsize_t spgv_sValue;
 } sqlite_persistency_get_value_t;
 
-/** Sqlite persistency traverse data type.
+/** Define the sqlite persistency traverse data type, used for traversing DB.
  */
 typedef struct
 {
+    /**Callback function to handle key and value.*/
     jf_persistency_fnHandleKeyValue_t spdt_fnHandleKeyValue;
+    /**Argument for the callback function.*/
     void * spdt_pArg;
 } sqlite_persistency_data_traverse_t;
 
@@ -98,8 +102,10 @@ static u32 _initSqlite(sqlite_persistency_data_t * pspd)
     ol_bzero(&jsip, sizeof(jf_sqlite_init_param_t));
     jsip.jsip_pstrDbName = pspd->spd_strSqliteDb;
     
+    /*Initialize the jf_sqlite_t object.*/
     u32Ret = jf_sqlite_init(&pspd->spd_jsSqlite, &jsip);
 
+    /*Create the table anyway.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         ol_sprintf(
@@ -152,10 +158,12 @@ static u32 _setValueToSqlite(
     olchar_t * pstrSql = NULL;
     olsize_t nsize = ol_strlen(pValue) + ol_strlen(pKey) + 256;
 
+    /*Allocate memory for the SQL statement.*/
     u32Ret = jf_jiukun_allocMemory((void **)&pstrSql, nsize);
+
+    /*Update or insert the value into the DB.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /*update or insert the value into the DB*/
         ol_snprintf(
             pstrSql, nsize, "REPLACE INTO %s(%s, %s) VALUES ('%s', '%s');",
             pspd->spd_strTableName, pspd->spd_strKeyColumnName, pspd->spd_strValueColumnName, pKey,
