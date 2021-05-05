@@ -314,12 +314,12 @@ static u32 _parseAndProcess(internal_clieng_parser_t * picp)
     return u32Ret;
 }
 
-static olint_t _cmpKeys(void * pKey1, void * pKey2)
+static olint_t _cmpKeysOfCliengCmd(void * pKey1, void * pKey2)
 {
-    return strcmp((const olchar_t *)pKey1, (const olchar_t *)pKey2);
+    return ol_strcmp((const olchar_t *)pKey1, (const olchar_t *)pKey2);
 }
 
-static u32 _freeCmd(void ** ppCmd)
+static u32 _freeCliengCmd(void ** ppCmd)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 //    internal_clieng_cmd_t * picc = *ppCmd;
@@ -329,12 +329,12 @@ static u32 _freeCmd(void ** ppCmd)
     return u32Ret;
 }
 
-static olint_t _hashKey(void * pKey)
+static olint_t _hashKeyOfCliengCmd(void * pKey)
 {
     return jf_hashtable_hashPJW(pKey);
 }
 
-static void * _getKeyFromCmd(void * pCmd)
+static void * _getKeyFromCliengCmd(void * pCmd)
 {
     internal_clieng_cmd_t * picc = pCmd;
 
@@ -383,10 +383,10 @@ u32 initCliengParser(clieng_parser_init_param_t * pcpip)
         ol_bzero(&jhcp, sizeof(jhcp));
 
         jhcp.jhcp_u32MinSize = picp->icp_u32MaxCmd;
-        jhcp.jhcp_fnCmpKeys = _cmpKeys;
-        jhcp.jhcp_fnHashKey = _hashKey;
-        jhcp.jhcp_fnGetKeyFromEntry = _getKeyFromCmd;
-        jhcp.jhcp_fnFreeEntry = _freeCmd;
+        jhcp.jhcp_fnCmpKeys = _cmpKeysOfCliengCmd;
+        jhcp.jhcp_fnHashKey = _hashKeyOfCliengCmd;
+        jhcp.jhcp_fnGetKeyFromEntry = _getKeyFromCliengCmd;
+        jhcp.jhcp_fnFreeEntry = _freeCliengCmd;
 
         u32Ret = jf_hashtable_create(&picp->icp_jhCmd, &jhcp);
     }
@@ -498,7 +498,7 @@ u32 newCliengCmd(
     }
     else if (picc != NULL)
     {
-        _freeCmd((void **)&picc);
+        _freeCliengCmd((void **)&picc);
     }
 
     return u32Ret;
