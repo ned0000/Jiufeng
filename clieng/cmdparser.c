@@ -10,17 +10,7 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <ctype.h>
 
-#if defined(LINUX)
-    #include <errno.h>
-    #include <pthread.h>
-    #include <unistd.h>
-    #include <signal.h>
-#endif
 
 /* --- internal header files -------------------------------------------------------------------- */
 
@@ -34,54 +24,80 @@
 
 #include "cmdparser.h"
 
-#if defined(WINDOWS)
-
-#endif
-
 /* --- private data/data structure section ------------------------------------------------------ */
 
-#define MAX_ARGC           (JF_CLIENG_MAX_COMMAND_LINE_LEN / 4)
+/** Maximum argument count.
+ */
+#define MAX_ARGC                        (JF_CLIENG_MAX_COMMAND_LINE_LEN / 4)
 
-#define MAX_CMD            (40)
+/** Maximum number of command supported by default.
+ */
+#define MAX_CMD                         (40)
 
-#define MAX_CMD_NAME_LEN   (24)
+/** Maximum command name length.
+ */
+#define MAX_CMD_NAME_LEN                (24)
 
+/** Define the internal command data type.
+ */
 typedef struct
 {
+    /**Command name.*/
     olchar_t icc_strName[MAX_CMD_NAME_LEN];
+    /**Callback function to set the default parameters of command.*/
     jf_clieng_fnSetDefaultParam_t icc_fnSetDefaultParam;
+    /**Callback function to parse parameters of command.*/
     jf_clieng_fnParseCmd_t icc_fnParseCmd;
+    /**Callback function to process command.*/
     jf_clieng_fnProcessCmd_t icc_fnProcessCmd;
+    /**Parameters of command.*/
     void * icc_pParam;
 
     u32 icc_u32Reserved[8];
 } internal_clieng_cmd_t;
 
+/** Define the internal command set data type.
+ */
 typedef struct
 {
+    /**Command set name.*/
     olchar_t * iccs_pstrName;
     u32 iccs_u32Reserved[8];
 } internal_clieng_cmd_set_t;
 
+/** Define the internal command parser data type.
+ */
 typedef struct
 {
+    /**Command parser is initialized if it's TRUE.*/
     boolean_t icp_bInitialized;
     u8 icp_u8Reserved[7];
 
+    /**User's data for callback function of command.*/
     void * icp_pMaster;
 
+    /**Argument count of the command.*/
     olsize_t icp_sArgc;
+    /**Argument array of the command.*/
     olchar_t * icp_pstrArgv[MAX_ARGC];
+    /**The command line to be parsed.*/
     olchar_t icp_strCommandLine[JF_CLIENG_MAX_COMMAND_LINE_LEN * 2];
 
+    /**Maximum number of command set supported.*/
     u32 icp_u32MaxCmdSet;
+    /**Number of command set.*/
     u32 icp_u32NumOfCmdSet;
+    /**Command set array.*/
     internal_clieng_cmd_set_t * icp_piccsCmdSet;
 
+    /**Maximum number of command supported.*/
     u32 icp_u32MaxCmd;
+    /**Hash table for commands.*/
     jf_hashtable_t * icp_jhCmd;
 } internal_clieng_parser_t;
 
+/** Declare the internal command parser object.
+ */
 static internal_clieng_parser_t ls_icpCliengParser;
 
 /* --- private routine section ------------------------------------------------------------------ */
@@ -119,6 +135,7 @@ static u32 _trimCmdLine(olchar_t * pstrCmd)
     if (pstrCmd[0] == '#')
         return JF_ERR_COMMENT_CMD;
 
+    /*Check if it's a blank command.*/
     length = ol_strlen(pstrCmd);
     i = 0;
     while (i < length)
@@ -131,6 +148,7 @@ static u32 _trimCmdLine(olchar_t * pstrCmd)
     if (i == length)
         return JF_ERR_BLANK_CMD;
 
+    /*Remove the leading spaces.*/
     j = 0;
     length = length - i;
     while (j < length)
@@ -141,7 +159,7 @@ static u32 _trimCmdLine(olchar_t * pstrCmd)
 
     pstrCmd[j] = 0;
 
-    /* remove the eol */
+    /*Remove the eol.*/
     j = length - 1;
     while (j >= 0)
     {
@@ -158,49 +176,51 @@ static u32 _trimCmdLine(olchar_t * pstrCmd)
 
 /** Form the command line arguments, and set argc and argv.
  *
- *  @param picp [in/out] the pointer to the CLI Parser. Its member attributes icp_sArgc and
+ *  @param picp [in/out] The pointer to the CLI Parser. Its member attributes icp_sArgc and
  *   icp_pstrArgv will be set accordingly.
- *  @param pstrCmd [in/out] the command line. It will be changed during the process, and it will
+ *  @param pstrCmd [in/out] The command line. It will be changed during the process, and it will
  *   be referred by picp->icp_pstrArgv.
  *
  *  @return The error code.
  */
-static u32 _formCmdLineArguments(
-    internal_clieng_parser_t * picp, olchar_t * pstrCmd)
+static u32 _formCmdLineArguments(internal_clieng_parser_t * picp, olchar_t * pstrCmd)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     u32 u32Index = 0;
 
     u32Ret = _trimCmdLine(pstrCmd);
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        jf_logger_logInfoMsg("clieng form arg, pstrCmd %s", pstrCmd);
+        JF_LOGGER_DEBUG("pstrCmd: %s", pstrCmd);
 
         picp->icp_sArgc = MAX_ARGC;
         u32Ret = jf_process_formCmdLineArguments(pstrCmd, &picp->icp_sArgc, picp->icp_pstrArgv);
 
-        jf_logger_logInfoMsg("clieng form arg, argc %d", picp->icp_sArgc);
+        JF_LOGGER_DEBUG("argc: %d", picp->icp_sArgc);
         for (u32Index = 0; u32Index < picp->icp_sArgc; u32Index ++)
-            jf_logger_logInfoMsg("arg %d: %s", u32Index, picp->icp_pstrArgv[u32Index]);
+            JF_LOGGER_DEBUG("arg %d: %s", u32Index, picp->icp_pstrArgv[u32Index]);
 
-        if (picp->icp_sArgc < 1 && u32Ret == JF_ERR_NO_ERROR)
+        if ((picp->icp_sArgc < 1) && (u32Ret == JF_ERR_NO_ERROR))
             u32Ret = JF_ERR_BLANK_CMD;
     }
 
     return u32Ret;
 }
 
-/** For argv without leading - option, merge them to the previous argv to better handle invalid
- *  input.
+/** Process the command line.
+ *
+ *  @note
+ *  -# For arguments quoted by '"', remove it.
  */
 static u32 _preProcessCmdLine(internal_clieng_parser_t * picp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olchar_t * argv;
+    olchar_t * argv = NULL;
     olsize_t length = 0, j = 0;
-    u32 u32Index;
+    u32 u32Index = 0;
 
-    /*for those argument quoted by '"', remove "*/
+    /*For those argument quoted by '"', remove it.*/
     for (u32Index = 1; u32Index < picp->icp_sArgc; u32Index++)
     {
         if (picp->icp_pstrArgv[u32Index][0] == '"')
@@ -230,14 +250,17 @@ static boolean_t _findMore(olsize_t * psArgc, olchar_t ** ppstrArgv)
     if (*psArgc < 2)
         return FALSE;
 
-    if ((strcmp(ppstrArgv[*psArgc -1], "more") == 0) &&
-        (strcmp(ppstrArgv[*psArgc - 2], "|") == 0))
+    /*Check "| more".*/
+    if ((ol_strcmp(ppstrArgv[*psArgc - 1], "more") == 0) &&
+        (ol_strcmp(ppstrArgv[*psArgc - 2], "|") == 0))
     {
         (*psArgc)--;
         (*psArgc)--;
         return TRUE;
     }
-    if (strcmp(ppstrArgv[*psArgc -1], "|more") == 0)
+
+    /*Check "|more".*/
+    if (ol_strcmp(ppstrArgv[*psArgc - 1], "|more") == 0)
     {
         (*psArgc)--;
         return TRUE;
@@ -248,7 +271,7 @@ static boolean_t _findMore(olsize_t * psArgc, olchar_t ** ppstrArgv)
 
 /** Parse and process the command according to the argc and argv.
  *
- *  @param picp [in] the pointer to the CLI parser. Its member attributes icp_sArgc and
+ *  @param picp [in] The pointer to the CLI parser. Its member attributes icp_sArgc and
  *   icp_pstrArgv must be set before this func is called.
  *
  *  @return The error code.
@@ -256,22 +279,27 @@ static boolean_t _findMore(olsize_t * psArgc, olchar_t ** ppstrArgv)
 static u32 _parseAndProcess(internal_clieng_parser_t * picp)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    internal_clieng_cmd_t * picc;
+    internal_clieng_cmd_t * picc = NULL;
 
     u32Ret = jf_hashtable_getEntry(
         picp->icp_jhCmd, (void *)picp->icp_pstrArgv[0], (void **)&picc);
+
     if (u32Ret != JF_ERR_NO_ERROR)
     {
+        /*No such command.*/
         u32Ret = JF_ERR_INVALID_COMMAND;
     }
     else
     {
+        /*Set default parameters of the command.*/
         u32Ret = picc->icc_fnSetDefaultParam(picp->icp_pMaster, picc->icc_pParam);
 
+        /*Parse the parameters of the command.*/
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = picc->icc_fnParseCmd(
                 picp->icp_pMaster, picp->icp_sArgc, picp->icp_pstrArgv, picc->icc_pParam);
 
+        /*Process the command.*/
         if (u32Ret == JF_ERR_NO_ERROR)
             u32Ret = picc->icc_fnProcessCmd(picp->icp_pMaster, picc->icc_pParam);
     }
@@ -310,6 +338,7 @@ static void * _getKeyFromCmd(void * pCmd)
 {
     internal_clieng_cmd_t * picc = pCmd;
 
+    /*Use command name as the key.*/
     return picc->icc_strName;
 }
 
@@ -326,12 +355,14 @@ u32 initCliengParser(clieng_parser_init_param_t * pcpip)
 
     JF_LOGGER_INFO("MaxCmdSet: %u", pcpip->cpip_u32MaxCmdSet);
 
+    /*Initialize the command parser.*/
     ol_bzero(picp, sizeof(*picp));
 
     picp->icp_sArgc = 0;
     picp->icp_pMaster = pcpip->cpip_pMaster;
     picp->icp_u32MaxCmdSet = pcpip->cpip_u32MaxCmdSet;
 
+    /*Initialize the command set.*/
     if (picp->icp_u32MaxCmdSet != 0)
     {
         size = sizeof(internal_clieng_cmd_set_t) * picp->icp_u32MaxCmdSet;
@@ -344,6 +375,7 @@ u32 initCliengParser(clieng_parser_init_param_t * pcpip)
         }
     }
 
+    /*Initialize the hash table for commands.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         picp->icp_u32MaxCmd = (pcpip->cpip_u32MaxCmd > 0) ? pcpip->cpip_u32MaxCmd : MAX_CMD;
@@ -392,13 +424,13 @@ u32 parseCliengCmd(olchar_t * pstrCmd)
 
     assert(pstrCmd != NULL);
 
-    JF_LOGGER_INFO("cmd %s", pstrCmd);
+    JF_LOGGER_DEBUG("cmd: %s", pstrCmd);
 
     u32Ret = _formCmdLineArguments(picp, pstrCmd);
 
     if (u32Ret == JF_ERR_NO_ERROR)
     {
-        /* check for "| more" command*/
+        /*Check for "| more" command.*/
         setMoreDisable();
         if (_findMore(&(picp->icp_sArgc), picp->icp_pstrArgv))
         {
@@ -431,9 +463,10 @@ u32 newCliengCmd(
 
     assert(pstrName != NULL);
 
-    if (strlen(pstrName) > MAX_CMD_NAME_LEN - 1)
+    if (ol_strlen(pstrName) > MAX_CMD_NAME_LEN - 1)
         u32Ret = JF_ERR_CMD_NAME_TOO_LONG;
 
+    /*Check if the command is already added.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         if (jf_hashtable_isKeyInTable(picp->icp_jhCmd, (void *)pstrName))
@@ -454,6 +487,7 @@ u32 newCliengCmd(
         picc->icc_fnProcessCmd = fnProcessCmd;
         picc->icc_pParam = pParam;
 
+        /*Insert the command to hash table.*/
         u32Ret = jf_hashtable_insertEntry(picp->icp_jhCmd, (void *)picc);
     }
 

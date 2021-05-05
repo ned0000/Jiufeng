@@ -11,9 +11,6 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
-#include <time.h>
-#include <signal.h>
-#include <stdarg.h>
 
 /* --- internal header files -------------------------------------------------------------------- */
 
@@ -21,6 +18,7 @@
 #include "jf_err.h"
 #include "jf_clieng.h"
 #include "jf_process.h"
+#include "jf_string.h"
 
 #include "engio.h"
 #include "cmdhistory.h"
@@ -121,7 +119,7 @@ static u32 _printPrompt(internal_clieng_t * pic)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
-    if (pic->ic_strPrompt[0] != '\0')
+    if (pic->ic_strPrompt[0] != JF_STRING_NULL_CHAR)
         u32Ret = engioOutput("%s", pic->ic_strPrompt);
     else
         u32Ret = engioOutput("%s", CLIENG_DEFAULT_PROMPT);
@@ -220,6 +218,7 @@ u32 jf_clieng_init(jf_clieng_init_param_t * pParam)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_t * pic = &ls_icClieng;
 
+    /*Initialize the internal cli engine.*/
     ol_bzero(pic, sizeof(internal_clieng_t));
 
     pic->ic_fnPrintGreeting = pParam->jcip_fnPrintGreeting;
@@ -228,8 +227,10 @@ u32 jf_clieng_init(jf_clieng_init_param_t * pParam)
     pic->ic_pMaster = pParam->jcip_pMaster;
     pic->ic_bEnableScriptEngine = pParam->jcip_bEnableScriptEngine;
     if (pic->ic_bEnableScriptEngine)
-        ol_strncpy(
-            pic->ic_strInputCmd, pParam->jcip_strInputCmd, JF_CLIENG_MAX_COMMAND_LINE_LEN - 1);
+    {
+        ol_strncpy(pic->ic_strInputCmd, pParam->jcip_strInputCmd, JF_CLIENG_MAX_COMMAND_LINE_LEN);
+        pic->ic_strInputCmd[JF_CLIENG_MAX_COMMAND_LINE_LEN - 1] = JF_STRING_NULL_CHAR;
+    }
 
 #ifndef WINDOWS
     _registerSignalHandlers(pic);
@@ -240,15 +241,11 @@ u32 jf_clieng_init(jf_clieng_init_param_t * pParam)
 
     /*Create input/output module.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-    {
         u32Ret = _initCliengIo(pic, pParam);
-    }
-        
+
     /*Create command parser module.*/
     if (u32Ret == JF_ERR_NO_ERROR)
-    {
         u32Ret = _initCliengParser(pic, pParam);
-    }
         
     if (u32Ret == JF_ERR_NO_ERROR)
         pic->ic_bInitialized = TRUE;
@@ -265,10 +262,11 @@ u32 jf_clieng_run(void)
 
     JF_LOGGER_INFO("run");
 
-    /* Print greeting */
+    /*Print greeting.*/
     if (pic->ic_fnPrintGreeting != NULL)
         pic->ic_fnPrintGreeting(pic->ic_pMaster);
 
+    /*Callback function before entering loop.*/
     if (pic->ic_fnPreEnterLoop != NULL)
         u32Ret = pic->ic_fnPreEnterLoop(pic->ic_pMaster);
 
@@ -276,11 +274,12 @@ u32 jf_clieng_run(void)
     {
         if (pic->ic_bEnableScriptEngine)
         {
+            /*Execute script.*/
             u32Ret = _processScriptCmd(pic, pic->ic_strInputCmd);
         }
         else
         {
-            /* Enter clieng loop */
+            /*Enter clieng loop.*/
             while (! pic->ic_bTerminateClieng)
             {
                 u32Ret = _cliengLoop(pic);
@@ -288,6 +287,7 @@ u32 jf_clieng_run(void)
         }
     }
 
+    /*Callback function after loop.*/
     if (pic->ic_fnPostExitLoop != NULL)
         pic->ic_fnPostExitLoop(pic->ic_pMaster);
     
@@ -359,7 +359,7 @@ u32 jf_clieng_setPrompt(const olchar_t * pstrPrompt)
 
     assert(pstrPrompt != NULL);
 
-    if (strlen(pstrPrompt) > CLIENG_MAX_PROMPT_LEN - 1)
+    if (ol_strlen(pstrPrompt) >= CLIENG_MAX_PROMPT_LEN)
         u32Ret = JF_ERR_CLIENG_PROMPT_TOO_LONG;
 
     if (u32Ret == JF_ERR_NO_ERROR)

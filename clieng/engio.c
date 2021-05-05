@@ -10,9 +10,7 @@
  */
 
 /* --- standard C lib header files -------------------------------------------------------------- */
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
+
 #include <ctype.h>
 #if defined(LINUX)
     #include <termios.h>
@@ -30,58 +28,86 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+/** Delimter between caption and value.
+ */
 const static olchar_t * cls_pstrCaptionDelimit = ": ";
 
+/** Begin string for hex dump.
+ */
 const static olchar_t * cls_pstrByteHexDumpBegin = "Begin Hex Dump in Byte";
+
+/** End string for hex dump.
+ */
 const static olchar_t * cls_pstrByteHexDumpEnd = "End Hex Dump in Byte";
 
+/** Banner string.
+ */
 const static olchar_t * cls_pstrBanner = "\
 ====================================================================================================";
 
+/** Divider string.
+ */
 const static olchar_t * cls_pstrDivider = "\
 ----------------------------------------------------------------------------------------------------";
 
+/** Banner string with shift 4 spaces.
+ */
 const static olchar_t * cls_pstrBannerShift4 = "\
     ================================================================================================";
 
+/** Divider string with shift 2 spaces.
+ */
 const static olchar_t * cls_pstrDividerShift2 = "\
   --------------------------------------------------------------------------------------------------";
 
+/** Define the internal clieng io data type.
+ */
 typedef struct
 {
+    /**Clieng io module is initialized if it's TRUE.*/
     boolean_t ici_bInitialized;
     u8 ici_u8Reserved[7];
     /**The default delimiter is ";".*/
 	olchar_t ici_strSpecialDelimit[8];
 
+    /**New line.*/
 	olchar_t ici_strNewLine[8];
+    /**Size of new line.*/
     olsize_t ici_sNewLine;
 
+    /**The line with all blank apaces.*/
 	olchar_t ici_strBlankSpaces[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
+    /**Output buffer.*/
     olchar_t ici_strOutputBuffer[JF_CLIENG_MAX_OUTPUT_BUFFER_SIZE];
 
+    /**Number of lines for 'more' command.*/
 	u8 ici_u8MoreLines;
     u8 ici_u8Reserved4[3];
     /**Special delimit is enabled if it's TRUE. By default it is off, blank spaces are used for
        delimit; when it is on, a semi-column is used.*/
 	boolean_t ici_bSpecialDelimit;
+    /**'more' command is enabled.*/
 	boolean_t ici_bMoreEnabled;
+    /**'more' should be canceled.*/
 	boolean_t ici_bMoreCancel;
     u8 ici_u8Reserved2[1];
+    /**File stream for saving output.*/
     jf_filestream_t * ici_pjfOutput;
 } internal_clieng_io_t;
 
 #ifndef WINDOWS
-    #define MAX_MORE_LINES    _getMaxMoreLines()
+    #define MAX_MORE_LINES                 _getMaxMoreLines()
 #else
-    #define MAX_MORE_LINES    (23)
+    #define MAX_MORE_LINES                (23)
 #endif
 
 /** Use LEFT-SPACE-LEFT to implement backspace.
  */
-static olchar_t str_backspace[] = {27, '[', 'D', ' ', 27, '[', 'D'};
+static olchar_t ls_strBackspace[] = {27, '[', 'D', ' ', 27, '[', 'D'};
 
+/** Declare the internal clieng io object.
+ */
 static internal_clieng_io_t ls_iciCliengIo;
 
 /* --- private routine section ------------------------------------------------------------------ */
@@ -161,13 +187,13 @@ static u32 _switchToCanonMode(olint_t nTTY)
 static void _back_space_simple(void)
 {
 #ifndef WINDOWS
-    putchar(str_backspace[0]);
-    putchar(str_backspace[1]);
-    putchar(str_backspace[2]);
-    putchar(str_backspace[3]);
-    putchar(str_backspace[4]);
-    putchar(str_backspace[5]);
-    putchar(str_backspace[6]);
+    putchar(ls_strBackspace[0]);
+    putchar(ls_strBackspace[1]);
+    putchar(ls_strBackspace[2]);
+    putchar(ls_strBackspace[3]);
+    putchar(ls_strBackspace[4]);
+    putchar(ls_strBackspace[5]);
+    putchar(ls_strBackspace[6]);
 #endif
 }
 
@@ -258,24 +284,24 @@ static void _left_arrow(u32 u32Position, u32 u32ScreenSize)
 static u32 _getInputPassword(olchar_t *pBuf, olsize_t * pLen)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t length;
-    olint_t nChar;
+    olsize_t length = 0;
+    olint_t nChar = 0;
 
     length = 0;
     do
     {
         nChar = getchar();
-        /* ignore the extra carriage return from windows 2000 */
+        /*Ignore the extra carriage return from windows 2000.*/
         if (nChar == 13)
         {
             ;
         }
         else if (nChar == '\n')
-            /* return */
+            /*Return.*/
         {
             putchar(nChar);
         } else if (nChar == 127 || nChar == 8)
-            /* backspace */
+            /*Backspace.*/
         {
             if (length > 0)
             {
@@ -296,8 +322,7 @@ static u32 _getInputPassword(olchar_t *pBuf, olsize_t * pLen)
 }
 
 static u32 _getInputLine(
-    clieng_input_type_t *pType, olchar_t * pBuf,
-    olsize_t * pLen, olsize_t sPrompt)
+    clieng_input_type_t *pType, olchar_t * pBuf, olsize_t * pLen, olsize_t sPrompt)
 {
 #define MAX_INPUT_LEN (2 * JF_CLIENG_MAX_COMMAND_LINE_LEN)
     u32 u32Ret = JF_ERR_NO_ERROR;
@@ -326,7 +351,7 @@ static u32 _getInputLine(
 
     PromptLen = sPrompt + 6;
 
-    /* from history command */
+    /*From history command.*/
     if (*pType == cit_navigation_cmd)
     {
         str_length = ol_strlen((olchar_t *)pBuf);
@@ -334,14 +359,14 @@ static u32 _getInputLine(
         {
             str_length = MAX_INPUT_LEN;
         }
-        for (i=0; i<str_length; i++)
+        for (i = 0; i < str_length; i++)
         {
             putchar(pBuf[i]);
         }
         ol_strncpy(string, (olchar_t *)pBuf, str_length);
         i = str_length;
     }
-    if ((str_length+PromptLen) % ColNum == 0)
+    if ((str_length + PromptLen) % ColNum == 0)
     {
         putchar(' ');
         _back_space_simple();
@@ -350,18 +375,18 @@ static u32 _getInputLine(
     while (nRet != TRUE)
     {
         cur_char[0] = getchar();
-        /* ignore the extra carriage return from windows 2000 */
+        /*Ignore the extra carriage return from windows 2000.*/
         if (cur_char[0] == 13)
         {
             ;
         }
-        /* ignore tab key */
+        /*Ignore tab key.*/
         else if (cur_char[0] == 9)
         {
             ;
         }
         else if (cur_char[0] == '\n')
-            /* end of command input */
+            /*End of command input.*/
         {
             if (i < str_length)
             {
@@ -385,30 +410,30 @@ static u32 _getInputLine(
             nRet = TRUE;
         }
         else if (cur_char[0] == 27)
-            /* escape, function key */
+            /*Escape, function key.*/
         {
             cur_char[1] = getchar();
             cur_char[2] = getchar();
             if (cur_char[2] == 'A' || cur_char[2] == 'B')
             {
-                /* Up and Down Arrow */
+                /*Up and Down Arrow.*/
                 *pType = cit_navigation_cmd;
                 pBuf[0] = cur_char[2];
                 pBuf[1] = '\0';
                 nRet = TRUE;
-                /* move cursor to end of line */
+                /*Move cursor to end of line.*/
                 for(j=i; j<str_length; j++)
                 {
                     _right_arrow(j+PromptLen+1, ColNum);
                 }
-                /* back_space to begining of line */
+                /*Back_space to begining of line.*/
                 for(j=str_length; j>0; j--)
                 {
                     _back_space(j+PromptLen, ColNum);
                 }
             }
             else if (cur_char[2] == 'D')
-                /* left arrow */
+                /*Left arrow.*/
             {
                 if (i > 0)
                 {
@@ -417,7 +442,7 @@ static u32 _getInputLine(
                 }
             }
             else if (cur_char[2] == 'C')
-                /* right arrow */
+                /*Right arrow.*/
             {
                 if (i < str_length)
                 {
@@ -425,11 +450,10 @@ static u32 _getInputLine(
                     i ++;
                 }
             }
-            else if (cur_char[2] == 'F' ||
-                     cur_char[2] == 52 || cur_char[2] == 53)
-                /* End key */
+            else if (cur_char[2] == 'F' || cur_char[2] == 52 || cur_char[2] == 53)
+                /*End key.*/
             {
-                /* get rid of the extra character from some keyboard */
+                /*Get rid of the extra character from some keyboard.*/
                 if (cur_char[2] == 52 || cur_char[2] == 53)
                 {
                     getchar();
@@ -440,11 +464,10 @@ static u32 _getInputLine(
                     _right_arrow(j+PromptLen+1, ColNum);
                 }
             }
-            else if (cur_char[2] == 'H' ||
-                     cur_char[2] == 49 || cur_char[2] == 50)
-                /* Home key */
+            else if (cur_char[2] == 'H' || cur_char[2] == 49 || cur_char[2] == 50)
+                /*Home key.*/
             {
-                /* get rid of the extra character from some keyboard */
+                /*Get rid of the extra character from some keyboard.*/
                 if (cur_char[2] == 49 || cur_char[2] == 50)
                 {
                     getchar();
@@ -457,31 +480,30 @@ static u32 _getInputLine(
             }
         }
         else if (cur_char[0] == 127 || cur_char[0] == 8)
-            /* backspace */
+            /*Backspace.*/
         {
             if (i > 0)
             {
                 _back_space(i+PromptLen, ColNum);
                 i--;
                 str_length--;
-                /* re-display the rest of the line */
+                /*Re-display the rest of the line.*/
                 for (j=i; j<str_length; j++)
                 {
                     string[j] = string[j+1];
                     putchar(string[j]);
                 }
-                /* take care of the last extra character */
+                /*Take care of the last extra character.*/
                 putchar(' ');
                 _back_space_simple();
-                /* move cursor back to position */
+                /*Move cursor back to position.*/
                 for (j=str_length; j>i; j--)
                 {
                     _left_arrow(j+PromptLen, ColNum);
                 }
             }
         }
-        else
-            /* insert the character */
+        else /*Insert the character.*/
         {
             if (str_length >= MAX_INPUT_LEN)
             {
@@ -513,7 +535,7 @@ static u32 _getInputLine(
             }
             else if (i < str_length)
             {
-                /* re-display the line */
+                /*Re-display the line.*/
                 for (j=i; j<str_length; j++)
                 {
                     putchar(string[j]);
@@ -523,21 +545,20 @@ static u32 _getInputLine(
                     putchar(' ');
                     _back_space_simple();
                 }
-                /* move cursor back to position */
+                /*Move cursor back to position.*/
                 for (j=str_length; j>i; j--)
                 {
                     _left_arrow(j+PromptLen, ColNum);
                 }
             }
         }
-    } /* while loop */
+    } /*While loop.*/
     
     return u32Ret;
 }
 
 static u32 _getAnyKey(
-    clieng_input_type_t * pType, olchar_t * pBuf,
-    olsize_t *pLen, olsize_t sPrompt)
+    clieng_input_type_t * pType, olchar_t * pBuf, olsize_t *pLen, olsize_t sPrompt)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
     olchar_t cur_char[10];
@@ -546,9 +567,10 @@ static u32 _getAnyKey(
     while (nRet != TRUE)
     {
         cur_char[0] = getchar();
+
         if (cur_char[0] == 0x1B)
         {
-            /* escape, function key */
+            /*Escape, function key.*/
             cur_char[1] = getchar();
             while (cur_char[1] == 0x1B)
             {
@@ -568,13 +590,13 @@ static u32 _getAnyKey(
                 }
             }
 
-            memcpy(pBuf, cur_char, *pLen);
+            ol_memcpy(pBuf, cur_char, *pLen);
             *pType = cit_anykey;
             nRet = TRUE;
         }
         else
         {
-            /* ignore the extra carriage return from windows 2000 */
+            /*Ignore the extra carriage return from windows 2000.*/
             if(cur_char[0] == 0xD)
             {
                 ;
@@ -588,13 +610,13 @@ static u32 _getAnyKey(
                 nRet = TRUE;
             }
         }
-    } /* while loop */
+    } /*While loop.*/
 
     return u32Ret;
 }
 
 static u32 _getInput(
-    clieng_input_type_t *pType, olchar_t *pBuf, olsize_t * pLen, olsize_t promptLen)
+    clieng_input_type_t * pType, olchar_t * pBuf, olsize_t * pLen, olsize_t promptLen)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
 
@@ -670,21 +692,23 @@ static u32 _waitForMore(internal_clieng_io_t * pici)
 
 /** Check whether the caption list is valid for printing.
  *
- *  @param pjcc [in] the pointer to the caption list
- *  @param u32Count [in] the caption count in the caption list.
+ *  @param pjcc [in] The pointer to the caption list.
+ *  @param u32Count [in] The caption count in the caption list.
  *
  *  @return the error code
  */
 static u32 _checkCaption(const jf_clieng_caption_t * pjcc, u32 u32Count)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Index, u32Length;
+    u32 u32Index = 0, u32Length = 0;
 
-    u32Length = 0;
+    /*Calculate the total length of the line.*/
     for (u32Index = 0; u32Index < u32Count; u32Index++)
     {
         u32Length += pjcc[u32Index].jcc_u32Len;
     }
+
+    /*Check the total length.*/
     if (u32Length > JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1)
     {
         u32Ret = JF_ERR_LINE_TOO_LONG;
@@ -779,6 +803,9 @@ u32 initCliengIo(clieng_io_param_t * pcip)
     assert(pcip != NULL);
     assert(! pici->ici_bInitialized);
 
+    JF_LOGGER_DATA((u8 *)pcip->cip_pstrNewLine, ol_strlen(pcip->cip_pstrNewLine), "newline: ");
+
+    /*Initialize the clieng io object.*/
     ol_bzero(pici, sizeof(internal_clieng_io_t));
     pici->ici_bSpecialDelimit = FALSE;
     pici->ici_strSpecialDelimit[0] = ';';
@@ -809,7 +836,10 @@ u32 finiCliengIo(void)
     internal_clieng_io_t * pici = &ls_iciCliengIo;
 #ifndef WINDOWS
     olint_t nTTY = 0;
+#endif
+    JF_LOGGER_INFO("fini");
 
+#ifndef WINDOWS
     _switchToCanonMode(nTTY);
 #endif
 
@@ -1033,7 +1063,7 @@ u32 switchSpecialDelimit(boolean_t bSwitchOn)
     return u32Ret;
 }
 
-char * getEOL(void)
+olchar_t * getEOL(void)
 {
     olchar_t * pstrNewLine = NULL;
     internal_clieng_io_t * pici = &ls_iciCliengIo;
@@ -1043,16 +1073,20 @@ char * getEOL(void)
     return pstrNewLine;
 }
 
-char * getDelimit(const olsize_t u32StrLen, olsize_t u32TotalLen)
+olchar_t * getDelimit(const olsize_t u32StrLen, olsize_t u32TotalLen)
 {
     internal_clieng_io_t * pici = &ls_iciCliengIo;
     olchar_t * pstrDelimit = NULL;
-    olsize_t sDelimit;
+    olsize_t sDelimit = 0;
 
     if (pici->ici_bSpecialDelimit)
+    {
+        /*Return special delimit directly if it's enabled.*/
         pstrDelimit = pici->ici_strSpecialDelimit;
+    }
     else
     {
+        /*Calculate the length of delimit.*/
         if (u32StrLen > u32TotalLen)
         {
             sDelimit = 1;
@@ -1064,6 +1098,7 @@ char * getDelimit(const olsize_t u32StrLen, olsize_t u32TotalLen)
                 sDelimit = JF_CLIENG_MAX_OUTPUT_LINE_LEN;
         }
 
+        /*Only return blank space with specified length, from the end of the buffer.*/
         pstrDelimit = pici->ici_strBlankSpaces + JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1 - sDelimit;
     }
     
@@ -1101,6 +1136,7 @@ u32 getInputKey(clieng_io_key_t * pcikKey, olchar_t * pstrKey)
     olchar_t strInputKey[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     u32Ret = engioInput(&citInputType, strInputKey, &sInput, 0);
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         switch (strInputKey[0])
@@ -1290,6 +1326,7 @@ u32 jf_clieng_outputRawLine2(const olchar_t * line)
     sLength = ol_strlen(line);
 
     u32Ret = _postOutput(pici, cot_text, line, sLength);
+
     if (u32Ret == JF_ERR_NO_ERROR)
         _postOutput(pici, cot_text, pici->ici_strNewLine, pici->ici_sNewLine);
 
@@ -1393,8 +1430,9 @@ u32 jf_clieng_printHeader(const jf_clieng_caption_t * pjcc, u32 u32Count)
     olchar_t strCaption[JF_CLIENG_MAX_OUTPUT_LINE_LEN + 8];
     olchar_t * pstrDelimit;
 
-    /* check the totol length of the caption */
+    /*Check the totol length of the caption.*/
     u32Ret = _checkCaption(pjcc, u32Count);
+
     if(u32Ret == JF_ERR_NO_ERROR)
     {
         strCaption[0] = '\0';
@@ -1415,21 +1453,21 @@ u32 jf_clieng_printHeader(const jf_clieng_caption_t * pjcc, u32 u32Count)
     return u32Ret;
 }
 
-u32 jf_clieng_printHeaderShift4(
-    const jf_clieng_caption_t * pjcc, u32 u32Count)
+u32 jf_clieng_printHeaderShift4(const jf_clieng_caption_t * pjcc, u32 u32Count)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    u32 u32Index, u32Len;
+    u32 u32Index = 0, u32Len = 0;
     olchar_t strCaption[JF_CLIENG_MAX_OUTPUT_LINE_LEN + 8];
-    olchar_t * pstrDelimit;
+    olchar_t * pstrDelimit = NULL;
 
-    /* check the totol length of the caption */
+    /*Check the totol length of the caption.*/
     u32Ret = _checkCaption(pjcc, u32Count);
+
     if(u32Ret == JF_ERR_NO_ERROR)
     {
         strCaption[0] = '\0';
         u32Len = 0;
-        for (u32Index=0; u32Index<u32Count; u32Index++)
+        for (u32Index = 0; u32Index < u32Count; u32Index++)
         {
             ol_strcat(strCaption, pjcc[u32Index].jcc_pstrCaption);
             u32Len += pjcc[u32Index].jcc_u32Len;
@@ -1457,7 +1495,7 @@ u32 jf_clieng_printOneFullLine(
     ol_strcat(strLine, cls_pstrCaptionDelimit);
     ol_strcat(strLine, pstrValue);
 
-    /* output */
+    /*Output line.*/
     u32Ret = outputLine("%s", strLine);
 
     return u32Ret;
@@ -1472,7 +1510,7 @@ u32 jf_clieng_printTwoHalfLine(
 
     strLine[0] = '\0';
 
-    /* left half */
+    /*Left half.*/
     ol_strcat(strLine, pjcc[0].jcc_pstrCaption);
     ol_strcat(strLine, cls_pstrCaptionDelimit);
     u32Len = ol_strlen(strLine);
@@ -1480,14 +1518,14 @@ u32 jf_clieng_printTwoHalfLine(
     u32Len = ol_strlen(strLine);
     ol_strcat(strLine, getDelimit(u32Len, pjcc[0].jcc_u32Len));
 
-    /* right half */
+    /*Right half.*/
     ol_strcat(strLine, pjcc[1].jcc_pstrCaption);
     ol_strcat(strLine, cls_pstrCaptionDelimit);
     u32Len = pjcc[1].jcc_u32Len - ol_strlen(pjcc[1].jcc_pstrCaption) -
         ol_strlen(cls_pstrCaptionDelimit);
     strncat(strLine, pstrRight, u32Len);
 
-    /* output */
+    /*Output line.*/
     u32Ret = outputLine("%s", strLine);
 
     return u32Ret;
@@ -1498,15 +1536,16 @@ void jf_clieng_appendBriefColumn(
 {
     u32 u32Len = ol_strlen(pstrColumn);
 
-    if (u32Len > (pjcc->jcc_u32Len-1))
+    if (u32Len > (pjcc->jcc_u32Len - 1))
     {
+        /*Length of the column is larger than expected and is truncated.*/
         u32Len = pjcc->jcc_u32Len - 1;
     }
-    strncat(pstrLine, pstrColumn, u32Len);
+    /*Copy column to the line buffer.*/
+    ol_strncat(pstrLine, pstrColumn, u32Len);
 
+    /*Copy delimit.*/
     ol_strcat(pstrLine, getDelimit(u32Len, pjcc->jcc_u32Len));
 }
 
 /*------------------------------------------------------------------------------------------------*/
-
-

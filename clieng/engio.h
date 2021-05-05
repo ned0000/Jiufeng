@@ -19,13 +19,14 @@
 
 #include "jf_basic.h"
 #include "jf_clieng.h"
-#include "jf_string.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
 
 /* --- data structures -------------------------------------------------------------------------- */
 
+/** Define the clieng io key.
+ */
 typedef enum
 {
     cik_unknown = 0,
@@ -62,6 +63,8 @@ typedef enum
     cik_f12,
 } clieng_io_key_t;
 
+/** Define the input type.
+ */
 typedef enum
 {
     cit_unknown = 0,
@@ -72,12 +75,16 @@ typedef enum
     cit_anykey,
 } clieng_input_type_t;
 
+/** Define the navigation command for command history.
+ */
 typedef enum
 {
     cnc_nextCommand = 1,
     cnc_previousCommand,
 } clieng_navigation_command_t;
 
+/** Define the output type.
+ */
 typedef enum
 {
     cot_unknown = 0,
@@ -85,20 +92,27 @@ typedef enum
     cot_navigation,
 } clieng_output_type_t;
 
+/** Define the get tty type.
+ */
 typedef enum
 {
     cgt_baudRate = 1,
     cgt_flowControl,
 } clieng_gettty_type_t;
 
+/** Define the set tty type.
+ */
 typedef enum
 {
     cst_baudRate = 1,
     cst_flowControl,
 } clieng_settty_type_t;
 
+/** Define the parameters for initializing io module.
+ */
 typedef struct
 {
+    /**New line string.*/
     olchar_t * cip_pstrNewLine;
     jf_filestream_t * cip_pjfOutput;
     u32 cip_u32Reserved[4];
@@ -108,96 +122,118 @@ typedef struct
 
 /** Create the CLI input and output module.
  *
- *  @param pciop [in] the parameters to the input & output module
+ *  @param pciop [in] The parameters to the input & output module.
  *
- *  @return the error code
+ *  @return The error code.
  */
 u32 initCliengIo(clieng_io_param_t * pciop);
 
 /** Destroy the input and output module.
  *
- *  @return the error code
+ *  @return The error code.
  */
 u32 finiCliengIo(void);
 
 /** Get the specified input.
  *
- *  @param pcitInputType [in/out] as in, the desired input type. If it is
- *   cit_unknown, it means any type; as out, it is the returned input type.
+ *  @param pcitInputType [in/out] as in, the desired input type. If it is cit_unknown, it means any
+ *   type; as out, it is the returned input type.
  *  @param pstrInputBuf [out] the buffer for the input to be returned.
- *  @param psInputBuf [in/out] as in, it is the size of the input buffer;
- *   as out, it it the length of the input data.
- *  @param sPrompt [in] prompt length
+ *  @param psInputBuf [in/out] As in, it is the size of the input buffer; As out, it it the length
+ *   of the input data.
+ *  @param sPrompt [in] Prompt length.
  *
- *  @return the error code
+ *  @return The error code.
  */
 u32 engioInput(
-    clieng_input_type_t * pcitInputType,
-    olchar_t * pstrInputBuf, olsize_t * psInputBuf, olsize_t sPrompt);
+    clieng_input_type_t * pcitInputType, olchar_t * pstrInputBuf, olsize_t * psInputBuf,
+    olsize_t sPrompt);
 
-/** Output the data and a new line
+/** Output the data and a new line.
  *
- *  @param fmt [in] the format in which the data is to be output.
- *  @param ap [in] the parameters
+ *  @param fmt [in] The format in which the data is to be output.
+ *  @param ap [in] The parameters.
  *
- *  @return the error code
+ *  @return The error code.
  */
 u32 voutputLine(const olchar_t * fmt, va_list ap);
 
+/** Output the data and a new line.
+ *
+ *  @param fmt [in] The format in which the data is to be output.
+ *  @param ... [in] The parameters.
+ *
+ *  @return The error code.
+ */
 u32 outputLine(const olchar_t * fmt, ...);
 
-/** Output the data
+/** Output the data.
  *
- *  @param fmt [in] the format in which the data is to be output.
+ *  @param fmt [in] The format in which the data is to be output.
  *
- ×  @return the error code
+ ×  @return The error code.
  */
 u32 engioOutput(const olchar_t * fmt, ...);
 
-/** Output a paragraph, substitute the '\n' with the new line
+/** Output a paragraph, substitute the '\n' with the new line.
  *
- *  @param pstrParagraph [in] the paragraph to be output.
+ *  @param pstrParagraph [in] The paragraph to be output.
  *
- ×  @return the error code
+ ×  @return The error code.
  */
 u32 outputParagraph(const olchar_t * pstrParagraph);
 
-/** Switch on/off the special delimit
+/** Switch on/off the special delimit.
  *
- *  @param bSwitchOn [in] TRUE means to switch it on; FALSE means to switch it
- *   off.
+ *  @param bSwitchOn [in] TRUE means to switch it on; FALSE means to switch it off.
  *
- ×  @return the error code
+ ×  @return The error code.
  */
 u32 switchSpecialDelimit(boolean_t bSwitchOn);
 
-/** Get the string of EOL (End of Line)
+/** Get the string of EOL (End of Line).
  *
- ×  @return the error code
+ ×  @return The error code.
  */
-char * getEOL(void);
+olchar_t * getEOL(void);
 
-/** Get the string of delimit. When the special delimit is turned on, this
- *  function returns the string of the special delimit regardless of the desired
- *  total length, otherwise, it returns string of blank spaces. The number of
- *  blank spaces will depends on the desired total length. If the specified
- *  string is already longer than the total length, only one blank space will be
- *  returned.
+/** Get the string of delimit.
  *
- *  @param sStr [in] the length of the string that needs delimit.
- *  @param sTotal [in] the desired total length of the string and the delimit
+ *  @note
+ *  -# When the special delimit is turned on, this function returns the string of the special
+ *   delimit regardless of the desired total length (it means the colume is not aligned);
+ *   otherwise, it returns string of blank spaces.
+ *  -# The number of blank spaces depends on the desired total length. If the specified string
+ *   is already longer than the total length, only one blank space will be returned.
  *
- ×  @return the error code
+ *  @param sStr [in] The length of the string that needs delimit.
+ *  @param sTotal [in] The desired total length of the string and the delimit.
+ *
+ ×  @return The error code.
  */
-char * getDelimit(const olsize_t sStr, olsize_t sTotal);
+olchar_t * getDelimit(const olsize_t sStr, olsize_t sTotal);
 
+/** Enable 'more' command.
+ *
+ *  @return Void.
+ */
 void setMoreEnable(void);
+
+/** Disable 'more' command.
+ *
+ *  @return Void.
+ */
 void setMoreDisable(void);
 
+/** Get a key from user.
+ *
+ *  @param pcikKey [out] The key from user.
+ *  @param pstrKey [out] The key in char if it's unknown.
+ *
+ ×  @return The error code.
+ */
 u32 getInputKey(clieng_io_key_t * pcikKey, olchar_t * pstrKey);
 
 #endif /*CLIENG_IO_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-

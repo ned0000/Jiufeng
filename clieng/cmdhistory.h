@@ -14,13 +14,18 @@
 
 /* --- standard C lib header files -------------------------------------------------------------- */
 
+
 /* --- internal header files -------------------------------------------------------------------- */
+
 #include "jf_basic.h"
 
 /* --- constant definitions --------------------------------------------------------------------- */
 
+
 /* --- data structures -------------------------------------------------------------------------- */
 
+/** Define the parameters for initializing the command history module.
+ */
 typedef struct
 {
     /**Max number of characters for one command.*/
@@ -82,6 +87,3 @@ u32 getNextCommand(olchar_t * pstrCmdBuf, olsize_t sBuf);
 #endif /*CLIENG_CMDHISTORY_H*/
 
 /*------------------------------------------------------------------------------------------------*/
-
-
-

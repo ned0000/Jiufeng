@@ -22,10 +22,15 @@
 
 /* --- private data/data structure section ------------------------------------------------------ */
 
+/** Define the invalid command index.
+ */
 #define INVALID_CMD_INDEX                (0xffffffff)
 
+/** Define the internal command history data type.
+ */
 typedef struct
 {
+    /**Command history module is initialized if it's TRUE.*/
     boolean_t icch_bInitialized;
     u8 icch_u8Reserved[7];
 
@@ -34,18 +39,22 @@ typedef struct
     /**The size of the command history buffer. It's the number of commands.*/
 	olsize_t icch_sCmdHistroyBuf;
 
+    /**Current command index for navigation.*/
 	olindex_t icch_iCurrentCmd;
+    /**First available command index.*/
 	olindex_t icch_iFirstCmd;
+    /**Last available command index.*/
 	olindex_t icch_iLastCmd;
 
-    /**Command history.*/
+    /**Command history buffer.*/
 	olchar_t * icch_strCommands;
 } internal_clieng_cmd_history_t;
 
+/** Declare the internal command history object.
+ */
 static internal_clieng_cmd_history_t ls_icchCmdHistory;
 
 /* --- private routine section ------------------------------------------------------------------ */
-
 
 
 /* --- public routine section ------------------------------------------------------------------- */
@@ -61,6 +70,7 @@ u32 initCommandHistory(clieng_cmd_history_param_t * pcchp)
     JF_LOGGER_INFO(
         "sMaxCmdLine: %d, sCmdHistroyBuf: %d", pcchp->cchp_sMaxCmdLine, pcchp->cchp_sCmdHistroyBuf);
         
+    /*Initialize the command history.*/
     ol_bzero(picch, sizeof(*picch));
 
     picch->icch_sMaxCmdLine = pcchp->cchp_sMaxCmdLine;
@@ -71,6 +81,7 @@ u32 initCommandHistory(clieng_cmd_history_param_t * pcchp)
 
     size = pcchp->cchp_sCmdHistroyBuf * (pcchp->cchp_sMaxCmdLine + 1);
 
+    /*Allocate buffer to save command.*/
     u32Ret = jf_jiukun_allocMemory((void **)&picch->icch_strCommands, size);
 
     if (u32Ret == JF_ERR_NO_ERROR)
@@ -86,7 +97,7 @@ u32 finiCommandHistory(void)
     u32 u32Ret = JF_ERR_NO_ERROR;
     internal_clieng_cmd_history_t * picch = &ls_icchCmdHistory;
  
-    JF_LOGGER_INFO("destroy");
+    JF_LOGGER_INFO("fini");
             
     if (picch->icch_strCommands != NULL)
         jf_jiukun_freeMemory((void **)&picch->icch_strCommands);
@@ -123,14 +134,14 @@ u32 appendCommand(olchar_t * pstrCmd)
         
     length = ol_strlen(pstrCmd);
     if (length > picch->icch_sMaxCmdLine)
-    {
         u32Ret = JF_ERR_CMD_TOO_LONG;
-    }
-    else
+
+    if (u32Ret == JF_ERR_NO_ERROR)
     {
         /*Adjust the indexes.*/
         if (picch->icch_iLastCmd == INVALID_CMD_INDEX)
         {
+            /*No command in buffer.*/
             picch->icch_iLastCmd = 0;
             picch->icch_iFirstCmd = 0;
         }
@@ -168,31 +179,36 @@ u32 getPreviousCommand(olchar_t * pstrCmdBuf, olsize_t sBuf)
 
     if (picch->icch_iLastCmd == INVALID_CMD_INDEX)
     {
+        /*No command in history buffer.*/
         pstrCmdBuf[0] = 0;
     }
     else
     {
         if (picch->icch_iCurrentCmd > 0)
         {
+            /*Current index is not pointing to the start of history buffer.*/
             previous = picch->icch_iCurrentCmd - 1;
         }
         else
         {
-            if (picch->icch_iFirstCmd == 0)
+            /*Current index is at the start of history buffer.*/
+            if (picch->icch_iFirstCmd == 0) /*Buffer is not full, use last index.*/
                 previous = picch->icch_iLastCmd;
-            else
+            else /*Buffer is full, move to the end of history buffer.*/
                 previous = picch->icch_sCmdHistroyBuf - 1;
         }
-            
+
         pstrPreviousCmd = picch->icch_strCommands + (picch->icch_sMaxCmdLine + 1) * previous;
         length = ol_strlen(pstrPreviousCmd);
             
         if ((length + 1) > sBuf)
         {
+            /*User's buffer is too small.*/
             u32Ret = JF_ERR_BUFFER_TOO_SMALL;
         }
         else
         {
+            /*Copy the saved command and set the current index.*/
             ol_strcpy(pstrCmdBuf, pstrPreviousCmd);
             picch->icch_iCurrentCmd = previous;
         }
@@ -228,13 +244,16 @@ u32 getNextCommand(olchar_t * pstrCmdBuf, olsize_t sBuf)
         {
             next = (picch->icch_iCurrentCmd + 1) % picch->icch_sCmdHistroyBuf;
             pstrNextCmd = picch->icch_strCommands + (picch->icch_sMaxCmdLine + 1) * next;
+
             length = ol_strlen(pstrNextCmd);
             if ((length + 1) > sBuf)
             {
+                /*User's buffer is too small.*/
                 u32Ret = JF_ERR_BUFFER_TOO_SMALL;
             }
             else
             {
+                /*Copy the saved command and set the current index.*/
                 ol_strcpy(pstrCmdBuf, pstrNextCmd);
                 picch->icch_iCurrentCmd = next;
             }
