@@ -1166,9 +1166,9 @@ void setMoreDisable(void)
 u32 getInputKey(clieng_io_key_t * pcikKey, olchar_t * pstrKey)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olsize_t sInput;
     clieng_input_type_t citInputType = cit_anykey;
     olchar_t strInputKey[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
+    olsize_t sInput = JF_CLIENG_MAX_OUTPUT_LINE_LEN;
 
     u32Ret = engioInput(&citInputType, strInputKey, &sInput, 0);
 
