@@ -15,7 +15,7 @@
 /* --- internal header files -------------------------------------------------------------------- */
 
 #include "jf_basic.h"
-#include "jf_limit.h"
+#include "jf_string.h"
 #include "jf_err.h"
 #include "jf_clieng.h"
 #include "jf_jiukun.h"
@@ -40,14 +40,17 @@ static const olchar_t * ls_pstrCliBuildData = "2/30/2018";
 static void _printCliUsage(void)
 {
     ol_printf("\
-Usage: %s [-h] [logger options] \n\
-    -h print the usage.\n\
-logger options:\n\
-    -T <0|1|2|3|4|5> the log level. 0: no log, 1: error, 2: warn, 3: info, 4: debug, 5: data.\n\
-    -O output the log to stdout.\n\
-    -F <log file> output the log to file.\n\
-    -S <log file size> the size of log file. No limit if not specified.\n",
-           ls_strCliProgramName);
+Usage: %s [-s command] [-o output-file] [-h] [logger options] \n\
+  -s: specify the input command for script engine.\n\
+  -o: specify the file to save output for script engine. By default, the output is written to\n\
+      stdout.\n\
+  -h: print the usage.\n\
+logger options: [-T <0|1|2|3|4|5>] [-O] [-F log file] [-S log file size] \n\
+  -T: the log level. 0: no log, 1: error, 2: warn, 3: info, 4: debug, 5: data.\n\
+  -O: output the log to stdout.\n\
+  -F: output the log to file.\n\
+  -S: the size of log file. No limit if not specified.\n",
+              ls_strCliProgramName);
 
     ol_printf("\n");
 }
@@ -56,13 +59,22 @@ static u32 _parseCliCmdLineParam(
     olint_t argc, olchar_t ** argv, jf_clieng_init_param_t * pjcip, jf_logger_init_param_t * pjlip)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-    olint_t nOpt;
+    olint_t nOpt = 0;
 
-    while ((u32Ret == JF_ERR_NO_ERROR) && ((nOpt = jf_option_get(argc, argv, "T:F:S:Oh")) != -1))
+    while ((u32Ret == JF_ERR_NO_ERROR) &&
+           ((nOpt = jf_option_get(argc, argv, "s:o:T:F:S:Oh")) != -1))
 
     {
         switch (nOpt)
         {
+        case 's':
+            pjcip->jcip_bEnableScriptEngine = TRUE;
+            ol_strncpy(pjcip->jcip_strInputCmd, jf_option_getArg(), JF_CLIENG_MAX_COMMAND_LINE_LEN);
+            pjcip->jcip_strInputCmd[JF_CLIENG_MAX_COMMAND_LINE_LEN - 1] = JF_STRING_NULL_CHAR;
+            break;
+        case 'o':
+            pjcip->jcip_pstrOutputFile = jf_option_getArg();
+            break;
         case '?':
         case 'h':
             _printCliUsage();
@@ -137,7 +149,7 @@ olint_t main(olint_t argc, olchar_t ** argv)
 
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "JF_CLI";
-    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_DEBUG;
+    jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_INFO;
 
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
@@ -162,6 +174,14 @@ olint_t main(olint_t argc, olchar_t ** argv)
         }
 
         jf_logger_fini();
+    }
+
+    if (u32Ret != JF_ERR_NO_ERROR)
+    {
+        olchar_t strErrMsg[300];
+
+        jf_err_readDescription(u32Ret, strErrMsg, sizeof(strErrMsg));
+        ol_printf("%s\n", strErrMsg);
     }
 
     return u32Ret;

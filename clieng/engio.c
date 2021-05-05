@@ -23,6 +23,7 @@
 #include "jf_err.h"
 #include "jf_logger.h"
 #include "jf_hex.h"
+#include "jf_filestream.h"
 
 #include "engio.h"
 
@@ -92,6 +93,8 @@ typedef struct
     /**'more' should be canceled.*/
 	boolean_t ici_bMoreCancel;
     u8 ici_u8Reserved2[1];
+    /**File for saving output. By default, the output is written to stdout.*/
+    olchar_t * ici_pstrOutputFile;
     /**File stream for saving output.*/
     jf_filestream_t * ici_pjfOutput;
 } internal_clieng_io_t;
@@ -792,6 +795,31 @@ static u32 _outputLineInEngIo(internal_clieng_io_t * pici, olchar_t * pstrOutput
     return u32Ret;
 }
 
+static u32 _openOutputForEngIo(internal_clieng_io_t * pici, clieng_io_param_t * pcip)
+{
+    u32 u32Ret = JF_ERR_NO_ERROR;
+
+    if (pcip->cip_pstrOutputFile == NULL)
+        u32Ret = JF_ERR_INVALID_PARAM;
+
+    if (u32Ret == JF_ERR_NO_ERROR)
+        /*Use append mode, incase script engine is enabled.*/
+        u32Ret = jf_filestream_open(pcip->cip_pstrOutputFile, "a", &pici->ici_pjfOutput);
+
+    /*Save the output file name.*/
+    if (u32Ret == JF_ERR_NO_ERROR)
+        pici->ici_pstrOutputFile = pcip->cip_pstrOutputFile;
+
+    /*Use stdout incase error.*/
+    if (u32Ret != JF_ERR_NO_ERROR)
+    {
+        pici->ici_pjfOutput = stdout;
+        u32Ret = JF_ERR_NO_ERROR;
+    }
+
+    return u32Ret;
+}
+
 /* --- public routine section ------------------------------------------------------------------- */
 
 u32 initCliengIo(clieng_io_param_t * pcip)
@@ -814,13 +842,16 @@ u32 initCliengIo(clieng_io_param_t * pcip)
     pici->ici_sNewLine = ol_strlen(pici->ici_strNewLine);
     ol_memset(pici->ici_strBlankSpaces, ' ', JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1);
     pici->ici_strBlankSpaces[JF_CLIENG_MAX_OUTPUT_LINE_LEN - 1] = '\0';
-    pici->ici_pjfOutput = (pcip->cip_pjfOutput == NULL) ? stdout : pcip->cip_pjfOutput;
 
     setMoreDisable();
 
 #ifndef WINDOWS
     u32Ret = _switchToRawMode(nTTY);
 #endif
+
+    /*Open output stream.*/
+    if (u32Ret == JF_ERR_NO_ERROR)
+        u32Ret = _openOutputForEngIo(pici, pcip);
 
     if (u32Ret == JF_ERR_NO_ERROR)
         pici->ici_bInitialized = TRUE;
@@ -842,6 +873,10 @@ u32 finiCliengIo(void)
 #ifndef WINDOWS
     _switchToCanonMode(nTTY);
 #endif
+
+    /*Close the output stream.*/
+    if (pici->ici_pstrOutputFile != NULL)
+        jf_filestream_close(&pici->ici_pjfOutput);
 
     pici->ici_bInitialized = FALSE;
 
@@ -1125,9 +1160,6 @@ void setMoreDisable(void)
     
 }
 
-/** Get a key from user
- *
- */
 u32 getInputKey(clieng_io_key_t * pcikKey, olchar_t * pstrKey)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;

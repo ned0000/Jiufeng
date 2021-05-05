@@ -114,7 +114,8 @@ typedef struct
 {
     /**New line string.*/
     olchar_t * cip_pstrNewLine;
-    jf_filestream_t * cip_pjfOutput;
+    /**File for saving output. By default, the output is written to stdout.*/
+    olchar_t * cip_pstrOutputFile;
     u32 cip_u32Reserved[4];
 } clieng_io_param_t;
 

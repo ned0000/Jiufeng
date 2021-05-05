@@ -21,7 +21,6 @@
 #include "jf_basic.h"
 #include "jf_limit.h"
 #include "jf_err.h"
-#include "jf_filestream.h"
 
 #undef CLIENGAPI
 #undef CLIENGCALL
@@ -118,13 +117,15 @@ typedef struct
     olchar_t * jcip_pstrNewLine;
     /**Maximum number of command set.*/
     u32 jcip_u32MaxCmdSet;
-    /**File stream for saving output.*/
-    jf_filestream_t * jcip_pjfOutput;
+
     /**Enable script engine if it's TRUE.*/
     boolean_t jcip_bEnableScriptEngine;
     u8 jcip_u8Reserved[7];
-    /**The command script engine.*/
-    olchar_t  jcip_strInputCmd[JF_CLIENG_MAX_COMMAND_LINE_LEN];
+    /**The command to be executed when script engine is enabled.*/
+    olchar_t jcip_strInputCmd[JF_CLIENG_MAX_COMMAND_LINE_LEN];
+    /**File for saving output when script engine is enabled. By default, the output is written to
+       stdout.*/
+    olchar_t * jcip_pstrOutputFile;
 } jf_clieng_init_param_t;
 
 /** Define the CLI caption data type.

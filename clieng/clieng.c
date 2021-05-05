@@ -78,8 +78,12 @@ static u32 _initCliengIo(
     u32 u32Ret = JF_ERR_NO_ERROR;
     clieng_io_param_t param;
     
+    /*Clear the output file if script engine is not enabled.*/
+    if (! pjcip->jcip_bEnableScriptEngine)
+        pjcip->jcip_pstrOutputFile = NULL;
+
     param.cip_pstrNewLine = pjcip->jcip_pstrNewLine;
-    param.cip_pjfOutput = pjcip->jcip_pjfOutput;
+    param.cip_pstrOutputFile = pjcip->jcip_pstrOutputFile;
 
     u32Ret = initCliengIo(&param);
 
