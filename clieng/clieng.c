@@ -313,7 +313,7 @@ u32 jf_clieng_stop(void)
 u32 jf_clieng_fini(void)
 {
     u32 u32Ret = JF_ERR_NO_ERROR;
-//    internal_clieng_t * pic = &ls_icClieng;
+    internal_clieng_t * pic = &ls_icClieng;
     
     JF_LOGGER_INFO("fini");
 
@@ -322,6 +322,8 @@ u32 jf_clieng_fini(void)
     finiCliengIo();
 
     finiCommandHistory();
+
+    pic->ic_bInitialized = FALSE;
 
     return u32Ret;
 }
