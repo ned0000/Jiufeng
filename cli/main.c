@@ -119,18 +119,22 @@ static u32 _initAndRunJfCliEngine(
     u32 u32Ret = JF_ERR_NO_ERROR;
     cli_param_t cliParam;
 
+    /*Initialize the cli engine.*/
     u32Ret = jf_clieng_init(pjcip);
 
+    /*Add cli commands.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = addCmd(pjcmCliEngine, &cliParam);
     }
 
+    /*Run cli engine.*/
     if (u32Ret == JF_ERR_NO_ERROR)
     {
         u32Ret = jf_clieng_run();
     }
 
+    /*Finalize the cli engine.*/
     jf_clieng_fini();
 
     return u32Ret;
@@ -145,34 +149,46 @@ olint_t main(olint_t argc, olchar_t ** argv)
     jf_logger_init_param_t jlipParam;
     jf_jiukun_init_param_t jjip;
 
+    /*Get programe name of the utility.*/
     jf_file_getFileName(ls_strCliProgramName, sizeof(ls_strCliProgramName), argv[0]);
 
+    /*Initialize the parameter for logger library.*/
     ol_bzero(&jlipParam, sizeof(jlipParam));
     jlipParam.jlip_pstrCallerName = "JF_CLI";
     jlipParam.jlip_u8TraceLevel = JF_LOGGER_TRACE_LEVEL_INFO;
 
+    /*Initialize the parameter for jiukun library.*/
     ol_bzero(&jjip, sizeof(jjip));
     jjip.jjip_sPool = JF_JIUKUN_MAX_POOL_SIZE;
 
+    /*Initialize the parameter for cli engine.*/
     ol_bzero(&jcip, sizeof(jcip));
     ol_strcpy(jcip.jcip_strCliName, "Jiufeng CLI");
     jcip.jcip_pstrNewLine = "\n";
     jcip.jcip_pMaster = &ls_jcmCliMaster;
     jcip.jcip_fnPrintGreeting = _printShellGreeting;
 
+    /*Parse the parameter.*/
     u32Ret = _parseCliCmdLineParam(argc, argv, &jcip, &jlipParam);
+
     if (u32Ret == JF_ERR_NO_ERROR)
     {
+        /*Initialize the logger library.*/
         jf_logger_init(&jlipParam);
 
+        /*Initialize jiukun library for memory allocation.*/
         u32Ret = jf_jiukun_init(&jjip);
+
         if (u32Ret == JF_ERR_NO_ERROR)
         {
+            /*Initialize and run cli engine.*/
             u32Ret = _initAndRunJfCliEngine(&ls_jcmCliMaster, &jcip);
 
+            /*Finalize jiukun library.*/
             jf_jiukun_fini();
         }
 
+        /*Finalize the logger library.*/
         jf_logger_fini();
     }
 
