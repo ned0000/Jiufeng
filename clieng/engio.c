@@ -67,32 +67,35 @@ typedef struct
 {
     /**Clieng io module is initialized if it's TRUE.*/
     boolean_t ici_bInitialized;
-    u8 ici_u8Reserved[7];
-    /**The default delimiter is ";".*/
-	olchar_t ici_strSpecialDelimit[8];
+    u8 ici_u8Reserved[6];
+
+    /**Special delimit is enabled if it's TRUE. By default it is off, blank spaces are used for
+       delimit; when it is on, a semi-column is used. The delimit is used in
+       jf_clieng_printTwoHalfLine() and etc.*/
+    boolean_t ici_bSpecialDelimit;
+    /**The default delimit is ";".*/
+    olchar_t ici_strSpecialDelimit[8];
 
     /**New line.*/
-	olchar_t ici_strNewLine[8];
+    olchar_t ici_strNewLine[8];
     /**Size of new line.*/
     olsize_t ici_sNewLine;
 
     /**The line with all blank apaces.*/
-	olchar_t ici_strBlankSpaces[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
+    olchar_t ici_strBlankSpaces[JF_CLIENG_MAX_OUTPUT_LINE_LEN];
 
     /**Output buffer.*/
     olchar_t ici_strOutputBuffer[JF_CLIENG_MAX_OUTPUT_BUFFER_SIZE];
 
     /**Number of lines for 'more' command.*/
-	u8 ici_u8MoreLines;
-    u8 ici_u8Reserved4[3];
-    /**Special delimit is enabled if it's TRUE. By default it is off, blank spaces are used for
-       delimit; when it is on, a semi-column is used.*/
-	boolean_t ici_bSpecialDelimit;
+    u8 ici_u8MoreLines;
+    u8 ici_u8Reserved2[3];
     /**'more' command is enabled.*/
-	boolean_t ici_bMoreEnabled;
+    boolean_t ici_bMoreEnabled;
     /**'more' should be canceled.*/
-	boolean_t ici_bMoreCancel;
-    u8 ici_u8Reserved2[1];
+    boolean_t ici_bMoreCancel;
+    u8 ici_u8Reserved3[2];
+
     /**File for saving output. By default, the output is written to stdout.*/
     olchar_t * ici_pstrOutputFile;
     /**File stream for saving output.*/
@@ -1041,7 +1044,7 @@ u32 outputParagraph(const olchar_t * pstrParagraph)
             {
                 length = ol_strlen(pu8MoreStringBegin);
             }
-				
+
             if (length > JF_CLIENG_MAX_OUTPUT_LINE_LEN)
             {
                 u32Ret = JF_ERR_LINE_TOO_LONG;
