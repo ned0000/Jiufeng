@@ -186,9 +186,9 @@ static u32 _getHostVersion(jf_host_info_t * pjhi)
     nRet = uname(&name);
     if (nRet == 0)
     {
-        ol_sprintf(pjhi->jhi_strHostName, "%s", name.nodename);
-        ol_sprintf(
-            pjhi->jhi_strOSName, "%s %s %s",
+        ol_snprintf(pjhi->jhi_strHostName, JF_HOST_MAX_HOST_NAME_LEN, "%s", name.nodename);
+        ol_snprintf(
+            pjhi->jhi_strOSName, JF_HOST_MAX_HOST_NAME_LEN, "%s %s %s",
             name.sysname, name.release, name.machine);
     }
     else

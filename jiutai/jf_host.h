@@ -40,7 +40,7 @@
 
 /** Maximum host name length.
  */
-#define JF_HOST_MAX_HOST_NAME_LEN                   (32)
+#define JF_HOST_MAX_HOST_NAME_LEN                   (64)
 
 /** Maximum OS name length.
  */
@@ -64,7 +64,7 @@ typedef struct
 typedef struct
 {
     /**The host name.*/
-    olchar_t jhi_strHostName[JF_HOST_MAX_HOST_NAME_LEN];	
+    olchar_t jhi_strHostName[JF_HOST_MAX_HOST_NAME_LEN];
     /**The OS name.*/
     olchar_t jhi_strOSName[JF_HOST_MAX_OS_NAME_LEN];
     u8 jhi_u8Reserved[256];
