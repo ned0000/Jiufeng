@@ -31,7 +31,7 @@
 
 /** Get string of service status.
  *
- *  @param u8Reason [in] The status.
+ *  @param u8Status [in] The status.
  *
  *  @return The string of service status.
  */

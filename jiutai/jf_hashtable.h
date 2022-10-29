@@ -107,7 +107,7 @@ typedef struct
 /** Define the hash table iterator.
  *
  *  @note
- *  -#The definition of this structure is placed here because it should be possible to allocate an
+ *  -# The definition of this structure is placed here because it should be possible to allocate an
  *   iterator as an automatic variable. This is also more convenient for the user.
  */
 typedef struct
