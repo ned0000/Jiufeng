@@ -36,7 +36,7 @@ endif
 CXXFLAGS = $(CFLAGS)
 
 # Link flags.
-LDFLAGS = -Wl,-rpath $(LIB_DIR)
+LDFLAGS =
 
 # Directory for binary, library and config files.
 JIUTAI_DIR = $(TOPDIR)/jiutai
