@@ -113,11 +113,12 @@ $(BIN_DIR)/hex-test: hex-test.o $(JIUTAI_DIR)/jf_hex.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger
 
 $(BIN_DIR)/bitarray-test: bitarray-test.o $(JIUTAI_DIR)/jf_option.o
-	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_string
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_string \
+       -ljf_jiukun
 
 $(BIN_DIR)/conffile-test: conffile-test.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_files \
-       -ljf_jiukun
+       -ljf_string -ljf_jiukun
 
 $(BIN_DIR)/menu-test: menu-test.o $(JIUTAI_DIR)/jf_menu.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_string -ljf_jiukun \
@@ -134,7 +135,7 @@ $(BIN_DIR)/array-test: array-test.o $(JIUTAI_DIR)/jf_array.o $(JIUTAI_DIR)/jf_op
 
 $(BIN_DIR)/sharedmemory-test-worker: sharedmemory-test-worker.o $(JIUTAI_DIR)/jf_sharedmemory.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun \
-       -ljf_uuid
+       -ljf_uuid -ljf_cghash -ljf_ifmgmt -ljf_prng -ljf_files -ljf_string
 
 $(BIN_DIR)/sharedmemory-test-consumer: sharedmemory-test-consumer.o $(JIUTAI_DIR)/jf_sharedmemory.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun \
@@ -142,22 +143,22 @@ $(BIN_DIR)/sharedmemory-test-consumer: sharedmemory-test-consumer.o $(JIUTAI_DIR
 
 $(BIN_DIR)/ifmgmt-test: ifmgmt-test.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_ifmgmt -ljf_string \
-       -ljf_logger
+       -ljf_logger -ljf_jiukun -ljf_files
 
 $(BIN_DIR)/ipaddr-test: ipaddr-test.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_ifmgmt -ljf_string \
-       -ljf_logger
+       -ljf_logger -ljf_jiukun -ljf_files
 
 $(BIN_DIR)/files-test: files-test.o $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_files \
-       -ljf_string
+       -ljf_string -ljf_jiukun
 
 $(BIN_DIR)/hsm-test: hsm-test.o $(JIUTAI_DIR)/jf_hsm.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun
 
 $(BIN_DIR)/host-test: host-test.o $(JIUTAI_DIR)/jf_host.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_ifmgmt -ljf_string \
-       -ljf_logger
+       -ljf_logger -ljf_files -ljf_jiukun
 
 $(BIN_DIR)/respool-test: respool-test.o $(JIUTAI_DIR)/jf_respool.o $(JIUTAI_DIR)/jf_mutex.o \
        $(JIUTAI_DIR)/jf_array.o $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_sem.o \
@@ -182,58 +183,58 @@ $(BIN_DIR)/cghash-test: cghash-test.o $(JIUTAI_DIR)/jf_option.o $(JIUTAI_DIR)/jf
 
 $(BIN_DIR)/cgmac-test: cgmac-test.o $(JIUTAI_DIR)/jf_option.o $(JIUTAI_DIR)/jf_hex.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_cgmac -ljf_logger \
-       -ljf_string
+       -ljf_string -ljf_cghash
 
 $(BIN_DIR)/encrypt-test: encrypt-test.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_encrypt -ljf_logger \
-       -ljf_string -lssl -lcrypto -ljf_jiukun
+       -ljf_string -lssl -lcrypto -ljf_jiukun -ljf_files
 
 $(BIN_DIR)/prng-test: prng-test.o $(JIUTAI_DIR)/jf_option.o $(JIUTAI_DIR)/jf_hex.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_prng -ljf_logger \
-       -ljf_cghash -ljf_jiukun
+       -ljf_cghash -ljf_jiukun -ljf_files -ljf_string
 
 $(BIN_DIR)/encode-test: encode-test.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_encode -ljf_logger \
-       -ljf_files -ljf_jiukun
+       -ljf_files -ljf_jiukun -ljf_string
 
 $(BIN_DIR)/rand-test: rand-test.o $(JIUTAI_DIR)/jf_rand.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger
 
 $(BIN_DIR)/persistency-test: persistency-test.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -lsqlite3 \
-       -ljf_persistency -lsqlite3 -ljf_jiukun
+       -ljf_persistency -lsqlite3 -ljf_jiukun -ljf_files -ljf_string
 
 $(BIN_DIR)/archive-test: archive-test.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_archive \
-       -ljf_jiukun -ljf_string
+       -ljf_jiukun -ljf_string -ljf_files
 
 $(BIN_DIR)/xmlparser-test: xmlparser-test.o $(JIUTAI_DIR)/jf_option.o $(JIUTAI_DIR)/jf_ptree.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -lm -ljf_xmlparser \
-       -ljf_logger -ljf_jiukun -ljf_string
+       -ljf_logger -ljf_jiukun -ljf_string -ljf_files
 
 $(BIN_DIR)/httpparser-test: httpparser-test.o $(JIUTAI_DIR)/jf_option.o $(JIUTAI_DIR)/jf_hex.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -lm -ljf_httpparser \
-       -ljf_logger -ljf_jiukun
+       -ljf_logger -ljf_jiukun -ljf_string
 
 $(BIN_DIR)/dispatcher-test-bgad: dispatcher-test-bgad.o $(JIUTAI_DIR)/jf_option.o \
        $(JIUTAI_DIR)/jf_time.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -lm -ljf_messaging \
-       -ljf_logger -ljf_jiukun
+       -ljf_logger -ljf_jiukun -ljf_ifmgmt -ljf_files -ljf_network -ljf_dispatcher_xfer -ljf_string
 
 $(BIN_DIR)/configmgr-test: configmgr-test.o $(JIUTAI_DIR)/jf_option.o $(JIUTAI_DIR)/jf_time.o \
        $(JIUTAI_DIR)/jf_time.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -lm -ljf_config \
-       -ljf_logger -ljf_jiukun
+       -ljf_logger -ljf_jiukun -ljf_ifmgmt -ljf_network -ljf_files -ljf_string
 
 $(BIN_DIR)/dispatcher-test-sysctld: dispatcher-test-sysctld.o $(JIUTAI_DIR)/jf_option.o \
        $(JIUTAI_DIR)/jf_time.o $(JIUTAI_DIR)/jf_process.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -lm -ljf_messaging \
-       -ljf_logger -ljf_jiukun
+       -ljf_logger -ljf_jiukun -ljf_ifmgmt -ljf_network -ljf_files -ljf_string -ljf_dispatcher_xfer
 
 $(BIN_DIR)/network-test: network-test.o $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_thread.o \
        $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_network -ljf_string \
-       -ljf_logger -ljf_ifmgmt -ljf_jiukun
+       -ljf_logger -ljf_ifmgmt -ljf_jiukun -ljf_files
 
 $(BIN_DIR)/linklist-test: linklist-test.o $(JIUTAI_DIR)/jf_linklist.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_jiukun
@@ -244,21 +245,21 @@ $(BIN_DIR)/dlinklist-test: dlinklist-test.o $(JIUTAI_DIR)/jf_dlinklist.o $(JIUTA
 $(BIN_DIR)/network-test-server: network-test-server.o $(JIUTAI_DIR)/jf_process.o \
        $(JIUTAI_DIR)/jf_thread.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_network -ljf_logger \
-       -ljf_string -ljf_ifmgmt -ljf_jiukun
+       -ljf_string -ljf_ifmgmt -ljf_jiukun -ljf_files
 
 $(BIN_DIR)/network-test-client: network-test-client.o $(JIUTAI_DIR)/jf_process.o \
        $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_network -ljf_logger \
-       -ljf_ifmgmt -ljf_jiukun
+       -ljf_ifmgmt -ljf_jiukun -ljf_files -ljf_string
 
 $(BIN_DIR)/network-test-client-chain: network-test-client-chain.o $(JIUTAI_DIR)/jf_process.o \
        $(JIUTAI_DIR)/jf_thread.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_network -ljf_logger \
-       -ljf_ifmgmt -ljf_jiukun
+       -ljf_ifmgmt -ljf_jiukun -ljf_files -ljf_string
 
 $(BIN_DIR)/webclient-test: webclient-test.o $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_httpparser \
-       -ljf_network -ljf_webclient -ljf_logger -ljf_files -ljf_ifmgmt -ljf_jiukun
+       -ljf_network -ljf_webclient -ljf_logger -ljf_files -ljf_ifmgmt -ljf_jiukun -ljf_string
 
 $(BIN_DIR)/matrix-test: matrix-test.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_matrix -ljf_logger \
@@ -271,7 +272,7 @@ $(BIN_DIR)/sqlite-test: sqlite-test.o $(JIUTAI_DIR)/jf_sqlite.o $(JIUTAI_DIR)/jf
 
 $(BIN_DIR)/utimer-test: utimer-test.o $(JIUTAI_DIR)/jf_process.o $(JIUTAI_DIR)/jf_thread.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_network -ljf_logger \
-       -ljf_ifmgmt -ljf_jiukun
+       -ljf_ifmgmt -ljf_jiukun -ljf_files -ljf_string
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 

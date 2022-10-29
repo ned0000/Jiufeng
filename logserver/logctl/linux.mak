@@ -16,7 +16,7 @@ SOURCES = ../common/logservercommon.c logctl.c
 
 JIUTAI_SRCS = jf_option.c
 
-EXTRA_LIBS = -ljf_jiukun -ljf_logger -ljf_files
+EXTRA_LIBS = -ljf_jiukun -ljf_logger -ljf_files -ljf_string
 
 EXTRA_INC_DIR = -I../../logger -I../common
 

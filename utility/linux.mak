@@ -27,11 +27,12 @@ EXTRA_INC_DIR =
 all: $(FULL_PROGRAMS)
 
 $(BIN_DIR)/jf_errcode: errcode.o
-	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_string
+	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_string \
+       -ljf_jiukun
 
 $(BIN_DIR)/jf_genuuid: genuuid.o $(JIUTAI_DIR)/jf_time.o $(JIUTAI_DIR)/jf_option.o
 	$(CC) $(LDFLAGS) $(EXTRA_LDFLAGS) -L$(LIB_DIR) $^ -o $@ $(SYSLIBS) -ljf_logger -ljf_uuid \
-       -ljf_prng -ljf_string -ljf_jiukun
+       -ljf_prng -ljf_string -ljf_jiukun -ljf_cghash -ljf_ifmgmt -ljf_files
 
 include $(TOPDIR)/mak/lnxobjbld.mak
 
